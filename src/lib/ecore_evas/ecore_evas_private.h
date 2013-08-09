@@ -112,6 +112,9 @@ struct _Ecore_Evas_Engine_Func
    /* 1.8 abstractions */
    void (*fn_pointer_xy_get) (const Ecore_Evas *ee, Evas_Coord *x, Evas_Coord *y);
    Eina_Bool (*fn_pointer_warp) (const Ecore_Evas *ee, Evas_Coord x, Evas_Coord y);
+
+   void (*fn_wm_rot_preferred_rotation_set) (Ecore_Evas *ee, int rot);
+   void (*fn_wm_rot_available_rotations_set) (Ecore_Evas *ee, const int *rots, unsigned int count);
 };
 
 struct _Ecore_Evas_Interface
@@ -173,6 +176,18 @@ struct _Ecore_Evas
          char       **available_list;
          int          count;
       } profile;
+      struct {
+         Eina_Bool    supported;
+         int          angle;         // v0
+         Eina_Bool    win_resize;    // v0
+         int          w, h;          // v0
+         // added for the window manager rotation protocol
+         Eina_Bool    app_set;       // v1: app wants to communicate with the window manager to rotate
+         int          rot;           // v1: decided rotation by the window manager
+         int          preferred_rot; // v1: app specified rotation
+         int         *available_rots;// v1: app specified available rotations
+         unsigned int count;         // v1: number of elements of available rotations
+      } wm_rot;
       struct {
 	 int          w, h;
       } min,

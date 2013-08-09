@@ -1784,6 +1784,35 @@ EAPI void                             ecore_x_e_window_profile_set(Ecore_X_Windo
  * @deprecated use ecore_x_e_window_available_profiles_set
  */
 EAPI void                             ecore_x_e_window_profile_list_set(Ecore_X_Window  win, const char **profiles, unsigned int num_profiles);
+
+EAPI void ecore_x_e_window_rotation_supported_set(Ecore_X_Window root, Eina_Bool enabled);
+
+EAPI Eina_Bool ecore_x_e_window_rotation_supported_get(Ecore_X_Window root);
+
+EAPI void ecore_x_e_window_rotation_app_set(Ecore_X_Window win, Eina_Bool set);
+
+EAPI Eina_Bool ecore_x_e_window_rotation_app_get(Ecore_X_Window win);
+
+EAPI void ecore_x_e_window_rotation_preferred_rotation_set(Ecore_X_Window win, int rot);
+
+EAPI Eina_Bool ecore_x_e_window_rotation_preferred_rotation_get(Ecore_X_Window win, int *rot);
+
+EAPI void ecore_x_e_window_rotation_available_rotations_set(Ecore_X_Window win, const int *rots, unsigned int count);
+
+EAPI Eina_Bool ecore_x_e_window_rotation_available_rotations_get(Ecore_X_Window  win, int **rots, unsigned int *count);
+
+EAPI void ecore_x_e_window_rotation_change_prepare_send(Ecore_X_Window win, int rot, Eina_Bool resize, int w, int h);
+
+EAPI void ecore_x_e_window_rotation_change_prepare_done_send(Ecore_X_Window root, Ecore_X_Window win, int rot);
+
+EAPI void ecore_x_e_window_rotation_change_request_send(Ecore_X_Window win, int rot);
+
+EAPI void ecore_x_e_window_rotation_change_done_send(Ecore_X_Window root, Ecore_X_Window win, int rot, int w, int h);
+
+EAPI void ecore_x_e_window_rotation_geometry_set(Ecore_X_Window win, int rot, int x, int y, int w, int h);
+
+EAPI Eina_Bool ecore_x_e_window_rotation_geometry_get(Ecore_X_Window win, int rot, int *x, int *y, int *w, int *h);
+
 /**
  * @brief Get the array of window profiles
  *

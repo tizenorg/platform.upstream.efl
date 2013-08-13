@@ -234,14 +234,14 @@ evas_software_xlib_swapbuf_new_region_for_update(Outbuf *buf, int x, int y, int 
 #ifdef EVAS_CSERVE2
              if (evas_cserve2_use_get())
                im = (RGBA_Image *)evas_cache2_image_data(evas_common_image_cache2_get(),
-                                                         bpl / sizeof (int), hh, data,
-                                                         buf->priv.destination_alpha, 
+                                                         ww, hh, data,
+                                                         buf->priv.destination_alpha,
                                                          EVAS_COLORSPACE_ARGB8888);
              else
 #endif
                im = (RGBA_Image *)evas_cache_image_data(evas_common_image_cache_get(),
-                                                        bpl / sizeof (int), hh, data,
-                                                        buf->priv.destination_alpha, 
+                                                        ww, hh, data,
+                                                        buf->priv.destination_alpha,
                                                         EVAS_COLORSPACE_ARGB8888);
              buf->priv.onebuf = im;
              if (!im) return NULL;
@@ -491,7 +491,7 @@ evas_software_xlib_swapbuf_push_updated_region(Outbuf *buf, RGBA_Image *update, 
    if (!src_data) return;
    if ((buf->rot == 0) || (buf->rot == 180))
      {
-        dst_data = evas_xlib_swapper_buffer_map(buf->priv.swapper, &bpl, 
+        dst_data = evas_xlib_swapper_buffer_map(buf->priv.swapper, &bpl,
                                                 &(ww), &(hh));
         if (!dst_data) return;
         if (buf->rot == 0)
@@ -511,7 +511,7 @@ evas_software_xlib_swapbuf_push_updated_region(Outbuf *buf, RGBA_Image *update, 
      }
    else
      {
-        dst_data = evas_xlib_swapper_buffer_map(buf->priv.swapper, &bpl, 
+        dst_data = evas_xlib_swapper_buffer_map(buf->priv.swapper, &bpl,
                                                 &(ww), &(hh));
         if (!dst_data) return;
         if (buf->rot == 90)

@@ -84,6 +84,7 @@ BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  pkgconfig(harfbuzz)
 BuildRequires:  pkgconfig(libdri2)
 BuildRequires:  opengl-es-devel
+BuildRequires:  pkgconfig(libtbm)
 
 #eeze
 BuildRequires:  libudev-devel

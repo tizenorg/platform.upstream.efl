@@ -612,6 +612,10 @@ EFL_SELECT_WINDOWS_VERSION
 
 ### Checks for libraries
 
+if test "${want_evas_engine_wayland_egl}" = "yes"; then
+   CFLAGS="$CFLAGS -I/usr/include/freetype2 -Ifribidi"
+fi
+
 EVIL_DLFCN_LIBS=""
 if test "${have_wince}" = "xyes"; then
    EFL_ADD_LIBS([EVIL], [-lws2])

@@ -143,8 +143,16 @@ Obsoletes:      ephysics-devel < %{version}
 Obsoletes:      ethumb-devel < %{version}
 Obsoletes:      evas-devel < %{version}
 
+%package test
+Summary: EFL Unit tests
+Group:          System/Libraries
+Requires:       %{name} = %{version}-%{release}
+
 %description devel
 Headers, pkgconfig files and other files needed for development with EFL.
+
+%description test
+Unit tests
 
 %prep
 %setup -q
@@ -153,6 +161,7 @@ Headers, pkgconfig files and other files needed for development with EFL.
 NOCONFIGURE=1 ./autogen.sh
 %configure --disable-physics --enable-tizen --enable-g-main-loop \
 		--disable-xim --disable-scim --enable-gesture \
+		--with-tests=regular \
 %if %{with wayland}
 		--enable-tile-rotate --disable-rpath --with-x11=none --with-opengl=es --enable-wayland --enable-egl
 %else
@@ -229,3 +238,8 @@ make
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/*.pc
 %exclude %{_libdir}/debug/*
+
+%files test
+%defattr(-, root, root)
+%{_bindir}/*test
+

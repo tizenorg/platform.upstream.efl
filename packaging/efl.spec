@@ -1,3 +1,4 @@
+%bcond_with x
 %bcond_with wayland
 
 Name:           efl
@@ -19,7 +20,9 @@ BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(wayland-cursor)
 BuildRequires:  pkgconfig(wayland-egl)
 BuildRequires:  pkgconfig(glesv2)
-%else
+%endif
+
+%if %{with x}
 BuildRequires:  pkgconfig(x11)
 BuildRequires:  pkgconfig(xcursor)
 BuildRequires:  pkgconfig(xinerama)
@@ -35,6 +38,7 @@ BuildRequires:  pkgconfig(xi)
 BuildRequires:  pkgconfig(xgesture)
 BuildRequires:  pkgconfig(gles20)
 %endif
+
 BuildRequires:  glib2-devel
 BuildRequires:  pkgconfig(openssl)
 BuildRequires:  gnutls-devel
@@ -51,8 +55,8 @@ BuildRequires:  pkgconfig(sndfile)
 BuildRequires:  pkgconfig(libpulse)
 
 #emotion
-BuildRequires:  pkgconfig(gstreamer-0.10)
-BuildRequires:  pkgconfig(gstreamer-plugins-base-0.10)
+BuildRequires:  pkgconfig(gstreamer-1.0)
+BuildRequires:  pkgconfig(gstreamer-plugins-base-1.0)
 
 #evas
 BuildRequires:  libexif-devel
@@ -558,12 +562,17 @@ make %{?_smp_mflags}
 %{_libdir}/libecore_input.so.*
 %{_libdir}/libecore_input_evas.so.*
 %{_libdir}/libecore_ipc.so.*
-%{_libdir}/libecore_wayland.so.*
 %{_libdir}/ecore_evas/engines/*/*/module.so
-%{_libdir}/ecore_imf/modules/*/*/module.so
 %{_libdir}/ecore/system/*/*/module.so
 %{_datadir}/ecore/checkme
 %{_datadir}/ecore_imf/checkme
+%if %{with wayland}
+%{_libdir}/libecore_wayland.so.*
+%{_libdir}/ecore_imf/modules/*/*/module.so
+%endif
+%if %{with x}
+%{_libdir}/libecore_x*.so.*
+%endif
 
 #%files -n ecore-examples
 #%manifest %{name}.manifest
@@ -584,7 +593,12 @@ make %{?_smp_mflags}
 %{_libdir}/libecore_input.so
 %{_libdir}/libecore_input_evas.so
 %{_libdir}/libecore_ipc.so
+%if %{with wayland}
 %{_libdir}/libecore_wayland.so
+%endif
+%if %{with x}
+%{_libdir}/libecore_x*.so
+%endif
 %{_libdir}/pkgconfig/ecore*.pc
 %{_libdir}/cmake/Ecore/*.cmake
 

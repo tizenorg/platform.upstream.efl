@@ -2,7 +2,7 @@
 
 Name:           efl
 Version:        1.8.alpha
-Release:        1
+Release:        0
 License:        LGPL-2.1
 Summary:        Enlightenment Foundation Libraries - set of libraries used (not only) by E17
 Url:            http://enlightenment.org/
@@ -35,6 +35,7 @@ Obsoletes:      eo < %{version}
 Obsoletes:      ephysics < %{version}
 Obsoletes:      ethumb < %{version}
 Obsoletes:      evas < %{version}
+Requires:       %{name} = %{version}-%{release}
 
 BuildRequires:  pkgconfig(check)
 BuildRequires:  zlib-devel
@@ -77,8 +78,8 @@ BuildRequires:  pkgconfig(sndfile)
 BuildRequires:  pkgconfig(libpulse)
 
 #emotion
-BuildRequires:  pkgconfig(gstreamer-0.10)
-BuildRequires:  pkgconfig(gstreamer-plugins-base-0.10)
+BuildRequires:  pkgconfig(gstreamer-1.0)
+BuildRequires:  pkgconfig(gstreamer-plugins-base-1.0)
 
 #evas
 BuildRequires:  libexif-devel
@@ -171,7 +172,8 @@ make
 
 %files
 %defattr(-, root, root)
-%doc AUTHORS COPYING README
+%license COPYING
+%doc AUTHORS README
 %{_libdir}/libe*.so.*
 %{_libdir}/evas/modules/engines/*/*/module.so
 %{_libdir}/evas/modules/loaders/*/*/module.so
@@ -209,13 +211,13 @@ make
 %{_bindir}/eina-bench-cmp
 %{_bindir}/eldbus-codegen
 %{_bindir}/embryo_cc
-%{_bindir}/emotion_test
 %{_bindir}/ethumb
 %{_bindir}/ethumbd
 %{_bindir}/ethumbd_client
 %{_bindir}/evas_cserve2_client
 %{_bindir}/evas_cserve2_debug
 %{_bindir}/evas_cserve2_usage
+%{_bindir}/evas_cserve2_shm_debug
 
 %{_datadir}/*
 /usr/share/locale/*/LC_MESSAGES/efl.mo

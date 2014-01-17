@@ -1,3 +1,4 @@
+%bcond_with x
 %bcond_with wayland
 %bcond_with x
 
@@ -59,8 +60,8 @@ BuildRequires:  pkgconfig(sndfile)
 BuildRequires:  pkgconfig(libpulse)
 
 #emotion
-BuildRequires:  pkgconfig(gstreamer-0.10)
-BuildRequires:  pkgconfig(gstreamer-plugins-base-0.10)
+BuildRequires:  pkgconfig(gstreamer-1.0)
+BuildRequires:  pkgconfig(gstreamer-plugins-base-1.0)
 
 #evas
 BuildRequires:  libexif-devel
@@ -688,6 +689,13 @@ rm -rf %{buildroot}%{_libdir}/ecore/system/upower
 %{_libdir}/ecore/system/tizen/*/module.so
 %{_datadir}/ecore/checkme
 %{_datadir}/ecore_imf/checkme
+%if %{with wayland}
+%{_libdir}/libecore_wayland.so.*
+%{_libdir}/ecore_imf/modules/*/*/module.so
+%endif
+%if %{with x}
+%{_libdir}/libecore_x*.so.*
+%endif
 
 %files -n ecore-examples
 %manifest %{name}.manifest

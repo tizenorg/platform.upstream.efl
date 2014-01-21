@@ -1,7 +1,7 @@
 %bcond_with wayland
 
 Name:           efl
-Version:        1.8.alpha
+Version:        1.8.5
 Release:        1
 License:        LGPL-2.1
 Summary:        Enlightenment Foundation Libraries - set of libraries used (not only) by E17
@@ -151,7 +151,7 @@ Headers, pkgconfig files and other files needed for development with EFL.
 %build
 NOCONFIGURE=1 ./autogen.sh
 %configure --disable-physics --enable-tizen --enable-g-main-loop \
-		--disable-xim --disable-scim --enable-gesture \
+		--disable-xim --disable-scim --enable-gesture --with-tests=regular \
 %if %{with wayland}
 		--enable-tile-rotate --disable-rpath --with-x11=none --with-opengl=es --enable-wayland --enable-egl
 %else
@@ -215,6 +215,7 @@ make
 %{_bindir}/ethumbd_client
 %{_bindir}/evas_cserve2_client
 %{_bindir}/evas_cserve2_debug
+%{_bindir}/evas_cserve2_shm_debug
 %{_bindir}/evas_cserve2_usage
 
 %{_datadir}/*

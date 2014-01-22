@@ -413,13 +413,31 @@ cp %{SOURCE1001} .
 
 %build
 NOCONFIGURE=1 ./autogen.sh
-%configure --disable-physics --enable-tizen --enable-g-main-loop \
-		--disable-xim --disable-scim --enable-gesture --with-tests=regular \
+
+%reconfigure \
+    --disable-physics \
+    --enable-tizen \
+    --enable-g-main-loop \
+    --disable-xim \
+    --disable-scim \
+    --enable-gesture \
+    --with-tests=regular \
 %if %{with wayland}
-		--enable-tile-rotate --disable-rpath --with-x11=none --with-opengl=es --enable-wayland --enable-egl
-%else
-		--enable-tile-rotate --disable-rpath --with-x11=xlib --with-opengl=es
+    --enable-wayland \
+    --enable-egl \
+    --with-opengl=es \
+    --enable-tile-rotate \
+    --disable-rpath \
 %endif
+%if %{with x}
+    --with-x11=xlib \
+    --with-opengl=es \
+%else
+    --with-x11=none \
+    --enable-tile-rotate \
+    --disable-rpath \
+%endif
+    #eol
 
 make %{?_smp_mflags}
 

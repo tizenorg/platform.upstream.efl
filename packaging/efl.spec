@@ -21,21 +21,28 @@ BuildRequires:  pkgconfig(wayland-cursor)
 BuildRequires:  pkgconfig(wayland-egl)
 BuildRequires:  pkgconfig(glesv2)
 %endif
+
 %if %{with x}
+BuildRequires:  pkgconfig(gles20)
+BuildRequires:  pkgconfig(ice)
+BuildRequires:  pkgconfig(libdri2)
+BuildRequires:  pkgconfig(sm)
 BuildRequires:  pkgconfig(x11)
-BuildRequires:  pkgconfig(xcursor)
-BuildRequires:  pkgconfig(xinerama)
-BuildRequires:  pkgconfig(xrandr)
-BuildRequires:  pkgconfig(xext)
 BuildRequires:  pkgconfig(xcomposite)
+BuildRequires:  pkgconfig(xcursor)
 BuildRequires:  pkgconfig(xdamage)
+BuildRequires:  pkgconfig(xext)
 BuildRequires:  pkgconfig(xfixes)
+BuildRequires:  pkgconfig(xgesture)
+BuildRequires:  pkgconfig(xi)
+BuildRequires:  pkgconfig(xinerama)
+BuildRequires:  pkgconfig(xpm)
+BuildRequires:  pkgconfig(xrandr)
 BuildRequires:  pkgconfig(xrender)
 BuildRequires:  pkgconfig(xscrnsaver)
-BuildRequires:  libXtst-devel
-BuildRequires:  pkgconfig(xi)
-BuildRequires:  pkgconfig(gles20)
+BuildRequires:  pkgconfig(xtst)
 %endif
+
 BuildRequires:  glib2-devel
 BuildRequires:  pkgconfig(openssl)
 BuildRequires:  gnutls-devel
@@ -60,23 +67,18 @@ BuildRequires:  libexif-devel
 BuildRequires:  giflib-devel
 BuildRequires:  libtiff-devel
 BuildRequires:  pkgconfig(libpng)
-BuildRequires:  pkgconfig(xpm)
 BuildRequires:  libjpeg-turbo-devel
 BuildRequires:  pkgconfig(pixman-1)
 BuildRequires:  pkgconfig(freetype2)
 BuildRequires:  pkgconfig(fribidi)
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  pkgconfig(harfbuzz)
-BuildRequires:  pkgconfig(libdri2)
 BuildRequires:  pkgconfig(libtbm)
 
 #eeze
 BuildRequires:  libudev-devel
 BuildRequires:  pkgconfig(capi-system-sensor)
 BuildRequires:  libmount-devel
-
-BuildRequires:  pkgconfig(ice)
-BuildRequires:  pkgconfig(sm)
 BuildRequires:  pkgconfig(dlog)
 
 %description
@@ -482,16 +484,34 @@ cp %{SOURCE1001} .
 
 
 %build
-%reconfigure --disable-physics --enable-tizen --enable-g-main-loop \
-             --disable-xim --disable-scim --with-tests=regular \
-             --enable-tile-rotate --disable-rpath --with-opengl=es \
+
+%if ! %{with x}
+CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
+%endif
+
+%reconfigure \
+    --disable-physics \
+    --enable-tizen \
+    --enable-g-main-loop \
+    --disable-xim \
+    --disable-scim \
+    --disable-gesture \
+    --with-tests=regular \
+    --with-opengl=es \
 %if %{with wayland}
-              --enable-wayland --enable-egl \
+    --enable-wayland \
+    --enable-egl \
+    --enable-tile-rotate \
+    --disable-rpath \
 %endif
 %if %{with x}
-              --with-x11=xlib \
+    --with-x11=xlib \
+%else
+    --with-x11=none \
+    --enable-tile-rotate \
+    --disable-rpath \
 %endif
-              --enable-always-build-examples
+    --enable-always-build-examples
 
 make %{?_smp_mflags}
 

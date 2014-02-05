@@ -276,6 +276,13 @@ if HAVE_ECORE_AUDIO
 #ecore_audio_to_ogg.c
 endif
 
+if HAVE_ECORE_AUDIO
+#SRCS += \
+#ecore_audio_custom.c \
+#ecore_audio_playback.c \
+#ecore_audio_to_ogg.c
+endif
+
 DATA_FILES = red.png Makefile.examples
 
 EXTRA_DIST = $(DATA_FILES)

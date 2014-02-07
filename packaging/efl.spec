@@ -33,7 +33,7 @@ BuildRequires:  pkgconfig(xcursor)
 BuildRequires:  pkgconfig(xdamage)
 BuildRequires:  pkgconfig(xext)
 BuildRequires:  pkgconfig(xfixes)
-BuildRequires:  pkgconfig(xgesture)
+#BuildRequires:  pkgconfig(xgesture)
 BuildRequires:  pkgconfig(xi)
 BuildRequires:  pkgconfig(xinerama)
 BuildRequires:  pkgconfig(xpm)
@@ -506,6 +506,7 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
 %endif
 %if %{with x}
     --with-x11=xlib \
+    --disable-gesture \
 %else
     --with-x11=none \
     --enable-tile-rotate \

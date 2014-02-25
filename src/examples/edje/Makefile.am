@@ -192,23 +192,18 @@ if HAVE_EPHYSICS
 LDADD += $(top_builddir)/src/lib/ephysics/libephysics.la
 endif
 
-examples: $(EXTRA_PROGRAMS) $(EDJS)
+examplesdir = $(libdir)/edje/examples
+examples_PROGRAMS = $(EXTRA_PROGRAMS)
+examples_DATA = $(EDJS)
 
 clean-local:
 	rm -f $(EXTRA_PROGRAMS) $(EDJS) $(CODEGEN_GENERATED)
 
-install-examples: $(EDJS)
+install-examples:
 	mkdir -p $(datadir)/edje/examples
-	$(install_sh_DATA) -c $(SRCS) $(EDJS) $(DIST_EDCS) $(DATA_FILES) $(datadir)/edje/examples
+	$(install_sh_DATA) -c $(SRCS) $(DIST_EDCS) $(DATA_FILES) $(datadir)/edje/examples
 
 uninstall-local:
 	for f in $(SRCS) $(DIST_EDCS) $(DATA_FILES); do \
 	  rm -f $(datadir)/edje/examples/$$f ; \
 	done
-
-if ALWAYS_BUILD_EXAMPLES
-if BUILD_LOADER_PNG
-noinst_PROGRAMS = $(EXTRA_PROGRAMS)
-nodist_pkgdata_DATA = $(EDJS)
-endif
-endif

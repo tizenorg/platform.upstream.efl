@@ -68,7 +68,8 @@ DATA_FILES = Makefile.examples
 
 EXTRA_DIST = $(DATA_FILES)
 
-examples: $(EXTRA_PROGRAMS)
+examplesdir = $(libdir)/eo/examples
+examples_PROGRAMS = $(EXTRA_PROGRAMS)
 
 clean-local:
 	rm -f $(EXTRA_PROGRAMS)
@@ -98,7 +99,3 @@ uninstall-local:
 	for f in $(eo_evas_SOURCES) ; do \
 	  rm -f $(datadir)/eo/examples/evas/$$f ; \
 	done
-
-if ALWAYS_BUILD_EXAMPLES
-noinst_PROGRAMS = $(EXTRA_PROGRAMS)
-endif

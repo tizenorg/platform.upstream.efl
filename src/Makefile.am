@@ -78,10 +78,14 @@ examples/ecore \
 examples/ecore_avahi \
 examples/eio \
 examples/eldbus \
-examples/ephysics \
 examples/edje \
 examples/emotion \
 examples/ethumb_client
+
+if HAVE_EPHYSICS
+EXAMPLES_SUBDIRS += examples/ephysics
+endif
+
 if ALWAYS_BUILD_EXAMPLES
 SUBDIRS += . $(EXAMPLES_SUBDIRS)
 endif
@@ -90,13 +94,19 @@ DIST_SUBDIRS += $(EXAMPLES_SUBDIRS)
 examples: all-am
 	@for d in $(EXAMPLES_SUBDIRS); do \
 	   echo "Making examples in $$d"; \
-	   $(MAKE) $(AM_MAKEFLAGS) -C $$d examples || exit 1; \
+	   $(MAKE) $(AM_MAKEFLAGS) -C $$d || exit 1; \
 	done
 
 install-examples:
 	@for d in $(EXAMPLES_SUBDIRS); do \
 	   echo "Making install-examples in $$d"; \
 	   $(MAKE) $(AM_MAKEFLAGS) -C $$d install-examples || exit 1; \
+	done
+
+install-built-examples:
+	@for d in $(EXAMPLES_SUBDIRS); do \
+	   echo "Making install-built-examples in $$d"; \
+	   $(MAKE) $(AM_MAKEFLAGS) -C $$d install || exit 1; \
 	done
 
 clean-local:

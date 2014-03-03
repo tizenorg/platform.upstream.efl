@@ -4,7 +4,7 @@
 
 Name:           efl
 Version:        1.8.5
-Release:        0
+Release:        20140303.1393856643
 License:        LGPL-2.1
 Summary:        Enlightenment Foundation Libraries - set of libraries used (not only) by E17
 Url:            http://enlightenment.org/
@@ -492,7 +492,7 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
 
 %reconfigure \
     --disable-physics \
-    --enable-tizen \
+    --disable-tizen \
     --enable-g-main-loop \
     --disable-xim \
     --disable-scim \
@@ -685,8 +685,6 @@ rm -rf %{buildroot}%{_libdir}/ecore/system/upower
 %{_libdir}/libecore_x.so.*
 %endif
 %{_libdir}/ecore_evas/engines/*/*/module.so
-%{_libdir}/ecore_imf/modules/*/*/module.so
-%{_libdir}/ecore/system/tizen/*/module.so
 %{_datadir}/ecore/checkme
 %{_datadir}/ecore_imf/checkme
 %if %{with wayland}
@@ -696,6 +694,10 @@ rm -rf %{buildroot}%{_libdir}/ecore/system/upower
 %if %{with x}
 %{_libdir}/libecore_x*.so.*
 %endif
+
+# %{_libdir}/ecore_imf/modules/*/*/module.so
+# %{_libdir}/ecore/system/tizen/*/module.so
+
 
 %files -n ecore-examples
 %manifest %{name}.manifest

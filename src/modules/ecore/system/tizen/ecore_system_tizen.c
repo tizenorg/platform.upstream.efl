@@ -125,7 +125,7 @@ _ecore_system_tizen_init(void)
         EINA_LOG_ERR("Could not register log domain: ecore_system_tizen");
         return EINA_FALSE;
      }
-
+#if 0
    if (vconf_notify_key_changed(VCONFKEY_SYSMAN_LOW_MEMORY, _low_mem_key_changed_cb, NULL) < 0)
      {
         ERR("Unable to register a vconf changed cb to %s.", VCONFKEY_SYSMAN_LOW_MEMORY);
@@ -165,7 +165,7 @@ _ecore_system_tizen_init(void)
         ERR("Unable to register a vconf changed cb to %s.", VCONFKEY_REGIONFORMAT_TIME1224);
         goto err_time_fmt;
      }
-
+#endif
    return EINA_TRUE;
 
 err_time_fmt:

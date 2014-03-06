@@ -35,11 +35,12 @@ BuildRequires:  pkgconfig(xdamage)
 BuildRequires:  pkgconfig(xfixes)
 BuildRequires:  pkgconfig(xrender)
 BuildRequires:  pkgconfig(xscrnsaver)
-BuildRequires:  libXtst-devel
 BuildRequires:  pkgconfig(xi)
 BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(ice)
 BuildRequires:  pkgconfig(sm)
+BuildRequires:  pkgconfig(xtst)
+BuildRequires:  pkgconfig(ibus-1.0)
 %endif
 
 BuildRequires:  glib2-devel
@@ -683,7 +684,7 @@ rm -rf %{buildroot}%{_libdir}/ecore/system/upower
 %{_libdir}/libecore_x.so.*
 %endif
 %{_libdir}/ecore_evas/engines/*/*/module.so
-%{_libdir}/ecore_imf/modules/*/*/module.so
+%{_libdir}/ecore_imf/modules/*/*/*.so
 %{_libdir}/ecore/system/tizen/*/module.so
 %{_datadir}/ecore/checkme
 %{_datadir}/ecore_imf/checkme

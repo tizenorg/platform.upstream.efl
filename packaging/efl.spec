@@ -23,24 +23,24 @@ BuildRequires:  pkgconfig(glesv2)
 %endif
 
 %if %{with x}
+BuildRequires:  pkgconfig(gles20)
+BuildRequires:  pkgconfig(ibus-1.0)
+BuildRequires:  pkgconfig(ice)
 BuildRequires:  pkgconfig(libdri2)
+BuildRequires:  pkgconfig(sm)
 BuildRequires:  pkgconfig(x11)
+BuildRequires:  pkgconfig(xcomposite)
 BuildRequires:  pkgconfig(xcursor)
+BuildRequires:  pkgconfig(xdamage)
+BuildRequires:  pkgconfig(xext)
+BuildRequires:  pkgconfig(xfixes)
+BuildRequires:  pkgconfig(xi)
 BuildRequires:  pkgconfig(xinerama)
 BuildRequires:  pkgconfig(xpm)
 BuildRequires:  pkgconfig(xrandr)
-BuildRequires:  pkgconfig(xext)
-BuildRequires:  pkgconfig(xcomposite)
-BuildRequires:  pkgconfig(xdamage)
-BuildRequires:  pkgconfig(xfixes)
 BuildRequires:  pkgconfig(xrender)
 BuildRequires:  pkgconfig(xscrnsaver)
-BuildRequires:  pkgconfig(xi)
-BuildRequires:  pkgconfig(gles20)
-BuildRequires:  pkgconfig(ice)
-BuildRequires:  pkgconfig(sm)
 BuildRequires:  pkgconfig(xtst)
-BuildRequires:  pkgconfig(ibus-1.0)
 %endif
 
 BuildRequires:  glib2-devel

@@ -12,6 +12,7 @@
 # include <wayland-client.h>
 # include <wayland-cursor.h>
 # include <xkbcommon/xkbcommon.h>
+# include "xdg-shell-client-protocol.h"
 
 # ifdef EAPI
 #  undef EAPI
@@ -538,6 +539,7 @@ EAPI void ecore_wl_window_hide(Ecore_Wl_Window *win);
  * @since 1.2
  */
 EAPI void ecore_wl_window_raise(Ecore_Wl_Window *win);
+EAPI void ecore_wl_window_iconified_set(Ecore_Wl_Window *win);
 EAPI void ecore_wl_window_maximized_set(Ecore_Wl_Window *win, Eina_Bool maximized);
 EAPI Eina_Bool ecore_wl_window_maximized_get(Ecore_Wl_Window *win);
 EAPI void ecore_wl_window_fullscreen_set(Ecore_Wl_Window *win, Eina_Bool fullscreen);
@@ -548,6 +550,7 @@ EAPI void ecore_wl_window_update_size(Ecore_Wl_Window *win, int w, int h);
 EAPI void ecore_wl_window_update_location(Ecore_Wl_Window *win, int x, int y);
 EAPI struct wl_surface *ecore_wl_window_surface_get(Ecore_Wl_Window *win);
 EAPI struct wl_shell_surface *ecore_wl_window_shell_surface_get(Ecore_Wl_Window *win);
+EAPI struct xdg_surface *ecore_wl_window_xdg_surface_get(Ecore_Wl_Window *win);
 EAPI Ecore_Wl_Window *ecore_wl_window_find(unsigned int id);
 EAPI void ecore_wl_window_type_set(Ecore_Wl_Window *win, Ecore_Wl_Window_Type type);
 EAPI void ecore_wl_window_pointer_set(Ecore_Wl_Window *win, struct wl_surface *surface, int hot_x, int hot_y);

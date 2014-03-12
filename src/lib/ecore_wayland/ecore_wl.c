@@ -454,6 +454,8 @@ _ecore_wl_shutdown(Eina_Bool close)
 
         _ecore_wl_xkb_shutdown(_ecore_wl_disp);
 
+        if (_ecore_wl_disp->wl.xdg_shell)
+          xdg_shell_destroy(_ecore_wl_disp->wl.xdg_shell);
         if (_ecore_wl_disp->wl.shell)
           wl_shell_destroy(_ecore_wl_disp->wl.shell);
         if (_ecore_wl_disp->wl.shm) wl_shm_destroy(_ecore_wl_disp->wl.shm);
@@ -588,6 +590,14 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
      _ecore_wl_output_add(ewd, id);
    else if (!strcmp(interface, "wl_seat"))
      _ecore_wl_input_add(ewd, id);
+#ifdef USE_XDG_SHELL
+   else if (!strcmp(interface, "xdg_shell"))
+     {
+        ewd->wl.xdg_shell =
+          wl_registry_bind(registry, id, &xdg_shell_interface, 1);
+        xdg_shell_use_unstable_version(ewd->wl.xdg_shell, XDG_SHELL_VERSION_CURRENT);
+     }
+#endif
    else if (!strcmp(interface, "wl_shell"))
      {
         ewd->wl.shell =

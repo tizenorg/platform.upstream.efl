@@ -6,7 +6,8 @@ lib_LTLIBRARIES += lib/ecore_wayland/libecore_wayland.la
 
 installed_ecorewaylandmainheadersdir = $(includedir)/ecore-wayland-@VMAJ@
 dist_installed_ecorewaylandmainheaders_DATA = \
-lib/ecore_wayland/Ecore_Wayland.h
+lib/ecore_wayland/Ecore_Wayland.h \
+lib/ecore_wayland/xdg-shell-client-protocol.h
 
 lib_ecore_wayland_libecore_wayland_la_SOURCES = \
 lib/ecore_wayland/ecore_wl.c \
@@ -17,7 +18,9 @@ lib/ecore_wayland/ecore_wl_window.c \
 lib/ecore_wayland/ecore_wl_subsurf.c \
 lib/ecore_wayland/ecore_wl_private.h \
 lib/ecore_wayland/subsurface-protocol.c \
-lib/ecore_wayland/subsurface-client-protocol.h
+lib/ecore_wayland/subsurface-client-protocol.h \
+lib/ecore_wayland/xdg-shell-protocol.c \
+lib/ecore_wayland/xdg-shell-client-protocol.h
 
 lib_ecore_wayland_libecore_wayland_la_CPPFLAGS = -I$(top_builddir)/src/lib/efl @ECORE_WAYLAND_CFLAGS@
 lib_ecore_wayland_libecore_wayland_la_LIBADD = @ECORE_WAYLAND_LIBS@

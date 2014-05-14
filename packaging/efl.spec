@@ -495,6 +495,7 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
     --enable-g-main-loop \
     --disable-xim \
     --disable-scim \
+    --disable-ibus \
     --disable-gesture \
     --with-tests=regular \
 %if %{with wayland}

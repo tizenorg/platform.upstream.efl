@@ -1061,6 +1061,18 @@ if test "${want_wayland}" = "yes"; then
    EFL_PKG_CHECK_STRICT([wayland-client >= 1.3.0])
 fi
 
+AC_ARG_ENABLE([wayland-xdg-shell],
+   [AC_HELP_STRING([--enable-wayland-xdg-shell],
+       [enable xdg-shell support. @<:@default=enabled@:>@])],
+   [
+    if test "x${enableval}" = "xyes" ; then
+       want_wayland_xdg_shell="yes"
+    else
+       want_wayland_xdg_shell="no"
+    fi
+   ],
+   [want_wayland_xdg_shell="yes"])
+
 # Fb
 AC_ARG_ENABLE([fb],
    [AC_HELP_STRING([--enable-fb],
@@ -3350,6 +3362,13 @@ fi
 AM_CONDITIONAL([BUILD_ECORE_EVAS_WAYLAND],
    [test "${build_ecore_evas_wayland}" = "yes"])
 
+want_ecore_evas_wayland_xdg_shell="no"
+if test "x${build_ecore_evas_wayland}" = "xyes" && \
+   test "x${want_wayland_xdg_shell}" = "xyes" ; then
+   want_ecore_evas_wayland_xdg_shell="yes"
+   AC_DEFINE(USE_XDG_SHELL, 1, [Ecore_Evas Wayland XDG-Shell Support])
+fi
+
 ECORE_EVAS_MODULE([software-gdi], [${want_ecore_evas_software_gdi}])
 ECORE_EVAS_MODULE([software-ddraw], [${want_ecore_evas_software_ddraw}])
 
@@ -4096,6 +4115,7 @@ echo "Ecore_IMF.......: yes (${features_ecore_imf})"
 echo "Ecore_X.........: ${with_x11} (${features_ecore_x})"
 echo "Ecore_SDL.......: $want_sdl"
 echo "Ecore_Wayland...: $want_wayland"
+echo "XDG-Shell.......: $want_ecore_evas_wayland_xdg_shell"
 if test "${have_linux}" = "yes"; then
 echo "Ecore_FB........: $want_fb (${features_ecore_fb})"
 elif test "${have_ps3}" = "yes"; then

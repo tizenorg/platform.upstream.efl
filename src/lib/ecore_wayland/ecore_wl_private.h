@@ -61,6 +61,7 @@ struct _Ecore_Wl_Display
         struct wl_subcompositor *subcompositor;
         struct wl_shell *shell;
         struct wl_shell *desktop_shell;
+        struct xdg_shell *xdg_shell;
         struct wl_shm *shm;
         struct wl_data_device_manager *data_device_manager;
      } wl;
@@ -99,6 +100,8 @@ struct _Ecore_Wl_Window
 
    struct wl_surface *surface;
    struct wl_shell_surface *shell_surface;
+   struct xdg_surface *xdg_surface;
+   struct xdg_popup *xdg_popup;
 
    struct
      {

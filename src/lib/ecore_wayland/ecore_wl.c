@@ -22,6 +22,7 @@ static Eina_Bool _ecore_wl_cb_idle_enterer(void *data);
 static Eina_Bool _ecore_wl_cb_handle_data(void *data, Ecore_Fd_Handler *hdl);
 static void _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned int id, const char *interface, unsigned int version EINA_UNUSED);
 static void _ecore_wl_cb_handle_global_remove(void *data, struct wl_registry *registry EINA_UNUSED, unsigned int id);
+static void _ecore_xdg_shell_handle_ping(void *data EINA_UNUSED, struct xdg_shell *xdg_shell, uint32_t serial);
 static Eina_Bool _ecore_wl_xkb_init(Ecore_Wl_Display *ewd);
 static Eina_Bool _ecore_wl_xkb_shutdown(Ecore_Wl_Display *ewd);
 static void _ecore_wl_sync_wait(Ecore_Wl_Display *ewd);
@@ -45,6 +46,13 @@ static const struct wl_registry_listener _ecore_wl_registry_listener =
    _ecore_wl_cb_handle_global,
    _ecore_wl_cb_handle_global_remove
 };
+
+#ifdef USE_XDG_SHELL
+static const struct xdg_shell_listener _ecore_xdg_shell_listener =
+{
+   _ecore_xdg_shell_handle_ping
+};
+#endif
 
 static const struct wl_callback_listener _ecore_wl_sync_listener =
 {
@@ -454,6 +462,8 @@ _ecore_wl_shutdown(Eina_Bool close)
 
         _ecore_wl_xkb_shutdown(_ecore_wl_disp);
 
+        if (_ecore_wl_disp->wl.xdg_shell)
+          xdg_shell_destroy(_ecore_wl_disp->wl.xdg_shell);
         if (_ecore_wl_disp->wl.shell)
           wl_shell_destroy(_ecore_wl_disp->wl.shell);
         if (_ecore_wl_disp->wl.shm) wl_shm_destroy(_ecore_wl_disp->wl.shm);
@@ -588,6 +598,15 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
      _ecore_wl_output_add(ewd, id);
    else if (!strcmp(interface, "wl_seat"))
      _ecore_wl_input_add(ewd, id);
+#ifdef USE_XDG_SHELL
+   else if (!strcmp(interface, "xdg_shell"))
+     {
+        ewd->wl.xdg_shell =
+          wl_registry_bind(registry, id, &xdg_shell_interface, 1);
+          xdg_shell_use_unstable_version(ewd->wl.xdg_shell, XDG_SHELL_VERSION_CURRENT);
+          xdg_shell_add_listener(ewd->wl.xdg_shell, &_ecore_xdg_shell_listener, NULL);
+     }
+#endif
    else if (!strcmp(interface, "wl_shell"))
      {
         ewd->wl.shell =
@@ -645,6 +664,12 @@ _ecore_wl_cb_handle_global_remove(void *data, struct wl_registry *registry EINA_
         free(global->interface);
         free(global);
      }
+}
+
+static void
+_ecore_xdg_shell_handle_ping(void *data EINA_UNUSED, struct xdg_shell *xdg_shell, uint32_t serial)
+{
+  xdg_shell_pong(xdg_shell, serial);
 }
 
 static Eina_Bool

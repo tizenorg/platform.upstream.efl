@@ -139,6 +139,8 @@ ecore_wl_window_free(Ecore_Wl_Window *win)
 
    if (win->subsurfs) _ecore_wl_subsurfs_del_all(win);
 
+   if (win->ivi_surface) ivi_surface_destroy(win->ivi_surface);
+   win->ivi_surface = NULL;
    if (win->xdg_surface) xdg_surface_destroy(win->xdg_surface);
    win->xdg_surface = NULL;
    if (win->xdg_popup) xdg_popup_destroy(win->xdg_popup);
@@ -295,6 +297,13 @@ ecore_wl_window_show(Ecore_Wl_Window *win)
    if ((win->type != ECORE_WL_WINDOW_TYPE_DND) &&
        (win->type != ECORE_WL_WINDOW_TYPE_NONE))
      {
+#ifdef USE_IVI_SHELL
+        if ((!win->ivi_surface) && (_ecore_wl_disp->wl.ivi_application))
+           win->ivi_surface =
+             ivi_application_surface_create(_ecore_wl_disp->wl.ivi_application,
+                                            6000, win->surface);
+        if (!win->ivi_surface) {
+#endif
 #ifdef USE_XDG_SHELL
         if ((!win->xdg_surface) && (_ecore_wl_disp->wl.xdg_shell))
            win->xdg_surface = 
@@ -318,6 +327,9 @@ ecore_wl_window_show(Ecore_Wl_Window *win)
              wl_shell_surface_set_class(win->shell_surface, win->class_name);
         }
 
+#ifdef USE_IVI_SHELL
+        }
+#endif
 #ifdef USE_XDG_SHELL
         }
         if (win->xdg_surface)

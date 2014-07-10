@@ -62,6 +62,7 @@ struct _Ecore_Wl_Display
         struct wl_shell *shell;
         struct wl_shell *desktop_shell;
         struct xdg_shell *xdg_shell;
+        struct ivi_application *ivi_application;
         struct wl_shm *shm;
         struct wl_data_device_manager *data_device_manager;
      } wl;
@@ -102,6 +103,7 @@ struct _Ecore_Wl_Window
    struct wl_shell_surface *shell_surface;
    struct xdg_surface *xdg_surface;
    struct xdg_popup *xdg_popup;
+   struct ivi_surface *ivi_surface;
 
    struct
      {

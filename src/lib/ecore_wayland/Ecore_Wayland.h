@@ -13,6 +13,7 @@
 # include <wayland-cursor.h>
 # include <xkbcommon/xkbcommon.h>
 # include "xdg-shell-client-protocol.h"
+# include "ivi-application-client-protocol.h"
 
 # ifdef EAPI
 #  undef EAPI

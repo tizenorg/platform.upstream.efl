@@ -337,6 +337,7 @@ xdg_surface_add_listener(struct xdg_surface *xdg_surface,
 #define XDG_SURFACE_REQUEST_CHANGE_STATE	8
 #define XDG_SURFACE_ACK_CHANGE_STATE	9
 #define XDG_SURFACE_SET_MINIMIZED	10
+#define XDG_SURFACE_UNSET_MINIMIZED	11
 
 static inline void
 xdg_surface_set_user_data(struct xdg_surface *xdg_surface, void *user_data)
@@ -427,6 +428,13 @@ xdg_surface_set_minimized(struct xdg_surface *xdg_surface)
 {
 	wl_proxy_marshal((struct wl_proxy *) xdg_surface,
 			 XDG_SURFACE_SET_MINIMIZED);
+}
+
+static inline void
+xdg_surface_unset_minimized(struct xdg_surface *xdg_surface)
+{
+	wl_proxy_marshal((struct wl_proxy *) xdg_surface,
+			 XDG_SURFACE_UNSET_MINIMIZED);
 }
 
 /**

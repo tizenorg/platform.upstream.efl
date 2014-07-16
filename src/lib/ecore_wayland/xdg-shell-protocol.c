@@ -89,6 +89,7 @@ static const struct wl_message xdg_surface_requests[] = {
 	{ "request_change_state", "uuu", types + 0 },
 	{ "ack_change_state", "uuu", types + 0 },
 	{ "set_minimized", "", types + 0 },
+	{ "unset_minimized", "", types + 0 },
 };
 
 static const struct wl_message xdg_surface_events[] = {
@@ -101,7 +102,7 @@ static const struct wl_message xdg_surface_events[] = {
 
 WL_EXPORT const struct wl_interface xdg_surface_interface = {
 	"xdg_surface", 1,
-	11, xdg_surface_requests,
+	12, xdg_surface_requests,
 	5, xdg_surface_events,
 };
 

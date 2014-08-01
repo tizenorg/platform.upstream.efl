@@ -78,6 +78,8 @@ EAPI int ECORE_WL_EVENT_MOUSE_OUT = 0;
 EAPI int ECORE_WL_EVENT_FOCUS_IN = 0;
 EAPI int ECORE_WL_EVENT_FOCUS_OUT = 0;
 EAPI int ECORE_WL_EVENT_WINDOW_CONFIGURE = 0;
+EAPI int ECORE_WL_EVENT_WINDOW_ACTIVATE = 0;
+EAPI int ECORE_WL_EVENT_WINDOW_DEACTIVATE = 0;
 EAPI int ECORE_WL_EVENT_DND_ENTER = 0;
 EAPI int ECORE_WL_EVENT_DND_POSITION = 0;
 EAPI int ECORE_WL_EVENT_DND_LEAVE = 0;
@@ -151,6 +153,8 @@ ecore_wl_init(const char *name)
         ECORE_WL_EVENT_FOCUS_IN = ecore_event_type_new();
         ECORE_WL_EVENT_FOCUS_OUT = ecore_event_type_new();
         ECORE_WL_EVENT_WINDOW_CONFIGURE = ecore_event_type_new();
+        ECORE_WL_EVENT_WINDOW_ACTIVATE = ecore_event_type_new();
+        ECORE_WL_EVENT_WINDOW_DEACTIVATE = ecore_event_type_new();
         ECORE_WL_EVENT_DND_ENTER = ecore_event_type_new();
         ECORE_WL_EVENT_DND_POSITION = ecore_event_type_new();
         ECORE_WL_EVENT_DND_LEAVE = ecore_event_type_new();

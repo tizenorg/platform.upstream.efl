@@ -3538,7 +3538,7 @@ fi
 
 ## modules
 if test "${want_tizen}"  = "yes"; then
-  PKG_CHECK_MODULES([TIZEN_SENSOR], [capi-system-sensor >= 0.1.17])
+  PKG_CHECK_MODULES([TIZEN_SENSOR], [capi-system-sensor])
 fi
 EFL_ADD_FEATURE([EEZE], [tizen])
 

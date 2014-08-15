@@ -325,6 +325,12 @@ ecore_wl_screen_size_get(int *w, int *h)
 
    _ecore_wl_init_wait();
 
+   if (!_ecore_wl_disp->output) {
+      ecore_wl_sync();
+      if (!_ecore_wl_disp->output)
+         ecore_wl_sync();
+   }
+
    if (!_ecore_wl_disp->output) return;
 
    switch (_ecore_wl_disp->output->transform)

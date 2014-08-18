@@ -601,7 +601,7 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
    else if (!strcmp(interface, "wl_seat"))
      _ecore_wl_input_add(ewd, id);
 #ifdef USE_IVI_SHELL
-   else if (!strcmp(interface, "ivi_application"))
+   else if (getenv("EFL_WAYLAND_USE_IVI_SHELL") && !strcmp(interface, "ivi_application"))
      {
         ewd->wl.ivi_application =
           wl_registry_bind(registry, id, &ivi_application_interface, 1);

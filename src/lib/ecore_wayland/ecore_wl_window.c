@@ -316,7 +316,7 @@ ecore_wl_window_show(Ecore_Wl_Window *win)
            else if (ivi_shell_id = getenv("ECORE_IVI_SHELL_ID"))
              win->ivi_surface_id = atoi(ivi_shell_id);
            else
-             win->ivi_surface_id = IVI_SURFACE_ID;
+             win->ivi_surface_id = IVI_SURFACE_ID + getpid();
            win->ivi_surface_state = 0;
 
            win->ivi_surface =

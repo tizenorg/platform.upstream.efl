@@ -14,6 +14,8 @@ static void _ecore_wl_window_cb_xdg_surface_activate(void *data, struct xdg_surf
 static void _ecore_wl_window_cb_xdg_surface_deactivate(void *data, struct xdg_surface *xdg_surface EINA_UNUSED);
 static void _ecore_wl_window_cb_xdg_surface_delete(void *data, struct xdg_surface *xdg_surface EINA_UNUSED);
 static void _ecore_wl_window_cb_xdg_popup_popup_done(void *data, struct xdg_popup *xdg_popup, unsigned int serial);
+static void _ecore_wl_window_cb_ivi_surface_visibility(void *data EINA_UNUSED, struct ivi_surface *ivi_surface EINA_UNUSED, int32_t visibility EINA_UNUSED);
+static void _ecore_wl_window_cb_ivi_surface_warning(void *data, struct ivi_surface *ivi_surface EINA_UNUSED, int32_t warning_code, const char *warning_text EINA_UNUSED);
 static void _ecore_wl_window_cb_surface_enter(void *data, struct wl_surface *surface, struct wl_output *output EINA_UNUSED);
 static void _ecore_wl_window_cb_surface_leave(void *data, struct wl_surface *surface, struct wl_output *output EINA_UNUSED);
 static void _ecore_wl_window_configure_send(Ecore_Wl_Window *win, int w, int h, int edges);
@@ -49,6 +51,14 @@ static const struct xdg_surface_listener _ecore_xdg_surface_listener =
 static const struct xdg_popup_listener _ecore_xdg_popup_listener = 
 {
    _ecore_wl_window_cb_xdg_popup_popup_done
+};
+#endif
+
+#ifdef USE_IVI_SHELL
+static const struct ivi_surface_listener _ecore_ivi_surface_listener =
+{
+   _ecore_wl_window_cb_ivi_surface_visibility,
+   _ecore_wl_window_cb_ivi_surface_warning
 };
 #endif
 
@@ -288,6 +298,8 @@ ecore_wl_window_surface_create(Ecore_Wl_Window *win)
 EAPI void 
 ecore_wl_window_show(Ecore_Wl_Window *win)
 {
+   char *ivi_shell_id = NULL;
+
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!win) return;
@@ -298,10 +310,33 @@ ecore_wl_window_show(Ecore_Wl_Window *win)
        (win->type != ECORE_WL_WINDOW_TYPE_NONE))
      {
 #ifdef USE_IVI_SHELL
-        if ((!win->ivi_surface) && (_ecore_wl_disp->wl.ivi_application))
+        if ((!win->ivi_surface) && (_ecore_wl_disp->wl.ivi_application)) {
+           if (win->parent && win->parent->ivi_surface)
+             win->ivi_surface_id = win->parent->ivi_surface_id + 1;
+           else if (ivi_shell_id = getenv("ECORE_IVI_SHELL_ID"))
+             win->ivi_surface_id = atoi(ivi_shell_id);
+           else
+             win->ivi_surface_id = IVI_SURFACE_ID;
+           win->ivi_surface_state = 0;
+
            win->ivi_surface =
              ivi_application_surface_create(_ecore_wl_disp->wl.ivi_application,
-                                            6000, win->surface);
+                                            win->ivi_surface_id, win->surface);
+           ivi_surface_add_listener(win->ivi_surface,
+                                    &_ecore_ivi_surface_listener, win);
+
+        } else if ((win->ivi_surface) &&
+                   (win->ivi_surface_state == IVI_SURFACE_WARNING_CODE_IVI_ID_IN_USE)) {
+           win->ivi_surface_id++;
+           win->ivi_surface_state = 0;
+
+           ivi_surface_destroy(win->ivi_surface);
+           win->ivi_surface =
+             ivi_application_surface_create(_ecore_wl_disp->wl.ivi_application,
+                                            win->ivi_surface_id, win->surface);
+           ivi_surface_add_listener(win->ivi_surface,
+                                    &_ecore_ivi_surface_listener, win);
+        }
         if (!win->ivi_surface) {
 #endif
 #ifdef USE_XDG_SHELL
@@ -412,6 +447,8 @@ ecore_wl_window_hide(Ecore_Wl_Window *win)
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!win) return;
+   if (win->ivi_surface) ivi_surface_destroy(win->ivi_surface);
+   win->ivi_surface = NULL;
    if (win->xdg_surface) xdg_surface_destroy(win->xdg_surface);
    win->xdg_surface = NULL;
    if (win->shell_surface) wl_shell_surface_destroy(win->shell_surface);
@@ -970,6 +1007,28 @@ _ecore_wl_window_cb_xdg_popup_popup_done(void *data, struct xdg_popup *xdg_popup
    if (!xdg_popup) return;
    if (!(win = data)) return;
    ecore_wl_input_ungrab(win->pointer_device);
+}
+#endif
+
+#ifdef USE_IVI_SHELL
+static void
+_ecore_wl_window_cb_ivi_surface_visibility(void *data EINA_UNUSED, struct ivi_surface *ivi_surface EINA_UNUSED, int32_t visibility EINA_UNUSED)
+{
+}
+
+static void
+_ecore_wl_window_cb_ivi_surface_warning(void *data, struct ivi_surface *ivi_surface EINA_UNUSED, int32_t warning_code, const char *warning_text EINA_UNUSED)
+{
+   Ecore_Wl_Window *win;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!(win = data)) return;
+   win->ivi_surface_state = warning_code;
+
+   /* if the surface ID is incorrect, re-show the window to use a new one */
+   if (warning_code == IVI_SURFACE_WARNING_CODE_IVI_ID_IN_USE)
+     ecore_wl_window_show(win);
 }
 #endif
 

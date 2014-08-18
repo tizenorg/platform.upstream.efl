@@ -104,6 +104,8 @@ struct _Ecore_Wl_Window
    struct xdg_surface *xdg_surface;
    struct xdg_popup *xdg_popup;
    struct ivi_surface *ivi_surface;
+   int ivi_surface_id;
+   int ivi_surface_state;
 
    struct
      {

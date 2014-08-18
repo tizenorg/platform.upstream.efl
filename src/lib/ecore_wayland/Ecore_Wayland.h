@@ -14,6 +14,7 @@
 # include <xkbcommon/xkbcommon.h>
 # include "xdg-shell-client-protocol.h"
 # include "ivi-application-client-protocol.h"
+# define IVI_SURFACE_ID 6000
 
 # ifdef EAPI
 #  undef EAPI

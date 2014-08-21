@@ -513,9 +513,9 @@ cp %{SOURCE1001} .
 
 %build
 
-%if ! %{with x}
-CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
-%endif
+#%if ! %{with x}
+#CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
+#%endif
 
 %reconfigure \
     --enable-tizen \

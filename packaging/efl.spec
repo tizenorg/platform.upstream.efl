@@ -499,6 +499,7 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
     --with-tests=regular \
 %if %{with wayland}
     --enable-wayland \
+    --enable-wayland-ivi-shell \
     --enable-egl \
     --with-opengl=es \
     --enable-tile-rotate \

@@ -1073,6 +1073,19 @@ AC_ARG_ENABLE([wayland-xdg-shell],
    ],
    [want_wayland_xdg_shell="yes"])
 
+# Wayland IVI-Shell
+AC_ARG_ENABLE([wayland-ivi-shell],
+   [AC_HELP_STRING([--enable-wayland-ivi-shell],
+       [enable ivi-shell support. @<:@default=disabled@:>@])],
+   [
+    if test "x${enableval}" = "xyes" ; then
+       want_wayland_ivi_shell="yes"
+    else
+       want_wayland_ivi_shell="no"
+    fi
+   ],
+   [want_wayland_ivi_shell="no"])
+
 # Fb
 AC_ARG_ENABLE([fb],
    [AC_HELP_STRING([--enable-fb],
@@ -3369,6 +3382,13 @@ if test "x${build_ecore_evas_wayland}" = "xyes" && \
    AC_DEFINE(USE_XDG_SHELL, 1, [Ecore_Evas Wayland XDG-Shell Support])
 fi
 
+want_ecore_evas_wayland_ivi_shell="no"
+if test "x${build_ecore_evas_wayland}" = "xyes" && \
+   test "x${want_wayland_ivi_shell}" = "xyes" ; then
+   want_ecore_evas_wayland_ivi_shell="yes"
+   AC_DEFINE(USE_IVI_SHELL, 1, [Ecore_Evas Wayland IVI-Shell Support])
+fi
+
 ECORE_EVAS_MODULE([software-gdi], [${want_ecore_evas_software_gdi}])
 ECORE_EVAS_MODULE([software-ddraw], [${want_ecore_evas_software_ddraw}])
 
@@ -4116,6 +4136,7 @@ echo "Ecore_X.........: ${with_x11} (${features_ecore_x})"
 echo "Ecore_SDL.......: $want_sdl"
 echo "Ecore_Wayland...: $want_wayland"
 echo "XDG-Shell.......: $want_ecore_evas_wayland_xdg_shell"
+echo "IVI-Shell.......: $want_ecore_evas_wayland_ivi_shell"
 if test "${have_linux}" = "yes"; then
 echo "Ecore_FB........: $want_fb (${features_ecore_fb})"
 elif test "${have_ps3}" = "yes"; then

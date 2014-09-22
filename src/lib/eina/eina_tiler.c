@@ -1380,10 +1380,11 @@ eina_tiler_union(Eina_Tiler *dst,
           }
         _splitter_rect_add(dst, &_rect);
      }
-   eina_iterator_free(itr);
 
    if (rect)
      dst->last.add = *rect;
+
+   eina_iterator_free(itr);
 
    return EINA_TRUE;
 }
@@ -1418,10 +1419,11 @@ eina_tiler_subtract(Eina_Tiler *dst,
           }
         _splitter_rect_del(dst, &_rect);
      }
-   eina_iterator_free(itr);
 
    if (rect)
      dst->last.del = *rect;
+
+   eina_iterator_free(itr);
 
    return EINA_TRUE;
 }
@@ -1430,11 +1432,11 @@ EAPI Eina_Tiler *
 eina_tiler_intersection(Eina_Tiler *t1,
                         Eina_Tiler *t2)
 {
-   Eina_Tiler *t;
+   Eina_Tiler *t = NULL;
    int w, h;
 
-   Eina_Iterator *itr1, *itr2;
-   Eina_Rectangle rect, *rect1, *rect2;
+   Eina_Iterator *itr1 = NULL, *itr2 = NULL;
+   Eina_Rectangle rect, *rect1 = NULL, *rect2 = NULL;
 
    EINA_MAGIC_CHECK_TILER(t1, NULL);
    EINA_MAGIC_CHECK_TILER(t2, NULL);
@@ -1442,17 +1444,20 @@ eina_tiler_intersection(Eina_Tiler *t1,
    if (!(eina_rectangles_intersect(&t1->area, &t2->area)))
      return NULL;
 
-   w = MIN(t1->area.w, t2->area.w);
-   h = MIN(t1->area.h, t2->area.h);
-   t = eina_tiler_new(w, h);
-
    itr1 = eina_tiler_iterator_new(t1);
    itr2 = eina_tiler_iterator_new(t2);
 
+   if (!((itr1) && (itr2)))
+     goto cleanup;
+
    if ((!eina_iterator_next(itr1, (void**)(void*)(&rect1))) && (!rect1))
-     return NULL;
+     goto cleanup;
    if ((!eina_iterator_next(itr2, (void**)(void*)(&rect2))) && (!rect2))
-     return NULL;
+     goto cleanup;
+
+   w = MIN(t1->area.w, t2->area.w);
+   h = MIN(t1->area.h, t2->area.h);
+   t = eina_tiler_new(w, h);
 
    while((rect1) && (rect2))
      {
@@ -1493,6 +1498,13 @@ eina_tiler_intersection(Eina_Tiler *t1,
         break;
      }
 
+   if (eina_tiler_empty(t))
+     {
+        eina_tiler_free(t);
+        t = NULL;
+     }
+
+cleanup:
    eina_iterator_free(itr1);
    eina_iterator_free(itr2);
 
@@ -1503,9 +1515,10 @@ EAPI Eina_Bool
 eina_tiler_equal(Eina_Tiler *t1,
                  Eina_Tiler *t2)
 {
-   Eina_Iterator  *itr1, *itr2;
-   Eina_Rectangle *rect1, *rect2;
+   Eina_Iterator  *itr1 = NULL, *itr2 = NULL;
+   Eina_Rectangle *rect1 = NULL, *rect2 = NULL;
    Eina_Bool      next_t1 = EINA_FALSE, next_t2 = EINA_FALSE;
+   Eina_Bool r = EINA_FALSE;
 
    EINA_MAGIC_CHECK_TILER(t1, EINA_FALSE);
    EINA_MAGIC_CHECK_TILER(t2, EINA_FALSE);
@@ -1516,41 +1529,40 @@ eina_tiler_equal(Eina_Tiler *t1,
    itr1 = eina_tiler_iterator_new(t1);
    itr2 = eina_tiler_iterator_new(t2);
 
+   if (!((itr1) && (itr2)))
+     goto cleanup;
+
    if ((!eina_iterator_next(itr1, (void**)(void*)(&rect1))) && (!rect1))
-     return EINA_FALSE;
+     goto cleanup;
    if ((!eina_iterator_next(itr2, (void**)(void*)(&rect2))) && (!rect2))
-     return EINA_FALSE;
+     goto cleanup;
 
    while((rect1) && (rect2))
      {
-        if (eina_rectangles_intersect(rect1, rect2))
-          {
-             if ((rect1->x != rect2->x) ||
-                 (rect1->y != rect2->y) ||
-                 (rect1->w != rect2->w) ||
-                 (rect1->h != rect2->h))
-               {
-                  return EINA_FALSE;
-               }
-          }
-        else
-          return EINA_FALSE;
+        if (!eina_rectangles_intersect(rect1, rect2))
+          break;
+
+        if ((rect1->x != rect2->x) || (rect1->y != rect2->y) ||
+            (rect1->w != rect2->w) || (rect1->h != rect2->h))
+          break;
 
         next_t1 = eina_iterator_next(itr1, (void**)&rect1);
         next_t2 = eina_iterator_next(itr2, (void**)&rect2);
 
         if (next_t1 != next_t2)
-          return EINA_FALSE;
+          break;
 
         if (!next_t1 && !next_t2)
           break;
      }
 
+   r = EINA_TRUE;
+
+cleanup:
    eina_iterator_free(itr1);
    eina_iterator_free(itr2);
 
-   return EINA_TRUE;
-
+   return r;
 }
 
 struct _Eina_Tile_Grid_Slicer_Iterator

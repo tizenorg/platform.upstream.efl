@@ -1184,6 +1184,48 @@ EFL_INTERNAL_DEPEND_PKG([EFL], [eo])
 EFL_LIB_END([Efl])
 #### End of Efl
 
+#### Ector
+
+EFL_LIB_START([Ector])
+
+
+### Default values
+
+### Additional options to configure
+
+### Checks for programs
+
+### Checks for libraries
+
+## Compatibility layers
+
+EFL_PLATFORM_DEPEND([ECTOR], [evil])
+
+EFL_INTERNAL_DEPEND_PKG([ECTOR], [eina])
+EFL_INTERNAL_DEPEND_PKG([ECTOR], [eo])
+EFL_INTERNAL_DEPEND_PKG([ECTOR], [efl])
+
+
+EFL_EVAL_PKGS([ECTOR])
+
+### Checks for header files
+
+### Checks for types
+
+### Checks for structures
+
+### Checks for compiler characteristics
+
+### Checks for linker characteristics
+
+### Checks for library functions
+
+### Check availability
+
+EFL_LIB_END([ECTOR])
+
+#### End of Ector
+
 #### Evas
 EFL_LIB_START_OPTIONAL([Evas], [test "x${build_gui}" = "xyes"])
 
@@ -2113,6 +2155,47 @@ if test "x${build_gui}" = "xno"; then
 fi
 
 #### End of Evas
+
+#### Ector
+
+EFL_LIB_START([Ector])
+
+
+### Default values
+
+### Additional options to configure
+
+### Checks for programs
+
+### Checks for libraries
+
+## Compatibility layers
+
+EFL_PLATFORM_DEPEND([ECTOR], [evil])
+
+EFL_INTERNAL_DEPEND_PKG([ECTOR], [eina])
+EFL_INTERNAL_DEPEND_PKG([ECTOR], [eo])
+EFL_INTERNAL_DEPEND_PKG([ECTOR], [evas])
+
+EFL_EVAL_PKGS([ECTOR])
+
+### Checks for header files
+
+### Checks for types
+
+### Checks for structures
+
+### Checks for compiler characteristics
+
+### Checks for linker characteristics
+
+### Checks for library functions
+
+### Check availability
+
+EFL_LIB_END([ECTOR])
+
+#### End of Ector
 
 #### Edje CXX
 EFL_LIB_START([Evas_Cxx])
@@ -4650,6 +4733,7 @@ pc/ecore-audio.pc
 pc/ecore-audio-cxx.pc
 pc/ecore-avahi.pc
 pc/ecore-buffer.pc
+pc/ector.pc
 pc/embryo.pc
 pc/eio.pc
 pc/eldbus.pc
@@ -4813,6 +4897,7 @@ fi
 echo "Ecore_Audio.....: ${efl_lib_optional_ecore_audio} (${features_ecore_audio})"
 echo "Ecore_Avahi.....: yes (${features_ecore_avahi})"
 echo "Ecore_Evas......: ${efl_lib_optional_ecore_evas} (${features_ecore_evas})"
+echo "Ector...........: yes"
 echo "Eeze............: ${efl_lib_optional_eeze} (${features_eeze})"
 echo "EPhysics........: ${efl_lib_optional_ephysics}"
 echo "Edje............: ${efl_lib_optional_edje} (${features_edje})"

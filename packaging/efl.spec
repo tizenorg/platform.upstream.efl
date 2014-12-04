@@ -512,6 +512,31 @@ Requires: eolian = %{version}-%{release}
 Example files for eolian
 
 
+%package -n elocation
+Summary: elocation
+Group:    Graphics & UI Framework/Development
+Requires: %{name}-data = %{version}-%{release}
+
+%description -n elocation
+TODO
+
+%package -n elocation-devel
+Summary: Development components for the elocation package
+Group:    Graphics & UI Framework/Development
+Requires: elocation = %{version}-%{release}
+
+%description -n elocation-devel
+Development files for elocation
+
+%package -n elocation-examples
+Summary:  Examples for the elocation package
+Group:    Graphics & UI Framework/Testing
+Requires: elocation = %{version}-%{release}
+
+%description -n elocation-examples
+Example files for elocation
+
+
 %prep
 %setup -q
 cp %{SOURCE1001} .
@@ -665,8 +690,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 
 %files -n eet-tools
 %manifest %{name}.manifest
-%{_bindir}/eet
-%{_bindir}/vieet
+%{_bindir}/*eet
 
 %files -n eet-examples
 %manifest %{name}.manifest
@@ -1009,3 +1033,15 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %files -n eolian-examples
 %{_datadir}/eolian_*/examples/*
 
+
+%files -n elocation
+%{_libdir}/libelocation.so.*
+
+%files -n elocation-devel
+%{_includedir}/elocation-*1/*.h*
+%{_libdir}/libelocation.so*
+
+%files -n elocation-examples
+%{_libdir}/pkgconfig/elocation.pc
+%{_datadir}/elocation/examples/Makefile.examples
+%{_datadir}/elocation/examples/elocation.c

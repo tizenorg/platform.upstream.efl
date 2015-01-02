@@ -123,6 +123,8 @@ typedef enum _Efl_Graphics_Gradient_Spread
   EFL_GRAPHICS_GRADIENT_SPREAD_LAST
 } Efl_Graphics_Gradient_Spread;
 
+#include "interfaces/efl_graphics_utils.h"
+
 #include "interfaces/efl_graphics_shape.eo.h"
 #include "interfaces/efl_graphics_gradient.eo.h"
 #include "interfaces/efl_graphics_gradient_linear.eo.h"

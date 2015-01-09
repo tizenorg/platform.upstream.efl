@@ -49,9 +49,9 @@ BuildRequires:  pkgconfig(openssl)
 BuildRequires:  gnutls-devel
 BuildRequires:  curl-devel
 BuildRequires:  pkgconfig(vconf)
-BuildRequires:  pkgconfig(xkbcommon)
+#BuildRequires:  pkgconfig(xkbcommon)
 BuildRequires:  systemd-devel
-BuildRequires:  pkgconfig(ibus-1.0)
+#BuildRequires:  pkgconfig(ibus-1.0)
 
 #eldbus
 BuildRequires:  dbus-devel

@@ -516,6 +516,13 @@ cp %{SOURCE1001} .
 
 
 %build
+%ifarch %{arm}
+	export CFLAGS+=" -fvisibility=hidden -ffast-math -mfpu=neon -ftree-vectorize -mfloat-abi=softfp -fPIC"
+	export CXXFLAGS+=" -mfpu=neon -ftree-vectorize -mfloat-abi=softfp"
+%else
+	export CFLAGS+=" -fvisibility=hidden -ffast-math -fPIC"
+%endif
+export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed "
 
 %reconfigure \
     --with-x11=xlib \

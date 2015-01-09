@@ -634,7 +634,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %defattr(-,root,root,-)
 %{_includedir}/efl-1/Efl*.h
 %{_includedir}/efl-1/interfaces/efl*.h
-%{_includedir}/efl-cxx-1/*.hh
+#%{_includedir}/efl-cxx-1/*.hh
 %{_libdir}/cmake/Efl*/*.cmake
 %{_libdir}/libefl.so
 %{_libdir}/pkgconfig/efl*.pc
@@ -682,7 +682,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
 %{_includedir}/eet-*1/*.h*
-%{_includedir}/eet-*1/*/*.h*
+#%{_includedir}/eet-*1/*/*.h*
 %{_libdir}/libeet.so
 %{_libdir}/pkgconfig/eet*.pc
 %{_libdir}/cmake/Eet*/*.cmake
@@ -763,7 +763,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/ecore_x/*/*/*
 %endif
 %{_libdir}/ecore_evas/engines/*/*/module.so
-%{_libdir}/ecore_imf/modules/*/*/module.so
+#%{_libdir}/ecore_imf/modules/*/*/module.so
 %{_libdir}/ecore/system/systemd/v-*/module.so
 %{_datadir}/ecore/checkme
 %{_datadir}/ecore_*/checkme
@@ -779,7 +779,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
 %{_includedir}/ecore*/*.h
-%{_includedir}/ecore*cxx*/*.hh
+#%{_includedir}/ecore*cxx*/*.hh
 %{_libdir}/libecore.so
 %{_libdir}/libecore_audio.so
 %{_libdir}/libecore_avahi.so
@@ -935,7 +935,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 #%license %{_builddir}/%{buildsubdir}/COPYING
 %{_libdir}/libemotion.so.*
 %{_libdir}/edje/modules/emotion/*/module.so
-%{_libdir}/emotion/modules/*/*/module.so
+#%{_libdir}/emotion/modules/*/*/module.so
 %{_datadir}/emotion/*
 %{_bindir}/emotion_test
 
@@ -1006,7 +1006,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 
 %files -n eolian-devel
 %{_includedir}/eolian-*1/*.h*
-%{_includedir}/eolian-*1/*/*.h*
+#%{_includedir}/eolian-*1/*/*.h*
 %{_datadir}/eolian/include/*/*.eo
 %{_libdir}/libeolian.so*
 %{_libdir}/cmake/Eolian*/*.cmake

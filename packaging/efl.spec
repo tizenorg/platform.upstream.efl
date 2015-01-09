@@ -4,7 +4,8 @@
 Name:           efl
 Version:        1.12.2
 Release:        0
-License:        LGPL-2.1
+#License:        LGPL-2.1
+License:        %{_builddir}/%{buildsubdir}/COPYING
 Summary:        Enlightenment Foundation Libraries - set of libraries used (not only) by E17
 Url:            http://enlightenment.org/
 Group:          Graphics & UI Framework/API
@@ -636,7 +637,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %files -n eina
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
-%license COPYING
+#%license %{_builddir}/%{buildsubdir}/COPYING
 %{_libdir}/libeina.so.*
 %{_bindir}/eina-bench-cmp
 
@@ -658,7 +659,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %files -n eet
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
-%license COPYING
+#%license %{_builddir}/%{buildsubdir}/COPYING
 %{_libdir}/libeet*.so.*
 
 %files -n eet-tools
@@ -706,7 +707,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %files -n evas
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
-%license COPYING
+#%license %{_builddir}/%{buildsubdir}/COPYING
 %{_bindir}/ecore_evas_*
 %{_bindir}/evas_cserve2_client
 %{_bindir}/evas_cserve2_debug
@@ -735,7 +736,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %files -n ecore
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
-%license COPYING
+#%license %{_builddir}/%{buildsubdir}/COPYING
 %{_libdir}/libecore.so.*
 %{_libdir}/libecore_audio.so.*
 %{_libdir}/libecore_avahi.so.*
@@ -799,7 +800,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %defattr(-,root,root,-)
 %{_libdir}/libeldbus.so.*
 %{_bindir}/eldbus*
-%license COPYING
+#%license %{_builddir}/%{buildsubdir}/COPYING
 
 %files -n eldbus-examples
 %manifest %{name}.manifest
@@ -818,7 +819,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %files -n embryo
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
-%license COPYING
+#%license %{_builddir}/%{buildsubdir}/COPYING
 %{_bindir}/embryo_cc
 %{_libdir}/libembryo.so.*
 %{_datadir}/embryo/include/default.inc
@@ -833,7 +834,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %files -n eio
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
-%license COPYING
+#%license %{_builddir}/%{buildsubdir}/COPYING
 %{_libdir}/libeio.so.*
 
 %files -n eio-examples
@@ -852,7 +853,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %files -n edje
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
-%license COPYING
+#%license %{_builddir}/%{buildsubdir}/COPYING
 %{_libdir}/libedje.so.*
 %{_libdir}/edje/utils/*/*
 %{_datadir}/edje/include/edje.inc
@@ -880,7 +881,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %files -n eeze
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
-%license COPYING
+#%license %{_builddir}/%{buildsubdir}/COPYING
 %{_libdir}/libeeze.so.*
 %{_bindir}/eeze_disk_ls
 %{_bindir}/eeze_mount
@@ -900,7 +901,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %files -n efreet
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
-%license COPYING
+#%license %{_builddir}/%{buildsubdir}/COPYING
 %{_datadir}/dbus-1/services/org.enlightenment.Efreet.service
 %{_userunitdir}/efreet.service
 %{_bindir}/efreetd
@@ -924,7 +925,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %files -n emotion
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
-%license COPYING
+#%license %{_builddir}/%{buildsubdir}/COPYING
 %{_libdir}/libemotion.so.*
 %{_libdir}/edje/modules/emotion/*/module.so
 %{_libdir}/emotion/modules/*/*/module.so
@@ -948,7 +949,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %files -n ethumb
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
-%license COPYING
+#%license %{_builddir}/%{buildsubdir}/COPYING
 %{_libdir}/libethumb.so.*
 %{_libdir}/libethumb_client.so.*
 %{_datadir}/dbus-1/services/org.enlightenment.Ethumb.service

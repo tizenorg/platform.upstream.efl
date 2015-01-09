@@ -547,6 +547,7 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
     --disable-rpath \
 %endif
     --enable-fb \
+    --disable-tslib \
     --disable-gstreamer1 \
     --disable-physics \
     --enable-always-build-examples \

@@ -62,8 +62,9 @@ BuildRequires:  pkgconfig(sndfile)
 BuildRequires:  pkgconfig(libpulse)
 
 #emotion
-BuildRequires:  pkgconfig(gstreamer-1.0)
-BuildRequires:  pkgconfig(gstreamer-plugins-base-1.0)
+#BuildRequires:  pkgconfig(gstreamer-1.0)
+BuildRequires:  gstreamer-devel
+#BuildRequires:  pkgconfig(gstreamer-plugins-base-1.0)
 
 #evas
 BuildRequires:  libexif-devel
@@ -545,6 +546,7 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
     --enable-tile-rotate \
     --disable-rpath \
 %endif
+    --disable-gstreamer1 \
     --disable-physics \
     --enable-always-build-examples \
     --enable-systemd \

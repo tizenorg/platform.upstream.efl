@@ -44,7 +44,7 @@ BuildRequires:  pkgconfig(sm)
 %endif
 
 BuildRequires:  glib2-devel
-BuildRequires:  pkgconfig(bullet)
+#BuildRequires:  pkgconfig(bullet)
 BuildRequires:  pkgconfig(openssl)
 BuildRequires:  gnutls-devel
 BuildRequires:  curl-devel
@@ -318,31 +318,31 @@ Requires: eio = %{version}-%{release}
 Development files for eio
 
 ############ Ephysics
-%package -n ephysics
-Summary: EFL wrapper for the Bullet Physics library
+#%package -n ephysics
+#Summary: EFL wrapper for the Bullet Physics library
 
-%description -n ephysics
-EPhysics is a library that makes it easy to use Ecore, Evas and Bullet
-Physics together. It's a kind of wrapper, a glue, between these libraries.
-It's not intended to be a physics library (we already have many out there).
+#%description -n ephysics
+#EPhysics is a library that makes it easy to use Ecore, Evas and Bullet
+#Physics together. It's a kind of wrapper, a glue, between these libraries.
+#It's not intended to be a physics library (we already have many out there).
 
-Enlightenment Input/Output Library
+#Enlightenment Input/Output Library
 
-%package -n ephysics-examples
-Summary:  Examples for the ephysics package
-Group:    Graphics & UI Framework/Testing
-Requires: ephysics = %{version}-%{release}
+#%package -n ephysics-examples
+#Summary:  Examples for the ephysics package
+#Group:    Graphics & UI Framework/Testing
+#Requires: ephysics = %{version}-%{release}
 
-%description -n ephysics-examples
-Example files for ephysics
+#%description -n ephysics-examples
+#Example files for ephysics
 
-%package -n ephysics-devel
-Summary:  Development components for the ephysics package
-Group:    Graphics & UI Framework/Development
-Requires: ephysics = %{version}-%{release}
+#%package -n ephysics-devel
+#Summary:  Development components for the ephysics package
+#Group:    Graphics & UI Framework/Development
+#Requires: ephysics = %{version}-%{release}
 
-%description -n ephysics-devel
-Development files for ephysics
+#%description -n ephysics-devel
+#Development files for ephysics
 
 ############ Edje
 %package -n edje
@@ -545,6 +545,7 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
     --enable-tile-rotate \
     --disable-rpath \
 %endif
+    --disable-physics \
     --enable-always-build-examples \
     --enable-systemd \
     --enable-lua-old \
@@ -614,8 +615,8 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %post -n ethumb -p /sbin/ldconfig
 %postun -n ethumb -p /sbin/ldconfig
 
-%post -n ephysics -p /sbin/ldconfig
-%postun -n ephysics -p /sbin/ldconfig
+#%post -n ephysics -p /sbin/ldconfig
+#%postun -n ephysics -p /sbin/ldconfig
 
 
 %files -n %{name}
@@ -981,16 +982,16 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/cmake/Ethumb/*.cmake
 %{_libdir}/cmake/EthumbClient/*.cmake
 
-%files -n ephysics
-%{_libdir}/libephysics.so.*
+#%files -n ephysics
+#%{_libdir}/libephysics.so.*
 
-%files -n ephysics-devel
-%{_libdir}/libephysics.so
-%{_libdir}/pkgconfig/ephysics.pc
-%{_includedir}/ephysics-1/EPhysics.h
+#%files -n ephysics-devel
+#%{_libdir}/libephysics.so
+#%{_libdir}/pkgconfig/ephysics.pc
+#%{_includedir}/ephysics-1/EPhysics.h
 
-%files -n ephysics-examples
-%{_datadir}/ephysics/examples/*
+#%files -n ephysics-examples
+#%{_datadir}/ephysics/examples/*
 
 
 %files -n eolian

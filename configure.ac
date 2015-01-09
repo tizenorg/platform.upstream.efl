@@ -4408,6 +4408,7 @@ AC_ARG_ENABLE([i-really-know-what-i-am-doing-and-that-this-will-probably-break-t
    [ BARF_OK="xno" ])
 
 
+#### src/examples/ephysics/Makefile
 AC_CONFIG_FILES([
 Makefile
 data/Makefile
@@ -4427,7 +4428,6 @@ src/examples/ecore/Makefile
 src/examples/ecore_avahi/Makefile
 src/examples/eio/Makefile
 src/examples/eldbus/Makefile
-src/examples/ephysics/Makefile
 src/examples/edje/Makefile
 src/examples/emotion/Makefile
 src/examples/ethumb_client/Makefile

@@ -34,7 +34,7 @@ BuildRequires:  pkgconfig(xcomposite)
 BuildRequires:  pkgconfig(xdamage)
 BuildRequires:  pkgconfig(xfixes)
 BuildRequires:  pkgconfig(xrender)
-BuildRequires:  pkgconfig(xscrnsaver)
+#BuildRequires:  pkgconfig(xscrnsaver)
 BuildRequires:  libXtst-devel
 BuildRequires:  pkgconfig(xi)
 BuildRequires:  pkgconfig(ice)

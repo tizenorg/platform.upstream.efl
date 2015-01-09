@@ -504,13 +504,13 @@ Requires: eolian = %{version}-%{release}
 %description -n eolian-devel
 Development files for eolian
 
-%package -n eolian-examples
-Summary:  Examples for the eolian package
-Group:    Graphics & UI Framework/Testing
-Requires: eolian = %{version}-%{release}
+#%package -n eolian-examples
+#Summary:  Examples for the eolian package
+#Group:    Graphics & UI Framework/Testing
+#Requires: eolian = %{version}-%{release}
 
-%description -n eolian-examples
-Example files for eolian
+#%description -n eolian-examples
+#Example files for eolian
 
 
 %prep
@@ -1007,6 +1007,6 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/libeolian.so*
 %{_libdir}/cmake/Eolian*/*.cmake
 
-%files -n eolian-examples
-%{_datadir}/eolian_*/examples/*
+#%files -n eolian-examples
+#%{_datadir}/eolian_*/examples/*
 

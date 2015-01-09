@@ -1,5 +1,4 @@
 %bcond_with wayland
-%bcond_with x
 
 Name:           efl
 Version:        1.12.2
@@ -23,7 +22,6 @@ BuildRequires:  pkgconfig(wayland-cursor)
 BuildRequires:  pkgconfig(wayland-egl)
 %endif
 
-%if %{with x}
 BuildRequires:  pkgconfig(glesv2)
 BuildRequires:  pkgconfig(libdri2)
 BuildRequires:  pkgconfig(x11)
@@ -41,7 +39,6 @@ BuildRequires:  libXtst-devel
 BuildRequires:  pkgconfig(xi)
 BuildRequires:  pkgconfig(ice)
 BuildRequires:  pkgconfig(sm)
-%endif
 
 BuildRequires:  glib2-devel
 #BuildRequires:  pkgconfig(bullet)
@@ -520,11 +517,8 @@ cp %{SOURCE1001} .
 
 %build
 
-%if ! %{with x}
-CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
-%endif
-
 %reconfigure \
+    --with-x11=xlib \
     --enable-g-main-loop \
     --disable-xim \
     --disable-scim \
@@ -538,14 +532,8 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
     --enable-tile-rotate \
     --disable-rpath \
 %endif
-%if %{with x}
     --with-opengl=es \
     --disable-gesture \
-%else
-    --with-x11=none \
-    --enable-tile-rotate \
-    --disable-rpath \
-%endif
     --enable-fb \
     --disable-tslib \
     --disable-gstreamer1 \
@@ -758,10 +746,8 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/libecore_wayland.so.*
 %{_libdir}/libecore_drm.so.*
 %endif
-%if %{with x}
 %{_libdir}/libecore_x.so.*
 %{_libdir}/ecore_x/*/*/*
-%endif
 %{_libdir}/ecore_evas/engines/*/*/module.so
 #%{_libdir}/ecore_imf/modules/*/*/module.so
 %{_libdir}/ecore/system/systemd/v-*/module.so
@@ -796,9 +782,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/libecore_wayland.so
 %{_libdir}/libecore_drm.so
 %endif
-%if %{with x}
 %{_libdir}/libecore_x.so
-%endif
 %{_libdir}/pkgconfig/ecore*.pc
 %{_libdir}/cmake/Ecore*/*.cmake
 

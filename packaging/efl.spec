@@ -546,6 +546,7 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
     --enable-tile-rotate \
     --disable-rpath \
 %endif
+    --enable-fb \
     --disable-gstreamer1 \
     --disable-physics \
     --enable-always-build-examples \
@@ -751,6 +752,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/libecore_input.so.*
 %{_libdir}/libecore_input_evas.so.*
 %{_libdir}/libecore_ipc.so.*
+%{_libdir}/libecore_fb.so.*
 %if %{with wayland}
 %{_libdir}/libecore_wayland.so.*
 %{_libdir}/libecore_drm.so.*
@@ -788,6 +790,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/libecore_input.so
 %{_libdir}/libecore_input_evas.so
 %{_libdir}/libecore_ipc.so
+%{_libdir}/libecore_fb.so
 %if %{with wayland}
 %{_libdir}/libecore_wayland.so
 %{_libdir}/libecore_drm.so

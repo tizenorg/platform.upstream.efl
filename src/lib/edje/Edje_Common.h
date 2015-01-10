@@ -1807,6 +1807,10 @@ typedef enum _Edje_Tween_Mode
    EDJE_TWEEN_MODE_OPT_FROM_CURRENT  = (1 << 31) /**< Options from current tween mode value */
 } Edje_Tween_Mode;
 
+// TIZEN_ONLY(20150110): Add plugin keyword.
+#define PLUGIN
+//
+
 /**
  * @typedef Edje_Action_Type
  *
@@ -1840,7 +1844,15 @@ typedef enum _Edje_Action_Type
    EDJE_ACTION_TYPE_PHYSICS_STOP             = 22, /**< @since 1.8 @brief Physics stop action value */
    EDJE_ACTION_TYPE_PHYSICS_ROT_SET          = 23, /**< @since 1.8 @brief Physics rotation set action value */
    EDJE_ACTION_TYPE_VIBRATION_SAMPLE         = 24, /**< @since 1.10 @brief vibration sample action value */
+   // TIZEN_ONLY(20150110): Add plugin keyword.
+#ifdef PLUGIN
+   EDJE_ACTION_TYPE_RUN_PLUGIN               = 25,
+   EDJE_ACTION_TYPE_LAST                     = 26
+#else
    EDJE_ACTION_TYPE_LAST                     = 25  /**< Last action value */
+#endif
+   //
+   //EDJE_ACTION_TYPE_LAST                     = 25  /**< Last action value */
 } Edje_Action_Type;
 
 /**

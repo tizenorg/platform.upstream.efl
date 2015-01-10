@@ -272,6 +272,11 @@ typedef struct _Edje_Image_Directory_Entry           Edje_Image_Directory_Entry;
 typedef struct _Edje_Image_Directory_Set             Edje_Image_Directory_Set;
 typedef struct _Edje_Image_Directory_Set_Entry       Edje_Image_Directory_Set_Entry;
 typedef struct _Edje_Limit                           Edje_Limit;
+// TIZEN_ONLY(20150110): Add plugin keyword.
+#ifdef PLUGIN
+typedef struct _Edje_Plugin                          Edje_Plugin;
+#endif
+//
 typedef struct _Edje_Plugin                          Edje_Plugin;
 typedef struct _Edje_Sound_Sample                    Edje_Sound_Sample;
 typedef struct _Edje_Sound_Tone                      Edje_Sound_Tone;
@@ -469,6 +474,11 @@ struct _Edje_File
    Edje_Vibration_Directory       *vibration_dir;
 
    Eina_List                      *styles;
+   // TIZEN_ONLY(20150110): Add plugin keyword.
+#ifdef PLUGIN
+   Eina_List                      *plugins;
+#endif
+   //
 
    Eina_List                      *color_classes;
    Eina_Hash                      *color_hash;
@@ -586,6 +596,17 @@ struct _Edje_Image_Directory_Set_Entry
    } border;
 };
 
+// TIZEN_ONLY(20150110): Add plugin keyword.
+#ifdef PLUGIN
+struct _Edje_Plugin /*External Plugin*/
+{
+   const char *name;    /* the name of the plugin */
+   const char *source;  /* the source of the plugin */
+   const char *param;
+};
+#endif
+//
+
 struct _Edje_Sound_Sample /*Sound Sample*/
 {
    const char *name; /* the nominal name of the sound */
@@ -636,6 +657,11 @@ struct _Edje_Program /* a conditional program to be run */
    const char *source; /* if part that emitted this (name) matches this glob */
    const char *sample_name;
    const char *tone_name;
+   // TIZEN_ONLY(20150110): Add plugin keyword.
+#ifdef PLUGIN
+   const char *plugin_name;
+#endif
+   //
    double duration;
    double speed;
    const char *vibration_name;
@@ -1937,6 +1963,11 @@ EAPI void _edje_edd_shutdown(void);
 
 EAPI extern Eet_Data_Descriptor *_edje_edd_edje_file;
 EAPI extern Eet_Data_Descriptor *_edje_edd_edje_part_collection;
+// TIZEN_ONLY(20150110): Add plugin keyword.
+#ifdef PLUGIN
+EAPI extern Eet_Data_Descriptor *_edje_edd_edje_plugin;
+#endif
+//
 
 extern int              _edje_anim_count;
 extern Ecore_Animator  *_edje_timer;
@@ -2611,6 +2642,12 @@ void _animation_get(Eo *obj, void *_pd, va_list *list);
 
 void edje_signal_init(void);
 void edje_signal_shutdown(void);
+
+// TIZEN_ONLY(20150110): Add plugin keyword.
+#ifdef PLUGIN
+typedef Eina_Bool (*Edje_Module_Plugin_Run) (const Evas_Object *obj, const char *name, const char *param);
+#endif
+//
 
 #ifdef HAVE_LIBREMIX
 #include <remix/remix.h>

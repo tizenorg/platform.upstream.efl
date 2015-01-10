@@ -1540,6 +1540,22 @@ _edje_file_free(Edje_File *edf)
         free(edf->vibration_dir);
      }
 
+   // TIZEN_ONLY(20150110): Add plugin keyword.
+#ifdef PLUGIN
+   Edje_Plugin *plugin;
+   EINA_LIST_FREE(edf->plugins, plugin)
+     {
+        if (edf->free_strings)
+          {
+             if (plugin->name) eina_stringshare_del(plugin->name);
+             if (plugin->source) eina_stringshare_del(plugin->source);
+             if (plugin->param)eina_stringshare_del(plugin->param);
+          }
+        free(plugin);
+     }
+#endif
+   //
+
    if (edf->external_dir)
      {
         if (edf->external_dir->entries) free(edf->external_dir->entries);
@@ -1579,6 +1595,11 @@ _edje_program_free(Edje_Program *pr, Eina_Bool free_strings)
         if (pr->state2) eina_stringshare_del(pr->state2);
         if (pr->sample_name) eina_stringshare_del(pr->sample_name);
         if (pr->tone_name) eina_stringshare_del(pr->tone_name);
+        // TIZEN_ONLY(20150110): Add plugin keyword.
+#ifdef PLUGIN
+        if (pr->plugin_name) eina_stringshare_del(pr->plugin_name);
+#endif
+        //
      }
    EINA_LIST_FREE(pr->targets, prt)
       free(prt);

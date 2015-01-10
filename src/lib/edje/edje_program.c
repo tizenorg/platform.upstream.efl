@@ -978,6 +978,13 @@ low_mem_current:
            goto break_prog;
          _edje_multisense_internal_sound_tone_play(ed, pr->tone_name, pr->duration, pr->channel);
          break;
+      // TIZEN_ONLY(20150110): Add plugin keyword.
+#ifdef PLUGIN
+     case EDJE_ACTION_TYPE_RUN_PLUGIN:
+        // DO NOTHING!
+        break;
+#endif
+      //
       case EDJE_ACTION_TYPE_VIBRATION_SAMPLE:
          if (_edje_block_break(ed))
            goto break_prog;

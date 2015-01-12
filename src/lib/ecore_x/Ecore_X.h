@@ -1620,6 +1620,9 @@ EAPI Eina_Bool                 ecore_x_window_manage(Ecore_X_Window win);
 EAPI void                      ecore_x_window_container_manage(Ecore_X_Window win);
 EAPI void                      ecore_x_window_client_manage(Ecore_X_Window win);
 EAPI void                      ecore_x_window_sniff(Ecore_X_Window win);
+// TIZEN_ONLY(20150112): Add dummy APIs to fix build failure.
+EAPI void                      ecore_x_window_unsniff(Ecore_X_Window win);
+//
 EAPI void                      ecore_x_window_client_sniff(Ecore_X_Window win);
 
 EAPI Ecore_X_Atom              ecore_x_atom_get(const char *name);

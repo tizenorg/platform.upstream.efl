@@ -5342,3 +5342,28 @@ edje_object_part_object_name_get(const Evas_Object *obj)
 }
 
 /* vim:set ts=8 sw=3 sts=3 expandtab cino=>5n-2f0^-2{2(0W1st0 :*/
+
+/////////////////////////////////////////////////////////////////
+// TIZEN_ONLY(20150112): Add dummy APIs to fix build failure.
+/////////////////////////////////////////////////////////////////
+EAPI Eina_Bool
+edje_text_class_get(const char *text_class, char **font, Evas_Font_Size *size)
+{
+   (void) text_class;
+   (void) font;
+   (void) size;
+   EDJE_DUMMY_API_LOG;
+   return EINA_FALSE;
+}
+
+EAPI Eina_Bool
+edje_object_text_class_get(const Evas_Object *obj, const char *text_class, char **font, Evas_Font_Size *size)
+{
+   (void) obj;
+   (void) text_class;
+   (void) font;
+   (void) size;
+   EDJE_DUMMY_API_LOG;
+   return EINA_FALSE;
+}
+/////////////////////////////////////////////////////////////////

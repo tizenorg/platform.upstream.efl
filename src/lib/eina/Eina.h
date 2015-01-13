@@ -211,6 +211,9 @@
 extern "C" {
 #endif
 
+#define EFL_DUMMY_API_LOG \
+   ERR("TIZEN_ONLY: This API is not implemented.")
+
 #include <eina_config.h>
 #include <eina_types.h>
 #include <eina_alloca.h>

@@ -5352,7 +5352,7 @@ edje_text_class_get(const char *text_class, char **font, Evas_Font_Size *size)
    (void) text_class;
    (void) font;
    (void) size;
-   EDJE_DUMMY_API_LOG;
+   EFL_DUMMY_API_LOG;
    return EINA_FALSE;
 }
 
@@ -5363,7 +5363,7 @@ edje_object_text_class_get(const Evas_Object *obj, const char *text_class, char 
    (void) text_class;
    (void) font;
    (void) size;
-   EDJE_DUMMY_API_LOG;
+   EFL_DUMMY_API_LOG;
    return EINA_FALSE;
 }
 /////////////////////////////////////////////////////////////////

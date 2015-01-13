@@ -5281,6 +5281,10 @@ st_collections_group_parts_part_effect(void)
                "FAR_SHADOW", EDJE_TEXT_EFFECT_FAR_SHADOW,
                "FAR_SOFT_SHADOW", EDJE_TEXT_EFFECT_FAR_SOFT_SHADOW,
                "GLOW", EDJE_TEXT_EFFECT_GLOW,
+               // TIZEN ONLY (20150113): NOT FIXED
+               "TIZEN_GLOW_SHADOW", EDJE_TEXT_EFFECT_TIZEN_GLOW_SHADOW,
+               "TIZEN_SHADOW", EDJE_TEXT_EFFECT_TIZEN_SHADOW,
+               //
                NULL);
    if (get_arg_count() >= 2)
      {
@@ -5355,6 +5359,9 @@ st_collections_group_parts_part_select_mode(void)
    current_part->select_mode = parse_enum(0,
                                 "DEFAULT", EDJE_ENTRY_SELECTION_MODE_DEFAULT,
                                 "EXPLICIT", EDJE_ENTRY_SELECTION_MODE_EXPLICIT,
+                                //TIZEN ONLY(20150113): NOT FIXED
+                                "BLOCK_HANDLE", EDJE_ENTRY_SELECTION_MODE_BLOCK_HANDLE,
+                                //
                                 NULL);
 }
 

@@ -1379,7 +1379,10 @@ typedef enum _Ecore_X_Illume_Indicator_Type_Mode
 typedef enum _Ecore_X_Illume_Window_State
 {
    ECORE_X_ILLUME_WINDOW_STATE_NORMAL = 0,
-   ECORE_X_ILLUME_WINDOW_STATE_FLOATING
+   ECORE_X_ILLUME_WINDOW_STATE_FLOATING,
+   // TIZEN ONLY (20150113) : NOT FIXED
+   ECORE_X_ILLUME_WINDOW_STATE_ASSISTANT_MENU
+   //
 } Ecore_X_Illume_Window_State;
 
 /* Window layer constants */

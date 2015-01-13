@@ -2305,3 +2305,34 @@ ecore_x_e_window_rotation_change_done_send(Ecore_X_Window root,
               SubstructureRedirectMask | SubstructureNotifyMask,
               &xev);
 }
+
+/////////////////////////////////////////////////////////////////
+// TIZEN_ONLY(20150112): Add dummy APIs to fix build failure.
+/////////////////////////////////////////////////////////////////
+EAPI void
+ecore_x_e_virtual_keyboard_on_prepare_request_send(Ecore_X_Window win)
+{
+   (void) win;
+   EFL_DUMMY_API_LOG;
+}
+
+EAPI void
+ecore_x_e_virtual_keyboard_off_prepare_request_send(Ecore_X_Window win)
+{
+   (void) win;
+   EFL_DUMMY_API_LOG;
+}
+
+EAPI Eina_Bool
+ecore_x_e_window_rotation_geometry_get(Ecore_X_Window win, int rot, int *x, int *y, int *w, int *h)
+{
+   (void) win;
+   (void) rot;
+   (void) x;
+   (void) y;
+   (void) w;
+   (void) h;
+   EFL_DUMMY_API_LOG;
+   return EINA_FALSE;
+}
+/////////////////////////////////////////////////////////////////

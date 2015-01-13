@@ -2721,6 +2721,7 @@ EAPI void                                  ecore_x_e_window_rotation_change_done
 EAPI void           ecore_x_e_virtual_keyboard_on_prepare_request_send(Ecore_X_Window win);
 EAPI void           ecore_x_e_virtual_keyboard_off_prepare_request_send(Ecore_X_Window win);
 EAPI Eina_Bool      ecore_x_e_window_rotation_geometry_get(Ecore_X_Window win, int rot, int *x, int *y, int *w, int *h);
+EAPI void           ecore_x_e_window_rotation_geometry_set(Ecore_X_Window win, int rot, int x, int y, int w, int h);
 /////////////////////////////////////////////////////////////////
 #ifdef __cplusplus
 }

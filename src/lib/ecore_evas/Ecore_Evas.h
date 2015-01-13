@@ -149,6 +149,13 @@ typedef enum _Ecore_Evas_Object_Associate_Flags
   ECORE_EVAS_OBJECT_ASSOCIATE_DEL = 1 << 2
 } Ecore_Evas_Object_Associate_Flags;
 
+/////////////////////////////////////////////////////////////////
+// TIZEN_ONLY(20151213): Add dummy APIs to fix build failure.
+/////////////////////////////////////////////////////////////////
+EAPI void ecore_evas_extn_socket_lock(Ecore_Evas *ee);
+EAPI void ecore_evas_extn_socket_unlock(Ecore_Evas *ee);
+/////////////////////////////////////////////////////////////////
+
 /* module setup/shutdown calls */
 
 EAPI int         ecore_evas_engine_type_supported_get(Ecore_Evas_Engine_Type engine);

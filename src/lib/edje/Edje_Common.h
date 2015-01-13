@@ -1339,7 +1339,10 @@ typedef enum _Edje_Text_Effect
    EDJE_TEXT_EFFECT_FAR_SOFT_SHADOW     = 9,  /**< Far soft shadow text effect value */
    EDJE_TEXT_EFFECT_GLOW                = 10, /**< Glow text effect value */
 
-   EDJE_TEXT_EFFECT_LAST                = 11, /**< Last text effect value */
+   // TIZEN_ONLY(20150113): NOT FIXED
+   EDJE_TEXT_EFFECT_TIZEN_GLOW_SHADOW   = 11,
+   //
+   EDJE_TEXT_EFFECT_LAST                = 12, /**< Last text effect value */
 
    EDJE_TEXT_EFFECT_SHADOW_DIRECTION_BOTTOM_RIGHT = (0x0 << 4), /**< Bottom right shadow direction value */
    EDJE_TEXT_EFFECT_SHADOW_DIRECTION_BOTTOM       = (0x1 << 4), /**< Bottom shadow direction value */

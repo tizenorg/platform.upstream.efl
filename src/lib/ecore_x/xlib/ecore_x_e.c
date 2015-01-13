@@ -2335,4 +2335,16 @@ ecore_x_e_window_rotation_geometry_get(Ecore_X_Window win, int rot, int *x, int 
    EFL_DUMMY_API_LOG;
    return EINA_FALSE;
 }
+
+EAPI void
+ecore_x_e_window_rotation_geometry_set(Ecore_X_Window win, int rot, int x, int y, int w, int h)
+{
+   (void) win;
+   (void) rot;
+   (void) x;
+   (void) y;
+   (void) w;
+   (void) h;
+   EFL_DUMMY_API_LOG;
+}
 /////////////////////////////////////////////////////////////////

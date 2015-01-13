@@ -471,7 +471,9 @@ typedef enum _Evas_Native_Surface_Type
    EVAS_NATIVE_SURFACE_X11,  /**< X Window system based type. pixmap id or visual of the pixmap */
    EVAS_NATIVE_SURFACE_OPENGL, /**< OpenGL system based type. texture or framebuffer id*/
    // TIZEN ONLY (20150112) : NOT FIXED
+   EVAS_NATIVE_SURFACE_TIZEN,
    EVAS_NATIVE_SURFACE_TBM    /**< Tizen system based type. This is used for tizen buffer manager. */
+   //
 } Evas_Native_Surface_Type;
 
 /**

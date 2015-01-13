@@ -510,6 +510,16 @@ struct _Evas_Native_Surface
          unsigned int format; /**< same as 'format' for glTexImage2D() */
          unsigned int x, y, w, h; /**< region inside the texture to use (image size is assumed as texture size, with 0, 0 being the top-left and co-ordinates working down to the right and bottom being positive) */
       } opengl; /**< Set this struct fields if surface data is OpenGL based. */
+
+      // TIZEN ONLY (20150113) : NOT FIXED
+      struct
+      {
+         void *buffer; /**< tbm surface */
+         int   rot; /**< rotation (0, 90, 180, 270) */
+         float ratio; /**< width/height ratio of the source image */
+         int   flip; /**< flip (0:none, 1:horizontal, 2:vertical, 3:both) */
+      } tizen; /**< Set this struct fields if your surface data is Tizen based. */
+      //
    } data; /**< Choose one union data according to your surface. */
 };
 

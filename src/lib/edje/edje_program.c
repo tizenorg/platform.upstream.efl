@@ -981,7 +981,37 @@ low_mem_current:
       // TIZEN_ONLY(20150110): Add plugin keyword.
 #ifdef PLUGIN
      case EDJE_ACTION_TYPE_RUN_PLUGIN:
-        // DO NOTHING!
+        // TIZEN_ONLY(20150119): Fix to load module for plugin.
+        if (_edje_block_break(ed))
+          {
+             goto break_prog;
+          }
+         Eina_List *l;
+         Edje_Plugin *p;
+         EINA_LIST_FOREACH(ed->file->plugins, l, p)
+           {
+              if (pr->plugin_name && p->name && !strcmp(pr->plugin_name, p->name)
+                  && p->source)
+                {
+                   Eina_Module *mod;
+                   mod = _edje_module_handle_load(p->source);
+                   if (!mod)
+                     {
+                        WRN("moudle could not be loaded: %s", p->source);
+                        break;
+                     }
+                   Edje_Module_Plugin_Run run_cb;
+                   run_cb = eina_module_symbol_get(mod, "edje_plugin_run");
+                   if (!run_cb)
+                     {
+                        WRN("plugin module does not have edje_plugin_run function");
+                        break;
+                     }
+                   else
+                     if (!run_cb(ed->obj, p->name, p->param)) WRN("edje plugin run failed");
+                }
+           }
+        //
         break;
 #endif
       //

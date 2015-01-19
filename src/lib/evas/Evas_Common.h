@@ -521,6 +521,14 @@ struct _Evas_Native_Surface
          float ratio; /**< width/height ratio of the source image */
          int   flip; /**< flip (0:none, 1:horizontal, 2:vertical, 3:both) */
       } tizen; /**< Set this struct fields if your surface data is Tizen based. */
+
+      struct
+      {
+         void *buffer; /**< tbm surface */
+         int   rot; /**< rotation (0, 90, 180, 270) */
+         float ratio; /**< width/height ratio of the source image */
+         int   flip; /**< flip (0:none, 1:horizontal, 2:vertical, 3:both) */
+      } tbm; /**< Set this struct fields if your surface data is Tizen based. */
       //
    } data; /**< Choose one union data according to your surface. */
 };

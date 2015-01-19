@@ -1,5 +1,8 @@
 #include "evas_common_private.h"
 #include "evas_private.h"
+#ifdef EVAS_CSERVE2
+#include "evas_cs2_private.h"
+#endif
 
 #include "Evas_Engine_Software_X11.h"
 #include "evas_engine.h"
@@ -641,11 +644,10 @@ eng_canvas_alpha_get(void *data, void *context EINA_UNUSED)
 static void *
 eng_image_native_set(void *data, void *image, void *native)
 {
-   //return image;
    Render_Engine *re = (Render_Engine *)data;
    Evas_Native_Surface *ns = native;
-   RGBA_Image *im = image, *im2;
-   Image_Entry *ie = image;
+   Image_Entry *ie = image, *ie2 = NULL;
+   RGBA_Image *im = image;
 
    if (!im || !ns) return im;
 
@@ -662,8 +664,7 @@ eng_image_native_set(void *data, void *image, void *native)
                   return im;
             }
       }
-   else if (ns->type == EVAS_NATIVE_SURFACE_TIZEN
-            || ns->type == EVAS_NATIVE_SURFACE_TBM)
+   else if (ns->type == EVAS_NATIVE_SURFACE_TIZEN)
      {
         if (im->native.data)
           {
@@ -675,20 +676,29 @@ eng_image_native_set(void *data, void *image, void *native)
                 return im;
           }
       }
+   else if (ns->type == EVAS_NATIVE_SURFACE_TBM)
+     {
+        if (im->native.data)
+          {
+             //image have native surface already
+             Evas_Native_Surface *ens = im->native.data;
 
+             if ((ens->type == ns->type) &&
+                 (ens->data.tbm.buffer == ns->data.tbm.buffer))
+                return im;
+          }
+      }
+
+   // Code from software_generic
    if ((ns->type == EVAS_NATIVE_SURFACE_OPENGL) &&
-         (ns->version == EVAS_NATIVE_SURFACE_VERSION))
-      im2 = evas_cache_image_data(evas_common_image_cache_get(),
-                                  ie->w, ie->h,
-                                  ns->data.x11.visual, 1,
-                                  EVAS_COLORSPACE_ARGB8888);
+            (ns->version == EVAS_NATIVE_SURFACE_VERSION))
+     ie2 = evas_cache_image_data(evas_common_image_cache_get(),
+                                 ie->w, ie->h, ns->data.x11.visual, 1,
+                                 EVAS_COLORSPACE_ARGB8888);
    else
-      im2 = evas_cache_image_data(evas_common_image_cache_get(),
-                                  ie->w, ie->h,
-                                  NULL, 1,
-                                  EVAS_COLORSPACE_ARGB8888);
-   if (ie->references > 1)
-     ERR("Setting native with more than one references for im=%p", ie);
+     ie2 = evas_cache_image_data(evas_common_image_cache_get(),
+                                 ie->w, ie->h, NULL, ie->flags.alpha,
+                                 EVAS_COLORSPACE_ARGB8888);
 
    if (im->native.data)
       {
@@ -700,8 +710,8 @@ eng_image_native_set(void *data, void *image, void *native)
      evas_cache2_image_close(ie);
    else
 #endif
-   evas_cache_image_drop(ie);
-   im = im2;
+     evas_cache_image_drop(ie);
+   ie = ie2;
 
 #ifdef BUILD_ENGINE_SOFTWARE_XLIB
    if (ns->type == EVAS_NATIVE_SURFACE_X11)
@@ -719,10 +729,9 @@ eng_image_native_set(void *data, void *image, void *native)
 #endif
    if (ns->type == EVAS_NATIVE_SURFACE_TBM)
      {
-         ERR("ns->type == EVAS_NATIVE_SURFACE_TBM , not yet supported");
-//        return evas_native_tbm_image_set(re->generic.ob, im, ns);
+        return evas_native_tbm_image_set(re->generic.ob, im, ns);
      }
-   return im;
+   return ie;
 }
 
 static void *
@@ -738,7 +747,6 @@ eng_image_native_get(void *data EINA_UNUSED, void *image)
 #endif
    return NULL;
 }
-
 
 static void
 _draw_thread_image_draw(void *data)
@@ -853,6 +861,8 @@ eng_image_draw(void *data EINA_UNUSED, void *context, void *surface, void *image
    Native *n = NULL;
 
    if (!im) return EINA_FALSE;
+   if (im->native.func.bind)
+      im->native.func.bind(data, image, src_x, src_y, src_w, src_h);
 
    if (im->native.data)
       n = im->native.data;
@@ -862,13 +872,6 @@ eng_image_draw(void *data EINA_UNUSED, void *context, void *surface, void *image
          if (evas_xlib_image_dri_used())
             {
                if (evas_xlib_image_get_buffers(im))
-                  {
-                     evas_common_image_colorspace_dirty(im);
-                  }
-            }
-         else
-            {
-               if(evas_xlib_image_shm_copy(im))
                   {
                      evas_common_image_colorspace_dirty(im);
                   }
@@ -938,6 +941,8 @@ eng_image_draw(void *data EINA_UNUSED, void *context, void *surface, void *image
          evas_common_cpu_end_opt();
       }
 
+   if (im->native.func.unbind)
+      im->native.func.unbind(data, image);
    return EINA_FALSE;
 }
 
@@ -973,6 +978,8 @@ module_open(Evas_Module *em)
    ORD(setup);
    ORD(canvas_alpha_get);
    ORD(output_free);
+   ORD(image_native_set);
+   ORD(image_native_get);
 
    ORD(image_draw);
    ORD(image_native_set);

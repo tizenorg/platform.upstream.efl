@@ -858,6 +858,15 @@ EFL_ADD_LIBS([EINA], [-lm])
 
 ## Options
 
+# dlog
+PKG_CHECK_EXISTS([dlog], [have_dlog="yes"], [have_dlog="no"])
+AC_MSG_CHECKING([Use dlog logger])
+AC_MSG_RESULT([${have_dlog}])
+if test "x${have_dlog}" = "xyes"; then
+    AC_DEFINE([HAVE_DLOG], [1], [Define to 1 if you have dlog])
+    EFL_DEPEND_PKG([EINA], [DLOG], [dlog])
+fi
+
 # Valgrind
 AC_ARG_ENABLE([valgrind],
    [AS_HELP_STRING([--disable-valgrind],[enable valgrind mempool declaration. @<:@default=disabled@:>@])],

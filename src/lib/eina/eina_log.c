@@ -29,6 +29,20 @@
 #include <assert.h>
 #include <errno.h>
 
+/*--- TIZEN_ONLY : begin ---*/
+#include <syslog.h>
+
+#ifdef HAVE_DLOG
+# include <dlog.h>
+#  ifdef LOG_TAG
+#   undef LOG_TAG
+#  endif
+# define LOG_TAG "EFL"
+# define _SECURE_LOG
+#endif
+/*--- TIZEN_ONLY : end ---*/
+
+
 #if defined HAVE_EXECINFO_H && defined HAVE_BACKTRACE && defined HAVE_BACKTRACE_SYMBOLS
 # include <execinfo.h>
 # define EINA_LOG_BACKTRACE
@@ -79,6 +93,14 @@
 #define EINA_LOG_ENV_FILE_DISABLE "EINA_LOG_FILE_DISABLE"
 #define EINA_LOG_ENV_FUNCTION_DISABLE "EINA_LOG_FUNCTION_DISABLE"
 #define EINA_LOG_ENV_BACKTRACE "EINA_LOG_BACKTRACE"
+
+/*--- TIZEN_ONLY : begin ---*/
+#define EINA_LOG_ENV_SYSLOG_ENABLE "EINA_LOG_SYSLOG_ENABLE"
+
+#ifdef HAVE_DLOG
+# define EINA_LOG_ENV_DLOG_ENABLE "EINA_LOG_DLOG_ENABLE"
+#endif
+/*--- TIZEN_ONLY : end ---*/
 
 #ifdef EINA_ENABLE_LOG
 
@@ -1363,6 +1385,17 @@ eina_log_init(void)
    if ((tmp = getenv(EINA_LOG_ENV_ABORT_LEVEL)))
       _abort_level_on_critical = atoi(tmp);
 
+   /*--- TIZEN_ONLY : begin ---*/
+   if ((tmp = getenv(EINA_LOG_ENV_SYSLOG_ENABLE)) && (atoi(tmp) == 1))
+      _print_cb = eina_log_print_cb_syslog;
+
+#ifdef HAVE_DLOG
+   /* dlog has more higher priority than syslog */
+   if ((tmp = getenv(EINA_LOG_ENV_DLOG_ENABLE)) && (atoi(tmp) == 1))
+      _print_cb = eina_log_print_cb_dlog;
+#endif
+   /*--- TIZEN_ONLY : end ---*/
+
    eina_log_print_prefix_update();
 
    // Global log level
@@ -2034,6 +2067,162 @@ end:
    (void) args;
 #endif
 }
+
+/*--- TIZEN_ONLY : begin ---*/
+EAPI void
+eina_log_print_cb_syslog(const Eina_Log_Domain *d,
+                         Eina_Log_Level level,
+                         const char *file,
+                         const char *fnc,
+                         int line,
+                         const char *fmt,
+                         EINA_UNUSED  void *data,
+                         va_list args)
+{
+#ifdef EINA_ENABLE_LOG
+   int priority;
+   const char buf[512];
+
+   switch (level)
+     {
+      case EINA_LOG_LEVEL_CRITICAL:
+         priority = LOG_CRIT;
+         break;
+      case EINA_LOG_LEVEL_ERR:
+         priority = LOG_ERR;
+         break;
+      case EINA_LOG_LEVEL_WARN:
+         priority = LOG_WARNING;
+         break;
+      case EINA_LOG_LEVEL_INFO:
+         priority = LOG_INFO;
+         break;
+      case EINA_LOG_LEVEL_DBG:
+         priority = LOG_DEBUG;
+         break;
+      default:
+         priority = level + LOG_CRIT;
+         break;
+     }
+
+   vsnprintf((char *)buf, sizeof(buf), fmt, args);
+
+   syslog(priority, "%s<%u> %s:%d %s() %s", d->name, eina_log_pid_get(),
+          file, line, fnc, buf);
+
+#ifdef EINA_LOG_BACKTRACE
+   if (EINA_UNLIKELY(level < _backtrace_level))
+     {
+        void *bt[256];
+        char **strings;
+        int btlen;
+        int i;
+
+        btlen = backtrace((void **)bt, 256);
+        strings = backtrace_symbols((void **)bt, btlen);
+        syslog(priority, "%s<%u> %s:%d %s() *** Backtrace ***", d->name,
+               eina_log_pid_get(), file, line, fnc);
+        for (i = 0; i < btlen; ++i)
+           syslog(priority, "%s<%u> %s:%d %s() %s", d->name,
+                  eina_log_pid_get(), file, line, fnc, strings[i]);
+        free(strings);
+     }
+#endif
+
+#else
+   (void) d;
+   (void) file;
+   (void) fnc;
+   (void) line;
+   (void) fmt;
+   (void) data;
+   (void) args;
+#endif
+}
+
+#ifdef HAVE_DLOG
+EAPI void
+eina_log_print_cb_dlog(const Eina_Log_Domain *d,
+                         Eina_Log_Level level,
+                         const char *file,
+                         const char *fnc,
+                         int line,
+                         const char *fmt,
+                         EINA_UNUSED void *data,
+                         va_list args)
+{
+#ifdef EINA_ENABLE_LOG
+   int log_level;
+   const char buf[512];
+   char tmp_log_level[512];
+
+   switch (level)
+     {
+      case EINA_LOG_LEVEL_CRITICAL:
+         log_level = DLOG_FATAL;
+         strcpy(tmp_log_level, "FATAL");
+         break;
+      case EINA_LOG_LEVEL_ERR:
+         log_level = DLOG_ERROR;
+         strcpy(tmp_log_level, "ERROR");
+         break;
+      case EINA_LOG_LEVEL_WARN:
+         log_level = DLOG_WARN;
+         strcpy(tmp_log_level, "WARNING");
+         break;
+      case EINA_LOG_LEVEL_INFO:
+         log_level = DLOG_INFO;
+         strcpy(tmp_log_level, "INFO");
+         break;
+      case EINA_LOG_LEVEL_DBG:
+         log_level = DLOG_DEBUG;
+         strcpy(tmp_log_level, "DEBUG");
+         break;
+      default:
+         log_level = DLOG_VERBOSE;
+         strcpy(tmp_log_level, "VERBOSE");
+         break;
+     }
+
+   vsnprintf((char *)buf, sizeof(buf), fmt, args);
+
+#ifdef _SECURE_LOG
+   print_log(log_level, LOG_TAG, "%s<%u> %s:%d %s() %s", d->name,
+             eina_log_pid_get(), file, line, fnc, buf);
+#endif
+
+#ifdef EINA_LOG_BACKTRACE
+   if (EINA_UNLIKELY(level < _backtrace_level))
+     {
+        void *bt[256];
+        char **strings;
+        int btlen;
+        int i;
+
+        btlen = backtrace((void **)bt, 256);
+        strings = backtrace_symbols((void **)bt, btlen);
+        print_log(log_level, LOG_TAG, "%s<%u> %s:%d %s() *** Backtrace ***",
+                  d->name, eina_log_pid_get(), file, line, fnc);
+        for (i = 0; i < btlen; ++i)
+           print_log(log_level, LOG_TAG, "%s<%u> %s:%d %s() %s", d->name,
+                    eina_log_pid_get(), file, line, fnc, strings[i]);
+        free(strings);
+     }
+#endif
+
+#else
+   (void) d;
+   (void) file;
+   (void) fnc;
+   (void) line;
+   (void) fmt;
+   (void) data;
+   (void) args;
+#endif
+}
+#endif
+
+/*--- TIZEN_ONLY : end ---*/
 
 EAPI void
 eina_log_print(int domain, Eina_Log_Level level, const char *file,

@@ -933,6 +933,60 @@ EAPI void eina_log_print_cb_file(const Eina_Log_Domain *d,
                                  void                  *data,
                                  va_list                args);
 
+/*--- TIZEN_ONLY : begin ---*/
+/**
+ * @brief Alternative logging function, this outputs to the system log.
+ *
+ * @details This function never gives color as the output.
+ *
+ * @param[in] d The domain
+ * @param[in] level Not used
+ * @param[in] file The file that is logged
+ * @param[in] fnc The function that is logged
+ * @param[in] line The line that is logged
+ * @param[in] fmt The ouptut format to use
+ * @param[in] data Not Used
+ * @param[in] args The arguments needed by the format
+ *
+ */
+EAPI void eina_log_print_cb_syslog(const Eina_Log_Domain *d,
+                                   Eina_Log_Level         level,
+                                   const char            *file,
+                                   const char            *fnc,
+                                   int                    line,
+                                   const char            *fmt,
+                                   void                  *data,
+                                   va_list                args);
+
+#ifdef HAVE_DLOG
+/**
+ * @brief Alternative logging function, this outputs to the dlog.
+ *
+ * @since_tizen 2.3
+ *
+ * @param[in] d The domain
+ * @param[in] level Not used
+ * @param[in] file The file that is logged
+ * @param[in] fnc The function that is logged
+ * @param[in] line The line that is logged
+ * @param[in] fmt The ouptut format to use
+ * @param[in] data Not Used
+ * @param[in] args The arguments needed by the format
+ *
+ */
+EAPI void eina_log_print_cb_dlog(const Eina_Log_Domain *d,
+                                 Eina_Log_Level         level,
+                                 const char            *file,
+                                 const char            *fnc,
+                                 int                    line,
+                                 const char            *fmt,
+                                 void                  *data,
+                                 va_list                args);
+#endif
+
+/*--- TIZEN_ONLY : end ---*/
+
+
 
 /**
  * Alternative logging method, this will output to systemd journal.

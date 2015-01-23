@@ -218,6 +218,11 @@ _ecore_evas_x_protocols_set(Ecore_Evas *ee)
    ecore_x_window_prop_card32_set(ee->prop.window,
                                   ECORE_X_ATOM_E_DEICONIFY_APPROVE,
                                   &tmp, 1);
+
+   // to support aux hint protocol
+   ecore_x_window_prop_card32_set(ee->prop.window,
+                                  ECORE_X_ATOM_E_WINDOW_AUX_HINT_SUPPORT,
+                                  &tmp, 1);
 }
 
 static void

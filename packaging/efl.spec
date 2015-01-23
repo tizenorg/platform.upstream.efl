@@ -107,13 +107,13 @@ Requires: %{name}-data = %{version}-%{release}
 %description -n eina
 Eina is a data type library.
 
-%package -n eina-examples
-Summary:  Examples for the eina package
-Group:    Graphics & UI Framework/Testing
-Requires: eina = %{version}-%{release}
+#%package -n eina-examples
+#Summary:  Examples for the eina package
+#Group:    Graphics & UI Framework/Testing
+#Requires: eina = %{version}-%{release}
 
-%description -n eina-examples
-Example files for eina
+#%description -n eina-examples
+#Example files for eina
 
 %package -n eina-devel
 Summary:  Development components for the eina package
@@ -150,13 +150,13 @@ Provides:  eet-bin
 %description -n eet-tools
 The eet tools package the eet binary utility.
 
-%package -n eet-examples
-Summary:  Examples for the eet package
-Group:    Graphics & UI Framework/Testing
-Requires: eet = %{version}-%{release}
+#%package -n eet-examples
+#Summary:  Examples for the eet package
+#Group:    Graphics & UI Framework/Testing
+#Requires: eet = %{version}-%{release}
 
-%description -n eet-examples
-Example files for eet
+#%description -n eet-examples
+#Example files for eet
 
 %package -n eet-devel
 Summary:  Development components for the eet package
@@ -175,13 +175,13 @@ Requires: %{name}-data = %{version}-%{release}
 The Eo generic object system. It was designed to be the base object
 system for the EFL.
 
-%package -n eo-examples
-Summary:  Examples for the eo package
-Group:    Graphics & UI Framework/Testing
-Requires: eo = %{version}-%{release}
+#%package -n eo-examples
+#Summary:  Examples for the eo package
+#Group:    Graphics & UI Framework/Testing
+#Requires: eo = %{version}-%{release}
 
-%description -n eo-examples
-Example files for eo
+#%description -n eo-examples
+#Example files for eo
 
 %package -n eo-devel
 Summary:  Development components for the eo package
@@ -202,13 +202,13 @@ Evas is a clean display canvas API for several target display systems
 that can draw anti-aliased text, smooth super and sub-sampled scaled
 images, alpha-blend objects much and more.
 
-%package -n evas-examples
-Summary:  Examples for the evas package
-Group:    Graphics & UI Framework/Testing
-Requires: evas = %{version}-%{release}
+#%package -n evas-examples
+#Summary:  Examples for the evas package
+#Group:    Graphics & UI Framework/Testing
+#Requires: evas = %{version}-%{release}
 
-%description -n evas-examples
-Example files for evas
+#%description -n evas-examples
+#Example files for evas
 
 %package -n evas-devel
 Summary:  Development components for the evas package
@@ -228,13 +228,13 @@ Ecore is the event/X abstraction layer that makes doing selections,
 Xdnd, general X stuff, event loops, timeouts and idle handlers fast,
 optimized, and convenient.
 
-%package -n ecore-examples
-Summary:  Examples for the ecore package
-Group:    Graphics & UI Framework/Testing
-Requires: ecore = %{version}-%{release}
+#%package -n ecore-examples
+#Summary:  Examples for the ecore package
+#Group:    Graphics & UI Framework/Testing
+#Requires: ecore = %{version}-%{release}
 
-%description -n ecore-examples
-Example files for ecore
+#%description -n ecore-examples
+#Example files for ecore
 
 %package -n ecore-devel
 Summary:  Development components for the ecore package
@@ -258,13 +258,13 @@ fix some core bugs and completely encapsulating D-Bus without exposing
 libdbus to end-user. One day libdbus may be completely removed as a
 dependency.
 
-%package -n eldbus-examples
-Summary:  Examples for the eldbus package
-Group:    Graphics & UI Framework/Testing
-Requires: eldbus = %{version}-%{release}
+#%package -n eldbus-examples
+#Summary:  Examples for the eldbus package
+#Group:    Graphics & UI Framework/Testing
+#Requires: eldbus = %{version}-%{release}
 
-%description -n eldbus-examples
-Example files for eldbus
+#%description -n eldbus-examples
+#Example files for eldbus
 
 %package -n eldbus-devel
 Summary:  Development components for the eldbus package
@@ -300,13 +300,13 @@ Requires: %{name}-data = %{version}-%{release}
 %description -n eio
 Enlightenment Input/Output Library
 
-%package -n eio-examples
-Summary:  Examples for the eio package
-Group:    Graphics & UI Framework/Testing
-Requires: eio = %{version}-%{release}
+#%package -n eio-examples
+#Summary:  Examples for the eio package
+#Group:    Graphics & UI Framework/Testing
+#Requires: eio = %{version}-%{release}
 
-%description -n eio-examples
-Example files for eio
+#%description -n eio-examples
+#Example files for eio
 
 %package -n eio-devel
 Summary:  Development components for the eio package
@@ -374,13 +374,13 @@ Provides:  edje-bin
 The edje tools package include the compiler, decompiler, visualizer, code
 generator and more.
 
-%package -n edje-examples
-Summary:  Examples for the edje package
-Group:    Graphics & UI Framework/Testing
-Requires: edje = %{version}-%{release}
+#%package -n edje-examples
+#Summary:  Examples for the edje package
+#Group:    Graphics & UI Framework/Testing
+#Requires: edje = %{version}-%{release}
 
-%description -n edje-examples
-Example files for edje
+#%description -n edje-examples
+#Example files for edje
 
 %package -n edje-devel
 Summary:  Development components for the edje package
@@ -444,13 +444,13 @@ Requires: %{name}-data = %{version}-%{release}
 %description -n emotion
 Emotion is a media library with support for different backends as plug-ins.
 
-%package -n emotion-examples
-Summary:  Examples for the emotion package
-Group:    Graphics & UI Framework/Testing
-Requires: emotion = %{version}-%{release}
+#%package -n emotion-examples
+#Summary:  Examples for the emotion package
+#Group:    Graphics & UI Framework/Testing
+#Requires: emotion = %{version}-%{release}
 
-%description -n emotion-examples
-Example files for emotion
+#%description -n emotion-examples
+#Example files for emotion
 
 %package -n emotion-devel
 Summary:  Development components for the emotion package
@@ -468,13 +468,13 @@ Requires: %{name}-data = %{version}-%{release}
 %description -n ethumb
 Enlightenment thumbnailing library
 
-%package -n ethumb-examples
-Summary:  Examples for the ethumb package
-Group:    Graphics & UI Framework/Testing
-Requires: ethumb = %{version}-%{release}
+#%package -n ethumb-examples
+#Summary:  Examples for the ethumb package
+#Group:    Graphics & UI Framework/Testing
+#Requires: ethumb = %{version}-%{release}
 
-%description -n ethumb-examples
-Example files for ethumb
+#%description -n ethumb-examples
+#Example files for ethumb
 
 %package -n ethumb-devel
 Summary:  Development components for the ethumb package
@@ -548,10 +548,11 @@ export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed "
     --disable-tslib \
     --disable-gstreamer1 \
     --disable-physics \
-    --enable-always-build-examples \
+    --disable-cxx-bindings \
     --enable-systemd \
     --enable-lua-old \
     --enable-i-really-know-what-i-am-doing-and-that-this-will-probably-break-things-and-i-will-fix-them-myself-and-send-patches-aba
+#    --enable-always-build-examples \
 
 
 %__make %{?_smp_mflags}
@@ -559,7 +560,7 @@ export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed "
 
 %install
 %make_install
-make datadir=%{buildroot}%{_datadir} install-examples
+#make datadir=%{buildroot}%{_datadir} install-examples
 rm -rf %{buildroot}%{_libdir}/ecore/system/upower
 
 
@@ -644,11 +645,11 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/libeina.so.*
 %{_bindir}/eina-bench-cmp
 
-%files -n eina-examples
-%manifest %{name}.manifest
-%defattr(-,root,root,-)
-%{_datadir}/eina*/examples/*
-%{_libdir}/eina/examples/*
+#%files -n eina-examples
+#%manifest %{name}.manifest
+#%defattr(-,root,root,-)
+#%{_datadir}/eina*/examples/*
+#%{_libdir}/eina/examples/*
 
 %files -n eina-devel
 %manifest %{name}.manifest
@@ -670,11 +671,11 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_bindir}/eet
 %{_bindir}/vieet
 
-%files -n eet-examples
-%manifest %{name}.manifest
-%defattr(-,root,root,-)
-%{_datadir}/eet/examples/*
-%{_libdir}/eet/examples/*
+#%files -n eet-examples
+#%manifest %{name}.manifest
+#%defattr(-,root,root,-)
+#%{_datadir}/eet/examples/*
+#%{_libdir}/eet/examples/*
 
 %files -n eet-devel
 %manifest %{name}.manifest
@@ -690,11 +691,11 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %defattr(-,root,root,-)
 %{_libdir}/libeo.so.*
 
-%files -n eo-examples
-%manifest %{name}.manifest
-%defattr(-,root,root,-)
-%{_datadir}/eo/examples/*
-%{_libdir}/eo/examples/*
+#%files -n eo-examples
+#%manifest %{name}.manifest
+#%defattr(-,root,root,-)
+#%{_datadir}/eo/examples/*
+#%{_libdir}/eo/examples/*
 
 %files -n eo-devel
 %manifest %{name}.manifest
@@ -721,11 +722,11 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/evas/cserve2
 %{_datadir}/evas/checkme
 
-%files -n evas-examples
-%manifest %{name}.manifest
-%defattr(-,root,root,-)
-%{_datadir}/evas/examples/*
-%{_libdir}/evas/examples/*
+#%files -n evas-examples
+#%manifest %{name}.manifest
+#%defattr(-,root,root,-)
+#%{_datadir}/evas/examples/*
+#%{_libdir}/evas/examples/*
 
 %files -n evas-devel
 %manifest %{name}.manifest
@@ -764,11 +765,11 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_datadir}/ecore/checkme
 %{_datadir}/ecore_*/checkme
 
-%files -n ecore-examples
-%manifest %{name}.manifest
-%defattr(-,root,root,-)
-%{_datadir}/ecore*/examples/*
-%{_libdir}/ecore*/examples/*
+#%files -n ecore-examples
+#%manifest %{name}.manifest
+#%defattr(-,root,root,-)
+#%{_datadir}/ecore*/examples/*
+#%{_libdir}/ecore*/examples/*
 
 
 %files -n ecore-devel
@@ -803,11 +804,11 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_bindir}/eldbus*
 #%license %{_builddir}/%{buildsubdir}/COPYING
 
-%files -n eldbus-examples
-%manifest %{name}.manifest
-%defattr(-,root,root,-)
-%{_datadir}/eldbus/examples/*
-%{_libdir}/eldbus/examples/*
+#%files -n eldbus-examples
+#%manifest %{name}.manifest
+#%defattr(-,root,root,-)
+#%{_datadir}/eldbus/examples/*
+#%{_libdir}/eldbus/examples/*
 
 %files -n eldbus-devel
 %manifest %{name}.manifest
@@ -838,11 +839,11 @@ grep --silent ECORE_IMF_MODULE "$f" \
 #%license %{_builddir}/%{buildsubdir}/COPYING
 %{_libdir}/libeio.so.*
 
-%files -n eio-examples
-%manifest %{name}.manifest
-%defattr(-,root,root,-)
-%{_datadir}/eio/examples/*
-%{_libdir}/eio/examples/*
+#%files -n eio-examples
+#%manifest %{name}.manifest
+#%defattr(-,root,root,-)
+#%{_datadir}/eio/examples/*
+#%{_libdir}/eio/examples/*
 
 %files -n eio-devel
 %manifest %{name}.manifest
@@ -865,11 +866,11 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_bindir}/edje*
 %{_datadir}/edje/data/*
 
-%files -n edje-examples
-%manifest %{name}.manifest
-%defattr(-,root,root,-)
-%{_datadir}/edje/examples/*
-%{_libdir}/edje/examples/*
+#%files -n edje-examples
+#%manifest %{name}.manifest
+#%defattr(-,root,root,-)
+#%{_datadir}/edje/examples/*
+#%{_libdir}/edje/examples/*
 
 %files -n edje-devel
 %manifest %{name}.manifest
@@ -933,11 +934,11 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_datadir}/emotion/*
 %{_bindir}/emotion_test
 
-%files -n emotion-examples
-%manifest %{name}.manifest
-%defattr(-,root,root,-)
-%{_datadir}/emotion/examples/*
-%{_libdir}/emotion/examples/*
+#%files -n emotion-examples
+#%manifest %{name}.manifest
+#%defattr(-,root,root,-)
+#%{_datadir}/emotion/examples/*
+#%{_libdir}/emotion/examples/*
 
 %files -n emotion-devel
 %manifest %{name}.manifest
@@ -965,11 +966,11 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_bindir}/ethumbd
 %{_bindir}/ethumbd_client
 
-%files -n ethumb-examples
-%manifest %{name}.manifest
-%defattr(-,root,root,-)
-%{_datadir}/ethumb_client/examples/*
-%{_libdir}/ethumb_client/examples/*
+#%files -n ethumb-examples
+#%manifest %{name}.manifest
+#%defattr(-,root,root,-)
+#%{_datadir}/ethumb_client/examples/*
+#%{_libdir}/ethumb_client/examples/*
 
 %files -n ethumb-devel
 %manifest %{name}.manifest

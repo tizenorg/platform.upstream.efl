@@ -1856,6 +1856,21 @@ st_images_set_image_image(void)
 
    entry->name = parse_str(0);
 
+   /* TIZEN_ONLY(150123)********************Ninepatch patch for Samsung************************************/
+   {
+       Eina_Bool b_ninepatch = is_ninepatch_image(entry->name);
+       if (b_ninepatch)
+         {
+              int border_left, border_right, border_top, border_bottom;
+              ninepatch_image_info_get(entry->name, NULL, NULL, &border_left, &border_right, &border_top, &border_bottom);
+              entry->border.l = border_left;
+              entry->border.r = border_right;
+              entry->border.t = border_top;
+              entry->border.b = border_bottom;
+        }
+   }
+   /************************************************************************************/
+
    for (i = 0; i < edje_file->image_dir->entries_count; ++i)
      if (!strcmp(edje_file->image_dir->entries[i].entry, entry->name))
        {

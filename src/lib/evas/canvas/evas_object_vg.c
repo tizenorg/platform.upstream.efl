@@ -361,17 +361,31 @@ evas_object_vg_was_opaque(Evas_Object *eo_obj EINA_UNUSED,
 
 
 static Eina_Bool
-_evas_vg_mmap_set(Eo *obj EINA_UNUSED, Evas_VG_Data *pd,
-                  const Eina_File *f, const char *key EINA_UNUSED)
-// For now we don't handle eet section filled with SVG, that's for later
+_evas_vg_mmap_set(Eo *obj, Evas_VG_Data *pd,
+                  const Eina_File *f, const char *key)
 {
-   Eina_File *tmp = f ? eina_file_dup(f) : NULL;
+   Eina_File *tmp;
 
-   // Start parsing here.
+   if (f == pd->f &&
+       ((key == NULL && pd->key == NULL) ||
+        (key != NULL && pd->key != NULL && !strcmp(key, pd->key))))
+     return EINA_TRUE;
+
+   tmp = f ? eina_file_dup(f) : NULL;
+
+   if (tmp)
+     {
+        if (!evas_vg_loader_svg(obj, tmp, NULL))
+          {
+             eina_file_close(tmp);
+             return EINA_FALSE;
+          }
+     }
 
    // it succeeded.
    if (pd->f) eina_file_close(pd->f);
    pd->f = tmp;
+   eina_stringshare_replace(&pd->key, key);
 
    return EINA_TRUE;
 }

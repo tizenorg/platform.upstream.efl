@@ -8,9 +8,11 @@ AM_CPPFLAGS = \
 -I$(top_srcdir)/src/lib/eina \
 -I$(top_srcdir)/src/lib/eo \
 -I$(top_srcdir)/src/lib/evas \
+-I$(top_srcdir)/src/lib/ector \
 -I$(top_builddir)/src/lib/eina \
 -I$(top_builddir)/src/lib/eo \
 -I$(top_builddir)/src/lib/evas \
+-I$(top_builddir)/src/lib/ector \
 @EVAS_CFLAGS@
 
 EDCS = aspect.edc
@@ -30,6 +32,7 @@ evas_init_shutdown_LDADD = $(top_builddir)/src/lib/evas/libevas.la @EVAS_LDFLAGS
 ECORE_EVAS_COMMON_CPPFLAGS = \
 -I$(top_srcdir)/src/lib/eina \
 -I$(top_srcdir)/src/lib/eo \
+-I$(top_srcdir)/src/lib/ector \
 -I$(top_srcdir)/src/lib/evas \
 -I$(top_srcdir)/src/lib/ecore \
 -I$(top_srcdir)/src/lib/ecore_input \
@@ -37,6 +40,7 @@ ECORE_EVAS_COMMON_CPPFLAGS = \
 -I$(top_builddir)/src/lib/efl \
 -I$(top_builddir)/src/lib/eina \
 -I$(top_builddir)/src/lib/eo \
+-I$(top_builddir)/src/lib/ector \
 -I$(top_builddir)/src/lib/evas \
 -I$(top_builddir)/src/lib/ecore \
 -I$(top_srcdir)/src/lib/ecore_input \
@@ -47,6 +51,7 @@ ECORE_EVAS_COMMON_CPPFLAGS = \
 ECORE_EVAS_COMMON_LDADD = \
 $(top_builddir)/src/lib/eina/libeina.la \
 $(top_builddir)/src/lib/eo/libeo.la \
+$(top_builddir)/src/lib/ector/libector.la \
 $(top_builddir)/src/lib/ecore/libecore.la \
 $(top_builddir)/src/lib/ecore_input/libecore_input.la \
 $(top_builddir)/src/lib/ecore_evas/libecore_evas.la \
@@ -87,6 +92,7 @@ EDJE_COMMON_LDADD = \
 $(top_builddir)/src/lib/eina/libeina.la \
 $(top_builddir)/src/lib/eo/libeo.la \
 $(top_builddir)/src/lib/eet/libeet.la \
+$(top_builddir)/src/lib/ector/libector.la \
 $(top_builddir)/src/lib/evas/libevas.la \
 $(top_builddir)/src/lib/ecore/libecore.la \
 $(top_builddir)/src/lib/ecore_evas/libecore_evas.la \

@@ -23,6 +23,28 @@ typedef enum
 /* Used for showing "malformed" or missing chars */
 #define REPLACEMENT_CHAR 0xFFFD
 
+/////////////////////////////////////////////////////////////////////
+// TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs. //
+/////////////////////////////////////////////////////////////////////
+#define CHECK_LANGUAGE_CLUSTER_AVAILABLE(script) \
+   (((script == EVAS_SCRIPT_THAI) || \
+     (script == EVAS_SCRIPT_DEVANAGARI) || \
+     (script == EVAS_SCRIPT_BENGALI) || \
+     (script == EVAS_SCRIPT_GUJARATI) || \
+     (script == EVAS_SCRIPT_TELUGU) || \
+     (script == EVAS_SCRIPT_KHMER) || \
+     (script == EVAS_SCRIPT_SINHALA) || \
+     (script == EVAS_SCRIPT_KANNADA) || \
+     (script == EVAS_SCRIPT_MALAYALAM) || \
+     (script == EVAS_SCRIPT_GURMUKHI) || \
+     (script == EVAS_SCRIPT_ORIYA) || \
+     (script == EVAS_SCRIPT_TAMIL)) ? \
+    EINA_TRUE : EINA_FALSE)
+
+#define CHECK_CLUSTER_EXCEPTION_CHAR(x) \
+   (0x0E33 == (x))
+//
+
 typedef struct _Evas_Glyph Evas_Glyph;
 typedef struct _Evas_Glyph_Array Evas_Glyph_Array;
 

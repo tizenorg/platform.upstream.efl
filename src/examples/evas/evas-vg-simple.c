@@ -63,10 +63,10 @@ vector_set(int w, int h)
 {
    Efl_Graphics_Path_Command *path_cmd = NULL;
    double *points = NULL;
-   Eina_Bool ret;
 
    //Create VG Object
    d.vg = evas_object_vg_add(d.evas);
+   evas_object_resize(d.vg, w, h);
    evas_object_show(d.vg);
 
    Evas_VG_Root_Node *root = evas_object_vg_root_node_get(d.vg);
@@ -75,11 +75,10 @@ vector_set(int w, int h)
    efl_graphics_path_append_circle(&path_cmd, &points, (w / 2), (h / 2), (w / 2));
 
    eo_do(shape,
-         efl_graphics_shape_stroke_scale_set(5.0);
-         efl_graphics_shape_stroke_width_set(3.0);
+         efl_graphics_shape_stroke_scale_set(5.0),
+         efl_graphics_shape_stroke_width_set(3.0),
          efl_graphics_shape_stroke_color_set(255, 0, 0, 255),
-         ret = efl_graphics_shape_path_set(path_cmd, points));
-   if (!ret) printf("failed to set path??? !!!\n");
+         efl_graphics_shape_path_set(path_cmd, points));
 }
 
 int

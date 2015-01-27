@@ -1388,6 +1388,18 @@ EAPI void *evas_object_intercept_focus_set_callback_del(Evas_Object *obj, Evas_O
 EAPI Evas_Object *evas_object_rectangle_add(Evas *e) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1) EINA_MALLOC;
 
 #include "canvas/evas_rectangle.eo.legacy.h"
+
+EAPI Evas_Object *evas_object_vg_add(Evas *e) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1) EINA_MALLOC;
+
+#include "canvas/evas_vg_node.eo.legacy.h"
+#include "canvas/evas_vg.eo.legacy.h"
+#include "canvas/evas_vg_shape.eo.legacy.h"
+#include "canvas/evas_vg_gradient.eo.legacy.h"
+#include "canvas/evas_vg_gradient_linear.eo.legacy.h"
+#include "canvas/evas_vg_gradient_radial.eo.legacy.h"
+#include "canvas/evas_vg_image.eo.legacy.h"
+#include "canvas/evas_vg_root_node.eo.legacy.h"
+
 /**
  * @}
  */

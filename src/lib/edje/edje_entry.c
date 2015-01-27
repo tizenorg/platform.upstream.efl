@@ -500,7 +500,9 @@ _curs_jump_line(Evas_Textblock_Cursor *c, Evas_Object *o, Entry *en, int ln)
 
    if (!evas_object_textblock_line_number_geometry_get(o, ln, &lx, &ly, &lw, &lh))
      return EINA_FALSE;
-   if (evas_textblock_cursor_char_coord_set(c, cx, ly + (lh / 2)))
+   // TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs.
+   //if (evas_textblock_cursor_char_coord_set(c, cx, ly + (lh / 2)))
+   if (evas_textblock_cursor_cluster_coord_set(c, cx, ly + (lh / 2)))
      return EINA_TRUE;
    evas_textblock_cursor_line_set(c, ln);
    if (cx < (lx + (lw / 2)))
@@ -1543,7 +1545,9 @@ _edje_key_down_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
                     }
                }
           }
-        if (evas_textblock_cursor_char_prev(en->cursor))
+        // TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs.
+        //if (evas_textblock_cursor_char_prev(en->cursor))
+        if (evas_textblock_cursor_cluster_prev(en->cursor))
           ev->event_flags |= EVAS_EVENT_FLAG_ON_HOLD;
         /* If control is pressed, go to the start of the word */
         if (control) evas_textblock_cursor_word_start(en->cursor);
@@ -1583,7 +1587,9 @@ _edje_key_down_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
           }
         /* If control is pressed, go to the end of the word */
         if (control) evas_textblock_cursor_word_end(en->cursor);
-        if (evas_textblock_cursor_char_next(en->cursor))
+        // TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs.
+        //if (evas_textblock_cursor_char_next(en->cursor))
+        if (evas_textblock_cursor_cluster_next(en->cursor))
           ev->event_flags |= EVAS_EVENT_FLAG_ON_HOLD;
         if (en->select_allow)
           {
@@ -1601,7 +1607,10 @@ _edje_key_down_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
              // del to start of previous word
              _sel_start(en->cursor, rp->object, en);
 
-             evas_textblock_cursor_char_prev(en->cursor);
+             // TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs.
+             //evas_textblock_cursor_char_prev(en->cursor);
+             evas_textblock_cursor_cluster_prev(en->cursor);
+             //
              evas_textblock_cursor_word_start(en->cursor);
 
              _sel_preextend(ed, en->cursor, rp->object, en);
@@ -1641,7 +1650,10 @@ _edje_key_down_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
              _sel_start(en->cursor, rp->object, en);
 
              evas_textblock_cursor_word_end(en->cursor);
-             evas_textblock_cursor_char_next(en->cursor);
+             // TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs.
+             //evas_textblock_cursor_char_next(en->cursor);
+             evas_textblock_cursor_cluster_next(en->cursor);
+             //
 
              _sel_extend(ed, en->cursor, rp->object, en);
 
@@ -2131,7 +2143,10 @@ _edje_part_mouse_down_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_
                   else
                     {
                        evas_textblock_cursor_word_end(en->cursor);
-                       evas_textblock_cursor_char_next(en->cursor);
+                       // TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs.
+                       //evas_textblock_cursor_char_next(en->cursor);
+                       evas_textblock_cursor_cluster_next(en->cursor);
+                       //
                     }
                   _sel_extend(en->ed, en->cursor, rp->object, en);
                }
@@ -2145,7 +2160,10 @@ _edje_part_mouse_down_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_
                   evas_textblock_cursor_word_start(en->cursor);
                   _sel_start(en->cursor, rp->object, en);
                   evas_textblock_cursor_word_end(en->cursor);
-                  evas_textblock_cursor_char_next(en->cursor);
+                  // TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs.
+                  //evas_textblock_cursor_char_next(en->cursor);
+                  evas_textblock_cursor_cluster_next(en->cursor);
+                  //
                   _sel_extend(en->ed, en->cursor, rp->object, en);
                }
              goto end;
@@ -2313,7 +2331,9 @@ _edje_part_mouse_up_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UN
    evas_object_geometry_get(rp->object, &x, &y, &w, &h);
    cx = ev->canvas.x - x;
    cy = ev->canvas.y - y;
-   if (!evas_textblock_cursor_char_coord_set(en->cursor, cx, cy))
+   // TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs. //
+   //if (!evas_textblock_cursor_char_coord_set(en->cursor, cx, cy))
+   if (!evas_textblock_cursor_cluster_coord_set(en->cursor, cx, cy))
      {
         Evas_Coord lx, ly, lw, lh;
         int line;
@@ -2327,7 +2347,9 @@ _edje_part_mouse_up_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UN
                {
                   evas_textblock_cursor_paragraph_first(en->cursor);
                   evas_textblock_cursor_line_geometry_get(en->cursor, &lx, &ly, &lw, &lh);
-                  if (!evas_textblock_cursor_char_coord_set(en->cursor, cx, ly + (lh / 2)))
+                  // TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs.
+                  //if (!evas_textblock_cursor_char_coord_set(en->cursor, cx, ly + (lh / 2)))
+                  if (!evas_textblock_cursor_cluster_coord_set(en->cursor, cx, ly + (lh / 2)))
                     _curs_end(en->cursor, rp->object, en);
                }
           }
@@ -2425,7 +2447,9 @@ _edje_part_mouse_move_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_
         evas_object_geometry_get(rp->object, &x, &y, &w, &h);
         cx = ev->cur.canvas.x - x;
         cy = ev->cur.canvas.y - y;
-        if (!evas_textblock_cursor_char_coord_set(en->cursor, cx, cy))
+        // TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs.
+        //if (!evas_textblock_cursor_char_coord_set(en->cursor, cx, cy))
+        if (!evas_textblock_cursor_cluster_coord_set(en->cursor, cx, cy))
           {
              Evas_Coord lx, ly, lw, lh;
 
@@ -2437,7 +2461,9 @@ _edje_part_mouse_move_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_
                     {
                        evas_textblock_cursor_paragraph_first(en->cursor);
                        evas_textblock_cursor_line_geometry_get(en->cursor, &lx, &ly, &lw, &lh);
-                       if (!evas_textblock_cursor_char_coord_set(en->cursor, cx, ly + (lh / 2)))
+                       // TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs.
+                       //if (!evas_textblock_cursor_char_coord_set(en->cursor, cx, ly + (lh / 2)))
+                       if (!evas_textblock_cursor_cluster_coord_set(en->cursor, cx, ly + (lh / 2)))
                          _curs_end(en->cursor, rp->object, en);
                     }
                }
@@ -3620,7 +3646,9 @@ _edje_entry_cursor_next(Edje_Real_Part *rp, Edje_Cursor cur)
 
    _edje_entry_imf_context_reset(rp);
 
-   if (!evas_textblock_cursor_char_next(c))
+   // TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs.
+   //if (!evas_textblock_cursor_char_next(c))
+   if (!evas_textblock_cursor_cluster_next(c))
      {
         return EINA_FALSE;
      }
@@ -3646,7 +3674,9 @@ _edje_entry_cursor_prev(Edje_Real_Part *rp, Edje_Cursor cur)
 
    _edje_entry_imf_context_reset(rp);
 
-   if (!evas_textblock_cursor_char_prev(c))
+   // TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs.
+   //if (!evas_textblock_cursor_char_prev(c))
+   if (!evas_textblock_cursor_cluster_prev(c))
      {
         if (evas_textblock_cursor_paragraph_prev(c)) goto ok;
         else return EINA_FALSE;
@@ -3684,7 +3714,9 @@ _edje_entry_cursor_up(Edje_Real_Part *rp, Edje_Cursor cur)
                                                        &lx, &ly, &lw, &lh))
      return EINA_FALSE;
    evas_textblock_cursor_char_geometry_get(c, &cx, &cy, &cw, &ch);
-   if (!evas_textblock_cursor_char_coord_set(c, cx, ly + (lh / 2)))
+   // TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs.
+   //if (!evas_textblock_cursor_char_coord_set(c, cx, ly + (lh / 2)))
+   if (!evas_textblock_cursor_cluster_coord_set(c, cx, ly + (lh / 2)))
      evas_textblock_cursor_line_char_last(c);
    _sel_update(en->ed, c, rp->object, rp->typedata.text->entry_data);
 
@@ -3717,9 +3749,10 @@ _edje_entry_cursor_down(Edje_Real_Part *rp, Edje_Cursor cur)
                                                        &lx, &ly, &lw, &lh))
      return EINA_FALSE;
    evas_textblock_cursor_char_geometry_get(c, &cx, &cy, &cw, &ch);
-   if (!evas_textblock_cursor_char_coord_set(c, cx, ly + (lh / 2)))
+   // TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs.
+   //if (!evas_textblock_cursor_char_coord_set(c, cx, ly + (lh / 2)))
+   if (!evas_textblock_cursor_cluster_coord_set(c, cx, ly + (lh / 2)))
      evas_textblock_cursor_line_char_last(c);
-
    _sel_update(en->ed, c, rp->object, rp->typedata.text->entry_data);
 
    _edje_entry_imf_cursor_info_set(en);
@@ -3852,7 +3885,10 @@ _edje_entry_cursor_coord_set(Edje_Real_Part *rp, Edje_Cursor cur,
         if (en->have_selection)
           _edje_emit(en->ed, "selection,changed", rp->part->name);
      }
-   return evas_textblock_cursor_char_coord_set(c, x, y);
+   // TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs.
+   //return evas_textblock_cursor_char_coord_set(c, x, y);
+   return evas_textblock_cursor_cluster_coord_set(c, x, y);
+   //
 }
 
 Eina_Bool

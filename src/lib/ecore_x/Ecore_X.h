@@ -197,6 +197,26 @@ typedef enum _Ecore_X_Window_Stack_Mode
    ECORE_X_WINDOW_STACK_OPPOSITE = 4
 } Ecore_X_Window_Stack_Mode;
 
+/**
+ * @typedef _Ecore_X_Window_Rotation_Transform_Hint
+ * @brief Enumeration of the different transform hints of the window of Ecore_X.
+ *
+ * @remarks A value of @c 3 means, HINT_0 goes to HINT_180(0x3).
+ *          It is same as HINT_0 goes to HINT_FLIP_H(0x1) and it goes to HINT_FLIP_V(0x2).( 0x1 + 0x2 = 0x3 )
+ *
+ * @remarks A value of @c 7 means, HINT_0 goes to HINT_270(0x7).
+ *          It is same as HINT_0 goes to HINT_90(0x4) and it goes to HINT_FLIP_H(0x1) and HINT_FLIP_V(0x2).( 0x4 + 0x1 + 0x2 = 0x7 )
+ */
+typedef enum _Ecore_X_Window_Rotation_Transform_Hint
+{
+   ECORE_X_WINDOW_ROTATION_TRANSFORM_HINT_0 = 0,
+   ECORE_X_WINDOW_ROTATION_TRANSFORM_HINT_FLIP_H = 0x1,  /**< Rotate source image along the horizontal axis */
+   ECORE_X_WINDOW_ROTATION_TRANSFORM_HINT_FLIP_V = 0x2,  /**< Rotate source image along the vertical axis */
+   ECORE_X_WINDOW_ROTATION_TRANSFORM_HINT_180 = 0x3,       /**< Rotate source image 180 degrees clockwise */
+   ECORE_X_WINDOW_ROTATION_TRANSFORM_HINT_90 = 0x4,         /**< Rotate source image 90 degrees clockwise */
+   ECORE_X_WINDOW_ROTATION_TRANSFORM_HINT_270 = 0x7        /**< Rotate source image 270 degrees clockwise */
+} Ecore_X_Window_Rotation_Transform_Hint;
+
 typedef enum _Ecore_X_Randr_Orientation
 {
    ECORE_X_RANDR_ORIENTATION_ROT_0 = (1 << 0),

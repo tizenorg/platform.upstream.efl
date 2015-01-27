@@ -301,6 +301,7 @@ ecore_x_window_defaults_set(Ecore_X_Window win)
    int argc;
    char **argv;
    XTextProperty xprop;
+   unsigned int transform_hint = ECORE_X_WINDOW_ROTATION_TRANSFORM_HINT_0;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
    /*
@@ -330,6 +331,8 @@ ecore_x_window_defaults_set(Ecore_X_Window win)
 
    ecore_app_args_get(&argc, &argv);
    ecore_x_icccm_command_set(win, argc, argv);
+
+   ecore_x_window_prop_card32_set(win, ECORE_X_ATOM_E_WINDOW_ROTATION_TRANSFORM_HINT, &transform_hint, 1);
 }
 
 EAPI void

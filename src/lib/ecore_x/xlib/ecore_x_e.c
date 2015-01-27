@@ -1972,6 +1972,9 @@ _ecore_x_e_illume_window_state_atom_get(Ecore_X_Illume_Window_State state)
       case ECORE_X_ILLUME_WINDOW_STATE_FLOATING:
         return ECORE_X_ATOM_E_ILLUME_WINDOW_STATE_FLOATING;
 
+      case ECORE_X_ILLUME_WINDOW_STATE_ASSISTANT_MENU:
+        return ECORE_X_ATOM_E_ILLUME_WINDOW_STATE_ASSISTANT_MENU;
+
       default:
         break;
      }
@@ -1986,6 +1989,9 @@ _ecore_x_e_illume_window_state_get(Ecore_X_Atom atom)
 
    if (atom == ECORE_X_ATOM_E_ILLUME_WINDOW_STATE_FLOATING)
      return ECORE_X_ILLUME_WINDOW_STATE_FLOATING;
+
+   if (atom == ECORE_X_ATOM_E_ILLUME_WINDOW_STATE_ASSISTANT_MENU)
+     return ECORE_X_ILLUME_WINDOW_STATE_ASSISTANT_MENU;
 
    return ECORE_X_ILLUME_WINDOW_STATE_NORMAL;
 }

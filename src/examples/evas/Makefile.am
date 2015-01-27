@@ -249,6 +249,11 @@ evas_gl_SOURCES = evas-gl.c
 evas_gl_LDADD = $(ECORE_EVAS_COMMON_LDADD) @EFL_PTHREAD_LIBS@
 evas_gl_CPPFLAGS = $(ECORE_EVAS_COMMON_CPPFLAGS)
 
+EXTRA_PROGRAMS += evas_vg_simple
+evas_vg_simple_SOURCES = evas-vg-simple.c
+evas_vg_simple_LDADD = $(ECORE_EVAS_COMMON_LDADD)
+evas_vg_simple_CPPFLAGS = $(ECORE_EVAS_COMMON_CPPFLAGS)
+
 .edc.edj:
 	$(AM_V_EDJ)$(EDJE_CC) $(EDJE_CC_FLAGS) $< $(builddir)/$(@F)
 
@@ -289,7 +294,8 @@ evas-smart-object.c \
 evas-stacking.c \
 evas-table.c \
 evas-multi-touch.c \
-evas-text.c
+evas-text.c \
+evas-vg-simple.c
 
 DATA_FILES = \
 enlightenment.png \

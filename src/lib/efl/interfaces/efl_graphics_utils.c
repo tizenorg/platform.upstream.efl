@@ -29,14 +29,15 @@ _efl_graphics_path_length(const Efl_Graphics_Path_Command *commands,
                           unsigned int *pts_length)
 {
    if (commands)
-     while (commands[*cmd_length] != EFL_GRAPHICS_PATH_COMMAND_TYPE_END)
-       {
-          *pts_length += efl_graphics_path_command_length(commands[*cmd_length]);
-          (*cmd_length)++;
-       }
-
+     {
+        while (commands[(*cmd_length)] != EFL_GRAPHICS_PATH_COMMAND_TYPE_END)
+          {
+             (*pts_length) += efl_graphics_path_command_length(commands[(*cmd_length)]);
+             (*cmd_length)++;
+          }
+     }
    // Accounting for END command and handle gracefully the NULL case at the same time
-   cmd_length++;
+   (*cmd_length)++;
 }
 
 static inline Eina_Bool

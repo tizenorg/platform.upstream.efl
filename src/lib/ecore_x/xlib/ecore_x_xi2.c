@@ -275,7 +275,7 @@ _ecore_x_input_handler(XEvent *xevent)
           (ECORE_EVENT_MOUSE_BUTTON_DOWN,
           evd->time,
           0,   // state
-          0,   // button
+          1,   // button
           evd->event_x, evd->event_y,
           evd->root_x, evd->root_y,
           evd->event,
@@ -295,7 +295,7 @@ _ecore_x_input_handler(XEvent *xevent)
           (ECORE_EVENT_MOUSE_BUTTON_UP,
           evd->time,
           0,   // state
-          0,   // button
+          1,   // button
           evd->event_x, evd->event_y,
           evd->root_x, evd->root_y,
           evd->event,
@@ -341,12 +341,27 @@ _ecore_x_input_handler(XEvent *xevent)
 #ifdef ECORE_XI2_2
         i = _ecore_x_input_touch_index_get(devid, evd->detail, XI_TouchBegin);
         if ((i == 0) && (evd->flags & XITouchEmulatingPointer)) return;
+        if (i == 0)
+          _ecore_mouse_move
+          (evd->time,
+          0,   // state
+          evd->event_x, evd->event_y,
+          evd->root_x, evd->root_y,
+          evd->event,
+          (evd->child ? evd->child : evd->event),
+          evd->root,
+          1,   // same_screen
+          i, 1, 1,
+          1.0,   // pressure
+          0.0,   // angle
+          evd->event_x, evd->event_y,
+          evd->root_x, evd->root_y);
 #endif /* #ifdef ECORE_XI2_2 */
         _ecore_mouse_button
           (ECORE_EVENT_MOUSE_BUTTON_DOWN,
           evd->time,
           0,   // state
-          0,   // button
+          1,   // button
           evd->event_x, evd->event_y,
           evd->root_x, evd->root_y,
           evd->event,

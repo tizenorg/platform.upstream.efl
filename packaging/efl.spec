@@ -39,6 +39,7 @@ BuildRequires:  libXtst-devel
 BuildRequires:  pkgconfig(xi)
 BuildRequires:  pkgconfig(ice)
 BuildRequires:  pkgconfig(sm)
+BuildRequires:  pkgconfig(xgesture)
 
 BuildRequires:  glib2-devel
 #BuildRequires:  pkgconfig(bullet)
@@ -529,7 +530,8 @@ export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed "
     --enable-g-main-loop \
     --disable-xim \
     --disable-scim \
-    --disable-gesture \
+    --enable-gesture \
+	--enable-xinput22 \
     --with-tests=regular \
 %if %{with wayland}
     --enable-wayland \
@@ -540,7 +542,8 @@ export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed "
     --disable-rpath \
 %endif
     --with-opengl=es \
-    --disable-gesture \
+    --enable-gesture \
+	--enable-xinput22 \
     --enable-fb \
     --disable-tslib \
     --disable-gstreamer1 \

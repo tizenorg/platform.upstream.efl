@@ -1540,7 +1540,12 @@ _edje_object_part_text_selection_get(Eo *obj EINA_UNUSED, Edje *ed, const char *
    rp = _edje_real_part_recursive_get(&ed, part);
    if (!rp) return NULL;
    if (rp->part->entry_mode > EDJE_ENTRY_EDIT_MODE_NONE)
-      return _edje_entry_selection_get(rp);
+     {
+        // TIZEN_ONLY(20150128): Add evas_textblock_cursor_range_text_valid_markup_get API.
+        //return _edje_entry_selection_get(rp);
+        return _edje_entry_selection_valid_markup_get(rp);
+        //
+     }
 
    return NULL;
 }

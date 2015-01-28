@@ -2347,6 +2347,9 @@ void _edje_entry_shutdown(Edje *ed);
 void _edje_entry_real_part_init(Edje *ed, Edje_Real_Part *rp, Ecore_IMF_Context *ic);
 void _edje_entry_real_part_shutdown(Edje *ed, Edje_Real_Part *rp, Eina_Bool reuse_ic);
 void _edje_entry_real_part_configure(Edje *ed, Edje_Real_Part *rp);
+// TIZEN_ONLY(20150128): Add evas_textblock_cursor_range_text_valid_markup_get API.
+const char *_edje_entry_selection_valid_markup_get(Edje_Real_Part *rp);
+//
 const char *_edje_entry_selection_get(Edje_Real_Part *rp);
 const char *_edje_entry_text_get(Edje_Real_Part *rp);
 void _edje_entry_text_markup_set(Edje_Real_Part *rp, const char *text);

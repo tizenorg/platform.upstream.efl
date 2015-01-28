@@ -3854,6 +3854,18 @@ EAPI Eina_List                               *evas_textblock_cursor_range_format
 EAPI char                                    *evas_textblock_cursor_range_text_get(const Evas_Textblock_Cursor *cur1, const Evas_Textblock_Cursor *cur2, Evas_Textblock_Text_Type format) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1, 2);
 
 /**
+ * @internal
+ * // TIZEN_ONLY(20150128): Add evas_textblock_cursor_range_text_valid_markup_get API.
+ * @brief   Gets the text and markup tags in the range between @a cur1 and @a cur2.
+ *
+ * @param   cur1  The start of the range
+ * @param   cur2  The end of the range
+ * @return  The text in the range and the markup tags that affect the text
+ * @see elm_entry_markup_to_utf8()
+ */
+EAPI char                                    *evas_textblock_cursor_range_text_valid_markup_get(const Evas_Textblock_Cursor *cur1, const Evas_Textblock_Cursor *cur2) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1, 2);
+
+/**
  * Return the content of the cursor.
  *
  * Free the returned string pointer when done (if it is not NULL).

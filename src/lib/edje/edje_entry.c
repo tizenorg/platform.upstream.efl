@@ -2749,6 +2749,24 @@ _edje_entry_real_part_configure(Edje *ed, Edje_Real_Part *rp)
      }
 }
 
+// TIZEN_ONLY(20150128): Add evas_textblock_cursor_range_text_valid_markup_get API.
+const char *
+_edje_entry_selection_valid_markup_get(Edje_Real_Part *rp)
+{
+   Entry *en;
+
+   if ((rp->type != EDJE_RP_TYPE_TEXT) ||
+       (!rp->typedata.text)) return NULL;
+   en = rp->typedata.text->entry_data;
+   if (!en) return NULL;
+   // get selection - convert to markup
+   if ((!en->selection) && (en->have_selection))
+     en->selection = evas_textblock_cursor_range_text_valid_markup_get
+        (en->sel_start, en->sel_end);
+   return en->selection;
+}
+//
+
 const char *
 _edje_entry_selection_get(Edje_Real_Part *rp)
 {

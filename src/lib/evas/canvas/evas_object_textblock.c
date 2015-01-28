@@ -206,6 +206,14 @@ typedef struct _Evas_Object_Textblock_Format      Evas_Object_Textblock_Format;
  */
 typedef struct _Evas_Textblock_Selection_Iterator Evas_Textblock_Selection_Iterator;
 /**
+ * // TIZEN_ONLY(20150128): Add evas_textblock_cursor_range_text_valid_markup_get API.
+ * @internal
+ * @typedef Evas_Object_Textblock_Format_Pair_Item
+ * For *valid_markup_get.
+ */
+typedef struct _Evas_Object_Textblock_Format_Pair_Item Evas_Object_Textblock_Format_Pair_Item;
+
+/**
  * @internal
  * @def IS_AT_END(ti, ind)
  * Return true if ind is at the end of the text item, false otherwise.
@@ -309,6 +317,14 @@ struct _Evas_Object_Textblock_Node_Format
    Eina_Bool                           format_change : 1;  /**< EINA_TRUE if the format of the textblock has changed, else EINA_FALSE. */
    Eina_Bool                           is_new : 1;  /**< EINA_TRUE if its a new format node, else EINA_FALSE */
 };
+
+// TIZEN_ONLY(20150128): Add evas_textblock_cursor_range_text_valid_markup_get API.
+struct _Evas_Object_Textblock_Format_Pair_Item
+{
+   char                               *format;
+   Eina_Bool                           void_closer;
+};
+//
 
 /* The default tags to use */
 static const Evas_Object_Style_Tag_Base default_tags[] = {
@@ -6535,6 +6551,25 @@ _markup_get_format_append(Eina_Strbuf *txt, Evas_Object_Textblock_Node_Format *f
 }
 
 /**
+ * // TIZEN_ONLY(20150128): Add evas_textblock_cursor_range_text_valid_markup_get API.
+ * @internal
+ * An helper function to markup get. Prepends the format from fnode to the strbuf txt.
+ *
+ * @param txt the strbuf to prepend to.
+ * @param fnode the format node to process.
+ */
+static void
+_markup_get_format_prepend(Eina_Strbuf *txt, Evas_Object_Textblock_Node_Format *fnode)
+{
+   if (fnode->own_closer)
+     eina_strbuf_prepend_printf(txt, "<%s/>", fnode->orig_format);
+   else if (fnode->opener)
+     eina_strbuf_prepend_printf(txt, "<%s>", fnode->orig_format);
+   else
+     eina_strbuf_prepend_printf(txt, "</%s>", fnode->orig_format);
+}
+
+/**
  * @internal
  * An helper function to _markup_get_text_append and others, used for getting
  * back only the "dangerous" escapes.
@@ -9320,12 +9355,164 @@ evas_textblock_cursor_content_get(const Evas_Textblock_Cursor *cur)
      }
 }
 
+///////////////////////////////////////////////////////////////////////////////////
+// TIZEN_ONLY(20150128): Add evas_textblock_cursor_range_text_valid_markup_get API.
+///////////////////////////////////////////////////////////////////////////////////
+static void
+_evas_textblock_format_search_prepend(Eina_Strbuf *buf, Evas_Object_Textblock_Node_Format *format_node, Eina_List **invalid_fnodes)
+{
+   Eina_List *list = NULL, *l = NULL, *l_next = NULL;
+   Evas_Object_Textblock_Format_Pair_Item *data, *new;
+   Evas_Object_Textblock_Node_Format *fnode, *fn;
+   char *simple_format, *copy;
+
+   fnode = format_node;
+   if (!fnode) return;
+
+   while (fnode)
+     {
+        if (fnode->own_closer) goto next;
+        if (fnode->visible) goto next;
+        if (fnode->opener)
+          {
+             EINA_LIST_FOREACH_SAFE(list, l, l_next, data)
+               {
+                  if (data->void_closer ||
+                      !strncmp(fnode->orig_format, data->format, strlen(data->format)))
+                    {
+                       if (data->format)
+                         free((void *)data->format);
+                       free((void *)data);
+                       list = eina_list_remove_list(list, l);
+                       goto next;
+                    }
+               }
+             EINA_LIST_FOREACH_SAFE(*invalid_fnodes, l, l_next, fn)
+               {
+                  if (!strncmp(fnode->orig_format, fn->orig_format, strlen(fn->orig_format)))
+                    {
+                       *invalid_fnodes = eina_list_remove_list(*invalid_fnodes, l);
+                       goto next;
+                    }
+               }
+             _markup_get_format_prepend(buf, fnode);
+          }
+        else
+          {
+             copy = strdup(fnode->orig_format);
+             simple_format = strtok(copy, " ,=");
+
+             new = calloc(1, sizeof(Evas_Object_Textblock_Format_Pair_Item));
+             if (!simple_format)
+               {
+                  new->void_closer = EINA_TRUE;
+                  new->format = NULL;
+               }
+             else
+               {
+                  new->void_closer = EINA_FALSE;
+                  new->format = calloc(strlen(simple_format) + 1, 1);
+                  strcpy(new->format, simple_format);
+               }
+
+             free(copy);
+             list = eina_list_prepend(list, new);
+          }
+next:
+        fnode = _NODE_FORMAT(EINA_INLIST_GET(fnode)->prev);
+     }
+
+   EINA_LIST_FOREACH(list, l, data)
+     {
+        if (data->format)
+          free((void *)data->format);
+        free((void *)data);
+     }
+   eina_list_free(list);
+}
+
+static void
+_evas_textblock_format_search_append(Eina_Strbuf *buf, Evas_Object_Textblock_Node_Format *format_node)
+{
+   Eina_List *list = NULL, *l = NULL, *l_next = NULL;
+   Evas_Object_Textblock_Format_Pair_Item *data, *new;
+   Eina_Bool void_closer = EINA_FALSE;
+   Evas_Object_Textblock_Node_Format *fnode;
+   char *simple_format, *copy;
+
+   fnode = format_node;
+   if (!fnode) return;
+
+   while (fnode)
+     {
+        if (fnode->own_closer) goto next;
+        if (fnode->visible && strncmp(fnode->orig_format, "item", 4)) goto next;
+        if (!fnode->opener)
+          {
+             if (!strcmp(fnode->orig_format, ""))
+               void_closer = EINA_TRUE;
+
+             EINA_LIST_FOREACH_SAFE(list, l, l_next, data)
+               {
+                  if (void_closer || (data->void_closer) ||
+                      !strncmp(fnode->orig_format, data->format, strlen(data->format)))
+                    {
+                       void_closer = EINA_FALSE;
+                       if (data->format)
+                         free((void *)data->format);
+                       free((void *)data);
+                       list = eina_list_remove_list(list, l);
+                       goto next;
+                    }
+               }
+             _markup_get_format_append(buf, fnode);
+          }
+        else
+          {
+             copy = strdup(fnode->orig_format);
+             simple_format = strtok(copy, " ,=");
+
+             new = calloc(1, sizeof(Evas_Object_Textblock_Format_Pair_Item));
+             if (!simple_format)
+               {
+                  new->void_closer = EINA_TRUE;
+                  new->format = NULL;
+               }
+             else
+               {
+                  new->format = calloc(strlen(simple_format) + 1, 1);
+                  strcpy(new->format, simple_format);
+               }
+
+             free(copy);
+             list = eina_list_prepend(list, new);
+          }
+next:
+        fnode = _NODE_FORMAT(EINA_INLIST_GET(fnode)->next);
+     }
+
+   EINA_LIST_FOREACH(list, l, data)
+     {
+        if (data->format)
+          free((void *)data->format);
+        free((void *)data);
+     }
+   eina_list_free(list);
+}
+//////////////////////////////////////////////////////////////////////////////////
+
 static char *
-_evas_textblock_cursor_range_text_markup_get(const Evas_Textblock_Cursor *cur1, const Evas_Textblock_Cursor *_cur2)
+_evas_textblock_cursor_range_text_markup_get(const Evas_Textblock_Cursor *cur1, const Evas_Textblock_Cursor *_cur2, Eina_Bool valid_markup)
 {
    Evas_Object_Textblock_Node_Text *tnode;
    Eina_Strbuf *buf;
    Evas_Textblock_Cursor *cur2;
+   // TIZEN_ONLY(20150128): Add evas_textblock_cursor_range_text_valid_markup_get API.
+   Evas_Object_Textblock_Node_Format *start_fnode = NULL,*prev_fnode = NULL;
+   Eina_Bool valid_result = EINA_FALSE;
+   Eina_List *invalid_fnodes = NULL;
+   int item_pair = 0;
+   //
 
    if (!cur1 || !cur1->node) return NULL;
    if (!_cur2 || !_cur2->node) return NULL;
@@ -9378,6 +9565,13 @@ _evas_textblock_cursor_range_text_markup_get(const Evas_Textblock_Cursor *cur1, 
           {
              off = 0;
           }
+
+        // TIZEN_ONLY(20150128): Add evas_textblock_cursor_range_text_valid_markup_get API.
+        // Keep start position for searching format
+        if (tnode == cur1->node)
+          start_fnode = fnode;
+        //////////////
+
         while (fnode && (fnode->text_node == tnode))
           {
              Eina_Unicode tmp_ch;
@@ -9391,7 +9585,48 @@ _evas_textblock_cursor_range_text_markup_get(const Evas_Textblock_Cursor *cur1, 
              tmp_ch = text[off];
              text[off] = 0; /* Null terminate the part of the string */
              _markup_get_text_append(buf, text);
-             _markup_get_format_append(buf, fnode);
+
+             // TIZEN_ONLY(20150128): Add evas_textblock_cursor_range_text_valid_markup_get API.
+             //_markup_get_format_append(buf, fnode);
+             if ((!valid_result) && (*text))
+               valid_result = EINA_TRUE;
+
+             if (!valid_markup)
+               {
+                  _markup_get_format_append(buf, fnode);
+               }
+             else
+               {
+                  // Closer item format is invisible and opener item format is visible.
+                  // So, we need to get rid of useless item closer format.
+                  if (!strncmp(fnode->orig_format, "item", 4))
+                    {
+                       if (fnode->opener)
+                         {
+                            item_pair++;
+                            _markup_get_format_append(buf, fnode);
+                         }
+                       else if (item_pair > 0)
+                         {
+                            item_pair--;
+                            _markup_get_format_append(buf, fnode);
+                         }
+                    }
+                  else
+                    {
+                       if ((!fnode->visible) && (!fnode->opener) && (!valid_result))
+                         invalid_fnodes = eina_list_append(invalid_fnodes, fnode);
+                       else
+                         {
+                            if (fnode->visible)
+                              valid_result = EINA_TRUE;
+                            _markup_get_format_append(buf, fnode);
+                         }
+                    }
+               }
+             ////////////////
+
+
              text[off] = tmp_ch; /* Restore the char */
              text += off;
              if (fnode->visible)
@@ -9413,6 +9648,98 @@ _evas_textblock_cursor_range_text_markup_get(const Evas_Textblock_Cursor *cur1, 
              text_base[cur2->pos] = '\0';
              _markup_get_text_append(buf, text);
              free(text_base);
+
+             // TIZEN_ONLY(20150128): Add evas_textblock_cursor_range_text_valid_markup_get API.
+             if ((!valid_result) && (*text))
+               valid_result = EINA_TRUE;
+
+             // Search valid opener markup tag
+             if (valid_markup)
+               {
+                  if (start_fnode)
+                    {
+                       _evas_textblock_format_search_prepend(buf, _NODE_FORMAT(EINA_INLIST_GET(start_fnode)->prev), &invalid_fnodes);
+                       prev_fnode = NULL;
+                    }
+                  else
+                    {
+                       size_t pos = cur1->pos;
+                       while (pos > 0 && !prev_fnode)
+                         {
+                            prev_fnode = _evas_textblock_node_text_get_first_format_between(cur1->node,
+                                                                                            --pos, cur1->pos);
+                         }
+                       if (!prev_fnode)
+                         {
+                            Evas_Object_Textblock_Node_Text *prev_tnode, *text_temp;
+                            Evas_Object_Textblock_Node_Format *format_temp;
+
+                            prev_tnode = _NODE_TEXT(EINA_INLIST_GET(cur1->node)->prev);
+
+                            if (prev_tnode)
+                              {
+                                 while (1)
+                                   {
+                                      prev_fnode = prev_tnode->format_node;
+                                      if (prev_fnode)
+                                        break;
+                                      text_temp = _NODE_TEXT(EINA_INLIST_GET(prev_tnode)->prev);
+                                      if (!text_temp)
+                                        break;
+                                      prev_tnode = text_temp;
+                                   }
+                              }
+                            while (prev_fnode)
+                              {
+                                 format_temp = _NODE_FORMAT(EINA_INLIST_GET(prev_fnode)->next);
+                                 if (!format_temp || (format_temp->text_node != prev_tnode))
+                                   break;
+                                 prev_fnode = format_temp;
+                              }
+                         }
+                       if (prev_fnode)
+                         _evas_textblock_format_search_prepend(buf, prev_fnode, &invalid_fnodes);
+                    }
+                  if (invalid_fnodes)
+                    invalid_fnodes = eina_list_free(invalid_fnodes);
+
+                  // Search valid closer markup tag
+                  if (fnode)
+                    {
+                       _evas_textblock_format_search_append(buf, fnode);
+                    }
+                  else if (prev_fnode)
+                    {
+                       _evas_textblock_format_search_append(buf, _NODE_FORMAT(EINA_INLIST_GET(prev_fnode)->next));
+                    }
+                  else
+                    {
+                       Evas_Object_Textblock_Node_Format *next_fnode = NULL;
+                       next_fnode = _evas_textblock_node_text_get_first_format_between(tnode, cur2->pos, -1);
+                       Evas_Object_Textblock_Node_Text *text_temp;
+
+                       if (!next_fnode)
+                         {
+                            Evas_Object_Textblock_Node_Text *next_tnode = _NODE_TEXT(EINA_INLIST_GET(tnode)->next);
+                            if (next_tnode)
+                              {
+                                 while (1)
+                                   {
+                                      next_fnode = next_tnode->format_node;
+                                      if (next_fnode)
+                                        break;
+                                      text_temp = _NODE_TEXT(EINA_INLIST_GET(next_tnode)->next);
+                                      if (!text_temp)
+                                        break;
+                                      next_tnode = text_temp;
+                                   }
+                              }
+                         }
+                       if (next_fnode)
+                         _evas_textblock_format_search_append(buf, next_fnode);
+                    }
+               }
+             ///////////
              break;
           }
         else
@@ -9420,6 +9747,10 @@ _evas_textblock_cursor_range_text_markup_get(const Evas_Textblock_Cursor *cur1, 
              /* Add the rest, skip replacement */
              _markup_get_text_append(buf, text);
              free(text_base);
+             // TIZEN_ONLY(20150128): Add evas_textblock_cursor_range_text_valid_markup_get API.
+             if ((!valid_result) && (*text))
+               valid_result = EINA_TRUE;
+             //
           }
      }
    /* return the string */
@@ -9427,6 +9758,24 @@ _evas_textblock_cursor_range_text_markup_get(const Evas_Textblock_Cursor *cur1, 
         char *ret;
         ret = eina_strbuf_string_steal(buf);
         eina_strbuf_free(buf);
+        // TIZEN_ONLY(20150128): Add evas_textblock_cursor_range_text_valid_markup_get API.
+        if (valid_markup)
+          {
+             char *utf8_ret;
+             utf8_ret = evas_textblock_text_markup_to_utf8(NULL, ret);
+             if ((!utf8_ret) || (!strcmp(utf8_ret, "")))
+               {
+                  free(utf8_ret);
+                  free(ret);
+                  return NULL;
+               }
+             else
+               {
+                  free(utf8_ret);
+                  return ret;
+               }
+          }
+        //
         return ret;
      }
 }
@@ -9564,12 +9913,20 @@ EAPI char *
 evas_textblock_cursor_range_text_get(const Evas_Textblock_Cursor *cur1, const Evas_Textblock_Cursor *cur2, Evas_Textblock_Text_Type format)
 {
    if (format == EVAS_TEXTBLOCK_TEXT_MARKUP)
-      return _evas_textblock_cursor_range_text_markup_get(cur1, cur2);
+      return _evas_textblock_cursor_range_text_markup_get(cur1, cur2, EINA_FALSE);
    else if (format == EVAS_TEXTBLOCK_TEXT_PLAIN)
       return _evas_textblock_cursor_range_text_plain_get(cur1, cur2);
    else
       return NULL; /* Not yet supported */
 }
+
+// TIZEN_ONLY(20150128): Add evas_textblock_cursor_range_text_valid_markup_get API.
+EAPI char *
+evas_textblock_cursor_range_text_valid_markup_get(const Evas_Textblock_Cursor *cur1, const Evas_Textblock_Cursor *cur2)
+{
+   return _evas_textblock_cursor_range_text_markup_get(cur1, cur2, EINA_TRUE);
+}
+//
 
 EAPI const char *
 evas_textblock_cursor_paragraph_text_get(const Evas_Textblock_Cursor *cur)

@@ -2321,7 +2321,7 @@ EAPI void _edje_edd_shutdown(void);
 
 int _edje_object_file_set_internal(Evas_Object *obj, const Eina_File *file, const char *group, const char *parent, Eina_List *group_path, Eina_Array *nested);
 
-void  _edje_file_del(Edje *ed);
+void  _edje_file_del(Edje *ed, Eina_Bool reuse_ic);
 void  _edje_file_free(Edje_File *edf);
 void  _edje_file_cache_shutdown(void);
 void  _edje_collection_free(Edje_File *edf,
@@ -2613,8 +2613,8 @@ void _edje_lua_script_only_message(Edje *ed, Edje_Message *em);
 
 void _edje_entry_init(Edje *ed);
 void _edje_entry_shutdown(Edje *ed);
-void _edje_entry_real_part_init(Edje *ed, Edje_Real_Part *rp);
-void _edje_entry_real_part_shutdown(Edje *ed, Edje_Real_Part *rp);
+void _edje_entry_real_part_init(Edje *ed, Edje_Real_Part *rp, Ecore_IMF_Context *ic);
+void _edje_entry_real_part_shutdown(Edje *ed, Edje_Real_Part *rp, Eina_Bool reuse_ic);
 void _edje_entry_real_part_configure(Edje *ed, Edje_Real_Part *rp);
 // TIZEN_ONLY(20150128): Add evas_textblock_cursor_range_text_valid_markup_get API.
 const char *_edje_entry_selection_valid_markup_get(Edje_Real_Part *rp);

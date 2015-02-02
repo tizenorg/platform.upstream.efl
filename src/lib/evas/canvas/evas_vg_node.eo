@@ -37,22 +37,22 @@ abstract Evas.VG_Node (Eo.Base)
       color {
          set {
             /*@
-              Sets the general/main color of the given Evas_VG node to the given
-              one.
-              @note These color values are expected to be premultiplied by @p a.
-              @ingroup Evas_VG_Node_Group */
+             Sets the general/main color of the given Evas_VG node to the given
+             one.
+             @note These color values are expected to be premultiplied by @p a.
+             @ingroup Evas_VG_Node_Group */
          }
          get {
             /*@
-              Retrieves the general/main color of the given Evas_VG node.
-              Retrieves the “main” color's RGB component (and alpha channel)
-              values, <b>which range from 0 to 255</b>. For the alpha channel,
-              which defines the object's transparency level, 0 means totally
-              transparent, while 255 means opaque. These color values are
-              premultiplied by the alpha value.
-              @note Use @c NULL pointers on the components you're not
-                    interested in: they'll be ignored by the function.
-              @ingroup Evas_VG_Node_Group */
+             Retrieves the general/main color of the given Evas_VG node.
+             Retrieves the “main” color's RGB component (and alpha channel)
+             values, <b>which range from 0 to 255</b>. For the alpha channel,
+             which defines the object's transparency level, 0 means totally
+             transparent, while 255 means opaque. These color values are
+             premultiplied by the alpha value.
+             @note Use @c NULL pointers on the components you're not
+                   interested in: they'll be ignored by the function.
+             @ingroup Evas_VG_Node_Group */
          }
          values {
             int r; /*@ The red component of the given color. */
@@ -83,9 +83,9 @@ abstract Evas.VG_Node (Eo.Base)
    methods {
       bound_get {
          /*@
-           Give the bounding box in screen coordinate as being drawn.
-           It will start as the control box until it is refined once
-           the shape is computed.
+          Give the bounding box in screen coordinate as being drawn.
+          It will start as the control box until it is refined once
+          the shape is computed.
           */
          return: bool @warn_unused;
          params {
@@ -94,8 +94,8 @@ abstract Evas.VG_Node (Eo.Base)
       }
       original_bound_get {
          /*@
-           Give the bounding box in screen coordinate as defined in
-           the file or at the insertion of the object (before any scaling).
+          Give the bounding box in screen coordinate as defined in
+          the file or at the insertion of the object (before any scaling).
           */
          return: bool @warn_unused;
          params {
@@ -104,26 +104,26 @@ abstract Evas.VG_Node (Eo.Base)
       }
       raise {
          /*@
-           Raise @p obj to the top of its layer.
-           @p obj will, then, be the highest one in the layer it belongs
-           to. Object on other layers won't get touched.
+          Raise @p obj to the top of its layer.
+          @p obj will, then, be the highest one in the layer it belongs
+          to. Object on other layers won't get touched.
 
-           @see evas_vg_node_stack_above()
-           @see evas_vg_node_stack_below()
-           @see evas_vg_node_lower() */
+          @see evas_vg_node_stack_above()
+          @see evas_vg_node_stack_below()
+          @see evas_vg_node_lower() */
       }
       stack_above {
          /*@
-           Stack @p obj immediately above @p above Objects, in a given
-           Evas_VG_Container, are stacked in the order they get added to it.
-           This means that, if they overlap, the highest ones will cover the
-           lowest ones, in that order. This function is a way to change the
-           stacking order for the objects.
-           This function is intended to be used with <b>objects belonging to
-           the same container</b>, otherwise it will fail (and accomplish
-           nothing).
+          Stack @p obj immediately above @p above Objects, in a given
+          Evas_VG_Container, are stacked in the order they get added to it.
+          This means that, if they overlap, the highest ones will cover the
+          lowest ones, in that order. This function is a way to change the
+          stacking order for the objects.
+          This function is intended to be used with <b>objects belonging to
+          the same container</b>, otherwise it will fail (and accomplish
+          nothing).
 
-           @see evas_vg_node_stack_below() */
+          @see evas_vg_node_stack_below() */
          params {
             @in Evas_VG_Node *above @nonull; /*@ the object above which to
                                                stack */
@@ -131,18 +131,18 @@ abstract Evas.VG_Node (Eo.Base)
       }
       stack_below {
          /*@
-           Stack @p obj immediately below @p below
-           Objects, in a given container, are stacked in the order they get
-           added to it.  This means that, if they overlap, the highest ones
-           will cover the lowest ones, in that order. This function is a way
-           to change the stacking order for the objects.
-           This function is intended to be used with <b>objects belonging to
-           the same container</b>, otherwise it will fail (and accomplish
-           nothing).
+          Stack @p obj immediately below @p below
+          Objects, in a given container, are stacked in the order they get
+          added to it.  This means that, if they overlap, the highest ones
+          will cover the lowest ones, in that order. This function is a way
+          to change the stacking order for the objects.
+          This function is intended to be used with <b>objects belonging to
+          the same container</b>, otherwise it will fail (and accomplish
+          nothing).
 
-           @see evas_vg_node_layer_get()
-           @see evas_vg_node_layer_set()
-           @see evas_vg_node_stack_below() */
+          @see evas_vg_node_layer_get()
+          @see evas_vg_node_layer_set()
+          @see evas_vg_node_stack_below() */
          params {
             @in Evas_Object *below @nonull; /*@ the object below which to
                                               stack */
@@ -150,13 +150,13 @@ abstract Evas.VG_Node (Eo.Base)
       }
       lower {
          /*@
-           Lower @p obj to the bottom of its layer.
-           @p obj will, then, be the lowest one in the layer it belongs
-           to. Objects on other layers won't get touched.
+          Lower @p obj to the bottom of its layer.
+          @p obj will, then, be the lowest one in the layer it belongs
+          to. Objects on other layers won't get touched.
 
-           @see evas_vg_node_stack_above()
-           @see evas_vg_node_stack_below()
-           @see evas_vg_node_raise() */
+          @see evas_vg_node_stack_above()
+          @see evas_vg_node_stack_below()
+          @see evas_vg_node_raise() */
       }
    }
    implements {

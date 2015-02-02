@@ -96,6 +96,13 @@ _evas_vg_root_node_get(Eo *obj EINA_UNUSED, Evas_VG_Data *pd)
 }
 
 void
+_evas_vg_eo_base_destructor(Eo *eo_obj, Evas_VG_Data *pd)
+{
+   eo_unref(pd->root);
+   eo_do_super(eo_obj, MY_CLASS, eo_destructor());
+}
+
+void
 _evas_vg_eo_base_constructor(Eo *eo_obj, Evas_VG_Data *pd)
 {
    Evas_Object_Protected_Data *obj = eo_data_scope_get(eo_obj, EVAS_OBJECT_CLASS);
@@ -110,6 +117,8 @@ _evas_vg_eo_base_constructor(Eo *eo_obj, Evas_VG_Data *pd)
 
    /* root node */
    pd->root = eo_add(EVAS_VG_ROOT_NODE_CLASS, eo_obj);
+   eo_ref(pd->root);
+
    eo_do(eo_obj, parent = eo_parent_get());
    evas_object_inject(eo_obj, obj, evas_object_evas_get(parent));
 }

@@ -103,6 +103,7 @@ class Evas.VG (Evas.Object, Efl.File)
    }
    implements {
       Eo.Base.constructor;
+      Eo.Base.destructor;
       Efl.File.file.set;
       Efl.File.file.get;
    }

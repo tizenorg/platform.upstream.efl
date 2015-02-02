@@ -8,6 +8,8 @@
 # include "evas_xlib_outbuf.h"
 # include "evas_xlib_swapbuf.h"
 # include "evas_xlib_color.h"
+# include "evas_xlib_image.h"
+# include "evas_xlib_dri_image.h"
 #endif
 
 #ifdef BUILD_ENGINE_SOFTWARE_XCB
@@ -20,7 +22,22 @@
 #include "evas_x_egl.h"
 #endif
 
+static int cpunum = 0;
 int _evas_engine_soft_x11_log_dom = -1;
+
+Eina_Mempool *_mp_command_image = NULL;
+
+typedef struct _Evas_Thread_Command_Image Evas_Thread_Command_Image;
+
+struct _Evas_Thread_Command_Image
+{
+   void *surface;
+   void *image;
+   Eina_Rectangle src, dst, clip;
+   DATA32 mul_col;
+   int render_op;
+   int smooth;
+};
 
 /* function tables - filled in later (func and parent func) */
 static Evas_Func func, pfunc;
@@ -49,7 +66,12 @@ static void *eng_info(Evas *eo_e);
 static void eng_info_free(Evas *eo_e, void *info);
 static int eng_setup(Evas *eo_e, void *info);
 static void eng_output_free(void *data);
-
+static void *eng_image_native_set(void *data, void *image, void *native);
+static void *eng_image_native_get(void *data EINA_UNUSED, void *image);
+static Eina_Bool eng_image_draw(void *data, void *context, void *surface, void *image,
+                           int src_x, int src_y, int src_w, int src_h,
+                           int dst_x, int dst_y, int dst_w, int dst_h,
+                           int smooth, Eina_Bool do_async);
 /* internal engine routines */
 
 #ifdef BUILD_ENGINE_SOFTWARE_XLIB
@@ -64,7 +86,7 @@ _output_egl_setup(int w, int h, int rot, Display *disp, Drawable draw,
    Render_Engine *re;
    void *ptr;
    int stride = 0;
-   
+
    if (depth != 32) return NULL;
    if (mask) return NULL;
    if (!(re = calloc(1, sizeof(Render_Engine)))) return NULL;
@@ -97,13 +119,13 @@ _output_egl_setup(int w, int h, int rot, Display *disp, Drawable draw,
         return NULL;
      }
    _egl_x_surf_unmap(re->egl.disp, re->egl.surface);
-   
-   re->ob = 
-     evas_software_egl_outbuf_setup_x(w, h, rot, OUTBUF_DEPTH_INHERIT, disp, 
+
+   re->ob =
+     evas_software_egl_outbuf_setup_x(w, h, rot, OUTBUF_DEPTH_INHERIT, disp,
                                        draw, vis, cmap, depth, grayscale,
                                        max_colors, mask, shape_dither,
                                        destination_alpha);
-   
+
    re->tb = evas_common_tilebuf_new(w, h);
    if (!re->tb)
      {
@@ -113,7 +135,7 @@ _output_egl_setup(int w, int h, int rot, Display *disp, Drawable draw,
      }
 
    evas_common_tilebuf_set_tile_size(re->tb, TILESIZE, TILESIZE);
-   
+
    return re;
    debug = 0;
 }
@@ -228,8 +250,8 @@ _output_swapbuf_setup(int w, int h, int rot, Display *disp, Drawable draw,
 
 #ifdef BUILD_ENGINE_SOFTWARE_XCB
 static void *
-_output_xcb_setup(int w, int h, int rot, xcb_connection_t *conn, 
-                  xcb_screen_t *screen, xcb_drawable_t draw, 
+_output_xcb_setup(int w, int h, int rot, xcb_connection_t *conn,
+                  xcb_screen_t *screen, xcb_drawable_t draw,
                   xcb_visualtype_t *vis, xcb_colormap_t cmap, int depth,
                   int debug, int grayscale, int max_colors, xcb_drawable_t mask,
                   int shape_dither, int destination_alpha)
@@ -299,7 +321,7 @@ _best_visual_get(int backend, void *connection, int screen)
         xcb_depth_iterator_t iter_depth;
         xcb_screen_t *s = NULL;
 
-        iter_screen = 
+        iter_screen =
           xcb_setup_roots_iterator(xcb_get_setup((xcb_connection_t *)connection));
         for (; iter_screen.rem; --screen, xcb_screen_next(&iter_screen))
           if (screen == 0)
@@ -342,7 +364,7 @@ _best_colormap_get(int backend, void *connection, int screen)
         xcb_screen_iterator_t iter_screen;
         xcb_screen_t *s = NULL;
 
-        iter_screen = 
+        iter_screen =
           xcb_setup_roots_iterator(xcb_get_setup((xcb_connection_t *)connection));
         for (; iter_screen.rem; --screen, xcb_screen_next(&iter_screen))
           if (screen == 0)
@@ -374,7 +396,7 @@ _best_depth_get(int backend, void *connection, int screen)
         xcb_screen_iterator_t iter_screen;
         xcb_screen_t *s = NULL;
 
-        iter_screen = 
+        iter_screen =
           xcb_setup_roots_iterator(xcb_get_setup((xcb_connection_t *)connection));
         for (; iter_screen.rem; --screen, xcb_screen_next(&iter_screen))
           if (screen == 0)
@@ -616,6 +638,308 @@ eng_canvas_alpha_get(void *data, void *context EINA_UNUSED)
      (re->outbuf_alpha_get(re->generic.ob));
 }
 
+static void *
+eng_image_native_set(void *data, void *image, void *native)
+{
+   //return image;
+   Render_Engine *re = (Render_Engine *)data;
+   Evas_Native_Surface *ns = native;
+   RGBA_Image *im = image, *im2;
+   Image_Entry *ie = image;
+
+   if (!im || !ns) return im;
+
+   if (ns->type == EVAS_NATIVE_SURFACE_X11)
+      {
+         if (im->native.data)
+            {
+               //image have native surface already
+               Evas_Native_Surface *ens = im->native.data;
+
+               if ((ens->type == ns->type) &&
+                     (ens->data.x11.visual == ns->data.x11.visual) &&
+                     (ens->data.x11.pixmap == ns->data.x11.pixmap))
+                  return im;
+            }
+      }
+   else if (ns->type == EVAS_NATIVE_SURFACE_TIZEN
+            || ns->type == EVAS_NATIVE_SURFACE_TBM)
+     {
+        if (im->native.data)
+          {
+             //image have native surface already
+             Evas_Native_Surface *ens = im->native.data;
+
+             if ((ens->type == ns->type) &&
+                 (ens->data.tizen.buffer == ns->data.tizen.buffer))
+                return im;
+          }
+      }
+
+   if ((ns->type == EVAS_NATIVE_SURFACE_OPENGL) &&
+         (ns->version == EVAS_NATIVE_SURFACE_VERSION))
+      im2 = evas_cache_image_data(evas_common_image_cache_get(),
+                                  ie->w, ie->h,
+                                  ns->data.x11.visual, 1,
+                                  EVAS_COLORSPACE_ARGB8888);
+   else
+      im2 = evas_cache_image_data(evas_common_image_cache_get(),
+                                  ie->w, ie->h,
+                                  NULL, 1,
+                                  EVAS_COLORSPACE_ARGB8888);
+   if (ie->references > 1)
+     ERR("Setting native with more than one references for im=%p", ie);
+
+   if (im->native.data)
+      {
+         if (im->native.func.free)
+            im->native.func.free(im->native.func.data, im);
+      }
+#ifdef EVAS_CSERVE2
+   if (evas_cserve2_use_get() && evas_cache2_image_cached(ie))
+     evas_cache2_image_close(ie);
+   else
+#endif
+   evas_cache_image_drop(ie);
+   im = im2;
+
+#ifdef BUILD_ENGINE_SOFTWARE_XLIB
+   if (ns->type == EVAS_NATIVE_SURFACE_X11)
+      {
+         RGBA_Image *dri_im = evas_xlib_image_dri_native_set(re->generic.ob, im, ns);
+         if (!dri_im) return evas_xlib_image_native_set(re->generic.ob, im, ns);
+         else return dri_im;
+      }
+#endif
+#ifdef HAVE_NATIVE_BUFFER
+   if (ns->type == EVAS_NATIVE_SURFACE_TIZEN)
+     {
+        return evas_native_buffer_image_set(re->generic.ob, im, ns);
+     }
+#endif
+   if (ns->type == EVAS_NATIVE_SURFACE_TBM)
+     {
+         ERR("ns->type == EVAS_NATIVE_SURFACE_TBM , not yet supported");
+//        return evas_native_tbm_image_set(re->generic.ob, im, ns);
+     }
+   return im;
+}
+
+static void *
+eng_image_native_get(void *data EINA_UNUSED, void *image)
+{
+#ifdef BUILD_ENGINE_SOFTWARE_XLIB
+   RGBA_Image *im = image;
+   Native *n;
+   if (!im) return NULL;
+   n = im->native.data;
+   if (!n) return NULL;
+   return &(n->ns);
+#endif
+   return NULL;
+}
+
+
+static void
+_draw_thread_image_draw(void *data)
+{
+   Evas_Thread_Command_Image *image = data;
+
+   if (image->smooth)
+     evas_common_scale_rgba_smooth_draw
+       (image->image, image->surface,
+        image->clip.x, image->clip.y, image->clip.w, image->clip.h,
+        image->mul_col, image->render_op,
+        image->src.x, image->src.y, image->src.w, image->src.h,
+        image->dst.x, image->dst.y, image->dst.w, image->dst.h);
+   else
+     evas_common_scale_rgba_sample_draw
+       (image->image, image->surface,
+        image->clip.x, image->clip.y, image->clip.w, image->clip.h,
+        image->mul_col, image->render_op,
+        image->src.x, image->src.y, image->src.w, image->src.h,
+        image->dst.x, image->dst.y, image->dst.w, image->dst.h);
+
+   eina_mempool_free(_mp_command_image, image);
+}
+
+static Eina_Bool
+_image_draw_thread_cmd(RGBA_Image *src, RGBA_Image *dst, RGBA_Draw_Context *dc, int src_x, int src_y, int src_w, int src_h, int dst_x, int dst_y, int dst_w, int dst_h, int smooth)
+{
+   Evas_Thread_Command_Image *cr;
+   int clip_x, clip_y, clip_w, clip_h;
+
+   if ((dst_w <= 0) || (dst_h <= 0)) return EINA_FALSE;
+   if (!(RECTS_INTERSECT(dst_x, dst_y, dst_w, dst_h,
+                         0, 0, dst->cache_entry.w, dst->cache_entry.h))) return EINA_FALSE;
+
+   cr = eina_mempool_malloc(_mp_command_image, sizeof (Evas_Thread_Command_Image));
+   if (!cr) return EINA_FALSE;
+
+   cr->image = src;
+   cr->surface = dst;
+   EINA_RECTANGLE_SET(&cr->src, src_x, src_y, src_w, src_h);
+   EINA_RECTANGLE_SET(&cr->dst, dst_x, dst_y, dst_w, dst_h);
+
+   if (dc->clip.use)
+     {
+      clip_x = dc->clip.x;
+      clip_y = dc->clip.y;
+      clip_w = dc->clip.w;
+      clip_h = dc->clip.h;
+     }
+   else
+     {
+      clip_x = 0;
+      clip_y = 0;
+      clip_w = dst->cache_entry.w;
+      clip_h = dst->cache_entry.h;
+     }
+
+   EINA_RECTANGLE_SET(&cr->clip, clip_x, clip_y, clip_w, clip_h);
+
+   cr->mul_col = dc->mul.use ? dc->mul.col : 0xffffffff;
+   cr->render_op = dc->render_op;
+   cr->smooth = smooth;
+
+   evas_thread_cmd_enqueue(_draw_thread_image_draw, cr);
+
+   return EINA_TRUE;
+}
+
+static Eina_Bool
+_image_draw_thread_cmd_smooth(RGBA_Image *src, RGBA_Image *dst, RGBA_Draw_Context *dc, int src_x, int src_y, int src_w, int src_h, int dst_x, int dst_y, int dst_w, int dst_h)
+{
+   return _image_draw_thread_cmd(src, dst, dc,
+                                 src_x, src_y, src_w, src_h,
+                                 dst_x, dst_y, dst_w, dst_h,
+                                 1);
+}
+
+static Eina_Bool
+_image_draw_thread_cmd_sample(RGBA_Image *src, RGBA_Image *dst, RGBA_Draw_Context *dc, int src_x, int src_y, int src_w, int src_h, int dst_x, int dst_y, int dst_w, int dst_h)
+{
+   return _image_draw_thread_cmd(src, dst, dc,
+                                 src_x, src_y, src_w, src_h,
+                                 dst_x, dst_y, dst_w, dst_h,
+                                 0);
+}
+
+static Eina_Bool
+_image_thr_cb_smooth(RGBA_Image *src, RGBA_Image *dst, RGBA_Draw_Context *dc, int src_x, int src_y, int src_w, int src_h, int dst_x, int dst_y, int dst_w, int dst_h)
+{
+   return evas_common_scale_rgba_in_to_out_clip_cb(src, dst, dc,
+                                                   src_x, src_y, src_w, src_h,
+                                                   dst_x, dst_y, dst_w, dst_h,
+                                                   _image_draw_thread_cmd_smooth);
+}
+
+static Eina_Bool
+_image_thr_cb_sample(RGBA_Image *src, RGBA_Image *dst, RGBA_Draw_Context *dc, int src_x, int src_y, int src_w, int src_h, int dst_x, int dst_y, int dst_w, int dst_h)
+{
+   return evas_common_scale_rgba_in_to_out_clip_cb(src, dst, dc,
+                                                   src_x, src_y, src_w, src_h,
+                                                   dst_x, dst_y, dst_w, dst_h,
+                                                   _image_draw_thread_cmd_sample);
+}
+
+static Eina_Bool
+eng_image_draw(void *data EINA_UNUSED, void *context, void *surface, void *image,
+               int src_x, int src_y, int src_w, int src_h,
+               int dst_x, int dst_y, int dst_w, int dst_h,
+               int smooth, Eina_Bool do_async)
+{
+   RGBA_Image *im = image;
+   Native *n = NULL;
+
+   if (!im) return EINA_FALSE;
+
+   if (im->native.data)
+      n = im->native.data;
+   if ((n) && (n->ns.type == EVAS_NATIVE_SURFACE_X11))
+      {
+#ifdef BUILD_ENGINE_SOFTWARE_XLIB
+         if (evas_xlib_image_dri_used())
+            {
+               if (evas_xlib_image_get_buffers(im))
+                  {
+                     evas_common_image_colorspace_dirty(im);
+                  }
+            }
+         else
+            {
+               if(evas_xlib_image_shm_copy(im))
+                  {
+                     evas_common_image_colorspace_dirty(im);
+                  }
+            }
+#endif
+         evas_common_rgba_image_scalecache_prepare(image, surface, context, smooth,
+                                                   src_x, src_y, src_w, src_h,
+                                                   dst_x, dst_y, dst_w, dst_h);
+
+         return evas_common_rgba_image_scalecache_do_cbs(image, surface,
+                                                         context, smooth,
+                                                         src_x, src_y, src_w, src_h,
+                                                         dst_x, dst_y, dst_w, dst_h,
+                                                         _image_thr_cb_sample,
+                                                         _image_thr_cb_smooth);
+      }
+   else if (do_async)
+      {
+         if (im->cache_entry.space == EVAS_COLORSPACE_ARGB8888)
+            {
+#if EVAS_CSERVE2
+               if (evas_cserve2_use_get() && evas_cache2_image_cached(&im->cache_entry))
+                  evas_cache2_image_load_data(&im->cache_entry);
+               else
+#endif
+                  evas_cache_image_load_data(&im->cache_entry);
+
+               if (!im->cache_entry.flags.loaded) return EINA_FALSE;
+            }
+
+         evas_common_rgba_image_scalecache_prepare(image, surface, context, smooth,
+                                                   src_x, src_y, src_w, src_h,
+                                                   dst_x, dst_y, dst_w, dst_h);
+
+         return evas_common_rgba_image_scalecache_do_cbs(image, surface,
+                                                         context, smooth,
+                                                         src_x, src_y, src_w, src_h,
+                                                         dst_x, dst_y, dst_w, dst_h,
+                                                         _image_thr_cb_sample,
+                                                         _image_thr_cb_smooth);
+      }
+#ifdef BUILD_PIPE_RENDER
+   else if ((cpunum > 1))
+      {
+#ifdef EVAS_CSERVE2
+         if (evas_cserve2_use_get())
+            evas_cache2_image_load_data(&im->cache_entry);
+#endif
+         evas_common_rgba_image_scalecache_prepare((Image_Entry *)(im),
+                                                   surface, context, smooth,
+                                                   src_x, src_y, src_w, src_h,
+                                                   dst_x, dst_y, dst_w, dst_h);
+
+         evas_common_pipe_image_draw(im, surface, context, smooth,
+                                     src_x, src_y, src_w, src_h,
+                                     dst_x, dst_y, dst_w, dst_h);
+      }
+#endif
+   else
+      {
+         evas_common_rgba_image_scalecache_prepare(&im->cache_entry, surface, context, smooth,
+                                                   src_x, src_y, src_w, src_h,
+                                                   dst_x, dst_y, dst_w, dst_h);
+         evas_common_rgba_image_scalecache_do(&im->cache_entry, surface, context, smooth,
+                                              src_x, src_y, src_w, src_h,
+                                              dst_x, dst_y, dst_w, dst_h);
+         evas_common_cpu_end_opt();
+      }
+
+   return EINA_FALSE;
+}
 
 /* module advertising code */
 static int
@@ -626,7 +950,7 @@ module_open(Evas_Module *em)
    /* get whatever engine module we inherit from */
    if (!_evas_module_engine_inherit(&pfunc, "software_generic")) return 0;
 
-   _evas_engine_soft_x11_log_dom = 
+   _evas_engine_soft_x11_log_dom =
      eina_log_domain_register("evas-software_x11", EVAS_DEFAULT_LOG_COLOR);
 
    if (_evas_engine_soft_x11_log_dom < 0)
@@ -634,6 +958,10 @@ module_open(Evas_Module *em)
         EINA_LOG_ERR("Can not create a module log domain.");
         return 0;
      }
+
+   _mp_command_image = eina_mempool_add("chained_mempool",
+                                       "Evas_Thread_Command_Image", NULL,
+                                       sizeof (Evas_Thread_Command_Image), 128);
 
    /* store it for later use */
    func = pfunc;
@@ -646,14 +974,20 @@ module_open(Evas_Module *em)
    ORD(canvas_alpha_get);
    ORD(output_free);
 
+   ORD(image_draw);
+   ORD(image_native_set);
+   ORD(image_native_get);
+
    /* now advertise out own api */
    em->functions = (void *)(&func);
+   cpunum = eina_cpu_count();
    return 1;
 }
 
 static void
 module_close(Evas_Module *em EINA_UNUSED)
 {
+  eina_mempool_del(_mp_command_image);
   eina_log_domain_unregister(_evas_engine_soft_x11_log_dom);
 }
 

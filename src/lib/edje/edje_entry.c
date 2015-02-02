@@ -2491,7 +2491,7 @@ _edje_entry_shutdown(Edje *ed)
 }
 
 void
-_edje_entry_real_part_init(Edje *ed, Edje_Real_Part *rp)
+_edje_entry_real_part_init(Edje *ed, Edje_Real_Part *rp, Ecore_IMF_Context *ic)
 {
    Entry *en;
 #ifdef HAVE_ECORE_IMF
@@ -2575,28 +2575,35 @@ _edje_entry_real_part_init(Edje *ed, Edje_Real_Part *rp)
         edje_object_signal_callback_add(ed->obj, "focus,part,in", rp->part->name, _edje_entry_focus_in_cb, rp);
         edje_object_signal_callback_add(ed->obj, "focus,part,out", rp->part->name, _edje_entry_focus_out_cb, rp);
 
-        ctx_id = ecore_imf_context_default_id_get();
-        if (ctx_id)
+        // TIZEN_ONLY(20131129): Reuse ecore_imf_context when theme is changed
+
+        if (ic)
+          en->imf_context = ic;
+        else
           {
-             ctx_info = ecore_imf_context_info_by_id_get(ctx_id);
-             if (!ctx_info->canvas_type ||
-                 strcmp(ctx_info->canvas_type, "evas") == 0)
+             ctx_id = ecore_imf_context_default_id_get();
+             if (ctx_id)
                {
-                  en->imf_context = ecore_imf_context_add(ctx_id);
-               }
-             else
-               {
-                  ctx_id = ecore_imf_context_default_id_by_canvas_type_get("evas");
-                  if (ctx_id)
+                  ctx_info = ecore_imf_context_info_by_id_get(ctx_id);
+                  if (!ctx_info->canvas_type ||
+                      strcmp(ctx_info->canvas_type, "evas") == 0)
                     {
                        en->imf_context = ecore_imf_context_add(ctx_id);
                     }
+                  else
+                    {
+                       ctx_id = ecore_imf_context_default_id_by_canvas_type_get("evas");
+                       if (ctx_id)
+                         {
+                            en->imf_context = ecore_imf_context_add(ctx_id);
+                         }
+                    }
                }
-          }
-        else
-          en->imf_context = NULL;
+             else
+                en->imf_context = NULL;
 
-        if (!en->imf_context) goto done;
+             if (!en->imf_context) goto done;
+          }
 
         ecore_imf_context_client_window_set
            (en->imf_context,
@@ -2619,6 +2626,13 @@ _edje_entry_real_part_init(Edje *ed, Edje_Real_Part *rp)
           ecore_imf_context_input_panel_language_set(en->imf_context, ECORE_IMF_INPUT_PANEL_LANG_ALPHABET);
 #endif
      }
+   else
+     {
+#ifdef HAVE_ECORE_IMF
+        if (ic)
+          ecore_imf_context_del(ic);
+#endif
+     }
 #ifdef HAVE_ECORE_IMF
 done:
 #endif
@@ -2626,7 +2640,7 @@ done:
 }
 
 void
-_edje_entry_real_part_shutdown(Edje *ed, Edje_Real_Part *rp)
+_edje_entry_real_part_shutdown(Edje *ed, Edje_Real_Part *rp, Eina_Bool reuse_ic)
 {
    Entry *en;
 
@@ -2660,8 +2674,11 @@ _edje_entry_real_part_shutdown(Edje *ed, Edje_Real_Part *rp)
              ecore_imf_context_event_callback_del(en->imf_context, ECORE_IMF_CALLBACK_PREEDIT_CHANGED, _edje_entry_imf_event_preedit_changed_cb);
              ecore_imf_context_event_callback_del(en->imf_context, ECORE_IMF_CALLBACK_SELECTION_SET, _edje_entry_imf_event_selection_set_cb);
 
-             ecore_imf_context_del(en->imf_context);
-             en->imf_context = NULL;
+             if (!reuse_ic)
+               {
+                  ecore_imf_context_del(en->imf_context);
+                  en->imf_context = NULL;
+               }
           }
 
         edje_object_signal_callback_del(ed->obj, "focus,part,in", rp->part->name, _edje_entry_focus_in_cb);

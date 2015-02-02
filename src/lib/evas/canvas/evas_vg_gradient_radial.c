@@ -15,12 +15,14 @@ struct _Evas_VG_Gradient_Radial_Data
 };
 
 static void
-_evas_vg_gradient_radial_efl_graphics_gradient_radial_center_set(Eo *obj EINA_UNUSED,
+_evas_vg_gradient_radial_efl_graphics_gradient_radial_center_set(Eo *obj,
                                                  Evas_VG_Gradient_Radial_Data *pd,
                                                  double x, double y)
 {
    pd->center.x = x;
    pd->center.y = y;
+
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 }
 
 static void
@@ -33,11 +35,12 @@ _evas_vg_gradient_radial_efl_graphics_gradient_radial_center_get(Eo *obj EINA_UN
 }
 
 static void
-_evas_vg_gradient_radial_efl_graphics_gradient_radial_radius_set(Eo *obj EINA_UNUSED,
+_evas_vg_gradient_radial_efl_graphics_gradient_radial_radius_set(Eo *obj,
                                                  Evas_VG_Gradient_Radial_Data *pd,
                                                  double r)
 {
    pd->radius = r;
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 }
 
 static double
@@ -48,12 +51,14 @@ _evas_vg_gradient_radial_efl_graphics_gradient_radial_radius_get(Eo *obj EINA_UN
 }
 
 static void
-_evas_vg_gradient_radial_efl_graphics_gradient_radial_focal_set(Eo *obj EINA_UNUSED,
+_evas_vg_gradient_radial_efl_graphics_gradient_radial_focal_set(Eo *obj,
                                                 Evas_VG_Gradient_Radial_Data *pd,
                                                 double x, double y)
 {
    pd->focal.x = x;
    pd->focal.y = y;
+
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 }
 
 static void

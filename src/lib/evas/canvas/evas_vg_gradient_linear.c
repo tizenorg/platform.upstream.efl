@@ -16,12 +16,14 @@ struct _Evas_VG_Gradient_Linear_Data
 };
 
 static void
-_evas_vg_gradient_linear_efl_graphics_gradient_linear_start_set(Eo *obj EINA_UNUSED,
+_evas_vg_gradient_linear_efl_graphics_gradient_linear_start_set(Eo *obj,
                                    Evas_VG_Gradient_Linear_Data *pd,
                                    double x, double y)
 {
    pd->start.x = x;
    pd->start.y = y;
+
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 }
 
 static void
@@ -34,12 +36,14 @@ _evas_vg_gradient_linear_efl_graphics_gradient_linear_start_get(Eo *obj EINA_UNU
 }
 
 static void
-_evas_vg_gradient_linear_efl_graphics_gradient_linear_end_set(Eo *obj EINA_UNUSED,
+_evas_vg_gradient_linear_efl_graphics_gradient_linear_end_set(Eo *obj,
                                  Evas_VG_Gradient_Linear_Data *pd,
                                  double x, double y)
 {
    pd->end.x = x;
    pd->end.y = y;
+
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 }
 
 static void

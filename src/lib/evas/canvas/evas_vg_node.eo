@@ -158,6 +158,8 @@ abstract Evas.VG_Node (Eo.Base)
           @see evas_vg_node_stack_below()
           @see evas_vg_node_raise() */
       }
+		changed {
+		}
    }
    implements {
       Eo.Base.parent.set;

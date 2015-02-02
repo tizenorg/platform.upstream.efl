@@ -4,5 +4,6 @@ class Evas.VG_Root_Node (Evas.VG_Container)
    implements {
       Eo.Base.parent.set;
       Eo.Base.constructor;
+      Eo.Base.destructor;
    }
 }

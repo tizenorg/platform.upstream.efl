@@ -32,17 +32,22 @@ struct _Evas_VG_Shape_Data
 };
 
 static Eina_Bool
-_evas_vg_shape_efl_graphics_shape_path_set(Eo *obj EINA_UNUSED,
+_evas_vg_shape_efl_graphics_shape_path_set(Eo *obj,
                                            Evas_VG_Shape_Data *pd,
                                            const Efl_Graphics_Path_Command *ops,
                                            const double *points)
 {
+   Eina_Bool ret;
+
    free(pd->points);
    pd->points = NULL;
    free(pd->ops);
    pd->ops = NULL;
+   ret = efl_graphics_path_dup(&pd->ops, &pd->points, ops, points);
 
-   return efl_graphics_path_dup(&pd->ops, &pd->points, ops, points);
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
+
+   return ret;
 }
 
 static Eina_Bool
@@ -54,7 +59,7 @@ _evas_vg_shape_evas_vg_node_bound_get(Eo *obj,
 }
 
 static void
-_evas_vg_shape_fill_set(Eo *obj EINA_UNUSED,
+_evas_vg_shape_fill_set(Eo *obj,
                         Evas_VG_Shape_Data *pd,
                         Evas_VG_Node *f)
 {
@@ -62,6 +67,8 @@ _evas_vg_shape_fill_set(Eo *obj EINA_UNUSED,
 
    pd->fill = eo_ref(f);
    eo_unref(tmp);
+
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 }
 
 static Evas_VG_Node *
@@ -71,11 +78,13 @@ _evas_vg_shape_fill_get(Eo *obj EINA_UNUSED, Evas_VG_Shape_Data *pd)
 }
 
 static void
-_evas_vg_shape_efl_graphics_shape_stroke_scale_set(Eo *obj EINA_UNUSED,
+_evas_vg_shape_efl_graphics_shape_stroke_scale_set(Eo *obj,
                                                    Evas_VG_Shape_Data *pd,
                                                    double s)
 {
    pd->stroke.scale = s;
+
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 }
 
 static double
@@ -86,7 +95,7 @@ _evas_vg_shape_efl_graphics_shape_stroke_scale_get(Eo *obj EINA_UNUSED,
 }
 
 static void
-_evas_vg_shape_efl_graphics_shape_stroke_color_set(Eo *obj EINA_UNUSED,
+_evas_vg_shape_efl_graphics_shape_stroke_color_set(Eo *obj,
                                                    Evas_VG_Shape_Data *pd,
                                                    int r, int g, int b, int a)
 {
@@ -94,6 +103,7 @@ _evas_vg_shape_efl_graphics_shape_stroke_color_set(Eo *obj EINA_UNUSED,
    pd->stroke.g = g;
    pd->stroke.b = b;
    pd->stroke.a = a;
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 }
 
 static void
@@ -108,7 +118,7 @@ _evas_vg_shape_efl_graphics_shape_stroke_color_get(Eo *obj EINA_UNUSED,
 }
 
 static void
-_evas_vg_shape_stroke_fill_set(Eo *obj EINA_UNUSED,
+_evas_vg_shape_stroke_fill_set(Eo *obj,
                                Evas_VG_Shape_Data *pd,
                                Evas_VG_Node *f)
 {
@@ -116,6 +126,8 @@ _evas_vg_shape_stroke_fill_set(Eo *obj EINA_UNUSED,
 
    pd->stroke.fill = eo_ref(f);
    eo_unref(tmp);
+
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 }
 
 static Evas_VG_Node *
@@ -126,11 +138,12 @@ _evas_vg_shape_stroke_fill_get(Eo *obj EINA_UNUSED,
 }
 
 static void
-_evas_vg_shape_efl_graphics_shape_stroke_width_set(Eo *obj EINA_UNUSED,
+_evas_vg_shape_efl_graphics_shape_stroke_width_set(Eo *obj,
                                                    Evas_VG_Shape_Data *pd,
                                                    double w)
 {
    pd->stroke.width = w;
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 }
 
 static double
@@ -141,11 +154,12 @@ _evas_vg_shape_efl_graphics_shape_stroke_width_get(Eo *obj EINA_UNUSED,
 }
 
 static void
-_evas_vg_shape_efl_graphics_shape_stroke_location_set(Eo *obj EINA_UNUSED,
+_evas_vg_shape_efl_graphics_shape_stroke_location_set(Eo *obj,
                                                       Evas_VG_Shape_Data *pd,
                                                       double centered)
 {
    pd->stroke.centered = centered;
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 }
 
 static double
@@ -156,7 +170,7 @@ _evas_vg_shape_efl_graphics_shape_stroke_location_get(Eo *obj EINA_UNUSED,
 }
 
 static void
-_evas_vg_shape_efl_graphics_shape_stroke_dash_set(Eo *obj EINA_UNUSED,
+_evas_vg_shape_efl_graphics_shape_stroke_dash_set(Eo *obj,
                                                   Evas_VG_Shape_Data *pd,
                                                   const Efl_Graphics_Dash *dash,
                                                   unsigned int length)
@@ -170,6 +184,8 @@ _evas_vg_shape_efl_graphics_shape_stroke_dash_set(Eo *obj EINA_UNUSED,
 
    memcpy(pd->stroke.dash, dash, sizeof (Efl_Graphics_Dash) * length);
    pd->stroke.dash_count = length;
+
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 }
 
 static void
@@ -183,7 +199,7 @@ _evas_vg_shape_efl_graphics_shape_stroke_dash_get(Eo *obj EINA_UNUSED,
 }
 
 static void
-_evas_vg_shape_stroke_marker_set(Eo *obj EINA_UNUSED,
+_evas_vg_shape_stroke_marker_set(Eo *obj,
                                  Evas_VG_Shape_Data *pd,
                                  Evas_VG_Shape *m)
 {
@@ -191,6 +207,8 @@ _evas_vg_shape_stroke_marker_set(Eo *obj EINA_UNUSED,
 
    pd->stroke.marker = eo_ref(m);
    eo_unref(tmp);
+
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 }
 
 static Evas_VG_Shape *
@@ -206,6 +224,8 @@ _evas_vg_shape_efl_graphics_shape_stroke_cap_set(Eo *obj EINA_UNUSED,
                                                  Efl_Graphics_Cap c)
 {
    pd->stroke.cap = c;
+
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 }
 
 static Efl_Graphics_Cap
@@ -221,6 +241,8 @@ _evas_vg_shape_efl_graphics_shape_stroke_join_set(Eo *obj EINA_UNUSED,
                                                   Efl_Graphics_Join j)
 {
    pd->stroke.join = j;
+
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 }
 
 static Efl_Graphics_Join

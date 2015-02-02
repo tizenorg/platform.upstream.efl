@@ -5,8 +5,10 @@
 
 #include <strings.h>
 
+#define MY_CLASS EVAS_VG_GRADIENT_CLASS
+
 static void
-_evas_vg_gradient_efl_graphics_gradient_stop_set(Eo *obj EINA_UNUSED,
+_evas_vg_gradient_efl_graphics_gradient_stop_set(Eo *obj,
                                                  Evas_VG_Gradient_Data *pd,
                                                  const Efl_Graphics_Gradient_Stop *colors,
                                                  unsigned int length)
@@ -20,6 +22,8 @@ _evas_vg_gradient_efl_graphics_gradient_stop_set(Eo *obj EINA_UNUSED,
 
    memcpy(pd->colors, colors, length * sizeof(Efl_Graphics_Gradient_Stop));
    pd->colors_count = length;
+
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 }
 
 static void
@@ -33,11 +37,12 @@ _evas_vg_gradient_efl_graphics_gradient_stop_get(Eo *obj EINA_UNUSED,
 }
 
 static void
-_evas_vg_gradient_efl_graphics_gradient_spread_set(Eo *obj EINA_UNUSED,
+_evas_vg_gradient_efl_graphics_gradient_spread_set(Eo *obj,
                                                    Evas_VG_Gradient_Data *pd,
                                                    Efl_Graphics_Gradient_Spread s)
 {
    pd->s = s;
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 }
 
 static Efl_Graphics_Gradient_Spread

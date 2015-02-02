@@ -5,7 +5,7 @@
 
 #define MY_CLASS EVAS_VG_CONTAINER_CLASS
 
-static void
+static Eina_Bool
 _evas_vg_container_render_pre(Eo *obj EINA_UNUSED,
                               Eina_Matrix3 *parent,
                               Ector_Surface *s,
@@ -15,10 +15,13 @@ _evas_vg_container_render_pre(Eo *obj EINA_UNUSED,
    Evas_VG_Container_Data *pd = data;
    Eina_List *l;
    Eo *child;
+   Eina_Bool change = EINA_FALSE;
    EVAS_VG_COMPUTE_MATRIX(current, parent, nd);
 
    EINA_LIST_FOREACH(pd->children, l, child)
-     _evas_vg_render_pre(child, s, current);
+     change |= _evas_vg_render_pre(child, s, current);
+
+   return change;
 }
 
 static void

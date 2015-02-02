@@ -117,16 +117,10 @@ _evas_vg_node_parent_checked_get(Eo *obj,
              goto on_error;
           }
      }
-   else if (*parent != NULL)
-     {
-        ERR("Parent of unauthorized class.");
-        goto on_error;
-     }
 
    return EINA_TRUE;
 
  on_error:
-   *parent = NULL;
    *cd = NULL;
    return EINA_FALSE;
 }
@@ -137,11 +131,19 @@ _evas_vg_node_eo_base_constructor(Eo *obj,
 {
    Evas_VG_Container_Data *cd = NULL;
    Eo *parent;
+   Evas_VG_Node_Data *parent_nd = NULL;
 
    eo_do_super(obj, MY_CLASS, eo_constructor());
 
    if (!_evas_vg_node_parent_checked_get(obj, &parent, &cd))
      eo_error_set(obj);
+
+   //Link the vector object
+   if (parent)
+     {
+        parent_nd = eo_data_scope_get(parent, EVAS_VG_NODE_CLASS);
+        pd->eo_vg = parent_nd->eo_vg;
+     }
 
    if (cd)
      cd->children = eina_list_append(cd->children, obj);
@@ -307,6 +309,16 @@ _evas_vg_node_original_bound_get(Eo *obj,
                                  Eina_Rectangle *r)
 {
    return EINA_FALSE;
+}
+
+
+void
+_evas_vg_node_changed(Eo *obj, Evas_VG_Node_Data *pd)
+{
+   if (!pd->eo_vg) return;
+   Evas_Object_Protected_Data *obj_vg = eo_data_scope_get(pd->eo_vg,
+                                                          EVAS_OBJECT_CLASS);
+   evas_object_change(pd->eo_vg, obj_vg);
 }
 
 #include "evas_vg_node.eo.c"

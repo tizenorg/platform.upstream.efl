@@ -394,7 +394,7 @@ _ecore_x_input_handler(XEvent *xevent)
           (ECORE_EVENT_MOUSE_BUTTON_UP,
           evd->time,
           0,   // state
-          0,   // button
+          1,   // button
           evd->event_x, evd->event_y,
           evd->root_x, evd->root_y,
           evd->event,

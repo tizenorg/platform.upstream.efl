@@ -2980,7 +2980,9 @@ eng_ector_get(void *data EINA_UNUSED)
 {
    if (!_software_ector)
      {
-        _software_ector = eo_add(ECTOR_CAIRO_SOFTWARE_SURFACE_CLASS, NULL);
+        //TODO FIX it Properly
+        _software_ector = eo_add(ECTOR_SOFTWARE_SURFACE_CLASS, NULL);
+        //_software_ector = eo_add(ECTOR_CAIRO_SOFTWARE_SURFACE_CLASS, NULL);
      }
    return _software_ector;
 }

@@ -1,0 +1,24 @@
+class Ector.Software.Surface (Ector.Generic.Surface)
+{
+   eo_prefix: ector_software_surface;
+   legacy_prefix: null;
+   properties {
+      context {
+         set {
+	 }
+	 get {
+	 }
+	 values {
+	    Software_Rasterizer *ctx;
+	 }
+      }
+   }
+
+   implements {
+      Ector.Generic.Surface.renderer_factory_new;
+      Ector.Generic.Surface.surface.set;
+      Ector.Generic.Surface.surface.get;
+      Eo.Base.destructor;
+      Eo.Base.constructor;
+   }
+}

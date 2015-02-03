@@ -1,0 +1,9 @@
+interface Ector.Renderer.Software.Base
+{
+   legacy_prefix: null;
+   methods {
+      fill {
+         return: bool;
+      }
+   }
+}

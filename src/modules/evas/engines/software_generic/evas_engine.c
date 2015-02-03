@@ -22,6 +22,8 @@
 
 #include "ector_cairo_software_surface.eo.h"
 
+#include "software/Ector_Software.h"
+
 #ifdef EVAS_GL
 //----------------------------------//
 // OSMesa...
@@ -3024,7 +3026,7 @@ _draw_thread_ector_draw(void *data)
 
    // FIXME: do not reset cairo context if not necessary
    eo_do(_software_ector,
-         ector_cairo_software_surface_set(pixels, w, h));
+         ector_surface_set(pixels, w, h));
 
    eo_do(ector->r,
          ector_renderer_draw(ector->render_op,
@@ -4430,7 +4432,7 @@ struct _Ector_Cairo_Software_Surface_Data
 };
 
 void
-_ector_cairo_software_surface_surface_set(Eo *obj, Ector_Cairo_Software_Surface_Data *pd, void *pixels, unsigned int width, unsigned int height)
+_ector_cairo_software_surface_ector_generic_surface_surface_set(Eo *obj, Ector_Cairo_Software_Surface_Data *pd, void *pixels, unsigned int width, unsigned int height)
 {
    USE(obj, cairo_image_surface_create_for_data, );
    USE(obj, cairo_surface_destroy, );
@@ -4460,7 +4462,7 @@ _ector_cairo_software_surface_surface_set(Eo *obj, Ector_Cairo_Software_Surface_
 }
 
 void
-_ector_cairo_software_surface_surface_get(Eo *obj EINA_UNUSED, Ector_Cairo_Software_Surface_Data *pd, void **pixels, unsigned int *width, unsigned int *height)
+_ector_cairo_software_surface_ector_generic_surface_surface_get(Eo *obj EINA_UNUSED, Ector_Cairo_Software_Surface_Data *pd, void **pixels, unsigned int *width, unsigned int *height)
 {
    if (pixels) *pixels = pd->pixels;
    if (width) *width = pd->width;

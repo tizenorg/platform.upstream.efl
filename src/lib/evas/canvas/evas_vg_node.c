@@ -117,7 +117,6 @@ _evas_vg_node_parent_checked_get(Eo *obj,
              goto on_error;
           }
      }
-
    return EINA_TRUE;
 
  on_error:

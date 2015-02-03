@@ -14,21 +14,23 @@ struct _Evas_VG_Image_Data
 };
 
 static void
-_evas_vg_image_position_set(Eo *obj, Evas_VG_Image_Data *pd, int x, int y)
+_evas_vg_image_position_set(Eo *obj EINA_UNUSED, Evas_VG_Image_Data *pd,
+                            int x, int y)
 {
    pd->x = x;
    pd->y = y;
 }
 
 static void
-_evas_vg_image_position_get(Eo *obj, Evas_VG_Image_Data *pd, int *x, int *y)
+_evas_vg_image_position_get(Eo *obj EINA_UNUSED, Evas_VG_Image_Data *pd,
+                            int *x, int *y)
 {
    if (x) *x = pd->x;
    if (y) *y = pd->y;
 }
 
 static void
-_evas_vg_image_size_set(Eo *obj, Evas_VG_Image_Data *pd,
+_evas_vg_image_size_set(Eo *obj EINA_UNUSED, Evas_VG_Image_Data *pd,
                         unsigned int w, unsigned int h)
 {
    pd->w = w;
@@ -36,7 +38,7 @@ _evas_vg_image_size_set(Eo *obj, Evas_VG_Image_Data *pd,
 }
 
 static void
-_evas_vg_image_size_get(Eo *obj, Evas_VG_Image_Data *pd,
+_evas_vg_image_size_get(Eo *obj EINA_UNUSED, Evas_VG_Image_Data *pd,
                         unsigned int *w, unsigned int *h)
 {
    if (w) *w = pd->w;
@@ -44,15 +46,16 @@ _evas_vg_image_size_get(Eo *obj, Evas_VG_Image_Data *pd,
 }
 
 static Eina_Bool
-_evas_vg_image_efl_file_file_set(Eo *obj, Evas_VG_Image_Data *pd,
+_evas_vg_image_efl_file_file_set(Eo *obj EINA_UNUSED, Evas_VG_Image_Data *pd,
                                  const char *file, const char *key)
 {
    eina_stringshare_replace(&pd->file, file);
    eina_stringshare_replace(&pd->key, key);
+   return EINA_TRUE;
 }
 
 static void
-_evas_vg_image_efl_file_file_get(Eo *obj, Evas_VG_Image_Data *pd,
+_evas_vg_image_efl_file_file_get(Eo *obj EINA_UNUSED, Evas_VG_Image_Data *pd,
                                  const char **file, const char **key)
 {
    if (file) *file = pd->file;
@@ -60,13 +63,13 @@ _evas_vg_image_efl_file_file_get(Eo *obj, Evas_VG_Image_Data *pd,
 }
 
 static void
-_evas_vg_image_eo_base_constructor(Eo *obj, Evas_VG_Image_Data *pd)
+_evas_vg_image_eo_base_constructor(Eo *obj, Evas_VG_Image_Data *pd EINA_UNUSED)
 {
    eo_error_set(obj);
 }
 
 static void
-_evas_vg_image_eo_base_destructor(Eo *obj, Evas_VG_Image_Data *pd)
+_evas_vg_image_eo_base_destructor(Eo *obj, Evas_VG_Image_Data *pd EINA_UNUSED)
 {
    eo_error_set(obj);
 }

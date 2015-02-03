@@ -51,9 +51,9 @@ _evas_vg_shape_efl_graphics_shape_path_set(Eo *obj,
 }
 
 static Eina_Bool
-_evas_vg_shape_evas_vg_node_bound_get(Eo *obj,
-                                      Evas_VG_Shape_Data *pd,
-                                      Eina_Rectangle *r)
+_evas_vg_shape_evas_vg_node_bound_get(Eo *obj EINA_UNUSED,
+                                      Evas_VG_Shape_Data *pd EINA_UNUSED,
+                                      Eina_Rectangle *r EINA_UNUSED)
 {
    return EINA_FALSE;
 }

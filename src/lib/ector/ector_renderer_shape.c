@@ -201,11 +201,13 @@ static void
 _ector_renderer_generic_shape_eo_base_constructor(Eo *obj,
                                                   Ector_Renderer_Generic_Shape_Data *pd)
 {
+    eo_do_super(obj, ECTOR_RENDERER_GENERIC_SHAPE_CLASS, eo_constructor());
 }
 
 static void
 _ector_renderer_generic_shape_eo_base_destructor(Eo *obj, Ector_Renderer_Generic_Shape_Data *pd)
 {
+  eo_do_super(obj, ECTOR_RENDERER_GENERIC_SHAPE_CLASS, eo_destructor());
 }
 
 #include "ector_renderer_generic_shape.eo.c"

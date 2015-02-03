@@ -260,29 +260,39 @@ _evas_vg_shape_render_pre(Eo *obj EINA_UNUSED,
                           Evas_VG_Node_Data *nd)
 {
    Evas_VG_Shape_Data *pd = data;
-   Evas_VG_Node_Data *fill, *stroke_fill, *stroke_marker, *mask;
+   Ector_Renderer *fill_r = NULL, *stroke_r = NULL;
    EVAS_VG_COMPUTE_MATRIX(current, parent, nd);
 
-   fill = _evas_vg_render_pre(pd->fill, s, current);
-   stroke_fill = _evas_vg_render_pre(pd->stroke.fill, s, current);
-   stroke_marker = _evas_vg_render_pre(pd->stroke.marker, s, current);
-   mask = _evas_vg_render_pre(nd->mask, s, current);
+   if(pd->fill)
+     {
+         _evas_vg_render_pre(pd->fill, s, current);
+         Evas_VG_Node_Data *filld = eo_data_scope_get(pd->fill, EVAS_VG_NODE_CLASS);
+         fill_r = filld->renderer;
+     }
+   if(pd->stroke.fill)
+     {
+         _evas_vg_render_pre(pd->stroke.fill, s, current);
+         Evas_VG_Node_Data *filld = eo_data_scope_get(pd->stroke.fill, EVAS_VG_NODE_CLASS);
+         stroke_r = filld->renderer;
+     }
+
+   _evas_vg_render_pre(pd->stroke.marker, s, current);
+   _evas_vg_render_pre(nd->mask, s, current);
 
    if (!nd->renderer)
      {
         eo_do(s, nd->renderer = ector_surface_renderer_factory_new(ECTOR_RENDERER_GENERIC_SHAPE_CLASS));
      }
 
-   if (mask) eo_do(nd->renderer, ector_renderer_mask_set(mask->renderer));
-   if (fill) eo_do(nd->renderer, ector_renderer_shape_fill_set(fill->renderer));
-   if (stroke_fill) eo_do(nd->renderer, ector_renderer_shape_stroke_fill_set(stroke_fill->renderer));
-   if (stroke_marker) eo_do(nd->renderer, ector_renderer_shape_stroke_marker_set(stroke_marker->renderer));
-
    eo_do(nd->renderer,
          ector_renderer_transformation_set(current),
          ector_renderer_origin_set(nd->x, nd->y),
          ector_renderer_color_set(nd->r, nd->g, nd->b, nd->a),
          ector_renderer_visibility_set(nd->visibility),
+         ector_renderer_mask_set(nd->mask),
+         ector_renderer_shape_fill_set(fill_r),
+         ector_renderer_shape_stroke_fill_set(stroke_r),
+         ector_renderer_shape_stroke_marker_set(pd->stroke.marker),
          efl_graphics_shape_stroke_scale_set(pd->stroke.scale),
          efl_graphics_shape_stroke_color_set(pd->stroke.r,
                                              pd->stroke.g,

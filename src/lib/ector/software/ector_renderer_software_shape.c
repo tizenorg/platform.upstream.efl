@@ -212,8 +212,6 @@ _ector_renderer_software_shape_ector_renderer_generic_base_prepare(Eo *obj, Ecto
    if (!pd->shape_data && pd->shape->path.cmd)
      {
         double *pts;
-        double current_x = 0, current_y = 0;
-        double current_ctrl_x = 0, current_ctrl_y = 0;
         unsigned int i;
         Eina_Bool close_path = EINA_FALSE;
         Outline * outline = _outline_create();
@@ -227,17 +225,11 @@ _ector_renderer_software_shape_ector_renderer_generic_base_prepare(Eo *obj, Ecto
 
                    _outline_move_to(outline, pts[0], pts[1]);
 
-                   current_ctrl_x = current_x = pts[0];
-                   current_ctrl_y = current_y = pts[1];
-
                    pts += 2;
                    break;
                 case EFL_GRAPHICS_PATH_COMMAND_TYPE_LINE_TO:
 
                    _outline_line_to(outline, pts[0], pts[1]);
-
-                   current_ctrl_x = current_x = pts[0];
-                   current_ctrl_y = current_y = pts[1];
 
                    pts += 2;
                    break;
@@ -249,12 +241,6 @@ _ector_renderer_software_shape_ector_renderer_generic_base_prepare(Eo *obj, Ecto
                    _outline_cubic_to(outline,
                                   pts[2], pts[3], pts[4], pts[5], // control points
                                   pts[0], pts[1]); // destination point
-
-                   current_ctrl_x = pts[4];
-                   current_ctrl_y = pts[5];
-                   current_x = pts[0];
-                   current_y = pts[1];
-
                    pts += 6;
                    break;
 
@@ -285,7 +271,7 @@ _ector_renderer_software_shape_ector_renderer_generic_base_prepare(Eo *obj, Ecto
 }
 
 static Eina_Bool
-_ector_renderer_software_shape_ector_renderer_generic_base_draw(Eo *obj, Ector_Renderer_Software_Shape_Data *pd, Ector_Rop op, Eina_Array *clips, int x, int y, unsigned int mul_col)
+_ector_renderer_software_shape_ector_renderer_generic_base_draw(Eo *obj EINA_UNUSED, Ector_Renderer_Software_Shape_Data *pd, Ector_Rop op, Eina_Array *clips, int x, int y, unsigned int mul_col)
 {
    // TODO remove me when double to int conversion is fixed.
    //printf("%.0f",pd->base->origin.x);

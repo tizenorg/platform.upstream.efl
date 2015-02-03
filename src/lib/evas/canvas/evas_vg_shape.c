@@ -31,8 +31,8 @@ struct _Evas_VG_Shape_Data
    } stroke;
 };
 
-static Eina_Bool
-_evas_vg_shape_efl_graphics_shape_path_set(Eo *obj,
+static void
+_evas_vg_shape_efl_graphics_shape_path_set(Eo *obj EINA_UNUSED,
                                            Evas_VG_Shape_Data *pd,
                                            const Efl_Graphics_Path_Command *ops,
                                            const double *points)
@@ -47,7 +47,17 @@ _evas_vg_shape_efl_graphics_shape_path_set(Eo *obj,
 
    eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 
-   return ret;
+   efl_graphics_path_dup(&pd->ops, &pd->points, ops, points);
+}
+
+static void
+_evas_vg_shape_efl_graphics_shape_path_get(Eo *obj EINA_UNUSED,
+                                           Evas_VG_Shape_Data *pd,
+                                           const Efl_Graphics_Path_Command **op,
+                                           const double **points)
+{
+   if (op) *op = pd->ops;
+   if (points) *points = pd->points;
 }
 
 static Eina_Bool

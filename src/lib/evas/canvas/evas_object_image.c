@@ -410,7 +410,7 @@ evas_object_image_memfile_set(Evas_Object *eo_obj, void *data, int size, char *f
 
    f = eina_file_virtualize(NULL, data, size, EINA_TRUE);
    if (!f) return ;
-   eo_do(eo_obj, evas_obj_image_mmap_set(f, key));
+   eo_do(eo_obj, efl_file_mmap_set(f, key));
    eina_file_close(f);
 }
 
@@ -542,8 +542,10 @@ _image_done_set(Eo *eo_obj, Evas_Object_Protected_Data *obj, Evas_Image_Data *o)
    evas_object_change(eo_obj, obj);
 }
 
-EOLIAN static void
-_evas_image_mmap_set(Eo *eo_obj, Evas_Image_Data *o, const Eina_File *f, const char *key)
+EOLIAN static Eina_Bool
+_evas_image_efl_file_mmap_set(Eo *eo_obj,
+                              Evas_Image_Data *o,
+                              const Eina_File *f, const char *key)
 {
    Evas_Object_Protected_Data *obj = eo_data_scope_get(eo_obj, EVAS_OBJECT_CLASS);
    Evas_Image_Load_Opts lo;
@@ -551,18 +553,22 @@ _evas_image_mmap_set(Eo *eo_obj, Evas_Image_Data *o, const Eina_File *f, const c
    if (o->cur->u.f == f)
      {
         if ((!o->cur->key) && (!key))
-          return;
+          return EINA_FALSE;
         if ((o->cur->key) && (key) && (!strcmp(o->cur->key, key)))
-          return;
+          return EINA_FALSE;
      }
 
    _image_init_set(f, NULL, key, eo_obj, obj, o, &lo);
    o->engine_data = ENFN->image_mmap(ENDT, o->cur->u.f, o->cur->key, &o->load_error, &lo);
    _image_done_set(eo_obj, obj, o);
+
+   return EINA_TRUE;
 }
 
 EOLIAN static void
-_evas_image_mmap_get(Eo *eo_obj EINA_UNUSED, Evas_Image_Data *o, const Eina_File **f, const char **key)
+_evas_image_efl_file_mmap_get(Eo *eo_obj EINA_UNUSED,
+                              Evas_Image_Data *o,
+                              const Eina_File **f, const char **key)
 {
    if (f)
      *f = o->cur->mmaped_source ? o->cur->u.f : NULL;
@@ -4788,6 +4794,17 @@ evas_object_image_file_get(const Eo *obj, const char **file, const char **key)
    eo_do((Eo *) obj, efl_file_get(file, key));
 }
 
+EAPI void
+evas_object_image_mmap_set(Evas_Image *obj, const Eina_File *f, const char *key)
+{
+   eo_do((Evas_Image *)obj, efl_file_mmap_set(f, key));
+}
+
+EAPI void
+evas_object_image_mmap_get(const Evas_Image *obj, const Eina_File **f, const char **key)
+{
+   eo_do((Evas_Image *)obj, efl_file_mmap_get(f, key));
+}
 
 EAPI Eina_Bool
 evas_object_image_save(const Eo *obj, const char *file, const char *key, const char *flags)

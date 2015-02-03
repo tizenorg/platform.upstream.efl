@@ -70,7 +70,7 @@ _evas_vg_gradient_radial_efl_graphics_gradient_radial_focal_get(Eo *obj EINA_UNU
    if (y) *y = pd->focal.y;
 }
 
-static void
+static Eina_Bool
 _evas_vg_gradient_radial_render_pre(Eo *obj,
                                     Eina_Matrix3 *parent,
                                     Ector_Surface *s,
@@ -97,6 +97,8 @@ _evas_vg_gradient_radial_render_pre(Eo *obj,
          efl_graphics_gradient_radial_focal_set(pd->focal.x, pd->focal.y),
          efl_graphics_gradient_radial_radius_set(pd->radius),
          ector_renderer_prepare());
+
+   return EINA_TRUE;
 }
 
 static void

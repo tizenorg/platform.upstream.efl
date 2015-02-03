@@ -252,7 +252,7 @@ _evas_vg_shape_efl_graphics_shape_stroke_join_get(Eo *obj EINA_UNUSED,
    return pd->stroke.join;
 }
 
-static void
+static Eina_Bool
 _evas_vg_shape_render_pre(Eo *obj EINA_UNUSED,
                           Eina_Matrix3 *parent,
                           Ector_Surface *s,
@@ -294,7 +294,9 @@ _evas_vg_shape_render_pre(Eo *obj EINA_UNUSED,
          efl_graphics_shape_stroke_cap_set(pd->stroke.cap),
          efl_graphics_shape_stroke_join_set(pd->stroke.join),
          efl_graphics_shape_path_set(pd->ops, pd->points),
-         ector_renderer_prepare());   
+         ector_renderer_prepare());
+
+   return EINA_TRUE;
 }
 
 static void

@@ -273,15 +273,16 @@ _evas_vg_shape_render_pre(Eo *obj EINA_UNUSED,
         eo_do(s, nd->renderer = ector_surface_renderer_factory_new(ECTOR_RENDERER_GENERIC_SHAPE_CLASS));
      }
 
+   if (mask) eo_do(nd->renderer, ector_renderer_mask_set(mask->renderer));
+   if (fill) eo_do(nd->renderer, ector_renderer_shape_fill_set(fill->renderer));
+   if (stroke_fill) eo_do(nd->renderer, ector_renderer_shape_stroke_fill_set(stroke_fill->renderer));
+   if (stroke_marker) eo_do(nd->renderer, ector_renderer_shape_stroke_marker_set(stroke_marker->renderer));
+
    eo_do(nd->renderer,
          ector_renderer_transformation_set(current),
          ector_renderer_origin_set(nd->x, nd->y),
          ector_renderer_color_set(nd->r, nd->g, nd->b, nd->a),
          ector_renderer_visibility_set(nd->visibility),
-         ector_renderer_mask_set(mask->renderer),
-         ector_renderer_shape_fill_set(fill->renderer),
-         ector_renderer_shape_stroke_fill_set(stroke_fill->renderer),
-         ector_renderer_shape_stroke_marker_set(stroke_marker->renderer),
          efl_graphics_shape_stroke_scale_set(pd->stroke.scale),
          efl_graphics_shape_stroke_color_set(pd->stroke.r,
                                              pd->stroke.g,
@@ -293,7 +294,7 @@ _evas_vg_shape_render_pre(Eo *obj EINA_UNUSED,
          efl_graphics_shape_stroke_cap_set(pd->stroke.cap),
          efl_graphics_shape_stroke_join_set(pd->stroke.join),
          efl_graphics_shape_path_set(pd->ops, pd->points),
-         ector_renderer_prepare());
+         ector_renderer_prepare());   
 }
 
 static void

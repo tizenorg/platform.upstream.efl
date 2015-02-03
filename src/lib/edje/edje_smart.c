@@ -364,7 +364,8 @@ _edje_object_efl_file_file_set(Eo *obj, Edje *_pd EINA_UNUSED, const char *file,
 }
 
 EOLIAN static Eina_Bool
-_edje_object_mmap_set(Eo *obj, Edje *_pd EINA_UNUSED, const Eina_File *f, const char *group)
+_edje_object_efl_file_mmap_set(Eo *obj, Edje *pd EINA_UNUSED,
+                               const Eina_File *f, const char *key)
 {
    Eina_Bool ret;
    Eina_Array *nested;
@@ -373,13 +374,27 @@ _edje_object_mmap_set(Eo *obj, Edje *_pd EINA_UNUSED, const Eina_File *f, const 
 
    nested = eina_array_new(8);
 
-   if (_edje_object_file_set_internal(obj, f, group, NULL, NULL, nested))
+   if (_edje_object_file_set_internal(obj, f, key, NULL, NULL, nested))
      ret = EINA_TRUE;
 
    eina_array_free(nested);
    _edje_object_orientation_inform(obj);
 
    return ret;
+}
+
+EOLIAN static void
+_edje_object_efl_file_mmap_get(Eo *obj EINA_UNUSED, Edje *pd,
+                               const Eina_File **f, const char **key)
+{
+   if (f) *f = pd->file->f;
+   if (key) *key = pd->group;
+}
+
+EAPI Eina_Bool
+edje_object_mmap_set(Edje_Object *obj, const Eina_File *file, const char *group)
+{
+   return eo_do((Edje_Object *)obj, efl_file_mmap_set(file, group));
 }
 
 EAPI Eina_Bool

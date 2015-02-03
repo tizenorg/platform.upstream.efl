@@ -299,6 +299,12 @@ EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_COMP_PIXMAP;
 EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_VIDEO_PARENT;
 EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_VIDEO_POSITION;
 
+//////////////////////////////////////////////////////////////////////
+//TIZEN_ONLY: For operation indicator and quickpanel
+EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_INDICATOR_FLICK_DONE;
+EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_MOVE_QUICKPANEL_STATE;
+//////////////////////////////////////////////////////////////////////
+
 /* currently elementary and E specific extension */
 /* @deprecated use ECORE_X_ATOM_E_WINDOW_PROFILE */
 EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_PROFILE;

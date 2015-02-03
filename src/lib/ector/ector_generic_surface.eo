@@ -14,6 +14,17 @@ abstract Ector.Generic.Surface (Eo.Base)
             int h; /*@ in */
          }
       }
+      surface {
+         set {
+         }
+         get {
+         }
+         values {
+            void *pixels;
+            uint width;
+            uint height;
+         }
+      }      
    }
    methods {
       renderer_factory_new {

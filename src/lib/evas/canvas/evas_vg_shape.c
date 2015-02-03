@@ -310,7 +310,7 @@ _evas_vg_shape_eo_base_constructor(Eo *obj, Evas_VG_Shape_Data *pd)
    pd->stroke.centered = 0.5;
 
    nd = eo_data_scope_get(obj, EVAS_VG_NODE_CLASS);
-   nd->render_pre = _evas_vg_shape_render_pre;
+   nd->render_pre = &_evas_vg_shape_render_pre;
    nd->data = pd;
 }
 

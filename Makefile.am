@@ -131,6 +131,7 @@ pc/eolian.pc \
 pc/efl.pc \
 pc/efl-cxx.pc \
 pc/eet.pc \
+pc/ector.pc \
 pc/evas.pc \
 pc/ecore.pc \
 pc/ecore-con.pc \

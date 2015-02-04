@@ -347,7 +347,7 @@ Point _curves_for_arc(int x, int y, int w, int h,
     return startPoint;
 }
 
-void _arcto(Efl_Graphics_Path_Command **path_cmd, double **points,int x, int y, int width, int height, int startAngle, int sweepLength)
+void _arcto(Efl_Gfx_Path_Command **path_cmd, double **points,int x, int y, int width, int height, int startAngle, int sweepLength)
 {
     int point_count;
 
@@ -368,7 +368,7 @@ void _arcto(Efl_Graphics_Path_Command **path_cmd, double **points,int x, int y, 
     efl_graphics_path_append_close(path_cmd, points);
 }
 
-void _rect_add(Efl_Graphics_Path_Command **path_cmd, double **points,int x, int y, int w, int h)
+void _rect_add(Efl_Gfx_Path_Command **path_cmd, double **points,int x, int y, int w, int h)
 {
     efl_graphics_path_append_move_to(path_cmd, points, x, y);
     efl_graphics_path_append_line_to(path_cmd, points, x + w, y);
@@ -407,7 +407,7 @@ _canvas_resize_cb(Ecore_Evas *ee)
 static void
 vector_set(int x, int y, int w, int h)
 {
-   Efl_Graphics_Path_Command *path_cmd = NULL;
+   Efl_Gfx_Path_Command *path_cmd = NULL;
    double *points = NULL;
    int vg_w = w, vg_h = h;
 
@@ -446,7 +446,7 @@ vector_set(int x, int y, int w, int h)
    eo_do(bg,
          evas_vg_node_origin_set(0, 0),
          efl_graphics_shape_stroke_width_set(1.0),
-         evas_vg_node_color_set(128, 128, 128, 80),
+         efl_gfx_color_set(128, 128, 128, 80),
          efl_graphics_shape_path_set(path_cmd, points));  
 
 
@@ -461,27 +461,27 @@ vector_set(int x, int y, int w, int h)
 
     _arcto(&path_cmd, &points, 0, 0, 100, 100, 25, 330);
 
-Efl_Graphics_Gradient_Stop stops[3];
-  stops[0].r = 255;
-  stops[0].g = 0;
-  stops[0].b = 0;
-  stops[0].a = 255;
-  stops[0].offset = 0;
-  stops[1].r = 0;
-  stops[1].g = 255;
-  stops[1].b = 0;
-  stops[1].a = 255;
-  stops[1].offset = 0.5;
-  stops[2].r = 0;
-  stops[2].g = 0;
-  stops[2].b = 255;
-  stops[2].a = 255;
-  stops[2].offset = 1;
+    Efl_Gfx_Gradient_Stop stops[3];
+    stops[0].r = 255;
+    stops[0].g = 0;
+    stops[0].b = 0;
+    stops[0].a = 255;
+    stops[0].offset = 0;
+    stops[1].r = 0;
+    stops[1].g = 255;
+    stops[1].b = 0;
+    stops[1].a = 255;
+    stops[1].offset = 0.5;
+    stops[2].r = 0;
+    stops[2].g = 0;
+    stops[2].b = 255;
+    stops[2].a = 255;
+    stops[2].offset = 1;
 
   eo_do(rgradient,
         evas_vg_node_origin_set(10,10),
         efl_graphics_gradient_stop_set(stops, 3),
-        efl_graphics_gradient_spread_set(EFL_GRAPHICS_GRADIENT_SPREAD_REFLECT),
+        efl_graphics_gradient_spread_set(EFL_GFX_GRADIENT_SPREAD_REFLECT),
         efl_graphics_gradient_stop_set(stops, 3),
         efl_graphics_gradient_radial_center_set(30, 30),
         efl_graphics_gradient_radial_radius_set(80)
@@ -490,7 +490,7 @@ Efl_Graphics_Gradient_Stop stops[3];
     eo_do(lgradient,
         evas_vg_node_origin_set(10,10),
         efl_graphics_gradient_stop_set(stops, 3),
-        efl_graphics_gradient_spread_set(EFL_GRAPHICS_GRADIENT_SPREAD_REFLECT),
+        efl_graphics_gradient_spread_set(EFL_GFX_GRADIENT_SPREAD_REFLECT),
         efl_graphics_gradient_stop_set(stops, 3),
         efl_graphics_gradient_linear_start_set(10,10),
         efl_graphics_gradient_linear_end_set(50,50)
@@ -501,7 +501,7 @@ Efl_Graphics_Gradient_Stop stops[3];
          evas_vg_shape_fill_set(rgradient),
          efl_graphics_shape_stroke_scale_set(2.0),
          efl_graphics_shape_stroke_width_set(1.0),
-         evas_vg_node_color_set(0, 0, 255, 255),
+         efl_gfx_color_set(0, 0, 255, 255),
          efl_graphics_shape_stroke_color_set(0, 0, 255, 128),
          efl_graphics_shape_path_set(path_cmd, points));
 
@@ -517,7 +517,7 @@ Efl_Graphics_Gradient_Stop stops[3];
          evas_vg_node_origin_set(100, 100),
          evas_vg_shape_fill_set(lgradient),
          efl_graphics_shape_stroke_width_set(2.0),
-         efl_graphics_shape_stroke_join_set(EFL_GRAPHICS_JOIN_ROUND),
+         efl_graphics_shape_stroke_join_set(EFL_GFX_JOIN_ROUND),
          efl_graphics_shape_stroke_color_set(255, 255, 255, 255),
          efl_graphics_shape_path_set(path_cmd, points));
 
@@ -533,7 +533,7 @@ Efl_Graphics_Gradient_Stop stops[3];
          evas_vg_node_origin_set(50, 70),
          efl_graphics_shape_stroke_scale_set(2),
          efl_graphics_shape_stroke_width_set(8.0),
-         efl_graphics_shape_stroke_join_set(EFL_GRAPHICS_JOIN_ROUND),
+         efl_graphics_shape_stroke_join_set(EFL_GFX_JOIN_ROUND),
          efl_graphics_shape_stroke_color_set(0, 100, 80, 100),
          efl_graphics_shape_path_set(path_cmd, points));
 
@@ -551,7 +551,7 @@ Efl_Graphics_Gradient_Stop stops[3];
          evas_vg_shape_fill_set(lgradient),
          //evas_vg_node_transformation_set(&matrix),
          evas_vg_node_origin_set(50,50),
-         evas_vg_node_color_set(255, 0, 0, 50),
+         efl_gfx_color_set(255, 0, 0, 50),
          efl_graphics_shape_path_set(path_cmd, points));
 
    free(path_cmd);
@@ -565,7 +565,7 @@ Efl_Graphics_Gradient_Stop stops[3];
    eo_do(fg,
          evas_vg_node_origin_set(0, 0),
          efl_graphics_shape_stroke_width_set(5.0),
-         efl_graphics_shape_stroke_join_set(EFL_GRAPHICS_JOIN_ROUND),
+         efl_graphics_shape_stroke_join_set(EFL_GFX_JOIN_ROUND),
          efl_graphics_shape_stroke_color_set(255, 255, 0, 70),
          efl_graphics_shape_path_set(path_cmd, points));
 

@@ -210,16 +210,16 @@ void ector_software_rasterizer_done(Software_Rasterizer *rasterizer)
 
 
 void ector_software_rasterizer_stroke_set(Software_Rasterizer *rasterizer, int width,
-                                          Efl_Graphics_Cap cap_style, Efl_Graphics_Join join_style)
+                                          Efl_Gfx_Cap cap_style, Efl_Gfx_Join join_style)
 {
     SW_FT_Stroker_LineCap cap;
     SW_FT_Stroker_LineJoin join;
 
     switch (cap_style) {
-        case EFL_GRAPHICS_CAP_SQUARE:
+        case EFL_GFX_CAP_SQUARE:
             cap = SW_FT_STROKER_LINECAP_SQUARE;
             break;
-        case EFL_GRAPHICS_CAP_ROUND:
+        case EFL_GFX_CAP_ROUND:
             cap = SW_FT_STROKER_LINECAP_ROUND;
             break;
         default:
@@ -227,10 +227,10 @@ void ector_software_rasterizer_stroke_set(Software_Rasterizer *rasterizer, int w
             break;
     }
     switch (join_style) {
-        case EFL_GRAPHICS_JOIN_BEVEL:
+        case EFL_GFX_JOIN_BEVEL:
             join = SW_FT_STROKER_LINEJOIN_BEVEL;
             break;
-        case EFL_GRAPHICS_JOIN_ROUND:
+        case EFL_GFX_JOIN_ROUND:
             join = SW_FT_STROKER_LINEJOIN_ROUND;
             break;
         default:

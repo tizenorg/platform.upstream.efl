@@ -37,13 +37,11 @@ _evas_vg_shape_efl_gfx_shape_path_set(Eo *obj EINA_UNUSED,
                                       const Efl_Gfx_Path_Command *ops,
                                       const double *points)
 {
-   Eina_Bool ret;
-
    free(pd->points);
    pd->points = NULL;
    free(pd->ops);
    pd->ops = NULL;
-   ret = efl_graphics_path_dup(&pd->ops, &pd->points, ops, points);
+   efl_gfx_path_dup(&pd->ops, &pd->points, ops, points);
 
    eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
 

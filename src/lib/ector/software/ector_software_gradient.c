@@ -6,6 +6,7 @@
 
 //Remove
 #include <assert.h>
+#include  <math.h>
 
 #define GRADIENT_STOPTABLE_SIZE 1024
 #define FIXPT_BITS 8

@@ -50,14 +50,14 @@ _buf_new(X_Swapper *swp, Buffer *buf)
 {
    buf->w = swp->w;
    buf->h = swp->h;
-   
+
    // try shm first
    buf->xim = XShmCreateImage(swp->disp, swp->vis, swp->depth, ZPixmap,
                               NULL, &(buf->shm_info), buf->w, buf->h);
    if (buf->xim)
      {
         buf->bpl = buf->xim->bytes_per_line;
-        
+
         buf->shm_info.shmid = shmget(IPC_PRIVATE, buf->bpl * buf->h,
                                      IPC_CREAT | 0777);
         if (buf->shm_info.shmid >= 0)
@@ -68,7 +68,7 @@ _buf_new(X_Swapper *swp, Buffer *buf)
              if (buf->shm_info.shmaddr != ((void *)-1))
                {
                   XErrorHandler ph;
-                  
+
                   XSync(swp->disp, False);
                   _x_err = EINA_FALSE;
                   ph = XSetErrorHandler((XErrorHandler)_x_err_hand);
@@ -104,7 +104,7 @@ _buf_new(X_Swapper *swp, Buffer *buf)
 
    if (!buf->xim) // shm failed - try normal ximage
      {
-        buf->xim = XCreateImage(swp->disp, swp->vis, swp->depth, ZPixmap, 
+        buf->xim = XCreateImage(swp->disp, swp->vis, swp->depth, ZPixmap,
                                 0, NULL, buf->w, buf->h, 32, 0);
         if (!buf->xim) return EINA_FALSE;
         buf->bpl = buf->xim->bytes_per_line;
@@ -143,7 +143,7 @@ _buf_put(X_Swapper *swp, Buffer *buf, Eina_Rectangle *rects, int nrects)
 {
    Region tmpr;
    int i;
-   
+
    if (!buf->xim) return;
    tmpr = XCreateRegion();
    if ((rects)/* && 0*/) // set to 0 to test buffer stuff
@@ -151,7 +151,7 @@ _buf_put(X_Swapper *swp, Buffer *buf, Eina_Rectangle *rects, int nrects)
         for (i = 0; i < nrects; i++)
           {
              XRectangle xr;
-             
+
              xr.x = rects[i].x; xr.y = rects[i].y;
              xr.width = rects[i].w; xr.height = rects[i].h;
              XUnionRectWithRegion(&xr, tmpr, tmpr);
@@ -160,7 +160,7 @@ _buf_put(X_Swapper *swp, Buffer *buf, Eina_Rectangle *rects, int nrects)
    else
      {
         XRectangle xr;
-        
+
         xr.x = 0; xr.y = 0;
         xr.width = buf->w; xr.height = buf->h;
         XUnionRectWithRegion(&xr, tmpr, tmpr);
@@ -189,9 +189,9 @@ evas_xlib_swapper_new(Display *disp, Drawable draw, Visual *vis,
    X_Swapper *swp;
    XGCValues gcv;
    int i;
-   
+
    int nbuf = 3; // pretend we are triple buffered
-   
+
    swp = calloc(1, sizeof(X_Swapper));
    if (!swp) return NULL;
    swp->disp = disp;
@@ -246,7 +246,7 @@ void
 evas_xlib_swapper_swap(X_Swapper *swp, Eina_Rectangle *rects, int nrects)
 {
    int n;
-   
+
    n = swp->buf_cur;
    _buf_put(swp, &(swp->buf[n]), rects, nrects);
    swp->buf[n].valid = 1;
@@ -257,7 +257,7 @@ Render_Engine_Swap_Mode
 evas_xlib_swapper_buffer_state_get(X_Swapper *swp)
 {
    int i, n, count = 0;
-/*   
+/*
    for (i = 0; i < swp->buf_num; i++)
      {
         if ((rand() % 50) == 0)
@@ -330,22 +330,22 @@ typedef unsigned int drm_magic_t;
 static int (*sym_drmGetMagic) (int fd, drm_magic_t *magic) = NULL;
 
 ////////////////////////////////////
-// libdrm_slp.so.1
-#define DRM_SLP_DEVICE_CPU 1
-#define DRM_SLP_OPTION_READ     (1 << 0)
-#define DRM_SLP_OPTION_WRITE    (1 << 1)
-static void *drm_slp_lib = NULL;
+// libtbm.so.1
+#define TBM_DEVICE_CPU 1
+#define TBM_OPTION_READ     (1 << 0)
+#define TBM_OPTION_WRITE    (1 << 1)
+static void *tbm_lib = NULL;
 
-typedef struct _drm_slp_bufmgr *drm_slp_bufmgr;
-typedef struct _drm_slp_bo *drm_slp_bo;
-static drm_slp_bo (*sym_drm_slp_bo_import) (drm_slp_bufmgr bufmgr, unsigned int key) = NULL;
-// XXXX: sym_drm_slp_bo_map() is incorrectly defined - it SHOULD return a
+typedef struct _tbm_bufmgr *tbm_bufmgr;
+typedef struct _tbm_bo *tbm_bo;
+static tbm_bo (*sym_tbm_bo_import) (tbm_bufmgr bufmgr, unsigned int key) = NULL;
+// XXXX: sym_tbm_bo_map() is incorrectly defined - it SHOULD return a
 // void * at least
-static void *(*sym_drm_slp_bo_map) (drm_slp_bo bo, int device, int opt) = NULL;
-static int (*sym_drm_slp_bo_unmap)  (drm_slp_bo bo, int device) = NULL;
-static void (*sym_drm_slp_bo_unref) (drm_slp_bo bo) = NULL;
-static drm_slp_bufmgr (*sym_drm_slp_bufmgr_init) (int fd, void *arg) = NULL;
-static void (*sym_drm_slp_bufmgr_destroy) (drm_slp_bufmgr bufmgr) = NULL;
+static void *(*sym_tbm_bo_map) (tbm_bo bo, int device, int opt) = NULL;
+static int (*sym_tbm_bo_unmap)  (tbm_bo bo, int device) = NULL;
+static void (*sym_tbm_bo_unref) (tbm_bo bo) = NULL;
+static tbm_bufmgr (*sym_tbm_bufmgr_init) (int fd, void *arg) = NULL;
+static void (*sym_tbm_bufmgr_destroy) (tbm_bufmgr bufmgr) = NULL;
 
 ////////////////////////////////////
 // libdri2.so.0
@@ -406,7 +406,7 @@ static void (*sym_XFixesDestroyRegion) (Display *dpy, XID region) = NULL;
 typedef struct
 {
    unsigned int name;
-   drm_slp_bo   buf_bo;
+   tbm_bo   buf_bo;
 } Buffer;
 
 struct _X_Swapper
@@ -415,7 +415,7 @@ struct _X_Swapper
    Drawable    draw;
    Visual     *vis;
    int         w, h, depth;
-   drm_slp_bo  buf_bo;
+   tbm_bo  buf_bo;
    DRI2Buffer *buf;
    void       *buf_data;
    int         buf_w, buf_h;
@@ -430,7 +430,7 @@ static int xfixes_major = 0, xfixes_minor = 0;
 static int dri2_ev_base = 0, dri2_err_base = 0;
 static int dri2_major = 0, dri2_minor = 0;
 static int drm_fd = -1;
-static drm_slp_bufmgr bufmgr = NULL;
+static tbm_bufmgr bufmgr = NULL;
 static int swap_debug = -1;
 
 static Eina_Bool
@@ -438,13 +438,13 @@ _drm_init(Display *disp, int scr)
 {
    char *drv_name = NULL, *dev_name = NULL;
    drm_magic_t magic = 0;
-   
+
    if (swap_debug == -1)
      {
         if (getenv("EVAS_SWAPPER_DEBUG")) swap_debug = 1;
         else swap_debug = 0;
      }
-   
+
    if (xfixes_lib) return EINA_TRUE;
    if ((tried) && (!xfixes_lib)) return EINA_FALSE;
    tried = EINA_TRUE;
@@ -454,10 +454,10 @@ _drm_init(Display *disp, int scr)
         if (swap_debug) ERR("Can't load libdrm.so.2");
         goto err;
      }
-   drm_slp_lib = dlopen("libdrm_slp.so.1", RTLD_NOW | RTLD_LOCAL);
-   if (!drm_slp_lib)
+   tbm_lib = dlopen("libtbm.so.1", RTLD_NOW | RTLD_LOCAL);
+   if (!tbm_lib)
      {
-        if (swap_debug) ERR("Can't load libdrm_slp.so.1");
+        if (swap_debug) ERR("Can't load libtbm.so.1");
         goto err;
      }
    dri_lib = dlopen("libdri2.so.0", RTLD_NOW | RTLD_LOCAL);
@@ -472,7 +472,7 @@ _drm_init(Display *disp, int scr)
         if (swap_debug) ERR("Can't load libXfixes.so.3");
         goto err;
      }
-   
+
 #define SYM(l, x) \
    do { sym_ ## x = dlsym(l, #x); \
       if (!sym_ ## x) { \
@@ -480,15 +480,15 @@ _drm_init(Display *disp, int scr)
          goto err; \
       } \
    } while (0)
-   
+
    SYM(drm_lib, drmGetMagic);
 
-   SYM(drm_slp_lib, drm_slp_bo_import);
-   SYM(drm_slp_lib, drm_slp_bo_map);
-   SYM(drm_slp_lib, drm_slp_bo_unmap);
-   SYM(drm_slp_lib, drm_slp_bo_unref);
-   SYM(drm_slp_lib, drm_slp_bufmgr_init);
-   SYM(drm_slp_lib, drm_slp_bufmgr_destroy);
+   SYM(tbm_lib, tbm_bo_import);
+   SYM(tbm_lib, tbm_bo_map);
+   SYM(tbm_lib, tbm_bo_unmap);
+   SYM(tbm_lib, tbm_bo_unref);
+   SYM(tbm_lib, tbm_bufmgr_init);
+   SYM(tbm_lib, tbm_bufmgr_destroy);
 
    SYM(dri_lib, DRI2GetBuffers);
    SYM(dri_lib, DRI2QueryExtension);
@@ -504,14 +504,14 @@ _drm_init(Display *disp, int scr)
    SYM(xfixes_lib, XFixesQueryVersion);
    SYM(xfixes_lib, XFixesCreateRegion);
    SYM(xfixes_lib, XFixesDestroyRegion);
-   
+
    if (!sym_XFixesQueryExtension(disp, &xfixes_ev_base, &xfixes_err_base))
      {
         if (swap_debug) ERR("XFixes extension not in xserver");
         goto err;
      }
    sym_XFixesQueryVersion(disp, &xfixes_major, &xfixes_minor);
-   
+
    if (!sym_DRI2QueryExtension(disp, &dri2_ev_base, &dri2_err_base))
      {
         if (swap_debug) ERR("DRI2 extension not in xserver");
@@ -544,14 +544,14 @@ _drm_init(Display *disp, int scr)
         if (swap_debug) ERR("DRM get magic failed");
         goto err;
      }
-   if (!sym_DRI2Authenticate(disp, RootWindow(disp, scr), 
+   if (!sym_DRI2Authenticate(disp, RootWindow(disp, scr),
                              (unsigned int)magic))
      {
         if (swap_debug) ERR("DRI2 authenticate failed with magic 0x%x on screen %i", (unsigned int)magic, scr);
         goto err;
      }
-   
-   if (!(bufmgr = sym_drm_slp_bufmgr_init(drm_fd, NULL)))
+
+   if (!(bufmgr = sym_tbm_bufmgr_init(drm_fd, NULL)))
      {
         if (swap_debug) ERR("DRM bufmgr init failed");
         goto err;
@@ -570,10 +570,10 @@ err:
         dlclose(drm_lib);
         drm_lib = NULL;
      }
-   if (drm_slp_lib)
+   if (tbm_lib)
      {
-        dlclose(drm_slp_lib);
-        drm_slp_lib = NULL;
+        dlclose(tbm_lib);
+        tbm_lib = NULL;
      }
    if (dri_lib)
      {
@@ -598,16 +598,16 @@ _drm_shutdown(void)
    // though, as once shut down, we have to re-init and this could be
    // expensive especially if u have a single canvas that is changing config
    // and being shut down and re-initted a few times.
-/*   
+/*
    if (bufmgr)
      {
-        sym_drm_slp_bufmgr_destroy(bufmgr);
+        sym_tbm_bufmgr_destroy(bufmgr);
         bufmgr = NULL;
      }
    if (drm_fd >= 0) close(drm_fd);
    drm_fd = -1;
-   dlclose(drm_slp_lib);
-   drm_slp_lib = NULL;
+   dlclose(tbm_lib);
+   tbm_lib = NULL;
    dlclose(dri_lib);
    dri_lib = NULL;
    dlclose(xfixes_lib);
@@ -640,7 +640,7 @@ evas_xlib_swapper_new(Display *disp, Drawable draw, Visual *vis,
         if (!_drm_init(disp, 0)) return NULL;
      }
    inits++;
-   
+
    swp = calloc(1, sizeof(X_Swapper));
    if (!swp) return NULL;
    swp->disp = disp;
@@ -669,13 +669,13 @@ void
 evas_xlib_swapper_free(X_Swapper *swp)
 {
    Buffer *b;
-   
+
    if (swap_debug) printf("Swapper free\n");
    if (swp->mapped) evas_xlib_swapper_buffer_unmap(swp);
    EINA_LIST_FREE(swp->buf_cache, b)
      {
         if (swap_debug) printf("Cached buf name %i freed\n", b->name);
-        sym_drm_slp_bo_unref(b->buf_bo);
+        sym_tbm_bo_unref(b->buf_bo);
         free(b);
      }
    _drm_cleanup(swp);
@@ -692,7 +692,7 @@ evas_xlib_swapper_buffer_map(X_Swapper *swp, int *bpl, int *w, int *h)
    Eina_List *l;
    Buffer *b;
    DRI2BufferFlags *flags;
-   
+
    if (swp->mapped)
      {
         if (bpl)
@@ -704,7 +704,7 @@ evas_xlib_swapper_buffer_map(X_Swapper *swp, int *bpl, int *w, int *h)
         if (h) *h = swp->h;
         return swp->buf_data;
      }
-   swp->buf = sym_DRI2GetBuffers(swp->disp, swp->draw, 
+   swp->buf = sym_DRI2GetBuffers(swp->disp, swp->draw,
                                  &(swp->buf_w), &(swp->buf_h),
                                  &attach, 1, &num);
    if (!swp->buf) return NULL;
@@ -717,7 +717,7 @@ evas_xlib_swapper_buffer_map(X_Swapper *swp, int *bpl, int *w, int *h)
         EINA_LIST_FREE(swp->buf_cache, b)
           {
              if (swap_debug) printf("Cached buf name %i freed\n", b->name);
-             sym_drm_slp_bo_unref(b->buf_bo);
+             sym_tbm_bo_unref(b->buf_bo);
              free(b);
           }
      }
@@ -738,7 +738,7 @@ evas_xlib_swapper_buffer_map(X_Swapper *swp, int *bpl, int *w, int *h)
      }
    if (!swp->buf_bo)
      {
-        swp->buf_bo = sym_drm_slp_bo_import(bufmgr, swp->buf->name);
+        swp->buf_bo = sym_tbm_bo_import(bufmgr, swp->buf->name);
         if (!swp->buf_bo) return NULL;
         // cache the buf entry
         b = calloc(1, sizeof(Buffer));
@@ -757,16 +757,16 @@ evas_xlib_swapper_buffer_map(X_Swapper *swp, int *bpl, int *w, int *h)
                   b = l->data;
                   if (swap_debug) printf("Buffer cache overfull - free name %i\n", b->name);
                   swp->buf_cache = eina_list_remove_list(swp->buf_cache, l);
-                  sym_drm_slp_bo_unref(b->buf_bo);
+                  sym_tbm_bo_unref(b->buf_bo);
                   free(b);
                }
           }
      }
-   // XXXX: sym_drm_slp_bo_map() is incorrectly defined - it SHOULD return a
+   // XXXX: sym_tbm_bo_map() is incorrectly defined - it SHOULD return a
    // void * at least
-   swp->buf_data = sym_drm_slp_bo_map(swp->buf_bo, DRM_SLP_DEVICE_CPU,
-                                              DRM_SLP_OPTION_READ |
-                                              DRM_SLP_OPTION_WRITE);
+   swp->buf_data = sym_tbm_bo_map(swp->buf_bo, TBM_DEVICE_CPU,
+                                               TBM_OPTION_READ |
+                                               TBM_OPTION_WRITE);
    if (!swp->buf_data)
      {
         ERR("Buffer map name %i failed", swp->buf->name);
@@ -790,7 +790,7 @@ void
 evas_xlib_swapper_buffer_unmap(X_Swapper *swp)
 {
    if (!swp->mapped) return;
-   sym_drm_slp_bo_unmap(swp->buf_bo, DRM_SLP_DEVICE_CPU);
+   sym_tbm_bo_unmap(swp->buf_bo, TBM_DEVICE_CPU);
    if (swap_debug) printf("Unmap buffer name %i\n", swp->buf->name);
    free(swp->buf);
    swp->buf = NULL;
@@ -806,7 +806,7 @@ evas_xlib_swapper_swap(X_Swapper *swp, Eina_Rectangle *rects, int nrects)
    XID region;
    int i;
    unsigned long long sbc_count = 0;
-   
+
    if (swap_debug) printf("Swap buffers\n");
    for (i = 0; i < nrects; i++)
      {
@@ -822,7 +822,7 @@ Render_Engine_Swap_Mode
 evas_xlib_swapper_buffer_state_get(X_Swapper *swp)
 {
    DRI2BufferFlags *flags;
-   
+
    if (!swp->mapped) evas_xlib_swapper_buffer_map(swp, NULL, NULL, NULL);
    if (!swp->mapped) return MODE_FULL;
    flags = (DRI2BufferFlags *)(&(swp->buf->flags));

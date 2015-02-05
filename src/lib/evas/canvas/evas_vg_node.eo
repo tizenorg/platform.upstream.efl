@@ -5,11 +5,17 @@ abstract Evas.VG_Node (Eo.Base, Efl.Gfx.Base)
    properties {
       transformation {
          set {
+            /*@
+              Sets the transformation matrix to be used for this node object.
+            */
          }
          get {
+            /*@
+              Gets the transformation matrix used for this node object.
+            */
          }
          values {
-            const(Eina_Matrix3) *m;
+            const(Eina_Matrix3) *m; /*@ transformation matrix */
          }
       }
       origin {
@@ -24,8 +30,14 @@ abstract Evas.VG_Node (Eo.Base, Efl.Gfx.Base)
       }
       mask {
          set {
+            /*@
+              Not implemented.
+            */
          }
          get {
+            /*@
+              Not implemented.
+            */
          }
          values {
             Evas_VG_Node *m;
@@ -120,6 +132,7 @@ abstract Evas.VG_Node (Eo.Base, Efl.Gfx.Base)
           @see evas_vg_node_raise() */
       }
       changed {
+         /*@ Request for a redraw of the node object*/
       }
    }
    implements {

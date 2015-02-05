@@ -6,12 +6,14 @@ abstract Evas.VG_Node (Eo.Base, Efl.Gfx.Base)
       transformation {
          set {
             /*@
-              Sets the transformation matrix to be used for this node object.
+             Sets the transformation matrix to be used for this node object.
+             @since 1.14
             */
          }
          get {
             /*@
-              Gets the transformation matrix used for this node object.
+             Gets the transformation matrix used for this node object.
+             @since 1.14
             */
          }
          values {
@@ -20,12 +22,21 @@ abstract Evas.VG_Node (Eo.Base, Efl.Gfx.Base)
       }
       origin {
          set {
+            /*@
+             Sets the origin position of this node object. This origin position
+             affects to node transformation
+             @since 1.14
+            */
          }
          get {
+            /*@
+             Gets the origin position of this node object.
+             @since 1.14
+            */
          }
          values {
-            double x;
-            double y;
+            double x; /* @origin x position */
+            double y; /* @origin y position */
          }
       }
       mask {
@@ -57,22 +68,24 @@ abstract Evas.VG_Node (Eo.Base, Efl.Gfx.Base)
       bound_get {
          /*@
           Give the bounding box in screen coordinate as being drawn.
-          It will start as the control box until it is refined once
-          the shape is computed.
-          */
+          It will start as the control box until it is refined once the shape
+          is computed.
+          @since 1.14
+         */
          return: bool @warn_unused;
          params {
-            @out Eina_Rectangle r;
+            @out Eina_Rectangle r; /*@ bounding box to be returned */
          }
       }
       original_bound_get {
          /*@
           Give the bounding box in screen coordinate as defined in
           the file or at the insertion of the object (before any scaling).
-          */
+          @since 1.14
+         */
          return: bool @warn_unused;
          params {
-            @out Eina_Rectangle r;
+            @out Eina_Rectangle r; /*@ original bounding box to be returned */
          }
       }
       raise {
@@ -83,7 +96,9 @@ abstract Evas.VG_Node (Eo.Base, Efl.Gfx.Base)
 
           @see evas_vg_node_stack_above()
           @see evas_vg_node_stack_below()
-          @see evas_vg_node_lower() */
+          @see evas_vg_node_lower()
+          @since 1.14
+         */
       }
       stack_above {
          /*@
@@ -96,7 +111,9 @@ abstract Evas.VG_Node (Eo.Base, Efl.Gfx.Base)
           the same container</b>, otherwise it will fail (and accomplish
           nothing).
 
-          @see evas_vg_node_stack_below() */
+          @see evas_vg_node_stack_below()
+          @since 1.14
+         */
          params {
             @in Evas_VG_Node *above @nonull; /*@ the object above which to
                                                stack */
@@ -115,7 +132,9 @@ abstract Evas.VG_Node (Eo.Base, Efl.Gfx.Base)
 
           @see evas_vg_node_layer_get()
           @see evas_vg_node_layer_set()
-          @see evas_vg_node_stack_below() */
+          @see evas_vg_node_stack_below()
+          @since 1.14
+         */
          params {
             @in Evas_Object *below @nonull; /*@ the object below which to
                                               stack */
@@ -129,10 +148,14 @@ abstract Evas.VG_Node (Eo.Base, Efl.Gfx.Base)
 
           @see evas_vg_node_stack_above()
           @see evas_vg_node_stack_below()
-          @see evas_vg_node_raise() */
+          @see evas_vg_node_raise()
+          @since 1.14
+         */
       }
       changed {
-         /*@ Request for a redraw of the node object*/
+         /*@ Request for a redraw of the node object
+             @since 1.14
+         */
       }
    }
    implements {

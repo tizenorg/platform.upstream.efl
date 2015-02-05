@@ -435,7 +435,9 @@ _drm_init(int *flags)
 
                   if (sscanf(buf, "%i.%i.%*s", &vmaj, &vmin) == 2)
                     {
-                       if ((vmaj >= 3) && (vmin >= 14)) ok = EINA_TRUE;
+                       //TIZEN_ONLY(20150205): Change OS requirement version.
+                       //if ((vmaj >= 3) && (vmin >= 14)) ok = EINA_TRUE;
+                       if ((vmaj >= 3) && (vmin >= 0)) ok = EINA_TRUE;
                     }
                }
              fclose(fp);
@@ -543,6 +545,19 @@ _drm_init(int *flags)
                {
                   if (getenv("ECORE_VSYNC_DRM_VERSION_DEBUG"))
                     fprintf(stderr, "Whitelisted radeon OK\n");
+                  ok = EINA_TRUE;
+                  goto checkdone;
+               }
+          }
+        //TIZEN_ONLY(20150205): Add Exynos device to DRM requirement device.
+        if ((drmver->version_major >= 1) &&
+            (drmver->version_minor >= 0) &&
+            (drmver->name > (char *)4000L) &&
+            (drmver->date_len < 200))
+          {
+             if ((!strcmp(drmver->name, "exynos")) &&
+                 (strstr(drmver->desc, "Samsung")))
+               {
                   ok = EINA_TRUE;
                   goto checkdone;
                }

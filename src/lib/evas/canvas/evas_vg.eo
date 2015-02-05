@@ -5,9 +5,15 @@ class Evas.VG (Evas.Object, Efl.File)
    properties {
       root_node {
          get {
+            /*@
+              Get the root node of the evas_object_vg.
+
+              @note To manually create the shape object and show in the Vg object
+                    canvas you must create the hirarchy and set the parent as root node.
+            */
          }
          values {
-            Evas_VG_Node *container;
+            Evas_VG_Node *container; /*@ Root node of the VG canvas */
          }
       }
       size {
@@ -24,8 +30,8 @@ class Evas.VG (Evas.Object, Efl.File)
              */	 
          }
          values {
-            uint w;
-            uint h;
+            uint w; /*@ width of the vg object */
+            uint h; /*@ height of the vg object */
          }
       }
       fill {

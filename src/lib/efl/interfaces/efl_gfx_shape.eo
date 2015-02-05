@@ -11,7 +11,7 @@ interface Efl.Gfx.Shape
          }
          get {
             /*@
-              Get the stroke scalling factor used for stroking this path.
+              Get the stroke scaling factor used for stroking this path.
             */
          }
          values {
@@ -54,12 +54,12 @@ interface Efl.Gfx.Shape
       stroke_location {
          set {
             /*@
-              
+              Not Implemented
             */
          }
          get {
             /*@
-              
+              Not Implemented
             */
          }
          values {
@@ -69,12 +69,12 @@ interface Efl.Gfx.Shape
       stroke_dash {
          set {
             /*@
-              
+              Not Implemented
             */
          }
          get {
             /*@
-              
+              Not Implemented
             */
          }
          values {

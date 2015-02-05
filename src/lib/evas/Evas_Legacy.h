@@ -1474,67 +1474,48 @@ EAPI Evas_Object *evas_object_rectangle_add(Evas *e) EINA_WARN_UNUSED_RESULT EIN
  */
 
 /**
- * @ingroup Evas_Object_Vg
+ * @defgroup Evas_Object_Vg
+ * @ingroup Evas
  *
- * @{
- */
-
-/**
- * Evas_Object_Vg is the scene graph for managing vector graphics 
- * objects. User can create shape objects as well as fill objects
- * and give it to the Evas_Object_Vg for drawing on the screen as well
- * as managing the lifecycle of the objects. enabling reuse of shape objects.
+ * Evas_Object_Vg is the scene graph for managing vector graphics  objects.
+ * User can create shape objects as well as fill objects and give it to the
+ * Evas_Object_Vg for drawing on the screen as well as managing the lifecycle
+ * of the objects. enabling reuse of shape objects.
  * 
  * As Evas_Object_Vg is a Evas_Object all the operation that applicable to 
  * a Evas_Object can be performed on it(clipping , map, etc).
  *
- * To create any complex vector graphics you can create a hirarchy of
- * shape and fill objects and give the hirarchy to Evas_Object which 
- * will be responsible for drawing and showing on the screen.
+ * To create any complex vector graphics you can create a hirarchy of shape
+ * and fill objects and give the hirarchy to Evas_Object which  will be
+ * responsible for drawing and showing on the screen.
  * 
  * As the shape object and fill object (linear and radial gradient) have
- * retain mode API , you only have to create it once and set the properties 
+ * retain mode API, you only have to create it once and set the properties 
  * and give it to evas_object_vg.
  *
  * Any change in the property of shape/fill object will automaticaly notified
  * to the evas_object_vg which will trigger a redrawing to reflect the change.
  *
- * To create a vector path , you can give list of path commands to the 
- * shape object using efl_gfx_shape_path_set() api.
+ * To create a vector path, you can give list of path commands to the shape
+ * object using efl_gfx_shape_path_set() API.
  *
- * enabling graphical shapes to be constructed and reused.
- * 
- */
-
-/**
- * Creates a new vector object on the given Evas @p e canvas.
+ * Enabling graphical shapes to be constructed and reused.
  *
- * @param e The given canvas.
- * @return The created vector object handle.
- *
- * The shape object hirarchy can be added to the evas_object_vg by
- * acessing the rootnode of the vg canvas and adding the hirarchy as 
- * child to the root node.
- *
- *     @see evas_obj_vg_root_node_get()    
- *
- * Below are the list of feature currently supported by Vector
- * object.
+ * Below are the list of feature currently supported by Vector object.
  *
  * @li Drawing SVG Path.
  *     You can construct a path by using api in efl_gfx_utils.h
  *
  * @li Gradient filling and stroking.
- *     You can fill or stroke the path using linear or radial 
- *      gradient.
+ *     You can fill or stroke the path using linear or radial gradient.
  *     @see Evas_Vg_Gradient_Linear and Evas_Vg_Gradient_Radial
  *
- * @li Transformation support for path and gradient fill.
- *     You can apply affin transformation on path object.
+ * @li Transformation support for path and gradient fill. You can apply
+       affin transformation on path object.
  *     @see Eina_Matrix.
  *
- * @attention, Below are the list of interface , classes can be
- *             used to draw vector graphics using vector object.
+ * @note Below are the list of interface, classes can be used to draw vector
+ *       graphics using vector object.
  *
  * @li Efl.Gfx.Shape
  * @li Evas.VG_Shape
@@ -1557,8 +1538,23 @@ EAPI Evas_Object *evas_object_rectangle_add(Evas *e) EINA_WARN_UNUSED_RESULT EIN
  *       evas_vg_node_color_set(128, 128, 128, 80),
  *       efl_gfx_shape_path_set(path_cmd, points)); 
  * @endcode
+ *
+ * @since 1.14
  */
 
+/**
+ * Creates a new vector object on the given Evas @p e canvas.
+ *
+ * @param e The given canvas.
+ * @return The created vector object handle.
+ *
+ * The shape object hirarchy can be added to the evas_object_vg by accessing
+ * the rootnode of the vg canvas and adding the hirarchy as child to the root
+ * node.
+ *
+ * @see evas_obj_vg_root_node_get()
+ * @since 1.14
+ */
 EAPI Evas_Object *evas_object_vg_add(Evas *e) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1) EINA_MALLOC;
 
 #include "canvas/evas_vg_node.eo.legacy.h"

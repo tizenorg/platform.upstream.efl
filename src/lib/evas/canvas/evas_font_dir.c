@@ -52,9 +52,13 @@ static Evas_Font_Dir *object_text_font_cache_dir_add(char *dir);
 static void object_text_font_cache_dir_del(char *dir, Evas_Font_Dir *fd);
 static int evas_object_text_font_string_parse(char *buffer, char dest[14][256]);
 
+// TIZEN_ONLY(20150205): Remove our own font config.
+/*
 #ifdef HAVE_FONTCONFIG
 static FcConfig *fc_config = NULL;
 #endif
+*/
+//
 
 static void
 evas_font_init(void)
@@ -64,7 +68,13 @@ evas_font_init(void)
       return;
    fc_init = EINA_TRUE;
 #ifdef HAVE_FONTCONFIG
-   fc_config = FcInitLoadConfigAndFonts();
+   // TIZEN_ONLY(20150205): Remove our own font config.
+   //fc_config = FcInitLoadConfigAndFonts();
+   if (!FcInit())
+     {
+        fc_init = EINA_FALSE;
+     }
+   //
 #endif
 }
 
@@ -78,11 +88,16 @@ evas_font_dir_cache_free(void)
         font_dirs = NULL;
      }
 #ifdef HAVE_FONTCONFIG
+   // TIZEN_ONLY(20150205): Remove our own font config.
+   /*
    if (fc_config)
      {
         FcConfigDestroy(fc_config);
         fc_config = NULL;
      }
+   */
+   FcFini();
+   //
 #endif
 }
 
@@ -807,11 +822,17 @@ evas_font_load(Evas *eo_evas, Evas_Font_Description *fdesc, const char *source, 
         if (fdesc->lang)
            FcPatternAddString (p_nm, FC_LANG, (FcChar8 *) fdesc->lang);
 
-	FcConfigSubstitute(fc_config, p_nm, FcMatchPattern);
+        // TIZEN_ONLY(20150205): Remove our own font config.
+	//FcConfigSubstitute(fc_config, p_nm, FcMatchPattern);
+	FcConfigSubstitute(NULL, p_nm, FcMatchPattern);
+        //
 	FcDefaultSubstitute(p_nm);
 
 	/* do matching */
-	set = FcFontSort(fc_config, p_nm, FcTrue, NULL, &res);
+        // TIZEN_ONLY(20150205): Remove our own font config.
+	//set = FcFontSort(fc_config, p_nm, FcTrue, NULL, &res);
+	set = FcFontSort(NULL, p_nm, FcTrue, NULL, &res);
+        //
 	if (!set)
 	  {
 	     ERR("No fontconfig font matches '%s'. It was the last resource, no font found!", fdesc->name);
@@ -835,11 +856,17 @@ evas_font_load(Evas *eo_evas, Evas_Font_Description *fdesc, const char *source, 
         if (face)
           {
              p_nm = FcFreeTypeQueryFace(face, (FcChar8 *) "", 0, NULL);
-             FcConfigSubstitute(fc_config, p_nm, FcMatchPattern);
+             // TIZEN_ONLY(20150205): Remove our own font config.
+             //FcConfigSubstitute(fc_config, p_nm, FcMatchPattern);
+             FcConfigSubstitute(NULL, p_nm, FcMatchPattern);
+             //
              FcDefaultSubstitute(p_nm);
 
              /* do matching */
-             set = FcFontSort(fc_config, p_nm, FcTrue, NULL, &res);
+             // TIZEN_ONLY(20150205): Remove our own font config.
+             //set = FcFontSort(fc_config, p_nm, FcTrue, NULL, &res);
+             set = FcFontSort(NULL, p_nm, FcTrue, NULL, &res);
+             //
              if (!set)
                {
                   FcPatternDestroy(p_nm);
@@ -909,7 +936,10 @@ evas_font_dir_available_list(const Evas *eo_evas)
    p = FcPatternCreate();
    os = FcObjectSetBuild(FC_FAMILY, FC_STYLE, NULL);
 
-   if (p && os) set = FcFontList(fc_config, p, os);
+   // TIZEN_ONLY(20150205): Remove our own font config.
+   //if (p && os) set = FcFontList(fc_config, p, os);
+   if (p && os) set = FcFontList(NULL, p, os);
+   //
 
    if (p) FcPatternDestroy(p);
    if (os) FcObjectSetDestroy(os);
@@ -1363,8 +1393,11 @@ evas_font_path_global_append(const char *path)
    if (!path) return;
    global_font_path = eina_list_append(global_font_path, eina_stringshare_add(path));
 #ifdef HAVE_FONTCONFIG
-   if (fc_config)
-     FcConfigAppFontAddDir(fc_config, (const FcChar8 *) path);
+   // TIZEN_ONLY(20150205): Remove our own font config.
+   //if (fc_config)
+   //  FcConfigAppFontAddDir(fc_config, (const FcChar8 *) path);
+   FcConfigAppFontAddDir(NULL, (const FcChar8 *) path);
+   //
 #endif
 }
 
@@ -1374,8 +1407,11 @@ evas_font_path_global_prepend(const char *path)
    if (!path) return;
    global_font_path = eina_list_prepend(global_font_path, eina_stringshare_add(path));
 #ifdef HAVE_FONTCONFIG
-   if (fc_config)
-     FcConfigAppFontAddDir(fc_config, (const FcChar8 *) path);
+   // TIZEN_ONLY(20150205): Remove our own font config.
+   //if (fc_config)
+   //  FcConfigAppFontAddDir(fc_config, (const FcChar8 *) path);
+   FcConfigAppFontAddDir(NULL, (const FcChar8 *) path);
+   //
 #endif
 }
 
@@ -1388,8 +1424,11 @@ evas_font_path_global_clear(void)
         global_font_path = eina_list_remove(global_font_path, global_font_path->data);
      }
 #ifdef HAVE_FONTCONFIG
-   if (fc_config)
-     FcConfigAppFontClear(fc_config);
+   // TIZEN_ONLY(20150205): Remove our own font config.
+   //if (fc_config)
+   //  FcConfigAppFontClear(fc_config);
+   FcConfigAppFontClear(NULL);
+   //
 #endif
 }
 

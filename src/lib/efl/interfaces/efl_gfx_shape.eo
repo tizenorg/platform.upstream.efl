@@ -7,11 +7,13 @@ interface Efl.Gfx.Shape
             /*@
               Sets the stroke scale to be used for stroking the path.
               the scale property will be used along with stroke width property.
+              @since 1.14
             */
          }
          get {
             /*@
               Get the stroke scaling factor used for stroking this path.
+              @since 1.14
             */
          }
          values {
@@ -22,11 +24,13 @@ interface Efl.Gfx.Shape
          set {
             /*@
               Sets the color to be used for stroking the path.
+              @since 1.14
             */
          }
          get {
             /*@
               Gets the color used for stroking the path.
+              @since 1.14
             */
          }
          values {
@@ -40,11 +44,13 @@ interface Efl.Gfx.Shape
          set {
             /*@
               Sets the stroke width to be used for stroking the path.
+              @since 1.14
             */
          }
          get {
             /*@
               Gets the stroke width to be used for stroking the path.
+              @since 1.14
             */
          }
          values {
@@ -90,11 +96,13 @@ interface Efl.Gfx.Shape
               open subpath.
 
               @see Efl_Gfx_Cap
+              @since 1.14
             */
          }
          get {
             /*@
               Gets the cap style used for stroking path.
+              @since 1.14
             */
          }
          values {
@@ -105,31 +113,39 @@ interface Efl.Gfx.Shape
          set {
             /*@
               Sets the join style to be used for stroking the path.
-              The join style will be used for joining the two line segment while stroking teh path.
+              The join style will be used for joining the two line segment
+              while stroking teh path.
 
               @see Efl_Gfx_Join
+              @since 1.14
             */
          }
          get {
             /*@
               Gets the join style used for stroking path.
+              @since 1.14
             */
          }
          values {
-            Efl_Gfx_Join j; /*@ join style to use , default is EFL_GFX_JOIN_MITER */
+            Efl_Gfx_Join j; /*@ join style to use , default is
+                              EFL_GFX_JOIN_MITER */
          }
       }
       path {
          set {
             /*@
-              Set the list of commands and points to be used to create the content of shape.
+              Set the list of commands and points to be used to create the
+              content of shape.
 
               @note see efl_gfx_path interface for how to create a command list.
+              @see Efl_Gfx_Path_Command
+              @since 1.14
             */
          }
          get {
             /*@
-             Gets the command and points list 
+             Gets the command and points list
+             @since 1.14 
             */
          }
          values {

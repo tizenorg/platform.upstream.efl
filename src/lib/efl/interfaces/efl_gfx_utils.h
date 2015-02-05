@@ -45,6 +45,12 @@ efl_gfx_path_append_arc(Efl_Gfx_Path_Command **commands, double **points,
                         double start_angle,double sweep_length);
 
 EAPI void
+efl_gfx_path_append_rounded_rect(Efl_Gfx_Path_Command **commands, double **points,
+                                 double x, double y, double w, double h,
+                                 double xr,double yr);
+
+
+EAPI void
 efl_gfx_path_append_close(Efl_Gfx_Path_Command **commands, double **points);
 
 EAPI void

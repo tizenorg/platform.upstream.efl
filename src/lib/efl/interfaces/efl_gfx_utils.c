@@ -350,7 +350,6 @@ efl_gfx_path_append_arc_to(Efl_Gfx_Path_Command **commands, double **points,
    /* Start and end of path segment */
    x2 = x;
    y2 = y;
-
    if (x1 == x2 && y1 == y2)
      return;
 
@@ -841,7 +840,7 @@ _efl_gfx_t_for_arc_angle(double angle)
 }
 
 static void
-_efl_gfx_find_arc_end_points(int x, int y, int w, int h, double angle, double length,
+_efl_gfx_find_arc_end_points(double x, double y, double w, double h, double angle, double length,
                              double *sx, double *sy, double *ex, double *ey)
 {
    if (!w || !h )
@@ -853,8 +852,8 @@ _efl_gfx_find_arc_end_points(int x, int y, int w, int h, double angle, double le
         return;
       }
 
-   int w2 = w / 2;
-   int h2 = h / 2;
+   double w2 = w / 2;
+   double h2 = h / 2;
 
    double angles[2] = { angle, angle + length };
    double *px[2] = { sx, ex };
@@ -862,7 +861,7 @@ _efl_gfx_find_arc_end_points(int x, int y, int w, int h, double angle, double le
    int i =0;
    for (i = 0; i < 2; ++i)
      {
-        if (!px[i] || !py[y])
+        if (!px[i] || !py[i])
           continue;
 
         double theta = angles[i] - 360 * floor(angles[i] / 360);
@@ -889,8 +888,8 @@ _efl_gfx_find_arc_end_points(int x, int y, int w, int h, double angle, double le
         // top quadrants
         if (quadrant == 0 || quadrant == 1)
           pty = -pty;
-        int cx = x+w/2;
-        int cy = y+h/2;
+        double cx = x+w/2;
+        double cy = y+h/2;
         *px[i] = cx + w2 * ptx;
         *py[i] = cy + h2 * pty;
      }
@@ -919,6 +918,37 @@ efl_gfx_path_append_arc(Efl_Gfx_Path_Command **commands, double **points,
    if (sweep_length > 180) large_arc = EINA_TRUE;
 
    efl_gfx_path_append_arc_to(commands, points, ex, ey, w/2, h/2, 0, large_arc, sweep_flag);  
+}
+
+EAPI void
+efl_gfx_path_append_rounded_rect(Efl_Gfx_Path_Command **commands, double **points,
+                                 double x, double y, double w, double h,
+                                 double xr,double yr)
+{
+   if (xr > 100)
+     xr = 100;
+
+   if (yr > 100)
+     yr = 100;
+
+   if (xr <= 0 || xr <= 0)
+     {
+        efl_gfx_path_append_move_to(commands, points, x, y);
+        efl_gfx_path_append_line_to(commands, points, x+w, y);
+        efl_gfx_path_append_line_to(commands, points, x+w, y+h);
+        efl_gfx_path_append_line_to(commands, points, x, y+h);
+        efl_gfx_path_append_close(commands, points);
+        return;
+     }
+
+   double rxx2 = (w * xr)/100.0;
+   double ryy2 = (h* yr)/100.0;
+   efl_gfx_path_append_move_to(commands, points, x, y + h/2);
+   efl_gfx_path_append_arc(commands, points, x, y, rxx2, ryy2, 180, -90);
+   efl_gfx_path_append_arc(commands, points, x + w -rxx2, y, rxx2, ryy2, 90, -90);
+   efl_gfx_path_append_arc(commands, points, x + w -rxx2, y + h - ryy2, rxx2, ryy2, 0, -90);
+   efl_gfx_path_append_arc(commands, points, x, y + h - ryy2, rxx2, ryy2, 270, -90);
+   efl_gfx_path_append_close(commands, points);
 }
 
 

@@ -6,11 +6,13 @@ interface Efl.Gfx.Gradient_Linear (Efl.Gfx.Gradient)
          set {
             /*@
               Sets the start point of this linear gradient.
+              @since 1.14
             */
          }
          get {
             /*@
               Gets the start point of this linear gradient.
+              @since 1.14
             */
          }
          values {
@@ -22,11 +24,13 @@ interface Efl.Gfx.Gradient_Linear (Efl.Gfx.Gradient)
          set {
             /*@
               Sets the end point of this linear gradient.
+              @since 1.14
             */
          }
          get {
             /*@
               Gets the end point of this linear gradient.
+              @since 1.14
             */
          }
          values {

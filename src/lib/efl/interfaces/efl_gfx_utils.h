@@ -15,34 +15,37 @@ efl_gfx_path_dup(Efl_Gfx_Path_Command **out_cmd, double **out_pts,
  * @param y Y co-ordinate of the current point.
  *
  * @see efl_gfx_path_append_close()
+ * @since 1.14
  */
-
 EAPI void
 efl_gfx_path_append_move_to(Efl_Gfx_Path_Command **commands, double **points,
                             double x, double y);
 
 /**
- * Adds a straight line from the current position to the given endPoint. 
- * After the line is drawn, the current position is updated to be at the end point of the line.
+ * Adds a straight line from the current position to the given endPoint.
+ * After the line is drawn, the current position is updated to be at the end
+ * point of the line.
  *
- * @note if no current position present , it draws a line to itself , basically a point.
-
+ * @note if no current position present, it draws a line to itself, basically
+ *       a point.
+ *
  * @param commands command list.
  * @param points point's list.
  * @param x X co-ordinate of end point of the line.
  * @param y Y co-ordinate of end point of the line.
  *
  * @see efl_gfx_path_append_move_to()
+ * @since 1.14
  */
 EAPI void
 efl_gfx_path_append_line_to(Efl_Gfx_Path_Command **commands, double **points,
                             double x, double y);
 
-
 /**
- * Adds a quadratic Bezier curve between the current position and the 
+ * Adds a quadratic Bezier curve between the current position and the
  * given end point (x,y) using the control points specified by (ctrl_x, ctrl_y).
- * After the path is drawn, the current position is updated to be at the end point of the path.
+ * After the path is drawn, the current position is updated to be at the end
+ * point of the path.
  *
  * @param commands command list.
  * @param points point's list.
@@ -50,28 +53,30 @@ efl_gfx_path_append_line_to(Efl_Gfx_Path_Command **commands, double **points,
  * @param y Y co-ordinate of end point of the line.
  * @param ctrl_x0 X co-ordinate of control point.
  * @param ctrl_y0 Y co-ordinate of control point.
+ * @since 1.14
  *
  */
-
 EAPI void
-efl_gfx_path_append_quadratic_to(Efl_Gfx_Path_Command **commands, double **points,
-                                 double x, double y, double ctrl_x, double ctrl_y);
+efl_gfx_path_append_quadratic_to(Efl_Gfx_Path_Command **commands,
+                                 double **points, double x, double y,
+                                 double ctrl_x, double ctrl_y);
 
 /**
- * Same as efl_gfx_path_append_quadratic_to() api only difference is that it uses the
- * current control point to draw the bezier.
+ * Same as efl_gfx_path_append_quadratic_to() api only difference is that it
+ * uses the current control point to draw the bezier.
  *
  * @see efl_gfx_path_append_quadratic_to()
- *
+ * @since 1.14
  */
 EAPI void
-efl_gfx_path_append_squadratic_to(Efl_Gfx_Path_Command **commands, double **points,
-                                  double x, double y);
+efl_gfx_path_append_squadratic_to(Efl_Gfx_Path_Command **commands,
+                                  double **points, double x, double y);
 
 /**
- * Adds a cubic Bezier curve between the current position and the 
- * given end point (x,y) using the control points specified by (ctrl_x0, ctrl_y0), and (ctrl_x1, ctrl_y1).
- * After the path is drawn, the current position is updated to be at the end point of the path.
+ * Adds a cubic Bezier curve between the current position and the
+ * given end point (x,y) using the control points specified by
+ * (ctrl_x0, ctrl_y0), and (ctrl_x1, ctrl_y1). After the path is drawn,
+ * the current position is updated to be at the end point of the path.
  *
  * @param commands command list.
  * @param points point's list.
@@ -82,8 +87,8 @@ efl_gfx_path_append_squadratic_to(Efl_Gfx_Path_Command **commands, double **poin
  * @param ctrl_x1 X co-ordinate of 2nd control point.
  * @param ctrl_y1 Y co-ordinate of 2nd control point.
  *
+ * @since 1.14
  */
-
 EAPI void
 efl_gfx_path_append_cubic_to(Efl_Gfx_Path_Command **commands, double **points,
                              double x, double y,
@@ -91,16 +96,16 @@ efl_gfx_path_append_cubic_to(Efl_Gfx_Path_Command **commands, double **points,
                              double ctrl_x1, double ctrl_y1);
 
 /**
- * Same as efl_gfx_path_append_cubic_to() api only difference is that it uses the
- * current control point to draw the bezier.
+ * Same as efl_gfx_path_append_cubic_to() api only difference is that it uses
+ * the current control point to draw the bezier.
  *
  * @see efl_gfx_path_append_cubic_to()
  *
+ * @since 1.14
  */
 EAPI void
 efl_gfx_path_append_scubic_to(Efl_Gfx_Path_Command **commands, double **points,
-                              double x, double y,
-                              double ctrl_x, double ctrl_y);
+                              double x, double y, double ctrl_x, double ctrl_y);
 
 /**
  * Append an arc that connects from the current point int the point list
@@ -118,13 +123,15 @@ efl_gfx_path_append_scubic_to(Efl_Gfx_Path_Command **commands, double **points,
  * @param ry radius of arc in y direction.
  * @param angle x-axis rotation , normally 0.
  * @param ry radius of arc in y direction.
- * @param large_arc Defines whether to draw the larger arc or smaller arc joining two point.
- * @param sweep Defines whether the arc will be drawn counter-clockwise or clockwise from current
- *        point to the end point taking into account the large_arc property.
+ * @param large_arc Defines whether to draw the larger arc or smaller arc
+ *        joining two point.
+ * @param sweep Defines whether the arc will be drawn counter-clockwise or
+ *        clockwise from current point to the end point taking into account the
+ *        large_arc property.
  *
  * @see efl_gfx_path_append_arc_to()
+ * @since 1.14
  */
-
 EAPI void
 efl_gfx_path_append_arc_to(Efl_Gfx_Path_Command **commands, double **points,
                            double x, double y,
@@ -133,14 +140,16 @@ efl_gfx_path_append_arc_to(Efl_Gfx_Path_Command **commands, double **points,
                            Eina_Bool large_arc, Eina_Bool sweep);
 
 /**
- * Append an arc that occupies the given rectangle, beginning at the specified start_angle
- * and extending sweep_length degrees counter-clockwise.
+ * Append an arc that occupies the given rectangle, beginning at the specified
+ * start_angle znd extending sweep_length degrees counter-clockwise.
  *
- * @attention Angles are specified in degrees. Clockwise arcs can be specified using negative angles.
+ * @note Angles are specified in degrees. Clockwise arcs can be specified
+ *       using negative angles.
  *
- * @note This function connects the starting point of the arc to the current position if they are
- *       not already connected.After the arc has been added,the current position is the last point in arc.
- *       To draw a line back to the first point, use the efl_gfx_path_append_close() function.
+ *       This function connects the starting point of the arc to the current
+ *       position if they are not already connected.After the arc has been
+ *       added,the current position is the last point in arc. To draw a line
+ *       back to the first point, use the efl_gfx_path_append_close() function.
  *
  * @param commands command list.
  * @param points point's list.
@@ -148,29 +157,31 @@ efl_gfx_path_append_arc_to(Efl_Gfx_Path_Command **commands, double **points,
  * @param y Y co-ordinate of the rectangle.
  * @param w Width of the rectangle.
  * @param h Height of the rectangle.
- * @param start_angle start point of the arc will be from this angle (in degrees 0 - 360).
- * @param sweep_length length of the arc from start point (in degree 0 - 360) , -ve value
- *        for clockwise direction.
+ * @param start_angle start point of the arc will be from this angle
+ *        (in degrees 0 - 360).
+ * @param sweep_length length of the arc from start point (in degree 0 - 360),
+ *        minus value for clockwise direction.
  *
  * @see efl_gfx_path_append_close()
  * @see efl_gfx_path_append_arc_to()
+ * @since 1.14
  */
-
 EAPI void
 efl_gfx_path_append_arc(Efl_Gfx_Path_Command **commands, double **points,
                         double x, double y, double w, double h,
                         double start_angle,double sweep_length);
 
-
 /**
  * Append the given rectangle with rounded corner to the path.
  *
- * The xr and yr arguments specify the radii of the ellipses defining the corners of the rounded rectangle.
+ * The xr and yr arguments specify the radii of the ellipses defining the
+ * corners of the rounded rectangle.
  *
- * @note xr and yr are specified in percentage of half the rectangle's width and height respectively,
- *       and should be in the range 0.0 to 100.0.
+ * @note xr and yr are specified in percentage of half the rectangle's width
+ *       and height respectively, and should be in the range 0.0 to 100.0.
  *
- * @attention if xr and yr are 0 , then it will draw a rectangle without rounded corner.
+ * @note if xr and yr are 0, then it will draw a rectangle without rounded
+ *       corner.
  *
  * @param commands command list.
  * @param points point's list.
@@ -180,32 +191,32 @@ efl_gfx_path_append_arc(Efl_Gfx_Path_Command **commands, double **points,
  * @param h Height of the rectangle.
  * @param xr percentage of the half of the width of the rectangle (0 - 100).
  * @param yr percentage of the half of the height of the rectangle (0 - 100).
+ * @since 1.14
  *
  */
-
 EAPI void
-efl_gfx_path_append_rounded_rect(Efl_Gfx_Path_Command **commands, double **points,
-                                 double x, double y, double w, double h,
+efl_gfx_path_append_rounded_rect(Efl_Gfx_Path_Command **commands,
+                                 double **points, double x, double y, double w,
+                                 double h,
                                  double xr,double yr);
-
 
 /**
  * Closes the current subpath by drawing a line to the beginning of the subpath,
- * automatically starting a new path. The current point of the new path is (0, 0).
+ * automatically starting a new path. The current point of the new path is
+ * (0, 0).
  *
  * @note If the subpath does not contain any points, this function does nothing.
  *
  * @param commands command list.
  * @param points point's list.
  *
+ * @since 1.14
  */
-
 EAPI void
 efl_gfx_path_append_close(Efl_Gfx_Path_Command **commands, double **points);
 
 /**
  * Append a circle with given center and radius.
- *
  *
  * @param commands command list.
  * @param points point's list.
@@ -214,8 +225,8 @@ efl_gfx_path_append_close(Efl_Gfx_Path_Command **commands, double **points);
  * @param radius radius of the circle.
  *
  * @see efl_gfx_path_append_arc()
+ * @since 1.14
  */
-
 EAPI void
 efl_gfx_path_append_circle(Efl_Gfx_Path_Command **commands, double **points,
                            double cx, double cy, double radius);

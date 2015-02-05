@@ -23,6 +23,8 @@ Provides: eet = %{version}-%{release}
 Obsoletes: eet < %{version}-%{release}
 Provides: embryo = %{version}-%{release}
 Obsoletes: embryo < %{version}-%{release}
+Provides: ector = %{version}-%{release}
+Obsoletes: ector < %{version}-%{release}
 Provides: evas = %{version}-%{release}
 Obsoletes: evas < %{version}-%{release}
 Provides: eio = %{version}-%{release}
@@ -50,6 +52,8 @@ Provides: eet-devel = %{version}-%{release}
 Obsoletes: eet-devel < %{version}-%{release}
 Provides: embryo-devel = %{version}-%{release}
 Obsoletes: embryo-devel < %{version}-%{release}
+Provides: ector-devel = %{version}-%{release}
+Obsoletes: ector-devel < %{version}-%{release}
 Provides: evas-devel = %{version}-%{release}
 Obsoletes: evas-devel < %{version}-%{release}
 Provides: eio-devel = %{version}-%{release}

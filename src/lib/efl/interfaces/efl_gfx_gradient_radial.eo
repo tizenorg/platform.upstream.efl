@@ -4,32 +4,32 @@ interface Efl.Gfx.Gradient_Radial (Efl.Gfx.Gradient)
    properties {
       center {
          set {
-	 }
-	 get {
-	 }
-	 values {
-	    double x;
-	    double y;
-	 }
+         }
+         get {
+         }
+         values {
+            double x;
+            double y;
+         }
       }
       radius {
          set {
-	 }
-	 get {
-	 }
-	 values {
-	    double r;
-	 }
+         }
+         get {
+         }
+         values {
+            double r;
+         }
       }
       focal {
          set {
-	 }
-	 get {
-	 }
-	 values {
-	    double x;
-	    double y;
-	 }
+         }
+         get {
+         }
+         values {
+            double x;
+            double y;
+         }
       }
    }
 }

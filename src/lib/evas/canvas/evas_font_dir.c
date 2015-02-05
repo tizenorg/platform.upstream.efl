@@ -1527,11 +1527,17 @@ evas_font_available_list_free(Evas *eo_e, Eina_List *available)
 }
 
 /////////////////////////////////////////////////////////////////
-// TIZEN_ONLY(20150112): Add dummy APIs to fix build failure.
+// TIZEN_ONLY(20150205): Implement evas_font_reinit dummy API.
 /////////////////////////////////////////////////////////////////
 EAPI void
 evas_font_reinit(void)
 {
-   EFL_DUMMY_API_LOG;
+   Eina_List *l;
+   char *path;
+
+   FcInitReinitialize();
+
+   EINA_LIST_FOREACH(global_font_path, l, path)
+      FcConfigAppFontAddDir(NULL, (const FcChar8 *) path);
 }
 /////////////////////////////////////////////////////////////////

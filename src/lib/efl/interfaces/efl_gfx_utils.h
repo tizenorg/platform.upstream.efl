@@ -1,6 +1,19 @@
 #ifndef EFL_GRAPHICS_UTILS_H_
 # define EFL_GRAPHICS_UTILS_H_
 
+/**
+ * Copy Path Command List and Point's List
+ *
+ * @param out_cmd copied command list to be returned
+ * @param out_pts copied point's list to be returned
+ * @param in_cmd source command list
+ * @param in_pts source point's list
+ * @return @c EINA_TRUE on success or @c EINA_FALSE on error.
+ *
+ * @warning @p out_cmd and @p out_pts should be passed with NULL pointers.
+ *
+ * @since 1.14
+ */
 EAPI Eina_Bool
 efl_gfx_path_dup(Efl_Gfx_Path_Command **out_cmd, double **out_pts,
                  const Efl_Gfx_Path_Command *in_cmd, const double *in_pts);
@@ -239,10 +252,34 @@ efl_gfx_path_interpolate(const Efl_Gfx_Path_Command *cmd,
                          double pos_map,
                          const double *from, const double *to, double *r);
 
+/**
+ * Compare two path commands whether both command lists are same or not.
+ *
+ * @param a command list
+ * @param b command list
+ * @return @c EINA_TRUE if @p a and @p b command list are same, @c EINA_FALSE,
+ *         otherwise.
+ *
+ * @since 1.14
+ */
 EAPI Eina_Bool
 efl_gfx_path_equal_commands(const Efl_Gfx_Path_Command *a,
                             const Efl_Gfx_Path_Command *b);
 
+/**
+ * Return the current(last) path and control position.
+ *
+ * @param cmd command list
+ * @param points point's list
+ * @param current_x current x position
+ * @param current_y current y position
+ * @param current_ctrl_x current x control point (just in case CUBIC type)
+ * @param current_ctrl_y current y control point (just in case CUBIC type)
+ * @return @c EINA_TRUE on success or @c EINA_FALSE if there are no positions to
+ *         be returned.
+ *
+ * @since 1.14
+ */
 EAPI Eina_Bool
 efl_gfx_path_current_get(const Efl_Gfx_Path_Command *cmd,
                          const double *points,

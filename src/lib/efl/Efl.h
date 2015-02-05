@@ -116,16 +116,17 @@ typedef enum _Efl_Gfx_Join
 
 /**
  * Type defining gradient stop.
+ * @note Describe the location and color of a transition point in a gradient.
  * @since 1.14
  */
 typedef struct _Efl_Gfx_Gradient_Stop Efl_Gfx_Gradient_Stop;
 struct _Efl_Gfx_Gradient_Stop
 {
-   double offset;
-   int r;
-   int g;
-   int b;
-   int a;
+   double offset; /**< The location of the gradient stop within the gradient vector*/
+   int r; /**< The component R color of the gradient stop */
+   int g; /**< The component G color of the gradient stop */
+   int b; /**< The component B color of the graident stop */
+   int a; /**< The component A color of the graident stop */
 };
 
 /**

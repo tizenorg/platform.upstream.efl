@@ -80,6 +80,8 @@ efl_gfx_path_dup(Efl_Gfx_Path_Command **out_cmd, double **out_pts,
 {
    unsigned int cmd_length = 0, pts_length = 0;
 
+   if (!in_cmd || !in_pts) return EINA_FALSE;
+
    _efl_gfx_path_length(in_cmd, &cmd_length, &pts_length);
 
    *out_pts = malloc(pts_length * sizeof (double));

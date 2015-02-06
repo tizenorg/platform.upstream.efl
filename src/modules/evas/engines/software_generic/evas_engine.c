@@ -545,7 +545,7 @@ _draw_thread_rectangle_draw(void *data)
     evas_common_rectangle_rgba_draw(rect->surface,
                                     rect->color, rect->render_op,
                                     rect->x, rect->y, rect->w, rect->h);
-
+    evas_common_cpu_end_opt();
     eina_mempool_free(_mp_command_rect, rect);
 }
 
@@ -3037,6 +3037,8 @@ _draw_thread_ector_draw(void *data)
                              ector->y,
                              ector->mul_col));
 
+   evas_common_cpu_end_opt();
+
    _draw_thread_ector_cleanup(ector);
 }
 
@@ -3066,7 +3068,6 @@ eng_ector_renderer_draw(void *data EINA_UNUSED, void *context, void *surface, Ec
         clip.w = dst->cache_entry.w;
         clip.h = dst->cache_entry.h;
      }
-
    //Hermet: Multiple Clippers???
    if (clips)
      {

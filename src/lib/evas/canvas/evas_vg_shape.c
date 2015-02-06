@@ -258,6 +258,15 @@ _evas_vg_shape_efl_gfx_shape_stroke_join_get(Eo *obj EINA_UNUSED,
    return pd->stroke.join;
 }
 
+static void
+_evas_vg_shape_efl_gfx_base_color_set(Eo *obj,
+                                      Evas_VG_Shape_Data *pd,
+                                      int r, int g, int b, int a)
+{
+   eo_do_super(obj, MY_CLASS, efl_gfx_color_set(r, g, b, a));
+   eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
+}
+
 static Eina_Bool
 _evas_vg_shape_render_pre(Eo *obj EINA_UNUSED,
                           Eina_Matrix3 *parent,

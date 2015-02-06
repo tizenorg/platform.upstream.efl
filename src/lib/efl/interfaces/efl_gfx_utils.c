@@ -451,11 +451,9 @@ EAPI void
 efl_gfx_path_append_circle(Efl_Gfx_Path_Command **commands, double **points,
                            double x, double y, double radius)
 {
-   efl_gfx_path_append_move_to(commands, points, x, y - radius);
+   efl_gfx_path_append_move_to(commands, points, x + radius, y);
    efl_gfx_path_append_arc_to(commands, points, x - radius, y, radius, radius, 0, EINA_FALSE, EINA_FALSE);
-   efl_gfx_path_append_arc_to(commands, points, x, y + radius, radius, radius, 0, EINA_FALSE, EINA_FALSE);
    efl_gfx_path_append_arc_to(commands, points, x + radius, y, radius, radius, 0, EINA_FALSE, EINA_FALSE);
-   efl_gfx_path_append_arc_to(commands, points, x, y - radius, radius, radius, 0, EINA_FALSE, EINA_FALSE);
 }
 
 static void

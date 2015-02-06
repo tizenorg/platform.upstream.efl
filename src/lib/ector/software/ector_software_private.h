@@ -130,7 +130,7 @@ struct _Ector_Software_Surface_Data
 void ector_software_rasterizer_init(Software_Rasterizer *rasterizer);
 void ector_software_rasterizer_done(Software_Rasterizer *rasterizer);
 
-void ector_software_rasterizer_stroke_set(Software_Rasterizer *rasterizer, int width,
+void ector_software_rasterizer_stroke_set(Software_Rasterizer *rasterizer, double width,
                                           Efl_Gfx_Cap cap_style, Efl_Gfx_Join join_style);
 
 void ector_software_rasterizer_transform_set(Software_Rasterizer *rasterizer, Eina_Matrix3 *t);

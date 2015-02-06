@@ -209,7 +209,7 @@ void ector_software_rasterizer_done(Software_Rasterizer *rasterizer)
 }
 
 
-void ector_software_rasterizer_stroke_set(Software_Rasterizer *rasterizer, int width,
+void ector_software_rasterizer_stroke_set(Software_Rasterizer *rasterizer, double width,
                                           Efl_Gfx_Cap cap_style, Efl_Gfx_Join join_style)
 {
     SW_FT_Stroker_LineCap cap;
@@ -237,7 +237,8 @@ void ector_software_rasterizer_stroke_set(Software_Rasterizer *rasterizer, int w
             join = SW_FT_STROKER_LINEJOIN_MITER;
             break;
     }
-    SW_FT_Stroker_Set(rasterizer->stroker, width<<6, cap, join, 0);
+    int stroke_width = (int)(width * 64);
+    SW_FT_Stroker_Set(rasterizer->stroker, stroke_width, cap, join, 0);
 }
 
 static void

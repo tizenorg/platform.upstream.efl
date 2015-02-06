@@ -175,9 +175,6 @@ _evas_vg_node_eo_base_constructor(Eo *obj,
         parent_nd = eo_data_scope_get(parent, EVAS_VG_NODE_CLASS);
         pd->eo_vg = parent_nd->eo_vg;
      }
-
-   if (cd)
-     cd->children = eina_list_append(cd->children, obj);
 }
 
 void

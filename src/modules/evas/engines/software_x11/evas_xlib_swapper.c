@@ -390,6 +390,7 @@ static void (*sym_DRI2CreateDrawable) (Display *display, XID drawable) = NULL;
 static void (*sym_DRI2SwapBuffersWithRegion) (Display *display, XID drawable, XID region, CD64 *count) = NULL;
 static void (*sym_DRI2SwapBuffers) (Display *display, XID drawable, CD64 target_msc, CD64 divisor, CD64 remainder, CD64 *count) = NULL;
 static void (*sym_DRI2DestroyDrawable) (Display *display, XID handle) = NULL;
+static Bool (*sym_DRI2QeuryExtensionAndCheckVersion) (Display * dpy, int *eventBase, int *errorBase, int *major, int *minor, int check_major, int check_minor) = NULL;
 
 ////////////////////////////////////
 // libXfixes.so.3
@@ -429,6 +430,7 @@ static int xfixes_ev_base = 0, xfixes_err_base = 0;
 static int xfixes_major = 0, xfixes_minor = 0;
 static int dri2_ev_base = 0, dri2_err_base = 0;
 static int dri2_major = 0, dri2_minor = 0;
+static int dri2_check_major = 0, dri2_check_minor = 0;
 static int drm_fd = -1;
 static tbm_bufmgr bufmgr = NULL;
 static int swap_debug = -1;
@@ -499,6 +501,7 @@ _drm_init(Display *disp, int scr)
    SYM(dri_lib, DRI2SwapBuffersWithRegion);
    SYM(dri_lib, DRI2SwapBuffers);
    SYM(dri_lib, DRI2DestroyDrawable);
+   SYM(dri_lib, DRI2QeuryExtensionAndCheckVersion);
 
    SYM(xfixes_lib, XFixesQueryExtension);
    SYM(xfixes_lib, XFixesQueryVersion);
@@ -512,6 +515,14 @@ _drm_init(Display *disp, int scr)
      }
    sym_XFixesQueryVersion(disp, &xfixes_major, &xfixes_minor);
 
+#if 1
+   if (!sym_DRI2QeuryExtensionAndCheckVersion(disp, &dri2_ev_base, &dri2_err_base, &dri2_major, &dri2_minor, dri2_check_major, dri2_check_minor))
+     {
+        if (swap_debug) ERR("Not supported by DRI2 version(%i.%i). DRI2 version in Xserver(%i, %i)",
+                            dri2_check_major, dri2_check_minor, dri2_major, dri2_minor);
+        goto err;
+     }
+#else
    if (!sym_DRI2QueryExtension(disp, &dri2_ev_base, &dri2_err_base))
      {
         if (swap_debug) ERR("DRI2 extension not in xserver");
@@ -528,6 +539,7 @@ _drm_init(Display *disp, int scr)
                             dri2_major, dri2_minor);
         goto err;
      }
+#endif
    if (!sym_DRI2Connect(disp, RootWindow(disp, scr), &drv_name, &dev_name))
      {
         if (swap_debug) ERR("DRI2 connect failed on screen %i", scr);

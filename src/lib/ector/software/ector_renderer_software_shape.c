@@ -20,7 +20,7 @@ struct _Ector_Renderer_Software_Shape_Data
    Ector_Renderer_Generic_Shape_Data   *shape;
    Ector_Renderer_Generic_Base_Data    *base;
    Shape_Rle_Data                      *shape_data;
-   Shape_Rle_Data                      *outline_data;                    
+   Shape_Rle_Data                      *outline_data;
 };
 
 typedef struct _Outline
@@ -169,17 +169,16 @@ static void  _outline_cubic_to(Outline *outline, double cx1, double cy1, double 
 
 static void _outline_transform(Outline *outline, Eina_Matrix3 *m)
 {
+    int i;
     SW_FT_Outline *ft_outline = &outline->ft_outline;
     if(m) {
-        int i = 0;
         double x, y;
         for(i = 0; i < ft_outline->n_points ; i++) {
             eina_matrix3_point_transform(m, ft_outline->points[i].x, ft_outline->points[i].y, &x, &y);
-            ft_outline->points[i].x = (lrint(x))<<6;// to freetype 26.6 coordinate.
-            ft_outline->points[i].y = (lrint(y))<<6;
+            ft_outline->points[i].x = (int)(x * 64);// to freetype 26.6 coordinate.
+            ft_outline->points[i].y = (int)(y * 64);
         }
     } else {
-        int i = 0;
         for(i = 0; i < ft_outline->n_points ; i++) {
             ft_outline->points[i].x = ft_outline->points[i].x <<6;// to freetype 26.6 coordinate.
             ft_outline->points[i].y = ft_outline->points[i].y <<6;
@@ -273,34 +272,32 @@ _ector_renderer_software_shape_ector_renderer_generic_base_prepare(Eo *obj, Ecto
 static Eina_Bool
 _ector_renderer_software_shape_ector_renderer_generic_base_draw(Eo *obj EINA_UNUSED, Ector_Renderer_Software_Shape_Data *pd, Ector_Rop op, Eina_Array *clips, int x, int y, unsigned int mul_col)
 {
-   // TODO remove me when double to int conversion is fixed.
-   //printf("%.0f",pd->base->origin.x);
+   // adjust the offset
+   x = x + (int)pd->base->origin.x;
+   y = y + (int)pd->base->origin.y;
 
-   int offx = 0 , offy = 0;
-   offx = x + lrint(pd->base->origin.x);
-   offy = y + lrint(pd->base->origin.y);
    // fill the span_data structure
    ector_software_rasterizer_clip_rect_set(pd->surface->software, clips);
    ector_software_rasterizer_transform_set(pd->surface->software, pd->base->m);
 
    if (pd->shape->fill) {
      eo_do(pd->shape->fill, ector_renderer_software_base_fill());
-     ector_software_rasterizer_draw_rle_data(pd->surface->software, offx, offy, mul_col, op, pd->shape_data);
+     ector_software_rasterizer_draw_rle_data(pd->surface->software, x, y, mul_col, op, pd->shape_data);
    } else {
       if (pd->base->color.a > 0) {
           ector_software_rasterizer_color_set(pd->surface->software, pd->base->color.r, pd->base->color.g, pd->base->color.b, pd->base->color.a);
-          ector_software_rasterizer_draw_rle_data(pd->surface->software, offx, offy, mul_col, op, pd->shape_data);
+          ector_software_rasterizer_draw_rle_data(pd->surface->software, x, y, mul_col, op, pd->shape_data);
       }
    }
 
   if (pd->shape->stroke.fill) {
     eo_do(pd->shape->stroke.fill, ector_renderer_software_base_fill());
-    ector_software_rasterizer_draw_rle_data(pd->surface->software, offx, offy, mul_col, op, pd->outline_data);
+    ector_software_rasterizer_draw_rle_data(pd->surface->software, x, y, mul_col, op, pd->outline_data);
   } else {
     if (pd->shape->stroke.color.a > 0) {
       ector_software_rasterizer_color_set(pd->surface->software, pd->shape->stroke.color.r, pd->shape->stroke.color.g, 
                                           pd->shape->stroke.color.b, pd->shape->stroke.color.a);
-      ector_software_rasterizer_draw_rle_data(pd->surface->software, offx, offy, mul_col, op, pd->outline_data);
+      ector_software_rasterizer_draw_rle_data(pd->surface->software, x, y, mul_col, op, pd->outline_data);
     }
 
   }

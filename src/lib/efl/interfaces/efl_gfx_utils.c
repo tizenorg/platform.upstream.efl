@@ -894,16 +894,49 @@ _efl_gfx_find_arc_end_points(double x, double y, double w, double h, double angl
         *py[i] = cy + h2 * pty;
      }
 }
+static Eina_Bool
+_efl_gfx_is_new_path(const Efl_Gfx_Path_Command *commands)
+{
+  int i = 0;
+  Efl_Gfx_Path_Command last_command = EFL_GFX_PATH_COMMAND_TYPE_END;
 
+   if (!commands)
+      return EINA_TRUE;
+
+   while (commands[i] != EFL_GFX_PATH_COMMAND_TYPE_END)
+     {
+        last_command = commands[i];
+        i++;
+      }
+
+   if (last_command == EFL_GFX_PATH_COMMAND_TYPE_CLOSE)
+      return EINA_TRUE;
+
+   return EINA_FALSE;
+}
 EAPI void
 efl_gfx_path_append_arc(Efl_Gfx_Path_Command **commands, double **points,
                         double x, double y, double w, double h,
                         double start_angle,double sweep_length)
 {
    double sx, sy, ex, ey;
+   double cy = (y+h)/2;
+   if (fabs(sweep_length - 360.0) < 0.005)
+     {
+        // draw a ellipse
+        efl_gfx_path_append_move_to(commands, points, x+w, cy);
+        // draw two 180 degree arcs.
+        efl_gfx_path_append_arc_to(commands, points, x, cy, w/2, h/2, 0, EINA_FALSE, EINA_FALSE);
+        efl_gfx_path_append_arc_to(commands, points, x+w, cy, w/2, h/2, 0, EINA_FALSE, EINA_FALSE);
+        return;
+     }
+
    _efl_gfx_find_arc_end_points(x, y, w, h, start_angle, sweep_length, &sx, &sy, &ex, &ey);
 
-   efl_gfx_path_append_line_to(commands, points, sx, sy);
+   if (_efl_gfx_is_new_path(*commands))
+      efl_gfx_path_append_move_to(commands, points, sx, sy);
+   else
+      efl_gfx_path_append_line_to(commands, points, sx, sy);
 
    Eina_Bool large_arc = EINA_FALSE;
    Eina_Bool sweep_flag = EINA_FALSE;

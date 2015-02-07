@@ -3060,7 +3060,7 @@ eng_ector_renderer_draw(void *data EINA_UNUSED, void *context, void *surface, Ec
    Eina_Array_Iterator it;
    unsigned int i;
 
-   if (0 && dc->clip.use)
+   if (dc->clip.use)
      {
         clip.x = dc->clip.x;
         clip.y = dc->clip.y;

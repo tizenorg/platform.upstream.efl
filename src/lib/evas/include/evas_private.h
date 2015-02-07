@@ -1308,6 +1308,7 @@ struct _Evas_Func
    void  (*texture_filter_get)           (void *data, void *texture, Evas_3D_Texture_Filter *min, Evas_3D_Texture_Filter *mag);
    void  (*texture_image_set)            (void *data, void *texture, void *image);
 
+   void *(*ector_begin)                   (void *data, void *surface, int width, int height);
    Ector_Surface *(*ector_get)           (void *data);
    void  (*ector_draw)                   (void *data, void *context, void *surface, Ector_Renderer *r, Eina_Array *clips, int x, int y, Eina_Bool do_async);
 };

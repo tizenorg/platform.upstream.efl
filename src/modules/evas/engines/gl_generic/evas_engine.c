@@ -17,6 +17,10 @@
 
 #include "Evas_Engine_GL_Generic.h"
 
+
+#include "software/Ector_Software.h"
+
+
 #ifdef EVAS_CSERVE2
 #include "evas_cs2_private.h"
 #endif
@@ -1833,6 +1837,179 @@ eng_texture_image_set(void *data EINA_UNUSED, void *texture, void *image)
    e3d_texture_import((E3D_Texture *)texture, im->tex->pt->texture);
 }
 
+
+// Opengl hack for ector START
+
+static Ector_Surface *_software_ector = NULL;
+
+static Ector_Surface *
+eng_ector_get(void *data EINA_UNUSED)
+{
+   if (!_software_ector)
+     {
+        _software_ector = eo_add(ECTOR_SOFTWARE_SURFACE_CLASS, NULL);
+     }
+   return _software_ector;
+}
+
+static void *
+eng_ector_begin(void *data, void *surface, int width, int height )
+{
+   if (!surface) {
+    return eng_image_new_from_copied_data(data, width, height, NULL, EINA_TRUE, EVAS_COLORSPACE_ARGB8888);
+   } else {
+      int cur_w , cur_h;
+      Evas_GL_Image *glim = surface;
+      cur_w = glim->im->cache_entry.w;
+      cur_h = glim->im->cache_entry.h;
+      if (width != cur_w || height != cur_h) {
+        eng_image_free(data, surface);
+        return eng_image_new_from_copied_data(data, width, height, NULL, EINA_TRUE, EVAS_COLORSPACE_ARGB8888);
+      }
+      // clear the buffer.
+      void *pixels = evas_cache_image_pixels(&glim->im->cache_entry);
+      memset(pixels, 0, cur_w * cur_h *4);
+   }
+   return surface;
+}
+
+struct _Evas_Thread_Command_Ector
+{
+   void *surface;
+   Ector_Renderer *r;
+   Eina_Array *clips;
+
+   DATA32 mul_col;
+   Ector_Rop render_op;
+   int x, y;
+
+   Eina_Bool free_it;
+};
+
+typedef struct _Evas_Thread_Command_Ector Evas_Thread_Command_Ector;
+
+static Ector_Rop
+_evas_render_op_to_ector_rop(Evas_Render_Op op)
+{
+   switch (op)
+     {
+      case EVAS_RENDER_BLEND:
+         return ECTOR_ROP_BLEND;
+      case EVAS_RENDER_COPY:
+         return ECTOR_ROP_COPY;
+      default:
+         return ECTOR_ROP_BLEND;
+     }
+}
+
+static void
+_draw_thread_ector_cleanup(Evas_Thread_Command_Ector *ector)
+{
+   Eina_Rectangle *r;
+
+   while ((r = eina_array_pop(ector->clips)))
+     eina_rectangle_free(r);
+   eina_array_free(ector->clips);
+   eo_unref(ector->r);
+
+}
+
+static void
+_draw_thread_ector_draw(void *data)
+{
+   Evas_Thread_Command_Ector *ector = data;
+   RGBA_Image *surface = ector->surface;
+   void *pixels = evas_cache_image_pixels(&surface->cache_entry);
+   unsigned int w, h;
+
+   w = surface->cache_entry.w;
+   h = surface->cache_entry.h;
+
+   // FIXME: do not reset cairo context if not necessary
+   eo_do(_software_ector,
+         ector_surface_set(pixels, w, h));
+
+   eo_do(ector->r,
+         ector_renderer_draw(ector->render_op,
+                             ector->clips,
+                             ector->x,
+                             ector->y,
+                             ector->mul_col));
+
+   evas_common_cpu_end_opt();
+
+   _draw_thread_ector_cleanup(ector);
+}
+
+static void
+eng_ector_draw(void *data EINA_UNUSED, void *context, 
+                void *surface, Ector_Renderer *renderer, 
+                Eina_Array *clips, int x, int y, Eina_Bool do_async EINA_UNUSED)
+{
+   Evas_GL_Image *gl_img = surface;
+   RGBA_Image *dst = gl_img->im;
+   RGBA_Draw_Context *dc = context;
+   Evas_Thread_Command_Ector ector;
+   Eina_Array *c;
+   Eina_Rectangle *r;
+   Eina_Rectangle clip;
+   Eina_Array_Iterator it;
+   unsigned int i;
+
+   if (0 && dc->clip.use)
+     {
+        clip.x = dc->clip.x;
+        clip.y = dc->clip.y;
+        clip.w = dc->clip.w;
+        clip.h = dc->clip.h;
+     }
+   else
+     {
+        clip.x = 0;
+        clip.y = 0;
+        clip.w = dst->cache_entry.w;
+        clip.h = dst->cache_entry.h;
+     }
+   //Hermet: Multiple Clippers???
+   if (clips)
+     {
+        //printf("Multiple clips \n");
+        c = eina_array_new(8);
+        EINA_ARRAY_ITER_NEXT(clips, i, r, it)
+          {
+             Eina_Rectangle *rc;
+             //printf("Multiple :%d , %d ,%d , %d\n",r->x, r->y, r->w, r->h);
+             rc = eina_rectangle_new(r->x, r->y, r->w, r->h);
+             if (!rc) continue;
+
+             if (eina_rectangle_intersection(rc, &clip))
+               eina_array_push(c, rc);
+             else
+               eina_rectangle_free(rc);
+          }
+     }
+   else
+     {
+        //printf("Single Clip : %d , %d ,%d , %d\n",clip.x, clip.y, clip.w, clip.h);
+        c = eina_array_new(1);
+        eina_array_push(c, eina_rectangle_new(clip.x, clip.y, clip.w, clip.h));
+     }
+
+   ector.surface = dst;
+   ector.r = eo_ref(renderer);
+   ector.clips = c;
+   ector.render_op = _evas_render_op_to_ector_rop(dc->render_op);
+   ector.mul_col = dc->col.col;
+   ector.x = x;
+   ector.y = y;
+   ector.free_it = EINA_FALSE;
+
+    _draw_thread_ector_draw(&ector);
+}
+
+
+// opengl hack for ector END
+
 static Evas_Func func, pfunc;
 
 static int
@@ -1959,6 +2136,11 @@ module_open(Evas_Module *em)
    ORD(texture_filter_set);
    ORD(texture_filter_get);
    ORD(texture_image_set);
+
+   /* ector features */
+   ORD(ector_begin);
+   ORD(ector_get);
+   ORD(ector_draw);
 
    /* now advertise out own api */
    em->functions = (void *)(&func);

@@ -867,6 +867,32 @@ edje_text_class_set(const char *text_class, const char *font, Evas_Font_Size siz
    return EINA_TRUE;
 }
 
+// TIZEN_ONLY (20150204) : recommend to upstream.
+EAPI Eina_Bool
+edje_text_class_get(const char *text_class, const char **font, Evas_Font_Size *size)
+{
+   Edje_Text_Class *tc;
+
+   if (!text_class) return EINA_FALSE;
+
+   tc = eina_hash_find(_edje_text_class_hash, text_class);
+
+   if (tc)
+     {
+        if (font) *font = tc->font;
+        if (size) *size = tc->size;
+     }
+   else
+     {
+        if (font) *font = NULL;
+        if (size) *size = 0;
+
+        return EINA_FALSE;
+     }
+   return EINA_TRUE;
+}
+////////////////////////////////////////////
+
 void
 edje_text_class_del(const char *text_class)
 {
@@ -992,6 +1018,28 @@ _edje_object_text_class_set(Eo *obj EINA_UNUSED, Edje *ed, const char *text_clas
 
    return EINA_TRUE;
 }
+
+// TIZEN_ONLY (20150204) : recommend to upstream.
+EOLIAN Eina_Bool
+_edje_object_text_class_get(Eo *obj EINA_UNUSED, Edje *ed, const char *text_class, const char **font, Evas_Font_Size *size)
+{
+   Edje_Text_Class *tc = _edje_text_class_find(ed, text_class);
+
+   if (tc)
+     {
+        if (font) *font = tc->font;
+        if (size) *size = tc->size;
+     }
+   else
+     {
+        if (font) *font = NULL;
+        if (size) *size = 0;
+
+        return EINA_FALSE;
+     }
+   return EINA_TRUE;
+}
+/////////////////////////////////////////////////
 
 EOLIAN Eina_Bool
 _edje_object_part_exists(Eo *obj EINA_UNUSED, Edje *ed, const char *part)
@@ -5347,28 +5395,3 @@ edje_object_part_object_name_get(const Evas_Object *obj)
 }
 
 /* vim:set ts=8 sw=3 sts=3 expandtab cino=>5n-2f0^-2{2(0W1st0 :*/
-
-/////////////////////////////////////////////////////////////////
-// TIZEN_ONLY(20150112): Add dummy APIs to fix build failure.
-/////////////////////////////////////////////////////////////////
-EAPI Eina_Bool
-edje_text_class_get(const char *text_class, char **font, Evas_Font_Size *size)
-{
-   (void) text_class;
-   (void) font;
-   (void) size;
-   EFL_DUMMY_API_LOG;
-   return EINA_FALSE;
-}
-
-EAPI Eina_Bool
-edje_object_text_class_get(const Evas_Object *obj, const char *text_class, char **font, Evas_Font_Size *size)
-{
-   (void) obj;
-   (void) text_class;
-   (void) font;
-   (void) size;
-   EFL_DUMMY_API_LOG;
-   return EINA_FALSE;
-}
-/////////////////////////////////////////////////////////////////

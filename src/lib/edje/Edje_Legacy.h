@@ -1,11 +1,3 @@
-/////////////////////////////////////////////////////////////////
-// TIZEN_ONLY(20150112): Add dummy APIs to fix build failure.
-/////////////////////////////////////////////////////////////////
-EAPI Eina_Bool          edje_text_class_get(const char *text_class, char **font, Evas_Font_Size *size);
-EAPI Eina_Bool          edje_object_text_class_get(const Evas_Object *obj, const char *text_class, char **font, Evas_Font_Size *size);
-/////////////////////////////////////////////////////////////////
-
-
 /**
  * @brief Instantiate a new Edje object
  *

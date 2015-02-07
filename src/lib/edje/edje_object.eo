@@ -216,22 +216,6 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             Edje_Cursor cur; /*@ the edje cursor to work on */
          }
       }
-      text_class {
-         set {
-            /*@
-            @brief Sets Edje text class.
-
-            @return @c EINA_TRUE, on success or @c EINA_FALSE, on error
-
-            This function sets the text class for the Edje. */
-            return: bool;
-         }
-         values {
-            const(char)* text_class; /*@ The text class name */
-            const(char)* font; /*@ Font name */
-            Evas_Font_Size size; /*@ Font Size */
-         }
-      }
       part_text_cursor_coord {
          set {
             /*@
@@ -2037,6 +2021,35 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          params {
             @in const(char)* part; /*@ The part name */
             @in Edje_Cursor cur; /*@ The cursor to adjust. */
+         }
+      }
+      text_class_set {
+         /*@
+         @brief Sets Edje text class.
+
+         @return @c EINA_TRUE, on success or @c EINA_FALSE, on error
+
+         This function sets the text class for the Edje. */
+         return: bool;
+         params {
+            @in const(char)* text_class; /*@ The text class name */
+            @in const(char)* font; /*@ Font name */
+            @in Evas_Font_Size size; /*@ Font Size */
+         }
+      }
+      text_class_get @const {
+         /*@
+         @brief Gets font and font size from edje text class.
+
+         @return @c EINA_TRUE, on success or @c EINA_FALSE, on error
+
+         This function gets the font and the font size from the object
+         text class. */
+         return: bool;
+         params {
+            @in const(char)* text_class; /*@ The text class name */
+            @out const(char)* font; /*@ Font name */
+            @out Evas_Font_Size size; /*@ Font Size */
          }
       }
       color_class_set {

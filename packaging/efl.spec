@@ -543,11 +543,10 @@ export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed "
 
 %reconfigure \
     --with-x11=xlib \
-    --enable-g-main-loop \
     --disable-xim \
     --disable-scim \
     --enable-gesture \
-	--enable-xinput22 \
+    --enable-xinput22 \
     --with-tests=regular \
 %if %{with wayland}
     --enable-wayland \
@@ -559,7 +558,7 @@ export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed "
 %endif
     --with-opengl=es \
     --enable-gesture \
-	--enable-xinput22 \
+    --enable-xinput22 \
     --enable-fb \
     --disable-tslib \
     --disable-gstreamer1 \

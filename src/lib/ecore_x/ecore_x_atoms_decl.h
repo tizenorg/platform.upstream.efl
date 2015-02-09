@@ -324,6 +324,12 @@ EAPI Ecore_X_Atom ECORE_X_ATOM_E_COMP_PIXMAP = 0;
 EAPI Ecore_X_Atom ECORE_X_ATOM_E_VIDEO_PARENT = 0;
 EAPI Ecore_X_Atom ECORE_X_ATOM_E_VIDEO_POSITION = 0;
 
+////////////////////////////////////////////////////////////////////
+//TIZEN_ONLY: For operating indicator and quickpanel.
+EAPI Ecore_X_Atom ECORE_X_ATOM_E_INDICATOR_FLICK_DONE = 0;
+EAPI Ecore_X_Atom ECORE_X_ATOM_E_MOVE_QUICKPANEL_STATE = 0;
+////////////////////////////////////////////////////////////////////
+
 /* for sliding window */
 EAPI Ecore_X_Atom ECORE_X_ATOM_E_ILLUME_SLIDING_WIN_STATE = 0;
 EAPI Ecore_X_Atom ECORE_X_ATOM_E_ILLUME_SLIDING_WIN_GEOMETRY = 0;
@@ -678,6 +684,11 @@ const Atom_Item atom_items[] =
    { "_E_COMP_PIXMAP", &ECORE_X_ATOM_E_COMP_PIXMAP },
    { "_E_VIDEO_PARENT", &ECORE_X_ATOM_E_VIDEO_PARENT },
    { "_E_VIDEO_POSITION", &ECORE_X_ATOM_E_VIDEO_POSITION },
+   /////////////////////////////////////////////////////////////////////////////
+   //TIZEN_ONLY(20150203): For operating indicator and quickpanel
+   { "_E_INDICATOR_FLICK_DONE", &ECORE_X_ATOM_E_INDICATOR_FLICK_DONE },
+   { "_E_MOVE_QUICKPANEL_STATE", &ECORE_X_ATOM_E_MOVE_QUICKPANEL_STATE },
+   /////////////////////////////////////////////////////////////////////////////
    { "_E_WINDOW_PROFILE_SUPPORTED", &ECORE_X_ATOM_E_WINDOW_PROFILE_SUPPORTED },
    { "_E_WINDOW_PROFILE", &ECORE_X_ATOM_E_WINDOW_PROFILE },
    { "_E_WINDOW_PROFILE_CHANGE", &ECORE_X_ATOM_E_WINDOW_PROFILE_CHANGE },

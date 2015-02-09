@@ -508,7 +508,6 @@ EAPI Eina_Bool
 edje_color_class_set(const char *color_class, int r, int g, int b, int a, int r2, int g2, int b2, int a2, int r3, int g3, int b3, int a3)
 {
    Eina_Hash *members;
-   Eina_Iterator *it;
    Edje_Refcount *er;
    Edje_Color_Class *cc;
 
@@ -559,18 +558,22 @@ edje_color_class_set(const char *color_class, int r, int g, int b, int a, int r2
    cc->a3 = a3;
 
    members = eina_hash_find(_edje_color_class_member_hash, color_class);
-   it = eina_hash_iterator_data_new(members);
-   EINA_ITERATOR_FOREACH(it, er)
+   if (members)  // TIZEN ONLY (20150209) Fix ERR log of eina_hash_iterator_data_new
      {
-        er->ed->dirty = EINA_TRUE;
-        er->ed->recalc_call = EINA_TRUE;
+        Eina_Iterator *it;
+        it = eina_hash_iterator_data_new(members);
+        EINA_ITERATOR_FOREACH(it, er)
+          {
+             er->ed->dirty = EINA_TRUE;
+             er->ed->recalc_call = EINA_TRUE;
 #ifdef EDJE_CALC_CACHE
-        er->ed->all_part_change = EINA_TRUE;
+             er->ed->all_part_change = EINA_TRUE;
 #endif
-        _edje_recalc(er->ed);
-        _edje_emit(er->ed, "color_class,set", color_class);
+             _edje_recalc(er->ed);
+             _edje_emit(er->ed, "color_class,set", color_class);
+          }
+        eina_iterator_free(it);
      }
-   eina_iterator_free(it);
    return EINA_TRUE;
 }
 
@@ -812,7 +815,6 @@ EAPI Eina_Bool
 edje_text_class_set(const char *text_class, const char *font, Evas_Font_Size size)
 {
    Eina_Hash *members;
-   Eina_Iterator *it;
    Edje_Refcount *er;
    Edje_Text_Class *tc;
 
@@ -851,19 +853,23 @@ edje_text_class_set(const char *text_class, const char *font, Evas_Font_Size siz
 
    /* Tell all members of the text class to recalc */
    members = eina_hash_find(_edje_text_class_member_hash, text_class);
-   it = eina_hash_iterator_data_new(members);
-   EINA_ITERATOR_FOREACH(it, er)
+   if (members) // TIZEN ONLY (20150209) Fix ERR log of eina_hash_iterator_data_new
      {
-        er->ed->dirty = EINA_TRUE;
-        er->ed->recalc_call = EINA_TRUE;
-        _edje_textblock_styles_cache_free(er->ed, text_class);
-        _edje_textblock_style_all_update(er->ed);
+        Eina_Iterator *it;
+        it = eina_hash_iterator_data_new(members);
+        EINA_ITERATOR_FOREACH(it, er)
+          {
+             er->ed->dirty = EINA_TRUE;
+             er->ed->recalc_call = EINA_TRUE;
+             _edje_textblock_styles_cache_free(er->ed, text_class);
+             _edje_textblock_style_all_update(er->ed);
 #ifdef EDJE_CALC_CACHE
-        er->ed->text_part_change = EINA_TRUE;
+             er->ed->text_part_change = EINA_TRUE;
 #endif
-        _edje_recalc(er->ed);
+             _edje_recalc(er->ed);
+          }
+        eina_iterator_free(it);
      }
-   eina_iterator_free(it);
    return EINA_TRUE;
 }
 

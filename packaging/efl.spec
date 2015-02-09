@@ -542,6 +542,7 @@ cp %{SOURCE1001} .
 export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed "
 
 %reconfigure \
+    --with-glib=always \
     --with-x11=xlib \
     --disable-xim \
     --disable-scim \

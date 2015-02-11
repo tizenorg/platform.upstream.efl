@@ -1113,6 +1113,7 @@ gl_extn_veto(Render_Engine *re)
      {
         if (getenv("EVAS_GL_INFO"))
           printf("EGL EXTN:\n%s\n", str);
+
         if (!strstr(str, "EGL_EXT_buffer_age"))
           {
              extn_have_buffer_age = 0;

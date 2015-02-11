@@ -1087,7 +1087,6 @@ eng_font_draw(void *data, void *context, void *surface, Evas_Font_Set *font EINA
                                               NULL,
                                               NULL);
      }
-
    return EINA_FALSE;
 }
 

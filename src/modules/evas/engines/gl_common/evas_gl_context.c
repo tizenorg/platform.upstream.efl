@@ -379,7 +379,7 @@ _evas_gl_common_version_check()
 }
 
 static void
-_evas_gl_common_viewport_set(Evas_Engine_GL_Context *gc)
+_evas_gl_common_viewport_set(Evas_Engine_GL_Context *gc, int force_update)
 {
    GLfloat proj[16];
    unsigned int i;
@@ -404,7 +404,7 @@ _evas_gl_common_viewport_set(Evas_Engine_GL_Context *gc)
      }
 
 #ifdef GL_GLES
-   if (gc->shared->eglctxt == gc->eglctxt)
+   if ((gc->shared->eglctxt == gc->eglctxt) && (!force_update ))
 #endif     
      {
         if ((!gc->change.size) ||
@@ -866,7 +866,7 @@ evas_gl_common_context_new(void)
      }
    gc->shared = shared;
    gc->shared->references++;
-   _evas_gl_common_viewport_set(gc);
+   _evas_gl_common_viewport_set(gc,1);
 
    gc->def_surface = evas_gl_common_image_surface_new(gc, 1, 1, 1);
 
@@ -952,7 +952,7 @@ evas_gl_common_context_use(Evas_Engine_GL_Context *gc)
 {
    if (_evas_gl_common_context == gc) return;
    _evas_gl_common_context = gc;
-   if (gc) _evas_gl_common_viewport_set(gc);
+   if (gc) _evas_gl_common_viewport_set(gc,0);
 }
 
 EAPI void
@@ -1066,19 +1066,19 @@ evas_gl_common_context_newframe(Evas_Engine_GL_Context *gc)
    glBindTexture(GL_TEXTURE_2D, gc->pipe[0].shader.cur_tex);
    GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 
-   _evas_gl_common_viewport_set(gc);
+   _evas_gl_common_viewport_set(gc,1);
 }
 
 EAPI void
-evas_gl_common_context_resize(Evas_Engine_GL_Context *gc, int w, int h, int rot)
+evas_gl_common_context_resize(Evas_Engine_GL_Context *gc, int w, int h, int rot, int force_update)
 {
-   if ((gc->w == w) && (gc->h == h) && (gc->rot == rot)) return;
+   if ((!force_update) && (gc->w == w) && (gc->h == h) && (gc->rot == rot)) return;
    evas_gl_common_context_flush(gc);
    gc->change.size = 1;
    gc->rot = rot;
    gc->w = w;
    gc->h = h;
-   if (_evas_gl_common_context == gc) _evas_gl_common_viewport_set(gc);
+   if (_evas_gl_common_context == gc) _evas_gl_common_viewport_set(gc,1);
 }
 
 void
@@ -1171,7 +1171,7 @@ evas_gl_common_context_target_surface_set(Evas_Engine_GL_Context *gc,
         glsym_glBindFramebuffer(GL_FRAMEBUFFER, surface->tex->pt->fb);
         GLERR(__FUNCTION__, __FILE__, __LINE__, "");
      }
-   _evas_gl_common_viewport_set(gc);
+   _evas_gl_common_viewport_set(gc,0);
 }
 
 #define PUSH_VERTEX(n, x, y, z) \
@@ -2523,7 +2523,7 @@ evas_gl_common_context_image_map_push(Evas_Engine_GL_Context *gc,
         gc->px = p[0].px >> FP;
         gc->py = p[0].py >> FP;
         gc->change.size = 1;
-        _evas_gl_common_viewport_set(gc);
+        _evas_gl_common_viewport_set(gc,0);
      }
 
    pn = _evas_gl_common_context_push(RTYPE_MAP,
@@ -2635,7 +2635,7 @@ evas_gl_common_context_image_map_push(Evas_Engine_GL_Context *gc,
         gc->px = 0;
         gc->py = 0;
         gc->change.size = 1;
-        _evas_gl_common_viewport_set(gc);
+        _evas_gl_common_viewport_set(gc,0);
      }
 }
 

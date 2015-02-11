@@ -103,11 +103,7 @@ EAPI Eina_Error EINA_ERROR_NOT_MAIN_LOOP = 0;
 EAPI unsigned int eina_seed = 0;
 
 #ifdef EFL_HAVE_THREADS
-# ifdef _WIN32
-EAPI DWORD _eina_main_loop;
-# else
 EAPI pthread_t _eina_main_loop;
-# endif
 #endif
 
 #ifdef MT
@@ -116,10 +112,8 @@ static int _mt_enabled = 0;
 
 #ifdef EFL_HAVE_THREADS
 EAPI int _eina_threads_debug = 0;
-# if !defined(_WIN32)
 EAPI pthread_mutex_t _eina_tracking_lock;
 EAPI Eina_Inlist *_eina_tracking = NULL;
-# endif
 #endif
 
 /* place module init/shutdown functions here to avoid other modules
@@ -279,11 +273,7 @@ eina_init(void)
      }
 
 #ifdef EFL_HAVE_THREADS
-# ifdef _WIN32
-   _eina_main_loop = GetCurrentThreadId();
-# else
    _eina_main_loop = pthread_self();
-# endif
 #endif
 
 #ifdef EINA_HAVE_DEBUG_THREADS
@@ -423,17 +413,9 @@ EAPI Eina_Bool
 eina_main_loop_is(void)
 {
 #ifdef EFL_HAVE_THREADS
-
-# ifdef _WIN32
-   if (_eina_main_loop == GetCurrentThreadId())
+  if (pthread_equal(_eina_main_loop, pthread_self()))
      return EINA_TRUE;
-# else
-   if (pthread_equal(_eina_main_loop, pthread_self()))
-     return EINA_TRUE;
-# endif
-
 #endif
-
    return EINA_FALSE;
 }
 
@@ -442,11 +424,7 @@ EAPI void
 eina_main_loop_define(void)
 {
 #ifdef EFL_HAVE_THREADS
-# ifdef _WIN32
-   _eina_main_loop = GetCurrentThreadId();
-# else
    _eina_main_loop = pthread_self();
-# endif
 #endif
 }
 

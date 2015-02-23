@@ -71,7 +71,9 @@ lib/evas/Evas_Common.h \
 lib/evas/Evas_Eo.h \
 lib/evas/Evas_Legacy.h \
 lib/evas/Evas_GL.h \
-lib/evas/Evas_Loader.h
+lib/evas/Evas_Loader.h \
+lib/evas/Evas_GL_GLES1_Helpers.h \
+lib/evas/Evas_GL_GLES2_Helpers.h
 
 installed_evascanvasheadersdir = $(includedir)/evas-@VMAJ@/canvas
 nodist_installed_evascanvasheaders_DATA = \

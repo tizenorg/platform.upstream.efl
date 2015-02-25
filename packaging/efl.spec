@@ -567,6 +567,7 @@ export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed "
     --disable-cxx-bindings \
     --enable-systemd \
     --enable-lua-old \
+    --enable-harfbuzz \
     --enable-i-really-know-what-i-am-doing-and-that-this-will-probably-break-things-and-i-will-fix-them-myself-and-send-patches-aba
 #    --enable-always-build-examples \
 

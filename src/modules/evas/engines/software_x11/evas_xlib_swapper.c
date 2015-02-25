@@ -338,14 +338,21 @@ static void *tbm_lib = NULL;
 
 typedef struct _tbm_bufmgr *tbm_bufmgr;
 typedef struct _tbm_bo *tbm_bo;
+
+typedef union _tbm_bo_handle
+{
+   void     *ptr;
+   int32_t  s32;
+   uint32_t u32;
+   int64_t  s64;
+   uint64_t u64;
+} tbm_bo_handle;
+
 static tbm_bo (*sym_tbm_bo_import) (tbm_bufmgr bufmgr, unsigned int key) = NULL;
-// XXXX: sym_tbm_bo_map() is incorrectly defined - it SHOULD return a
-// void * at least
-static void *(*sym_tbm_bo_map) (tbm_bo bo, int device, int opt) = NULL;
-static int (*sym_tbm_bo_unmap)  (tbm_bo bo, int device) = NULL;
+static tbm_bo_handle (*sym_tbm_bo_map) (tbm_bo bo, int device, int opt) = NULL;
+static int (*sym_tbm_bo_unmap)  (tbm_bo bo) = NULL;
 static void (*sym_tbm_bo_unref) (tbm_bo bo) = NULL;
-static tbm_bufmgr (*sym_tbm_bufmgr_init) (int fd, void *arg) = NULL;
-static void (*sym_tbm_bufmgr_destroy) (tbm_bufmgr bufmgr) = NULL;
+static tbm_bufmgr (*sym_tbm_bufmgr_init) (int fd) = NULL;
 
 ////////////////////////////////////
 // libdri2.so.0
@@ -490,7 +497,6 @@ _drm_init(Display *disp, int scr)
    SYM(tbm_lib, tbm_bo_unmap);
    SYM(tbm_lib, tbm_bo_unref);
    SYM(tbm_lib, tbm_bufmgr_init);
-   SYM(tbm_lib, tbm_bufmgr_destroy);
 
    SYM(dri_lib, DRI2GetBuffers);
    SYM(dri_lib, DRI2QueryExtension);
@@ -563,7 +569,7 @@ _drm_init(Display *disp, int scr)
         goto err;
      }
 
-   if (!(bufmgr = sym_tbm_bufmgr_init(drm_fd, NULL)))
+   if (!(bufmgr = sym_tbm_bufmgr_init(drm_fd)))
      {
         if (swap_debug) ERR("DRM bufmgr init failed");
         goto err;
@@ -774,11 +780,13 @@ evas_xlib_swapper_buffer_map(X_Swapper *swp, int *bpl, int *w, int *h)
                }
           }
      }
-   // XXXX: sym_tbm_bo_map() is incorrectly defined - it SHOULD return a
-   // void * at least
-   swp->buf_data = sym_tbm_bo_map(swp->buf_bo, TBM_DEVICE_CPU,
-                                               TBM_OPTION_READ |
-                                               TBM_OPTION_WRITE);
+
+   tbm_bo_handle bo_handle;
+
+   bo_handle = sym_tbm_bo_map (swp->buf_bo, TBM_DEVICE_CPU, TBM_OPTION_READ |TBM_OPTION_WRITE);
+   /* If device is DEFAULT, 2D, 3D, MM,then swp->buf_data = bo_handle.u32 */
+   swp->buf_data = bo_handle.ptr;
+
    if (!swp->buf_data)
      {
         ERR("Buffer map name %i failed", swp->buf->name);
@@ -802,7 +810,7 @@ void
 evas_xlib_swapper_buffer_unmap(X_Swapper *swp)
 {
    if (!swp->mapped) return;
-   sym_tbm_bo_unmap(swp->buf_bo, TBM_DEVICE_CPU);
+   sym_tbm_bo_unmap(swp->buf_bo);
    if (swap_debug) printf("Unmap buffer name %i\n", swp->buf->name);
    free(swp->buf);
    swp->buf = NULL;

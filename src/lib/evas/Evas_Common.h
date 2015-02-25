@@ -129,6 +129,8 @@ typedef enum _Evas_Callback_Type
 
    EVAS_CALLBACK_IMAGE_RESIZE, /**< Image size is changed @since 1.8 */
    EVAS_CALLBACK_DEVICE_CHANGED, /**< Devices added, removed or changed on canvas @since 1.8 */
+
+   EVAS_CALLBACK_AXIS_UPDATE, /**< Input device changed value on some axis @since 1.13 */
    EVAS_CALLBACK_LAST /**< kept as last element/sentinel -- not really an event */
 } Evas_Callback_Type; /**< The types of events triggering a callback */
 
@@ -420,6 +422,8 @@ typedef struct _Evas_Event_Key_Down      Evas_Event_Key_Down; /**< Event structu
 typedef struct _Evas_Event_Key_Up        Evas_Event_Key_Up; /**< Event structure for #EVAS_CALLBACK_KEY_UP event callbacks */
 typedef struct _Evas_Event_Hold          Evas_Event_Hold; /**< Event structure for #EVAS_CALLBACK_HOLD event callbacks */
 typedef struct _Evas_Event_Render_Post   Evas_Event_Render_Post; /**< Event structure that may come with #EVAS_CALLBACK_RENDER_POST event callbacks @since 1.8 */
+typedef struct _Evas_Axis                Evas_Axis; /**< Details for a single device axis state @since 1.13 */
+typedef struct _Evas_Event_Axis_Update   Evas_Event_Axis_Update; /**< Event structure for #EVAS_CALLBACK_AXIS_UPDATE event callbacks @since 1.13 */
 
 typedef enum _Evas_Alloc_Error
 {
@@ -457,7 +461,7 @@ struct _Evas_Pixel_Import_Source
  * Magic version number to know what the native surface struct looks like
  */
 
-#define EVAS_NATIVE_SURFACE_VERSION 2
+#define EVAS_NATIVE_SURFACE_VERSION 3
 
 /**
  * Native surface types that image object supports
@@ -470,6 +474,7 @@ typedef enum _Evas_Native_Surface_Type
    EVAS_NATIVE_SURFACE_NONE, /**< No surface type */
    EVAS_NATIVE_SURFACE_X11,  /**< X Window system based type. pixmap id or visual of the pixmap */
    EVAS_NATIVE_SURFACE_OPENGL, /**< OpenGL system based type. texture or framebuffer id*/
+   EVAS_NATIVE_SURFACE_WL, /**< Wayland system based type. buffer of surface */
    // TIZEN ONLY (20150112) : NOT FIXED
    EVAS_NATIVE_SURFACE_TIZEN,
    EVAS_NATIVE_SURFACE_TBM    /**< Tizen system based type. This is used for tizen buffer manager. */
@@ -484,13 +489,21 @@ typedef enum _Evas_Native_Surface_Type
  * EVAS_NATIVE_SURFACE_X11, you need to set union data with x11.visual or
  * x11.pixmap. If you need to set the native surface as
  * EVAS_NATIVE_SURFACE_OPENGL, on the other hand, you need to set union data
- * with opengl.texture_id or opengl.framebuffer_id and so on. The version field
+ * with opengl.texture_id or opengl.framebuffer_id and so on.
+ * If you need to set the native surface as EVAS_NATIVE_SURFACE_WL,
+ * you need to set union data with wl.legacy_buffer. The version field
  * should be set with EVAS_NATIVE_SURFACE_VERSION in order to check abi
  * break in your application on the different efl library versions.
  *
  * @warning Native surface types totally depend on the system. Please
  *          be aware that the types are supported on your system before using
  *          them.
+ *
+ * @note The information stored in an @c Evas_Native_Surface returned by
+ *       @ref evas_gl_native_surface_get() is not meant to be used by
+ *       applications except for passing it to
+ *       @ref evas_object_image_native_surface_set().
+ *
  * @see evas_object_image_native_surface_set()
  */
 struct _Evas_Native_Surface
@@ -512,6 +525,11 @@ struct _Evas_Native_Surface
          unsigned int format; /**< same as 'format' for glTexImage2D() */
          unsigned int x, y, w, h; /**< region inside the texture to use (image size is assumed as texture size, with 0, 0 being the top-left and co-ordinates working down to the right and bottom being positive) */
       } opengl; /**< Set this struct fields if surface data is OpenGL based. */
+
+      struct
+      {
+         void *legacy_buffer; /**< wayland client buffer to use */
+      } wl; /**< Set this struct fields if surface data is Wayland based. */
 
       // TIZEN ONLY (20150113) : NOT FIXED
       struct
@@ -862,6 +880,41 @@ struct _Evas_Event_Hold /** Hold change event */
    unsigned int     timestamp;
    Evas_Event_Flags event_flags;
    Evas_Device     *dev;
+};
+
+typedef enum _Evas_Axis_Label
+{
+   EVAS_AXIS_LABEL_UNKNOWN,       /**< Axis containing unknown (or not yet representable) data. Range: Unbounded. Unit: Undefined. @since 1.13 */
+   EVAS_AXIS_LABEL_X,             /**< Position along physical X axis; not window relative. Range: Unbounded. Unit: Undefined. @since 1.13 */
+   EVAS_AXIS_LABEL_Y,             /**< Position along physical Y axis; not window relative. Range: Unbounded. Unit: Undefined. @since 1.13 */
+   EVAS_AXIS_LABEL_PRESSURE,      /**< Force applied to tool tip. Range: [0.0, 1.0]. Unit: Unitless. @since 1.13 */
+   EVAS_AXIS_LABEL_DISTANCE,      /**< Relative distance along physical Z axis. Range: [0.0, 1.0]. Unit: Unitless @since 1.13 */
+   EVAS_AXIS_LABEL_AZIMUTH,       /**< Angle of tool about the Z axis from positive X axis. Range: [-PI, PI]. Unit: Radians. @since 1.13 */
+   EVAS_AXIS_LABEL_TILT,          /**< Angle of tool about plane of sensor from positive Z axis. Range: [0.0, PI]. Unit: Radians. @since 1.13 */
+   EVAS_AXIS_LABEL_TWIST,         /**< Rotation of tool about its major axis from its "natural" position. Range: [-PI, PI] Unit: Radians. @since 1.13 */
+   EVAS_AXIS_LABEL_TOUCH_WIDTH_MAJOR,   /**< Length of contact ellipse along AZIMUTH. Range: Unbounded: Unit: Same as EVAS_AXIS_LABEL_{X,Y}. @since 1.13 */
+   EVAS_AXIS_LABEL_TOUCH_WIDTH_MINOR,   /**< Length of contact ellipse perpendicular to AZIMUTH. Range: Unbounded. Unit: Same as EVAS_AXIS_LABEL_{X,Y}. @since 1.13 */
+   EVAS_AXIS_LABEL_TOOL_WIDTH_MAJOR,    /**< Length of tool ellipse along AZIMUTH. Range: Unbounded. Unit: Same as EVAS_AXIS_LABEL_{X,Y}. @since 1.13 */
+   EVAS_AXIS_LABEL_TOOL_WIDTH_MINOR     /**< Length of tool ellipse perpendicular to AZIMUTH. Range: Unbounded. Unit: Same as EVAS_AXIS_LABEL_{X,Y}. @since 1.13 */
+} Evas_Axis_Label; /**< Types of recognized device axes @since 1.13 */
+
+struct _Evas_Axis
+{
+   Evas_Axis_Label label;
+   double value;
+};
+
+struct _Evas_Event_Axis_Update
+{
+   void             *data;
+
+   unsigned int timestamp;
+   int device;
+   int toolid;
+
+   int naxis;
+   Evas_Axis *axis;
+   Evas_Device *dev;
 };
 
 /**
@@ -2381,6 +2434,33 @@ EAPI void            evas_map_alpha_set(Evas_Map *m, Eina_Bool enabled);
  * @return EINA_FALSE if map is NULL EINA_TRUE otherwise.
  */
 EAPI Eina_Bool       evas_map_alpha_get(const Evas_Map *m);
+
+/**
+ * Set the flag of the object move synchronization for map rendering
+ *
+ * This sets the flag of the object move synchronization for map rendering.
+ * If the flag is set as enabled, the map will be moved as the object of the map
+ * is moved. By default, the flag of the object move synchronization is not
+ * enabled.
+ *
+ * @param m map to modify. Must not be NULL.
+ * @param enabled enable or disable the object move synchronization for map
+ *        rendering.
+ * @since 1.13
+ */
+EAPI void            evas_map_util_object_move_sync_set(Evas_Map *m, Eina_Bool enabled);
+
+/**
+ * Get the flag of the object move synchronization for map rendering
+ *
+ * This gets the flag of the object move synchronization for map rendering.
+ *
+ * @param m map to get the flag of the object move synchronization from. Must
+ * not be NULL.
+ * @return EINA_FALSE if map is NULL EINA_TRUE otherwise.
+ * @since 1.13
+ */
+EAPI Eina_Bool       evas_map_util_object_move_sync_get(const Evas_Map *m);
 
 /**
  * Copy a previously allocated map.
@@ -4013,6 +4093,7 @@ EAPI Eina_List                               *evas_textblock_cursor_range_geomet
  * Get the simple geometry of a range.
  * The simple geometry is the geomtry in which rectangles in middle
  * lines of range are merged into one big rectangle.
+ * @since 1.13
  *
  * @param cur1 one side of the range.
  * @param cur2 other side of the range.

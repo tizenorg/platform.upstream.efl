@@ -22,8 +22,14 @@
 
 #define VERBOSE_PROXY_ERROR 1
 
+/* save typing */
+#define ENFN obj->layer->evas->engine.func
+#define ENDT obj->layer->evas->engine.data.output
+
 /* private magic number for image objects */
 static const char o_type[] = "image";
+
+const char *o_image_type = o_type;
 
 /* private struct for rectangle object internal data */
 typedef struct _Evas_Object_Image Evas_Image_Data;
@@ -72,6 +78,8 @@ struct _Evas_Object_Image_State
       unsigned char fill;
    } border;
 
+   const Evas_Object_Filter_Data *filter;
+
    Evas_Object   *source;
    Evas_Map      *defmap;
    Evas_3D_Scene *scene;
@@ -85,8 +93,6 @@ struct _Evas_Object_Image_State
    int            spread;
 
    Evas_Colorspace cspace;
-
-   const Evas_Object_Filter_Data *filter;
 
    Eina_Bool      smooth_scale : 1;
    Eina_Bool      has_alpha :1;
@@ -224,13 +230,13 @@ static const Evas_Object_Image_State default_state = {
   { 0, 0, 0, 0 }, // fill
   { 0, 0, 0 }, // image
   { 1.0, 0, 0, 0, 0, 1 }, // border
+  NULL, // filter
   NULL, NULL, NULL,  //source, defmap, scene
   { NULL }, //u
   NULL, //key
   0, //frame
   EVAS_TEXTURE_REPEAT,
   EVAS_COLORSPACE_ARGB8888,
-  NULL, // filter
 
   // flags
   EINA_TRUE, EINA_FALSE, EINA_FALSE, EINA_FALSE, EINA_FALSE
@@ -294,9 +300,7 @@ _evas_object_image_cleanup(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj,
    if ((o->preloading) && (o->engine_data))
      {
         o->preloading = EINA_FALSE;
-        obj->layer->evas->engine.func->image_data_preload_cancel(obj->layer->evas->engine.data.output,
-                                                                 o->engine_data,
-                                                                 eo_obj);
+        ENFN->image_data_preload_cancel(ENDT, o->engine_data, eo_obj);
      }
    if (o->cur->source) _proxy_unset(eo_obj, obj, o);
    if (o->cur->scene) _3d_unset(eo_obj, obj, o);
@@ -361,8 +365,7 @@ _evas_image_eo_base_constructor(Eo *eo_obj, Evas_Image_Data *o)
    o->prev = eina_cow_alloc(evas_object_image_state_cow);
    o->proxy_src_clip = EINA_TRUE;
 
-   cspace = obj->layer->evas->engine.func->image_colorspace_get(obj->layer->evas->engine.data.output,
-                                                                o->engine_data);
+   cspace = ENFN->image_colorspace_get(ENDT, o->engine_data);
 
    if (!o->cur->filter || (cspace != o->cur->cspace))
      {
@@ -459,9 +462,9 @@ _image_init_set(const Eina_File *f, const char *file, const char *key,
         if (o->preloading)
           {
              o->preloading = EINA_FALSE;
-             obj->layer->evas->engine.func->image_data_preload_cancel(obj->layer->evas->engine.data.output, o->engine_data, eo_obj);
+             ENFN->image_data_preload_cancel(ENDT, o->engine_data, eo_obj);
           }
-        obj->layer->evas->engine.func->image_free(obj->layer->evas->engine.data.output, o->engine_data);
+        ENFN->image_free(ENDT, o->engine_data);
      }
    o->load_error = EVAS_LOAD_ERROR_NONE;
    lo->scale_down_by = o->load_opts->scale_down_by;
@@ -494,16 +497,16 @@ _image_done_set(Eo *eo_obj, Evas_Object_Protected_Data *obj, Evas_Image_Data *o)
         int w, h;
         int stride;
 
-        obj->layer->evas->engine.func->image_size_get(obj->layer->evas->engine.data.output, o->engine_data, &w, &h);
-        if (obj->layer->evas->engine.func->image_stride_get)
-          obj->layer->evas->engine.func->image_stride_get(obj->layer->evas->engine.data.output, o->engine_data, &stride);
+        ENFN->image_size_get(ENDT, o->engine_data, &w, &h);
+        if (ENFN->image_stride_get)
+          ENFN->image_stride_get(ENDT, o->engine_data, &stride);
         else
           stride = w * 4;
 
         EINA_COW_IMAGE_STATE_WRITE_BEGIN(o, state_write)
           {
-             state_write->has_alpha = obj->layer->evas->engine.func->image_alpha_get(obj->layer->evas->engine.data.output, o->engine_data);
-             state_write->cspace = obj->layer->evas->engine.func->image_colorspace_get(obj->layer->evas->engine.data.output, o->engine_data);
+             state_write->has_alpha = ENFN->image_alpha_get(ENDT, o->engine_data);
+             state_write->cspace = ENFN->image_colorspace_get(ENDT, o->engine_data);
 
              if ((o->cur->image.w != w) || (o->cur->image.h != h))
                resize_call = EINA_TRUE;
@@ -556,11 +559,7 @@ _evas_image_efl_file_mmap_set(Eo *eo_obj,
      }
 
    _image_init_set(f, NULL, key, eo_obj, obj, o, &lo);
-   o->engine_data = obj->layer->evas->engine.func->image_mmap(obj->layer->evas->engine.data.output,
-							      o->cur->u.f,
-							      o->cur->key,
-							      &o->load_error,
-							      &lo);
+   o->engine_data = ENFN->image_mmap(ENDT, o->cur->u.f, o->cur->key, &o->load_error, &lo);
    _image_done_set(eo_obj, obj, o);
 
    return EINA_TRUE;
@@ -593,16 +592,10 @@ _evas_image_efl_file_file_set(Eo *eo_obj, Evas_Image_Data *o, const char *file, 
    /*
     * WTF? why cancel a null image preload? this is just silly (tm)
     if (!o->engine_data)
-     obj->layer->evas->engine.func->image_data_preload_cancel(obj->layer->evas->engine.data.output,
-							      o->engine_data,
-							      eo_obj);
+     ENFN->image_data_preload_cancel(ENDT, o->engine_data, eo_obj);
  */
    _image_init_set(NULL, file, key, eo_obj, obj, o, &lo);
-   o->engine_data = obj->layer->evas->engine.func->image_load(obj->layer->evas->engine.data.output,
-                                                              o->cur->u.file,
-                                                              o->cur->key,
-                                                              &o->load_error,
-                                                              &lo);
+   o->engine_data = ENFN->image_load(ENDT, o->cur->u.file, o->cur->key, &o->load_error, &lo);
    _image_done_set(eo_obj, obj, o);
 
    return EINA_TRUE;
@@ -801,11 +794,7 @@ _evas_image_scene_set(Eo *eo_obj, Evas_Image_Data *o, Evas_3D_Scene *scene)
    if (o->cur->scene == scene) return;
 
    _image_init_set(NULL, NULL, NULL, eo_obj, obj, o, &lo);
-   o->engine_data = obj->layer->evas->engine.func->image_load(obj->layer->evas->engine.data.output,
-                                                              o->cur->u.file,
-                                                              o->cur->key,
-                                                              &o->load_error,
-                                                              &lo);
+   o->engine_data = ENFN->image_load(ENDT, o->cur->u.file, o->cur->key, &o->load_error, &lo);
    _image_done_set(eo_obj, obj, o);
 
    if (scene) _3d_set(eo_obj, scene);
@@ -1008,26 +997,19 @@ _evas_image_size_set(Eo *eo_obj, Evas_Image_Data *o, int w, int h)
    EINA_COW_IMAGE_STATE_WRITE_END(o, state_write);
 
    if (o->engine_data)
-      o->engine_data = obj->layer->evas->engine.func->image_size_set(obj->layer->evas->engine.data.output, o->engine_data, w, h);
+      o->engine_data = ENFN->image_size_set(ENDT, o->engine_data, w, h);
    else
-      o->engine_data = obj->layer->evas->engine.func->image_new_from_copied_data
-      (obj->layer->evas->engine.data.output, w, h, NULL, o->cur->has_alpha,
-          o->cur->cspace);
+      o->engine_data = ENFN->image_new_from_copied_data
+        (ENDT, w, h, NULL, o->cur->has_alpha, o->cur->cspace);
 
    if (o->engine_data)
      {
-        if (obj->layer->evas->engine.func->image_scale_hint_set)
-           obj->layer->evas->engine.func->image_scale_hint_set
-           (obj->layer->evas->engine.data.output,
-               o->engine_data, o->scale_hint);
-        if (obj->layer->evas->engine.func->image_content_hint_set)
-           obj->layer->evas->engine.func->image_content_hint_set
-           (obj->layer->evas->engine.data.output,
-               o->engine_data, o->content_hint);
-        if (obj->layer->evas->engine.func->image_stride_get)
-           obj->layer->evas->engine.func->image_stride_get
-           (obj->layer->evas->engine.data.output,
-               o->engine_data, &stride);
+        if (ENFN->image_scale_hint_set)
+           ENFN->image_scale_hint_set(ENDT, o->engine_data, o->scale_hint);
+        if (ENFN->image_content_hint_set)
+           ENFN->image_content_hint_set(ENDT, o->engine_data, o->content_hint);
+        if (ENFN->image_stride_get)
+           ENFN->image_stride_get(ENDT, o->engine_data, &stride);
         else
            stride = w * 4;
      }
@@ -1039,9 +1021,7 @@ _evas_image_size_set(Eo *eo_obj, Evas_Image_Data *o, int w, int h)
 
 /* FIXME - in engine call above
    if (o->engine_data)
-     o->engine_data = obj->layer->evas->engine.func->image_alpha_set(obj->layer->evas->engine.data.output,
-								     o->engine_data,
-								     o->cur->has_alpha);
+     o->engine_data = ENFN->image_alpha_set(ENDT, o->engine_data, o->cur->has_alpha);
 */
         EINA_COW_WRITE_BEGIN(evas_object_image_state_cow, o->prev, Evas_Object_Image_State, prev_write)
           EVAS_OBJECT_IMAGE_FREE_FILE_AND_KEY(cur_write, prev_write);
@@ -1084,18 +1064,18 @@ _evas_image_data_convert(Eo *eo_obj, Evas_Image_Data *o, Evas_Colorspace to_cspa
    if ((o->preloading) && (o->engine_data))
      {
         o->preloading = EINA_FALSE;
-        obj->layer->evas->engine.func->image_data_preload_cancel(obj->layer->evas->engine.data.output, o->engine_data, eo_obj);
+        ENFN->image_data_preload_cancel(ENDT, o->engine_data, eo_obj);
      }
    if (!o->engine_data) return NULL;
    if (o->video_surface)
      o->pixels->video.update_pixels(o->pixels->video.data, eo_obj, &o->pixels->video);
    if (o->cur->cspace == to_cspace) return NULL;
    data = NULL;
-   o->engine_data = obj->layer->evas->engine.func->image_data_get(obj->layer->evas->engine.data.output, o->engine_data, 0, &data, &o->load_error);
+   o->engine_data = ENFN->image_data_get(ENDT, o->engine_data, 0, &data, &o->load_error);
    result = evas_object_image_data_convert_internal(o, data, to_cspace);
    if (o->engine_data)
      {
-        o->engine_data = obj->layer->evas->engine.func->image_data_put(obj->layer->evas->engine.data.output, o->engine_data, data);
+        o->engine_data = ENFN->image_data_put(ENDT, o->engine_data, data);
      }
 
    return result;
@@ -1117,39 +1097,31 @@ _evas_image_data_set(Eo *eo_obj, Evas_Image_Data *o, void *data)
      {
         if (o->engine_data)
           {
-             o->engine_data =
-               obj->layer->evas->engine.func->image_data_put(obj->layer->evas->engine.data.output,
-                                                             o->engine_data,
-                                                             data);
+             o->engine_data = ENFN->image_data_put(ENDT, o->engine_data, data);
           }
         else
           {
-             o->engine_data =
-                obj->layer->evas->engine.func->image_new_from_data(obj->layer->evas->engine.data.output,
-                                                                  o->cur->image.w,
-                                                                  o->cur->image.h,
-                                                                  data,
-                                                                  o->cur->has_alpha,
-                                                                  o->cur->cspace);
+             o->engine_data = ENFN->image_new_from_data(ENDT,
+                                                        o->cur->image.w,
+                                                        o->cur->image.h,
+                                                        data,
+                                                        o->cur->has_alpha,
+                                                        o->cur->cspace);
           }
         if (o->engine_data)
           {
              int stride = 0;
 
-             if (obj->layer->evas->engine.func->image_scale_hint_set)
-                obj->layer->evas->engine.func->image_scale_hint_set
-                (obj->layer->evas->engine.data.output,
-                    o->engine_data, o->scale_hint);
-             if (obj->layer->evas->engine.func->image_content_hint_set)
-                obj->layer->evas->engine.func->image_content_hint_set
-                (obj->layer->evas->engine.data.output,
-                    o->engine_data, o->content_hint);
-             if (obj->layer->evas->engine.func->image_stride_get)
-                obj->layer->evas->engine.func->image_stride_get
-                (obj->layer->evas->engine.data.output,
-                    o->engine_data, &stride);
+             if (ENFN->image_scale_hint_set)
+               ENFN->image_scale_hint_set(ENDT, o->engine_data, o->scale_hint);
+
+             if (ENFN->image_content_hint_set)
+               ENFN->image_content_hint_set(ENDT, o->engine_data, o->content_hint);
+
+             if (ENFN->image_stride_get)
+               ENFN->image_stride_get(ENDT, o->engine_data, &stride);
              else
-                stride = o->cur->image.w * 4;
+               stride = o->cur->image.w * 4;
 
              if (o->cur->image.stride != stride)
                {
@@ -1163,7 +1135,7 @@ _evas_image_data_set(Eo *eo_obj, Evas_Image_Data *o, void *data)
    else
      {
         if (o->engine_data)
-          obj->layer->evas->engine.func->image_free(obj->layer->evas->engine.data.output, o->engine_data);
+          ENFN->image_free(ENDT, o->engine_data);
         o->load_error = EVAS_LOAD_ERROR_NONE;
         if ((o->cur->image.w != 0) || (o->cur->image.h != 0))
           resize_call = EINA_TRUE;
@@ -1180,9 +1152,7 @@ _evas_image_data_set(Eo *eo_obj, Evas_Image_Data *o, void *data)
      }
 /* FIXME - in engine call above
    if (o->engine_data)
-     o->engine_data = obj->layer->evas->engine.func->image_alpha_set(obj->layer->evas->engine.data.output,
-								     o->engine_data,
-								     o->cur->has_alpha);
+     o->engine_data = ENFN->image_alpha_set(ENDT, o->engine_data, o->cur->has_alpha);
 */
    if (o->pixels_checked_out > 0) o->pixels_checked_out--;
    if (p_data != o->engine_data)
@@ -1206,15 +1176,11 @@ _evas_image_data_get(Eo *eo_obj, Evas_Image_Data *_pd EINA_UNUSED, Eina_Bool for
    if (for_writing) evas_render_rendering_wait(obj->layer->evas);
 
    data = NULL;
-   if (obj->layer->evas->engine.func->image_scale_hint_set)
-      obj->layer->evas->engine.func->image_scale_hint_set
-      (obj->layer->evas->engine.data.output,
-          o->engine_data, o->scale_hint);
-   if (obj->layer->evas->engine.func->image_content_hint_set)
-      obj->layer->evas->engine.func->image_content_hint_set
-      (obj->layer->evas->engine.data.output,
-          o->engine_data, o->content_hint);
-   o->engine_data = obj->layer->evas->engine.func->image_data_get(obj->layer->evas->engine.data.output, o->engine_data, for_writing, &data, &o->load_error);
+   if (ENFN->image_scale_hint_set)
+     ENFN->image_scale_hint_set(ENDT, o->engine_data, o->scale_hint);
+   if (ENFN->image_content_hint_set)
+     ENFN->image_content_hint_set(ENDT, o->engine_data, o->content_hint);
+   o->engine_data = ENFN->image_data_get(ENDT, o->engine_data, for_writing, &data, &o->load_error);
 
    /* if we fail to get engine_data, we have to return NULL */
    if (!o->engine_data) return NULL;
@@ -1223,12 +1189,10 @@ _evas_image_data_get(Eo *eo_obj, Evas_Image_Data *_pd EINA_UNUSED, Eina_Bool for
      {
         int stride = 0;
 
-        if (obj->layer->evas->engine.func->image_stride_get)
-           obj->layer->evas->engine.func->image_stride_get
-           (obj->layer->evas->engine.data.output,
-               o->engine_data, &stride);
+        if (ENFN->image_stride_get)
+          ENFN->image_stride_get(ENDT, o->engine_data, &stride);
         else
-           stride = o->cur->image.w * 4;
+          stride = o->cur->image.w * 4;
 
         if (o->cur->image.stride != stride)
           {
@@ -1278,9 +1242,7 @@ _image_preload_internal(Eo *eo_obj, void *_pd, Eina_Bool cancel)
         if (o->preloading)
           {
              o->preloading = EINA_FALSE;
-             obj->layer->evas->engine.func->image_data_preload_cancel(obj->layer->evas->engine.data.output,
-                                                                      o->engine_data,
-                                                                      eo_obj);
+             ENFN->image_data_preload_cancel(ENDT, o->engine_data, eo_obj);
           }
      }
    else
@@ -1288,9 +1250,7 @@ _image_preload_internal(Eo *eo_obj, void *_pd, Eina_Bool cancel)
         if (!o->preloading)
           {
              o->preloading = EINA_TRUE;
-             obj->layer->evas->engine.func->image_data_preload_request(obj->layer->evas->engine.data.output,
-                                                                       o->engine_data,
-                                                                       eo_obj);
+             ENFN->image_data_preload_request(ENDT, o->engine_data, eo_obj);
           }
      }
 }
@@ -1317,37 +1277,27 @@ _evas_image_data_copy_set(Eo *eo_obj, Evas_Image_Data *o, void *data)
    if ((o->cur->image.w <= 0) ||
        (o->cur->image.h <= 0)) return;
    if (o->engine_data)
-     obj->layer->evas->engine.func->image_free(obj->layer->evas->engine.data.output,
-                                               o->engine_data);
-   o->engine_data =
-     obj->layer->evas->engine.func->image_new_from_copied_data(obj->layer->evas->engine.data.output,
-                                                               o->cur->image.w,
-                                                               o->cur->image.h,
-                                                               data,
-                                                               o->cur->has_alpha,
-                                                               o->cur->cspace);
+     ENFN->image_free(ENDT, o->engine_data);
+   o->engine_data = ENFN->image_new_from_copied_data(ENDT,
+                                                     o->cur->image.w,
+                                                     o->cur->image.h,
+                                                     data,
+                                                     o->cur->has_alpha,
+                                                     o->cur->cspace);
    if (o->engine_data)
      {
         int stride = 0;
 
         o->engine_data =
-          obj->layer->evas->engine.func->image_alpha_set(obj->layer->evas->engine.data.output,
-                                                         o->engine_data,
-                                                         o->cur->has_alpha);
-        if (obj->layer->evas->engine.func->image_scale_hint_set)
-           obj->layer->evas->engine.func->image_scale_hint_set
-           (obj->layer->evas->engine.data.output,
-               o->engine_data, o->scale_hint);
-        if (obj->layer->evas->engine.func->image_content_hint_set)
-           obj->layer->evas->engine.func->image_content_hint_set
-           (obj->layer->evas->engine.data.output,
-               o->engine_data, o->content_hint);
-        if (obj->layer->evas->engine.func->image_stride_get)
-           obj->layer->evas->engine.func->image_stride_get
-           (obj->layer->evas->engine.data.output,
-               o->engine_data, &stride);
+          ENFN->image_alpha_set(ENDT, o->engine_data, o->cur->has_alpha);
+        if (ENFN->image_scale_hint_set)
+          ENFN->image_scale_hint_set(ENDT, o->engine_data, o->scale_hint);
+        if (ENFN->image_content_hint_set)
+          ENFN->image_content_hint_set(ENDT, o->engine_data, o->content_hint);
+        if (ENFN->image_stride_get)
+          ENFN->image_stride_get(ENDT, o->engine_data, &stride);
         else
-           stride = o->cur->image.w * 4;
+          stride = o->cur->image.w * 4;
 
         if (o->cur->image.stride != stride)
           {
@@ -1410,9 +1360,7 @@ _evas_image_alpha_set(Eo *eo_obj, Evas_Image_Data *o, Eina_Bool has_alpha)
    if ((o->preloading) && (o->engine_data))
      {
         o->preloading = EINA_FALSE;
-        obj->layer->evas->engine.func->image_data_preload_cancel(obj->layer->evas->engine.data.output,
-                                                                 o->engine_data,
-                                                                 eo_obj);
+        ENFN->image_data_preload_cancel(ENDT, o->engine_data, eo_obj);
      }
    if (((has_alpha) && (o->cur->has_alpha)) ||
        ((!has_alpha) && (!o->cur->has_alpha)))
@@ -1427,24 +1375,16 @@ _evas_image_alpha_set(Eo *eo_obj, Evas_Image_Data *o, Eina_Bool has_alpha)
      {
         int stride = 0;
 
-        o->engine_data =
-          obj->layer->evas->engine.func->image_alpha_set(obj->layer->evas->engine.data.output,
-                                                         o->engine_data,
-                                                         o->cur->has_alpha);
-        if (obj->layer->evas->engine.func->image_scale_hint_set)
-           obj->layer->evas->engine.func->image_scale_hint_set
-           (obj->layer->evas->engine.data.output,
-               o->engine_data, o->scale_hint);
-        if (obj->layer->evas->engine.func->image_content_hint_set)
-           obj->layer->evas->engine.func->image_content_hint_set
-           (obj->layer->evas->engine.data.output,
-               o->engine_data, o->content_hint);
-        if (obj->layer->evas->engine.func->image_stride_get)
-           obj->layer->evas->engine.func->image_stride_get
-           (obj->layer->evas->engine.data.output,
-               o->engine_data, &stride);
+        o->engine_data = ENFN->image_alpha_set(ENDT, o->engine_data, o->cur->has_alpha);
+        if (ENFN->image_scale_hint_set)
+          ENFN->image_scale_hint_set(ENDT, o->engine_data, o->scale_hint);
+        if (ENFN->image_content_hint_set)
+          ENFN->image_content_hint_set (ENDT, o->engine_data, o->content_hint);
+        if (ENFN->image_stride_get)
+          ENFN->image_stride_get(ENDT, o->engine_data, &stride);
         else
-           stride = o->cur->image.w * 4;
+          stride = o->cur->image.w * 4;
+
         if (o->cur->image.stride != stride)
           {
              EINA_COW_IMAGE_STATE_WRITE_BEGIN(o, state_write)
@@ -1494,14 +1434,12 @@ _evas_image_reload(Eo *eo_obj, Evas_Image_Data *o)
    if ((o->preloading) && (o->engine_data))
      {
         o->preloading = EINA_FALSE;
-        obj->layer->evas->engine.func->image_data_preload_cancel(obj->layer->evas->engine.data.output,
-                                                                 o->engine_data,
-                                                                 eo_obj);
+        ENFN->image_data_preload_cancel(ENDT, o->engine_data, eo_obj);
      }
    if ((!o->cur->u.file) ||
        (o->pixels_checked_out > 0)) return;
    if (o->engine_data)
-     o->engine_data = obj->layer->evas->engine.func->image_dirty_region(obj->layer->evas->engine.data.output, o->engine_data, 0, 0, o->cur->image.w, o->cur->image.h);
+     o->engine_data = ENFN->image_dirty_region(ENDT, o->engine_data, 0, 0, o->cur->image.w, o->cur->image.h);
    o->written = EINA_FALSE;
    evas_object_image_unload(eo_obj, 1);
    evas_object_inform_call_image_unloaded(eo_obj);
@@ -1527,7 +1465,7 @@ _evas_image_efl_file_save(Eo *eo_obj, Evas_Image_Data *o, const char *file, cons
    RGBA_Image *im;
    if (!o->engine_data) return 0;
    Evas_Object_Protected_Data *obj = eo_data_scope_get(eo_obj, EVAS_OBJECT_CLASS);
-   o->engine_data = obj->layer->evas->engine.func->image_data_get(obj->layer->evas->engine.data.output, o->engine_data, 0, &data, &o->load_error);
+   o->engine_data = ENFN->image_data_get(ENDT, o->engine_data, 0, &data, &o->load_error);
    if (flags)
      {
         char *p, *pp;
@@ -1571,9 +1509,7 @@ _evas_image_efl_file_save(Eo *eo_obj, Evas_Image_Data *o, const char *file, cons
 
         evas_cache_image_drop(&im->cache_entry);
      }
-   o->engine_data = obj->layer->evas->engine.func->image_data_put(obj->layer->evas->engine.data.output,
-                                                                  o->engine_data,
-                                                                  data);
+   o->engine_data = ENFN->image_data_put(ENDT, o->engine_data, data);
 
    free(encoding);
    return ok;
@@ -1597,23 +1533,19 @@ _evas_image_pixels_import(Eo *eo_obj, Evas_Image_Data *o, Evas_Pixel_Import_Sour
 		  DATA32 *image_pixels = NULL;
 
 		  o->engine_data =
-		    obj->layer->evas->engine.func->image_data_get(obj->layer->evas->engine.data.output,
-								  o->engine_data,
-								  1,
-								  &image_pixels,
-                                                                  &o->load_error);
+                    ENFN->image_data_get(ENDT,
+                                         o->engine_data,
+                                         1,
+                                         &image_pixels,
+                                         &o->load_error);
 /* FIXME: need to actualyl support this */
 /*		  memcpy(image_pixels, pixels->rows, o->cur->image.w * o->cur->image.h * 4);*/
 		  if (o->engine_data)
 		    o->engine_data =
-		    obj->layer->evas->engine.func->image_data_put(obj->layer->evas->engine.data.output,
-								  o->engine_data,
-								  image_pixels);
-		  if (o->engine_data)
+                    ENFN->image_data_put(ENDT, o->engine_data, image_pixels);
+                  if (o->engine_data)
 		    o->engine_data =
-		    obj->layer->evas->engine.func->image_alpha_set(obj->layer->evas->engine.data.output,
-								   o->engine_data,
-								   o->cur->has_alpha);
+                    ENFN->image_alpha_set(ENDT, o->engine_data, o->cur->has_alpha);
 		  o->changed = EINA_TRUE;
 		  evas_object_change(eo_obj, obj);
 	       }
@@ -1626,16 +1558,13 @@ _evas_image_pixels_import(Eo *eo_obj, Evas_Image_Data *o, Evas_Pixel_Import_Sour
                {
                   DATA32 *image_pixels = NULL;
 
-                  o->engine_data =
-                     obj->layer->evas->engine.func->image_data_get(obj->layer->evas->engine.data.output, o->engine_data, 1, &image_pixels,&o->load_error);
+                  o->engine_data = ENFN->image_data_get(ENDT, o->engine_data, 1, &image_pixels,&o->load_error);
                   if (image_pixels)
                     evas_common_convert_yuv_420p_601_rgba((DATA8 **) pixels->rows, (DATA8 *) image_pixels, o->cur->image.w, o->cur->image.h);
                   if (o->engine_data)
-                    o->engine_data =
-                       obj->layer->evas->engine.func->image_data_put(obj->layer->evas->engine.data.output, o->engine_data, image_pixels);
+                    o->engine_data = ENFN->image_data_put(ENDT, o->engine_data, image_pixels);
                   if (o->engine_data)
-                    o->engine_data =
-                       obj->layer->evas->engine.func->image_alpha_set(obj->layer->evas->engine.data.output, o->engine_data, o->cur->has_alpha);
+                    o->engine_data = ENFN->image_alpha_set(ENDT, o->engine_data, o->cur->has_alpha);
                   o->changed = EINA_TRUE;
                   evas_object_change(eo_obj, obj);
                }
@@ -1821,7 +1750,7 @@ _evas_image_colorspace_set(Eo *eo_obj, Evas_Image_Data *o, Evas_Colorspace cspac
    EINA_COW_IMAGE_STATE_WRITE_END(o, state_write);
 
    if (o->engine_data)
-     obj->layer->evas->engine.func->image_colorspace_set(obj->layer->evas->engine.data.output, o->engine_data, cspace);
+     ENFN->image_colorspace_set(ENDT, o->engine_data, cspace);
 }
 
 EOLIAN static Evas_Colorspace
@@ -1942,23 +1871,21 @@ _evas_image_native_surface_set(Eo *eo_obj, Evas_Image_Data *o, Evas_Native_Surfa
    evas_render_rendering_wait(obj->layer->evas);
 
    _evas_object_image_cleanup(eo_obj, obj, o);
-   if (!obj->layer->evas->engine.func->image_native_set) return;
+   if (!ENFN->image_native_set) return;
    if ((surf) &&
        ((surf->version < 2) ||
         (surf->version > EVAS_NATIVE_SURFACE_VERSION))) return;
-   o->engine_data = obj->layer->evas->engine.func->image_native_set(obj->layer->evas->engine.data.output, o->engine_data, surf);
+   o->engine_data = ENFN->image_native_set(ENDT, o->engine_data, surf);
 }
 
 EOLIAN static Evas_Native_Surface*
 _evas_image_native_surface_get(Eo *eo_obj, Evas_Image_Data *o)
 {
-   Evas_Native_Surface *surf;
-
+   Evas_Native_Surface *surf = NULL;
    Evas_Object_Protected_Data *obj = eo_data_scope_get(eo_obj, EVAS_OBJECT_CLASS);
 
-   surf =
-      (!obj->layer->evas->engine.func->image_native_get ? NULL :
-         obj->layer->evas->engine.func->image_native_get(obj->layer->evas->engine.data.output, o->engine_data));
+   if (ENFN->image_native_get)
+     surf = ENFN->image_native_get(ENDT, o->engine_data);
 
    return surf;
 }
@@ -1973,16 +1900,12 @@ _evas_image_scale_hint_set(Eo *eo_obj, Evas_Image_Data *o, Evas_Image_Scale_Hint
      {
         int stride = 0;
 
-        if (obj->layer->evas->engine.func->image_scale_hint_set)
-          obj->layer->evas->engine.func->image_scale_hint_set
-             (obj->layer->evas->engine.data.output,
-               o->engine_data, o->scale_hint);
-        if (obj->layer->evas->engine.func->image_stride_get)
-           obj->layer->evas->engine.func->image_stride_get
-           (obj->layer->evas->engine.data.output,
-               o->engine_data, &stride);
+        if (ENFN->image_scale_hint_set)
+          ENFN->image_scale_hint_set(ENFN->image_native_get, o->engine_data, o->scale_hint);
+        if (ENFN->image_stride_get)
+          ENFN->image_stride_get(ENFN->image_native_get, o->engine_data, &stride);
         else
-           stride = o->cur->image.w * 4;
+          stride = o->cur->image.w * 4;
 
         if (o->cur->image.stride != stride)
           {
@@ -2009,16 +1932,12 @@ _evas_image_content_hint_set(Eo *eo_obj, Evas_Image_Data *o, Evas_Image_Content_
      {
         int stride = 0;
 
-        if (obj->layer->evas->engine.func->image_content_hint_set)
-           obj->layer->evas->engine.func->image_content_hint_set
-           (obj->layer->evas->engine.data.output,
-               o->engine_data, o->content_hint);
-        if (obj->layer->evas->engine.func->image_stride_get)
-           obj->layer->evas->engine.func->image_stride_get
-           (obj->layer->evas->engine.data.output,
-               o->engine_data, &stride);
+        if (ENFN->image_content_hint_set)
+          ENFN->image_content_hint_set(ENFN->image_native_get, o->engine_data, o->content_hint);
+        if (ENFN->image_stride_get)
+          ENFN->image_stride_get(ENDT, o->engine_data, &stride);
         else
-           stride = o->cur->image.w * 4;
+          stride = o->cur->image.w * 4;
 
         if (o->cur->image.stride != stride)
           {
@@ -2055,9 +1974,7 @@ _evas_image_region_support_get(Eo *eo_obj, Evas_Image_Data *o)
    Evas_Object_Protected_Data *obj = eo_data_scope_get(eo_obj, EVAS_OBJECT_CLASS);
 
    Eina_Bool region;
-   region =  obj->layer->evas->engine.func->image_can_region_get(
-      obj->layer->evas->engine.data.output,
-      o->engine_data);
+   region = ENFN->image_can_region_get(ENDT, o->engine_data);
 
    return region;
 }
@@ -2070,8 +1987,8 @@ _evas_image_efl_image_animated_get(Eo *eo_obj, Evas_Image_Data *o)
    Evas_Object_Protected_Data *obj = eo_data_scope_get(eo_obj, EVAS_OBJECT_CLASS);
 
    animated =
-      obj->layer->evas->engine.func->image_animated_get ?
-      obj->layer->evas->engine.func->image_animated_get(obj->layer->evas->engine.data.output, o->engine_data) :
+      ENFN->image_animated_get ?
+      ENFN->image_animated_get(ENDT, o->engine_data) :
       EINA_FALSE;
 
    return animated;
@@ -2086,8 +2003,8 @@ _evas_image_animated_frame_count_get(Eo *eo_obj, Evas_Image_Data *o)
    if (!evas_object_image_animated_get(eo_obj)) return frame_count;
    Evas_Object_Protected_Data *obj = eo_data_scope_get(eo_obj, EVAS_OBJECT_CLASS);
 
-   if (obj->layer->evas->engine.func->image_animated_frame_count_get)
-     frame_count = obj->layer->evas->engine.func->image_animated_frame_count_get(obj->layer->evas->engine.data.output, o->engine_data);
+   if (ENFN->image_animated_frame_count_get)
+     frame_count = ENFN->image_animated_frame_count_get(ENDT, o->engine_data);
 
    return frame_count;
 }
@@ -2101,8 +2018,8 @@ _evas_image_animated_loop_type_get(Eo *eo_obj, Evas_Image_Data *o)
    hint = EVAS_IMAGE_ANIMATED_HINT_NONE;
    if (!evas_object_image_animated_get(eo_obj)) return hint;
 
-   if (obj->layer->evas->engine.func->image_animated_loop_type_get)
-      hint = obj->layer->evas->engine.func->image_animated_loop_type_get(obj->layer->evas->engine.data.output, o->engine_data);
+   if (ENFN->image_animated_loop_type_get)
+      hint = ENFN->image_animated_loop_type_get(ENDT, o->engine_data);
 
    return hint;
 }
@@ -2117,8 +2034,8 @@ _evas_image_animated_loop_count_get(Eo *eo_obj, Evas_Image_Data *o)
    if (!evas_object_image_animated_get(eo_obj)) return loop_count;
 
    loop_count =
-      obj->layer->evas->engine.func->image_animated_loop_count_get ?
-      obj->layer->evas->engine.func->image_animated_loop_count_get(obj->layer->evas->engine.data.output, o->engine_data) :
+      ENFN->image_animated_loop_count_get ?
+      ENFN->image_animated_loop_count_get(ENDT, o->engine_data) :
       -1;
 
    return loop_count;
@@ -2133,13 +2050,13 @@ _evas_image_animated_frame_duration_get(Eo *eo_obj, Evas_Image_Data *o, int star
    double frame_duration;
    frame_duration = -1;
 
-   if (!obj->layer->evas->engine.func->image_animated_frame_count_get) return frame_duration;
+   if (!ENFN->image_animated_frame_count_get) return frame_duration;
 
-   frame_count = obj->layer->evas->engine.func->image_animated_frame_count_get(obj->layer->evas->engine.data.output, o->engine_data);
+   frame_count = ENFN->image_animated_frame_count_get(ENDT, o->engine_data);
 
    if ((start_frame + frame_num) > frame_count) return frame_duration;
-   if (obj->layer->evas->engine.func->image_animated_frame_duration_get)
-     frame_duration = obj->layer->evas->engine.func->image_animated_frame_duration_get(obj->layer->evas->engine.data.output, o->engine_data, start_frame, frame_num);
+   if (ENFN->image_animated_frame_duration_get)
+     frame_duration = ENFN->image_animated_frame_duration_get(ENDT, o->engine_data, start_frame, frame_num);
 
    return frame_duration;
 }
@@ -2161,9 +2078,9 @@ _evas_image_animated_frame_set(Eo *eo_obj, Evas_Image_Data *o, int frame_index)
    if ((frame_count > FRAME_MAX) || (frame_count < 0) || (frame_index > frame_count))
      return;
 
-   if (!obj->layer->evas->engine.func->image_animated_frame_set) return;
-   obj->layer->evas->engine.func->image_animated_frame_set(obj->layer->evas->engine.data.output, o->engine_data, frame_index);
-//   if (!obj->layer->evas->engine.func->image_animated_frame_set(obj->layer->evas->engine.data.output, o->engine_data, frame_index)) return;
+   if (!ENFN->image_animated_frame_set) return;
+   ENFN->image_animated_frame_set(ENDT, o->engine_data, frame_index);
+//   if (!ENFN->image_animated_frame_set(ENDT, o->engine_data, frame_index)) return;
 
    EINA_COW_WRITE_BEGIN(evas_object_image_state_cow, o->prev, Evas_Object_Image_State, prev_write)
      prev_write->frame = o->cur->frame;
@@ -2363,89 +2280,6 @@ _proxy_error(Evas_Object *eo_proxy, void *context, void *output, void *surface,
    return;
 }
 
-
-/**
- * Render the source object when a proxy is set.
- *
- * Used to force a draw if necessary, else just makes sure it's available.
- */
-static void
-_proxy_subrender(Evas *eo_e, Evas_Object *eo_source, Evas_Object *eo_proxy, Evas_Object_Protected_Data *proxy_obj, Eina_Bool do_async)
-{
-   Evas_Public_Data *e = eo_data_scope_get(eo_e, EVAS_CANVAS_CLASS);
-   Evas_Object_Protected_Data *source;
-   void *ctx;
-   int w, h;
-
-   if (!eo_source) return;
-   source = eo_data_scope_get(eo_source, EVAS_OBJECT_CLASS);
-
-   w = source->cur->geometry.w;
-   h = source->cur->geometry.h;
-
-   EINA_COW_WRITE_BEGIN(evas_object_proxy_cow, source->proxy, Evas_Object_Proxy_Data, proxy_write)
-     {
-        proxy_write->redraw = EINA_FALSE;
-
-        /* We need to redraw surface then */
-        if ((proxy_write->surface) &&
-            ((proxy_write->w != w) || (proxy_write->h != h)))
-          {
-             e->engine.func->image_map_surface_free(e->engine.data.output,
-                                                    proxy_write->surface);
-             proxy_write->surface = NULL;
-          }
-
-        /* FIXME: Hardcoded alpha 'on' */
-        /* FIXME (cont): Should see if the object has alpha */
-        if (!proxy_write->surface)
-          {
-             proxy_write->surface = e->engine.func->image_map_surface_new
-               (e->engine.data.output, w, h, 1);
-             if (!proxy_write->surface) goto end;
-             proxy_write->w = w;
-             proxy_write->h = h;
-          }
-
-        ctx = e->engine.func->context_new(e->engine.data.output);
-        e->engine.func->context_color_set(e->engine.data.output, ctx, 0, 0,
-                                          0, 0);
-        e->engine.func->context_render_op_set(e->engine.data.output, ctx,
-                                              EVAS_RENDER_COPY);
-        e->engine.func->rectangle_draw(e->engine.data.output, ctx,
-                                       proxy_write->surface, 0, 0, w, h,
-                                       do_async);
-        e->engine.func->context_free(e->engine.data.output, ctx);
-
-        ctx = e->engine.func->context_new(e->engine.data.output);
-
-        Eina_Bool source_clip = EINA_FALSE;
-        eo_do(eo_proxy, source_clip = evas_obj_image_source_clip_get());
-
-        Evas_Proxy_Render_Data proxy_render_data = {
-             .eo_proxy = eo_proxy,
-             .proxy_obj = proxy_obj,
-             .eo_src = eo_source,
-             .source_clip = source_clip
-        };
-        evas_render_mapped(e, eo_source, source, ctx, proxy_write->surface,
-                           -source->cur->geometry.x,
-                           -source->cur->geometry.y,
-                           1, 0, 0, e->output.w, e->output.h,
-                           &proxy_render_data
-#ifdef REND_DBG
-                           , 1
-#endif
-                           , do_async);
-
-        e->engine.func->context_free(e->engine.data.output, ctx);
-        proxy_write->surface = e->engine.func->image_dirty_region
-           (e->engine.data.output, proxy_write->surface, 0, 0, w, h);
-     }
- end:
-   EINA_COW_WRITE_END(evas_object_proxy_cow, source->proxy, proxy_write);
-}
-
 static void
 _3d_set(Evas_Object *eo_obj, Evas_3D_Scene *scene)
 {
@@ -2631,23 +2465,18 @@ evas_object_image_unload(Evas_Object *eo_obj, Eina_Bool dirty)
    if (dirty)
      {
         if (o->engine_data)
-           o->engine_data = obj->layer->evas->engine.func->image_dirty_region
-           (obj->layer->evas->engine.data.output,
-               o->engine_data,
-               0, 0,
-               o->cur->image.w, o->cur->image.h);
+           o->engine_data = ENFN->image_dirty_region(ENDT, o->engine_data,
+                                                     0, 0,
+                                                     o->cur->image.w, o->cur->image.h);
      }
    if (o->engine_data)
      {
         if (o->preloading)
           {
              o->preloading = EINA_FALSE;
-             obj->layer->evas->engine.func->image_data_preload_cancel(obj->layer->evas->engine.data.output,
-                                                                      o->engine_data,
-                                                                      eo_obj);
+             ENFN->image_data_preload_cancel(ENDT, o->engine_data, eo_obj);
           }
-        obj->layer->evas->engine.func->image_free(obj->layer->evas->engine.data.output,
-                                                  o->engine_data);
+        ENFN->image_free(ENDT, o->engine_data);
      }
    o->engine_data = NULL;
    o->load_error = EVAS_LOAD_ERROR_NONE;
@@ -2691,15 +2520,15 @@ evas_object_image_load(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, Eva
    lo.orientation = o->load_opts->orientation;
    lo.degree = 0;
    if (o->cur->mmaped_source)
-     o->engine_data = obj->layer->evas->engine.func->image_mmap
-       (obj->layer->evas->engine.data.output,
+     o->engine_data = ENFN->image_mmap
+       (ENDT,
         o->cur->u.f,
         o->cur->key,
         &o->load_error,
         &lo);
    else
-     o->engine_data = obj->layer->evas->engine.func->image_load
-       (obj->layer->evas->engine.data.output,
+     o->engine_data = ENFN->image_load
+       (ENDT,
         o->cur->u.file,
         o->cur->key,
         &o->load_error,
@@ -2711,24 +2540,16 @@ evas_object_image_load(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, Eva
         int stride = 0;
         Eina_Bool resize_call = EINA_FALSE;
 
-        obj->layer->evas->engine.func->image_size_get
-           (obj->layer->evas->engine.data.output,
-            o->engine_data, &w, &h);
-        if (obj->layer->evas->engine.func->image_stride_get)
-          obj->layer->evas->engine.func->image_stride_get
-             (obj->layer->evas->engine.data.output,
-              o->engine_data, &stride);
+        ENFN->image_size_get(ENDT, o->engine_data, &w, &h);
+        if (ENFN->image_stride_get)
+          ENFN->image_stride_get(ENDT, o->engine_data, &stride);
         else
           stride = w * 4;
 
         EINA_COW_IMAGE_STATE_WRITE_BEGIN(o, state_write)
           {
-             state_write->has_alpha = obj->layer->evas->engine.func->image_alpha_get
-               (obj->layer->evas->engine.data.output,
-                o->engine_data);
-             state_write->cspace = obj->layer->evas->engine.func->image_colorspace_get
-               (obj->layer->evas->engine.data.output,
-                o->engine_data);
+             state_write->has_alpha = ENFN->image_alpha_get(ENDT, o->engine_data);
+             state_write->cspace = ENFN->image_colorspace_get(ENDT, o->engine_data);
              if ((state_write->image.w != w) || (state_write->image.h != h))
                resize_call = EINA_TRUE;
              state_write->image.w = w;
@@ -2849,12 +2670,9 @@ evas_object_image_free(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj)
 	   if (o->preloading)
 	     {
 	       o->preloading = EINA_FALSE;
-	       obj->layer->evas->engine.func->image_data_preload_cancel(obj->layer->evas->engine.data.output,
-									o->engine_data,
-									eo_obj);
+               ENFN->image_data_preload_cancel(ENDT, o->engine_data, eo_obj);
 	     }
-	   obj->layer->evas->engine.func->image_free(obj->layer->evas->engine.data.output,
-						     o->engine_data);
+           ENFN->image_free(ENDT, o->engine_data);
 	 }
        if (o->video_surface)
 	 {
@@ -2883,11 +2701,11 @@ _draw_image(Evas_Object_Protected_Data *obj,
 {
    Eina_Bool async_unref;
 
-   async_unref = obj->layer->evas->engine.func->image_draw(data, context, surface,
-                                                           image, src_x, src_y,
-                                                           src_w, src_h, dst_x,
-                                                           dst_y, dst_w, dst_h,
-                                                           smooth, do_async);
+   async_unref = ENFN->image_draw(data, context, surface,
+                                  image, src_x, src_y,
+                                  src_w, src_h, dst_x,
+                                  dst_y, dst_w, dst_h,
+                                  smooth, do_async);
    if (do_async && async_unref)
      {
 #ifdef EVAS_CSERVE2
@@ -2908,11 +2726,12 @@ evas_draw_image_map_async_check(Evas_Object_Protected_Data *obj,
                                 Eina_Bool do_async)
 {
    Eina_Bool async_unref;
-
-   async_unref = obj->layer->evas->engine.func->image_map_draw(data, context,
-                                                               surface, image, m,
-                                                               smooth, level,
-                                                               do_async);
+   obj->layer->evas->engine.func->context_anti_alias_set(data, context,
+                                                         obj->cur->anti_alias);
+   async_unref = ENFN->image_map_draw(data, context,
+                                      surface, image, m,
+                                      smooth, level,
+                                      do_async);
    if (do_async && async_unref)
      {
 #ifdef EVAS_CSERVE2
@@ -2939,11 +2758,10 @@ evas_process_dirty_pixels(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, 
           {
              Evas_Coord x, y, w, h;
 
-             if (obj->layer->evas->engine.func->image_native_get)
+             if (ENFN->image_native_get)
                {
                   Evas_Native_Surface *ns;
-
-                  ns = obj->layer->evas->engine.func->image_native_get(obj->layer->evas->engine.data.output, o->engine_data);
+                  ns = ENFN->image_native_get(ENDT, o->engine_data);
                   if ( (ns) &&
                        (ns->type == EVAS_NATIVE_SURFACE_OPENGL) &&
                        (ns->data.opengl.texture_id) &&
@@ -2952,29 +2770,24 @@ evas_process_dirty_pixels(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, 
                        Eina_Bool direct_renderable = EINA_FALSE;
 
                        // Check if we can do direct rendering...
-                       if (obj->layer->evas->engine.func->gl_direct_override_get)
-                         obj->layer->evas->engine.func->gl_direct_override_get(output, NULL /*&direct_override*/, &direct_force_off);
+                       if (ENFN->gl_direct_override_get)
+                         ENFN->gl_direct_override_get(output, &direct_override, &direct_force_off);
+                       if (ENFN->gl_surface_direct_renderable_get)
+                         direct_renderable = ENFN->gl_surface_direct_renderable_get(output, ns);
 
-                       if (obj->layer->evas->engine.func->gl_surface_direct_renderable_get)
-                         direct_renderable = obj->layer->evas->engine.func->gl_surface_direct_renderable_get(output, ns, &direct_override);
-
-                       if ( (((direct_renderable) &&
+                       if ( ((direct_override) ||
+                             ((direct_renderable) &&
                               (obj->cur->geometry.w == o->cur->image.w) &&
                               (obj->cur->geometry.h == o->cur->image.h) &&
                               (obj->cur->color.r == 255) &&
                               (obj->cur->color.g == 255) &&
                               (obj->cur->color.b == 255) &&
                               (obj->cur->color.a == 255) &&
-                              (!obj->map->cur.map)) ||
-                             (direct_override)) &&
-                            (!direct_force_off) )
+                              (!obj->map->cur.map))
+                             ) && (!direct_force_off) )
                          {
-
-                            if (obj->layer->evas->engine.func->gl_get_pixels_set)
-                              {
-                                 obj->layer->evas->engine.func->gl_get_pixels_set(output, o->pixels->func.get_pixels, o->pixels->func.get_pixels_data, eo_obj);
-                              }
-
+                            if (ENFN->gl_get_pixels_set)
+                              ENFN->gl_get_pixels_set(output, o->pixels->func.get_pixels, o->pixels->func.get_pixels_data, eo_obj);
                             o->direct_render = EINA_TRUE;
                          }
                        else
@@ -2985,8 +2798,8 @@ evas_process_dirty_pixels(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, 
                   if ( (ns) &&
                        (ns->type == EVAS_NATIVE_SURFACE_X11))
                     {
-                       if (obj->layer->evas->engine.func->context_flush)
-                         obj->layer->evas->engine.func->context_flush(output);
+                       if (ENFN->context_flush)
+                         ENFN->context_flush(output);
                     }
                }
 
@@ -3004,8 +2817,8 @@ evas_process_dirty_pixels(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, 
                    obj->cur->geometry.h == h))
                CRI("Evas_Image_Data geometry did change during pixels get callback !");
 
-             o->engine_data = obj->layer->evas->engine.func->image_dirty_region
-               (obj->layer->evas->engine.data.output, o->engine_data,
+             o->engine_data = ENFN->image_dirty_region
+               (ENDT, o->engine_data,
                 0, 0, o->cur->image.w, o->cur->image.h);
 	     if (o->engine_data != pixels)
 	       pixels = o->engine_data;
@@ -3017,7 +2830,7 @@ evas_process_dirty_pixels(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, 
         // Check if the it's not dirty but it has direct rendering
         if (o->direct_render)
           {
-             obj->layer->evas->engine.func->gl_get_pixels_set(output, o->pixels->func.get_pixels, o->pixels->func.get_pixels_data, eo_obj);
+             ENFN->gl_get_pixels_set(output, o->pixels->func.get_pixels, o->pixels->func.get_pixels_data, eo_obj);
           }
      }
 
@@ -3073,56 +2886,50 @@ evas_object_image_render(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, v
         return;
      }
 
+   /* Mask sanity */
+   if (obj->mask->is_mask && (surface != obj->mask->surface))
+     {
+        ERR("Drawing a mask to another surface? Something's wrong...");
+        return;
+     }
+
    /* We are displaying the overlay */
    if (o->video_visible)
      {
         /* Create a transparent rectangle */
-        obj->layer->evas->engine.func->context_color_set(output,
-                                                         context,
-                                                         0, 0, 0, 0);
-        obj->layer->evas->engine.func->context_multiplier_unset(output,
-                                                                context);
-        obj->layer->evas->engine.func->context_render_op_set(output, context,
-                                                             EVAS_RENDER_COPY);
-        obj->layer->evas->engine.func->rectangle_draw(output,
-                                                      context,
-                                                      surface,
-                                                      obj->cur->geometry.x + x,
-                                                      obj->cur->geometry.y + y,
-                                                      obj->cur->geometry.w,
-                                                      obj->cur->geometry.h,
-                                                      do_async);
+        ENFN->context_color_set(output, context, 0, 0, 0, 0);
+        ENFN->context_multiplier_unset(output, context);
+        ENFN->context_render_op_set(output, context, EVAS_RENDER_COPY);
+        ENFN->rectangle_draw(output, context, surface,
+                             obj->cur->geometry.x + x, obj->cur->geometry.y + y,
+                             obj->cur->geometry.w, obj->cur->geometry.h,
+                             do_async);
 
         return;
      }
 
-   obj->layer->evas->engine.func->context_color_set(output,
-                                                    context,
-                                                    255, 255, 255, 255);
+   ENFN->context_color_set(output, context, 255, 255, 255, 255);
 
    if ((obj->cur->cache.clip.r == 255) &&
        (obj->cur->cache.clip.g == 255) &&
        (obj->cur->cache.clip.b == 255) &&
        (obj->cur->cache.clip.a == 255))
      {
-        obj->layer->evas->engine.func->context_multiplier_unset(output,
-                                                                context);
+        ENFN->context_multiplier_unset(output, context);
      }
    else
-     obj->layer->evas->engine.func->context_multiplier_set(output,
-                                                           context,
-                                                           obj->cur->cache.clip.r,
-                                                           obj->cur->cache.clip.g,
-                                                           obj->cur->cache.clip.b,
-                                                           obj->cur->cache.clip.a);
+     ENFN->context_multiplier_set(output, context,
+                                  obj->cur->cache.clip.r,
+                                  obj->cur->cache.clip.g,
+                                  obj->cur->cache.clip.b,
+                                  obj->cur->cache.clip.a);
 
-   obj->layer->evas->engine.func->context_render_op_set(output, context,
-                                                        obj->cur->render_op);
+   ENFN->context_render_op_set(output, context, obj->cur->render_op);
 
    // Clear out the pixel get stuff..
-   if (obj->layer->evas->engine.func->gl_get_pixels_set)
+   if (ENFN->gl_get_pixels_set)
      {
-        obj->layer->evas->engine.func->gl_get_pixels_set(output, NULL, NULL, NULL);
+        ENFN->gl_get_pixels_set(output, NULL, NULL, NULL);
      }
 
    Evas_Object_Protected_Data *source =
@@ -3170,8 +2977,8 @@ evas_object_image_render(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, v
    else
      {
         o->proxyrendering = EINA_TRUE;
-        _proxy_subrender(obj->layer->evas->evas, o->cur->source, eo_obj, obj,
-                         EINA_FALSE);
+        evas_render_proxy_subrender(obj->layer->evas->evas, o->cur->source,
+                                    eo_obj, obj, EINA_FALSE);
         pixels = source->proxy->surface;
         imagew = source->proxy->w;
         imageh = source->proxy->h;
@@ -3204,15 +3011,13 @@ evas_object_image_render(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, v
              int W, H, offx, offy;
 
 start_draw:
-             obj->layer->evas->engine.func->image_scale_hint_set(output,
-                                                                 pixels,
-                                                                 o->scale_hint);
+             ENFN->image_scale_hint_set(output, pixels, o->scale_hint);
              /* This is technically a bug here: If the value is recreated
               * (which is returned)it may be a new object, however exactly 0
               * of all the evas engines do this. */
-             obj->layer->evas->engine.func->image_border_set(output, pixels,
-                                                             o->cur->border.l, o->cur->border.r,
-                                                             o->cur->border.t, o->cur->border.b);
+             ENFN->image_border_set(output, pixels,
+                                    o->cur->border.l, o->cur->border.r,
+                                    o->cur->border.t, o->cur->border.b);
              idx = evas_object_image_figure_x_fill(eo_obj, obj, o->cur->fill.x, o->cur->fill.w, &idw);
              idy = evas_object_image_figure_y_fill(eo_obj, obj, o->cur->fill.y, o->cur->fill.h, &idh);
              if (idw < 1) idw = 1;
@@ -3274,7 +3079,7 @@ start_draw:
                        if (!redraw)
                          {
                             // Render this image only
-                            obj->layer->evas->engine.func->image_draw(output, context,
+                            ENFN->image_draw(output, context,
                                              surface, o->cur->filter->output,
                                              0, 0, W, H,
                                              offx, offy, W, H,
@@ -3300,10 +3105,10 @@ start_draw:
                   ok = evas_filter_context_buffers_allocate_all(filter, W, H);
                   if (!ok) goto state_write;
 
-                  if (obj->layer->evas->engine.func->gl_surface_read_pixels)
+                  if (ENFN->gl_surface_read_pixels)
                     {
                        // GL case: Create new surface, draw to it (OpenGL) and call glReadPixels
-                       surface = obj->layer->evas->engine.func->image_map_surface_new(output, W, H, EINA_TRUE);
+                       surface = ENFN->image_map_surface_new(output, W, H, EINA_TRUE);
                        input_stolen = EINA_FALSE;
                     }
                   else
@@ -3324,7 +3129,7 @@ state_write:
                     {
                        if (ok)
                          {
-                            context = obj->layer->evas->engine.func->context_new(output);
+                            context = ENFN->context_new(output);
                             clear = EINA_TRUE;
                             EINA_COW_IMAGE_FILTER_WRITE_BEGIN(state_write, fcow)
                               fcow->chain = pgm;
@@ -3357,11 +3162,11 @@ state_write:
 
                     if (clear)
                       {
-                         obj->layer->evas->engine.func->context_color_set(output, context, 0, 0, 0, 0);
-                         obj->layer->evas->engine.func->context_render_op_set(output, context, EVAS_RENDER_COPY);
-                         obj->layer->evas->engine.func->rectangle_draw(output, context, surface, 0, 0, W, H, EINA_FALSE);
-                         obj->layer->evas->engine.func->context_color_set(output, context, 255, 255, 255, 255);
-                         obj->layer->evas->engine.func->context_render_op_set(output, context, EVAS_RENDER_BLEND);
+                         ENFN->context_color_set(output, context, 0, 0, 0, 0);
+                         ENFN->context_render_op_set(output, context, EVAS_RENDER_COPY);
+                         ENFN->rectangle_draw(output, context, surface, 0, 0, W, H, EINA_FALSE);
+                         ENFN->context_color_set(output, context, 255, 255, 255, 255);
+                         ENFN->context_render_op_set(output, context, EVAS_RENDER_BLEND);
                       }
                }
 
@@ -3539,13 +3344,12 @@ state_write:
                                  outw = iw - bsl - bsr; outh = ih - bst - bsb;
                                  if ((o->cur->border.fill == EVAS_BORDER_FILL_SOLID) &&
                                      (obj->cur->cache.clip.a == 255) &&
+                                     (!obj->clip.mask) &&
                                      (obj->cur->render_op == EVAS_RENDER_BLEND))
                                    {
-                                      obj->layer->evas->engine.func->context_render_op_set(output, context,
-                                                                                           EVAS_RENDER_COPY);
+                                      ENFN->context_render_op_set(output, context, EVAS_RENDER_COPY);
                                       _draw_image(obj, output, context, surface, pixels, inx, iny, inw, inh, outx, outy, outw, outh, o->cur->smooth_scale, do_async);
-                                      obj->layer->evas->engine.func->context_render_op_set(output, context,
-                                                                                           obj->cur->render_op);
+                                      ENFN->context_render_op_set(output, context, obj->cur->render_op);
                                    }
                                  else
                                    _draw_image(obj, output, context, surface, pixels, inx, iny, inw, inh, outx, outy, outw, outh, o->cur->smooth_scale, do_async);
@@ -3617,8 +3421,8 @@ state_write:
                         ok = evas_filter_run(filter);
 
                         if (!input_stolen)
-                          obj->layer->evas->engine.func->image_map_surface_free(output, surface);
-                        obj->layer->evas->engine.func->context_free(output, context);
+                          ENFN->image_map_surface_free(output, surface);
+                        ENFN->context_free(output, context);
 
                         if (!ok)
                           {
@@ -4195,7 +3999,7 @@ evas_object_image_is_inside(Evas_Object *eo_obj,
    Evas_Image_Data *o = type_private_data;
    int imagew, imageh, uvw, uvh;
    void *pixels;
-   Evas_Func *eng = obj->layer->evas->engine.func;
+   Evas_Func *eng = ENFN;
    int is_inside = 0;
 
    /* the following code is similar to evas_object_image_render(), but doesn't
@@ -4245,8 +4049,8 @@ evas_object_image_is_inside(Evas_Object *eo_obj,
    else
      {
         o->proxyrendering = EINA_TRUE;
-        _proxy_subrender(obj->layer->evas->evas, o->cur->source, eo_obj, obj,
-                         EINA_FALSE);
+        evas_render_proxy_subrender(obj->layer->evas->evas, o->cur->source,
+                                    eo_obj, obj, EINA_FALSE);
         pixels = source->proxy->surface;
         imagew = source->proxy->w;
         imageh = source->proxy->h;
@@ -4284,8 +4088,7 @@ evas_object_image_is_inside(Evas_Object *eo_obj,
              DATA32 *data = NULL;
              int err = 0;
 
-             im = obj->layer->evas->engine.func->image_data_get
-               (obj->layer->evas->engine.data.output, pixels, 0, &data, &err);
+             im = ENFN->image_data_get(ENDT, pixels, 0, &data, &err);
              if ((!im) || (!data) || (err))
                {
                   ERR("Couldn't get image pixels %p: im=%p, data=%p, err=%d",
@@ -4700,9 +4503,8 @@ _evas_object_image_preloading_check(Evas_Object *eo_obj)
 {
    Evas_Object_Protected_Data *obj = eo_data_scope_get(eo_obj, EVAS_OBJECT_CLASS);
    Evas_Image_Data *o = eo_data_scope_get(eo_obj, MY_CLASS);
-   if (obj->layer->evas->engine.func->image_load_error_get)
-      o->load_error = obj->layer->evas->engine.func->image_load_error_get
-      (obj->layer->evas->engine.data.output, o->engine_data);
+   if (ENFN->image_load_error_get)
+      o->load_error = ENFN->image_load_error_get(ENDT, o->engine_data);
 }
 
 Evas_Object *

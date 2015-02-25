@@ -11,6 +11,7 @@ EAPI extern const Eo_Event_Description _EVAS_CANVAS_EVENT_OBJECT_FOCUS_OUT;
 EAPI extern const Eo_Event_Description _EVAS_CANVAS_EVENT_RENDER_PRE;
 EAPI extern const Eo_Event_Description _EVAS_CANVAS_EVENT_RENDER_POST;
 EAPI extern const Eo_Event_Description _EVAS_CANVAS_EVENT_DEVICE_CHANGED;
+EAPI extern const Eo_Event_Description _EVAS_CANVAS_EVENT_AXIS_UPDATE;
 
 // Callbacks events for use with Evas canvases
 #define EVAS_CANVAS_EVENT_FOCUS_IN (&(_EVAS_CANVAS_EVENT_FOCUS_IN))
@@ -22,6 +23,7 @@ EAPI extern const Eo_Event_Description _EVAS_CANVAS_EVENT_DEVICE_CHANGED;
 #define EVAS_CANVAS_EVENT_RENDER_PRE (&(_EVAS_CANVAS_EVENT_RENDER_PRE))
 #define EVAS_CANVAS_EVENT_RENDER_POST (&(_EVAS_CANVAS_EVENT_RENDER_POST))
 #define EVAS_CANVAS_EVENT_DEVICE_CHANGED (&(_EVAS_CANVAS_EVENT_DEVICE_CHANGED))
+#define EVAS_CANVAS_EVENT_AXIS_UPDATE (&(_EVAS_CANVAS_EVENT_AXIS_UPDATE))
 
 #include "canvas/evas_signal_interface.eo.h"
 #include "canvas/evas_draggable_interface.eo.h"
@@ -484,6 +486,7 @@ typedef enum _Evas_3D_State
    EVAS_3D_STATE_MESH_VERTEX_ASSEMBLY,
    EVAS_3D_STATE_MESH_SHADE_MODE,
    EVAS_3D_STATE_MESH_FOG,
+   EVAS_3D_STATE_MESH_BLENDING,
 
    EVAS_3D_STATE_CAMERA_PROJECTION = 1,
 
@@ -536,6 +539,28 @@ typedef enum _Evas_3D_Node_Type
 } Evas_3D_Node_Type;
 
 /**
+ * Types of node orientation
+ *
+ * @since 1.13
+ * @ingroup Evas_3D_Types
+ */
+typedef enum _Evas_3D_Node_Orientation_Type
+{
+   /**< Node with no orientation properties */
+   EVAS_3D_NODE_ORIENTATION_TYPE_NONE = 0,
+   /**< Node orientation is given as a point to look at and a vector
+        that indicates the angle at which the subject is looking at the point */
+   EVAS_3D_NODE_ORIENTATION_TYPE_LOOK_AT,
+   /**< Node orientation is given as id of another part to look at and a vector
+        that indicates the angle at which the subject is looking at the part */
+   EVAS_3D_NODE_ORIENTATION_TYPE_LOOK_TO,
+   /**< Node orientation is given as an angle and an axis to rotate around */
+   EVAS_3D_NODE_ORIENTATION_TYPE_ANGLE_AXIS,
+   /**< Node orientation is given as a quaternion */
+   EVAS_3D_NODE_ORIENTATION_TYPE_QUATERNION,
+} Evas_3D_Node_Orientation_Type;
+
+/**
  * Vertex attribute IDs
  *
  * @since 1.10
@@ -564,6 +589,20 @@ typedef enum _Evas_3D_Index_Format
 } Evas_3D_Index_Format;
 
 /**
+ * Frustum modes
+ *
+ * @since 1.12
+ * @ingroup Evas_3D_Types
+ */
+typedef enum _Evas_3D_Frustum_Mode
+{
+   EVAS_3D_FRUSTUM_MODE_BSPHERE,
+   EVAS_3D_FRUSTUM_MODE_AABB,
+   EVAS_3D_FRUSTUM_MODE_CENTRAL_POINT
+} Evas_3D_Frustum_Mode;
+
+
+/**
  * Vertex assembly modes
  *
  * Vertex assembly represents how the vertices are organized into geometric
@@ -589,6 +628,40 @@ typedef enum _Evas_3D_Vertex_Assembly
    /**< Vertices are organized as a triangle fan */
    EVAS_3D_VERTEX_ASSEMBLY_TRIANGLE_FAN,
 } Evas_3D_Vertex_Assembly;
+
+typedef enum _Evas_3D_Blend_Func
+{
+   /**< The scale factors for color components is (0, 0, 0, 0)*/
+   EVAS_3D_BLEND_ZERO = 0,
+   /**< The scale factors for color components is (1, 1, 1, 1)*/
+   EVAS_3D_BLEND_ONE,
+   /**< The scale factors for color components is (Rs/kR, Gs/kG, Bs/kB, As/kA)*/
+   EVAS_3D_BLEND_SRC_COLOR,
+   /**< The scale factors for color components is (1, 1, 1, 1) - (Rs/kR, Gs/kG, Bs/kB, As/kA)*/
+   EVAS_3D_BLEND_ONE_MINUS_SRC_COLOR,
+   /**< The scale factors for color components is (Rd/kR, Gd/kG, Bd/kB, Ad/kA)*/
+   EVAS_3D_BLEND_DST_COLOR,
+   /**< The scale factors for color components is (1, 1, 1, 1) - (Rd/kR, Gd/kG, Bd/kB, Ad/kA)*/
+   EVAS_3D_BLEND_ONE_MINUS_DST_COLOR,
+   /**< The scale factors for color components is (As/kA, As/kA, As/kA, As/kA)*/
+   EVAS_3D_BLEND_SRC_ALPHA,
+   /**< The scale factors for color components is (1, 1, 1, 1) - (As/kA, As/kA, As/kA, As/kA)*/
+   EVAS_3D_BLEND_ONE_MINUS_SRC_ALPHA,
+   /**< The scale factors for color components is (Ad/kA, Ad/kA, Ad/kA, Ad/kA)*/
+   EVAS_3D_BLEND_DST_ALPHA,
+   /**< The scale factors for color components is (1, 1, 1, 1) - (Ad/kA, Ad/kA, Ad/kA, Ad/kA)*/
+   EVAS_3D_BLEND_ONE_MINUS_DST_ALPHA,
+   /**< The scale factors for color components is (Rc, Gc, Bc, Ac)*/
+   EVAS_3D_BLEND_CONSTANT_COLOR,
+   /**< The scale factors for color components is (1, 1, 1, 1) - (Rc, Gc, Bc, Ac)*/
+   EVAS_3D_BLEND_ONE_MINUS_CONSTANT_COLOR,
+   /**< The scale factors for color components is (Ac, Ac, Ac, Ac)*/
+   EVAS_3D_BLEND_CONSTANT_ALPHA,
+   /**< The scale factors for color components is (1, 1, 1, 1) - (Ac, Ac, Ac, Ac)*/
+   EVAS_3D_BLEND_ONE_MINUS_CONSTANT_ALPHA,
+   /**< The scale factors for color components is (i, i, i, 1) where i = min(As, kA, Ad)/kA*/
+   EVAS_3D_BLEND_SRC_ALPHA_SATURATE,
+} Evas_3D_Blend_Func;
 
 /**
  * Color formats of pixel data
@@ -643,6 +716,20 @@ typedef enum _Evas_3D_Wrap_Mode
    /**< Values will be repeated in a reflected manner */
    EVAS_3D_WRAP_MODE_REFLECT
 } Evas_3D_Wrap_Mode;
+
+/**
+ * Mesh Primitive
+ *
+ * @since 1.12
+ * @ingroup Evas_3D_Types
+ */
+typedef enum _Evas_3D_Mesh_Primitive
+{
+   EVAS_3D_MESH_PRIMITIVE_NONE = 0,
+   EVAS_3D_MESH_PRIMITIVE_CUBE = 1,
+   EVAS_3D_MESH_PRIMITIVE_SPHERE = 2
+} Evas_3D_Mesh_Primitive;
+
 
 /**
  * Texture filters
@@ -704,19 +791,6 @@ typedef enum _Evas_3D_Material_Attrib
    EVAS_3D_MATERIAL_NORMAL,          /**< Normal map term */
 } Evas_3D_Material_Attrib;
 
-/**
- * Mesh file type
- *
- * @since 1.10
- * @ingroup Evas_3D_Types
- */
-typedef enum _Evas_3D_Mesh_File_Type
-{
-   EVAS_3D_MESH_FILE_TYPE_MD2 = 0,   /**< Quake's MD2 mesh file format */
-   EVAS_3D_MESH_FILE_TYPE_OBJ,
-   EVAS_3D_MESH_FILE_TYPE_EET,
-} Evas_3D_Mesh_File_Type;
-
 #include "canvas/evas_image.eo.h"
 
 #include "canvas/evas_3d_camera.eo.h"
@@ -738,22 +812,22 @@ typedef enum _Evas_3D_Mesh_File_Type
 /**
  * Type of abstract VG node
  */
-typedef Eo      Evas_VG_Node;
+//typedef Eo      Evas_VG_Node;
 
 /**
  * @ingroup Evas_Object_VG
  *
  * @{
  */
-#include "canvas/evas_vg.eo.h"
+//#include "canvas/evas_vg.eo.h"
 /**
  * @}
  */
 
-#include "canvas/evas_vg_node.eo.h"
-#include "canvas/evas_vg_container.eo.h"
-#include "canvas/evas_vg_shape.eo.h"
-#include "canvas/evas_vg_gradient.eo.h"
-#include "canvas/evas_vg_gradient_linear.eo.h"
-#include "canvas/evas_vg_gradient_radial.eo.h"
-#include "canvas/evas_vg_image.eo.h"
+//#include "canvas/evas_vg_node.eo.h"
+//#include "canvas/evas_vg_container.eo.h"
+//#include "canvas/evas_vg_shape.eo.h"
+//#include "canvas/evas_vg_gradient.eo.h"
+//#include "canvas/evas_vg_gradient_linear.eo.h"
+//#include "canvas/evas_vg_gradient_radial.eo.h"
+//#include "canvas/evas_vg_image.eo.h"

@@ -372,13 +372,65 @@ check_image_part_desc(Edje_Part_Collection *pc, Edje_Part *ep,
     }
 }
 
+/* This function check loops between groups.
+   For example:
+   > part in group A. It's source is B.
+   > part in group B. It's source is C.
+   > part in group C. It's source is A <- here is error.
+   It's loop that we need to avoid! */
+static void
+check_source_links(Edje_Part_Collection *pc, Edje_Part *ep, Eet_File *ef, Eina_List *group_path)
+{
+   unsigned int i;
+   char *data;
+   Edje_Part_Collection *pc_source;
+   Eina_List *l;
+
+   EINA_LIST_FOREACH(edje_collections, l, pc_source)
+     {
+        /* Find sourced group */
+        if (strcmp(ep->source, pc_source->part) == 0)
+          {
+             /* Go through every part to find parts with type GROUP */
+             for (i = 0; i < pc_source->parts_count; ++i)
+               {
+                  if ((pc_source->parts[i]->type == EDJE_PART_TYPE_GROUP) &&
+                      (pc_source->parts[i]->source))
+                    {
+                       /* Make sure that this group isn't already in the tree of parents */
+                       EINA_LIST_FOREACH(group_path, l, data)
+                         {
+                            if (data == pc_source->parts[i]->source)
+                              {
+                                 error_and_abort(ef,"Recursive loop group '%s' "
+                                                 "already included inside "
+                                                 "part '%s' of group '%s'",
+                                                 data, pc_source->parts[i]->name,
+                                                 pc->part);
+                              }
+                         }
+                       group_path = eina_list_append(group_path, ep->source);
+                       check_source_links(pc, pc_source->parts[i], ef, group_path);
+                    }
+               }
+          }
+     }
+}
+
 static void
 check_packed_items(Edje_Part_Collection *pc, Edje_Part *ep, Eet_File *ef)
 {
    unsigned int i;
+   char *def_name;
 
    for (i = 0; i < ep->items_count; ++i)
      {
+        if (!ep->items[i]->name)
+          {
+             def_name = alloca(strlen("item_") + strlen("0xFFFFFFFFFFFFFFFF") + 1);
+             sprintf(def_name, "item_%p", def_name);
+             ep->items[i]->name = strdup(def_name);
+          }
 	if (ep->items[i]->type == EDJE_PART_TYPE_GROUP && !ep->items[i]->source)
 	  error_and_abort(ef, "Collection %i: missing source on packed item "
 			  "of type GROUP in part \"%s\"",
@@ -406,6 +458,7 @@ static void
 check_part(Edje_Part_Collection *pc, Edje_Part *ep, Eet_File *ef)
 {
    unsigned int i;
+   Eina_List *group_path = NULL;
    /* FIXME: check image set and sort them. */
    if (!ep->default_desc)
      error_and_abort(ef, "Collection %i: default description missing "
@@ -424,11 +477,14 @@ check_part(Edje_Part_Collection *pc, Edje_Part *ep, Eet_File *ef)
    else if ((ep->type == EDJE_PART_TYPE_BOX) ||
 	    (ep->type == EDJE_PART_TYPE_TABLE))
      check_packed_items(pc, ep, ef);
+   else if (ep->type == EDJE_PART_TYPE_GROUP)
+     check_source_links(pc, ep, ef, group_path);
 
    /* FIXME: When mask are supported remove this check */
    if (ep->clip_to_id != -1 &&
-       pc->parts[ep->clip_to_id]->type != EDJE_PART_TYPE_RECTANGLE)
-     error_and_abort(ef, "Collection %i: clip_to point to a non RECT part '%s' !",
+       (pc->parts[ep->clip_to_id]->type != EDJE_PART_TYPE_RECTANGLE) &&
+       (pc->parts[ep->clip_to_id]->type != EDJE_PART_TYPE_IMAGE))
+     error_and_abort(ef, "Collection %i: clip_to point to a non RECT/IMAGE part '%s' !",
                      pc->id, pc->parts[ep->clip_to_id]->name);
 }
 
@@ -1619,13 +1675,20 @@ _edje_lua_script_writer(lua_State *L EINA_UNUSED, const void *chunk_buf, size_t 
    Script_Lua_Writer *data;
    void *old;
 
+
    data = (Script_Lua_Writer *)_data;
    old = data->buf;
-   data->buf = malloc(data->size + chunk_size);
-   memcpy(data->buf, old, data->size);
-   memcpy(&((data->buf)[data->size]), chunk_buf, chunk_size);
-   if (old) free(old);
-   data->size += chunk_size;
+   data->buf = realloc(data->buf, data->size + chunk_size);
+   if (data->buf)
+     {
+        memcpy(&((data->buf)[data->size]), chunk_buf, chunk_size);
+        data->size += chunk_size;
+     }
+    else
+     {
+        ERR("Failed to copy chunk buffer.\n");
+        data->buf = old;
+     }
 
    return 0;
 }
@@ -1932,11 +1995,11 @@ data_thread_authors(void *data, Ecore_Thread *thread EINA_UNUSED)
    bytes = eet_write(ef, "edje/authors", m, eina_file_size_get(f), compress_mode);
    if ((bytes <= 0) || eina_file_map_faulted(f, m))
      {
-        ERR("Unable to write license part \"%s\".", authors);
+        ERR("Unable to write authors part \"%s\".", authors);
      }
    else
      {
-        INF("Wrote %9i bytes (%4iKb) for \"%s\" license entry compress: [real: %2.1f%%]",
+        INF("Wrote %9i bytes (%4iKb) for \"%s\" authors entry compress: [real: %2.1f%%]",
             bytes, (bytes + 512) / 1024, license,
             100 - (100 * (double)bytes) / ((double)(eina_file_size_get(f))));
      }
@@ -2589,6 +2652,131 @@ data_process_part_set(Part_Lookup *target, int value)
    return EINA_FALSE;
 }
 
+static int
+_data_image_w_size_compare_cb(const void *data1, const void *data2)
+{
+   const Edje_Image_Directory_Set_Entry *img1 = data1;
+   const Edje_Image_Directory_Set_Entry *img2 = data2;
+
+   if (img1->size.w < img2->size.w) return -1;
+   if (img1->size.w > img2->size.w) return 1;
+
+   return 0;
+}
+
+static int
+_data_image_h_size_compare_cb(const void *data1, const void *data2)
+{
+   const Edje_Image_Directory_Set_Entry *img1 = data1;
+   const Edje_Image_Directory_Set_Entry *img2 = data2;
+
+   if (img1->size.h < img2->size.h) return -1;
+   if (img1->size.h > img2->size.h) return 1;
+
+   return 0;
+}
+
+static void
+_data_image_sets_size_set()
+{
+   Evas *evas;
+   Ecore_Evas *ee;
+   Edje_Image_Directory_Set *set;
+   Edje_Image_Directory_Set_Entry *simg, *preimg;
+   Eina_List *l, *entries;
+   unsigned int i;
+
+   ecore_evas_init();
+   ee = ecore_evas_buffer_new(1, 1);
+   if (!ee)
+     {
+        ERR("Cannot create buffer engine canvas for image load.");
+        exit(-1);
+     }
+   evas = ecore_evas_get(ee);
+
+   for (i = 0; i < edje_file->image_dir->sets_count; i++)
+     {
+        set = edje_file->image_dir->sets + i;
+
+        EINA_LIST_FOREACH(set->entries, l, simg)
+          {
+             Evas_Object *im;
+             Eina_List *ll;
+             char *s;
+
+             im = evas_object_image_add(evas);
+             EINA_LIST_FOREACH(img_dirs, ll, s)
+               {
+                  char buf[PATH_MAX];
+                  int load_err = EVAS_LOAD_ERROR_NONE;
+
+                  snprintf(buf, sizeof(buf), "%s/%s", s, simg->name);
+                  evas_object_image_file_set(im, buf, NULL);
+                  load_err = evas_object_image_load_error_get(im);
+                  if (load_err == EVAS_LOAD_ERROR_NONE)
+                    {
+                       evas_object_image_size_get(im, &simg->size.w, &simg->size.h);
+                       break;
+                    }
+               }
+             evas_object_del(im);
+          }
+
+        entries = eina_list_clone(set->entries);
+
+        entries = eina_list_sort(entries, 0, _data_image_w_size_compare_cb);
+        preimg = eina_list_data_get(entries);
+        EINA_LIST_FOREACH(entries, l, simg)
+          {
+             if (simg == preimg) continue;
+             if (!(preimg->size.max.w) && !(simg->size.min.w))
+               {
+                  preimg->size.max.w = (preimg->size.w + simg->size.w) / 2;
+                  simg->size.min.w = preimg->size.max.w + 1;
+                  if (simg->size.min.w <= (simg->border.l + simg->border.r))
+                    {
+                       preimg->size.max.w = simg->border.l + simg->border.r;
+                       simg->size.min.w = preimg->size.max.w + 1;
+                    }
+               }
+             else if (preimg->size.max.w && !(simg->size.min.w))
+               simg->size.min.w = preimg->size.max.w + 1;
+             else if (!(preimg->size.max.w) && simg->size.min.w)
+               preimg->size.max.w = simg->size.min.w - 1;
+             preimg = simg;
+          }
+        simg = eina_list_data_get(eina_list_last(entries));
+        if (!(simg->size.max.w)) simg->size.max.w = 99999;
+
+        entries = eina_list_sort(entries, 0, _data_image_h_size_compare_cb);
+        preimg = eina_list_data_get(entries);
+        EINA_LIST_FOREACH(entries, l, simg)
+          {
+             if (simg == preimg) continue;
+             if (!(preimg->size.max.h) && !(simg->size.min.h))
+               {
+                  preimg->size.max.h = (preimg->size.h + simg->size.h) / 2;
+                  simg->size.min.h = preimg->size.max.h + 1;
+                  if (simg->size.min.h <= (simg->border.t + simg->border.b))
+                    {
+                       preimg->size.max.h = simg->border.t + simg->border.b;
+                       simg->size.min.h = preimg->size.max.h + 1;
+                    }
+               }
+             else if (preimg->size.max.h && !(simg->size.min.h))
+               simg->size.min.h = preimg->size.max.h + 1;
+             else if (!(preimg->size.max.h) && simg->size.min.h)
+               preimg->size.max.h = simg->size.min.h - 1;
+             preimg = simg;
+          }
+        simg = eina_list_data_get(eina_list_last(entries));
+        if (!(simg->size.max.h)) simg->size.max.h = 99999;
+
+        eina_list_free(entries);
+     }
+}
+
 static void
 _data_image_id_update(Eina_List *images_unused_list)
 {
@@ -3033,10 +3221,13 @@ free_group:
                   free(set_e);
                }
           }
+
         /* update image id in parts */
         if (images_unused_list) _data_image_id_update(images_unused_list);
         EINA_LIST_FREE(images_unused_list, iui)
            free(iui);
+
+        _data_image_sets_size_set();
      }
 
    eina_hash_free(images_in_use);

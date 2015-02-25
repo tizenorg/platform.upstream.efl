@@ -281,6 +281,16 @@ EAPI void ecore_main_loop_quit(void);
 EAPI Eina_Bool ecore_main_loop_animator_ticked_get(void);
 
 /**
+ * Returns if the ecore_main_loop is running
+ *
+ * @return an integer specifying if the ecore_main_loop is running,
+ *         0 if not running, > 0 if running
+ *
+ * @since 1.13
+ */
+EAPI int ecore_main_loop_nested_get(void);
+
+/**
  * @typedef Ecore_Cb Ecore_Cb
  * A generic callback called as a hook when a certain point in
  * execution is reached.
@@ -374,6 +384,19 @@ EAPI void ecore_main_loop_thread_safe_call_async(Ecore_Cb callback, void *data);
  * main loop. It can take time and you have no guaranty about the timeline.
  */
 EAPI void *ecore_main_loop_thread_safe_call_sync(Ecore_Data_Cb callback, void *data);
+
+/**
+ * @brief Wait for the next thread call in the main loop.
+ * @since 1.13.0
+ *
+ * @param wait How long to wait for this callback to be called
+ *
+ * Note: This function should only be called in the main loop
+ * and will actually block the main loop until either a call
+ * is triggered from a thread or the time specified by wait has
+ * passed.
+ */
+EAPI void ecore_main_loop_thread_safe_call_wait(double wait);
 
 /**
  * @brief This function suspend the main loop in a know state
@@ -848,7 +871,9 @@ enum _Ecore_Power_State    /* Power state */
 {
    ECORE_POWER_STATE_MAINS, /**< The system is connected to a mains supply of power, thus there is no need to limit processing to save battery life at all. */
    ECORE_POWER_STATE_BATTERY, /**< The system is running off battery power, but is otherwise running normally. */
-   ECORE_POWER_STATE_LOW /**< The system is low on power (on battery) and the process should do its best to conserve power. For example it may reduce or suspend polling of network resources, turn off animations or reduce framerate etc. */
+   ECORE_POWER_STATE_LOW, /**< The system is low on power (on battery) and the process should do its best to conserve power. For example it may reduce or suspend polling of network resources, turn off animations or reduce framerate etc. */
+   //ECORE_POWER_STATE_CRITICAL, /**< The system is very low on power (on battery) and the process should begin taking even more conservative action @since 1.13*/
+   //ECORE_POWER_STATE_EMERGENCY /**< The system is extremely low on power (on battery) and the process should prepare for suspend/hibernate/power loss @since 1.13 */
 };
 typedef enum _Ecore_Power_State Ecore_Power_State;
 
@@ -1807,6 +1832,16 @@ EAPI Ecore_Thread *ecore_thread_feedback_run(Ecore_Thread_Cb func_heavy, Ecore_T
 EAPI Eina_Bool ecore_thread_cancel(Ecore_Thread *thread);
 
 /**
+ * @brief Block the main loop until the thread execution is over.
+ * @since 1.13.0
+ *
+ * @param thread The thread to wait on.
+ * @param wait Maximum time to wait before exiting anyway.
+ * @return EINA_TRUE if the thread execution is over.
+ */
+EAPI Eina_Bool ecore_thread_wait(Ecore_Thread *thread, double wait);
+
+/**
  * Checks if a thread is pending cancellation
  *
  * @param thread The thread to test.
@@ -2684,7 +2719,7 @@ enum _Ecore_Pos_Map    /* Position mappings */
    ECORE_POS_MAP_DIVISOR_INTERP, /**< Start at gradient * v1, interpolated via power of v2 curve */
    ECORE_POS_MAP_BOUNCE, /**< Start at 0.0 then "drop" like a ball bouncing to the ground at 1.0, and bounce v2 times, with decay factor of v1 */
    ECORE_POS_MAP_SPRING, /**< Start at 0.0 then "wobble" like a spring rest position 1.0, and wobble v2 times, with decay factor of v1 */
-   ECORE_POS_MAP_CUBIC_BEZIER /**< Follow the cubic-bezier curve calculated with the points (x1, y1), (x2, y2) */
+   ECORE_POS_MAP_CUBIC_BEZIER /**< Follow the cubic-bezier curve calculated with the control points (x1, y1), (x2, y2) */
 };
 typedef enum _Ecore_Pos_Map Ecore_Pos_Map;
 
@@ -2862,7 +2897,7 @@ EAPI double ecore_animator_pos_map(double pos, Ecore_Pos_Map map, double v1, dou
  *
  * @see _Ecore_Pos_Map
  */
-EAPI double ecore_animator_pos_map_n(double pos, Ecore_Pos_Map map, int v_size, double v[]);
+EAPI double ecore_animator_pos_map_n(double pos, Ecore_Pos_Map map, int v_size, double *v);
 
 /**
  * @brief Set the source of animator ticks for the mainloop
@@ -2916,6 +2951,8 @@ EAPI Ecore_Animator_Source ecore_animator_source_get(void);
  * produce tick events that call ecore_animator_custom_tick(). If @p func
  * is @c NULL then no function is called to begin custom ticking.
  *
+ * @warning Do not use this function unless you know what you are doing.
+ *
  * @see ecore_animator_source_set()
  * @see ecore_animator_custom_source_tick_end_callback_set()
  * @see ecore_animator_custom_tick()
@@ -2934,6 +2971,8 @@ EAPI void ecore_animator_custom_source_tick_begin_callback_set(Ecore_Cb func, co
  * called to stop ticking. For more information please see
  * ecore_animator_custom_source_tick_begin_callback_set().
  *
+ * @warning Do not use this function unless you know what you are doing.
+ *
  * @see ecore_animator_source_set()
  * @see ecore_animator_custom_source_tick_begin_callback_set()
  * @see ecore_animator_custom_tick()
@@ -2948,6 +2987,8 @@ EAPI void ecore_animator_custom_source_tick_end_callback_set(Ecore_Cb func, cons
  * Ecore as this indicates a "frame tick" happened. This will do nothing if
  * the animator source(set by ecore_animator_source_set()) is not set to
  * ECORE_ANIMATOR_SOURCE_CUSTOM.
+ *
+ * @warning Do not use this function unless you know what you are doing.
  *
  * @see ecore_animator_source_set()
  * @see ecore_animator_custom_source_tick_begin_callback_set

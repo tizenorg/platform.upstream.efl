@@ -101,6 +101,12 @@ ecore_wl_window_new(Ecore_Wl_Window *parent, int x, int y, int w, int h, int buf
    win->opaque.w = w;
    win->opaque.h = h;
 
+   win->opaque_region = 
+     wl_compositor_create_region(_ecore_wl_compositor_get());
+
+   win->input_region = 
+     wl_compositor_create_region(_ecore_wl_compositor_get());
+
    win->title = NULL;
    win->class_name = NULL;
 
@@ -124,13 +130,20 @@ ecore_wl_window_free(Ecore_Wl_Window *win)
         if ((input->pointer_focus) && (input->pointer_focus == win))
           input->pointer_focus = NULL;
         if ((input->keyboard_focus) && (input->keyboard_focus == win))
-          input->keyboard_focus = NULL;
+          {
+             input->keyboard_focus = NULL;
+             ecore_timer_del(input->repeat.tmr);
+             input->repeat.tmr = NULL;
+          }
      }
 
    if (win->anim_callback) wl_callback_destroy(win->anim_callback);
    win->anim_callback = NULL;
 
    if (win->subsurfs) _ecore_wl_subsurfs_del_all(win);
+
+   if (win->input_region) wl_region_destroy(win->input_region);
+   if (win->opaque_region) wl_region_destroy(win->opaque_region);
 
 #ifdef USE_IVI_SHELL
    if (win->ivi_surface) ivi_surface_destroy(win->ivi_surface);
@@ -167,7 +180,6 @@ ecore_wl_window_move(Ecore_Wl_Window *win, int x, int y)
 
    if ((!input) && (win->parent))
      {
-        input = win->parent->keyboard_device;
         if (!(input = win->parent->keyboard_device))
           input = win->parent->pointer_device;
      }
@@ -229,6 +241,19 @@ ecore_wl_window_commit(Ecore_Wl_Window *win)
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!win) return;
+
+   if (win->opaque_region)
+     {
+        if (win->surface)
+          wl_surface_set_opaque_region(win->surface, win->opaque_region);
+     }
+
+   if (win->input_region)
+     {
+        if (win->surface)
+          wl_surface_set_input_region(win->surface, win->input_region);
+     }
+
    if ((win->surface) && (win->has_buffer)) 
      wl_surface_commit(win->surface);
 }
@@ -254,7 +279,7 @@ ecore_wl_window_buffer_attach(Ecore_Wl_Window *win, struct wl_buffer *buffer, in
              wl_surface_attach(win->surface, buffer, x, y);
              wl_surface_damage(win->surface, 0, 0, 
                                win->allocation.w, win->allocation.h);
-             wl_surface_commit(win->surface);
+             ecore_wl_window_commit(win);
           }
         break;
       default:
@@ -262,7 +287,7 @@ ecore_wl_window_buffer_attach(Ecore_Wl_Window *win, struct wl_buffer *buffer, in
      }
 }
 
-EAPI struct wl_surface*
+EAPI struct wl_surface *
 ecore_wl_window_surface_create(Ecore_Wl_Window *win)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -270,6 +295,7 @@ ecore_wl_window_surface_create(Ecore_Wl_Window *win)
    if (!win) return NULL;
    if (win->surface) return win->surface;
    win->surface = wl_compositor_create_surface(_ecore_wl_compositor_get());
+   if (!win->surface) return NULL;
    win->surface_id = wl_proxy_get_id((struct wl_proxy *)win->surface);
    return win->surface;
 }
@@ -314,6 +340,10 @@ ecore_wl_window_show(Ecore_Wl_Window *win)
                     xdg_shell_get_xdg_surface(_ecore_wl_disp->wl.xdg_shell,
                                               win->surface);
                   if (!win->xdg_surface) return;
+                  if (win->title)
+                    xdg_surface_set_title(win->xdg_surface, win->title);
+                  if (win->class_name)
+                    xdg_surface_set_app_id(win->xdg_surface, win->class_name);
                   xdg_surface_set_user_data(win->xdg_surface, win);
                   xdg_surface_add_listener(win->xdg_surface,
                                            &_ecore_xdg_surface_listener, win);
@@ -379,6 +409,7 @@ ecore_wl_window_show(Ecore_Wl_Window *win)
                                        _ecore_wl_disp->serial,
                                        win->allocation.x,
                                        win->allocation.y, 0);
+             if (!win->xdg_popup) return;
              xdg_popup_set_user_data(win->xdg_popup, win);
              xdg_popup_add_listener(win->xdg_popup, 
                                     &_ecore_xdg_popup_listener, win);
@@ -683,7 +714,7 @@ ecore_wl_window_cursor_from_name_set(Ecore_Wl_Window *win, const char *cursor_na
 
    eina_stringshare_replace(&win->cursor_name, cursor_name);
 
-   if (strcmp(input->cursor_name, win->cursor_name))
+   if ((input->cursor_name) && (strcmp(input->cursor_name, win->cursor_name)))
      ecore_wl_input_cursor_from_name_set(input, cursor_name);
 }
 
@@ -715,6 +746,9 @@ ecore_wl_window_parent_set(Ecore_Wl_Window *win, Ecore_Wl_Window *parent)
 EAPI void 
 ecore_wl_window_iconified_set(Ecore_Wl_Window *win, Eina_Bool iconified)
 {
+   struct wl_array states;
+   uint32_t *s;
+
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!win) return;
@@ -735,9 +769,12 @@ ecore_wl_window_iconified_set(Ecore_Wl_Window *win, Eina_Bool iconified)
      {
         if (win->xdg_surface)
           {
-             /* TODO: Handle case of UnIconifying an xdg_surface
-              * 
-              * NB: This will be needed for Enlightenment IBox scenario */
+             win->type = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
+             wl_array_init(&states);
+             s = wl_array_add(&states, sizeof(*s));
+             *s = XDG_SURFACE_STATE_ACTIVATED;
+             _ecore_xdg_handle_surface_configure(win, win->xdg_surface, win->saved.w, win->saved.h, &states, 0);
+             wl_array_release(&states);
           }
         else if (win->shell_surface)
           {
@@ -789,33 +826,27 @@ ecore_wl_window_input_region_set(Ecore_Wl_Window *win, int x, int y, int w, int 
 
    win->input.x = x;
    win->input.y = y;
-   if ((w > 0) && (h > 0))
-     {
-        if ((win->input.w == w) && (win->input.h == h))
-          return;
+   win->input.w = w;
+   win->input.h = h;
 
-        win->input.w = w;
-        win->input.h = h;
-     }
-
-   if ((win->type != ECORE_WL_WINDOW_TYPE_FULLSCREEN) || 
-       (win->type != ECORE_WL_WINDOW_TYPE_DND))
+   if (win->type != ECORE_WL_WINDOW_TYPE_DND)
      {
-        if ((w > 0) && (h > 0))
+        switch (win->rotation)
           {
-             struct wl_region *region = NULL;
-
-             region = 
-               wl_compositor_create_region(_ecore_wl_compositor_get());
-             wl_region_add(region, x, y, w, h);
-             wl_surface_set_input_region(win->surface, region);
-             wl_region_destroy(region);
+           case 0:
+             wl_region_add(win->input_region, x, y, w, h);
+             break;
+           case 180:
+             wl_region_add(win->input_region, x, x + y, w, h);
+             break;
+           case 90:
+             wl_region_add(win->input_region, y, x, h, w);
+             break;
+           case 270:
+             wl_region_add(win->input_region, x + y, x, h, w);
+             break;
           }
-        else
-          wl_surface_set_input_region(win->surface, NULL);
      }
-
-   /* ecore_wl_window_commit(win); */
 }
 
 /* @since 1.8 */
@@ -828,45 +859,35 @@ ecore_wl_window_opaque_region_set(Ecore_Wl_Window *win, int x, int y, int w, int
 
    win->opaque.x = x;
    win->opaque.y = y;
-   if ((w > 0) && (h > 0))
-     {
-        if ((win->opaque.w == w) && (win->opaque.h == h))
-          return;
+   win->opaque.w = w;
+   win->opaque.h = h;
 
-        win->opaque.w = w;
-        win->opaque.h = h;
+   if ((win->transparent) || (win->alpha)) return;
+
+   switch (win->rotation)
+     {
+      case 0:
+        wl_region_add(win->opaque_region, x, y, w, h);
+        break;
+      case 180:
+        wl_region_add(win->opaque_region, x, x + y, w, h);
+        break;
+      case 90:
+        wl_region_add(win->opaque_region, y, x, h, w);
+        break;
+      case 270:
+        wl_region_add(win->opaque_region, x + y, x, h, w);
+        break;
      }
 
-   if (((w > 0) && (h > 0)) && ((!win->transparent) && (!win->alpha)))
-     {
-        struct wl_region *region = NULL;
+   /* if ((w > 0) && (h > 0)) */
+   /*   { */
+   /*      if ((win->opaque.w == w) && (win->opaque.h == h)) */
+   /*        return; */
 
-        region = 
-          wl_compositor_create_region(_ecore_wl_compositor_get());
-
-        switch (win->rotation)
-          {
-           case 0:
-             wl_region_add(region, x, y, w, h);
-             break;
-           case 180:
-             wl_region_add(region, x, x + y, w, h);
-             break;
-           case 90:
-             wl_region_add(region, y, x, h, w);
-             break;
-           case 270:
-             wl_region_add(region, x + y, x, h, w);
-             break;
-          }
-
-        wl_surface_set_opaque_region(win->surface, region);
-        wl_region_destroy(region);
-     }
-   else
-     wl_surface_set_opaque_region(win->surface, NULL);
-
-   /* ecore_wl_window_commit(win); */
+   /*      win->opaque.w = w; */
+   /*      win->opaque.h = h; */
+   /*   } */
 }
 
 /* @since 1.8 */
@@ -1019,7 +1040,8 @@ _ecore_xdg_handle_surface_configure(void *data, struct xdg_surface *xdg_surface 
           _ecore_wl_window_configure_send(win, win->saved.w, win->saved.h, 0);
      }
 
-   xdg_surface_ack_configure(win->xdg_surface, serial);
+   if (win->xdg_surface)
+     xdg_surface_ack_configure(win->xdg_surface, serial);
 }
 
 static void

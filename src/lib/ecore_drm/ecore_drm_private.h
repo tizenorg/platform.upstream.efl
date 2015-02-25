@@ -19,14 +19,20 @@
 # include <sys/stat.h>
 # include <sys/ioctl.h>
 
+# include <linux/vt.h>
+# include <linux/kd.h>
+# include <linux/major.h>
 # include <linux/input.h>
-//# include <libinput.h>
-# include <systemd/sd-login.h>
+# include <libinput.h>
 # include <xkbcommon/xkbcommon.h>
 
 # include <xf86drm.h>
 # include <xf86drmMode.h>
 # include <drm_fourcc.h>
+
+# ifdef HAVE_SYSTEMD_LOGIN
+#  include <systemd/sd-login.h>
+# endif
 
 # include <Eeze.h>
 # include <Eldbus.h>
@@ -141,10 +147,10 @@ struct _Ecore_Drm_Seat
 struct _Ecore_Drm_Input
 {
    int fd;
-   const char *seat;
-   Eeze_Udev_Watch *watch;
-   Ecore_Fd_Handler *hdlr;
    Ecore_Drm_Device *dev;
+   struct libinput *libinput;
+
+   Ecore_Fd_Handler *hdlr;
 
    Eina_Bool enabled : 1;
    Eina_Bool suspended : 1;
@@ -153,25 +159,27 @@ struct _Ecore_Drm_Input
 struct _Ecore_Drm_Evdev
 {
    Ecore_Drm_Seat *seat;
-   /* struct libinput *linput; */
-   /* struct libinput_device *dev; */
-   const char *name, *path;
+   struct libinput_device *device;
+
+   const char *path;
    int fd;
 
    int mt_slot;
 
-   struct 
-     {
-        int min_x, min_y;
-        int max_x, max_y;
-        double rel_w, rel_h;
-        struct
-          {
-            int x[2];
-            int y[2];
-            Eina_Bool down : 1;
-          } pt[EVDEV_MAX_SLOTS];
-     } abs;
+   Ecore_Drm_Output *output;
+
+   /* struct  */
+   /*   { */
+   /*      int min_x, min_y; */
+   /*      int max_x, max_y; */
+   /*      double rel_w, rel_h; */
+   /*      struct */
+   /*        { */
+   /*          int x[2]; */
+   /*          int y[2]; */
+   /*          Eina_Bool down : 1; */
+   /*        } pt[EVDEV_MAX_SLOTS]; */
+   /*   } abs; */
 
    struct 
      {
@@ -180,7 +188,7 @@ struct _Ecore_Drm_Evdev
         double threshold;
         Eina_Bool did_double : 1;
         Eina_Bool did_triple : 1;
-        int prev_button, last_button;
+        uint32_t prev_button, last_button;
      } mouse;
 
    struct 
@@ -199,13 +207,8 @@ struct _Ecore_Drm_Evdev
         unsigned int depressed, latched, locked, group;
      } xkb;
 
-   Ecore_Drm_Evdev_Event_Type pending_event;
-   Ecore_Drm_Evdev_Capabilities caps;
+   /* Ecore_Drm_Evdev_Capabilities caps; */
    Ecore_Drm_Seat_Capabilities seat_caps;
-
-   void (*event_process)(Ecore_Drm_Evdev *dev, struct input_event *event, int count);
-
-   Ecore_Fd_Handler *hdlr;
 };
 
 struct _Ecore_Drm_Sprite
@@ -228,14 +231,20 @@ struct _Ecore_Drm_Sprite
    unsigned int formats[];
 };
 
-int _ecore_drm_dbus_init(const char *session);
-int _ecore_drm_dbus_shutdown(void);
-void _ecore_drm_dbus_device_open(const char *device, Eldbus_Message_Cb callback, const void *data);
-void _ecore_drm_dbus_device_close(const char *device);
+typedef void (*Ecore_Drm_Open_Cb)(void *data, int fd, Eina_Bool b);
 
-Ecore_Drm_Evdev *_ecore_drm_evdev_device_create(Ecore_Drm_Seat *seat, const char *path, int fd);
+void _ecore_drm_event_activate_send(Eina_Bool active);
+
+Eina_Bool _ecore_drm_launcher_device_open(const char *device, Ecore_Drm_Open_Cb callback, void *data, int flags);
+int _ecore_drm_launcher_device_open_no_pending(const char *device, int flags);
+void _ecore_drm_launcher_device_close(const char *device, int fd);
+int _ecore_drm_launcher_device_flags_set(int fd, int flags);
+
+Eina_Bool _ecore_drm_tty_switch(Ecore_Drm_Device *dev, int activate_vt);
+
+Ecore_Drm_Evdev *_ecore_drm_evdev_device_create(Ecore_Drm_Seat *seat, struct libinput_device *device);
 void _ecore_drm_evdev_device_destroy(Ecore_Drm_Evdev *evdev);
-/* int _ecore_drm_evdev_event_process(struct libinput_event *event); */
+Eina_Bool _ecore_drm_evdev_event_process(struct libinput_event *event);
 
 Ecore_Drm_Fb *_ecore_drm_fb_create(Ecore_Drm_Device *dev, int width, int height);
 void _ecore_drm_fb_destroy(Ecore_Drm_Fb *fb);
@@ -243,5 +252,20 @@ void _ecore_drm_fb_destroy(Ecore_Drm_Fb *fb);
 void _ecore_drm_output_fb_release(Ecore_Drm_Output *output, Ecore_Drm_Fb *fb);
 void _ecore_drm_output_repaint_start(Ecore_Drm_Output *output);
 void _ecore_drm_output_frame_finish(Ecore_Drm_Output *output);
+
+Eina_Bool _ecore_drm_logind_connect(Ecore_Drm_Device *dev);
+void _ecore_drm_logind_disconnect(Ecore_Drm_Device *dev);
+void _ecore_drm_logind_restore(Ecore_Drm_Device *dev);
+Eina_Bool _ecore_drm_logind_device_open(const char *device, Ecore_Drm_Open_Cb callback, void *data);
+int _ecore_drm_logind_device_open_no_pending(const char *device);
+void _ecore_drm_logind_device_close(const char *device);
+
+int _ecore_drm_dbus_init(Ecore_Drm_Device *dev);
+int _ecore_drm_dbus_shutdown(void);
+int _ecore_drm_dbus_device_take(uint32_t major, uint32_t minor, Ecore_Drm_Open_Cb callback, void *data);
+int _ecore_drm_dbus_device_take_no_pending(uint32_t major, uint32_t minor, Eina_Bool *paused_out, double timeout);
+void _ecore_drm_dbus_device_release(uint32_t major, uint32_t minor);
+Eina_Bool _ecore_drm_dbus_session_take(void);
+Eina_Bool _ecore_drm_dbus_session_release(void);
 
 #endif

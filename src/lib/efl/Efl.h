@@ -34,6 +34,8 @@ extern "C"
 # endif
 #endif /* ! _WIN32 */
 
+#ifdef EFL_BETA_API_SUPPORT
+
 /* Interfaces */
 #include "interfaces/efl_control.eo.h"
 #include "interfaces/efl_file.eo.h"
@@ -151,6 +153,8 @@ typedef enum _Efl_Gfx_Gradient_Spread
 #include "interfaces/efl_gfx_gradient.eo.h"
 #include "interfaces/efl_gfx_gradient_linear.eo.h"
 #include "interfaces/efl_gfx_gradient_radial.eo.h"
+
+#endif
 
 #if defined ( __cplusplus )
 }

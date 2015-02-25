@@ -1,6 +1,9 @@
 #include "evas_common_private.h"
 #include "evas_scale_smooth.h"
 #include "evas_blend_private.h"
+#ifdef BUILD_NEON
+#include <arm_neon.h>
+#endif
 
 #define SCALE_CALC_X_POINTS(P, SW, DW, CX, CW) \
   P = alloca((CW + 1) * sizeof (int));         \
@@ -145,7 +148,8 @@ evas_common_scale_rgba_in_to_out_clip_smooth_mmx(RGBA_Image *src, RGBA_Image *ds
       clip_x, clip_y, clip_w, clip_h,
       mul_col, dc->render_op,
       src_region_x, src_region_y, src_region_w, src_region_h,
-      dst_region_x, dst_region_y, dst_region_w, dst_region_h);
+      dst_region_x, dst_region_y, dst_region_w, dst_region_h,
+      dc->clip.mask, dc->clip.mask_x, dc->clip.mask_y);
 
    return EINA_TRUE;
 }
@@ -185,7 +189,8 @@ evas_common_scale_rgba_in_to_out_clip_smooth_neon(RGBA_Image *src, RGBA_Image *d
       clip_x, clip_y, clip_w, clip_h,
       mul_col, dc->render_op,
       src_region_x, src_region_y, src_region_w, src_region_h,
-      dst_region_x, dst_region_y, dst_region_w, dst_region_h);
+      dst_region_x, dst_region_y, dst_region_w, dst_region_h,
+      dc->clip.mask, dc->clip.mask_x, dc->clip.mask_y);
 
    return EINA_TRUE;
 }
@@ -224,7 +229,8 @@ evas_common_scale_rgba_in_to_out_clip_smooth_c(RGBA_Image *src, RGBA_Image *dst,
       clip_x, clip_y, clip_w, clip_h,
       mul_col, dc->render_op,
       src_region_x, src_region_y, src_region_w, src_region_h,
-      dst_region_x, dst_region_y, dst_region_w, dst_region_h);
+      dst_region_x, dst_region_y, dst_region_w, dst_region_h,
+      dc->clip.mask, dc->clip.mask_x, dc->clip.mask_y);
 
    return EINA_TRUE;
 }
@@ -262,7 +268,7 @@ evas_common_scale_rgba_in_to_out_clip_smooth(RGBA_Image *src, RGBA_Image *dst,
 }
 
 EAPI void
-evas_common_scale_rgba_smooth_draw(RGBA_Image *src, RGBA_Image *dst, int dst_clip_x, int dst_clip_y, int dst_clip_w, int dst_clip_h, DATA32 mul_col, int render_op, int src_region_x, int src_region_y, int src_region_w, int src_region_h, int dst_region_x, int dst_region_y, int dst_region_w, int dst_region_h)
+evas_common_scale_rgba_smooth_draw(RGBA_Image *src, RGBA_Image *dst, int dst_clip_x, int dst_clip_y, int dst_clip_w, int dst_clip_h, DATA32 mul_col, int render_op, int src_region_x, int src_region_y, int src_region_w, int src_region_h, int dst_region_x, int dst_region_y, int dst_region_w, int dst_region_h, RGBA_Image *mask_ie, int mask_x, int mask_y)
 {
 #ifdef BUILD_MMX
    int mmx, sse, sse2;
@@ -274,7 +280,8 @@ evas_common_scale_rgba_smooth_draw(RGBA_Image *src, RGBA_Image *dst, int dst_cli
         dst_clip_x, dst_clip_y, dst_clip_w, dst_clip_h,
         mul_col, render_op,
         src_region_x, src_region_y, src_region_w, src_region_h,
-        dst_region_x, dst_region_y, dst_region_w, dst_region_h);
+        dst_region_x, dst_region_y, dst_region_w, dst_region_h,
+        mask_ie, mask_x, mask_y);
    else
 #endif
 #ifdef BUILD_NEON
@@ -284,7 +291,8 @@ evas_common_scale_rgba_smooth_draw(RGBA_Image *src, RGBA_Image *dst, int dst_cli
          dst_clip_x, dst_clip_y, dst_clip_w, dst_clip_h,
          mul_col, render_op,
          src_region_x, src_region_y, src_region_w, src_region_h,
-         dst_region_x, dst_region_y, dst_region_w, dst_region_h);
+         dst_region_x, dst_region_y, dst_region_w, dst_region_h,
+         mask_ie, mask_x, mask_y);
    else
 #endif
      _evas_common_scale_rgba_in_to_out_clip_smooth_c
@@ -292,7 +300,8 @@ evas_common_scale_rgba_smooth_draw(RGBA_Image *src, RGBA_Image *dst, int dst_cli
         dst_clip_x, dst_clip_y, dst_clip_w, dst_clip_h,
         mul_col, render_op,
         src_region_x, src_region_y, src_region_w, src_region_h,
-        dst_region_x, dst_region_y, dst_region_w, dst_region_h);
+        dst_region_x, dst_region_y, dst_region_w, dst_region_h,
+        mask_ie, mask_x, mask_y);
 }
 
 EAPI void

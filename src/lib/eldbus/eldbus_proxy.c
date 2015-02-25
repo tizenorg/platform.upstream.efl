@@ -317,17 +317,14 @@ _property_changed_iter(void *data, const void *key, Eldbus_Message_Iter *var)
    eina_value_struct_value_get(st_value, "arg0", &stack_value);
 
    value = eina_hash_find(proxy->props, skey);
-   if (value)
+   if (!value)
      {
-        eina_value_flush(value);
-        eina_value_copy(&stack_value, value);
-     }
-   else
-     {
-        value = calloc(1, sizeof(Eina_Value));
-        eina_value_copy(&stack_value, value);
+        value = eina_value_new(eina_value_type_get(&stack_value));
         eina_hash_add(proxy->props, skey, value);
      }
+
+   eina_value_flush(value);
+   eina_value_copy(&stack_value, value);
 
    event.name = skey;
    event.value = value;
@@ -521,13 +518,15 @@ eldbus_proxy_interface_get(const Eldbus_Proxy *proxy)
 }
 
 static void
-_on_pending_free(void *data, const void *dead_pointer)
+_on_proxy_message_cb(void *data, const Eldbus_Message *msg, Eldbus_Pending *pending)
 {
-   Eldbus_Proxy *proxy = data;
-   Eldbus_Pending *pending = (Eldbus_Pending *)dead_pointer;
+   Eldbus_Message_Cb cb = eldbus_pending_data_del(pending, "__user_cb");
+   Eldbus_Proxy *proxy = eldbus_pending_data_del(pending, "__proxy");
+
    ELDBUS_PROXY_CHECK(proxy);
    proxy->pendings = eina_inlist_remove(proxy->pendings,
                                         EINA_INLIST_GET(pending));
+   cb(data, msg, pending);
 }
 
 static Eldbus_Pending *
@@ -535,15 +534,27 @@ _eldbus_proxy_send(Eldbus_Proxy *proxy, Eldbus_Message *msg, Eldbus_Message_Cb c
 {
    Eldbus_Pending *pending;
 
-   pending = _eldbus_connection_send(proxy->obj->conn, msg, cb, cb_data, timeout);
-   if (!cb) return NULL;
+   if (!cb)
+     {
+        _eldbus_connection_send(proxy->obj->conn, msg, NULL, NULL, timeout);
+        return NULL;
+     }
+   pending = _eldbus_connection_send(proxy->obj->conn, msg,
+                                     _on_proxy_message_cb, cb_data, timeout);
    EINA_SAFETY_ON_NULL_RETURN_VAL(pending, NULL);
 
-   eldbus_pending_free_cb_add(pending, _on_pending_free, proxy);
+   eldbus_pending_data_set(pending, "__user_cb", cb);
+   eldbus_pending_data_set(pending, "__proxy", proxy);
    proxy->pendings = eina_inlist_append(proxy->pendings,
                                         EINA_INLIST_GET(pending));
 
    return pending;
+}
+
+static Eldbus_Message *
+_eldbus_proxy_send_and_block(Eldbus_Proxy *proxy, Eldbus_Message *msg, double timeout)
+{
+   return _eldbus_connection_send_and_block(proxy->obj->conn, msg, timeout);
 }
 
 EAPI Eldbus_Pending *
@@ -553,6 +564,15 @@ eldbus_proxy_send(Eldbus_Proxy *proxy, Eldbus_Message *msg, Eldbus_Message_Cb cb
    EINA_SAFETY_ON_NULL_RETURN_VAL(msg, NULL);
 
    return _eldbus_proxy_send(proxy, msg, cb, cb_data, timeout);
+}
+
+EAPI Eldbus_Message *
+eldbus_proxy_send_and_block(Eldbus_Proxy *proxy, Eldbus_Message *msg, double timeout)
+{
+   ELDBUS_PROXY_CHECK_RETVAL(proxy, NULL);
+   EINA_SAFETY_ON_NULL_RETURN_VAL(msg, NULL);
+
+   return _eldbus_proxy_send_and_block(proxy, msg, timeout);
 }
 
 EAPI Eldbus_Message *

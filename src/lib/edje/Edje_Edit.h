@@ -1234,6 +1234,10 @@ EAPI const char * edje_edit_part_source_get(Evas_Object *obj, const char *part);
 
 /** Set the source of part.
  *
+ * If setting source of the part will lead to recursive reference
+ * (when A source to B, and B is going to be source to A because of this funciton),
+ * then it will return EINA_FALSE.
+ *
  * @param obj Object being edited.
  * @param part Part to set the source of.
  * @param source Value for the source parameter.
@@ -1453,6 +1457,26 @@ EAPI Eina_Bool edje_edit_part_mouse_events_get(Evas_Object *obj, const char *par
  * @return @c EINA_TRUE in case of success, @c EINA_FALSE otherwise.
  */
 EAPI Eina_Bool edje_edit_part_mouse_events_set(Evas_Object *obj, const char *part, Eina_Bool mouse_events);
+
+/** Get anti-alising for part.
+ *
+ * @param obj Object being edited.
+ * @param part Part to get if the anti-aliasing is accepted.
+ *
+ * @return @c EINA_TRUE if part will draw anti-alised, @c EINA_FALSE otherwise.
+ */
+EAPI Eina_Bool edje_edit_part_anti_alias_get(Evas_Object *obj, const char *part);
+
+/** Set anti-alising for part.
+ *
+ * @param obj Object being edited.
+ * @param part The part to set if the anti-aliasing is accepted.
+ * @param mouse_events EINA_TRUE if part should to draw anti-aliased, @c EINA_FALSE otherwise.
+ *
+ * @return @c EINA_TRUE in case of success, @c EINA_FALSE otherwise.
+ */
+EAPI Eina_Bool edje_edit_part_anti_alias_set(Evas_Object *obj, const char *part, Eina_Bool anti_alias);
+
 
 /** Get repeat_events for part.
  *
@@ -4028,8 +4052,7 @@ edje_edit_state_map_point_color_get(Evas_Object *obj, const char *part, const ch
 
 /** Set the source part for given part state.
  *
- * Set source causes the part to use another part content as the content
- * of this part.
+ * Set another part content as the content of this part.
  *
  * @param obj Object being edited.
  * @param part Part that contain state.
@@ -4646,6 +4669,19 @@ EAPI Eina_Bool edje_edit_image_del(Evas_Object *obj, const char *name);
  * case when one of the names is not valid)
  */
 EAPI Eina_Bool edje_edit_image_replace(Evas_Object *obj, const char *name, const char *new_name);
+
+/** Rename image
+ *
+ * @param obj Object being edited.
+ * @param name The name of the image to be renamed.
+ * @param new_name The new_name of the image.
+ *
+ * @return @c EINA_TRUE in case of success, @c EINA_FALSE otherwise.(including the
+ * case when one of the names is not valid)
+ *
+ * @since 1.13
+ */
+EAPI Eina_Bool edje_edit_image_rename(Evas_Object *obj, const char *name, const char *new_name);
 
 /** Get list of (Edje_Part_Image_Use *) - group-part-state triplets where given
  * image is used
@@ -5952,6 +5988,101 @@ EAPI double edje_edit_program_transition_time_get(Evas_Object *obj, const char *
  * @return @c EINA_TRUE in case of success, @c EINA_FALSE otherwise.
  */
 EAPI Eina_Bool edje_edit_program_transition_time_set(Evas_Object *obj, const char *prog, double seconds);
+
+/** Get sample name of the program.
+ *
+ * @param obj Object being edited.
+ * @param prog The name of the program.
+ *
+ * @return const char* sample_name on success, NULL otherwise.
+ */
+EAPI const char * edje_edit_program_sample_name_get(Evas_Object *obj, const char *prog);
+
+/** Set sample name of the program.
+ *
+ * @param obj Object being edited.
+ * @param prog The name of the program.
+ * @param name The name of the sample.
+ *
+ * @return @c EINA_TRUE in case of success, @c EINA_FALSE otherwise.
+ */
+EAPI Eina_Bool edje_edit_program_sample_name_set(Evas_Object *obj, const char *prog, const char *name);
+
+/** Get tone name of the program.
+ *
+ * @param obj Object being edited.
+ * @param prog The name of the program.
+ *
+ * @return const char* tone_name on success, NULL otherwise.
+ */
+EAPI const char * edje_edit_program_tone_name_get(Evas_Object *obj, const char *prog);
+
+/** Set tone name of the program.
+ *
+ * @param obj Object being edited.
+ * @param prog The name of the program.
+ * @param name The name of the tone.
+ *
+ * @return @c EINA_TRUE in case of success, @c EINA_FALSE otherwise.
+ */
+EAPI Eina_Bool edje_edit_program_tone_name_set(Evas_Object *obj, const char *prog, const char *name);
+
+/** Get sample speed of the program.
+ *
+ * @param obj Object being edited.
+ * @param prog The name of the program.
+ *
+ * @return double speed on success, -1 otherwise.
+ */
+EAPI double edje_edit_program_sample_speed_get(Evas_Object *obj, const char *prog);
+
+/** Set sample speed of the program.
+ *
+ * @param obj Object being edited.
+ * @param prog The name of the program.
+ * @param speed New speed value.
+ *
+ * @return @c EINA_TRUE in case of success, @c EINA_FALSE otherwise.
+ */
+EAPI Eina_Bool edje_edit_program_sample_speed_set(Evas_Object *obj, const char *prog, double speed);
+
+/** Get tone duration of the program.
+ *
+ * @param obj Object being edited.
+ * @param prog The name of the program.
+ *
+ * @return double duration on success, -1 otherwise.
+ */
+EAPI double edje_edit_program_tone_duration_get(Evas_Object *obj, const char *prog);
+
+/** Set tone duration of the program.
+ *
+ * @param obj Object being edited.
+ * @param prog The name of the program.
+ * @param duration New duration value.
+ *
+ * @return @c EINA_TRUE in case of success, @c EINA_FALSE otherwise.
+ */
+EAPI Eina_Bool edje_edit_program_tone_duration_set(Evas_Object *obj, const char *prog, double duration);
+
+/** Get sample channel of the program.
+ *
+ * @param obj Object being edited.
+ * @param prog The name of the program.
+ *
+ * @return channel on success, 0 otherwise.
+ */
+EAPI unsigned char edje_edit_program_channel_get(Evas_Object *obj, const char *prog);
+
+/** Set sample channel of the program.
+ *
+ * @param obj Object being edited.
+ * @param prog The name of the program.
+ * @param channel New channel value.
+ *
+ * @return @c EINA_TRUE in case of success, @c EINA_FALSE otherwise.
+ */
+EAPI Eina_Bool edje_edit_program_channel_set(Evas_Object *obj, const char *prog, Edje_Channel channel);
 
 /** Get filter part name of the program.
  *

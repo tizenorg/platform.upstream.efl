@@ -52,15 +52,7 @@ void *_ecore_xcb_window_grab_replay_data;
  */
 
 EAPI Ecore_X_Window
-ecore_x_window_full_new(Ecore_X_Window parent,
-                        int x,
-                        int y,
-                        int w,
-                        int h,
-                        Ecore_X_Visual *visual,
-                        Ecore_X_Colormap colormap,
-                        int depth,
-                        Eina_Bool override)
+ecore_x_window_full_new(Ecore_X_Window parent, int x, int y, int w, int h, Ecore_X_Visual *visual, Ecore_X_Colormap colormap, int depth EINA_UNUSED, Eina_Bool override)
 {
    Ecore_X_Window win;
    uint32_t mask, mask_list[10];
@@ -98,7 +90,7 @@ ecore_x_window_full_new(Ecore_X_Window parent,
                    XCB_EVENT_MASK_PROPERTY_CHANGE |
                    XCB_EVENT_MASK_COLOR_MAP_CHANGE);
    mask_list[8] = XCB_EVENT_MASK_NO_EVENT;
-   value_list[9]  = colormap;
+   mask_list[9] = colormap;
 
    win = xcb_generate_id(_ecore_xcb_conn);
    xcb_create_window(_ecore_xcb_conn, XCB_COPY_FROM_PARENT,
@@ -125,11 +117,7 @@ ecore_x_window_full_new(Ecore_X_Window parent,
  * @ingroup Ecore_X_Window_Create_Group
  */
 EAPI Ecore_X_Window
-ecore_x_window_new(Ecore_X_Window parent,
-                   int            x,
-                   int            y,
-                   int            w,
-                   int            h)
+ecore_x_window_new(Ecore_X_Window parent, int x, int y, int w, int h)
 {
    Ecore_X_Window win;
    uint32_t mask, mask_list[9];
@@ -189,11 +177,7 @@ ecore_x_window_new(Ecore_X_Window parent,
  * @ingroup Ecore_X_Window_Create_Group
  */
 EAPI Ecore_X_Window
-ecore_x_window_override_new(Ecore_X_Window parent,
-                            int            x,
-                            int            y,
-                            int            w,
-                            int            h)
+ecore_x_window_override_new(Ecore_X_Window parent, int x, int y, int w, int h)
 {
    Ecore_X_Window win;
    uint32_t mask, mask_list[9];
@@ -250,11 +234,7 @@ ecore_x_window_override_new(Ecore_X_Window parent,
  * @ingroup Ecore_X_Window_Create_Group
  */
 EAPI Ecore_X_Window
-ecore_x_window_input_new(Ecore_X_Window parent,
-                         int            x,
-                         int            y,
-                         int            w,
-                         int            h)
+ecore_x_window_input_new(Ecore_X_Window parent, int x, int y, int w, int h)
 {
    Ecore_X_Window win;
    uint32_t mask, mask_list[3];
@@ -303,11 +283,7 @@ ecore_x_window_input_new(Ecore_X_Window parent,
  * @ingroup Ecore_X_Window_Create_Group
  */
 EAPI Ecore_X_Window
-ecore_x_window_manager_argb_new(Ecore_X_Window parent,
-                                int            x,
-                                int            y,
-                                int            w,
-                                int            h)
+ecore_x_window_manager_argb_new(Ecore_X_Window parent, int x, int y, int w, int h)
 {
    Ecore_X_Window win = 0;
 
@@ -330,11 +306,7 @@ ecore_x_window_manager_argb_new(Ecore_X_Window parent,
  * @ingroup Ecore_X_Window_Create_Group
  */
 EAPI Ecore_X_Window
-ecore_x_window_argb_new(Ecore_X_Window parent,
-                        int            x,
-                        int            y,
-                        int            w,
-                        int            h)
+ecore_x_window_argb_new(Ecore_X_Window parent, int x, int y, int w, int h)
 {
    Ecore_X_Window win = 0;
 
@@ -357,11 +329,7 @@ ecore_x_window_argb_new(Ecore_X_Window parent,
  * @ingroup Ecore_X_Window_Create_Group
  */
 EAPI Ecore_X_Window
-ecore_x_window_override_argb_new(Ecore_X_Window parent,
-                                 int            x,
-                                 int            y,
-                                 int            w,
-                                 int            h)
+ecore_x_window_override_argb_new(Ecore_X_Window parent, int x, int y, int w, int h)
 {
    Ecore_X_Window win = 0;
 

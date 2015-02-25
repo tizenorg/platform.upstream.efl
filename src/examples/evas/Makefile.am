@@ -49,6 +49,7 @@ ECORE_EVAS_COMMON_CPPFLAGS = \
 @EVAS_CFLAGS@
 
 ECORE_EVAS_COMMON_LDADD = \
+$(top_builddir)/src/lib/efl/libefl.la \
 $(top_builddir)/src/lib/eina/libeina.la \
 $(top_builddir)/src/lib/eo/libeo.la \
 $(top_builddir)/src/lib/ector/libector.la \
@@ -169,6 +170,11 @@ evas_map_utils_SOURCES = evas-map-utils.c
 evas_map_utils_LDADD = $(ECORE_EVAS_COMMON_LDADD)
 evas_map_utils_CPPFLAGS = $(ECORE_EVAS_COMMON_CPPFLAGS)
 
+EXTRA_PROGRAMS += evas_map_aa
+evas_map_aa_SOURCES = evas-map-aa.c
+evas_map_aa_LDADD = $(ECORE_EVAS_COMMON_LDADD)
+evas_map_aa_CPPFLAGS = $(ECORE_EVAS_COMMON_CPPFLAGS)
+
 EXTRA_PROGRAMS += evas_table
 evas_table_SOURCES = evas-table.c
 evas_table_LDADD = $(ECORE_EVAS_COMMON_LDADD)
@@ -214,6 +220,11 @@ evas_3d_eet_SOURCES = evas-3d-eet.c
 evas_3d_eet_LDADD = $(ECORE_EVAS_COMMON_LDADD) @EFL_PTHREAD_LIBS@
 evas_3d_eet_CPPFLAGS = $(ECORE_EVAS_COMMON_CPPFLAGS)
 
+EXTRA_PROGRAMS += evas_3d_ply
+evas_3d_ply_SOURCES = evas-3d-ply.c
+evas_3d_ply_LDADD = $(ECORE_EVAS_COMMON_LDADD) @EFL_PTHREAD_LIBS@
+evas_3d_ply_CPPFLAGS = $(ECORE_EVAS_COMMON_CPPFLAGS)
+
 EXTRA_PROGRAMS += evas_3d_frustum
 evas_3d_frustum_SOURCES = evas-3d-frustum.c
 evas_3d_frustum_LDADD = $(ECORE_EVAS_COMMON_LDADD) @EFL_PTHREAD_LIBS@
@@ -234,6 +245,11 @@ evas_3d_cube_rotate_SOURCES = evas-3d-cube-rotate.c
 evas_3d_cube_rotate_LDADD = $(ECORE_EVAS_COMMON_LDADD) @EFL_PTHREAD_LIBS@
 evas_3d_cube_rotate_CPPFLAGS = $(ECORE_EVAS_COMMON_CPPFLAGS)
 
+EXTRA_PROGRAMS += evas_3d_shadows
+evas_3d_shadows_SOURCES = evas-3d-shadows.c
+evas_3d_shadows_LDADD = $(ECORE_EVAS_COMMON_LDADD) @EFL_PTHREAD_LIBS@
+evas_3d_shadows_CPPFLAGS = $(ECORE_EVAS_COMMON_CPPFLAGS)
+
 EXTRA_PROGRAMS += evas_3d_shooter
 evas_3d_shooter_SOURCES = shooter/evas-3d-shooter.c shooter/evas-3d-shooter-header.c
 evas_3d_shooter_LDADD = $(ECORE_EVAS_COMMON_LDADD) @EFL_PTHREAD_LIBS@
@@ -243,6 +259,16 @@ EXTRA_PROGRAMS += evas_3d_obj
 evas_3d_obj_SOURCES = evas-3d-obj.c
 evas_3d_obj_LDADD = $(ECORE_EVAS_COMMON_LDADD) @EFL_PTHREAD_LIBS@
 evas_3d_obj_CPPFLAGS = $(ECORE_EVAS_COMMON_CPPFLAGS)
+
+EXTRA_PROGRAMS += evas_3d_blending
+evas_3d_blending_SOURCES = evas-3d-blending.c
+evas_3d_blending_LDADD = $(ECORE_EVAS_COMMON_LDADD) @EFL_PTHREAD_LIBS@
+evas_3d_blending_CPPFLAGS = $(ECORE_EVAS_COMMON_CPPFLAGS)
+
+EXTRA_PROGRAMS += evas_3d_mmap
+evas_3d_mmap_SOURCES = evas-3d-mmap-set.c
+evas_3d_mmap_LDADD = $(ECORE_EVAS_COMMON_LDADD) @EFL_PTHREAD_LIBS@
+evas_3d_mmap_CPPFLAGS = $(ECORE_EVAS_COMMON_CPPFLAGS)
 
 EXTRA_PROGRAMS += evas_gl
 evas_gl_SOURCES = evas-gl.c
@@ -287,6 +313,7 @@ evas-images2.c \
 evas-images3.c \
 evas-init-shutdown.c \
 evas-map-utils.c \
+evas-map-aa.c \
 evas-object-manipulation-eo.c \
 evas-object-manipulation.c \
 evas-smart-interface.c \

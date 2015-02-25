@@ -700,6 +700,8 @@ struct _RGBA_Draw_Context
    } col;
    struct RGBA_Draw_Context_clip {
       int    x, y, w, h;
+      void  *mask;
+      int    mask_x, mask_y;
       Eina_Bool use : 1;
    } clip;
    Cutout_Rects cutout;
@@ -1020,17 +1022,17 @@ struct _RGBA_Gfx_Compositor
    void              (*init)(void);
    void              (*shutdown)(void);
 
-   RGBA_Gfx_Func  (*composite_pixel_span_get)(RGBA_Image *src, RGBA_Image *dst, int pixels);
-   RGBA_Gfx_Func  (*composite_color_span_get)(DATA32 col, RGBA_Image *dst, int pixels);
-   RGBA_Gfx_Func  (*composite_pixel_color_span_get)(RGBA_Image *src, DATA32 col, RGBA_Image *dst, int pixels);
-   RGBA_Gfx_Func  (*composite_mask_color_span_get)(DATA32 col, RGBA_Image *dst, int pixels);
-   RGBA_Gfx_Func  (*composite_pixel_mask_span_get)(RGBA_Image *src, RGBA_Image *dst, int pixels);
+   RGBA_Gfx_Func  (*composite_pixel_span_get)(Eina_Bool src_alpha, Eina_Bool src_sparse_alpha, Eina_Bool dst_alpha, int pixels);
+   RGBA_Gfx_Func  (*composite_color_span_get)(DATA32 col, Eina_Bool dst_alpha, int pixels);
+   RGBA_Gfx_Func  (*composite_pixel_color_span_get)(Eina_Bool src_alpha, Eina_Bool src_sparse_alpha, DATA32 col, Eina_Bool dst_alpha, int pixels);
+   RGBA_Gfx_Func  (*composite_mask_color_span_get)(DATA32 col, Eina_Bool dst_alpha, int pixels);
+   RGBA_Gfx_Func  (*composite_pixel_mask_span_get)(Eina_Bool src_alpha, Eina_Bool src_sparse_alpha, Eina_Bool dst_alpha, int pixels);
 
-   RGBA_Gfx_Pt_Func  (*composite_pixel_pt_get)(Image_Entry_Flags src_flags, RGBA_Image *dst);
-   RGBA_Gfx_Pt_Func  (*composite_color_pt_get)(DATA32 col, RGBA_Image *dst);
-   RGBA_Gfx_Pt_Func  (*composite_pixel_color_pt_get)(Image_Entry_Flags src_flags, DATA32 col, RGBA_Image *dst);
-   RGBA_Gfx_Pt_Func  (*composite_mask_color_pt_get)(DATA32 col, RGBA_Image *dst);
-   RGBA_Gfx_Pt_Func  (*composite_pixel_mask_pt_get)(Image_Entry_Flags src_flags, RGBA_Image *dst);
+   RGBA_Gfx_Pt_Func  (*composite_pixel_pt_get)(Eina_Bool src_alpha, Eina_Bool dst_alpha);
+   RGBA_Gfx_Pt_Func  (*composite_color_pt_get)(DATA32 col, Eina_Bool dst_alpha);
+   RGBA_Gfx_Pt_Func  (*composite_pixel_color_pt_get)(Eina_Bool src_alpha, DATA32 col, Eina_Bool dst_alpha);
+   RGBA_Gfx_Pt_Func  (*composite_mask_color_pt_get)(DATA32 col, Eina_Bool dst_alpha);
+   RGBA_Gfx_Pt_Func  (*composite_pixel_mask_pt_get)(Eina_Bool src_alpha, Eina_Bool dst_alpha);
 };
 
 #define EVAS_RECT_SPLIT 1

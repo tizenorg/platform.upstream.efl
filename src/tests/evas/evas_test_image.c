@@ -356,10 +356,11 @@ START_TEST(evas_object_image_all_loader_data)
    for (i = 0; i < sizeof (exts) / sizeof (exts[0]); i++)
      {
         struct stat st;
-        int w, h, r_w, r_h;
+        int w, h, s, r_w, r_h, r_s;
         const uint32_t *d, *r_d;
+        Evas_Colorspace c, r_c;
 
-        fprintf(stderr, "testing '%s'\n", exts[i]);
+        eina_strbuf_reset(str);
 
         eina_strbuf_append_printf(str, "%s/Pic4-%s.png", TESTS_IMG_DIR, exts[i]);
 
@@ -368,6 +369,8 @@ START_TEST(evas_object_image_all_loader_data)
         evas_object_image_file_set(obj, eina_strbuf_string_get(str), NULL);
         fail_if(evas_object_image_load_error_get(obj) != EVAS_LOAD_ERROR_NONE);
         evas_object_image_size_get(obj, &w, &h);
+        s = evas_object_image_stride_get(obj);
+        c = evas_object_image_colorspace_get(obj);
         d = evas_object_image_data_get(obj, EINA_FALSE);
 
         eina_strbuf_reset(str);
@@ -376,16 +379,93 @@ START_TEST(evas_object_image_all_loader_data)
         evas_object_image_file_set(ref, eina_strbuf_string_get(str), NULL);
         fail_if(evas_object_image_load_error_get(ref) != EVAS_LOAD_ERROR_NONE);
         evas_object_image_size_get(ref, &r_w, &r_h);
+        r_s = evas_object_image_stride_get(ref);
+        r_c = evas_object_image_colorspace_get(ref);
         r_d = evas_object_image_data_get(ref, EINA_FALSE);
 
-        eina_strbuf_reset(str);
-
         fail_if(w != r_w || h != r_h);
-        fail_if(memcmp(d, r_d, w * h * 4));
+        fail_if(s != r_s);
+        fail_if(c != r_c);
+        fail_if(w*4 != s);
+        if (strcmp(exts[i], "jpeg") == 0 || strcmp(exts[i], "jpg") == 0)
+          {
+             //jpeg norm allows a variation of 1 bit per component
+             for (int j = 0; j < s * h; j++)
+               {
+                  fail_if(abs(((char*)d)[j] - ((char*)r_d)[j]) > 1);
+               }
+          }
+        else
+          {
+             fail_if(memcmp(d, r_d, w * h * 4));
+          }
      }
 
    evas_object_del(obj);
    evas_object_del(ref);
+
+   eina_strbuf_free(str);
+
+   evas_free(e);
+   evas_shutdown();
+}
+END_TEST
+
+const char *buggy[] = {
+  "BMP301K"
+};
+
+START_TEST(evas_object_image_buggy)
+{
+   Evas *e = _setup_evas();
+   Evas_Object *obj, *ref;
+   Eina_Strbuf *str;
+   unsigned int i, j;
+
+   obj = evas_object_image_add(e);
+   ref = evas_object_image_add(e);
+   str = eina_strbuf_new();
+
+   for (i = 0; i < sizeof (buggy) / sizeof (buggy[0]); i++)
+     {
+        for (j = 0; j < sizeof (exts) / sizeof (exts[0]); j++)
+          {
+             struct stat st;
+             int w, h, r_w, r_h;
+             const uint32_t *d, *r_d;
+
+             eina_strbuf_reset(str);
+
+             if (!strcmp(exts[j], "png")) continue ;
+
+             eina_strbuf_append_printf(str, "%s/%s.%s", TESTS_IMG_DIR,
+                                       buggy[i], exts[j]);
+
+             if (stat(eina_strbuf_string_get(str), &st) != 0) continue;
+
+             evas_object_image_file_set(obj, eina_strbuf_string_get(str), NULL);
+             fail_if(evas_object_image_load_error_get(obj) != EVAS_LOAD_ERROR_NONE);
+             evas_object_image_size_get(obj, &w, &h);
+             d = evas_object_image_data_get(obj, EINA_FALSE);
+
+             eina_strbuf_reset(str);
+
+             eina_strbuf_append_printf(str, "%s/%s.png", TESTS_IMG_DIR,
+                                       buggy[i]);
+             evas_object_image_file_set(ref, eina_strbuf_string_get(str), NULL);
+             fail_if(evas_object_image_load_error_get(ref) != EVAS_LOAD_ERROR_NONE);
+             evas_object_image_size_get(ref, &r_w, &r_h);
+             r_d = evas_object_image_data_get(ref, EINA_FALSE);
+
+             fail_if(w != r_w || h != r_h);
+             fail_if(memcmp(d, r_d, w * h * 4));
+          }
+     }
+
+   evas_object_del(obj);
+   evas_object_del(ref);
+
+   eina_strbuf_free(str);
 
    evas_free(e);
    evas_shutdown();
@@ -401,5 +481,6 @@ void evas_test_image_object(TCase *tc)
 #endif
 #if BUILD_LOADER_PNG
    tcase_add_test(tc, evas_object_image_all_loader_data);
+   tcase_add_test(tc, evas_object_image_buggy);
 #endif
 }

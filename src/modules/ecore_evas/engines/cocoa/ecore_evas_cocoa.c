@@ -325,6 +325,7 @@ _ecore_evas_title_set(Ecore_Evas *ee, const char *title)
 {
    INF("ecore evas title set");
 
+   if (eina_streq(ee->prop.title, title)) return;
    if (ee->prop.title) free(ee->prop.title);
    ee->prop.title = NULL;
    if (title) ee->prop.title = strdup(title);
@@ -342,6 +343,12 @@ _ecore_evas_object_cursor_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj 
   ee = data;
   if (ee)
     ee->prop.cursor.object = NULL;
+}
+
+static void
+_ecore_evas_object_cursor_unset(Ecore_Evas *ee)
+{
+   evas_object_event_callback_del_full(ee->prop.cursor.object, EVAS_CALLBACK_DEL, _ecore_evas_object_cursor_del, ee);
 }
 
 static void
@@ -464,6 +471,7 @@ static Ecore_Evas_Engine_Func _ecore_cocoa_engine_func =
     NULL,
     NULL,
     _ecore_evas_object_cursor_set,
+    _ecore_evas_object_cursor_unset,
     NULL,
     NULL,
     NULL,

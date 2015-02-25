@@ -699,6 +699,7 @@ EAPI Eina_Bool evas_object_visible_get(const Evas_Object *obj);
  * #EVAS_CALLBACK_MOUSE_DOWN, #EVAS_CALLBACK_MOUSE_UP,
  * #EVAS_CALLBACK_MOUSE_MOVE, #EVAS_CALLBACK_MOUSE_WHEEL,
  * #EVAS_CALLBACK_MULTI_DOWN, #EVAS_CALLBACK_MULTI_UP,
+ * #EVAS_CALLBACK_AXIS_UPDATE,
  * #EVAS_CALLBACK_MULTI_MOVE, #EVAS_CALLBACK_FREE,
  * #EVAS_CALLBACK_KEY_DOWN, #EVAS_CALLBACK_KEY_UP,
  * #EVAS_CALLBACK_FOCUS_IN, #EVAS_CALLBACK_FOCUS_OUT,
@@ -772,6 +773,9 @@ EAPI Eina_Bool evas_object_visible_get(const Evas_Object *obj);
  *
  * - #EVAS_CALLBACK_MULTI_MOVE: @p event_info is a pointer to an
  *   #Evas_Event_Multi_Move struct
+ *
+ * - #EVAS_CALLBACK_AXIS_UPDATE: @p event_info is a pointer to an
+ *   #Evas_Event_Axis_Update struct
  *
  * - #EVAS_CALLBACK_FREE: @p event_info is @c NULL \n\n
  *   This event is triggered just before Evas is about to free all
@@ -916,7 +920,7 @@ EAPI void     *evas_object_event_callback_del(Evas_Object *obj, Evas_Callback_Ty
  * object. In errors, @c NULL will be returned.
  *
  * @note For deletion of Evas object events callbacks filtering by
- * just type and function pointer, user
+ * just type and function pointer, use
  * evas_object_event_callback_del().
  *
  * Example:
@@ -1557,14 +1561,14 @@ EAPI Evas_Object *evas_object_rectangle_add(Evas *e) EINA_WARN_UNUSED_RESULT EIN
  */
 EAPI Evas_Object *evas_object_vg_add(Evas *e) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1) EINA_MALLOC;
 
-#include "canvas/evas_vg_node.eo.legacy.h"
-#include "canvas/evas_vg.eo.legacy.h"
-#include "canvas/evas_vg_shape.eo.legacy.h"
-#include "canvas/evas_vg_gradient.eo.legacy.h"
-#include "canvas/evas_vg_gradient_linear.eo.legacy.h"
-#include "canvas/evas_vg_gradient_radial.eo.legacy.h"
-#include "canvas/evas_vg_image.eo.legacy.h"
-#include "canvas/evas_vg_root_node.eo.legacy.h"
+//#include "canvas/evas_vg_node.eo.legacy.h"
+//#include "canvas/evas_vg.eo.legacy.h"
+//#include "canvas/evas_vg_shape.eo.legacy.h"
+//#include "canvas/evas_vg_gradient.eo.legacy.h"
+//#include "canvas/evas_vg_gradient_linear.eo.legacy.h"
+//#include "canvas/evas_vg_gradient_radial.eo.legacy.h"
+//#include "canvas/evas_vg_image.eo.legacy.h"
+//#include "canvas/evas_vg_root_node.eo.legacy.h"
 
 /**
  * @}

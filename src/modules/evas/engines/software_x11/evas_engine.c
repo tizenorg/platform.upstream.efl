@@ -1,8 +1,5 @@
 #include "evas_common_private.h"
 #include "evas_private.h"
-#ifdef EVAS_CSERVE2
-#include "evas_cs2_private.h"
-#endif
 
 #include "Evas_Engine_Software_X11.h"
 #include "evas_engine.h"
@@ -40,6 +37,8 @@ struct _Evas_Thread_Command_Image
    DATA32 mul_col;
    int render_op;
    int smooth;
+   void *mask;
+   int mask_x, mask_y;
 };
 
 /* function tables - filled in later (func and parent func) */
@@ -268,7 +267,8 @@ _output_xcb_setup(int w, int h, int rot, xcb_connection_t *conn,
    evas_software_xcb_color_init();
    evas_software_xcb_outbuf_init();
 
-   ob = evas_software_xcb_outbuf_setup(w, h, rot, OUTBUF_DEPTH_INHERIT, conn
+   ob = 
+     evas_software_xcb_outbuf_setup(w, h, rot, OUTBUF_DEPTH_INHERIT, conn,
                                     screen, draw, vis, cmap, depth,
                                     grayscale, max_colors, mask,
                                     shape_dither, destination_alpha);
@@ -286,7 +286,7 @@ _output_xcb_setup(int w, int h, int rot, xcb_connection_t *conn,
 
    evas_software_xcb_outbuf_debug_set(ob, debug);
 
-   if (!evas_render_engine_software_generic_init(re, ob, NULL,
+   if (!evas_render_engine_software_generic_init(&re->generic, ob, NULL,
                                                  evas_software_xcb_outbuf_rotation_get,
                                                  evas_software_xcb_outbuf_reconfigure,
                                                  NULL,
@@ -574,7 +574,6 @@ eng_setup(Evas *eo_e, void *in)
 #ifdef BUILD_ENGINE_SOFTWARE_XCB
         if (info->info.backend == EVAS_ENGINE_INFO_SOFTWARE_X11_BACKEND_XCB)
           {
-             evas_software_xcb_outbuf_free(re->ob);
              ob =
                evas_software_xcb_outbuf_setup(e->output.w, e->output.h,
                                               info->info.rotation,
@@ -590,7 +589,7 @@ eng_setup(Evas *eo_e, void *in)
                                               info->info.mask,
                                               info->info.shape_dither,
                                               info->info.destination_alpha);
-             evas_software_xcb_outbuf_debug_set(re->ob, info->info.debug);
+             evas_software_xcb_outbuf_debug_set(ob, info->info.debug);
           }
 #endif
 
@@ -644,10 +643,11 @@ eng_canvas_alpha_get(void *data, void *context EINA_UNUSED)
 static void *
 eng_image_native_set(void *data, void *image, void *native)
 {
+   //return image;
    Render_Engine *re = (Render_Engine *)data;
    Evas_Native_Surface *ns = native;
-   Image_Entry *ie = image;
    RGBA_Image *im = image, *im2;
+   Image_Entry *ie = image;
 
    if (!im || !ns) return im;
 
@@ -664,7 +664,8 @@ eng_image_native_set(void *data, void *image, void *native)
                   return im;
             }
       }
-   else if (ns->type == EVAS_NATIVE_SURFACE_TIZEN)
+   else if (ns->type == EVAS_NATIVE_SURFACE_TIZEN
+            || ns->type == EVAS_NATIVE_SURFACE_TBM)
      {
         if (im->native.data)
           {
@@ -676,29 +677,20 @@ eng_image_native_set(void *data, void *image, void *native)
                 return im;
           }
       }
-   else if (ns->type == EVAS_NATIVE_SURFACE_TBM)
-     {
-        if (im->native.data)
-          {
-             //image have native surface already
-             Evas_Native_Surface *ens = im->native.data;
 
-             if ((ens->type == ns->type) &&
-                 (ens->data.tbm.buffer == ns->data.tbm.buffer))
-                return im;
-          }
-      }
-
-   // Code from software_generic
    if ((ns->type == EVAS_NATIVE_SURFACE_OPENGL) &&
-            (ns->version == EVAS_NATIVE_SURFACE_VERSION))
-     im2 = evas_cache_image_data(evas_common_image_cache_get(),
-                                 ie->w, ie->h, ns->data.x11.visual, 1,
-                                 EVAS_COLORSPACE_ARGB8888);
+         (ns->version == EVAS_NATIVE_SURFACE_VERSION))
+      im2 = evas_cache_image_data(evas_common_image_cache_get(),
+                                  ie->w, ie->h,
+                                  ns->data.x11.visual, 1,
+                                  EVAS_COLORSPACE_ARGB8888);
    else
-     im2 = evas_cache_image_data(evas_common_image_cache_get(),
-                                 ie->w, ie->h, NULL, ie->flags.alpha,
-                                 EVAS_COLORSPACE_ARGB8888);
+      im2 = evas_cache_image_data(evas_common_image_cache_get(),
+                                  ie->w, ie->h,
+                                  NULL, 1,
+                                  EVAS_COLORSPACE_ARGB8888);
+   if (ie->references > 1)
+     ERR("Setting native with more than one references for im=%p", ie);
 
    if (im->native.data)
       {
@@ -710,7 +702,7 @@ eng_image_native_set(void *data, void *image, void *native)
      evas_cache2_image_close(ie);
    else
 #endif
-     evas_cache_image_drop(ie);
+   evas_cache_image_drop(ie);
    im = im2;
 
 #ifdef BUILD_ENGINE_SOFTWARE_XLIB
@@ -729,7 +721,8 @@ eng_image_native_set(void *data, void *image, void *native)
 #endif
    if (ns->type == EVAS_NATIVE_SURFACE_TBM)
      {
-        return evas_native_tbm_image_set(re->generic.ob, im, ns);
+         ERR("ns->type == EVAS_NATIVE_SURFACE_TBM , not yet supported");
+//        return evas_native_tbm_image_set(re->generic.ob, im, ns);
      }
    return im;
 }
@@ -746,6 +739,222 @@ eng_image_native_get(void *data EINA_UNUSED, void *image)
    return &(n->ns);
 #endif
    return NULL;
+}
+
+
+static void
+_draw_thread_image_draw(void *data)
+{
+   Evas_Thread_Command_Image *image = data;
+
+   if (image->smooth)
+     evas_common_scale_rgba_smooth_draw
+       (image->image, image->surface,
+        image->clip.x, image->clip.y, image->clip.w, image->clip.h,
+        image->mul_col, image->render_op,
+        image->src.x, image->src.y, image->src.w, image->src.h,
+        image->dst.x, image->dst.y, image->dst.w, image->dst.h,
+        image->mask, image->mask_x, image->mask_y);
+   else
+     evas_common_scale_rgba_sample_draw
+       (image->image, image->surface,
+        image->clip.x, image->clip.y, image->clip.w, image->clip.h,
+        image->mul_col, image->render_op,
+        image->src.x, image->src.y, image->src.w, image->src.h,
+        image->dst.x, image->dst.y, image->dst.w, image->dst.h,
+        image->mask, image->mask_x, image->mask_y);
+
+   eina_mempool_free(_mp_command_image, image);
+}
+
+static Eina_Bool
+_image_draw_thread_cmd(RGBA_Image *src, RGBA_Image *dst, RGBA_Draw_Context *dc, int src_x, int src_y, int src_w, int src_h, int dst_x, int dst_y, int dst_w, int dst_h, int smooth)
+{
+   Evas_Thread_Command_Image *cr;
+   int clip_x, clip_y, clip_w, clip_h;
+
+   if ((dst_w <= 0) || (dst_h <= 0)) return EINA_FALSE;
+   if (!(RECTS_INTERSECT(dst_x, dst_y, dst_w, dst_h,
+                         0, 0, dst->cache_entry.w, dst->cache_entry.h))) return EINA_FALSE;
+
+   cr = eina_mempool_malloc(_mp_command_image, sizeof (Evas_Thread_Command_Image));
+   if (!cr) return EINA_FALSE;
+
+   cr->image = src;
+   cr->surface = dst;
+   EINA_RECTANGLE_SET(&cr->src, src_x, src_y, src_w, src_h);
+   EINA_RECTANGLE_SET(&cr->dst, dst_x, dst_y, dst_w, dst_h);
+
+   if (dc->clip.use)
+     {
+      clip_x = dc->clip.x;
+      clip_y = dc->clip.y;
+      clip_w = dc->clip.w;
+      clip_h = dc->clip.h;
+     }
+   else
+     {
+      clip_x = 0;
+      clip_y = 0;
+      clip_w = dst->cache_entry.w;
+      clip_h = dst->cache_entry.h;
+     }
+
+   /* Set image mask, if any */
+   cr->mask = dc->clip.mask;
+   cr->mask_x = dc->clip.mask_x;
+   cr->mask_y = dc->clip.mask_y;
+   if (cr->mask)
+     {
+        Image_Entry *im = cr->mask;
+        RECTS_CLIP_TO_RECT(clip_x, clip_y, clip_w, clip_h,
+                           cr->mask_x, cr->mask_y,
+                           im->w, im->h);
+     }
+
+   EINA_RECTANGLE_SET(&cr->clip, clip_x, clip_y, clip_w, clip_h);
+
+   cr->mul_col = dc->mul.use ? dc->mul.col : 0xffffffff;
+   cr->render_op = dc->render_op;
+   cr->smooth = smooth;
+
+   evas_thread_cmd_enqueue(_draw_thread_image_draw, cr);
+
+   return EINA_TRUE;
+}
+
+static Eina_Bool
+_image_draw_thread_cmd_smooth(RGBA_Image *src, RGBA_Image *dst, RGBA_Draw_Context *dc, int src_x, int src_y, int src_w, int src_h, int dst_x, int dst_y, int dst_w, int dst_h)
+{
+   return _image_draw_thread_cmd(src, dst, dc,
+                                 src_x, src_y, src_w, src_h,
+                                 dst_x, dst_y, dst_w, dst_h,
+                                 1);
+}
+
+static Eina_Bool
+_image_draw_thread_cmd_sample(RGBA_Image *src, RGBA_Image *dst, RGBA_Draw_Context *dc, int src_x, int src_y, int src_w, int src_h, int dst_x, int dst_y, int dst_w, int dst_h)
+{
+   return _image_draw_thread_cmd(src, dst, dc,
+                                 src_x, src_y, src_w, src_h,
+                                 dst_x, dst_y, dst_w, dst_h,
+                                 0);
+}
+
+static Eina_Bool
+_image_thr_cb_smooth(RGBA_Image *src, RGBA_Image *dst, RGBA_Draw_Context *dc, int src_x, int src_y, int src_w, int src_h, int dst_x, int dst_y, int dst_w, int dst_h)
+{
+   return evas_common_scale_rgba_in_to_out_clip_cb(src, dst, dc,
+                                                   src_x, src_y, src_w, src_h,
+                                                   dst_x, dst_y, dst_w, dst_h,
+                                                   _image_draw_thread_cmd_smooth);
+}
+
+static Eina_Bool
+_image_thr_cb_sample(RGBA_Image *src, RGBA_Image *dst, RGBA_Draw_Context *dc, int src_x, int src_y, int src_w, int src_h, int dst_x, int dst_y, int dst_w, int dst_h)
+{
+   return evas_common_scale_rgba_in_to_out_clip_cb(src, dst, dc,
+                                                   src_x, src_y, src_w, src_h,
+                                                   dst_x, dst_y, dst_w, dst_h,
+                                                   _image_draw_thread_cmd_sample);
+}
+
+static Eina_Bool
+eng_image_draw(void *data EINA_UNUSED, void *context, void *surface, void *image,
+               int src_x, int src_y, int src_w, int src_h,
+               int dst_x, int dst_y, int dst_w, int dst_h,
+               int smooth, Eina_Bool do_async)
+{
+   RGBA_Image *im = image;
+   Native *n = NULL;
+
+   if (!im) return EINA_FALSE;
+
+   if (im->native.data)
+      n = im->native.data;
+   if ((n) && (n->ns.type == EVAS_NATIVE_SURFACE_X11))
+      {
+#ifdef BUILD_ENGINE_SOFTWARE_XLIB
+         if (evas_xlib_image_dri_used())
+            {
+               if (evas_xlib_image_get_buffers(im))
+                  {
+                     evas_common_image_colorspace_dirty(im);
+                  }
+            }
+         else
+            {
+               if(evas_xlib_image_shm_copy(im))
+                  {
+                     evas_common_image_colorspace_dirty(im);
+                  }
+            }
+#endif
+         evas_common_rgba_image_scalecache_prepare(image, surface, context, smooth,
+                                                   src_x, src_y, src_w, src_h,
+                                                   dst_x, dst_y, dst_w, dst_h);
+
+         return evas_common_rgba_image_scalecache_do_cbs(image, surface,
+                                                         context, smooth,
+                                                         src_x, src_y, src_w, src_h,
+                                                         dst_x, dst_y, dst_w, dst_h,
+                                                         _image_thr_cb_sample,
+                                                         _image_thr_cb_smooth);
+      }
+   else if (do_async)
+      {
+         if (im->cache_entry.space == EVAS_COLORSPACE_ARGB8888)
+            {
+#if EVAS_CSERVE2
+               if (evas_cserve2_use_get() && evas_cache2_image_cached(&im->cache_entry))
+                  evas_cache2_image_load_data(&im->cache_entry);
+               else
+#endif
+                  evas_cache_image_load_data(&im->cache_entry);
+
+               if (!im->cache_entry.flags.loaded) return EINA_FALSE;
+            }
+
+         evas_common_rgba_image_scalecache_prepare(image, surface, context, smooth,
+                                                   src_x, src_y, src_w, src_h,
+                                                   dst_x, dst_y, dst_w, dst_h);
+
+         return evas_common_rgba_image_scalecache_do_cbs(image, surface,
+                                                         context, smooth,
+                                                         src_x, src_y, src_w, src_h,
+                                                         dst_x, dst_y, dst_w, dst_h,
+                                                         _image_thr_cb_sample,
+                                                         _image_thr_cb_smooth);
+      }
+#ifdef BUILD_PIPE_RENDER
+   else if ((cpunum > 1))
+      {
+#ifdef EVAS_CSERVE2
+         if (evas_cserve2_use_get())
+            evas_cache2_image_load_data(&im->cache_entry);
+#endif
+         evas_common_rgba_image_scalecache_prepare((Image_Entry *)(im),
+                                                   surface, context, smooth,
+                                                   src_x, src_y, src_w, src_h,
+                                                   dst_x, dst_y, dst_w, dst_h);
+
+         evas_common_pipe_image_draw(im, surface, context, smooth,
+                                     src_x, src_y, src_w, src_h,
+                                     dst_x, dst_y, dst_w, dst_h);
+      }
+#endif
+   else
+      {
+         evas_common_rgba_image_scalecache_prepare(&im->cache_entry, surface, context, smooth,
+                                                   src_x, src_y, src_w, src_h,
+                                                   dst_x, dst_y, dst_w, dst_h);
+         evas_common_rgba_image_scalecache_do(&im->cache_entry, surface, context, smooth,
+                                              src_x, src_y, src_w, src_h,
+                                              dst_x, dst_y, dst_w, dst_h);
+         evas_common_cpu_end_opt();
+      }
+
+   return EINA_FALSE;
 }
 
 /* module advertising code */
@@ -780,6 +989,8 @@ module_open(Evas_Module *em)
    ORD(setup);
    ORD(canvas_alpha_get);
    ORD(output_free);
+
+   ORD(image_draw);
    ORD(image_native_set);
    ORD(image_native_get);
 

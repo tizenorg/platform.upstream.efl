@@ -2016,10 +2016,11 @@ EAPI int                             ecore_x_screensaver_interval_get(void);
 EAPI void                            ecore_x_screensaver_event_listen_set(Eina_Bool on);
 EAPI Eina_Bool                       ecore_x_screensaver_custom_blanking_enable(void); /** @since 1.7 */
 EAPI Eina_Bool                       ecore_x_screensaver_custom_blanking_disable(void); /** @since 1.7 */
-EAPI void                            ecore_x_screensaver_supend(void); /** @since 1.11 */
+EINA_DEPRECATED EAPI void            ecore_x_screensaver_supend(void); /** @since 1.11 */
 EAPI void                            ecore_x_screensaver_resume(void); /** @since 1.11 */
 EAPI void                            ecore_x_screensaver_reset(void); /** @since 1.11 */
 EAPI void                            ecore_x_screensaver_activate(void); /** @since 1.11 */
+EAPI void                            ecore_x_screensaver_suspend(void); /** @since 1.13 */
 
 /* FIXME: these funcs need categorising */
 
@@ -2559,7 +2560,7 @@ EAPI Eina_Bool      ecore_x_image_is_argb32_get(Ecore_X_Image *im);
 
 EAPI Eina_Bool      ecore_x_image_to_argb_convert(void *src, int sbpp, int sbpl, Ecore_X_Colormap c, Ecore_X_Visual v, int x, int y, int w, int h, unsigned int *dst, int dbpl, int dx, int dy);
 
-EAPI Eina_Bool      ecore_x_input_multi_select(Ecore_X_Window win);
+EAPI Eina_Bool      ecore_x_input_multi_select(Ecore_X_Window win); /**< @since 1.13 */
 EAPI Eina_Bool	    ecore_x_input_raw_select(Ecore_X_Window win); /**< @since 1.8 */
 
 EAPI Eina_Bool      ecore_x_vsync_animator_tick_source_set(Ecore_X_Window win);

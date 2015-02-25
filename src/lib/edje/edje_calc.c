@@ -405,22 +405,22 @@ _edje_image_find(Evas_Object *obj, Edje *ed, Edje_Real_Part_Set **eps,
           }
      }
    
-   entry = eina_list_data_get(set->entries);
-   if (entry)
-     {
-        if (eps)
-          {
-             if (!*eps)
-               *eps = calloc(1, sizeof (Edje_Real_Part_Set));
-             if (*eps)
-               {
-                  (*eps)->entry = entry;
-                  (*eps)->set = set;
-                  (*eps)->id = id;
-               }
-          }
-        return entry->id;
-     }
+  entry = eina_list_data_get(set->entries);
+  if (entry)
+    {
+       if (eps)
+         {
+            if (!*eps)
+              *eps = calloc(1, sizeof (Edje_Real_Part_Set));
+            if (*eps)
+              {
+                 (*eps)->entry = entry;
+                 (*eps)->set = set;
+                 (*eps)->id = id;
+              }
+         }
+       return entry->id;
+    }
 
    return -1;
 }
@@ -580,7 +580,6 @@ _edje_part_description_apply(Edje *ed, Edje_Real_Part *ep, const char *d1, doubl
      epd2 = _edje_part_description_find(ed, ep, d2, v2, EINA_TRUE);
 
    epdi = (Edje_Part_Description_Image*) epd2;
-
    /* There is an animation if both description are different or if description is an image with tweens */
    if (epd2 && (epd1 != epd2 || (ep->part->type == EDJE_PART_TYPE_IMAGE && epdi->image.tweens_count)))
      {
@@ -3987,18 +3986,16 @@ _edje_part_recalc(Edje *ed, Edje_Real_Part *ep, int flags, Edje_Calc_Params *sta
 
              _edje_map_prop_set(map, pf, chosen_desc, ep, mo);
 
-             if (ep->nested_smart)
-               {  /* Apply map to smart obj holding nested parts */
-                  eo_do(ep->nested_smart,
+             Evas_Object *map_obj;
+
+             /* Apply map to smart obj holding nested parts */
+             if (ep->nested_smart) map_obj = ep->nested_smart;
+             else map_obj = mo;
+             if (map_obj)
+               {
+                  eo_do(map_obj,
                         evas_obj_map_set(map),
                         evas_obj_map_enable_set(EINA_TRUE));
-               }
-             else
-               {
-                  if (mo)
-                    eo_do(mo,
-                          evas_obj_map_set(map),
-                          evas_obj_map_enable_set(EINA_TRUE));
                }
           }
         else

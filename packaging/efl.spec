@@ -1,7 +1,7 @@
 %bcond_with wayland
 
 Name:           efl
-Version:        1.12.3
+Version:        1.13.0
 Release:        0
 #License:        LGPL-2.1
 License:        %{_builddir}/%{buildsubdir}/COPYING
@@ -205,20 +205,20 @@ Requires: eo = %{version}-%{release}
 Development files for eo
 
 ############ Ector
-%package -n ector
-Summary: vector graphics library
-Requires: %{name}-data = %{version}-%{release}
-
-%description -n ector
-vector graphics library.
-
-%package -n ector-devel
-Summary:  Development components for the ector package
-Group:    Graphics & UI Framework/Development
-Requires: ector = %{version}-%{release}
-
-%description -n ector-devel
-Development files for ector
+#%package -n ector
+#Summary: vector graphics library
+#Requires: %{name}-data = %{version}-%{release}
+#
+#%description -n ector
+#vector graphics library.
+#
+#%package -n ector-devel
+#Summary:  Development components for the ector package
+#Group:    Graphics & UI Framework/Development
+#Requires: ector = %{version}-%{release}
+#
+#%description -n ector-devel
+#Development files for ector
 
 ############ Evas
 %package -n evas
@@ -513,7 +513,7 @@ Requires: ethumb = %{version}-%{release}
 %description -n ethumb-devel
 Development files for emotion
 
-
+############ Eolian
 %package -n eolian
 Summary: EO object parser and C code generator
 Group:    Graphics & UI Framework/Development
@@ -538,6 +538,51 @@ Development files for eolian
 
 #%description -n eolian-examples
 #Example files for eolian
+
+############ Elocation
+%package -n elocation
+Summary: EFL location library
+Requires: %{name}-data = %{version}-%{release}
+
+%description -n elocation
+Elocation is meant as a convenience library to ease application developers
+the usage of geo information in their apps. Adding a geo tag to a picture or
+translating an address to a GPS position and show it on a map widget are just
+some of the use cases.
+
+#%package -n elocation-examples
+#Summary:  Examples for the elocation package
+#Group:    Graphics & UI Framework/Testing
+#Requires: elocation = %{version}-%{release}
+#
+#%description -n elocation-examples
+#Example files for elocation
+
+%package -n elocation-devel
+Summary: Development components for the elocation package
+Group:    Graphics & UI Framework/Development
+Requires: elocation = %{version}-%{release}
+
+%description -n elocation-devel
+Development files for elocation
+
+############ Elua
+%package -n elua
+Summary: EFL lua binding library
+Requires: %{name}-data = %{version}-%{release}
+
+%description -n elua
+The Elua library was created to ease integration of EFL Lua into other EFL
+libraries or applications. Using the Elua library you can easily create a
+Lua state that is fully set up for running EFL Lua bindings.
+
+%package -n elua-devel
+Summary: Development components for the elua package
+Group:    Graphics & UI Framework/Development
+Requires: elua = %{version}-%{release}
+
+%description -n elua-devel
+Development files for elua
 
 
 %prep
@@ -604,8 +649,8 @@ rm -rf %{buildroot}%{_libdir}/ecore/system/upower
 %post -n eo -p /sbin/ldconfig
 %postun -n eo -p /sbin/ldconfig
 
-%post -n ector -p /sbin/ldconfig
-%postun -n ector -p /sbin/ldconfig
+#%post -n ector -p /sbin/ldconfig
+#%postun -n ector -p /sbin/ldconfig
 
 %post -n evas -p /sbin/ldconfig
 %postun -n evas -p /sbin/ldconfig
@@ -742,17 +787,17 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/cmake/Eo/*.cmake
 %{_libdir}/cmake/EoCxx/*.cmake
 
-%files -n ector
-%manifest %{name}.manifest
-%defattr(-,root,root,-)
-%{_libdir}/libector.so.*
-
-%files -n ector-devel
-%manifest %{name}.manifest
-%defattr(-,root,root,-)
-%{_includedir}/ector-*1/*.h*
-%{_libdir}/libector.so
-%{_libdir}/pkgconfig/ector*.pc
+#%files -n ector
+#%manifest %{name}.manifest
+#%defattr(-,root,root,-)
+#%{_libdir}/libector.so.*
+#
+#%files -n ector-devel
+#%manifest %{name}.manifest
+#%defattr(-,root,root,-)
+#%{_includedir}/ector-*1/*.h*
+#%{_libdir}/libector.so
+#%{_libdir}/pkgconfig/ector*.pc
 
 %files -n evas
 %manifest %{name}.manifest
@@ -956,6 +1001,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_datadir}/dbus-1/services/org.enlightenment.Efreet.service
 %{_userunitdir}/efreet.service
 %{_bindir}/efreetd
+%{_bindir}/diffeet
 %{_libdir}/efreet/*/efreet_desktop_cache_create
 %{_libdir}/efreet/*/efreet_icon_cache_create
 %{_libdir}/libefreet.so.*
@@ -1057,4 +1103,31 @@ grep --silent ECORE_IMF_MODULE "$f" \
 
 #%files -n eolian-examples
 #%{_datadir}/eolian_*/examples/*
+
+%files -n elocation
+%manifest %{name}.manifest
+%defattr(-,root,root,-)
+%{_libdir}/libelocation.so.*
+
+#%files -n elocation-examples
+#%manifest %{name}.manifest
+#%defattr(-,root,root,-)
+#%{_datadir}/elocation/examples/*
+
+%files -n elocation-devel
+%manifest %{name}.manifest
+%defattr(-,root,root,-)
+%{_includedir}/elocation-*1/*.h*
+%{_libdir}/pkgconfig/elocation.pc
+%{_libdir}/libelocation.so*
+
+%files -n elua
+%manifest %{name}.manifest
+%defattr(-,root,root,-)
+%{_datadir}/elua/checkme
+
+%files -n elua-devel
+%manifest %{name}.manifest
+%defattr(-,root,root,-)
+%{_libdir}/cmake/Elua*/*.cmake
 

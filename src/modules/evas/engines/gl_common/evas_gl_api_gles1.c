@@ -3940,6 +3940,9 @@ _evgl_gles1_api_init(void)
      }
 
    _evgl_load_gles1_apis(_gles1_handle, &_gles1_api);
+   if (!_evgl_api_gles1_ext_init())
+     WRN("Could not initialize OpenGL ES 1 extensions yet.");
+
    _initialized = EINA_TRUE;
    return EINA_TRUE;
 }
@@ -4098,8 +4101,8 @@ _debug_gles1_api_get(Evas_GL_API *funcs)
    ORD(glVertexPointer);
    ORD(glViewport);
 #undef ORD
-   // TODO: Add gles1 extensions
-   //evgl_api_gles1_ext_get(funcs);
+
+   evgl_api_gles1_ext_get(funcs);
 }
 
 static void
@@ -4256,8 +4259,8 @@ _normal_gles1_api_get(Evas_GL_API *funcs)
    ORD(glVertexPointer);
    ORD(glViewport);
 #undef ORD
-   // TODO: Add GLES 1.1 extensions
-   //evgl_api_gles1_ext_get(funcs);
+
+   evgl_api_gles1_ext_get(funcs);
 }
 
 void
@@ -4275,4 +4278,10 @@ _evgl_api_gles1_get(Evas_GL_API *funcs, Eina_Bool debug)
    // TODO: Implement these wrappers first
    //if (evgl_engine->direct_scissor_off)
      //_direct_scissor_off_api_get(funcs);
+}
+
+Evas_GL_API *
+_evgl_api_gles1_internal_get(void)
+{
+   return &_gles1_api;
 }

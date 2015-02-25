@@ -54,6 +54,17 @@ expand_bitmap(DATA8 *src, int pitch, int w, int h, DATA8 *dst)
      }
 }
 
+static inline DATA8
+alpha8to4(int a8)
+{
+   // a4 values are 0x00, 0x11, 0x22, 0x33, ... 0xee, 0xff
+   // increments by 0x11 = 17
+   int a4 = (a8 >> 4) & 0x0f;
+   int v = (a4 << 4) | a4;
+   if ((a8 - v) > 8) a4++;
+   else if ((v - a8) > 8) a4--;
+   return a4; // v = (a4 << 4) | a4;
+}
 
 
 
@@ -149,8 +160,8 @@ compress_rle4(DATA8 *src, int pitch, int w, int h, int *size_ret)
         spanval = spanlen = spannum = 0;
         for (x = 0; x < w; x++)
           {
-             // we only need upper 4 bits of value for span creation
-             DATA8 v = pix[x] >> 4;
+             // round value from a8 to a44
+             DATA8 v = alpha8to4(pix[x]);
              // if the current pixel value (in 4bit) is not the same as the
              // span value (n 4 bit) OR... if the span now exceeds 16 pixels
              // then add/write out the span to our RLE span blob
@@ -344,7 +355,9 @@ compress_bpp4(DATA8 *src, int pitch, int w, int h, int *size_ret)
         // 4 bits only needed) and pack
         for (x = 0; x < (w - 1); x += 2)
           {
-             *d = (s[0] & 0xf0) | (s[1] >> 4);
+             DATA8 v1 = alpha8to4(s[0]);
+             DATA8 v2 = alpha8to4(s[1]);
+             *d = (v1 << 4) | v2;
              s += 2;
              d++;
           }
@@ -475,7 +488,6 @@ evas_common_font_glyph_draw(RGBA_Font_Glyph *fg,
    DATA32 *dst = dst_image->image.data;
    DATA32 coltab[16], col;
    DATA16 mtab[16], v;
-   DATA8 tmp;
 
    w = fgo->bitmap.width; h = fgo->bitmap.rows;
    // skip if totally clipped out
@@ -512,6 +524,43 @@ evas_common_font_glyph_draw(RGBA_Font_Glyph *fg,
           }
         free(src8);
      }
+   else if (dc->clip.mask)
+     {
+        RGBA_Gfx_Func func;
+        DATA8 *src8, *mask;
+        DATA32 *buf, *ptr, *buf_ptr;
+        RGBA_Image *im = dc->clip.mask;
+        int row;
+
+        buf = alloca(sizeof(DATA32) * w * h);
+
+        // Step 1: alpha glyph drawing
+        src8 = evas_common_font_glyph_uncompress(fg, NULL, NULL);
+        if (!src8) return;
+
+        // Step 2: color blending to buffer
+        func = evas_common_gfx_func_composite_mask_color_span_get(col, dst_image->cache_entry.flags.alpha, 1, EVAS_RENDER_COPY);
+        for (row = y1; row < y2; row++)
+          {
+             buf_ptr = buf + (row * w) + x1;
+             DATA8 *s = src8 + (row * w) + x1;
+             func(NULL, s, col, buf_ptr, x2 - x1);
+          }
+        free(src8);
+
+        // Step 3: masking to destination
+        func = evas_common_gfx_func_composite_pixel_mask_span_get(im->cache_entry.flags.alpha, im->cache_entry.flags.alpha_sparse, dst_image->cache_entry.flags.alpha, dst_pitch, dc->render_op);
+        for (row = y1; row < y2; row++)
+          {
+             mask = im->image.data8
+                + (y + row - dc->clip.mask_y) * im->cache_entry.w
+                + (x + x1 - dc->clip.mask_x);
+
+             ptr = dst + (x + x1) + ((y + row) * dst_pitch);
+             buf_ptr = buf + (row * w) + x1;
+             func(buf_ptr, mask, 0, ptr, x2 - x1);
+          }
+     }
    else
      {
         // build fast multiply + mask color tables to avoid compute. this works
@@ -520,8 +569,7 @@ evas_common_font_glyph_draw(RGBA_Font_Glyph *fg,
           {
              v = (i << 4) | i;
              coltab[i] = MUL_SYM(v, col);
-             tmp = (coltab[i] >> 24);
-             mtab[i] = 256 - (tmp + (tmp >> 7));
+             mtab[i] = 256 - (coltab[i] >> 24);
           }
 #ifdef BUILD_MMX
         if (evas_common_cpu_has_feature(CPU_FEATURE_MMX))

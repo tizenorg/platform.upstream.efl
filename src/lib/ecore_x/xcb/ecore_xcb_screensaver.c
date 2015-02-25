@@ -369,9 +369,14 @@ ecore_x_screensaver_custom_blanking_disable(void)
 #endif
 }
 
-
-EAPI void
+EINA_DEPRECATED EAPI void
 ecore_x_screensaver_supend(void)
+{
+   ecore_x_screensaver_suspend();
+}
+
+EAPI void 
+ecore_x_screensaver_suspend(void)
 {
 #ifdef ECORE_XCB_SCREENSAVER
    xcb_screensaver_suspend(_ecore_xcb_conn, 1);
@@ -389,11 +394,11 @@ ecore_x_screensaver_resume(void)
 EAPI void
 ecore_x_screensaver_reset(void)
 {
-   xcb_dpms_disable(_ecore_xcb_conn);
+   ecore_x_dpms_enabled_set(0);
 }
 
 EAPI void
 ecore_x_screensaver_activate(void)
 {
-   xcb_dpms_enable(_ecore_xcb_conn);
+   ecore_x_dpms_enabled_set(1);
 }

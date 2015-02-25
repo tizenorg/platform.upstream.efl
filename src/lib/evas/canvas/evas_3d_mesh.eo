@@ -1,37 +1,20 @@
-class Evas_3D_Mesh (Evas_3D_Object, Evas.Common_Interface)
+class Evas_3D_Mesh (Evas_3D_Object, Evas.Common_Interface, Efl.File)
 {
    legacy_prefix: null;
    data: Evas_3D_Mesh_Data;
 
    methods {
-      file_set {
+      mmap_set {
          /**
-          * Load mesh data from file.
+          * Load mesh data from Eina_File.
           *
-          * Loading a mesh from existing file is supported. Currently, only MD2, OBJ and EET file
-          * formats are supported.
+          * Loading a mesh from existing Eina_File is supported. Currently, only MD2, OBJ,
+          * PLY and EET file formats are supported.
           *
           * @ingroup Evas_3D_Mesh
           */
          params {
-            @in Evas_3D_Mesh_File_Type type; /*@ The type of the mesh file. */
-            @in const(char)* file; /*@ Path to the mesh file. */
-            @in const(char)* key; /*@ Key in the mesh file. */
-         }
-      }
-
-      save {
-         /**
-          * Save mesh data to file.
-          *
-          * Saving a mesh to file is supported. Currently, only OBJ and EET file
-          * format are supported.
-          *
-          * @ingroup Evas_3D_Mesh
-          */
-         params {
-            @in Evas_3D_Mesh_File_Type type; /*@ The type of the mesh file. */
-            @in const(char)* file; /*@ Path to the mesh file. */
+            @in Eina_File* file; /*@ Eina_File with mesh data. */
             @in const(char)* key; /*@ Key in the mesh file. */
          }
       }
@@ -330,6 +313,27 @@ class Evas_3D_Mesh (Evas_3D_Object, Evas.Common_Interface)
             @out Evas_Real a; /*@ Pointer to receive transparency of fog.*/
          }
       }
+      blending_func_set {
+         /*
+          Set the blending function for given mesh
+          @ingroup Evas_3D_Mesh
+         */
+         params {
+            @in Evas_3D_Blend_Func sfactor; /*@ Specifies how the red, green, blue, and alpha source blending factors are computed.*/
+            @in Evas_3D_Blend_Func dfactor; /*@ Specifies how the red, green, blue, and alpha destination blending factors are computed.*/
+         }
+      }
+      blending_func_get {
+         /*
+          Get blending blending function for given mesh
+          @see eavs_3d_mesh_blending_func_set()
+          @ingroup Evas_3D_Mesh
+         */
+         params {
+            @out Evas_3D_Blend_Func sfactor; /*@ Pointer to receive source blendin factors key.*/
+            @out Evas_3D_Blend_Func dfactor; /*@ Pointer to receive destination blendin factors key.*/
+         }
+      }
       fog_enable_set {
          /*
            Enable or disable fog effect for given mesh.
@@ -371,6 +375,29 @@ class Evas_3D_Mesh (Evas_3D_Object, Evas.Common_Interface)
          }
          values {
             Evas_3D_Shade_Mode mode; /*@ The shade mode.*/
+         }
+      }
+      blending_enable {
+        set {
+            /**
+             * Enable or disable blending for given mesh.
+             *
+             * Default blending disabled.
+             *
+             * @ingroup Evas_3D_Mesh
+             */
+         }
+         get {
+            /**
+             * Get blending enable status for given mesh.
+             *
+             * @see eavs_3d_mesh_blending_enable_set()
+             *
+             * @ingroup Evas_3D_Mesh
+             */
+         }
+         values {
+            Eina_Bool blending; /*@ The blending state.*/
          }
       }
 
@@ -437,6 +464,8 @@ class Evas_3D_Mesh (Evas_3D_Object, Evas.Common_Interface)
       Eo.Base.destructor;
       Evas_3D_Object.update_notify;
       Evas_3D_Object.change_notify;
+      Efl.File.file.set;
+      Efl.File.save;
    }
 
 }

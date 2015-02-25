@@ -8,6 +8,10 @@
 
 #include "eo_ops.hh"
 
+namespace eo { 
+struct base;
+}
+
 namespace efl { namespace eo { namespace detail {
 
 /// @addtogroup Efl_Cxx_Detail
@@ -85,6 +89,7 @@ Eo_Class const* do_eo_class_new(Eo_Class_Description& class_desc)
 }
 
 template <typename T> struct operation_description_class_size;
+template <> struct operation_description_class_size< ::eo::base> : std::integral_constant<std::size_t, 0u> {};
 
 /// @internal
 ///
@@ -130,6 +135,9 @@ namespace detail {
 ///
 template <typename T> struct operations;
 
+template <>
+struct operations< ::eo::base> { template <typename T> struct type {}; };
+  
 /// @internal
 ///
 /// @brief Provides the operations of an extension as well as its
@@ -152,6 +160,17 @@ struct Inherit_Private_Data
 {
    void* this_;
 };
+
+} } } // namespace efl { namespace eo { namespace detail {
+
+namespace efl { namespace eo { namespace detail {
+template <typename T>
+int initialize_operation_description(efl::eo::detail::tag< ::eo::base>
+                                 , Eo_Op_Description* ops)
+{
+   (void)ops;
+   return 0;
+}
 
 /// @}
 

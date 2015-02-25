@@ -397,7 +397,7 @@ static void (*sym_DRI2CreateDrawable) (Display *display, XID drawable) = NULL;
 static void (*sym_DRI2SwapBuffersWithRegion) (Display *display, XID drawable, XID region, CD64 *count) = NULL;
 static void (*sym_DRI2SwapBuffers) (Display *display, XID drawable, CD64 target_msc, CD64 divisor, CD64 remainder, CD64 *count) = NULL;
 static void (*sym_DRI2DestroyDrawable) (Display *display, XID handle) = NULL;
-static Bool (*sym_DRI2QueryExtensionAndCheckVersion) (Display * dpy, int *eventBase, int *errorBase, int *major, int *minor, int check_major, int check_minor) = NULL;
+static Bool (*sym_DRI2QeuryExtensionAndCheckVersion) (Display * dpy, int *eventBase, int *errorBase, int *major, int *minor, int check_major, int check_minor) = NULL;
 
 ////////////////////////////////////
 // libXfixes.so.3
@@ -507,7 +507,7 @@ _drm_init(Display *disp, int scr)
    SYM(dri_lib, DRI2SwapBuffersWithRegion);
    SYM(dri_lib, DRI2SwapBuffers);
    SYM(dri_lib, DRI2DestroyDrawable);
-   SYM(dri_lib, DRI2QueryExtensionAndCheckVersion);
+   SYM(dri_lib, DRI2QeuryExtensionAndCheckVersion);
 
    SYM(xfixes_lib, XFixesQueryExtension);
    SYM(xfixes_lib, XFixesQueryVersion);
@@ -522,7 +522,7 @@ _drm_init(Display *disp, int scr)
    sym_XFixesQueryVersion(disp, &xfixes_major, &xfixes_minor);
 
 #if 1
-   if (!sym_DRI2QueryExtensionAndCheckVersion(disp, &dri2_ev_base, &dri2_err_base, &dri2_major, &dri2_minor, dri2_check_major, dri2_check_minor))
+   if (!sym_DRI2QeuryExtensionAndCheckVersion(disp, &dri2_ev_base, &dri2_err_base, &dri2_major, &dri2_minor, dri2_check_major, dri2_check_minor))
      {
         if (swap_debug) ERR("Not supported by DRI2 version(%i.%i). DRI2 version in Xserver(%i, %i)",
                             dri2_check_major, dri2_check_minor, dri2_major, dri2_minor);

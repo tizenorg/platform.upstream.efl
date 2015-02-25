@@ -28,6 +28,9 @@
 #define _XOPEN_SOURCE	600
 #endif
 
+#undef _DEFAULT_SOURCE
+#define _DEFAULT_SOURCE
+
 #undef _BSD_SOURCE
 #define _BSD_SOURCE
 
@@ -3488,8 +3491,6 @@ int dns_hosts_loadfile(struct dns_hosts *hosts, FILE *fp) {
 			wc++;
 
 			switch (wc) {
-			case 0:
-				break;
 			case 1:
 				ent.af	= (strchr(word, ':'))? AF_INET6 : AF_INET;
 				skip	= (1 != dns_inet_pton(ent.af, word, &ent.addr));
@@ -5514,6 +5515,7 @@ void dns_so_close(struct dns_socket *so) {
 
 
 void dns_so_reset(struct dns_socket *so) {
+	if (!so) return;
 	if (so->answer) free(so->answer);
 	so->answer = NULL;
 	memset(&so->state, '\0', sizeof *so - offsetof(struct dns_socket, state));

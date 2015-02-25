@@ -70,14 +70,10 @@ struct _EVGL_Interface
    int         (*pbuffer_surface_destroy)(void *data, void *surface);
 
    // Create a surface for 1.x rendering (could be pbuffer or xpixmap for instance)
-   void       *(*gles1_surface_create)(void *data, EVGL_Surface *evgl_sfc, Evas_GL_Config *cfg, int w, int h, int evgl_msaa);
+   void       *(*gles1_surface_create)(EVGL_Engine *evgl, void *data, EVGL_Surface *evgl_sfc, Evas_GL_Config *cfg, int w, int h);
 
    // Destroy 1.x surface (could be pbuffer or xpixmap for instance)
    int        (*gles1_surface_destroy)(void *data, EVGL_Surface *evgl_sfc);
-
-   // Create an indirect rendering context for GLES 1.x
-   void      *(*gles1_context_create)(void *data, EVGL_Context *share_ctx, EVGL_Surface *evgl_sfc);
-
 };
 
 struct _EVGL_Surface
@@ -116,17 +112,11 @@ struct _EVGL_Surface
    unsigned gles1_indirect : 1;
    unsigned xpixmap : 1;
 
-   // Moved from evgl_engine
-   unsigned direct_override : 1;
-   unsigned direct_mem_opt : 1;
+   // Init Flag
+   unsigned buffers_allocated : 1;
 
    int     cfg_index;
 
-   // Attached Context
-   int     fbo_attached;
-
-   // Init Flag
-   int     buffers_allocated;
 
    // Rough estimate of buffer in memory per renderbuffer
    // 0. color 1. depth 2. stencil 3. depth_stencil
@@ -137,14 +127,12 @@ struct _EVGL_Surface
    EVGLNative_Surface gles1_sfc;
    void              *gles1_sfc_native;
    void              *gles1_sfc_visual;
-   void              *gles1_sfc_config;
 
    //-------------------------//
    // Related to PBuffer Surface
    struct {
       EVGLNative_Surface    native_surface;
       Evas_GL_Color_Format  color_fmt;
-      GLuint                fbo;
       Eina_Bool             is_pbuffer : 1;
    } pbuffer;
 
@@ -169,16 +157,13 @@ struct _EVGL_Context
    GLuint       current_fbo;
 
    // Direct Rendering Related
-   int          scissor_enabled;
-   int          scissor_updated;
+   int          scissor_enabled : 1;
+   int          scissor_updated : 1;
+   int          direct_scissor : 1;
+   int          viewport_updated : 1;
+
    int          scissor_coord[4];
-   int          direct_scissor;
-
-   int          viewport_updated;
    int          viewport_coord[4];
-
-   // For GLES1 with indirect rendering
-   EVGLNative_Context gles1_context;
 
    // Partial Rendering
    int          partial_render;
@@ -307,6 +292,9 @@ struct _EVGL_Engine
    int                resource_count;
    int                main_tid;
 
+   int                direct_override;
+   int                direct_mem_opt;
+
    // Add more debug logs (DBG levels 4 and 6)
    int                api_debug_mode;
 
@@ -316,18 +304,14 @@ struct _EVGL_Engine
    // Force Direct Scissoring off for Debug purposes
    int                direct_scissor_off;
 
-   // Other DR flags for debugging purposes
-   int                direct_override; // 0: invalid, -1: no, 1: yes
-   int                direct_mem_opt; // 0: invalid, -1: no, 1: yes
-
    // Keep track of all the current surfaces/contexts
    Eina_List         *surfaces;
    Eina_List         *contexts;
    Eina_Hash         *direct_surfaces; // unsigned (texid) --> EVGL_Surface*
    Eina_List         *direct_depth_stencil_surfaces;
 
-   //void              *engine_data;
-
+   //void              *engine_data;  
+   Eina_Hash         *safe_extensions;
 };
 
 
@@ -344,5 +328,7 @@ extern EVGL_Context  *_evgl_current_context_get(void);
 extern int            _evgl_not_in_pixel_get(void);
 extern int            _evgl_direct_enabled(void);
 extern EVGLNative_Context _evgl_native_context_get(Evas_GL_Context *ctx);
+Eina_Bool             _evgl_api_gles1_ext_init(void);
+Evas_GL_API*          _evgl_api_gles1_internal_get(void);
 
 #endif //_EVAS_GL_CORE_PRIVATE_H

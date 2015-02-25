@@ -66,6 +66,8 @@ _texture_proxy_subrender(Evas_3D_Texture *obj)
    if (!pd->source)
      return;
 
+   // TODO: replace this function by evas_render_proxy_subrender (as appropriate)
+
    source = eo_data_scope_get(pd->source, EVAS_OBJECT_CLASS);
 
    is_image = eo_isa(pd->source, EVAS_IMAGE_CLASS);
@@ -144,11 +146,7 @@ _texture_proxy_subrender(Evas_3D_Texture *obj)
                                 -source->cur->geometry.x,
                                 -source->cur->geometry.y,
                                 1, 0, 0, e->output.w, e->output.h,
-                                &proxy_render_data
-#ifdef REND_DBG
-                                , 1
-#endif
-                                , EINA_FALSE);
+                                &proxy_render_data, 1, EINA_FALSE, EINA_FALSE);
           }
 
         e->engine.func->context_free(e->engine.data.output, ctx);

@@ -161,6 +161,11 @@ ecore_wl_input_ungrab(Ecore_Wl_Input *input)
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!input) return;
+
+   if ((input->grab) && (input->grab_button))
+     _ecore_wl_input_mouse_up_send(input, input->grab, 0, input->grab_button, 
+                                   input->grab_timestamp);
+
    input->grab = NULL;
    input->grab_button = 0;
 }
@@ -180,9 +185,6 @@ _ecore_wl_input_grab_release(Ecore_Wl_Input *input, Ecore_Wl_Window *win)
 
    if (!input) return;
    if (input->grab != win) return;
-
-   _ecore_wl_input_mouse_up_send(input, input->grab,
-                                 0, input->grab_button, input->grab_timestamp);
 
    ecore_wl_input_ungrab(input);
 }
@@ -810,13 +812,14 @@ _ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard EINA_UN
    e->window = win->id;
    e->event_window = win->id;
    e->timestamp = timestamp;
-
    e->modifiers = input->modifiers;
 
    if (state)
      ecore_event_add(ECORE_EVENT_KEY_DOWN, e, NULL, NULL);
    else
      ecore_event_add(ECORE_EVENT_KEY_UP, e, NULL, NULL);
+
+   if (!xkb_keymap_key_repeats(input->xkb.keymap, keycode)) return;
 
    if ((!state) && (keycode == input->repeat.key))
      {
@@ -852,13 +855,15 @@ _ecore_wl_input_cb_keyboard_modifiers(void *data, struct wl_keyboard *keyboard E
 
    if (!(input = data)) return;
 
-   input->modifiers = 0;
-   if (!input->xkb.state) return;
+   if (!input->xkb.keymap) return;
 
    xkb_state_update_mask(input->xkb.state, 
                          depressed, latched, locked, 0, 0, group);
+
    mask = xkb_state_serialize_mods(input->xkb.state, 
                                    (XKB_STATE_DEPRESSED | XKB_STATE_LATCHED));
+
+   input->modifiers = 0;
    if (mask & input->xkb.control_mask)
      input->modifiers |= ECORE_EVENT_MODIFIER_CTRL;
    if (mask & input->xkb.alt_mask)
@@ -919,8 +924,9 @@ _ecore_wl_input_cb_pointer_enter(void *data, struct wl_pointer *pointer EINA_UNU
    input->display->serial = serial;
    input->pointer_enter_serial = serial;
 
+   if (input->pointer)
    /* The cursor on the surface is undefined until we set it */
-   ecore_wl_input_cursor_from_name_set(input, "left_ptr");
+     ecore_wl_input_cursor_from_name_set(input, "left_ptr");
 
    if ((win = ecore_wl_window_surface_find(surface)))
      {

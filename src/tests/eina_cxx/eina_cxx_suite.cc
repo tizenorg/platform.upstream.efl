@@ -83,7 +83,9 @@ eina_build_suite(int argc, const char **argv)
            continue;
 
         tc = tcase_create(etc[i].test_case);
+#ifndef _WIN32
         tcase_set_timeout(tc, 0);
+#endif
 
         etc[i].build(tc);
         suite_add_tcase(s, tc);
@@ -120,8 +122,6 @@ int main(int argc, char* argv[])
    sr = srunner_create(s);
 
    srunner_set_xml(sr, TESTS_BUILD_DIR "/check-results.xml");
-
-   eina_init();
 
    srunner_run_all(sr, CK_ENV);
    failed_count = srunner_ntests_failed(sr);

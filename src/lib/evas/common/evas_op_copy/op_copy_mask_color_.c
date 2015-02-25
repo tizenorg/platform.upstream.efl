@@ -3,20 +3,22 @@
 static void
 _op_copy_mas_c_dp(DATA32 *s EINA_UNUSED, DATA8 *m, DATA32 c, DATA32 *d, int l) {
    DATA32 *e;
-   int color;
+   int alpha;
    UNROLL8_PLD_WHILE(d, l, e,
                      {
-                        color = *m;
-                        switch(color)
+                        /* d = m*c */
+                        alpha = *m;
+                        switch(alpha)
                           {
                           case 0:
+                             *d = 0;
                              break;
                           case 255:
                              *d = c;
                              break;
                           default:
-                             color++;
-                             *d = INTERP_256(color, c, *d);
+                             alpha++;
+                             *d = MUL_256(alpha, c);
                              break;
                           }
                         m++;  d++;
@@ -81,14 +83,17 @@ init_copy_mask_color_pt_funcs_c(void)
 
 static void
 _op_copy_rel_mas_c_dp(DATA32 *s EINA_UNUSED, DATA8 *m, DATA32 c, DATA32 *d, int l) {
+   /* FIXME: THIS FUNCTION HAS PROBABLY NEVER BEEN TESTED */
    DATA32 *e;
    int color;
    UNROLL8_PLD_WHILE(d, l, e,
                      {
+                        /* d = (m*c)*da */
                         color = *m;
                         switch(color)
                           {
                           case 0:
+                             *d = 0;
                              break;
                           case 255:
                              color = 1 + (*d >> 24);
@@ -133,6 +138,7 @@ init_copy_rel_mask_color_span_funcs_c(void)
 
 static void
 _op_copy_rel_pt_mas_c_dp(DATA32 s, DATA8 m, DATA32 c, DATA32 *d) {
+   /* FIXME: THIS FUNCTION HAS PROBABLY NEVER BEEN TESTED */
    s = 1 + (*d >> 24);
    s = MUL_256(s, c);
    *d = INTERP_256(m + 1, s, *d);

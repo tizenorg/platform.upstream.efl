@@ -35,6 +35,7 @@ type_from_eolian(Eolian_Type const& type)
    efl::eolian::eolian_type x;
    x.native = normalize_spaces(safe_str(::eolian_type_c_type_get(&type)));
    x.is_own = ::eolian_type_is_own(&type);
+   x.is_const = ::eolian_type_is_const(&type);
    return x;
 }
 
@@ -76,14 +77,14 @@ type_lookup(const Eolian_Type* type,
    efl::eolian::eolian_type_instance v(types.size());
    for (std::size_t i = 0; i != types.size(); ++i)
      {
-        v[i] = type_find(lut.begin(), lut.end(), type_from_eolian(*types[i]));
+        v.parts[i] = type_find(lut.begin(), lut.end(), type_from_eolian(*types[i]));
      }
 
    // Let's degrade to opaque classes when not enough information
    // is available for complex types
-   if(v.size() == 1 && type_is_complex(v[0]))
+   if(v.parts.size() == 1 && type_is_complex(v.front()))
      {
-       efl::eolian::eolian_type tmp = v[0];
+       efl::eolian::eolian_type tmp = v.front();
        return {efl::eolian::type_to_native(tmp)};
      }
 

@@ -63,7 +63,12 @@ _evas_event_object_list_raw_in_get(Evas *eo_e, Eina_List *in,
           {
              if (obj->is_smart)
                {
+                  Evas_Object_Protected_Data *clip = obj->cur->clipper;
                   int norep = 0;
+
+                  if (clip && clip->mask->is_mask && clip->precise_is_inside)
+                    if (!evas_object_is_inside(clip->object, clip, x, y))
+                      continue;
 
                   if ((obj->map->cur.usemap) && (obj->map->cur.map) &&
                       (obj->map->cur.map->count == 4))
@@ -122,7 +127,11 @@ _evas_event_object_list_raw_in_get(Evas *eo_e, Eina_List *in,
                }
              else
                {
-                  inside = evas_object_is_in_output_rect(eo_obj, obj, x, y, 1, 1);
+                  Evas_Object_Protected_Data *clip = obj->cur->clipper;
+                  if (clip && clip->mask->is_mask && clip->precise_is_inside)
+                    inside = evas_object_is_inside(clip->object, clip, x, y);
+                  else
+                    inside = evas_object_is_in_output_rect(eo_obj, obj, x, y, 1, 1);
 
                   if (inside)
                     {
@@ -1610,6 +1619,8 @@ _canvas_event_feed_mouse_move_internal(Eo *eo_e, void *_pd, int x, int y, unsign
         EINA_LIST_FOREACH(copy, l, eo_obj)
           {
              Evas_Object_Protected_Data *obj = eo_data_scope_get(eo_obj, EVAS_OBJECT_CLASS);
+
+             if (!obj) continue;
              /* if its under the pointer and its visible and its in the new */
              /* in list */
              // FIXME: i don't think we need this
@@ -2717,6 +2728,55 @@ _evas_canvas_event_feed_hold(Eo *eo_e, Evas_Public_Data *e, int hold, unsigned i
    _evas_object_event_new();
 }
 
+void
+_canvas_event_feed_axis_update_internal(Evas *eo_e, Evas_Public_Data *e, unsigned int timestamp, int device, int toolid, int naxis, const Evas_Axis *axis, const void *data)
+{
+   Eina_List *l, *copy;
+   Evas_Event_Axis_Update ev;
+   Evas_Object *eo_obj;
+   int event_id = 0;
+
+   if (e->is_frozen) return;
+   e->last_timestamp = timestamp;
+
+   _evas_object_event_new();
+
+   event_id = _evas_event_counter;
+   ev.data = (void *)data;
+   ev.timestamp = timestamp;
+   ev.device = device;
+   ev.toolid = toolid;
+   ev.naxis = naxis;
+   ev.axis = (Evas_Axis *)axis;
+   ev.dev = _evas_device_top_get(eo_e);
+   if (ev.dev) _evas_device_ref(ev.dev);
+
+   _evas_walk(e);
+   copy = evas_event_list_copy(e->pointer.object.in);
+
+   EINA_LIST_FOREACH(copy, l, eo_obj)
+     {
+        Evas_Object_Protected_Data *obj = eo_data_scope_get(eo_obj, EVAS_OBJECT_CLASS);
+        if (!evas_event_freezes_through(eo_obj, obj))
+          {
+             evas_object_event_callback_call(eo_obj, obj,
+                                             EVAS_CALLBACK_AXIS_UPDATE, &ev,
+                                             event_id);
+             if (e->delete_me || e->is_frozen) break;
+          }
+     }
+   eina_list_free(copy);
+   _evas_post_event_callback_call(eo_e, e);
+
+   _evas_unwalk(e);
+}
+
+EOLIAN void
+_evas_canvas_event_feed_axis_update(Evas *eo_e, Evas_Public_Data *pd, unsigned int timestamp, int device, int toolid, int naxis, const Evas_Axis *axis, const void *data)
+{
+   _canvas_event_feed_axis_update_internal(eo_e, pd, timestamp, device, toolid, naxis, axis, data);
+}
+
 static void
 _feed_mouse_move_eval_internal(Eo *eo_obj, Evas_Object_Protected_Data *obj)
 {
@@ -2880,6 +2940,12 @@ _evas_canvas_event_refeed_event(Eo *eo_e, Evas_Public_Data *e EINA_UNUSED, void 
           {
              Evas_Event_Key_Up *ev = event_copy;
              evas_event_feed_key_up(eo_e, ev->keyname, ev->key, ev->string, ev->compose, ev->timestamp, ev->data);
+             break;
+          }
+      case EVAS_CALLBACK_AXIS_UPDATE:
+          {
+             Evas_Event_Axis_Update *ev = event_copy;
+             evas_event_feed_axis_update(eo_e, ev->timestamp, ev->device, ev->toolid, ev->naxis, ev->axis, ev->data);
              break;
           }
       default: /* All non-input events are not handeled */

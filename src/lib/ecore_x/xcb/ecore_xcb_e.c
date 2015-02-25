@@ -2127,7 +2127,7 @@ ecore_x_e_window_rotation_available_rotations_get(Ecore_X_Window  win,
 
    if (!ecore_x_window_prop_property_get(win,
                                          ECORE_X_ATOM_E_WINDOW_ROTATION_AVAILABLE_LIST,
-                                         XA_CARDINAL, 32, &data, &num))
+                                         XCB_ATOM_CARDINAL, 32, &data, &num))
      return EINA_FALSE;
 
    *count = num;
@@ -2137,7 +2137,7 @@ ecore_x_e_window_rotation_available_rotations_get(Ecore_X_Window  win,
         val = calloc(num, sizeof(int));
         if (!val)
           {
-             *counter = 0;
+             *count = 0;
              if (data) free(data);
              return EINA_FALSE;
           }

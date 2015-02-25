@@ -1279,6 +1279,20 @@ EAPI Ecore_Evas     *ecore_evas_buffer_allocfunc_new(int w, int h, void *(*alloc
 EAPI const void     *ecore_evas_buffer_pixels_get(Ecore_Evas *ee);
 
 /**
+ * @brief Return a pointer to the Ecore_Evas parent of the given Ecore_Evas.
+ *
+ * @param ee An @c Ecore_Evas handle
+ * @return A pointer to the Ecore_Evas parent.
+ *
+ * A use case for the function is to determine if the buffer is used inside
+ * X11 or Wayland. Since the buffer engine doesn't give any indication on
+ * it, we need to retrieve information from the Ecore_Evas parents.
+ *
+ * @since 1.13
+ */
+EAPI Ecore_Evas *ecore_evas_buffer_ecore_evas_parent_get(Ecore_Evas *ee);
+
+/**
  * @brief Create a new @c Ecore_Evas canvas bound to the Evas
  * @b ews (Ecore + Evas Single Process Windowing System) engine
  *
@@ -2618,7 +2632,7 @@ EAPI Eina_Bool ecore_evas_extn_plug_connect(Evas_Object *obj, const char *svcnam
 EAPI void ecore_evas_pointer_xy_get(const Ecore_Evas *ee, Evas_Coord *x, Evas_Coord *y);
 
 /**
- * @brief Retrieve the coordinates of the mouse pointer
+ * @brief Set the coordinates of the mouse pointer
  *
  * @param ee The Ecore_Evas containing the pointer
  * @param x The horizontal coordinate to move the pointer to

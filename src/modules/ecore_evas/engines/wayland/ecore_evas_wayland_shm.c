@@ -51,6 +51,7 @@ static Ecore_Evas_Engine_Func _ecore_wl_engine_func =
    _ecore_evas_wl_common_size_base_set,
    _ecore_evas_wl_common_size_step_set,
    _ecore_evas_wl_common_object_cursor_set,
+   _ecore_evas_wl_common_object_cursor_unset,
    _ecore_evas_wl_common_layer_set,
    NULL, // focus set
    _ecore_evas_wl_common_iconified_set,
@@ -177,9 +178,11 @@ ecore_evas_wayland_shm_new_internal(const char *disp_name, unsigned int parent, 
         fh = 22;
      }
 
-   /* FIXME: Get if parent is alpha, and set */
    if (parent)
-     p = ecore_wl_window_find(parent);
+     {
+        p = ecore_wl_window_find(parent);
+        ee->alpha = ecore_wl_window_alpha_get(p);
+     }
 
    wdata->parent = p;
    wdata->win = 

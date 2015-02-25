@@ -118,6 +118,7 @@ struct _Eolian_Function
    Eina_Bool get_only_legacy: 1;
    Eina_Bool set_only_legacy: 1;
    Eina_Bool is_class :1;
+   Eina_Bool is_c_only :1;
    Eina_List *ctor_of;
    Eolian_Class *klass;
 };
@@ -139,26 +140,16 @@ struct _Eolian_Type
 {
    Eolian_Object base;
    Eolian_Type_Type type;
-   union {
-      /* functions */
-      struct {
-         Eina_List   *arguments;
-         Eolian_Type *ret_type;
-      };
-      /* everything else */
-      struct {
-         Eina_List   *subtypes;
-         Eolian_Type *base_type;
-         Eina_Stringshare *name;
-         Eina_Stringshare *full_name;
-         Eina_List        *namespaces;
-         Eina_Hash        *fields;
-         Eina_List        *field_list;
-         Eina_Stringshare *comment;
-         Eina_Stringshare *legacy;
-         Eina_Stringshare *freefunc;
-      };
-   };
+   Eina_List   *subtypes;
+   Eolian_Type *base_type;
+   Eina_Stringshare *name;
+   Eina_Stringshare *full_name;
+   Eina_List        *namespaces;
+   Eina_Hash        *fields;
+   Eina_List        *field_list;
+   Eina_Stringshare *comment;
+   Eina_Stringshare *legacy;
+   Eina_Stringshare *freefunc;
    Eina_Bool is_const  :1;
    Eina_Bool is_own    :1;
    Eina_Bool is_extern :1;
@@ -182,6 +173,7 @@ struct _Eolian_Constructor
    Eolian_Object base;
    const Eolian_Class *klass;
    Eina_Stringshare *full_name;
+   Eina_Bool is_optional: 1;
 };
 
 struct _Eolian_Event

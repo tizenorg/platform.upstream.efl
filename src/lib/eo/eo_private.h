@@ -104,7 +104,8 @@ struct _Eo_Object
      Eina_Bool finalized:1;
 
      Eina_Bool composite:1;
-     Eina_Bool del:1;
+     Eina_Bool del_triggered:1;
+     Eina_Bool destructed:1;
      Eina_Bool manual_free:1;
 };
 
@@ -235,7 +236,7 @@ _eo_del_internal(const char *file, int line, _Eo_Object *obj)
           }
      }
 
-   obj->del = EINA_TRUE;
+   obj->destructed = EINA_TRUE;
    obj->refcount--;
 }
 
@@ -278,14 +279,22 @@ _eo_unref(_Eo_Object *obj)
    --(obj->refcount);
    if (obj->refcount == 0)
      {
-        if (obj->del)
+        if (obj->destructed)
           {
-             ERR("Object %p already deleted.", obj);
+             ERR("Object %p already destructed.", _eo_id_get(obj));
              return;
           }
 
+        if (obj->del_triggered)
+          {
+             ERR("Object %p deletion already triggered. You wrongly call eo_unref() within a destructor.", _eo_id_get(obj));
+             return;
+          }
+        obj->del_triggered = EINA_TRUE;
+
         _eo_del_internal(__FILE__, __LINE__, obj);
 
+        obj->del_triggered = EINA_FALSE;
 #ifdef EO_DEBUG
         /* If for some reason it's not empty, clear it. */
         while (obj->xrefs)

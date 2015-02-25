@@ -18,7 +18,7 @@
 #include "Evas_Engine_GL_Generic.h"
 
 
-#include "software/Ector_Software.h"
+//#include "software/Ector_Software.h"
 
 
 #ifdef EVAS_CSERVE2
@@ -565,9 +565,11 @@ eng_image_data_get(void *data, void *image, int to_write, DATA32 **image_data, i
 #ifdef GL_GLES
    re->window_use(re->software.ob);
 
-   if ((im->tex) && (im->tex->pt) && (im->tex->pt->dyn.img) &&
+   if ((im->tex) && (im->tex->pt) && (im->tex->pt->dyn.img) && 
        (im->cs.space == EVAS_COLORSPACE_ARGB8888))
      {
+        void *disp;
+
         if (im->tex->pt->dyn.checked_out > 0)
           {
              im->tex->pt->dyn.checked_out++;
@@ -575,22 +577,12 @@ eng_image_data_get(void *data, void *image, int to_write, DATA32 **image_data, i
              if (err) *err = EVAS_LOAD_ERROR_NONE;
              return im;
           }
-        if (im->gc->shared->info.sec_tbm_surface)
-          {
-             tbm_surface_info_s info;
-             secsym_tbm_surface_map(im->tex->pt->dyn.buffer,
-                                    TBM_SURF_OPTION_READ|TBM_SURF_OPTION_WRITE,
-                                    &info);
-             *image_data = im->tex->pt->dyn.data = (DATA32 *) info.planes[0].ptr;
-          }
-        else if (im->gc->shared->info.sec_image_map)
-          {
-             void *disp = re->window_egl_display_get(re->software.ob);
-             *image_data = im->tex->pt->dyn.data = secsym_eglMapImageSEC(disp,
-                                                                         im->tex->pt->dyn.img,
-                                                                         EGL_MAP_GL_TEXTURE_DEVICE_CPU_SEC,
-                                                                         EGL_MAP_GL_TEXTURE_OPTION_WRITE_SEC);
-          }
+        disp = re->window_egl_display_get(re->software.ob);
+        *image_data = im->tex->pt->dyn.data = 
+          secsym_eglMapImageSEC(disp,
+                                im->tex->pt->dyn.img, 
+                                EGL_MAP_GL_TEXTURE_DEVICE_CPU_SEC, 
+                                EGL_MAP_GL_TEXTURE_OPTION_WRITE_SEC);
 
         if (!im->tex->pt->dyn.data)
           {
@@ -707,13 +699,12 @@ eng_image_data_put(void *data, void *image, DATA32 *image_data)
 #ifdef GL_GLES
                  if (im->tex->pt->dyn.checked_out == 0)
                    {
-                      if (im->gc->shared->info.sec_tbm_surface)
-                        secsym_tbm_surface_unmap(im->tex->pt->dyn.buffer);
-                      else if (im->gc->shared->info.sec_image_map)
-                        {
-                           void *disp = disp = re->window_egl_display_get(re->software.ob);
-                           secsym_eglUnmapImageSEC(disp, im->tex->pt->dyn.img, EGL_MAP_GL_TEXTURE_DEVICE_CPU_SEC);
-                        }
+                      void *disp;
+
+                      disp = re->window_egl_display_get(re->software.ob);
+                      secsym_eglUnmapImageSEC(disp,
+                                              im->tex->pt->dyn.img,
+                                              EGL_MAP_GL_TEXTURE_DEVICE_CPU_SEC);
                    }
 #endif
                }
@@ -831,10 +822,7 @@ eng_image_draw(void *data, void *context, void *surface, void *image, int src_x,
        (n->data.opengl.framebuffer_id == 0) &&
        re->func.get_pixels)
      {
-        DBG("Rendering Directly to the window: %p", data);
-
         gl_context->dc = context;
-
         if ((gl_context->master_clip.enabled) &&
             (gl_context->master_clip.w > 0) &&
             (gl_context->master_clip.h > 0))
@@ -1212,10 +1200,26 @@ eng_gl_string_query(void *data, int name)
    return evgl_string_query(name);
 }
 
-// Need to deprecate this function..
 static void *
-eng_gl_proc_address_get(void *data EINA_UNUSED, const char *name EINA_UNUSED)
+eng_gl_proc_address_get(void *data, const char *name)
 {
+   Render_Engine_GL_Generic *re = data;
+   EVGLINIT(re, NULL);
+   void *func = NULL;
+
+   if (!evgl_safe_extension_get(name, &func))
+     {
+        DBG("The extension '%s' is not safe to use with Evas GL or is not "
+            "supported on this platform.", name);
+        return NULL;
+     }
+
+   if (func)
+     return func;
+
+   if (re->evgl_funcs && re->evgl_funcs->proc_address_get)
+     return re->evgl_funcs->proc_address_get(name);
+
    return NULL;
 }
 
@@ -1244,23 +1248,20 @@ eng_gl_direct_override_get(void *data, int *override, int *force_off)
 }
 
 static Eina_Bool
-eng_gl_surface_direct_renderable_get(void *data, void *native, Eina_Bool *direct_override)
+eng_gl_surface_direct_renderable_get(void *data, Evas_Native_Surface *ns)
 {
    Render_Engine_GL_Generic *re = data;
-   Evas_Native_Surface *ns = native;
-   Evas_Engine_GL_Context *gl_context;
    Eina_Bool direct_render, client_side_rotation;
 
-   EVGLINIT(re, EINA_FALSE);
+   EVGLINIT(data, EINA_FALSE);
    if (!re || !ns) return EINA_FALSE;
-   if (!evgl_native_surface_direct_opts_get(ns, &direct_render, &client_side_rotation, direct_override))
+   if (!evgl_native_surface_direct_opts_get(ns, &direct_render, &client_side_rotation))
      return EINA_FALSE;
 
    if (!direct_render)
      return EINA_FALSE;
 
-   gl_context = re->window_gl_context_get(re->software.ob);
-   if ((gl_context->rot != 0) && (!client_side_rotation))
+   if ((re->software.outbuf_get_rot(re->software.ob) != 0) && (!client_side_rotation))
      return EINA_FALSE;
 
    return EINA_TRUE;
@@ -1698,6 +1699,66 @@ eng_context_flush(void *data)
 }
 
 static void
+eng_context_clip_image_unset(void *data EINA_UNUSED, void *context)
+{
+   RGBA_Draw_Context *ctx = context;
+   Evas_GL_Image *im = ctx->clip.mask;
+
+   if (im)
+     evas_gl_common_image_free(im);
+
+   ctx->clip.mask = NULL;
+}
+
+static void
+eng_context_clip_image_set(void *data, void *context, void *surface, int x, int y)
+{
+   RGBA_Draw_Context *ctx = context;
+   Evas_GL_Image *im = surface;
+   Eina_Bool noinc = EINA_FALSE;
+
+   if (ctx->clip.mask)
+     {
+        if (ctx->clip.mask != surface)
+          eng_context_clip_image_unset(data, context);
+        else
+          noinc = EINA_TRUE;
+     }
+
+   ctx->clip.mask = surface;
+   ctx->clip.mask_x = x;
+   ctx->clip.mask_y = y;
+
+   if (im)
+     {
+        if (!noinc) evas_gl_common_image_ref(im);
+        RECTS_CLIP_TO_RECT(ctx->clip.x, ctx->clip.y, ctx->clip.w, ctx->clip.h,
+                           x, y, im->w, im->h);
+     }
+}
+
+static void
+eng_context_clip_image_get(void *data EINA_UNUSED, void *context, void **ie, int *x, int *y)
+{
+   RGBA_Draw_Context *ctx = context;
+
+   if (ie) *ie = ctx->clip.mask;
+   if (x) *x = ctx->clip.mask_x;
+   if (y) *y = ctx->clip.mask_y;
+}
+
+static void
+eng_context_free(void *data, void *context)
+{
+   RGBA_Draw_Context *ctx = context;
+
+   if (!ctx) return;
+   if (ctx->clip.mask)
+     eng_context_clip_image_unset(data, context);
+   evas_common_draw_context_free(context);
+}
+
+static void
 eng_context_3d_use(void *data)
 {
    Render_Engine_GL_Generic *re = data;
@@ -1866,8 +1927,8 @@ eng_texture_image_set(void *data EINA_UNUSED, void *texture, void *image)
    e3d_texture_import((E3D_Texture *)texture, im->tex->pt->texture);
 }
 
-
 // Opengl hack for ector START
+/*
 
 static Ector_Surface *_software_ector = NULL;
 
@@ -1971,8 +2032,8 @@ _draw_thread_ector_draw(void *data)
 }
 
 static void
-eng_ector_draw(void *data EINA_UNUSED, void *context,
-                void *surface, Ector_Renderer *renderer,
+eng_ector_draw(void *data EINA_UNUSED, void *context, 
+                void *surface, Ector_Renderer *renderer, 
                 Eina_Array *clips, int x, int y, Eina_Bool do_async EINA_UNUSED)
 {
    Evas_GL_Image *gl_img = surface;
@@ -2036,7 +2097,7 @@ eng_ector_draw(void *data EINA_UNUSED, void *context,
     _draw_thread_ector_draw(&ector);
 }
 
-
+*/
 // opengl hack for ector END
 
 static Evas_Func func, pfunc;
@@ -2060,6 +2121,11 @@ module_open(Evas_Module *em)
    func = pfunc;
    /* now to override methods */
 #define ORD(f) EVAS_API_OVERRIDE(f, &func, eng_)
+   ORD(context_clip_image_set);
+   ORD(context_clip_image_unset);
+   ORD(context_clip_image_get);
+   ORD(context_free);
+
    ORD(rectangle_draw);
    ORD(line_draw);
    ORD(polygon_point_add);
@@ -2168,9 +2234,9 @@ module_open(Evas_Module *em)
    ORD(texture_image_set);
 
    /* ector features */
-   ORD(ector_begin);
-   ORD(ector_get);
-   ORD(ector_draw);
+   //ORD(ector_begin);
+   //ORD(ector_get);
+   //ORD(ector_draw);
 
    /* now advertise out own api */
    em->functions = (void *)(&func);

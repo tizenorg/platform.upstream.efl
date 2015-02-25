@@ -171,6 +171,10 @@ ffi.cdef [[
 
     Eina_Bool eolian_eo_file_parse(const char *filename);
     Eina_Bool eolian_eot_file_parse(const char *filepath);
+    Eina_Iterator *eolian_all_eo_file_paths_get(void);
+    Eina_Iterator *eolian_all_eot_file_paths_get(void);
+    Eina_Iterator *eolian_all_eo_files_get(void);
+    Eina_Iterator *eolian_all_eot_files_get(void);
     int eolian_init(void);
     int eolian_shutdown(void);
     Eina_Bool eolian_directory_scan(const char *dir);
@@ -211,6 +215,7 @@ ffi.cdef [[
     Eina_Bool eolian_function_is_empty(const Eolian_Function *function_id, Eolian_Function_Type f_type);
     Eina_Bool eolian_function_is_legacy_only(const Eolian_Function *function_id, Eolian_Function_Type ftype);
     Eina_Bool eolian_function_is_class(const Eolian_Function *function_id);
+    Eina_Bool eolian_function_is_c_only(const Eolian_Function *function_id);
     const Eolian_Function_Parameter *eolian_function_parameter_get_by_name(const Eolian_Function *function_id, const char *param_name);
     Eina_Iterator *eolian_property_keys_get(const Eolian_Function *foo_id);
     Eina_Iterator *eolian_property_values_get(const Eolian_Function *foo_id);
@@ -240,6 +245,7 @@ ffi.cdef [[
     const char *eolian_constructor_full_name_get(const Eolian_Constructor *ctor);
     const Eolian_Class *eolian_constructor_class_get(const Eolian_Constructor *ctor);
     const Eolian_Function *eolian_constructor_function_get(const Eolian_Constructor *ctor);
+    Eina_Bool eolian_constructor_is_optional(const Eolian_Constructor *ctor);
     Eina_Iterator *eolian_class_constructors_get(const Eolian_Class *klass);
     Eina_Iterator *eolian_class_events_get(const Eolian_Class *klass);
     const char *eolian_event_name_get(const Eolian_Event *event);
@@ -367,6 +373,22 @@ M.all_eot_files_parse = function()
     return eolian.eolian_all_eot_files_parse() ~= 0
 end
 
+M.all_eo_file_paths_get = function()
+    return iterator.String_Iterator(eolian.eolian_all_eo_file_paths_get())
+end
+
+M.all_eot_file_paths_get = function()
+    return iterator.String_Iterator(eolian.eolian_all_eot_file_paths_get())
+end
+
+M.all_eo_files_get = function()
+    return iterator.String_Iterator(eolian.eolian_all_eo_files_get())
+end
+
+M.all_eot_files_get = function()
+    return iterator.String_Iterator(eolian.eolian_all_eot_files_get())
+end
+
 M.database_validate = function()
     return eolian.eolian_database_validate() ~= 0
 end
@@ -466,7 +488,7 @@ ffi.metatype("Eolian_Enum_Type_Field", {
 M.Type = ffi.metatype("Eolian_Type", {
     __index = {
         type_get = function(self)
-            return eolian.eolian_type_type_get(self)
+            return tonumber(eolian.eolian_type_type_get(self))
         end,
 
         arguments_get = function(self)
@@ -597,11 +619,11 @@ M.function_type = {
 M.Function = ffi.metatype("Eolian_Function", {
     __index = {
         type_get = function(self)
-            return eolian.eolian_function_type_get(self)
+            return tonumber(eolian.eolian_function_type_get(self))
         end,
 
         scope_get = function(self)
-            return eolian.eolian_function_scope_get(self)
+            return tonumber(eolian.eolian_function_scope_get(self))
         end,
 
         name_get = function(self)
@@ -646,6 +668,10 @@ M.Function = ffi.metatype("Eolian_Function", {
 
         is_class = function(self)
             return eolian.eolian_function_is_class(self) ~= 0
+        end,
+
+        is_c_only = function(self)
+            return eolian.eolian_function_is_c_only(self) ~= 0
         end,
 
         parameter_get_by_name = function(self, pname)
@@ -707,7 +733,7 @@ M.parameter_dir = {
 ffi.metatype("Eolian_Function_Parameter", {
     __index = {
         direction_get = function(self)
-            return eolian.eolian_parameter_direction_get(self)
+            return tonumber(eolian.eolian_parameter_direction_get(self))
         end,
 
         type_get = function(self)
@@ -805,6 +831,10 @@ ffi.metatype("Eolian_Constructor", {
             local v = eolian.eolian_constructor_function_get(self)
             if v == nil then return nil end
             return v
+        end,
+
+        is_optional = function(self)
+            return eolian.eolian_constructor_is_optional(self) ~= 0
         end
     }
 })
@@ -830,7 +860,7 @@ ffi.metatype("Eolian_Event", {
         end,
 
         scope_get = function(self)
-            return eolian.eolian_event_scope_get(self)
+            return tonumber(eolian.eolian_event_scope_get(self))
         end,
 
         c_name_get = function(self)
@@ -855,7 +885,7 @@ end
 
 M.all_classes_get = function()
     return Ptr_Iterator("const Eolian_Class*",
-        eolian.eolain_all_classes_get())
+        eolian.eolian_all_classes_get())
 end
 
 M.class_type = {
@@ -892,7 +922,7 @@ M.Class = ffi.metatype("Eolian_Class", {
         end,
 
         type_get = function(self)
-            return eolian.eolian_class_type_get(self)
+            return tonumber(eolian.eolian_class_type_get(self))
         end,
 
         description_get = function(self)
@@ -1067,7 +1097,7 @@ local value_con = {
 M.Value = ffi.metatype("Eolian_Value", {
     __index = {
         get_type = function(self)
-            return ffi.cast("Eolian_Value_t*", self).type
+            return tonumber(ffi.cast("Eolian_Value_t*", self).type)
         end,
 
         get_value = function(self)
@@ -1205,7 +1235,7 @@ end
 M.Variable = ffi.metatype("Eolian_Variable", {
     __index = {
         type_get = function(self)
-            return eolian.eolian_variable_type_get(self)
+            return tonumber(eolian.eolian_variable_type_get(self))
         end,
 
         description_get = function(self)

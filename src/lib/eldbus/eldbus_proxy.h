@@ -117,6 +117,20 @@ EAPI Eldbus_Message        *eldbus_proxy_method_call_new(Eldbus_Proxy *proxy, co
 EAPI Eldbus_Pending        *eldbus_proxy_send(Eldbus_Proxy *proxy, Eldbus_Message *msg, Eldbus_Message_Cb cb, const void *cb_data, double timeout) EINA_ARG_NONNULL(1, 2);
 
 /**
+ * @brief Send a message and block while waiting for the reply.
+ *
+ * @param proxy the msg will be send in connection that proxy belongs
+ * @param msg message that will be send
+ * @param timeout timeout in milliseconds, -1 to default internal value or
+ * ELDBUS_TIMEOUT_INFINITE for no timeout
+ *
+ * @return The reply message, error message or NULL.
+ * The returned Eldbus_Message need to be unref after read.
+ * @since 1.13
+ */
+EAPI Eldbus_Message        *eldbus_proxy_send_and_block(Eldbus_Proxy *proxy, Eldbus_Message *msg, double timeout) EINA_ARG_NONNULL(1, 2);
+
+/**
  * @brief Call a method in proxy.
  * Send a method call to interface that proxy belong with data.
  *

@@ -9,8 +9,6 @@
 #define EVGL_FUNC_END()
 #define _EVGL_INT_INIT_VALUE -3
 
-extern int _evas_gl_log_level;
-
 //---------------------------------------//
 // API Debug Error Checking Code
 static
@@ -49,9 +47,6 @@ void _func_begin_debug(const char *api)
 {
    _make_current_check(api);
    _direct_rendering_check(api);
-
-   if (_evas_gl_log_level >= 6)
-     DBG("GL CALL: %s", api);
 }
 
 //-------------------------------------------------------------//
@@ -456,8 +451,69 @@ _evgl_glEnable(GLenum cap)
 
    ctx = evas_gl_common_current_context_get();
 
-   if (cap == GL_SCISSOR_TEST)
-      if (ctx) ctx->scissor_enabled = 1;
+   if (ctx && (cap == GL_SCISSOR_TEST))
+     {
+        ctx->scissor_enabled = 1;
+
+        if (_evgl_direct_enabled())
+          {
+             EVGL_Resource *rsc = _evgl_tls_resource_get();
+             int oc[4] = {0,0,0,0}, nc[4] = {0,0,0,0}, cc[4] = {0,0,0,0};
+
+             if (rsc)
+               {
+                  if (!ctx->current_fbo)
+                    {
+                       // Direct rendering to canvas
+                       if (!ctx->scissor_updated)
+                         {
+                            compute_gl_coordinates(rsc->direct.win_w, rsc->direct.win_h,
+                                                   rsc->direct.rot, 0,
+                                                   0, 0, 0, 0,
+                                                   rsc->direct.img.x, rsc->direct.img.y,
+                                                   rsc->direct.img.w, rsc->direct.img.h,
+                                                   rsc->direct.clip.x, rsc->direct.clip.y,
+                                                   rsc->direct.clip.w, rsc->direct.clip.h,
+                                                   oc, nc, cc);
+                            glScissor(cc[0], cc[1], cc[2], cc[3]);
+                         }
+                       else
+                         {
+                            compute_gl_coordinates(rsc->direct.win_w, rsc->direct.win_h,
+                                                   rsc->direct.rot, 1,
+                                                   ctx->scissor_coord[0], ctx->scissor_coord[1],
+                                                   ctx->scissor_coord[2], ctx->scissor_coord[3],
+                                                   rsc->direct.img.x, rsc->direct.img.y,
+                                                   rsc->direct.img.w, rsc->direct.img.h,
+                                                   rsc->direct.clip.x, rsc->direct.clip.y,
+                                                   rsc->direct.clip.w, rsc->direct.clip.h,
+                                                   oc, nc, cc);
+                            glScissor(nc[0], nc[1], nc[2], nc[3]);
+                         }
+                       ctx->direct_scissor = 1;
+                    }
+               }
+             else
+               {
+                  // Bound to an FBO, reset scissors to user data
+                  if (ctx->scissor_updated)
+                    {
+                       glScissor(ctx->scissor_coord[0], ctx->scissor_coord[1],
+                                 ctx->scissor_coord[2], ctx->scissor_coord[3]);
+                    }
+                  else if (ctx->direct_scissor)
+                    {
+                       // Back to the default scissors (here: max texture size)
+                       glScissor(0, 0, evgl_engine->caps.max_w, evgl_engine->caps.max_h);
+                    }
+                  ctx->direct_scissor = 0;
+               }
+
+             glEnable(GL_SCISSOR_TEST);
+             return;
+          }
+     }
+
    glEnable(cap);
 }
 
@@ -468,8 +524,46 @@ _evgl_glDisable(GLenum cap)
 
    ctx = evas_gl_common_current_context_get();
 
-   if (cap == GL_SCISSOR_TEST)
-      if (ctx) ctx->scissor_enabled = 0;
+   if (ctx && (cap == GL_SCISSOR_TEST))
+     {
+        ctx->scissor_enabled = 0;
+
+        if (_evgl_direct_enabled())
+          {
+             if (!ctx->current_fbo)
+               {
+                  // Restore default scissors for direct rendering
+                  int oc[4] = {0,0,0,0}, nc[4] = {0,0,0,0}, cc[4] = {0,0,0,0};
+                  EVGL_Resource *rsc = _evgl_tls_resource_get();
+
+                  if (rsc)
+                    {
+                       compute_gl_coordinates(rsc->direct.win_w, rsc->direct.win_h,
+                                              rsc->direct.rot, 1,
+                                              0, 0, rsc->direct.img.w, rsc->direct.img.h,
+                                              rsc->direct.img.x, rsc->direct.img.y,
+                                              rsc->direct.img.w, rsc->direct.img.h,
+                                              rsc->direct.clip.x, rsc->direct.clip.y,
+                                              rsc->direct.clip.w, rsc->direct.clip.h,
+                                              oc, nc, cc);
+
+                       RECTS_CLIP_TO_RECT(nc[0], nc[1], nc[2], nc[3], cc[0], cc[1], cc[2], cc[3]);
+                       glScissor(nc[0], nc[1], nc[2], nc[3]);
+
+                       ctx->direct_scissor = 1;
+                       glEnable(GL_SCISSOR_TEST);
+                    }
+               }
+             else
+               {
+                  // Bound to an FBO, disable scissors for real
+                  ctx->direct_scissor = 0;
+                  glDisable(GL_SCISSOR_TEST);
+               }
+             return;
+          }
+     }
+
    glDisable(cap);
 }
 
@@ -483,7 +577,7 @@ _evgl_glGetIntegerv(GLenum pname, GLint* params)
      {
         if (!params)
           {
-             ERR("Inavlid Parameter");
+             ERR("Invalid Parameter");
              return;
           }
 
@@ -511,8 +605,7 @@ _evgl_glGetIntegerv(GLenum pname, GLint* params)
                        return;
                     }
                }
-
-             if (pname == GL_VIEWPORT)
+             else if (pname == GL_VIEWPORT)
                {
                   if (ctx->viewport_updated)
                     {
@@ -532,8 +625,114 @@ _evgl_glGetIntegerv(GLenum pname, GLint* params)
                }
           }
      }
+   else
+     {
+        if (pname == GL_FRAMEBUFFER_BINDING)
+          {
+             rsc = _evgl_tls_resource_get();
+             ctx = rsc ? rsc->current_ctx : NULL;
+             if (ctx)
+               {
+                  *params = ctx->current_fbo;
+                  return;
+               }
+          }
+     }
 
    glGetIntegerv(pname, params);
+}
+
+static const GLubyte *
+_evgl_glGetString(GLenum name)
+{
+   static char _version[128] = {0};
+   static char _glsl[128] = {0};
+   EVGL_Resource *rsc;
+   const GLubyte *ret;
+
+   /* We wrap two values here:
+    *
+    * VERSION: Since OpenGL ES 3 is not supported yet, we return OpenGL ES 2.0
+    *   The string is not modified on desktop GL (eg. 4.4.0 NVIDIA 343.22)
+    *   GLES 3 support is not exposed because apps can't use GLES 3 core
+    *   functions yet.
+    *
+    * EXTENSIONS: This should return only the list of GL extensions supported
+    *   by Evas GL. This means as many extensions as possible should be
+    *   added to the whitelist.
+    */
+
+   /*
+    * Note from Khronos: "If an error is generated, glGetString returns 0."
+    * I decided not to call glGetString if there is no context as this is
+    * known to cause crashes on certain GL drivers (eg. Nvidia binary blob).
+    * --> crash moved to app side if they blindly call strstr()
+    */
+
+   if ((!(rsc = _evgl_tls_resource_get())) || !rsc->current_ctx)
+     {
+        ERR("Current context is NULL, not calling glGetString");
+        // This sets evas_gl_error_get instead of glGetError...
+        evas_gl_common_error_set(NULL, EVAS_GL_BAD_CONTEXT);
+        return NULL;
+     }
+
+   switch (name)
+     {
+      case GL_VENDOR:
+      case GL_RENDERER:
+        // Keep these as-is.
+        break;
+
+      case GL_SHADING_LANGUAGE_VERSION:
+        ret = glGetString(GL_SHADING_LANGUAGE_VERSION);
+        if (!ret) return NULL;
+#ifdef GL_GLES
+        if (ret[15] != (GLubyte) '1')
+          {
+             // We try not to remove the vendor fluff
+             snprintf(_glsl, sizeof(_glsl), "OpenGL ES GLSL ES 1.00 Evas GL (%s)", ((char *) ret) + 18);
+             _glsl[sizeof(_glsl) - 1] = '\0';
+             return (const GLubyte *) _glsl;
+          }
+        return ret;
+#else
+        // Desktop GL, we still keep the official name
+        snprintf(_glsl, sizeof(_glsl), "OpenGL ES GLSL ES 1.00 Evas GL (%s)", (char *) ret);
+        _version[sizeof(_glsl) - 1] = '\0';
+        return (const GLubyte *) _glsl;
+#endif
+
+      case GL_VERSION:
+        ret = glGetString(GL_VERSION);
+        if (!ret) return NULL;
+#ifdef GL_GLES
+        if (ret[11] != (GLubyte) '2')
+          {
+             // We try not to remove the vendor fluff
+             snprintf(_version, sizeof(_version), "OpenGL ES 2.0 Evas GL (%s)", ((char *) ret) + 10);
+             _version[sizeof(_version) - 1] = '\0';
+             return (const GLubyte *) _version;
+          }
+        return ret;
+#else
+        // Desktop GL, we still keep the official name
+        snprintf(_version, sizeof(_version), "OpenGL ES 2.0 Evas GL (%s)", (char *) ret);
+        _version[sizeof(_version) - 1] = '\0';
+        return (const GLubyte *) _version;
+#endif
+
+      case GL_EXTENSIONS:
+        // No need to check context version, this is GLESv2 API.
+        return (GLubyte *) evgl_api_ext_string_get(EINA_TRUE, EINA_FALSE);
+
+      default:
+        // GL_INVALID_ENUM is generated if name is not an accepted value.
+        WRN("Unknown string requested: %x", (unsigned int) name);
+        break;
+     }
+
+   return glGetString(name);
 }
 
 static void
@@ -621,6 +820,7 @@ _evgl_glScissor(GLint x, GLint y, GLsizei width, GLsizei height)
      {
         if (!(rsc->current_ctx->current_fbo))
           {
+             // Direct rendering to canvas
              if ((ctx->direct_scissor) && (!ctx->scissor_enabled))
                {
                   glDisable(GL_SCISSOR_TEST);
@@ -646,11 +846,12 @@ _evgl_glScissor(GLint x, GLint y, GLsizei width, GLsizei height)
 
              ctx->direct_scissor = 0;
 
-             // Check....!!!!
+             // Mark user scissor_coord as valid
              ctx->scissor_updated = 1;
           }
         else
           {
+             // Bound to an FBO, use these new scissors
              if ((ctx->direct_scissor) && (!ctx->scissor_enabled))
                {
                   glDisable(GL_SCISSOR_TEST);
@@ -659,7 +860,8 @@ _evgl_glScissor(GLint x, GLint y, GLsizei width, GLsizei height)
 
              glScissor(x, y, width, height);
 
-             ctx->scissor_updated = 0;
+             // Why did we set this flag to 0???
+             //ctx->scissor_updated = 0;
           }
      }
    else
@@ -1463,13 +1665,7 @@ _evgld_glGetString(GLenum name)
    const GLubyte *ret = NULL;
 
    EVGL_FUNC_BEGIN();
-#if 0
-   if (name == GL_EXTENSIONS)
-      return (GLubyte *)_gl_ext_string; //glGetString(GL_EXTENSIONS);
-   else
-      return glGetString(name);
-#endif
-   ret = glGetString(name);
+   ret = _evgl_glGetString(name);
    GLERR(__FUNCTION__, __FILE__, __LINE__, "");
    EVGL_FUNC_END();
    return ret;
@@ -2492,7 +2688,7 @@ _normal_gl_api_get(Evas_GL_API *funcs)
    ORD(glGetShaderInfoLog);
 //   ORD(glGetShaderPrecisionFormat);
    ORD(glGetShaderSource);
-   ORD(glGetString);
+//   ORD(glGetString);
    ORD(glGetTexParameterfv);
    ORD(glGetTexParameteriv);
    ORD(glGetUniformfv);
@@ -2580,6 +2776,7 @@ _normal_gl_api_get(Evas_GL_API *funcs)
    ORD(glDisable);
    ORD(glEnable);
    ORD(glGetIntegerv);
+   ORD(glGetString);
    ORD(glReadPixels);
    ORD(glScissor);
    ORD(glViewport);

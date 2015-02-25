@@ -497,7 +497,6 @@ struct _Evas_Textblock_Cursor
 #define TEXTBLOCK_PAR_INDEX_SIZE 10
 struct _Evas_Object_Textblock
 {
-   DATA32                              magic;
    Evas_Textblock_Style               *style;
    Evas_Textblock_Style               *style_user;
    Evas_Textblock_Cursor              *cursor;
@@ -5714,7 +5713,7 @@ _relayout_if_needed(Evas_Object *eo_obj, const Evas_Textblock_Data *o)
  * @see _find_layout_format_item_line_match()
  */
 static void
-_find_layout_item_line_match(Evas_Object *eo_obj, Evas_Object_Textblock_Node_Text *n, int pos, Evas_Object_Textblock_Line **lnr, Evas_Object_Textblock_Item **itr)
+_find_layout_item_line_match(Evas_Object *eo_obj, Evas_Object_Textblock_Node_Text *n, size_t pos, Evas_Object_Textblock_Line **lnr, Evas_Object_Textblock_Item **itr)
 {
    Evas_Object_Textblock_Paragraph *found_par;
    Evas_Object_Textblock_Line *ln;
@@ -5732,22 +5731,21 @@ _find_layout_item_line_match(Evas_Object *eo_obj, Evas_Object_Textblock_Node_Tex
 
              EINA_INLIST_FOREACH(ln->items, it)
                {
-                  /* FIXME: p should be size_t, same goes for pos */
-                  int p = (int) it->text_pos;
+                  size_t p = it->text_pos;
 
                   if (it->type == EVAS_TEXTBLOCK_ITEM_TEXT)
                     {
                        Evas_Object_Textblock_Text_Item *ti =
                           _ITEM_TEXT(it);
 
-                       p += (int) ti->text_props.text_len;
+                       p += ti->text_props.text_len;
                     }
                   else
                     {
                        p++;
                     }
 
-                  if (((pos >= (int) it->text_pos) && (pos < p)))
+                  if (((pos >= it->text_pos) && (pos < p)))
                     {
                        *lnr = ln;
                        *itr = it;
@@ -6595,6 +6593,8 @@ _markup_get_text_utf8_append(Eina_Strbuf *sbuf, const char *text)
            eina_strbuf_append(sbuf, "&gt;");
         else if (ch == '&')
            eina_strbuf_append(sbuf, "&amp;");
+        else if (ch == '"')
+           eina_strbuf_append(sbuf, "&quot;");
         else if (ch == _PARAGRAPH_SEPARATOR)
            eina_strbuf_append(sbuf, "<ps/>");
         else if (ch == _REPLACEMENT_CHAR)
@@ -11765,7 +11765,6 @@ evas_object_textblock_free(Evas_Object *eo_obj)
      }
    if (o->repch) eina_stringshare_del(o->repch);
    if (o->ellip_ti) _item_free(eo_obj, NULL, _ITEM(o->ellip_ti));
-   o->magic = 0;
   _format_command_shutdown();
 }
 

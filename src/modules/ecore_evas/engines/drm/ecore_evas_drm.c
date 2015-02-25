@@ -53,6 +53,7 @@ static void _ecore_evas_drm_size_max_set(Ecore_Evas *ee, int w, int h);
 static void _ecore_evas_drm_size_base_set(Ecore_Evas *ee, int w, int h);
 static void _ecore_evas_drm_size_step_set(Ecore_Evas *ee, int w, int h);
 static void _ecore_evas_drm_object_cursor_set(Ecore_Evas *ee, Evas_Object *obj, int layer, int hot_x, int hot_y);
+static void _ecore_evas_drm_object_cursor_unset(Ecore_Evas *ee);
 static void _ecore_evas_drm_layer_set(Ecore_Evas *ee, int layer);
 static void _ecore_evas_drm_iconified_set(Ecore_Evas *ee, Eina_Bool on);
 static void _ecore_evas_drm_borderless_set(Ecore_Evas *ee, Eina_Bool on);
@@ -110,6 +111,7 @@ static Ecore_Evas_Engine_Func _ecore_evas_drm_engine_func =
    _ecore_evas_drm_size_base_set,
    _ecore_evas_drm_size_step_set,
    _ecore_evas_drm_object_cursor_set,
+   _ecore_evas_drm_object_cursor_unset,
    _ecore_evas_drm_layer_set,
    NULL, //void (*fn_focus_set) (Ecore_Evas *ee, Eina_Bool on);
    _ecore_evas_drm_iconified_set,
@@ -224,9 +226,16 @@ ecore_evas_drm_new_internal(const char *device, unsigned int parent EINA_UNUSED,
    evas_data_attach_set(ee->evas, ee);
    evas_output_method_set(ee->evas, method);
 
-   /* FIXME: Support initial rotation ?? */
-   evas_output_size_set(ee->evas, w, h);
-   evas_output_viewport_set(ee->evas, 0, 0, w, h);
+   if ((ee->rotation == 90) || (ee->rotation == 270))
+     {
+        evas_output_size_set(ee->evas, h, w);
+        evas_output_viewport_set(ee->evas, 0, 0, h, w);
+     }
+   else
+     {
+        evas_output_size_set(ee->evas, w, h);
+        evas_output_viewport_set(ee->evas, 0, 0, w, h);
+     }
 
    if (ee->can_async_render)
      evas_event_callback_add(ee->evas, EVAS_CALLBACK_RENDER_POST,
@@ -474,18 +483,17 @@ _ecore_evas_drm_init(const char *device)
           goto dev_err;
      }
 
+   if (!ecore_drm_launcher_connect(dev))
+     {
+        ERR("Could not connect DRM launcher");
+        goto launcher_err;
+     }
+
    /* try to open the graphics card */
    if (!ecore_drm_device_open(dev))
      {
         ERR("Could not open drm device");
         goto dev_open_err;
-     }
-
-   /* try to open the tty */
-   if (!ecore_drm_tty_open(dev, NULL))
-     {
-        ERR("Could not open tty: %m");
-        goto tty_open_err;
      }
 
    /* try to create sprites */
@@ -506,7 +514,7 @@ _ecore_evas_drm_init(const char *device)
    if (!ecore_drm_inputs_create(dev))
      {
         ERR("Could not create inputs: %m");
-        goto output_err;
+        goto input_err;
      }
 
    ecore_event_evas_init();
@@ -514,13 +522,15 @@ _ecore_evas_drm_init(const char *device)
    return _ecore_evas_init_count;
 
 output_err:
+   ecore_drm_inputs_destroy(dev);
+input_err:
    ecore_drm_sprites_destroy(dev);
 sprite_err:
-   ecore_drm_tty_close(dev);
-tty_open_err:
    ecore_drm_device_close(dev);
 dev_open_err:
+   ecore_drm_launcher_disconnect(dev);
    ecore_drm_device_free(dev);
+launcher_err:
 dev_err:
    ecore_drm_shutdown();
    return --_ecore_evas_init_count;
@@ -531,11 +541,11 @@ _ecore_evas_drm_shutdown(void)
 {
    if (--_ecore_evas_init_count != 0) return _ecore_evas_init_count;
 
-   ecore_drm_sprites_destroy(dev);
-   /* NB: No need to free outputs here. Is done in device free */
    ecore_drm_inputs_destroy(dev);
-   ecore_drm_tty_close(dev);
+   /* NB: No need to free outputs here. Is done in device free */
+   ecore_drm_sprites_destroy(dev);
    ecore_drm_device_close(dev);
+   ecore_drm_launcher_disconnect(dev);
    ecore_drm_device_free(dev);
    ecore_drm_shutdown();
 
@@ -554,10 +564,6 @@ _ecore_evas_drm_interface_new(void)
 
    iface->base.name = "drm";
    iface->base.version = 1;
-
-   /* iface->pixmap_visual_get; */
-   /* iface->pixmap_colormap_get; */
-   /* iface->pixmap_depth_get; */
 
    return iface;
 }
@@ -688,6 +694,7 @@ _ecore_evas_drm_hide(Ecore_Evas *ee)
 static void
 _ecore_evas_drm_title_set(Ecore_Evas *ee, const char *title)
 {
+   if (eina_streq(ee->prop.title, title)) return;
    if (ee->prop.title) free(ee->prop.title);
    ee->prop.title = NULL;
    if (title) ee->prop.title = strdup(title);
@@ -696,12 +703,18 @@ _ecore_evas_drm_title_set(Ecore_Evas *ee, const char *title)
 static void
 _ecore_evas_drm_name_class_set(Ecore_Evas *ee, const char *n, const char *c)
 {
-   if (ee->prop.name) free(ee->prop.name);
-   if (ee->prop.clas) free(ee->prop.clas);
-   ee->prop.name = NULL;
-   ee->prop.clas = NULL;
-   if (n) ee->prop.name = strdup(n);
-   if (c) ee->prop.clas = strdup(c);
+   if (!eina_streq(ee->prop.name, n))
+     {
+        if (ee->prop.name) free(ee->prop.name);
+        ee->prop.name = NULL;
+        if (n) ee->prop.name = strdup(n);
+     }
+   if (!eina_streq(ee->prop.clas, c))
+     {
+        if (ee->prop.clas) free(ee->prop.clas);
+        ee->prop.clas = NULL;
+        if (c) ee->prop.clas = strdup(c);
+     }
 }
 
 static void
@@ -750,6 +763,12 @@ _ecore_evas_drm_object_cursor_del(void *data, Evas *e EINA_UNUSED, Evas_Object *
    Ecore_Evas *ee;
 
    if ((ee = data)) ee->prop.cursor.object = NULL;
+}
+
+static void
+_ecore_evas_drm_object_cursor_unset(Ecore_Evas *ee)
+{
+   evas_object_event_callback_del_full(ee->prop.cursor.object, EVAS_CALLBACK_DEL, _ecore_evas_drm_object_cursor_del, ee);
 }
 
 static void

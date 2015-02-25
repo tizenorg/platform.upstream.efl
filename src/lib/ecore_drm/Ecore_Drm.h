@@ -66,7 +66,9 @@ typedef struct _Ecore_Drm_Fb
 struct _Ecore_Drm_Device
 {
    int id;
+   unsigned int vt;
    const char *seat;
+   char *session;
 
    struct
      {
@@ -84,6 +86,7 @@ struct _Ecore_Drm_Device
    unsigned int crtc_count;
    unsigned int *crtcs;
    unsigned int crtc_allocator;
+   unsigned int conn_allocator;
 
    Eina_List *seats;
    Eina_List *inputs;
@@ -93,6 +96,7 @@ struct _Ecore_Drm_Device
    struct
      {
         int fd;
+        int kbd_mode;
         const char *name;
         Ecore_Event_Handler *event_hdlr;
         Ecore_Event_Handler *switch_hdlr;
@@ -105,6 +109,11 @@ struct _Ecore_Drm_Device
    struct xkb_context *xkb_ctx;
 
    unsigned int window;
+};
+
+struct _Ecore_Drm_Event_Activate
+{
+   Eina_Bool active;
 };
 
 /* opaque structure to represent a drm device */
@@ -127,6 +136,11 @@ typedef struct _Ecore_Drm_Seat Ecore_Drm_Seat;
 
 /* opaque structure to represent a drm sprite */
 typedef struct _Ecore_Drm_Sprite Ecore_Drm_Sprite;
+
+/* sturcture to inform drm activation state */
+typedef struct _Ecore_Drm_Event_Activate Ecore_Drm_Event_Activate;
+
+EAPI extern int ECORE_DRM_EVENT_ACTIVATE;
 
 /**
  * @file
@@ -193,4 +207,6 @@ EAPI Eina_Bool ecore_drm_sprites_crtc_supported(Ecore_Drm_Output *output, unsign
 EAPI Ecore_Drm_Fb *ecore_drm_fb_create(Ecore_Drm_Device *dev, int width, int height);
 EAPI void ecore_drm_fb_destroy(Ecore_Drm_Fb *fb);
 
+EAPI Eina_Bool ecore_drm_launcher_connect(Ecore_Drm_Device *dev);
+EAPI void ecore_drm_launcher_disconnect(Ecore_Drm_Device *dev);
 #endif

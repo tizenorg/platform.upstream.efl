@@ -18,11 +18,11 @@
 
 #include "Evas_Engine_Software_Generic.h"
 
-#include "cairo/Ector_Cairo.h"
+//#include "cairo/Ector_Cairo.h"
 
-#include "ector_cairo_software_surface.eo.h"
+//#include "ector_cairo_software_surface.eo.h"
 
-#include "software/Ector_Software.h"
+//#include "software/Ector_Software.h"
 
 #ifdef EVAS_GL
 //----------------------------------//
@@ -295,7 +295,7 @@ typedef struct _Evas_Thread_Command_Image Evas_Thread_Command_Image;
 typedef struct _Evas_Thread_Command_Font Evas_Thread_Command_Font;
 typedef struct _Evas_Thread_Command_Map Evas_Thread_Command_Map;
 typedef struct _Evas_Thread_Command_Multi_Font Evas_Thread_Command_Multi_Font;
-typedef struct _Evas_Thread_Command_Ector Evas_Thread_Command_Ector;
+//typedef struct _Evas_Thread_Command_Ector Evas_Thread_Command_Ector;
 
 struct _Evas_Thread_Command_Rect
 {
@@ -303,6 +303,8 @@ struct _Evas_Thread_Command_Rect
    DATA32 color;
    int render_op;
    int x, y, w, h;
+   void *mask;
+   int mask_x, mask_y;
 };
 
 struct _Evas_Thread_Command_Line
@@ -314,6 +316,8 @@ struct _Evas_Thread_Command_Line
    Eina_Bool anti_alias;
    int x1, y1;
    int x2, y2;
+   void *mask;
+   int mask_x, mask_y;
 };
 
 struct _Evas_Thread_Command_Polygon
@@ -324,6 +328,8 @@ struct _Evas_Thread_Command_Polygon
    void *surface;
    RGBA_Polygon_Point *points;
    int x, y;
+   void *mask;
+   int mask_x, mask_y;
 };
 
 struct _Evas_Thread_Command_Image
@@ -334,6 +340,8 @@ struct _Evas_Thread_Command_Image
    DATA32 mul_col;
    int render_op;
    int smooth;
+   void *mask;
+   int mask_x, mask_y;
 };
 
 struct _Evas_Thread_Command_Font
@@ -348,9 +356,11 @@ struct _Evas_Thread_Command_Font
    void *gl_draw;
    void *font_ext_data;
    DATA32 col;
-   Eina_Bool clip_use : 1;
    Eina_Rectangle clip_rect, ext;
    int im_w, im_h;
+   void *mask;
+   int mask_x, mask_y;
+   Eina_Bool clip_use : 1;
 };
 
 struct _Evas_Thread_Command_Map
@@ -363,6 +373,9 @@ struct _Evas_Thread_Command_Map
    int render_op;
    RGBA_Map *map;
    int smooth, level, offset;
+   Eina_Bool anti_alias;
+   void *mask;
+   int mask_x, mask_y;
 };
 
 struct _Evas_Thread_Command_Multi_Font
@@ -373,6 +386,7 @@ struct _Evas_Thread_Command_Multi_Font
    Evas_Font_Array *texts;
 };
 
+/*
 struct _Evas_Thread_Command_Ector
 {
    void *surface;
@@ -385,6 +399,7 @@ struct _Evas_Thread_Command_Ector
 
    Eina_Bool free_it;
 };
+*/
 
 Eina_Mempool *_mp_command_rect = NULL;
 Eina_Mempool *_mp_command_line = NULL;
@@ -393,7 +408,7 @@ Eina_Mempool *_mp_command_image = NULL;
 Eina_Mempool *_mp_command_font = NULL;
 Eina_Mempool *_mp_command_map = NULL;
 Eina_Mempool *_mp_command_multi_font = NULL;
-Eina_Mempool *_mp_command_ector = NULL;
+//Eina_Mempool *_mp_command_ector = NULL;
 /*
  *****
  **
@@ -418,15 +433,85 @@ eng_context_new(void *data EINA_UNUSED)
 }
 
 static void
-eng_context_free(void *data EINA_UNUSED, void *context)
-{
-   evas_common_draw_context_free(context);
-}
-
-static void
 eng_context_clip_set(void *data EINA_UNUSED, void *context, int x, int y, int w, int h)
 {
    evas_common_draw_context_set_clip(context, x, y, w, h);
+}
+
+static void
+eng_context_clip_image_unset(void *data EINA_UNUSED, void *context)
+{
+   RGBA_Draw_Context *ctx = context;
+
+   if (ctx->clip.mask)
+     {
+        Image_Entry *ie = ctx->clip.mask;
+#ifdef EVAS_CSERVE2
+        if (evas_cserve2_use_get())
+          evas_cache2_image_close(ie);
+        else
+#endif
+          evas_cache_image_drop(ie);
+        // Is the above code safe? Hmmm...
+        //evas_unref_queue_image_put(EVAS???, &ctx->clip.ie->cache_entry);
+        ctx->clip.mask = NULL;
+     }
+}
+
+static void
+eng_context_clip_image_set(void *data EINA_UNUSED, void *context, void *surface, int x, int y)
+{
+   RGBA_Draw_Context *ctx = context;
+   Eina_Bool noinc = EINA_FALSE;
+
+   if (ctx->clip.mask)
+     {
+        if (ctx->clip.mask != surface)
+          eng_context_clip_image_unset(data, context);
+        else
+          noinc = EINA_TRUE;
+     }
+
+   ctx->clip.mask = surface;
+   ctx->clip.mask_x = x;
+   ctx->clip.mask_y = y;
+
+   if (surface)
+     {
+        Image_Entry *ie = surface;
+        if (!noinc)
+          {
+#ifdef EVAS_CSERVE2
+             if (evas_cserve2_use_get())
+               evas_cache2_image_ref(ie);
+             else
+#endif
+               evas_cache_image_ref(ie);
+          }
+        RECTS_CLIP_TO_RECT(ctx->clip.x, ctx->clip.y, ctx->clip.w, ctx->clip.h,
+                           x, y, ie->w, ie->h);
+     }
+}
+
+static void
+eng_context_clip_image_get(void *data EINA_UNUSED, void *context, void **ie, int *x, int *y)
+{
+   RGBA_Draw_Context *ctx = context;
+
+   if (ie) *ie = ctx->clip.mask;
+   if (x) *x = ctx->clip.mask_x;
+   if (y) *y = ctx->clip.mask_y;
+}
+
+static void
+eng_context_free(void *data, void *context)
+{
+   RGBA_Draw_Context *ctx = context;
+
+   if (!ctx) return;
+   if (ctx->clip.mask)
+     eng_context_clip_image_unset(data, context);
+   evas_common_draw_context_free(context);
 }
 
 static void
@@ -544,7 +629,8 @@ _draw_thread_rectangle_draw(void *data)
 
     evas_common_rectangle_rgba_draw(rect->surface,
                                     rect->color, rect->render_op,
-                                    rect->x, rect->y, rect->w, rect->h);
+                                    rect->x, rect->y, rect->w, rect->h,
+                                    rect->mask, rect->mask_x, rect->mask_y);
     evas_common_cpu_end_opt();
     eina_mempool_free(_mp_command_rect, rect);
 }
@@ -567,6 +653,9 @@ _draw_rectangle_thread_cmd(RGBA_Image *dst, RGBA_Draw_Context *dc, int x, int y,
    cr->y = y;
    cr->w = w;
    cr->h = h;
+   cr->mask = dc->clip.mask;
+   cr->mask_x = dc->clip.mask_x;
+   cr->mask_y = dc->clip.mask_y;
 
    evas_thread_cmd_enqueue(_draw_thread_rectangle_draw, cr);
 }
@@ -604,7 +693,8 @@ _draw_thread_line_draw(void *data)
         evas_common_line_point_draw(line->surface,
                                     clip_x, clip_y, clip_w, clip_h,
                                     line->color, line->render_op,
-                                    line->x1, line->y1);
+                                    line->x1, line->y1,
+                                    line->mask, line->mask_x, line->mask_y);
         return;
      }
 
@@ -614,14 +704,16 @@ _draw_thread_line_draw(void *data)
         clip_x, clip_y, clip_w, clip_h,
         line->color, line->render_op,
         line->x1, line->y1,
-        line->x2, line->y2);
+        line->x2, line->y2,
+        line->mask, line->mask_x, line->mask_y);
    else
      evas_common_line_draw_line
        (line->surface,
         clip_x, clip_y, clip_w, clip_h,
         line->color, line->render_op,
         line->x1, line->y1,
-        line->x2, line->y2);
+        line->x2, line->y2,
+        line->mask, line->mask_x, line->mask_y);
 
    eina_mempool_free(_mp_command_line, line);
 }
@@ -687,6 +779,9 @@ _line_draw_thread_cmd(RGBA_Image *dst, RGBA_Draw_Context *dc, int x1, int y1, in
    cl->y1 = y1;
    cl->x2 = x2;
    cl->y2 = y2;
+   cl->mask = dc->clip.mask;
+   cl->mask_x = dc->clip.mask_x;
+   cl->mask_y = dc->clip.mask_y;
 
    evas_thread_cmd_enqueue(_draw_thread_line_draw, cl);
 }
@@ -746,7 +841,8 @@ _draw_thread_polygon_draw(void *data)
      (poly->surface,
       poly->ext.x, poly->ext.y, poly->ext.w, poly->ext.h,
       poly->col, poly->render_op,
-      poly->points, poly->x, poly->y);
+      poly->points, poly->x, poly->y,
+      poly->mask, poly->mask_x, poly->mask_y);
 
    _draw_thread_polygon_cleanup(poly);
    eina_mempool_free(_mp_command_polygon, poly);
@@ -819,6 +915,10 @@ _polygon_draw_thread_cmd(RGBA_Image *dst, RGBA_Draw_Context *dc, RGBA_Polygon_Po
 
    cp->x = x;
    cp->y = y;
+
+   cp->mask = dc->clip.mask;
+   cp->mask_x = dc->clip.mask_x;
+   cp->mask_y = dc->clip.mask_y;
 
    evas_thread_cmd_enqueue(_draw_thread_polygon_draw, cp);
 }
@@ -1258,14 +1358,16 @@ _draw_thread_image_draw(void *data)
         image->clip.x, image->clip.y, image->clip.w, image->clip.h,
         image->mul_col, image->render_op,
         image->src.x, image->src.y, image->src.w, image->src.h,
-        image->dst.x, image->dst.y, image->dst.w, image->dst.h);
+        image->dst.x, image->dst.y, image->dst.w, image->dst.h,
+        image->mask, image->mask_x, image->mask_y);
    else
      evas_common_scale_rgba_sample_draw
        (image->image, image->surface,
         image->clip.x, image->clip.y, image->clip.w, image->clip.h,
         image->mul_col, image->render_op,
         image->src.x, image->src.y, image->src.w, image->src.h,
-        image->dst.x, image->dst.y, image->dst.w, image->dst.h);
+        image->dst.x, image->dst.y, image->dst.w, image->dst.h,
+        image->mask, image->mask_x, image->mask_y);
 
    eina_mempool_free(_mp_command_image, image);
 }
@@ -1301,6 +1403,18 @@ _image_draw_thread_cmd(RGBA_Image *src, RGBA_Image *dst, RGBA_Draw_Context *dc, 
 	clip_y = 0;
 	clip_w = dst->cache_entry.w;
 	clip_h = dst->cache_entry.h;
+     }
+
+   /* Set image mask, if any */
+   cr->mask = dc->clip.mask;
+   cr->mask_x = dc->clip.mask_x;
+   cr->mask_y = dc->clip.mask_y;
+   if (cr->mask)
+     {
+        Image_Entry *im = cr->mask;
+        RECTS_CLIP_TO_RECT(clip_x, clip_y, clip_w, clip_h,
+                           cr->mask_x, cr->mask_y,
+                           im->w, im->h);
      }
 
    EINA_RECTANGLE_SET(&cr->clip, clip_x, clip_y, clip_w, clip_h);
@@ -1357,8 +1471,6 @@ eng_image_draw(void *data EINA_UNUSED, void *context, void *surface, void *image
 
    if (!image) return EINA_FALSE;
    im = image;
-   if (im->native.func.bind)
-      im->native.func.bind(data, image, src_x, src_y, src_w, src_h);
 
    if (do_async)
      {
@@ -1416,8 +1528,6 @@ eng_image_draw(void *data EINA_UNUSED, void *context, void *surface, void *image
         evas_common_cpu_end_opt();
      }
 
-   if (im->native.func.unbind)
-      im->native.func.unbind(data, image);
    return EINA_FALSE;
 }
 
@@ -1452,13 +1562,15 @@ _map_image_draw(RGBA_Image *src, RGBA_Image *dst, RGBA_Draw_Context *dc, int src
                                         clip_x, clip_y, clip_w, clip_h,
                                         mul_col, dc->render_op,
                                         src_x, src_y, src_w, src_h,
-                                        dst_x, dst_y, dst_w, dst_h);
+                                        dst_x, dst_y, dst_w, dst_h,
+                                        dc->clip.mask, dc->clip.mask_x, dc->clip.mask_y);
    else
      evas_common_scale_rgba_sample_draw(src, dst,
                                         clip_x, clip_y, clip_w, clip_h,
                                         mul_col, dc->render_op,
                                         src_x, src_y, src_w, src_h,
-                                        dst_x, dst_y, dst_w, dst_h);
+                                        dst_x, dst_y, dst_w, dst_h,
+                                        dc->clip.mask, dc->clip.mask_x, dc->clip.mask_y);
 }
 
 static Eina_Bool
@@ -1554,7 +1666,8 @@ _draw_thread_map_draw(void *data)
                (im, map->surface,
                 map->clip.x, map->clip.y, map->clip.w, map->clip.h,
                 map->mul_col, map->render_op, m->count - offset, &m->pts[offset],
-                map->smooth, map->level);
+                map->smooth, map->anti_alias, map->level,
+                map->mask, map->mask_x, map->mask_y);
           }
 
         evas_common_cpu_end_opt();
@@ -1599,6 +1712,7 @@ _map_draw_thread_cmd(RGBA_Image *src, RGBA_Image *dst, RGBA_Draw_Context *dc, RG
 
    cm->mul_col = dc->mul.use ? dc->mul.col : 0xffffffff;
    cm->render_op = dc->render_op;
+   cm->anti_alias = dc->anti_alias;
 
    cm->map = calloc(1, sizeof(RGBA_Map) +
                     sizeof(RGBA_Map_Point) * map->count);
@@ -1615,6 +1729,10 @@ _map_draw_thread_cmd(RGBA_Image *src, RGBA_Image *dst, RGBA_Draw_Context *dc, RG
    cm->smooth = smooth;
    cm->level = level;
    cm->offset = offset;
+
+   cm->mask = dc->clip.mask;
+   cm->mask_x = dc->clip.mask_x;
+   cm->mask_y = dc->clip.mask_y;
 
    evas_thread_cmd_enqueue(_draw_thread_map_draw, cm);
 
@@ -2174,6 +2292,9 @@ _draw_thread_font_draw(void *data)
    dc.clip.y = font->clip_rect.y;
    dc.clip.w = font->clip_rect.w;
    dc.clip.h = font->clip_rect.h;
+   dc.clip.mask = font->mask;
+   dc.clip.mask_x = font->mask_x;
+   dc.clip.mask_y = font->mask_y;
 
    evas_common_font_rgba_draw
      (font->dst, &dc,
@@ -2208,6 +2329,9 @@ _font_draw_thread_cmd(RGBA_Image *dst, RGBA_Draw_Context *dc, int x, int y, Evas
    EINA_RECTANGLE_SET(&cf->ext, ext_x, ext_y, ext_w, ext_h);
    cf->im_w = im_w;
    cf->im_h = im_h;
+   cf->mask = dc->clip.mask;
+   cf->mask_x = dc->clip.mask_x;
+   cf->mask_y = dc->clip.mask_y;
 
    evas_thread_cmd_enqueue(_draw_thread_font_draw, cf);
 
@@ -2977,6 +3101,7 @@ eng_output_idle_flush(void *data)
    if (re->outbuf_idle_flush) re->outbuf_idle_flush(re->ob);
 }
 
+/*
 static Ector_Surface *_software_ector = NULL;
 
 static Ector_Surface *
@@ -3133,6 +3258,7 @@ eng_ector_renderer_draw(void *data EINA_UNUSED, void *context, void *surface, Ec
         _draw_thread_ector_draw(&ector);
      }
 }
+*/
 
 //------------------------------------------------//
 
@@ -3165,6 +3291,9 @@ static Evas_Func func =
      eng_canvas_alpha_get,
      eng_context_free,
      eng_context_clip_set,
+     eng_context_clip_image_set,
+     eng_context_clip_image_unset,
+     eng_context_clip_image_get,
      eng_context_clip_clip,
      eng_context_clip_unset,
      eng_context_clip_get,
@@ -3285,7 +3414,7 @@ static Evas_Func func =
      eng_image_animated_loop_count_get,
      eng_image_animated_frame_duration_get,
      eng_image_animated_frame_set,
-     NULL,
+     NULL, // image_max_size_get
      eng_multi_font_draw,
      eng_pixel_alpha_get,
      NULL, // eng_context_flush - software doesn't use it
@@ -3304,10 +3433,10 @@ static Evas_Func func =
      NULL, // eng_texture_wrap_get
      NULL, // eng_texture_filter_set
      NULL, // eng_texture_filter_get
-     NULL, // eng_texture_image_set
-     eng_ector_begin,
-     eng_ector_get,
-     eng_ector_renderer_draw
+     NULL // eng_texture_image_set
+//     eng_ector_begin,
+//     eng_ector_get,
+//     eng_ector_renderer_draw
    /* FUTURE software generic calls go here */
 };
 
@@ -3803,11 +3932,15 @@ gl_sym_init(void)
 #undef FINDSYM
 #undef FALLBAK
 
-   // Checking to see if this function exists is a poor but reasonable way to 
-   // check if it's gles but it works for now
-   if (_sym_glGetShaderPrecisionFormat != (typeof(_sym_glGetShaderPrecisionFormat))sym_missing ) 
+   /*
+    * For desktop OpenGL we wrap these:
+    * - glGetShaderPrecisionFormat
+    * - glReleaseShaderCompiler
+    * - glShaderBinary
+    */
+   if (_sym_glGetShaderPrecisionFormat != (typeof(_sym_glGetShaderPrecisionFormat))sym_missing )
      {
-        DBG("GL Library is GLES.");
+        DBG("The GL library is OpenGL ES or OpenGL 4.1+");
         gl_lib_is_gles = 1;
      }
 
@@ -4234,6 +4367,7 @@ override_gl_apis(Evas_GL_API *api)
      {
         // Override functions wrapped by Evas_GL
         // GLES2.0 API compat on top of desktop gl
+        // Note that Open GL 4.1+ provides these 3 functions as well
         ORD(glGetShaderPrecisionFormat);
         ORD(glReleaseShaderCompiler);
         ORD(glShaderBinary);
@@ -4351,9 +4485,9 @@ module_open(Evas_Module *em)
    _mp_command_multi_font =
      eina_mempool_add("chained_mempool", "Evas_Thread_Command_Multi_Font",
                       NULL, sizeof(Evas_Thread_Command_Multi_Font), 128);
-   _mp_command_ector =
-     eina_mempool_add("chained_mempool", "Evas_Thread_Command_Ector",
-                      NULL, sizeof(Evas_Thread_Command_Ector), 128);
+//   _mp_command_ector =
+//     eina_mempool_add("chained_mempool", "Evas_Thread_Command_Ector",
+//                      NULL, sizeof(Evas_Thread_Command_Ector), 128);
 
    init_gl();
    evas_common_pipe_init();
@@ -4372,7 +4506,7 @@ module_close(Evas_Module *em EINA_UNUSED)
    eina_mempool_del(_mp_command_image);
    eina_mempool_del(_mp_command_font);
    eina_mempool_del(_mp_command_map);
-   eina_mempool_del(_mp_command_ector);
+   //eina_mempool_del(_mp_command_ector);
    eina_log_domain_unregister(_evas_soft_gen_log_dom);
 }
 
@@ -4392,6 +4526,7 @@ Eina_Bool evas_engine_software_generic_init(void)
    return evas_module_register(&evas_modapi, EVAS_MODULE_TYPE_ENGINE);
 }
 
+/*
 // Time to destroy the ector context
 void evas_engine_software_generic_shutdown(void)
 {
@@ -4490,3 +4625,4 @@ _ector_cairo_software_surface_ector_generic_surface_surface_get(Eo *obj EINA_UNU
 }
 
 #include "ector_cairo_software_surface.eo.c"
+*/

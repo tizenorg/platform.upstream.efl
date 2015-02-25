@@ -55,7 +55,7 @@ static int _client_connected = 0;
 
 #if HAVE_GNUTLS
 static void
-_gnutls_print_errors(void *conn, int type, int ret)
+_gnutls_print_errors(Eo *conn, int type, int ret)
 {
    char buf[1024];
 
@@ -326,7 +326,7 @@ case (X):        \
 }
 
 static void
-_openssl_print_errors(void *conn, int type)
+_openssl_print_errors(Eo *conn, int type)
 {
    char buf[1024];
    do
@@ -470,6 +470,13 @@ ecore_con_ssl_init(void)
 Ecore_Con_Ssl_Error
 ecore_con_ssl_shutdown(void)
 {
+   /* _init_con_ssl_init_count should not go below zero. */
+   if (_init_con_ssl_init_count < 1)
+     {
+        ERR("ecore_con_ssl_shutdown called without calling ecore_con_ssl_init.\n");
+        return 0;
+     }
+
    if (!--_init_con_ssl_init_count)
      SSL_SUFFIX(_ecore_con_ssl_shutdown) ();
 
@@ -938,7 +945,7 @@ _ecore_con_ssl_server_prepare_gnutls(Ecore_Con_Server *obj,
    return ECORE_CON_SSL_ERROR_NONE;
 
 error:
-   _gnutls_print_errors(svr, ECORE_CON_EVENT_SERVER_ERROR, ret);
+   _gnutls_print_errors(obj, ECORE_CON_EVENT_SERVER_ERROR, ret);
    _ecore_con_ssl_server_shutdown_gnutls(obj);
    return ECORE_CON_SSL_ERROR_SERVER_INIT_FAILED;
 }
@@ -1065,7 +1072,7 @@ _ecore_con_ssl_server_init_gnutls(Ecore_Con_Server *obj)
    return ECORE_CON_SSL_ERROR_NONE;
 
 error:
-   _gnutls_print_errors(svr, ECORE_CON_EVENT_SERVER_ERROR, ret);
+   _gnutls_print_errors(obj, ECORE_CON_EVENT_SERVER_ERROR, ret);
    if ((ret == GNUTLS_E_WARNING_ALERT_RECEIVED) || (ret == GNUTLS_E_FATAL_ALERT_RECEIVED))
      ERR("Also received alert: %s", gnutls_alert_get_name(gnutls_alert_get(svr->session)));
    if (svr->session && (svr->ssl_state != ECORE_CON_SSL_STATE_DONE))
@@ -1399,7 +1406,7 @@ _ecore_con_ssl_client_init_gnutls(Ecore_Con_Client *obj)
    return ECORE_CON_SSL_ERROR_NONE;
 
 error:
-   _gnutls_print_errors(cl, ECORE_CON_EVENT_CLIENT_ERROR, ret);
+   _gnutls_print_errors(obj, ECORE_CON_EVENT_CLIENT_ERROR, ret);
    if ((ret == GNUTLS_E_WARNING_ALERT_RECEIVED) || (ret == GNUTLS_E_FATAL_ALERT_RECEIVED))
      ERR("Also received alert: %s", gnutls_alert_get_name(gnutls_alert_get(cl->session)));
    if (cl->session && (cl->ssl_state != ECORE_CON_SSL_STATE_DONE))
@@ -1599,7 +1606,7 @@ error:
           ERR("openssl error: dh_params could not generate a safe prime!");
      }
    else
-     _openssl_print_errors(svr, ECORE_CON_EVENT_SERVER_ERROR);
+     _openssl_print_errors(obj, ECORE_CON_EVENT_SERVER_ERROR);
    _ecore_con_ssl_server_shutdown_openssl(obj);
    return ECORE_CON_SSL_ERROR_SERVER_INIT_FAILED;
 }
@@ -1693,7 +1700,7 @@ _ecore_con_ssl_server_init_openssl(Ecore_Con_Server *obj)
    return ECORE_CON_SSL_ERROR_NONE;
 
 error:
-   _openssl_print_errors(svr, ECORE_CON_EVENT_SERVER_ERROR);
+   _openssl_print_errors(obj, ECORE_CON_EVENT_SERVER_ERROR);
    _ecore_con_ssl_server_shutdown_openssl(obj);
    return ECORE_CON_SSL_ERROR_SERVER_INIT_FAILED;
 }
@@ -1713,7 +1720,7 @@ _ecore_con_ssl_server_cafile_add_openssl(Ecore_Con_Server *obj,
    return EINA_TRUE;
 
 error:
-   _openssl_print_errors(svr, ECORE_CON_EVENT_SERVER_ERROR);
+   _openssl_print_errors(obj, ECORE_CON_EVENT_SERVER_ERROR);
    return EINA_FALSE;
 }
 
@@ -1738,7 +1745,7 @@ _ecore_con_ssl_server_crl_add_openssl(Ecore_Con_Server *obj,
    return EINA_TRUE;
 
 error:
-   _openssl_print_errors(svr, ECORE_CON_EVENT_SERVER_ERROR);
+   _openssl_print_errors(obj, ECORE_CON_EVENT_SERVER_ERROR);
    return EINA_FALSE;
 }
 
@@ -1765,7 +1772,7 @@ _ecore_con_ssl_server_privkey_add_openssl(Ecore_Con_Server *obj,
 error:
    if (fp)
      fclose(fp);
-   _openssl_print_errors(svr, ECORE_CON_EVENT_SERVER_ERROR);
+   _openssl_print_errors(obj, ECORE_CON_EVENT_SERVER_ERROR);
    return EINA_FALSE;
 }
 
@@ -1791,7 +1798,7 @@ _ecore_con_ssl_server_cert_add_openssl(Ecore_Con_Server *obj,
 error:
    if (fp)
      fclose(fp);
-   _openssl_print_errors(svr, ECORE_CON_EVENT_SERVER_ERROR);
+   _openssl_print_errors(obj, ECORE_CON_EVENT_SERVER_ERROR);
    return EINA_FALSE;
 }
 
@@ -1941,7 +1948,7 @@ _ecore_con_ssl_client_init_openssl(Ecore_Con_Client *obj)
    return ECORE_CON_SSL_ERROR_NONE;
 
 error:
-   _openssl_print_errors(cl, ECORE_CON_EVENT_CLIENT_ERROR);
+   _openssl_print_errors(obj, ECORE_CON_EVENT_CLIENT_ERROR);
    _ecore_con_ssl_client_shutdown_openssl(obj);
    return ECORE_CON_SSL_ERROR_SERVER_INIT_FAILED;
 }

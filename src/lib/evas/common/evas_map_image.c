@@ -4,6 +4,9 @@
 #ifdef EVAS_CSERVE2
 #include "evas_cs2_private.h"
 #endif
+#ifdef BUILD_NEON
+#include <arm_neon.h>
+#endif
 
 #ifdef BUILD_MMX
 # undef SCALE_USING_MMX
@@ -30,6 +33,8 @@ struct _Span
 struct _Line
 {
    Span span[2];
+   int aa_cov[2];
+   int aa_len[2];
 };
 
 static inline FPc
@@ -81,6 +86,8 @@ _interpolated_clip_span(Span *s, int c1, int c2, Eina_Bool interp_col)
         // FIXME: do s->z2
      }
 }
+
+#include "evas_map_image_aa.c"
 
 // 12.63 % of time - this can improve
 static void
@@ -668,7 +675,8 @@ void evas_common_map_rgba_internal_mmx(RGBA_Image *src, RGBA_Image *dst, RGBA_Dr
    _evas_common_map_rgba_internal_mmx(src, dst,
                                       clip_x, clip_y, clip_w, clip_h,
                                       mul_col, dc->render_op,
-                                      p, smooth, level);
+                                      p, smooth, dc->anti_alias, level,
+                                      dc->clip.mask, dc->clip.mask_x, dc->clip.mask_y);
 }
 #endif
 
@@ -696,7 +704,8 @@ void evas_common_map_rgba_internal(RGBA_Image *src, RGBA_Image *dst, RGBA_Draw_C
    _evas_common_map_rgba_internal(src, dst,
                                   clip_x, clip_y, clip_w, clip_h,
                                   mul_col, dc->render_op,
-                                  p, smooth, level);
+                                  p, smooth, dc->anti_alias, level,
+                                  dc->clip.mask, dc->clip.mask_x, dc->clip.mask_y);
 }
 
 #ifdef BUILD_NEON
@@ -724,7 +733,8 @@ void evas_common_map_rgba_internal_neon(RGBA_Image *src, RGBA_Image *dst, RGBA_D
    _evas_common_map_rgba_internal_neon(src, dst,
                                   clip_x, clip_y, clip_w, clip_h,
                                   mul_col, dc->render_op,
-                                  p, smooth, level);
+                                  p, smooth, dc->anti_alias, level,
+                                  dc->clip.mask, dc->clip.mask_x, dc->clip.mask_y);
 }
 #endif
 
@@ -856,7 +866,7 @@ evas_common_map_rgba(RGBA_Image *src, RGBA_Image *dst,
 }
 
 EAPI void
-evas_common_map_rgba_draw(RGBA_Image *src, RGBA_Image *dst, int clip_x, int clip_y, int clip_w, int clip_h, DATA32 mul_col, int render_op, int npoints EINA_UNUSED, RGBA_Map_Point *p, int smooth, int level)
+evas_common_map_rgba_draw(RGBA_Image *src, RGBA_Image *dst, int clip_x, int clip_y, int clip_w, int clip_h, DATA32 mul_col, int render_op, int npoints EINA_UNUSED, RGBA_Map_Point *p, int smooth, Eina_Bool anti_alias, int level, RGBA_Image *mask_ie, int mask_x, int mask_y)
 {
 #ifdef BUILD_MMX
    int mmx, sse, sse2;
@@ -866,7 +876,8 @@ evas_common_map_rgba_draw(RGBA_Image *src, RGBA_Image *dst, int clip_x, int clip
      _evas_common_map_rgba_internal_mmx(src, dst,
                                         clip_x, clip_y, clip_w, clip_h,
                                         mul_col, render_op,
-                                        p, smooth, level);
+                                        p, smooth, anti_alias, level,
+                                        mask_ie, mask_x, mask_y);
    else
 #endif
 #ifdef BUILD_NEON
@@ -874,13 +885,15 @@ evas_common_map_rgba_draw(RGBA_Image *src, RGBA_Image *dst, int clip_x, int clip
      _evas_common_map_rgba_internal_neon(src, dst,
                                     clip_x, clip_y, clip_w, clip_h,
                                     mul_col, render_op,
-                                    p, smooth, level);
+                                    p, smooth, anti_alias, level,
+                                    mask_ie, mask_x, mask_y);
    else
 #endif
      _evas_common_map_rgba_internal(src, dst,
                                     clip_x, clip_y, clip_w, clip_h,
                                     mul_col, render_op,
-                                    p, smooth, level);
+                                    p, smooth, anti_alias, level,
+                                    mask_ie, mask_x, mask_y);
 }
 
 EAPI void
@@ -912,17 +925,20 @@ evas_common_map_rgba_do(const Eina_Rectangle *clip,
 #ifdef BUILD_MMX
         if (mmx)
           evas_common_map_rgba_internal_mmx_do(src, dst, dc,
-                                               &spans->spans[0], smooth, level);
+                                               &spans->spans[0], smooth,
+                                               dc->anti_alias, level);
         else
 #endif
 #ifdef BUILD_NEON
         if (evas_common_cpu_has_feature(CPU_FEATURE_NEON))
           evas_common_map_rgba_internal_neon_do(src, dst, dc,
-                                           &spans->spans[0], smooth, level);
+                                           &spans->spans[0], smooth,
+                                           dc->anti_alias, level);
         else
 #endif
           evas_common_map_rgba_internal_do(src, dst, dc,
-                                           &spans->spans[0], smooth, level);
+                                           &spans->spans[0], smooth,
+                                           dc->anti_alias, level);
         return;
      }
 
@@ -935,17 +951,22 @@ evas_common_map_rgba_do(const Eina_Rectangle *clip,
         evas_common_draw_context_set_clip(dc, area.x, area.y, area.w, area.h);
 #ifdef BUILD_MMX
         if (mmx)
-          evas_common_map_rgba_internal_mmx_do(src, dst, dc,
-                                               &spans->spans[i], smooth, level);
+          {
+             evas_common_map_rgba_internal_mmx_do(src, dst, dc,
+                                                  &spans->spans[i], smooth,
+                                                  dc->anti_alias, level);
+          }
         else
 #endif
 #ifdef BUILD_NEON
         if (evas_common_cpu_has_feature(CPU_FEATURE_NEON))
           evas_common_map_rgba_internal_neon_do(src, dst, dc,
-                                               &spans->spans[i], smooth, level);
+                                               &spans->spans[i], smooth,
+                                               dc->anti_alias, level);
         else
 #endif
           evas_common_map_rgba_internal_do(src, dst, dc,
-                                           &spans->spans[i], smooth, level);
+                                           &spans->spans[i], smooth,
+                                           dc->anti_alias, level);
      }
 }

@@ -617,8 +617,8 @@ EAPI Eina_Stringshare *
 eina_stringshare_printf(const char *fmt, ...)
 {
    va_list args;
-   char *tmp;
-   const char *ret;
+   char *tmp = NULL;
+   const char *ret = "";
    int len;
 
    if (!fmt)
@@ -628,20 +628,20 @@ eina_stringshare_printf(const char *fmt, ...)
    len = vasprintf(&tmp, fmt, args);
    va_end(args);
 
-   if (len < 1)
-     return NULL;
+   if (len < 1) goto on_error;
 
    ret = eina_stringshare_add_length(tmp, len);
-   free(tmp);
 
+ on_error:
+   free(tmp);
    return ret;
 }
 
 EAPI Eina_Stringshare *
 eina_stringshare_vprintf(const char *fmt, va_list args)
 {
-   char *tmp;
-   const char *ret;
+   char *tmp = NULL;
+   const char *ret = "";
    int len;
 
    if (!fmt)
@@ -649,12 +649,12 @@ eina_stringshare_vprintf(const char *fmt, va_list args)
 
    len = vasprintf(&tmp, fmt, args);
 
-   if (len < 1)
-     return NULL;
+   if (len < 1) goto on_error;
 
    ret = eina_stringshare_add_length(tmp, len);
-   free(tmp);
 
+ on_error:
+   free(tmp);
    return ret;
 }
 
@@ -668,17 +668,17 @@ eina_stringshare_nprintf(unsigned int len, const char *fmt, ...)
    if (!fmt)
      return NULL;
 
-   if (len < 1)
-     return NULL;
+   if (len == 0)
+     return "";
 
-   tmp = alloca(sizeof(char) * len + 1);
+   tmp = alloca(sizeof(char) * (len + 1));
 
    va_start(args, fmt);
    size = vsnprintf(tmp, len, fmt, args);
    va_end(args);
 
    if (size < 1)
-     return NULL;
+     return "";
 
    return eina_stringshare_add_length(tmp, size);
 }

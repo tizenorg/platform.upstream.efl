@@ -863,8 +863,6 @@ evas_gl_common_context_new(void)
 
         shared->native_pm_hash  = eina_hash_int32_new(NULL);
         shared->native_tex_hash = eina_hash_int32_new(NULL);
-        shared->native_buffer_hash = eina_hash_pointer_new(NULL);
-        shared->native_tbm_hash = eina_hash_pointer_new(NULL);
      }
    gc->shared = shared;
    gc->shared->references++;
@@ -937,8 +935,6 @@ evas_gl_common_context_free(Evas_Engine_GL_Context *gc)
         eina_list_free(gc->shared->tex.whole);
         eina_hash_free(gc->shared->native_pm_hash);
         eina_hash_free(gc->shared->native_tex_hash);
-        eina_hash_free(gc->shared->native_buffer_hash);
-        eina_hash_free(gc->shared->native_tbm_hash);
         free(gc->shared);
         shared = NULL;
      }
@@ -1646,7 +1642,6 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
    Evas_GL_Texture_Pool *pt;
    int pnum, nv, nc, nu, ns, i;
    GLfloat tx1, tx2, ty1, ty2;
-   GLfloat tx3, tx4, ty3, ty4;
    GLfloat offsetx, offsety;
    Eina_Bool blend = EINA_FALSE;
    GLuint prog = gc->shared->shader[SHADER_IMG].prog;
@@ -1687,17 +1682,6 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
                                                                          SHADER_IMG_BGRA_NOMUL, SHADER_IMG_BGRA)].prog;
                }
           }
-#ifdef GL_GLES
-        else if (tex->im && tex->im->native.target == GL_TEXTURE_EXTERNAL_OES)
-          {
-             if ((!tex->alpha) && (tex->pt->native))
-               prog = gc->shared->shader[evas_gl_common_shader_choice(0, NULL, r, g, b, a,
-                                                                      SHADER_TEX_EXTERNAL_NOMUL_AFILL, SHADER_TEX_EXTERNAL_AFILL)].prog;
-             else
-               prog = gc->shared->shader[evas_gl_common_shader_choice(0, NULL, r, g, b, a,
-                                                                      SHADER_TEX_EXTERNAL_NOMUL, SHADER_TEX_EXTERNAL)].prog;
-          }
-#endif
         else
           {
              if ((smooth) && ((sw >= (w * 2)) && (sh >= (h * 2))))
@@ -1852,127 +1836,19 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
    gc->pipe[pn].array.num += 6;
    array_alloc(gc, pn);
 
-   if ((tex->im) && (tex->im->native.data))
+   if ((tex->im) && (tex->im->native.data) && (!tex->im->native.yinvert))
      {
-        if (!tex->im->native.yinvert)
-          {
-             tx3 = tx1 = ((double)(tex->x) + sx) / (double)tex->pt->w;
-             ty4 = ty1 = 1.0 - ((double)(tex->y) + sy) / (double)tex->pt->h;
-             tx4 = tx2 = ((double)(tex->x) + sx + sw) / (double)tex->pt->w;
-             ty3 = ty2 = 1.0 - ((double)(tex->y) + sy + sh) / (double)tex->pt->h;
-          }
-        else
-          {
-             double tmp;
-             switch (tex->im->native.rot)
-               {
-                case 90:
-                   tmp = sx; sx = (tex->h - sy - sh) * tex->w / (double)tex->h;
-                   sy = tmp * tex->h / (double)tex->w;
-                   tmp = sw; sw = sh * tex->w / (double)tex->h;
-                   sh = tmp * tex->h / (double)tex->w;
-                   if (tex->im->native.flip == 2 || tex->im->native.flip == 3)
-                     {
-                        tx2 = tx3 = ((double)(tex->x) + sx + sw) / (double)tex->pt->w;
-                        tx1 = tx4 = ((double)(tex->x) + sx) / (double)tex->pt->w;
-                     }
-                   else
-                     {
-                        tx1 = tx4 = ((double)(tex->x) + sx + sw) / (double)tex->pt->w;
-                        tx2 = tx3 = ((double)(tex->x) + sx) / (double)tex->pt->w;
-                     }
-                   if (tex->im->native.flip == 1 || tex->im->native.flip == 3)
-                     {
-                        ty1 = ty3 = ((double)(tex->y) + sy + sh) / (double)tex->pt->h;
-                        ty2 = ty4 = ((double)(tex->y) + sy) / (double)tex->pt->h;
-                     }
-                   else
-                     {
-                        ty2 = ty4 = ((double)(tex->y) + sy + sh) / (double)tex->pt->h;
-                        ty1 = ty3 = ((double)(tex->y) + sy) / (double)tex->pt->h;
-                     }
-                   break;
-                case 180:
-                   sx = tex->w - sx - sw; sy = tex->h - sy - sh;
-                   if (tex->im->native.flip == 2 || tex->im->native.flip == 3)
-                     {
-                        tx4 = tx2 = ((double)(tex->x) + sx + sw) / (double)tex->pt->w;
-                        tx3 = tx1 = ((double)(tex->x) + sx) / (double)tex->pt->w;
-                     }
-                   else
-                     {
-                        tx3 = tx1 = ((double)(tex->x) + sx + sw) / (double)tex->pt->w;
-                        tx4 = tx2 = ((double)(tex->x) + sx) / (double)tex->pt->w;
-                     }
-                   if (tex->im->native.flip == 1 || tex->im->native.flip == 3)
-                     {
-                        ty3 = ty2 = ((double)(tex->y) + sy + sh) / (double)tex->pt->h;
-                        ty4 = ty1 = ((double)(tex->y) + sy) / (double)tex->pt->h;
-                     }
-                   else
-                     {
-                        ty4 = ty1 = ((double)(tex->y) + sy + sh) / (double)tex->pt->h;
-                        ty3 = ty2 = ((double)(tex->y) + sy) / (double)tex->pt->h;
-                     }
-                   break;
-                case 270:
-                   tmp = sy; sy = (tex->w - sx - sw) * tex->h / (double)tex->w;
-                   sx = tmp * tex->w / (double)tex->h;
-                   tmp = sw; sw = sh * tex->w / (double)tex->h;
-                   sh = tmp * tex->h / (double)tex->w;
-                   if (tex->im->native.flip == 2 || tex->im->native.flip == 3)
-                     {
-                        tx1 = tx4 = ((double)(tex->x) + sx + sw) / (double)tex->pt->w;
-                        tx2 = tx3 = ((double)(tex->x) + sx) / (double)tex->pt->w;
-                     }
-                   else
-                     {
-                        tx2 = tx3 = ((double)(tex->x) + sx + sw) / (double)tex->pt->w;
-                        tx1 = tx4 = ((double)(tex->x) + sx) / (double)tex->pt->w;
-                     }
-                   if (tex->im->native.flip == 1 || tex->im->native.flip == 3)
-                     {
-                        ty2 = ty4 = ((double)(tex->y) + sy + sh) / (double)tex->pt->h;
-                        ty1 = ty3 = ((double)(tex->y) + sy) / (double)tex->pt->h;
-                     }
-                   else
-                     {
-                        ty1 = ty3 = ((double)(tex->y) + sy + sh) / (double)tex->pt->h;
-                        ty2 = ty4 = ((double)(tex->y) + sy) / (double)tex->pt->h;
-                     }
-                   break;
-                case 0:
-                default:
-                   if (tex->im->native.flip == 2 || tex->im->native.flip == 3)
-                     {
-                        tx4 = tx2 = ((double)(tex->x) + sx) / (double)tex->pt->w;
-                        tx3 = tx1 = ((double)(tex->x) + sx + sw) / (double)tex->pt->w;
-                     }
-                   else
-                     {
-                        tx3 = tx1 = ((double)(tex->x) + sx) / (double)tex->pt->w;
-                        tx4 = tx2 = ((double)(tex->x) + sx + sw) / (double)tex->pt->w;
-                     }
-                   if (tex->im->native.flip == 1 || tex->im->native.flip == 3)
-                     {
-                        ty3 = ty2 = ((double)(tex->y) + sy) / (double)tex->pt->h;
-                        ty4 = ty1 = ((double)(tex->y) + sy + sh) / (double)tex->pt->h;
-                     }
-                   else
-                     {
-                        ty4 = ty1 = ((double)(tex->y) + sy) / (double)tex->pt->h;
-                        ty3 = ty2 = ((double)(tex->y) + sy + sh) / (double)tex->pt->h;
-                     }
-                   break;
-               }
-          }
+        tx1 = ((double)(offsetx) + sx) / (double)pt->w;
+        ty1 = 1.0 - ((double)(offsety) + sy) / (double)pt->h;
+        tx2 = ((double)(offsetx) + sx + sw) / (double)pt->w;
+        ty2 = 1.0 - ((double)(offsety) + sy + sh) / (double)pt->h;
      }
    else
      {
-        tx3 = tx1 = ((double)(tex->x) + sx) / (double)tex->pt->w;
-        ty4 = ty1 = ((double)(tex->y) + sy) / (double)tex->pt->h;
-        tx4 = tx2 = ((double)(tex->x) + sx + sw) / (double)tex->pt->w;
-        ty3 = ty2 = ((double)(tex->y) + sy + sh) / (double)tex->pt->h;
+        tx1 = ((double)(offsetx) + sx) / (double)pt->w;
+        ty1 = ((double)(offsety) + sy) / (double)pt->h;
+        tx2 = ((double)(offsetx) + sx + sw) / (double)pt->w;
+        ty2 = ((double)(offsety) + sy + sh) / (double)pt->h;
      }
 
    PUSH_VERTEX(pn, x    , y    , 0);

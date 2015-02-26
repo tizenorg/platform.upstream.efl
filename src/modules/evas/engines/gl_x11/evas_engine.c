@@ -1735,7 +1735,8 @@ _native_bind_cb(void *data EINA_UNUSED, void *image)
       glBindTexture(GL_TEXTURE_2D, n->ns.data.opengl.texture_id);
       GLERR(__FUNCTION__, __FILE__, __LINE__, "");
     }
-  else if (n->ns.type == EVAS_NATIVE_SURFACE_TBM)
+  else if (n->ns.type == EVAS_NATIVE_SURFACE_TIZEN ||
+           n->ns.type == EVAS_NATIVE_SURFACE_TBM)
     {
 #ifdef GL_GLES
       if (n->egl_surface)
@@ -1783,7 +1784,8 @@ _native_unbind_cb(void *data EINA_UNUSED, void *image)
       glBindTexture(GL_TEXTURE_2D, 0);
       GLERR(__FUNCTION__, __FILE__, __LINE__, "");
     }
-  else if (n->ns.type == EVAS_NATIVE_SURFACE_TBM)
+  else if (n->ns.type == EVAS_NATIVE_SURFACE_TIZEN ||
+           n->ns.type == EVAS_NATIVE_SURFACE_TBM)
     {
       // nothing
     }
@@ -1864,7 +1866,7 @@ _native_free_cb(void *data, void *image)
               if ((err = eglGetError()) != EGL_SUCCESS)
                 {
                   ERR("eglDestroyImage() failed.");
-                  _evgl_error_set(err - EGL_SUCCESS);
+                  glsym_evas_gl_common_error_set(err - EGL_SUCCESS);
                 }
             }
           else

@@ -707,8 +707,7 @@ modules/evas/engines/gl_common/shader/tex_external_nomul_vert.shd \
 modules/evas/engines/gl_common/shader/tex_external_afill_frag.shd \
 modules/evas/engines/gl_common/shader/tex_external_afill_vert.shd \
 modules/evas/engines/gl_common/shader/tex_external_nomul_afill_frag.shd \
-modules/evas/engines/gl_common/shader/tex_external_nomul_afill_vert.shd \
-$(NULL)
+modules/evas/engines/gl_common/shader/tex_external_nomul_afill_vert.shd
 
 EXTRA_DIST += \
 modules/evas/engines/gl_common/shader/gen_shaders.sh \

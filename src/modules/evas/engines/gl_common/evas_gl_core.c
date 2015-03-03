@@ -1653,10 +1653,7 @@ evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
    evgl_engine->surfaces = eina_list_prepend(evgl_engine->surfaces, sfc);
 
    if (sfc->direct_fb_opt)
-     {
-        eina_hash_add(evgl_engine->direct_surfaces, &sfc->color_buf, sfc);
-        DBG("Added tex %d as direct surface: %p", sfc->color_buf, sfc);
-     }
+      evgl_engine->direct_surfaces = eina_list_prepend(evgl_engine->direct_surfaces, sfc);
 
    if (sfc->direct_fb_opt &&
        (sfc->depth_fmt || sfc->stencil_fmt || sfc->depth_stencil_fmt))
@@ -1912,11 +1909,7 @@ evgl_surface_destroy(void *eng_data, EVGL_Surface *sfc)
    evgl_engine->surfaces = eina_list_remove(evgl_engine->surfaces, sfc);
 
    if (sfc->direct_fb_opt)
-     {
-        eina_hash_del(evgl_engine->direct_surfaces, &texid, sfc);
-        DBG("Removed tex %d from the direct surface: %p", texid, sfc);
-     }
-
+      evgl_engine->direct_surfaces = eina_list_remove(evgl_engine->direct_surfaces, sfc);
    if (sfc->direct_fb_opt &&
        (sfc->depth_fmt || sfc->stencil_fmt || sfc->depth_stencil_fmt))
      {
@@ -2451,6 +2444,7 @@ evgl_native_surface_direct_opts_get(Evas_Native_Surface *ns,
                                     Eina_Bool *client_side_rotation)
 {
    EVGL_Surface *sfc;
+   Eina_List *l;
 
    if (direct_render) *direct_render = EINA_FALSE;
    if (client_side_rotation) *client_side_rotation = EINA_FALSE;
@@ -2460,23 +2454,17 @@ evgl_native_surface_direct_opts_get(Evas_Native_Surface *ns,
    if (ns->data.opengl.framebuffer_id != 0) return EINA_FALSE;
    if (ns->data.opengl.texture_id == 0) return EINA_FALSE;
 
-   sfc = eina_hash_find(evgl_engine->direct_surfaces, &ns->data.opengl.texture_id);
-   if (!sfc)
+   EINA_LIST_FOREACH(evgl_engine->direct_surfaces, l, sfc)
      {
-        DBG("Native surface %p (color_buf %d) was not found.",
-            ns, ns->data.opengl.texture_id);
-        return EINA_FALSE;
+        if (ns->data.opengl.texture_id == sfc->color_buf)
+          {
+             if (direct_render) *direct_render = sfc->direct_fb_opt;
+             if (client_side_rotation) *client_side_rotation = sfc->client_side_rotation;
+             // Note: Maybe we could promote this sfc in the list?
+             return EINA_TRUE;
+          }
      }
 
-   if (evgl_engine->api_debug_mode)
-     {
-        DBG("Found native surface: texid:%u DR:%d CSR:%d",
-            ns->data.opengl.texture_id, (int) sfc->direct_fb_opt,
-            (int) sfc->client_side_rotation);
-     }
-
-   if (direct_render) *direct_render = sfc->direct_fb_opt;
-   if (client_side_rotation) *client_side_rotation = sfc->client_side_rotation;
    return EINA_TRUE;
 }
 

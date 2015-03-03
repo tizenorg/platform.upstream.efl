@@ -39,12 +39,14 @@ int          evgl_direct_rendered();
 void         evgl_direct_override_get(int *override, int *force_off);
 void         evgl_direct_info_set(int win_w, int win_h, int rot,
                                   int img_x, int img_y, int img_w, int img_h,
-                                  int clip_x, int clip_y, int clip_w, int clip_h);
+                                  int clip_x, int clip_y, int clip_w, int clip_h,
+                                  unsigned int texid);
 void         evgl_direct_info_clear();
 
 Eina_Bool    evgl_native_surface_direct_opts_get(Evas_Native_Surface *ns,
                                                  Eina_Bool *direct_render,
-                                                 Eina_Bool *client_side_rotation);
+                                                 Eina_Bool *client_side_rotation,
+                                                 Eina_Bool *direct_override);
 
 void         evgl_direct_partial_info_set(int pres);
 void         evgl_direct_partial_info_clear();

@@ -835,42 +835,40 @@ eng_image_draw(void *data, void *context, void *surface, void *image, int src_x,
 
         gl_context->dc = context;
 
-        if (re->func.get_pixels)
+        if ((gl_context->master_clip.enabled) &&
+            (gl_context->master_clip.w > 0) &&
+            (gl_context->master_clip.h > 0))
           {
-             if ((gl_context->master_clip.enabled) &&
-                 (gl_context->master_clip.w > 0) &&
-                 (gl_context->master_clip.h > 0))
-               {
-                  // Pass the preserve flag info the evas_gl
-                  evgl_direct_partial_info_set(gl_context->preserve_bit);
-               }
-
-             // Set necessary info for direct rendering
-             evgl_direct_info_set(gl_context->w,
-                                  gl_context->h,
-                                  gl_context->rot,
-                                  dst_x, dst_y, dst_w, dst_h,
-                                  gl_context->dc->clip.x,
-                                  gl_context->dc->clip.y,
-                                  gl_context->dc->clip.w,
-                                  gl_context->dc->clip.h);
-
-             // Call pixel get function
-             re->func.get_pixels(re->func.get_pixels_data, re->func.obj);
-
-             // Call end tile if it's being used
-             if ((gl_context->master_clip.enabled) &&
-                 (gl_context->master_clip.w > 0) &&
-                 (gl_context->master_clip.h > 0))
-               {
-                  evgl_direct_partial_render_end();
-                  evgl_direct_partial_info_clear();
-                  gl_context->preserve_bit = GL_COLOR_BUFFER_BIT0_QCOM;
-               }
-
-             // Reset direct rendering info
-             evgl_direct_info_clear();
+             // Pass the preserve flag info the evas_gl
+             evgl_direct_partial_info_set(gl_context->preserve_bit);
           }
+
+        // Set necessary info for direct rendering
+        evgl_direct_info_set(gl_context->w,
+                             gl_context->h,
+                             gl_context->rot,
+                             dst_x, dst_y, dst_w, dst_h,
+                             gl_context->dc->clip.x,
+                             gl_context->dc->clip.y,
+                             gl_context->dc->clip.w,
+                             gl_context->dc->clip.h,
+                             n->data.opengl.texture_id);
+
+        // Call pixel get function
+        re->func.get_pixels(re->func.get_pixels_data, re->func.obj);
+
+        // Call end tile if it's being used
+        if ((gl_context->master_clip.enabled) &&
+            (gl_context->master_clip.w > 0) &&
+            (gl_context->master_clip.h > 0))
+          {
+             evgl_direct_partial_render_end();
+             evgl_direct_partial_info_clear();
+             gl_context->preserve_bit = GL_COLOR_BUFFER_BIT0_QCOM;
+          }
+
+        // Reset direct rendering info
+        evgl_direct_info_clear();
      }
    else
      {
@@ -1246,7 +1244,7 @@ eng_gl_direct_override_get(void *data, int *override, int *force_off)
 }
 
 static Eina_Bool
-eng_gl_surface_direct_renderable_get(void *data, void *native)
+eng_gl_surface_direct_renderable_get(void *data, void *native, Eina_Bool *direct_override)
 {
    Render_Engine_GL_Generic *re = data;
    Evas_Native_Surface *ns = native;
@@ -1255,7 +1253,7 @@ eng_gl_surface_direct_renderable_get(void *data, void *native)
 
    EVGLINIT(re, EINA_FALSE);
    if (!re || !ns) return EINA_FALSE;
-   if (!evgl_native_surface_direct_opts_get(ns, &direct_render, &client_side_rotation))
+   if (!evgl_native_surface_direct_opts_get(ns, &direct_render, &client_side_rotation, direct_override))
      return EINA_FALSE;
 
    if (!direct_render)

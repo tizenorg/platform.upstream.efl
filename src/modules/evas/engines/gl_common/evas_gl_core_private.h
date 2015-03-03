@@ -112,6 +112,10 @@ struct _EVGL_Surface
    unsigned gles1_indirect : 1;
    unsigned xpixmap : 1;
 
+   // Moved from evgl_engine
+   unsigned direct_override : 1;
+   unsigned direct_mem_opt : 1;
+
    int     cfg_index;
 
    // Attached Context
@@ -295,8 +299,7 @@ struct _EVGL_Engine
    int                resource_count;
    int                main_tid;
 
-   int                direct_override;
-   int                direct_mem_opt;
+   // Add more debug logs (DBG levels 4 and 6)
    int                api_debug_mode;
 
    // Force Off for Debug purposes
@@ -305,10 +308,14 @@ struct _EVGL_Engine
    // Force Direct Scissoring off for Debug purposes
    int                direct_scissor_off;
 
+   // Other DR flags for debugging purposes
+   int                direct_override; // 0: invalid, -1: no, 1: yes
+   int                direct_mem_opt; // 0: invalid, -1: no, 1: yes
+
    // Keep track of all the current surfaces/contexts
    Eina_List         *surfaces;
    Eina_List         *contexts;
-   Eina_List         *direct_surfaces;
+   Eina_Hash         *direct_surfaces; // unsigned (texid) --> EVGL_Surface*
    Eina_List         *direct_depth_stencil_surfaces;
 
    //void              *engine_data;

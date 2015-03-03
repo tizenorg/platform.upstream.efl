@@ -2233,17 +2233,29 @@ evgl_native_surface_get(EVGL_Surface *sfc, Evas_Native_Surface *ns)
         return 0;
      }
 
-   ns->type = EVAS_NATIVE_SURFACE_OPENGL;
-   ns->version = EVAS_NATIVE_SURFACE_VERSION;
-   ns->data.opengl.texture_id = sfc->color_buf;
-   ns->data.opengl.framebuffer_id = sfc->color_buf;
-   ns->data.opengl.x = 0;
-   ns->data.opengl.y = 0;
-   ns->data.opengl.w = sfc->w;
-   ns->data.opengl.h = sfc->h;
+   if (!sfc->xpixmap || sfc->direct_fb_opt)
+     {
+        ns->type = EVAS_NATIVE_SURFACE_OPENGL;
+        ns->version = EVAS_NATIVE_SURFACE_VERSION;
+        ns->data.opengl.texture_id = sfc->color_buf;
+        ns->data.opengl.framebuffer_id = sfc->color_buf;
+        ns->data.opengl.internal_format = sfc->color_ifmt;
+        ns->data.opengl.format = sfc->color_fmt;
+        ns->data.opengl.x = 0;
+        ns->data.opengl.y = 0;
+        ns->data.opengl.w = sfc->w;
+        ns->data.opengl.h = sfc->h;
 
-   if (sfc->direct_fb_opt)
-      ns->data.opengl.framebuffer_id = 0;
+        if (sfc->direct_fb_opt)
+          ns->data.opengl.framebuffer_id = 0;
+     }
+   else
+     {
+        ns->type = EVAS_NATIVE_SURFACE_X11;
+        ns->version = EVAS_NATIVE_SURFACE_VERSION;
+        ns->data.x11.pixmap = (unsigned long)(intptr_t)sfc->gles1_sfc_native;
+        ns->data.x11.visual = sfc->gles1_sfc_visual;
+     }
 
    return 1;
 }

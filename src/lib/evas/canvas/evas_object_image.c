@@ -2928,9 +2928,9 @@ evas_draw_image_map_async_check(Evas_Object_Protected_Data *obj,
 
 static void *
 evas_process_dirty_pixels(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, Evas_Image_Data *o,
-			  void *output, void *pixels)
+              void *output, void *pixels)
 {
-   int direct_override = 0;
+   Eina_Bool direct_override = 0;
    int direct_force_off = 0;
 
    if (o->dirty_pixels)

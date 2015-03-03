@@ -74,6 +74,10 @@ struct _EVGL_Interface
 
    // Destroy 1.x surface (could be pbuffer or xpixmap for instance)
    int        (*gles1_surface_destroy)(void *data, EVGL_Surface *evgl_sfc);
+
+   // Create an indirect rendering context for GLES 1.x
+   void      *(*gles1_context_create)(void *data, EVGL_Context *share_ctx, EVGL_Surface *evgl_sfc);
+
 };
 
 struct _EVGL_Surface
@@ -133,6 +137,7 @@ struct _EVGL_Surface
    EVGLNative_Surface gles1_sfc;
    void              *gles1_sfc_native;
    void              *gles1_sfc_visual;
+   void              *gles1_sfc_config;
 
    //-------------------------//
    // Related to PBuffer Surface
@@ -171,6 +176,9 @@ struct _EVGL_Context
 
    int          viewport_updated;
    int          viewport_coord[4];
+
+   // For GLES1 with indirect rendering
+   EVGLNative_Context gles1_context;
 
    // Partial Rendering
    int          partial_render;

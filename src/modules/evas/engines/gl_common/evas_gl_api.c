@@ -9,6 +9,8 @@
 #define EVGL_FUNC_END()
 #define _EVGL_INT_INIT_VALUE -3
 
+extern int _evas_gl_log_level;
+
 //---------------------------------------//
 // API Debug Error Checking Code
 static
@@ -47,6 +49,9 @@ void _func_begin_debug(const char *api)
 {
    _make_current_check(api);
    _direct_rendering_check(api);
+
+   if (_evas_gl_log_level >= 6)
+     DBG("GL CALL: %s", api);
 }
 
 //-------------------------------------------------------------//

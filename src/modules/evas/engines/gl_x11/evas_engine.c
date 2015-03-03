@@ -866,14 +866,11 @@ evgl_eng_pbuffer_surface_destroy(void *data, void *surface)
 // be shared with Evas.
 // FIXME: Avoid passing evgl_engine around like that.
 static void *
-evgl_eng_gles1_surface_create(EVGL_Engine *evgl EINA_UNUSED, void *data,
-                              EVGL_Surface *evgl_sfc,
-                              Evas_GL_Config *cfg, int w, int h)
+evgl_eng_gles1_surface_create(void *data, EVGL_Surface *evgl_sfc,
+                              Evas_GL_Config *cfg, int w, int h, int evgl_msaa)
 {
-   Render_Engine *re = data;
-#ifdef GL_GLES
+   Render_Engine *re = (Render_Engine *)data;
    Eina_Bool alpha = EINA_FALSE;
-#endif
    int colordepth;
    Pixmap px;
 
@@ -921,6 +918,7 @@ evgl_eng_gles1_surface_create(EVGL_Engine *evgl EINA_UNUSED, void *data,
    int msaa = 0, depth = 0, stencil = 0;
    Visual *visual = NULL;
    Eina_Bool retried = EINA_FALSE;
+   int val;
 
    /* Now we need to iterate over all EGL configurations to check the compatible
     * ones and finally check their visual ID. */

@@ -715,32 +715,9 @@ _pool_tex_dynamic_new(Evas_Engine_GL_Context *gc, int w, int h, int intformat, i
    Evas_GL_Texture_Pool *pt = NULL;
 
 #ifdef GL_GLES
-   int fmt; // EGL_MAP_GL_TEXTURE_RGBA_SEC or EGL_MAP_GL_TEXTURE_RGB_SEC or bust
-   int pixtype; // EGL_MAP_GL_TEXTURE_UNSIGNED_BYTE_SEC or bust
-   int attr[] =
-     {
-        EGL_MAP_GL_TEXTURE_WIDTH_SEC, 32,
-        EGL_MAP_GL_TEXTURE_HEIGHT_SEC, 32,
-        EGL_MAP_GL_TEXTURE_FORMAT_SEC, EGL_MAP_GL_TEXTURE_RGBA_SEC,
-        EGL_MAP_GL_TEXTURE_PIXEL_TYPE_SEC, EGL_MAP_GL_TEXTURE_UNSIGNED_BYTE_SEC,
-        EGL_NONE
-     };
    void *egldisplay;
 
    if (intformat != format) return NULL;
-
-   switch (intformat)
-     {
-#ifdef EGL_MAP_GL_TEXTURE_LUMINANCE_SEC
-     case GL_LUMINANCE: attr[5] = EGL_MAP_GL_TEXTURE_LUMINANCE_SEC; break;
-#endif
-#ifdef EGL_MAP_GL_TEXTURE_LUMINANCE_ALPHA_SEC
-     case GL_LUMINANCE_ALPHA: attr[5] = EGL_MAP_GL_TEXTURE_LUMINANCE_ALPHA_SEC; break;
-#endif
-     case GL_RGBA: attr[5] = EGL_MAP_GL_TEXTURE_RGBA_SEC; break;
-     case GL_BGRA: attr[5] = EGL_MAP_GL_TEXTURE_BGRA_SEC; break;
-     default: fprintf(stderr, "unknown format\n"); return NULL;
-     }
 
    pt = calloc(1, sizeof(Evas_GL_Texture_Pool));
    if (!pt) return NULL;
@@ -774,50 +751,109 @@ _pool_tex_dynamic_new(Evas_Engine_GL_Context *gc, int w, int h, int intformat, i
 
    egldisplay = pt->gc->egldisp;
 
-   attr[1] = pt->w;
-   attr[3] = pt->h;
-
-   // FIXME: seems a bit slower than i'd like - maybe too many flushes?
-   // FIXME: YCbCr no support as yet
-   pt->dyn.img = secsym_eglCreateImage(egldisplay,
-                                       EGL_NO_CONTEXT,
-                                       EGL_MAP_GL_TEXTURE_2D_SEC,
-                                       0, attr);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-   if (!pt->dyn.img)
+   if (gc->shared->info.sec_tbm_surface)
      {
-        glBindTexture(GL_TEXTURE_2D, 0);
-        GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-        glDeleteTextures(1, &(pt->texture));
-        GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-        if (pt->eina_pool)
-          eina_rectangle_pool_free(pt->eina_pool);
-        free(pt);
-        return NULL;
+        tbm_format buffer_format = TBM_FORMAT_RGBA8888;
+        tbm_surface_info_s info;
+        int attr[] =
+          {
+             EGL_IMAGE_PRESERVED_KHR,    EGL_TRUE,
+             EGL_NONE,
+          };
+
+        switch (intformat)
+          {
+           case GL_LUMINANCE: buffer_format = TBM_FORMAT_C8; break;
+           case GL_LUMINANCE_ALPHA: buffer_format = TBM_FORMAT_C8; break;
+           case GL_RGBA: buffer_format = TBM_FORMAT_RGBA8888; break;
+           case GL_BGRA: buffer_format = TBM_FORMAT_BGRA8888; break;
+           case GL_RGB: buffer_format = TBM_FORMAT_RGB888; break;
+           default: ERR("TBM: unknown format"); return NULL;
+          }
+
+        pt->dyn.buffer = (void *)secsym_tbm_surface_create(pt->w, pt->h,
+                                                           buffer_format);
+        if (!pt->dyn.buffer) goto error;
+
+        pt->dyn.img = secsym_eglCreateImage(egldisplay,
+                                            EGL_NO_CONTEXT,
+                                            EGL_NATIVE_SURFACE_TIZEN,
+                                            pt->dyn.buffer, attr);
+        if (!pt->dyn.img)
+          {
+             secsym_tbm_surface_destroy(pt->dyn.buffer);
+             goto error;
+          }
+        secsym_tbm_surface_get_info(pt->dyn.buffer, &info);
+        pt->dyn.w = info.width;
+        pt->dyn.h = info.height;
+        pt->dyn.stride = info.planes[0].stride;
      }
-   if (secsym_eglGetImageAttribSEC(egldisplay,
-                                   pt->dyn.img,
-                                   EGL_MAP_GL_TEXTURE_WIDTH_SEC,
-                                   &(pt->dyn.w)) != EGL_TRUE) goto error;
-   if (secsym_eglGetImageAttribSEC(egldisplay,
-                                   pt->dyn.img,
-                                   EGL_MAP_GL_TEXTURE_HEIGHT_SEC,
-                                   &(pt->dyn.h)) != EGL_TRUE) goto error;
-   if (secsym_eglGetImageAttribSEC(egldisplay,
-                                   pt->dyn.img,
-                                   EGL_MAP_GL_TEXTURE_STRIDE_IN_BYTES_SEC,
-                                   &(pt->dyn.stride)) != EGL_TRUE) goto error;
-   if (secsym_eglGetImageAttribSEC(egldisplay,
-                                   pt->dyn.img,
-                                   EGL_MAP_GL_TEXTURE_FORMAT_SEC,
-                                   &(fmt)) != EGL_TRUE) goto error;
+   else if (gc->shared->info.sec_image_map)
+     {
+        int fmt; // EGL_MAP_GL_TEXTURE_RGBA_SEC or EGL_MAP_GL_TEXTURE_RGB_SEC or bust
+        int pixtype; // EGL_MAP_GL_TEXTURE_UNSIGNED_BYTE_SEC or bust
+        int attr[] =
+          {
+             EGL_MAP_GL_TEXTURE_WIDTH_SEC, 32,
+             EGL_MAP_GL_TEXTURE_HEIGHT_SEC, 32,
+             EGL_MAP_GL_TEXTURE_FORMAT_SEC, EGL_MAP_GL_TEXTURE_RGBA_SEC,
+             EGL_MAP_GL_TEXTURE_PIXEL_TYPE_SEC, EGL_MAP_GL_TEXTURE_UNSIGNED_BYTE_SEC,
+             EGL_NONE
+          };
 
-   if (secsym_eglGetImageAttribSEC(egldisplay,
-                                   pt->dyn.img,
-                                   EGL_MAP_GL_TEXTURE_PIXEL_TYPE_SEC,
-                                   &(pixtype)) != EGL_TRUE) goto error;
+        switch (intformat)
+          {
+#ifdef EGL_MAP_GL_TEXTURE_LUMINANCE_SEC
+           case GL_LUMINANCE: attr[5] = EGL_MAP_GL_TEXTURE_LUMINANCE_SEC; break;
+#endif
+#ifdef EGL_MAP_GL_TEXTURE_LUMINANCE_ALPHA_SEC
+           case GL_LUMINANCE_ALPHA: attr[5] = EGL_MAP_GL_TEXTURE_LUMINANCE_ALPHA_SEC; break;
+#endif
+           case GL_RGBA: attr[5] = EGL_MAP_GL_TEXTURE_RGBA_SEC; break;
+           case GL_BGRA: attr[5] = EGL_MAP_GL_TEXTURE_BGRA_SEC; break;
+           default: ERR("SEC map: unknown format"); return NULL;
+          }
 
-   if (pixtype != EGL_MAP_GL_TEXTURE_UNSIGNED_BYTE_SEC) goto error;
+        attr[1] = pt->w;
+        attr[3] = pt->h;
+
+        // FIXME: seems a bit slower than i'd like - maybe too many flushes?
+        // FIXME: YCbCr no support as yet
+        pt->dyn.img = secsym_eglCreateImage(egldisplay,
+                                            EGL_NO_CONTEXT,
+                                            EGL_MAP_GL_TEXTURE_2D_SEC,
+                                            0, attr);
+        if (!pt->dyn.img) goto error;
+
+        if (secsym_eglGetImageAttribSEC(egldisplay,
+                                        pt->dyn.img,
+                                        EGL_MAP_GL_TEXTURE_WIDTH_SEC,
+                                        &(pt->dyn.w)) != EGL_TRUE) goto error;
+        if (secsym_eglGetImageAttribSEC(egldisplay,
+                                        pt->dyn.img,
+                                        EGL_MAP_GL_TEXTURE_HEIGHT_SEC,
+                                        &(pt->dyn.h)) != EGL_TRUE) goto error;
+        if (secsym_eglGetImageAttribSEC(egldisplay,
+                                        pt->dyn.img,
+                                        EGL_MAP_GL_TEXTURE_STRIDE_IN_BYTES_SEC,
+                                        &(pt->dyn.stride)) != EGL_TRUE) goto error;
+        if (secsym_eglGetImageAttribSEC(egldisplay,
+                                        pt->dyn.img,
+                                        EGL_MAP_GL_TEXTURE_FORMAT_SEC,
+                                        &(fmt)) != EGL_TRUE) goto error;
+        if (secsym_eglGetImageAttribSEC(egldisplay,
+                                        pt->dyn.img,
+                                        EGL_MAP_GL_TEXTURE_PIXEL_TYPE_SEC,
+                                        &(pixtype)) != EGL_TRUE) goto error;
+
+        if (pixtype != EGL_MAP_GL_TEXTURE_UNSIGNED_BYTE_SEC) goto error;
+     }
+   else
+     {
+        ERR("TBM surface or SEC image map should be enabled!");
+        goto error;
+     }
 
    glBindTexture(GL_TEXTURE_2D, gc->pipe[0].shader.cur_tex);
    GLERR(__FUNCTION__, __FILE__, __LINE__, "");
@@ -829,9 +865,11 @@ _pool_tex_dynamic_new(Evas_Engine_GL_Context *gc, int w, int h, int intformat, i
 /* ERROR HANDLING */
 #ifdef GL_GLES
 error:
-  secsym_eglDestroyImage(egldisplay, pt->dyn.img);
-  GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-  pt->dyn.img = NULL;
+  if (pt->dyn.img)
+    {
+       secsym_eglDestroyImage(egldisplay, pt->dyn.img);
+       pt->dyn.img = NULL;
+    }
   glBindTexture(GL_TEXTURE_2D, 0);
   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
   glDeleteTextures(1, &(pt->texture));
@@ -887,9 +925,17 @@ evas_gl_texture_pool_empty(Evas_GL_Texture_Pool *pt)
    if (pt->dyn.img)
      {
         if (pt->dyn.checked_out > 0)
-          secsym_eglUnmapImageSEC(pt->gc->egldisp, pt->dyn.img, EGL_MAP_GL_TEXTURE_DEVICE_CPU_SEC);
+          {
+             if (pt->gc->shared->info.sec_tbm_surface)
+               secsym_tbm_surface_unmap(pt->dyn.buffer);
+             else if (pt->gc->shared->info.sec_image_map)
+               secsym_eglUnmapImageSEC(pt->gc->egldisp, pt->dyn.img, EGL_MAP_GL_TEXTURE_DEVICE_CPU_SEC);
+          }
+        if (pt->dyn.buffer)
+          secsym_tbm_surface_destroy(pt->dyn.buffer);
         secsym_eglDestroyImage(pt->gc->egldisp, pt->dyn.img);
         pt->dyn.img = NULL;
+        pt->dyn.buffer = NULL;
         pt->dyn.data = NULL;
         pt->dyn.w = 0;
         pt->dyn.h = 0;

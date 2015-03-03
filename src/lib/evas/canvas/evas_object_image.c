@@ -2942,16 +2942,22 @@ evas_process_dirty_pixels(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, 
              if (obj->layer->evas->engine.func->image_native_get)
                {
                   Evas_Native_Surface *ns;
+
                   ns = obj->layer->evas->engine.func->image_native_get(obj->layer->evas->engine.data.output, o->engine_data);
                   if ( (ns) &&
                        (ns->type == EVAS_NATIVE_SURFACE_OPENGL) &&
                        (ns->data.opengl.texture_id) &&
                        (!ns->data.opengl.framebuffer_id) )
                     {
+                       Eina_Bool direct_renderable = EINA_FALSE;
+
                        // Check if we can do direct rendering...
+                       if (obj->layer->evas->engine.func->gl_surface_direct_renderable_get)
+                         direct_renderable = obj->layer->evas->engine.func->gl_surface_direct_renderable_get(output, ns);
                        if (obj->layer->evas->engine.func->gl_direct_override_get)
                          obj->layer->evas->engine.func->gl_direct_override_get(output, &direct_override, &direct_force_off);
-                       if ( (((obj->cur->geometry.w == o->cur->image.w) &&
+                       if ( (((direct_renderable) &&
+                              (obj->cur->geometry.w == o->cur->image.w) &&
                               (obj->cur->geometry.h == o->cur->image.h) &&
                               (obj->cur->color.r == 255) &&
                               (obj->cur->color.g == 255) &&

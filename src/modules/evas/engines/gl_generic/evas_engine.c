@@ -565,7 +565,7 @@ eng_image_data_get(void *data, void *image, int to_write, DATA32 **image_data, i
 #ifdef GL_GLES
    re->window_use(re->software.ob);
 
-   if ((im->tex) && (im->tex->pt) && (im->tex->pt->dyn.img) && 
+   if ((im->tex) && (im->tex->pt) && (im->tex->pt->dyn.img) &&
        (im->cs.space == EVAS_COLORSPACE_ARGB8888))
      {
         if (im->tex->pt->dyn.checked_out > 0)
@@ -1243,6 +1243,29 @@ eng_gl_direct_override_get(void *data, int *override, int *force_off)
 {
    EVGLINIT(data, );
    evgl_direct_override_get(override, force_off);
+}
+
+static Eina_Bool
+eng_gl_surface_direct_renderable_get(void *data, void *native)
+{
+   Render_Engine_GL_Generic *re = data;
+   Evas_Native_Surface *ns = native;
+   Evas_Engine_GL_Context *gl_context;
+   Eina_Bool direct_render, client_side_rotation;
+
+   EVGLINIT(re, EINA_FALSE);
+   if (!re || !ns) return EINA_FALSE;
+   if (!evgl_native_surface_direct_opts_get(ns, &direct_render, &client_side_rotation))
+     return EINA_FALSE;
+
+   if (!direct_render)
+     return EINA_FALSE;
+
+   gl_context = re->window_gl_context_get(re->software.ob);
+   if ((gl_context->rot != 0) && (!client_side_rotation))
+     return EINA_FALSE;
+
+   return EINA_TRUE;
 }
 
 static void
@@ -1950,8 +1973,8 @@ _draw_thread_ector_draw(void *data)
 }
 
 static void
-eng_ector_draw(void *data EINA_UNUSED, void *context, 
-                void *surface, Ector_Renderer *renderer, 
+eng_ector_draw(void *data EINA_UNUSED, void *context,
+                void *surface, Ector_Renderer *renderer,
                 Eina_Array *clips, int x, int y, Eina_Bool do_async EINA_UNUSED)
 {
    Evas_GL_Image *gl_img = surface;
@@ -2099,6 +2122,7 @@ module_open(Evas_Module *em)
    ORD(gl_native_surface_get);
    ORD(gl_api_get);
    ORD(gl_direct_override_get);
+   ORD(gl_surface_direct_renderable_get);
    ORD(gl_get_pixels_set);
    ORD(gl_surface_lock);
    ORD(gl_surface_read_pixels);

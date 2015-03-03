@@ -1619,7 +1619,9 @@ evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
    // Keep track of all the created surfaces
    LKL(evgl_engine->resource_lock);
    evgl_engine->surfaces = eina_list_prepend(evgl_engine->surfaces, sfc);
-   LKU(evgl_engine->resource_lock);
+
+   if (sfc->direct_fb_opt)
+      evgl_engine->direct_surfaces = eina_list_prepend(evgl_engine->direct_surfaces, sfc);
 
    if (sfc->direct_fb_opt &&
        (sfc->depth_fmt || sfc->stencil_fmt || sfc->depth_stencil_fmt))
@@ -1628,6 +1630,7 @@ evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
         evgl_engine->direct_depth_stencil_surfaces =
           eina_list_prepend(evgl_engine->direct_depth_stencil_surfaces, sfc);
      }
+   LKU(evgl_engine->resource_lock);
 
    if (need_reconfigure)
      {
@@ -1852,8 +1855,9 @@ evgl_surface_destroy(void *eng_data, EVGL_Surface *sfc)
    // Remove it from the list
    LKL(evgl_engine->resource_lock);
    evgl_engine->surfaces = eina_list_remove(evgl_engine->surfaces, sfc);
-   LKU(evgl_engine->resource_lock);
 
+   if (sfc->direct_fb_opt)
+      evgl_engine->direct_surfaces = eina_list_remove(evgl_engine->direct_surfaces, sfc);
    if (sfc->direct_fb_opt &&
        (sfc->depth_fmt || sfc->stencil_fmt || sfc->depth_stencil_fmt))
      {
@@ -1863,6 +1867,7 @@ evgl_surface_destroy(void *eng_data, EVGL_Surface *sfc)
         evgl_engine->direct_depth_stencil_surfaces =
           eina_list_remove_list(evgl_engine->direct_depth_stencil_surfaces, found);
      }
+   LKU(evgl_engine->resource_lock);
 
    if (need_reconfigure)
      {
@@ -2269,6 +2274,41 @@ evgl_direct_rendered()
    if (!(rsc=_evgl_tls_resource_get())) return 0;
 
    return rsc->direct.rendered;
+}
+
+/*
+ * This function can tell the engine whether a surface can be directly
+ * rendered to the Evas, despite any window rotation. For that purpose,
+ * we let the engine know the surface flags for this texture
+ */
+Eina_Bool
+evgl_native_surface_direct_opts_get(Evas_Native_Surface *ns,
+                                    Eina_Bool *direct_render,
+                                    Eina_Bool *client_side_rotation)
+{
+   EVGL_Surface *sfc;
+   Eina_List *l;
+
+   if (direct_render) *direct_render = EINA_FALSE;
+   if (client_side_rotation) *client_side_rotation = EINA_FALSE;
+
+   if (!evgl_engine) return EINA_FALSE;
+   if (!ns || (ns->type != EVAS_NATIVE_SURFACE_OPENGL)) return EINA_FALSE;
+   if (ns->data.opengl.framebuffer_id != 0) return EINA_FALSE;
+   if (ns->data.opengl.texture_id == 0) return EINA_FALSE;
+
+   EINA_LIST_FOREACH(evgl_engine->direct_surfaces, l, sfc)
+     {
+        if (ns->data.opengl.texture_id == sfc->color_buf)
+          {
+             if (direct_render) *direct_render = sfc->direct_fb_opt;
+             if (client_side_rotation) *client_side_rotation = sfc->client_side_rotation;
+             // Note: Maybe we could promote this sfc in the list?
+             return EINA_TRUE;
+          }
+     }
+
+   return EINA_TRUE;
 }
 
 void

@@ -42,6 +42,10 @@ void         evgl_direct_info_set(int win_w, int win_h, int rot,
                                   int clip_x, int clip_y, int clip_w, int clip_h);
 void         evgl_direct_info_clear();
 
+Eina_Bool    evgl_native_surface_direct_opts_get(Evas_Native_Surface *ns,
+                                                 Eina_Bool *direct_render,
+                                                 Eina_Bool *client_side_rotation);
+
 void         evgl_direct_partial_info_set(int pres);
 void         evgl_direct_partial_info_clear();
 void         evgl_direct_partial_render_start();

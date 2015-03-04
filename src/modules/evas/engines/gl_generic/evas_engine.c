@@ -27,6 +27,10 @@
 #define EVAS_GL_UPDATE_TILE_SIZE 16
 
 static int _evas_engine_GL_log_dom = -1;
+static int prev_extn_have_buffer_age = 1;
+extern int extn_have_buffer_age;
+
+
 
 static void
 eng_rectangle_draw(void *data, void *context, void *surface, int x, int y, int w, int h, Eina_Bool do_async EINA_UNUSED)
@@ -1101,6 +1105,14 @@ eng_gl_surface_create(void *data, void *config, int w, int h)
    Evas_GL_Config *cfg = (Evas_GL_Config *)config;
 
    EVGLINIT(data, NULL);
+
+   if ((cfg->options_bits & EVAS_GL_OPTIONS_DIRECT)
+        && (!getenv("EVAS_GL_PARTIAL_DISABLE")))
+     {
+        prev_extn_have_buffer_age = extn_have_buffer_age;
+        extn_have_buffer_age = 0;
+     }
+
    return evgl_surface_create(data, cfg, w, h);
 }
 
@@ -1119,6 +1131,14 @@ eng_gl_surface_destroy(void *data, void *surface)
    EVGL_Surface  *sfc = (EVGL_Surface *)surface;
 
    EVGLINIT(data, 0);
+
+   if ((extn_have_buffer_age  != 1)
+        && (extn_have_buffer_age != prev_extn_have_buffer_age)
+        && (!getenv("EVAS_GL_PARTIAL_DISABLE")))
+     {
+        extn_have_buffer_age = prev_extn_have_buffer_age;
+     }
+
    return evgl_surface_destroy(data, sfc);
 }
 

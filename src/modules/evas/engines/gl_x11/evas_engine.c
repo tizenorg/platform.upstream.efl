@@ -1277,11 +1277,30 @@ gl_extn_veto(Render_Engine *re)
    str = eglQueryString(eng_get_ob(re)->egl_disp, EGL_EXTENSIONS);
    if (str)
      {
+        const GLubyte *vendor = glGetString(GL_VENDOR);
+
         if (getenv("EVAS_GL_INFO"))
           printf("EGL EXTN:\n%s\n", str);
-        if (!strstr(str, "EGL_EXT_buffer_age"))
+
+        // Disable Partial Rendering
+        if (getenv("EVAS_GL_PARTIAL_DISABLE"))
           {
              extn_have_buffer_age = 0;
+             glsym_eglSwapBuffersWithDamage = NULL;
+          }
+        // Special case for Qualcomm chipset as they don't expose the
+        // extension feature through eglQueryString. Don't ask me why
+        // they don't do it.
+        else if (!vendor || !strstr(vendor, "Qualcomm"))
+          {
+             if (!strstr(str, "EGL_EXT_buffer_age"))
+               {
+                  extn_have_buffer_age = 0;
+               }
+             if (!strstr(str, "EGL_EXT_swap_buffers_with_damage"))
+                {
+                   glsym_eglSwapBuffersWithDamage = NULL;
+                }
           }
         if (!strstr(str, "EGL_NOK_texture_from_pixmap"))
           {
@@ -1305,10 +1324,6 @@ gl_extn_veto(Render_Engine *re)
                  ((renderer) && (strstr((const char *)renderer, "Intel")))
                 )
                extn_have_y_inverted = 0;
-          }
-        if (!strstr(str, "EGL_EXT_swap_buffers_with_damage"))
-          {
-             glsym_eglSwapBuffersWithDamage = NULL;
           }
      }
    else

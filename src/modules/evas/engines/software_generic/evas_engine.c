@@ -2940,6 +2940,78 @@ _merge_rects(Render_Engine_Merge_Mode merge_mode,
    return rects;
 }
 
+static void
+_round_up_rect(Tilebuf *tb, Tilebuf_Rect *rect, int rot)
+{
+   int x1, x2, y1, y2;
+   int x, y, w, h;
+
+   if (rect == NULL)
+      return;
+
+   if (rot == 0 || rot == 180)
+      return;
+
+   // For 90 or 270 rotation, merged rect should be rounded up to tb->tile_size.w and tb->tile_size.h
+   // AFTER rotated to 0 rotation, then rotated back to original rotation
+
+   x = rect->x;
+   y = rect->y;
+   w = rect->w;
+   h = rect->h;
+
+   // STEP 1. rotate the merged rect to rotation 0
+   switch (rot)
+     {
+      case 90:
+        rect->x = y;
+        rect->y = tb->outbuf_w - (x + w);
+        rect->w = h;
+        rect->h = w;
+        break;
+      case 270:
+        rect->x = tb->outbuf_h - (y + h);
+        rect->y = x;
+        rect->w = h;
+        rect->h = w;
+        break;
+      default:
+        break;
+     }
+
+   // STEP 2. round up rects
+   x1 = rect->x;
+   x2 = x1 + rect->w;
+   y1 = rect->y;
+   y2 = y1 + rect->h;
+   x1 = tb->tile_size.w * (x1 / tb->tile_size.w);
+   y1 = tb->tile_size.h * (y1 / tb->tile_size.h);
+   x2 = tb->tile_size.w * ((x2 + tb->tile_size.w - 1) / tb->tile_size.w);
+   y2 = tb->tile_size.h * ((y2 + tb->tile_size.h - 1) / tb->tile_size.h);
+
+   x = x1; y = y1; w = x2 - x1; h = y2 - y1;
+   RECTS_CLIP_TO_RECT(x, y, w, h, 0, 0, tb->outbuf_h, tb->outbuf_w);
+
+   // STEP 3. rotate the rect back to original rotation
+   switch (rot)
+     {
+      case 90:
+        rect->x = tb->outbuf_w - (y + h);
+        rect->y = x;
+        rect->w = h;
+        rect->h = w;
+        break;
+      case 270:
+        rect->x = y;
+        rect->y = tb->outbuf_h - (x + w);
+        rect->w = h;
+        rect->h = w;
+        break;
+      default:
+        break;
+     }
+}
+
 
 static void *
 eng_output_redraws_next_update_get(void *data, int *x, int *y, int *w, int *h, int *cx, int *cy, int *cw, int *ch)
@@ -3011,6 +3083,9 @@ eng_output_redraws_next_update_get(void *data, int *x, int *y, int *w, int *h, i
                 default:
                   break;
                }
+             if ((re->outbuf_get_rot(re->ob) == 90) ||
+                 (re->outbuf_get_rot(re->ob) == 270))
+               _round_up_rect(re->tb, re->rects, re->outbuf_get_rot(re->ob));
           }
         evas_common_tilebuf_clear(re->tb);
         re->cur_rect = EINA_INLIST_GET(re->rects);

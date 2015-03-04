@@ -70,7 +70,10 @@ lib/evas/Evas_Common.h \
 lib/evas/Evas_Eo.h \
 lib/evas/Evas_Legacy.h \
 lib/evas/Evas_GL.h \
-lib/evas/Evas_Loader.h
+lib/evas/Evas_Loader.h \
+lib/evas/Evas_GL_GLES1_Helpers.h \
+lib/evas/Evas_GL_GLES2_Helpers.h \
+lib/evas/Evas_GL_GLES3_Helpers.h
 
 installed_evascanvasheadersdir = $(includedir)/evas-@VMAJ@/canvas
 nodist_installed_evascanvasheaders_DATA = \
@@ -743,7 +746,14 @@ modules/evas/engines/gl_common/shader/map_mask_bgra_frag.shd \
 modules/evas/engines/gl_common/shader/map_mask_bgra_vert.shd \
 modules/evas/engines/gl_common/shader/map_mask_bgra_nomul_frag.shd \
 modules/evas/engines/gl_common/shader/map_mask_bgra_nomul_vert.shd \
-$(NULL)
+modules/evas/engines/gl_common/shader/tex_external_frag.shd \
+modules/evas/engines/gl_common/shader/tex_external_vert.shd \
+modules/evas/engines/gl_common/shader/tex_external_nomul_frag.shd \
+modules/evas/engines/gl_common/shader/tex_external_nomul_vert.shd \
+modules/evas/engines/gl_common/shader/tex_external_afill_frag.shd \
+modules/evas/engines/gl_common/shader/tex_external_afill_vert.shd \
+modules/evas/engines/gl_common/shader/tex_external_nomul_afill_frag.shd \
+modules/evas/engines/gl_common/shader/tex_external_nomul_afill_vert.shd
 
 EXTRA_DIST += \
 modules/evas/engines/gl_common/shader/gen_shaders.sh \

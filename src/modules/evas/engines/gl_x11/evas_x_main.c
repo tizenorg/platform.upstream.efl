@@ -209,7 +209,7 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
 
    if (context == EGL_NO_CONTEXT)
      _tls_context_set(gw->egl_context[0]);
-   
+
    if (eglMakeCurrent(gw->egl_disp,
                       gw->egl_surface[0],
                       gw->egl_surface[0],
@@ -372,7 +372,7 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
    // vendor: VMware, Inc.
    // renderer: Gallium 0.4 on softpipe
    // version: 2.1 Mesa 7.9-devel
-   // 
+   //
    if (strstr((const char *)vendor, "Mesa Project"))
      {
         if (strstr((const char *)renderer, "Software Rasterizer"))
@@ -693,7 +693,7 @@ eng_best_visual_get(Evas_Engine_Info_GL_X11 *einfo)
              config_attrs[n++] = EGL_SURFACE_TYPE;
              config_attrs[n++] = EGL_WINDOW_BIT;
              config_attrs[n++] = EGL_RENDERABLE_TYPE;
-             config_attrs[n++] = EGL_OPENGL_ES2_BIT;
+             config_attrs[n++] = EGL_OPENGL_ES2_BIT | EGL_OPENGL_ES_BIT;
 # if 0
              // FIXME: n900 - omap3 sgx libs break here
              config_attrs[n++] = EGL_RED_SIZE;

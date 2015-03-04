@@ -115,7 +115,7 @@ static double
 gettime(void)
 {
    struct timeval      timev;
-   
+
    gettimeofday(&timev, NULL);
    return (double)timev.tv_sec + (((double)timev.tv_usec) / 1000000);
 }
@@ -123,11 +123,11 @@ gettime(void)
 static void
 measure(int end, const char *name)
 {
-   FILE *fs; 
+   FILE *fs;
    static unsigned long user = 0, kern = 0, user2 = 0, kern2 = 0;
    static double t = 0.0, t2 = 0.0;
    unsigned long u = 0, k = 0;
-   
+
    fs = fopen("/proc/self/stat", "rb");
    if (fs) {
       fscanf(fs, "%*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s %*s "
@@ -137,13 +137,13 @@ measure(int end, const char *name)
    if (end)
      {
         long hz;
-        
+
         t2 = gettime();
         user2 = u;
         kern2 = k;
         hz = sysconf(_SC_CLK_TCK);
-        fprintf(stderr, "(%8lu %8lu) k=%4lu u=%4lu == tot=%4lu@%4li in=%3.5f < %s\n", 
-                user, kern, kern2 - kern, user2 - user, 
+        fprintf(stderr, "(%8lu %8lu) k=%4lu u=%4lu == tot=%4lu@%4li in=%3.5f < %s\n",
+                user, kern, kern2 - kern, user2 - user,
                 (kern2 - kern) + (user2 - user), hz, t2 - t, name);
      }
    else
@@ -334,12 +334,12 @@ evgl_eng_native_window_create(void *data)
    attr.win_gravity = NorthWestGravity;
    attr.save_under = False;
    attr.do_not_propagate_mask = NoEventMask;
-   attr.event_mask = 0; 
+   attr.event_mask = 0;
 
    win = XCreateWindow(eng_get_ob(re)->info->info.display,
                        eng_get_ob(re)->win,
                        -20, -20, 2, 2, 0,
-                       CopyFromParent, InputOutput, CopyFromParent, 
+                       CopyFromParent, InputOutput, CopyFromParent,
                        CWBackingStore | CWOverrideRedirect |
                        CWBorderPixel | CWBackPixmap |
                        CWSaveUnder | CWDontPropagate |
@@ -384,7 +384,7 @@ evgl_eng_native_window_destroy(void *data, void *native_window)
 
 
 // Theoretically, we wouldn't need this functoin if the surfaceless context
-// is supported. But, until then... 
+// is supported. But, until then...
 static void *
 evgl_eng_window_surface_create(void *data, void *native_window EINA_UNUSED)
 {
@@ -2090,7 +2090,7 @@ eng_image_native_set(void *data, void *image, void *native)
               config_attrs[i++] = EGL_STENCIL_SIZE;
               config_attrs[i++] = 0;
               config_attrs[i++] = EGL_RENDERABLE_TYPE;
-              config_attrs[i++] = EGL_OPENGL_ES2_BIT;
+              config_attrs[i++] = EGL_OPENGL_ES2_BIT | EGL_OPENGL_ES_BIT;
               config_attrs[i++] = EGL_SURFACE_TYPE;
               config_attrs[i++] = EGL_PIXMAP_BIT;
               config_attrs[i++] = EGL_NONE;
@@ -2144,7 +2144,7 @@ eng_image_native_set(void *data, void *image, void *native)
             int dummy;
             unsigned int w, h, depth = 32, border;
             Window wdummy;
-            
+
             // fixme: round trip :(
             XGetGeometry(eng_get_ob(re)->disp, pm, &wdummy, &dummy, &dummy,
                          &w, &h, &border, &depth);
@@ -2158,7 +2158,7 @@ eng_image_native_set(void *data, void *image, void *native)
                       int tex_format = 0, tex_target = 0, yinvert = 0, mipmap = 0;
                       unsigned int target = 0;
                       GLXFBConfig *configs;
-                      
+
                       i = 0;
                       config_attrs[i++] = GLX_BUFFER_SIZE;
                       config_attrs[i++] = depth;
@@ -2172,7 +2172,7 @@ eng_image_native_set(void *data, void *image, void *native)
                            config_attrs[i++] = GLX_BIND_TO_TEXTURE_RGB_EXT;
                            config_attrs[i++] = 1;
                         }
-                      
+
 #ifndef GLX_VISUAL_ID
 # define GLX_VISUAL_ID 0x800b
 #endif
@@ -2191,9 +2191,9 @@ eng_image_native_set(void *data, void *image, void *native)
                       config_attrs[i++] = 0;
                       config_attrs[i++] = GLX_STEREO;
                       config_attrs[i++] = 0;
-                      
+
                       config_attrs[i++] = 0;
-                      
+
                       configs = glXChooseFBConfig(eng_get_ob(re)->disp,
                                                   eng_get_ob(re)->screen,
                                                   config_attrs,
@@ -2201,19 +2201,19 @@ eng_image_native_set(void *data, void *image, void *native)
                       if (configs)
                         {
                            int j = 0, val = 0, found = 0;
-                           
+
                            try_again:
                            for (j = 0; j < num; j++)
                              {
                                 if (found == 0)
                                   {
                                      XVisualInfo *vi;
-                                     
+
                                      vi = glXGetVisualFromFBConfig(eng_get_ob(re)->disp, configs[j]);
                                      if (!vi) continue;
                                      if (vi->depth != (int)depth) continue;
                                      XFree(vi);
-                                     
+
                                      glXGetFBConfigAttrib(eng_get_ob(re)->disp, configs[j],
                                                           GLX_BUFFER_SIZE, &val);
                                      if (val != (int) depth) continue;
@@ -2258,7 +2258,7 @@ eng_image_native_set(void *data, void *image, void *native)
                              }
                            XFree(configs);
                         }
-                      
+
                       eina_hash_add(eng_get_ob(re)->gl_context->shared->native_pm_hash, &pmid, im);
                       if ((tex_target & GLX_TEXTURE_2D_BIT_EXT))
                         target = GLX_TEXTURE_2D_EXT;
@@ -2275,7 +2275,7 @@ eng_image_native_set(void *data, void *image, void *native)
                            else if (!(tex_target & GLX_TEXTURE_RECTANGLE_BIT_EXT))
                              target = GLX_TEXTURE_2D_EXT;
                         }
-                      
+
                       i = 0;
                       pixmap_att[i++] = GLX_TEXTURE_FORMAT_EXT;
                       pixmap_att[i++] = tex_format;
@@ -2287,7 +2287,7 @@ eng_image_native_set(void *data, void *image, void *native)
                            pixmap_att[i++] = target;
                         }
                       pixmap_att[i++] = 0;
-                      
+
                       memcpy(&(n->ns), ns, sizeof(Evas_Native_Surface));
                       n->pixmap = pm;
                       n->visual = vis;
@@ -2339,7 +2339,7 @@ eng_image_native_set(void *data, void *image, void *native)
                       im->native.func.bind   = _native_bind_cb;
                       im->native.func.unbind = _native_unbind_cb;
                       im->native.func.free   = _native_free_cb;
-                      
+
                       glsym_evas_gl_common_image_native_enable(im);
                    }
               }
@@ -2509,7 +2509,7 @@ module_open(Evas_Module *em)
    ORD(gl_error_get);
    // gl_current_surface_get is in gl generic
    ORD(gl_current_context_get);
-   
+
    setenv("EGL_PLATFORM", "x11", 1);
 
    gl_symbols();

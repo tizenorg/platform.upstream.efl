@@ -422,6 +422,7 @@ evas_xlib_image_get_buffers(RGBA_Image *im)
     XSync(d, 0);
 
     im->image.data = exim->buf_data;
+    im->cache_entry.w = exim->buf->pitch/4;
 
     evas_xlib_image_buffer_unmap(exim);
 

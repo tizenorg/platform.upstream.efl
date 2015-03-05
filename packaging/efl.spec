@@ -82,6 +82,19 @@ BuildRequires:  libudev-devel
 BuildRequires:  libmount-devel
 BuildRequires:  pkgconfig(dlog)
 
+#ecore_buffer
+BuildRequires:  pkgconfig(libtbm)
+BuildRequires:  pkgconfig(libdrm)
+BuildRequires:  pkgconfig(libdri2)
+BuildRequires:  pkgconfig(wayland-client)
+BuildRequires:  pkgconfig(wayland-server)
+BuildRequires:  pkgconfig(xshmfence)
+BuildRequires:  pkgconfig(x11)
+BuildRequires:  pkgconfig(xcb)
+BuildRequires:  pkgconfig(xcb-sync)
+BuildRequires:  pkgconfig(xcb-dri3)
+
+
 ############ efl
 Provides: efl-data
 Obsoletes: efl-data
@@ -568,6 +581,7 @@ export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed "
     --enable-systemd \
     --enable-lua-old \
     --enable-harfbuzz \
+    --enable-ecore-buffer \
     --enable-i-really-know-what-i-am-doing-and-that-this-will-probably-break-things-and-i-will-fix-them-myself-and-send-patches-aba
 #    --enable-always-build-examples \
 
@@ -790,8 +804,10 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/libecore_drm.so.*
 %endif
 %{_libdir}/libecore_x.so.*
+%{_libdir}/libecore_buffer.so.*
 %{_libdir}/ecore_x/*/*/*
 %{_libdir}/ecore_evas/engines/*/*/module.so
+%{_libdir}/ecore_buffer/modules/*/*/module.so
 #%{_libdir}/ecore_imf/modules/*/*/module.so
 %{_libdir}/ecore/system/systemd/v-*/module.so
 %{_datadir}/ecore/checkme
@@ -826,6 +842,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/libecore_drm.so
 %endif
 %{_libdir}/libecore_x.so
+%{_libdir}/libecore_buffer.so
 %{_libdir}/pkgconfig/ecore*.pc
 %{_libdir}/cmake/Ecore*/*.cmake
 

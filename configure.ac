@@ -4610,6 +4610,7 @@ pc/ecore-imf-evas.pc
 pc/ecore-audio.pc
 pc/ecore-audio-cxx.pc
 pc/ecore-avahi.pc
+pc/ecore-buffer.pc
 pc/ector.pc
 pc/embryo.pc
 pc/eio.pc

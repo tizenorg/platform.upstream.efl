@@ -2138,7 +2138,7 @@ eng_image_native_set(void *data, void *image, void *native)
               config_attrs[i++] = EGL_STENCIL_SIZE;
               config_attrs[i++] = 0;
               config_attrs[i++] = EGL_RENDERABLE_TYPE;
-              config_attrs[i++] = EGL_OPENGL_ES2_BIT;
+              config_attrs[i++] = EGL_OPENGL_ES2_BIT | EGL_OPENGL_ES_BIT;
               config_attrs[i++] = EGL_SURFACE_TYPE;
               config_attrs[i++] = EGL_PIXMAP_BIT;
               config_attrs[i++] = EGL_NONE;

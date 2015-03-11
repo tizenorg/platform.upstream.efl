@@ -1715,8 +1715,16 @@ evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
 
    if (sfc->direct_fb_opt)
      {
-        eina_hash_add(evgl_engine->direct_surfaces, &sfc->color_buf, sfc);
-        DBG("Added tex %d as direct surface: %p", sfc->color_buf, sfc);
+        if (!sfc->gles1_indirect)
+          {
+             eina_hash_add(evgl_engine->direct_surfaces, &sfc->color_buf, sfc);
+             DBG("Added tex %d as direct surface: %p", sfc->color_buf, sfc);
+          }
+        else
+          {
+             eina_hash_add(evgl_engine->direct_surfaces, &sfc->gles1_sfc_native, sfc);
+             DBG("Added tex %d as direct surface: %p", sfc->gles1_sfc_native, sfc);
+          }
      }
 
    if (sfc->direct_fb_opt &&
@@ -2257,19 +2265,28 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
           }
      }
 
+   // Do a make current
+   if (!_internal_resource_make_current(eng_data, ctx))
+     {
+        ERR("Error doing a make current with internal surface. Context: %p", ctx);
+        evas_gl_common_error_set(eng_data, EVAS_GL_BAD_CONTEXT);
+        return 0;
+     }
+
    if (ctx->version == EVAS_GL_GLES_1_X)
      {
         if (dbg) DBG("ctx %p is GLES 1", ctx);
         if (_evgl_direct_renderable(rsc, sfc))
           {
-             if (dbg) DBG("sfc %p is direct renderable.", sfc);
-             // Do a make current
-             if (!_internal_resource_make_current(eng_data, ctx))
+             // Transition from pixmap surface rendering to direct rendering
+             if (!rsc->direct.rendered)
                {
-                  ERR("Error doing a make current with internal surface. Context: %p", ctx);
-                  evas_gl_common_error_set(eng_data, EVAS_GL_BAD_CONTEXT);
-                  return 0;
+                  // Restore viewport and scissor test to direct rendering mode
+                  glViewport(ctx->viewport_direct[0], ctx->viewport_direct[1], ctx->viewport_direct[2], ctx->viewport_direct[3]);
+                  if ((ctx->direct_scissor) && (!ctx->scissor_enabled))
+                    glEnable(GL_SCISSOR_TEST);
                }
+             if (dbg) DBG("sfc %p is direct renderable.", sfc);
              rsc->direct.rendered = 1;
           }
         else
@@ -2286,120 +2303,120 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
                   ERR("Failed to make current with GLES1 indirect surface.");
                   return 0;
                }
-          }
 
-        ctx->current_sfc = sfc;
-        rsc->current_ctx = ctx;
-        rsc->current_eng = eng_data;
-        return 1;
-     }
+             // Transition from direct rendering to pixmap surface rendering
+             if (rsc->direct.rendered)
+               {
+                  glViewport(ctx->viewport_coord[0], ctx->viewport_coord[1], ctx->viewport_coord[2], ctx->viewport_coord[3]);
+                  if ((ctx->direct_scissor) && (!ctx->scissor_enabled))
+                    glDisable(GL_SCISSOR_TEST);
+             }
 
-   // Do a make current
-   if (!_internal_resource_make_current(eng_data, ctx))
-     {
-        ERR("Error doing a make current with internal surface. Context: %p", ctx);
-        evas_gl_common_error_set(eng_data, EVAS_GL_BAD_CONTEXT);
-        return 0;
-     }
-
-   // Normal FBO Rendering
-   // Create FBO if it hasn't been created
-   if (!ctx->surface_fbo)
-      glGenFramebuffers(1, &ctx->surface_fbo);
-
-   // Direct Rendering
-   if (_evgl_direct_renderable(rsc, sfc))
-     {
-        if (dbg) DBG("sfc %p is direct renderable.", sfc);
-
-        // This is to transition from FBO rendering to direct rendering
-        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &curr_fbo);
-        if (ctx->surface_fbo == (GLuint)curr_fbo)
-          {
-             glBindFramebuffer(GL_FRAMEBUFFER, 0);
              ctx->current_fbo = 0;
+             rsc->direct.rendered = 0;
           }
-        else if (ctx->current_sfc && (ctx->current_sfc->pbuffer.is_pbuffer))
-          {
-             // Using the same context, we were rendering on a pbuffer
-             glBindFramebuffer(GL_FRAMEBUFFER, 0);
-             ctx->current_fbo = 0;
-          }
-
-        if (ctx->current_fbo == 0)
-          {
-             // If master clip is set and clip is greater than 0, do partial render
-             if (rsc->direct.partial.enabled)
-               {
-                  if (!ctx->partial_render)
-                    {
-                       evgl_direct_partial_render_start();
-                       ctx->partial_render = 1;
-                    }
-               }
-          }
-
-        rsc->direct.rendered = 1;
      }
-   else if (sfc->pbuffer.native_surface)
+   else // gles 2.x and 3.x
      {
-        if (dbg) DBG("Surface sfc %p is a pbuffer: %p", sfc, sfc->pbuffer.native_surface);
+        // Normal FBO Rendering
+        // Create FBO if it hasn't been created
+        if (!ctx->surface_fbo)
+           glGenFramebuffers(1, &ctx->surface_fbo);
 
-        // Call end tiling
-        if (rsc->direct.partial.enabled)
-           evgl_direct_partial_render_end();
-
-        if (sfc->color_buf)
+        // Direct Rendering
+        if (_evgl_direct_renderable(rsc, sfc))
           {
-             if (!_surface_buffers_fbo_set(sfc, sfc->color_buf))
-               ERR("Could not detach current FBO");
-          }
+             if (dbg) DBG("sfc %p is direct renderable.", sfc);
 
-        if (dbg) DBG("Calling make_current(%p, %p)", sfc->pbuffer.native_surface, ctx->context);
-        evgl_engine->funcs->make_current(eng_data, sfc->pbuffer.native_surface,
-                                         ctx->context, EINA_TRUE);
-
-        // Bind to the previously bound buffer (may be 0)
-        if (ctx->current_fbo)
-          {
-             glBindFramebuffer(GL_FRAMEBUFFER, ctx->current_fbo);
-             GLERRLOG();
-          }
-
-        rsc->direct.rendered = 0;
-     }
-   else
-     {
-        if (dbg) DBG("Surface sfc %p is a normal surface.", sfc);
-
-        // Attach fbo and the buffers
-        if ((ctx->current_sfc != sfc) || (ctx != sfc->current_ctx))
-          {
-             sfc->current_ctx = ctx;
-             if ((sfc->direct_mem_opt) && (sfc->direct_fb_opt))
+             // This is to transition from FBO rendering to direct rendering
+             glGetIntegerv(GL_FRAMEBUFFER_BINDING, &curr_fbo);
+             if (ctx->surface_fbo == (GLuint)curr_fbo)
                {
-                  DBG("Not creating fallback surfaces even though it should. Use at OWN discretion!");
+                  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                  ctx->current_fbo = 0;
                }
-             else
+             else if (ctx->current_sfc && (ctx->current_sfc->pbuffer.is_pbuffer))
                {
-                  // If it's transitioning from direct render to fbo render
-                  // Call end tiling
+                  // Using the same context, we were rendering on a pbuffer
+                  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                  ctx->current_fbo = 0;
+               }
+
+             if (ctx->current_fbo == 0)
+               {
+                  // If master clip is set and clip is greater than 0, do partial render
                   if (rsc->direct.partial.enabled)
-                     evgl_direct_partial_render_end();
-
-                  if (!_surface_buffers_fbo_set(sfc, ctx->surface_fbo))
                     {
-                       ERR("Attaching buffers to context fbo failed. Engine: %p  Surface: %p Context FBO: %u", evgl_engine, sfc, ctx->surface_fbo);
-                       evas_gl_common_error_set(eng_data, EVAS_GL_BAD_CONTEXT);
-                       return 0;
+                       if (!ctx->partial_render)
+                         {
+                            evgl_direct_partial_render_start();
+                            ctx->partial_render = 1;
+                         }
                     }
                }
 
-             // Bind to the previously bound buffer
-             if (ctx->current_fbo)
-                glBindFramebuffer(GL_FRAMEBUFFER, ctx->current_fbo);
+             rsc->direct.rendered = 1;
           }
-        rsc->direct.rendered = 0;
+        else if (sfc->pbuffer.native_surface)
+          {
+             if (dbg) DBG("Surface sfc %p is a pbuffer: %p", sfc, sfc->pbuffer.native_surface);
+
+             // Call end tiling
+             if (rsc->direct.partial.enabled)
+                evgl_direct_partial_render_end();
+
+             if (sfc->color_buf)
+               {
+                  if (!_surface_buffers_fbo_set(sfc, sfc->color_buf))
+                    ERR("Could not detach current FBO");
+               }
+
+             if (dbg) DBG("Calling make_current(%p, %p)", sfc->pbuffer.native_surface, ctx->context);
+             evgl_engine->funcs->make_current(eng_data, sfc->pbuffer.native_surface,
+                                              ctx->context, EINA_TRUE);
+
+             // Bind to the previously bound buffer (may be 0)
+             if (ctx->current_fbo)
+               {
+                  glBindFramebuffer(GL_FRAMEBUFFER, ctx->current_fbo);
+                  GLERRLOG();
+               }
+
+             rsc->direct.rendered = 0;
+          }
+        else
+          {
+             if (dbg) DBG("Surface sfc %p is a normal surface.", sfc);
+
+             // Attach fbo and the buffers
+             if ((rsc->current_ctx != ctx) || (ctx->current_sfc != sfc) || (rsc->direct.rendered))
+               {
+                  sfc->current_ctx = ctx;
+                  if ((sfc->direct_mem_opt) && (sfc->direct_fb_opt))
+                    {
+                       DBG("Not creating fallback surfaces even though it should. Use at OWN discretion!");
+                    }
+                  else
+                    {
+                       // If it's transitioning from direct render to fbo render
+                       // Call end tiling
+                       if (rsc->direct.partial.enabled)
+                          evgl_direct_partial_render_end();
+
+                       if (!_surface_buffers_fbo_set(sfc, ctx->surface_fbo))
+                         {
+                            ERR("Attaching buffers to context fbo failed. Engine: %p  Surface: %p Context FBO: %u", evgl_engine, sfc, ctx->surface_fbo);
+                            evas_gl_common_error_set(eng_data, EVAS_GL_BAD_CONTEXT);
+                            return 0;
+                         }
+                    }
+
+                  // Bind to the previously bound buffer
+                  if (ctx->current_fbo)
+                     glBindFramebuffer(GL_FRAMEBUFFER, ctx->current_fbo);
+               }
+             rsc->direct.rendered = 0;
+          }
      }
 
    ctx->current_sfc = sfc;
@@ -2486,7 +2503,7 @@ evgl_native_surface_get(EVGL_Surface *sfc, Evas_Native_Surface *ns)
         return 0;
      }
 
-   if (!sfc->xpixmap || sfc->direct_fb_opt)
+   if (!sfc->gles1_indirect)
      {
         ns->type = EVAS_NATIVE_SURFACE_OPENGL;
         ns->version = EVAS_NATIVE_SURFACE_VERSION;
@@ -2498,9 +2515,6 @@ evgl_native_surface_get(EVGL_Surface *sfc, Evas_Native_Surface *ns)
         ns->data.opengl.y = 0;
         ns->data.opengl.w = sfc->w;
         ns->data.opengl.h = sfc->h;
-
-        if (sfc->direct_fb_opt)
-          ns->data.opengl.framebuffer_id = 0;
      }
    else
      {
@@ -2541,27 +2555,44 @@ evgl_native_surface_direct_opts_get(Evas_Native_Surface *ns,
    if (client_side_rotation) *client_side_rotation = EINA_FALSE;
 
    if (!evgl_engine) return EINA_FALSE;
-   if (!ns || (ns->type != EVAS_NATIVE_SURFACE_OPENGL)) return EINA_FALSE;
-   if (ns->data.opengl.framebuffer_id != 0) return EINA_FALSE;
-   if (ns->data.opengl.texture_id == 0) return EINA_FALSE;
+   if (!ns) return EINA_FALSE;
 
-   sfc = eina_hash_find(evgl_engine->direct_surfaces, &ns->data.opengl.texture_id);
-   if (!sfc)
+   if (ns->type == EVAS_NATIVE_SURFACE_OPENGL &&
+       ns->data.opengl.texture_id)
      {
-        DBG("Native surface %p (color_buf %d) was not found.",
-            ns, ns->data.opengl.texture_id);
+        sfc = eina_hash_find(evgl_engine->direct_surfaces, &ns->data.opengl.texture_id);
+        if (!sfc)
+          {
+             DBG("Native surface %p (color_buf %d) was not found.",
+                 ns, ns->data.opengl.texture_id);
+             return EINA_FALSE;
+          }
+     }
+   else if (ns->type == EVAS_NATIVE_SURFACE_X11 &&
+            ns->data.x11.pixmap)
+     {
+        sfc = eina_hash_find(evgl_engine->direct_surfaces, &ns->data.x11.pixmap);
+        if (!sfc)
+          {
+             DBG("Native surface %p (pixmap %x) was not found.",
+                 ns, ns->data.x11.pixmap);
+             return EINA_FALSE;
+          }
+     }
+   else
+     {
+        ERR("Only EVAS_NATIVE_SURFACE_OPENGL or EVAS_NATIVE_SURFACE_X11 can be used for direct rendering");
         return EINA_FALSE;
      }
 
    if (evgl_engine->api_debug_mode)
      {
-        DBG("Found native surface: texid:%u DR:%d CSR:%d",
-            ns->data.opengl.texture_id, (int) sfc->direct_fb_opt,
-            (int) sfc->client_side_rotation);
+        DBG("Found native surface:  DR:%d CSR:%d",
+            (int) sfc->direct_fb_opt, (int) sfc->client_side_rotation);
      }
 
    if (direct_render) *direct_render = sfc->direct_fb_opt;
-   if (direct_override) *direct_override = sfc->direct_override;
+   if (direct_override) *direct_override |= sfc->direct_override;
    if (client_side_rotation) *client_side_rotation = sfc->client_side_rotation;
    return EINA_TRUE;
 }

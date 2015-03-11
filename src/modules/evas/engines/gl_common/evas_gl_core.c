@@ -2110,6 +2110,14 @@ evgl_context_destroy(void *eng_data, EVGL_Context *ctx)
         return 0;
      }
 
+   // Destroy GLES1 indirect rendering context
+   if (ctx->gles1_context &&
+       !evgl_engine->funcs->context_destroy(eng_data, ctx->context))
+     {
+        ERR("Error destroying the GLES1 context.");
+        return 0;
+     }
+
    // Destroy engine context
    if (!evgl_engine->funcs->context_destroy(eng_data, ctx->context))
      {
@@ -2249,27 +2257,35 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
           }
      }
 
-   // Do a make current
-   if (!_internal_resource_make_current(eng_data, ctx))
-     {
-        ERR("Error doing a make current with internal surface. Context: %p", ctx);
-        evas_gl_common_error_set(eng_data, EVAS_GL_BAD_CONTEXT);
-        return 0;
-     }
-
    if (ctx->version == EVAS_GL_GLES_1_X)
      {
         if (dbg) DBG("ctx %p is GLES 1", ctx);
         if (_evgl_direct_renderable(rsc, sfc))
           {
              if (dbg) DBG("sfc %p is direct renderable.", sfc);
+             // Do a make current
+             if (!_internal_resource_make_current(eng_data, ctx))
+               {
+                  ERR("Error doing a make current with internal surface. Context: %p", ctx);
+                  evas_gl_common_error_set(eng_data, EVAS_GL_BAD_CONTEXT);
+                  return 0;
+               }
              rsc->direct.rendered = 1;
           }
         else
           {
              if (dbg) DBG("Calling make_current(%p, %p)", sfc->gles1_sfc, ctx->context);
-             evgl_engine->funcs->make_current(eng_data, sfc->gles1_sfc,
-                                              ctx->context, EINA_TRUE);
+             if (!ctx->gles1_context)
+               {
+                  ctx->gles1_context =
+                        evgl_engine->funcs->gles1_context_create(eng_data, ctx, sfc);
+               }
+             if (!evgl_engine->funcs->make_current(eng_data, sfc->gles1_sfc,
+                                                   ctx->gles1_context, EINA_TRUE))
+               {
+                  ERR("Failed to make current with GLES1 indirect surface.");
+                  return 0;
+               }
           }
 
         ctx->current_sfc = sfc;
@@ -2282,6 +2298,14 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
         _surface_context_list_print();
 
         return 1;
+     }
+
+   // Do a make current
+   if (!_internal_resource_make_current(eng_data, ctx))
+     {
+        ERR("Error doing a make current with internal surface. Context: %p", ctx);
+        evas_gl_common_error_set(eng_data, EVAS_GL_BAD_CONTEXT);
+        return 0;
      }
 
    // Normal FBO Rendering

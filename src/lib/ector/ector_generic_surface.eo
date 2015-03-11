@@ -14,17 +14,15 @@ abstract Ector.Generic.Surface (Eo.Base)
             int h; /*@ in */
          }
       }
-      surface {
+      reference_point {
          set {
-         }
-         get {
-         }
-         values {
-            void *pixels;
-            uint width;
-            uint height;
-         }
-      }      
+	    /*@ This define where is (0,0) in pixels coordinate inside the surface */
+	 }
+	 values {
+	    int x;
+	    int y;
+	 }
+      }
    }
    methods {
       renderer_factory_new {
@@ -46,5 +44,6 @@ abstract Ector.Generic.Surface (Eo.Base)
    }
    implements {
       @virtual .renderer_factory_new;
+      @virtual .reference_point.set;
    }
 }

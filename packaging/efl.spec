@@ -205,20 +205,20 @@ Requires: eo = %{version}-%{release}
 Development files for eo
 
 ############ Ector
-#%package -n ector
-#Summary: vector graphics library
-#Requires: %{name}-data = %{version}-%{release}
-#
-#%description -n ector
-#vector graphics library.
-#
-#%package -n ector-devel
-#Summary:  Development components for the ector package
-#Group:    Graphics & UI Framework/Development
-#Requires: ector = %{version}-%{release}
-#
-#%description -n ector-devel
-#Development files for ector
+%package -n ector
+Summary: vector graphics library
+Requires: %{name}-data = %{version}-%{release}
+
+%description -n ector
+vector graphics library.
+
+%package -n ector-devel
+Summary:  Development components for the ector package
+Group:    Graphics & UI Framework/Development
+Requires: ector = %{version}-%{release}
+
+%description -n ector-devel
+Development files for ector
 
 ############ Evas
 %package -n evas
@@ -649,8 +649,8 @@ rm -rf %{buildroot}%{_libdir}/ecore/system/upower
 %post -n eo -p /sbin/ldconfig
 %postun -n eo -p /sbin/ldconfig
 
-#%post -n ector -p /sbin/ldconfig
-#%postun -n ector -p /sbin/ldconfig
+%post -n ector -p /sbin/ldconfig
+%postun -n ector -p /sbin/ldconfig
 
 %post -n evas -p /sbin/ldconfig
 %postun -n evas -p /sbin/ldconfig
@@ -787,17 +787,17 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/cmake/Eo/*.cmake
 %{_libdir}/cmake/EoCxx/*.cmake
 
-#%files -n ector
-#%manifest %{name}.manifest
-#%defattr(-,root,root,-)
-#%{_libdir}/libector.so.*
-#
-#%files -n ector-devel
-#%manifest %{name}.manifest
-#%defattr(-,root,root,-)
-#%{_includedir}/ector-*1/*.h*
-#%{_libdir}/libector.so
-#%{_libdir}/pkgconfig/ector*.pc
+%files -n ector
+%manifest %{name}.manifest
+%defattr(-,root,root,-)
+%{_libdir}/libector.so.*
+
+%files -n ector-devel
+%manifest %{name}.manifest
+%defattr(-,root,root,-)
+%{_includedir}/ector-*1/*.h*
+%{_libdir}/libector.so
+%{_libdir}/pkgconfig/ector*.pc
 
 %files -n evas
 %manifest %{name}.manifest

@@ -1196,46 +1196,46 @@ EFL_LIB_END([Efl])
 #### End of Efl
 
 #### Ector
-#
-#EFL_LIB_START([Ector])
-#
-#
-#### Default values
-#
-#### Additional options to configure
-#
-#### Checks for programs
-#
-#### Checks for libraries
-#
-### Compatibility layers
-#
-#EFL_PLATFORM_DEPEND([ECTOR], [evil])
-#
-#EFL_INTERNAL_DEPEND_PKG([ECTOR], [eina])
-#EFL_INTERNAL_DEPEND_PKG([ECTOR], [eo])
-#EFL_INTERNAL_DEPEND_PKG([ECTOR], [efl])
-#
-#EFL_ADD_LIBS([ECTOR], [-lm])
-#
-#EFL_EVAL_PKGS([ECTOR])
-#
-#### Checks for header files
-#
-#### Checks for types
-#
-#### Checks for structures
-#
-#### Checks for compiler characteristics
-#
-#### Checks for linker characteristics
-#
-#### Checks for library functions
-#
-#### Check availability
-#
-#EFL_LIB_END([ECTOR])
-#
+
+EFL_LIB_START([Ector])
+
+
+### Default values
+
+### Additional options to configure
+
+### Checks for programs
+
+### Checks for libraries
+
+## Compatibility layers
+
+EFL_PLATFORM_DEPEND([ECTOR], [evil])
+
+EFL_INTERNAL_DEPEND_PKG([ECTOR], [eina])
+EFL_INTERNAL_DEPEND_PKG([ECTOR], [eo])
+EFL_INTERNAL_DEPEND_PKG([ECTOR], [efl])
+
+EFL_ADD_LIBS([ECTOR], [-lm])
+
+EFL_EVAL_PKGS([ECTOR])
+
+### Checks for header files
+
+### Checks for types
+
+### Checks for structures
+
+### Checks for compiler characteristics
+
+### Checks for linker characteristics
+
+### Checks for library functions
+
+### Check availability
+
+EFL_LIB_END([ECTOR])
+
 #### End of Ector
 
 #### Evas
@@ -1676,7 +1676,7 @@ EFL_INTERNAL_DEPEND_PKG([EVAS], [eo])
 EFL_INTERNAL_DEPEND_PKG([EVAS], [eet])
 EFL_INTERNAL_DEPEND_PKG([EVAS], [eina])
 EFL_INTERNAL_DEPEND_PKG([EVAS], [efl])
-#EFL_INTERNAL_DEPEND_PKG([EVAS], [ector])
+EFL_INTERNAL_DEPEND_PKG([EVAS], [ector])
 
 EFL_ADD_LIBS([EVAS], [-lm])
 
@@ -4598,7 +4598,6 @@ AM_CONDITIONAL([BUILD_ECORE_BUFFER_X11_DRI3], [test "${build_ecore_buffer_x11_dr
 #### End of Ecore_Buffer
 
 #### src/examples/ephysics/Makefile
-#### pc/ector.pc
 AC_CONFIG_FILES([
 Makefile
 data/Makefile
@@ -4676,6 +4675,7 @@ pc/ecore-imf-evas.pc
 pc/ecore-audio.pc
 pc/ecore-audio-cxx.pc
 pc/ecore-avahi.pc
+pc/ector.pc
 pc/embryo.pc
 pc/eio.pc
 pc/eldbus.pc

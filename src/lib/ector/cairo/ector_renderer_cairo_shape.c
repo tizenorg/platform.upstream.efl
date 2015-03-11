@@ -46,16 +46,32 @@ struct _Ector_Renderer_Cairo_Shape_Data
 };
 
 static Eina_Bool
+_ector_renderer_cairo_shape_path_changed(void *data, Eo *obj, const Eo_Event_Description *desc, void *event_info)
+{
+   Ector_Renderer_Cairo_Shape_Data *pd = data;
+
+   USE(obj, cairo_path_destroy, EINA_TRUE);
+
+   if (pd->path) cairo_path_destroy(pd->path);
+   pd->path = NULL;
+
+   return EINA_TRUE;
+}
+
+static Eina_Bool
 _ector_renderer_cairo_shape_ector_renderer_generic_base_prepare(Eo *obj, Ector_Renderer_Cairo_Shape_Data *pd)
 {
-   // FIXME: shouldn't that be part of the shape generic implementation ?
+   const Efl_Gfx_Path_Command *cmds = NULL;
+   const double *pts = NULL;
+
+   eo_do_super(obj, ECTOR_RENDERER_CAIRO_SHAPE_CLASS, ector_renderer_prepare());
+
    if (pd->shape->fill)
      eo_do(pd->shape->fill, ector_renderer_prepare());
    if (pd->shape->stroke.fill)
      eo_do(pd->shape->stroke.fill, ector_renderer_prepare());
    if (pd->shape->stroke.marker)
      eo_do(pd->shape->stroke.marker, ector_renderer_prepare());
-   eo_do_super(obj, ECTOR_RENDERER_CAIRO_SHAPE_CLASS, ector_renderer_prepare());
 
    // shouldn't that be moved to the cairo base object
    if (!pd->parent)
@@ -68,19 +84,16 @@ _ector_renderer_cairo_shape_ector_renderer_generic_base_prepare(Eo *obj, Ector_R
         if (!pd->parent) return EINA_FALSE;
      }
 
-   if (!pd->path && pd->shape->path.cmd)
+   eo_do(obj, efl_gfx_shape_path_get(&cmds, &pts));
+   if (!pd->path && cmds)
      {
-        double *pts;
-        unsigned int i;
-
         USE(obj, cairo_new_path, EINA_FALSE);
 
         cairo_new_path(pd->parent->cairo);
 
-        pts = pd->shape->path.pts;
-        for (i = 0; pd->shape->path.cmd[i] != EFL_GFX_PATH_COMMAND_TYPE_END; i++)
+        for (; *cmds != EFL_GFX_PATH_COMMAND_TYPE_END; cmds++)
           {
-             switch (pd->shape->path.cmd[i])
+             switch (*cmds)
                {
                 case EFL_GFX_PATH_COMMAND_TYPE_MOVE_TO:
                    USE(obj, cairo_move_to, EINA_FALSE);
@@ -128,13 +141,12 @@ _ector_renderer_cairo_shape_ector_renderer_generic_base_prepare(Eo *obj, Ector_R
 }
 
 static Eina_Bool
-_ector_renderer_cairo_shape_ector_renderer_generic_base_draw(Eo *obj, Ector_Renderer_Cairo_Shape_Data *pd, Ector_Rop op, Eina_Array *clips, int x, int y, unsigned int mul_col)
+_ector_renderer_cairo_shape_ector_renderer_generic_base_draw(Eo *obj, Ector_Renderer_Cairo_Shape_Data *pd, Ector_Rop op, Eina_Array *clips, unsigned int mul_col)
 {
    if (pd->path == NULL) return EINA_FALSE;
 
-   // FIXME: find a way to offset the drawing and setting multiple clips
-
-   eo_do_super(obj, ECTOR_RENDERER_CAIRO_SHAPE_CLASS, ector_renderer_draw(op, clips, x, y, mul_col));
+   // FIXME: find a way to set multiple clips
+   eo_do_super(obj, ECTOR_RENDERER_CAIRO_SHAPE_CLASS, ector_renderer_draw(op, clips, mul_col));
 
    USE(obj, cairo_new_path, EINA_FALSE);
    USE(obj, cairo_append_path, EINA_FALSE);
@@ -174,31 +186,25 @@ _ector_renderer_cairo_shape_ector_renderer_generic_base_draw(Eo *obj, Ector_Rend
 }
 
 static Eina_Bool
-_ector_renderer_cairo_shape_ector_renderer_cairo_base_fill(Eo *obj, Ector_Renderer_Cairo_Shape_Data *pd)
+_ector_renderer_cairo_shape_ector_renderer_cairo_base_fill(Eo *obj EINA_UNUSED,
+                                                           Ector_Renderer_Cairo_Shape_Data *pd EINA_UNUSED)
 {
    // FIXME: let's find out how to fill a shape with a shape later.
    // I need to read SVG specification and see how to map that with cairo.
+#warning "fill for a shape object is unhandled at this moment in cairo backend."
+   ERR("fill with shape not implemented\n");
+   return EINA_FALSE;
 }
-
-static void
-_ector_renderer_cairo_shape_efl_gfx_shape_path_set(Eo *obj, Ector_Renderer_Cairo_Shape_Data *pd,
-                                                   const Efl_Gfx_Path_Command *op, const double *points)
-{
-   USE(obj, cairo_path_destroy, );
-
-   if (pd->path) cairo_path_destroy(pd->path);
-   pd->path = NULL;
-
-   eo_do_super(obj, ECTOR_RENDERER_CAIRO_SHAPE_CLASS, efl_gfx_shape_path_set(op, points));
-}
-
 
 void
 _ector_renderer_cairo_shape_eo_base_constructor(Eo *obj, Ector_Renderer_Cairo_Shape_Data *pd)
 {
    eo_do_super(obj, ECTOR_RENDERER_CAIRO_SHAPE_CLASS, eo_constructor());
-   pd->shape = eo_data_xref(obj, ECTOR_RENDERER_GENERIC_SHAPE_CLASS, obj);
+   pd->shape = eo_data_xref(obj, ECTOR_RENDERER_GENERIC_SHAPE_MIXIN, obj);
    pd->base = eo_data_xref(obj, ECTOR_RENDERER_GENERIC_BASE_CLASS, obj);
+
+   eo_do(obj,
+         eo_event_callback_add(EFL_GFX_PATH_CHANGED, _ector_renderer_cairo_shape_path_changed, pd));
 }
 
 void
@@ -206,15 +212,16 @@ _ector_renderer_cairo_shape_eo_base_destructor(Eo *obj, Ector_Renderer_Cairo_Sha
 {
    Eo *parent;
 
-   USE(obj, cairo_path_destroy, );
-   if (pd->path) cairo_path_destroy(pd->path);
-
    eo_do(obj, parent = eo_parent_get());
    eo_data_xunref(parent, pd->parent, obj);
 
    eo_data_xunref(obj, pd->shape, obj);
    eo_data_xunref(obj, pd->base, obj);
+
    eo_do_super(obj, ECTOR_RENDERER_CAIRO_SHAPE_CLASS, eo_destructor());
+
+   USE(obj, cairo_path_destroy, );
+   if (pd->path) cairo_path_destroy(pd->path);
 }
 
 

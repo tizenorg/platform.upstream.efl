@@ -1,4 +1,4 @@
-class Ector.Renderer.Generic.Shape (Ector.Renderer.Generic.Base, Efl.Gfx.Shape)
+mixin Ector.Renderer.Generic.Shape (Efl.Gfx.Shape)
 {
    eo_prefix: ector_renderer_shape;
    legacy_prefix: null;
@@ -39,8 +39,5 @@ class Ector.Renderer.Generic.Shape (Ector.Renderer.Generic.Base, Efl.Gfx.Shape)
       Efl.Gfx.Shape.stroke_dash;
       Efl.Gfx.Shape.stroke_cap;
       Efl.Gfx.Shape.stroke_join;
-      Efl.Gfx.Shape.path;
-      Eo.Base.constructor;
-      Eo.Base.destructor;
    }
 }

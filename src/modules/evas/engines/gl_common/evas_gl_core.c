@@ -24,6 +24,13 @@ static void _surface_cap_print(int error);
 static void _surface_context_list_print();
 static void _internal_resources_destroy(void *eng_data, EVGL_Resource *rsc);
 
+// FIXME: This is a hidden option for Webkit-EFL on Tizen.
+// They were setting env vars, which have a global impact on the whole application,
+// including other Evas GL surfaces. Instead, they should request the DR and
+// memory option only on a per-surface basis.
+#define EVAS_GL_OPTIONS_DIRECT_MEMORY_OPTIMIZE 0x1000
+#define EVAS_GL_OPTIONS_DIRECT_OVERRIDE        0x2000
+
 
 //---------------------------------------------------------------//
 // Internal Resources:
@@ -1545,6 +1552,8 @@ void *
 evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
 {
    EVGL_Surface *sfc = NULL;
+   char *s = NULL;
+   int direct_override = 0, direct_mem_opt = 0, evgl_msaa = 0;
    Eina_Bool need_reconfigure = EINA_FALSE;
    Eina_Bool dbg;
 
@@ -1586,12 +1595,59 @@ evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
    sfc->w = w;
    sfc->h = h;
 
+   // Check for Direct rendering override env var.
+   if (!evgl_engine->direct_override)
+     if ((s = getenv("EVAS_GL_DIRECT_OVERRIDE")))
+       {
+          WRN("DIRECT_OVERRIDE flag is set to '%s' for the whole application. "
+              "This should never be done except for debugging purposes.", s);
+          direct_override = atoi(s);
+          if (direct_override == 1)
+            evgl_engine->direct_override = 1;
+          else
+            evgl_engine->direct_override = -1;
+       }
+
+   // Check if Direct Rendering Memory Optimzation flag is on
+   // Creates resources on demand when it fallsback to fbo rendering
+   if (!evgl_engine->direct_mem_opt)
+     if ((s = getenv("EVAS_GL_DIRECT_MEM_OPT")))
+       {
+          WRN("DIRECT_MEMORY_OPTIMIZE flag is set to '%s' for the whole application. "
+              "This should never be done except for debugging purposes.", s);
+          direct_mem_opt = atoi(s);
+          if (direct_mem_opt == 1)
+            evgl_engine->direct_mem_opt = 1;
+          else
+            evgl_engine->direct_mem_opt = -1;
+       }
+
    // Set the internal config value
    if (!_internal_config_set(sfc, cfg))
      {
         ERR("Unsupported Format!");
         evas_gl_common_error_set(eng_data, EVAS_GL_BAD_CONFIG);
         goto error;
+     }
+
+   // Extra options allowed only if DR is set
+   if (sfc->direct_fb_opt)
+     {
+        if (cfg->options_bits & EVAS_GL_OPTIONS_DIRECT_MEMORY_OPTIMIZE)
+          {
+             DBG("Setting DIRECT_MEMORY_OPTIMIZE bit");
+             sfc->direct_mem_opt = EINA_TRUE;
+          }
+        else if (evgl_engine->direct_mem_opt == 1)
+          sfc->direct_mem_opt = EINA_TRUE;
+
+        if (cfg->options_bits & EVAS_GL_OPTIONS_DIRECT_OVERRIDE)
+          {
+             DBG("Setting DIRECT_OVERRIDE bit");
+             sfc->direct_override = EINA_TRUE;
+          }
+        else if (evgl_engine->direct_override == 1)
+          sfc->direct_override = EINA_TRUE;
      }
 
    // Set the context current with resource context/surface
@@ -1624,7 +1680,7 @@ evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
      };
 
    // Allocate resources for fallback unless the flag is on
-   if (!evgl_engine->direct_mem_opt)
+   if (!sfc->direct_mem_opt)
      {
         if (!_surface_buffers_allocate(eng_data, sfc, sfc->w, sfc->h, 0))
           {
@@ -1739,6 +1795,17 @@ evgl_pbuffer_surface_create(void *eng_data, Evas_GL_Config *cfg,
              goto error;
           }
 
+        // What is DR for PBuffer?
+        /*
+        if (sfc->direct_fb_opt)
+          {
+             if (cfg->options_bits & EVAS_GL_OPTIONS_DIRECT_MEMORY_OPTIMIZE)
+               sfc->direct_mem_opt = EINA_TRUE;
+             if (cfg->options_bits & EVAS_GL_OPTIONS_DIRECT_OVERRIDE)
+               sfc->direct_override = EINA_TRUE;
+          }
+        */
+
         // Create internal buffers
         if (!_surface_buffers_create(sfc))
           {
@@ -1748,7 +1815,7 @@ evgl_pbuffer_surface_create(void *eng_data, Evas_GL_Config *cfg,
           };
 
         // Allocate resources for fallback unless the flag is on
-        if (!evgl_engine->direct_mem_opt)
+        if (!sfc->direct_mem_opt)
           {
              if (!_surface_buffers_allocate(eng_data, sfc, sfc->w, sfc->h, 0))
                {
@@ -2129,7 +2196,7 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
 
    // Allocate or free resources depending on what mode (direct of fbo) it's
    // running only if the env var EVAS_GL_DIRECT_MEM_OPT is set.
-   if (evgl_engine->direct_mem_opt)
+   if (sfc->direct_mem_opt)
      {
         if (_evgl_direct_renderable(rsc, sfc))
           {
@@ -2274,7 +2341,7 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
         if ((ctx->current_sfc != sfc) || (ctx != sfc->current_ctx))
           {
              sfc->current_ctx = ctx;
-             if ((evgl_engine->direct_mem_opt) && (evgl_engine->direct_override))
+             if ((sfc->direct_mem_opt) && (sfc->direct_fb_opt))
                {
                   DBG("Not creating fallback surfaces even though it should. Use at OWN discretion!");
                }
@@ -2429,11 +2496,13 @@ evgl_direct_rendered()
 Eina_Bool
 evgl_native_surface_direct_opts_get(Evas_Native_Surface *ns,
                                     Eina_Bool *direct_render,
-                                    Eina_Bool *client_side_rotation)
+                                    Eina_Bool *client_side_rotation,
+                                    Eina_Bool *direct_override)
 {
    EVGL_Surface *sfc;
 
    if (direct_render) *direct_render = EINA_FALSE;
+   if (direct_override) *direct_override = EINA_FALSE;
    if (client_side_rotation) *client_side_rotation = EINA_FALSE;
 
    if (!evgl_engine) return EINA_FALSE;
@@ -2457,6 +2526,7 @@ evgl_native_surface_direct_opts_get(Evas_Native_Surface *ns,
      }
 
    if (direct_render) *direct_render = sfc->direct_fb_opt;
+   if (direct_override) *direct_override = sfc->direct_override;
    if (client_side_rotation) *client_side_rotation = sfc->client_side_rotation;
    return EINA_TRUE;
 }
@@ -2568,7 +2638,8 @@ evgl_direct_partial_info_clear()
 void
 evgl_direct_override_get(int *override, int *force_off)
 {
-   if (override)  *override  = evgl_engine->direct_override;
+   (void) override;
+   //if (override) *override  = evgl_engine->direct_override;
    if (force_off) *force_off = evgl_engine->direct_force_off;
 }
 

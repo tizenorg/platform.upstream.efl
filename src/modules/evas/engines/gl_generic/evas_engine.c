@@ -1248,14 +1248,14 @@ eng_gl_direct_override_get(void *data, int *override, int *force_off)
 }
 
 static Eina_Bool
-eng_gl_surface_direct_renderable_get(void *data, Evas_Native_Surface *ns)
+eng_gl_surface_direct_renderable_get(void *data, Evas_Native_Surface *ns, Eina_Bool *direct_override)
 {
    Render_Engine_GL_Generic *re = data;
    Eina_Bool direct_render, client_side_rotation;
 
    EVGLINIT(data, EINA_FALSE);
    if (!re || !ns) return EINA_FALSE;
-   if (!evgl_native_surface_direct_opts_get(ns, &direct_render, &client_side_rotation))
+   if (!evgl_native_surface_direct_opts_get(ns, &direct_render, &client_side_rotation, direct_override))
      return EINA_FALSE;
 
    if (!direct_render)

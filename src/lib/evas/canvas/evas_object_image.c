@@ -2771,9 +2771,9 @@ evas_process_dirty_pixels(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, 
 
                        // Check if we can do direct rendering...
                        if (ENFN->gl_direct_override_get)
-                         ENFN->gl_direct_override_get(output, &direct_override, &direct_force_off);
+                         ENFN->gl_direct_override_get(output, NULL /*&direct_override*/, &direct_force_off);
                        if (ENFN->gl_surface_direct_renderable_get)
-                         direct_renderable = ENFN->gl_surface_direct_renderable_get(output, ns);
+                         direct_renderable = ENFN->gl_surface_direct_renderable_get(output, ns, &direct_override);
 
                        if ( ((direct_override) ||
                              ((direct_renderable) &&

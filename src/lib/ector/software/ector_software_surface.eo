@@ -12,12 +12,22 @@ class Ector.Software.Surface (Ector.Generic.Surface)
 	    Software_Rasterizer *ctx;
 	 }
       }
+      surface {
+         set {
+	 }
+	 get {
+	 }
+	 values {
+	    void *pixels;
+	    uint width;
+	    uint height;
+	 }
+      }
    }
 
    implements {
       Ector.Generic.Surface.renderer_factory_new;
-      Ector.Generic.Surface.surface.set;
-      Ector.Generic.Surface.surface.get;
+      Ector.Generic.Surface.reference_point.set;
       Eo.Base.destructor;
       Eo.Base.constructor;
    }

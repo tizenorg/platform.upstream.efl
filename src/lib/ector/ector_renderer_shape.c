@@ -136,7 +136,7 @@ _ector_renderer_generic_shape_efl_gfx_shape_stroke_dash_set(Eo *obj EINA_UNUSED,
      }
 
    tmp = realloc(pd->stroke.dash, length * sizeof (Efl_Gfx_Dash));
-   if (!tmp) return ;
+   if (!tmp && length) return ;
    memcpy(tmp, dash, length * sizeof (Efl_Gfx_Dash));
 
    pd->stroke.dash = tmp;
@@ -181,43 +181,6 @@ _ector_renderer_generic_shape_efl_gfx_shape_stroke_join_get(Eo *obj EINA_UNUSED,
                                                             Ector_Renderer_Generic_Shape_Data *pd)
 {
    return pd->stroke.join;
-}
-
-static void
-_ector_renderer_generic_shape_efl_gfx_shape_path_set(Eo *obj EINA_UNUSED,
-                                                     Ector_Renderer_Generic_Shape_Data *pd,
-                                                     const Efl_Gfx_Path_Command *cmd,
-                                                     const double *points)
-{
-   free(pd->path.cmd);
-   pd->path.cmd = NULL;
-   free(pd->path.pts);
-   pd->path.pts = NULL;
-
-   efl_gfx_path_dup(&pd->path.cmd, &pd->path.pts, cmd, points);
-}
-
-void
-_ector_renderer_generic_shape_efl_gfx_shape_path_get(Eo *obj EINA_UNUSED,
-                                                     Ector_Renderer_Generic_Shape_Data *pd,
-                                                     const Efl_Gfx_Path_Command **op,
-                                                     const double **points)
-{
-   if (op) *op = pd->path.cmd;
-   if (points) *points = pd->path.pts;
-}
-
-static void
-_ector_renderer_generic_shape_eo_base_constructor(Eo *obj,
-                                                  Ector_Renderer_Generic_Shape_Data *pd)
-{
-    eo_do_super(obj, ECTOR_RENDERER_GENERIC_SHAPE_CLASS, eo_constructor());
-}
-
-static void
-_ector_renderer_generic_shape_eo_base_destructor(Eo *obj, Ector_Renderer_Generic_Shape_Data *pd)
-{
-  eo_do_super(obj, ECTOR_RENDERER_GENERIC_SHAPE_CLASS, eo_destructor());
 }
 
 #include "ector_renderer_generic_shape.eo.c"

@@ -36,14 +36,18 @@ struct _Buffer_Module_Data {
 struct _Buffer_Data {
      Ecore_X_Pixmap pixmap;
 
-     void *tbm_surface;
-
      int w;
      int h;
      int stride;
      Ecore_Buffer_Format format;
 
      Eina_Bool is_imported;
+
+     struct
+     {
+        void *surface;
+        Eina_Bool owned;
+     } tbm;
 };
 
 static int
@@ -326,8 +330,9 @@ _ecore_buffer_x11_dri2_buffer_alloc(Ecore_Buffer_Module_Data bmPriv,
 
    //Import tbm_surface
    bo = tbm_bo_import(bm->tbm_mgr, bufs->name);
-   buf->tbm_surface = tbm_surface_internal_create_with_bos(buf->w, buf->h, format, &bo, 1);
-   EINA_SAFETY_ON_NULL_GOTO(buf->tbm_surface, on_error);
+   buf->tbm.surface = tbm_surface_internal_create_with_bos(buf->w, buf->h, format, &bo, 1);
+   buf->tbm.owned = EINA_TRUE;
+   EINA_SAFETY_ON_NULL_GOTO(buf->tbm.surface, on_error);
    tbm_bo_unref(bo);
 
    free(bufs);
@@ -353,6 +358,39 @@ on_error:
    return NULL;
 }
 
+static Ecore_Buffer_Data
+_ecore_buffer_x11_dri2_buffer_alloc_with_tbm_surface(Ecore_Buffer_Module_Data bmPriv,
+                                                     void *tbm_surface,
+                                                     int *ret_w, int *ret_h,
+                                                     Ecore_Buffer_Format *ret_format,
+                                                     unsigned int flags EINA_UNUSED)
+{
+   Buffer_Data* buf;
+   int width, height;
+   Ecore_Buffer_Format format;
+
+   EINA_SAFETY_ON_NULL_RETURN_VAL(tbm_surface, NULL);
+
+   width = tbm_surface_get_width(tbm_surface);
+   height = tbm_surface_get_height(tbm_surface);
+   format = tbm_surface_get_format(tbm_surface);
+
+   buf = calloc(1, sizeof(Buffer_Data));
+   buf->w = width;
+   buf->h = height;
+   buf->format = format;
+   buf->pixmap = 0;
+   buf->tbm.surface = tbm_surface;
+   buf->tbm.owned = EINA_FALSE;
+   buf->is_imported = EINA_FALSE;
+
+   if (ret_w) *ret_w = width;
+   if (ret_h) *ret_h = height;
+   if (ret_format) *ret_format = format;
+
+   return buf;
+}
+
 static void
 _ecore_buffer_x11_dri2_buffer_free(Ecore_Buffer_Module_Data bmPriv EINA_UNUSED,
                                    Ecore_Buffer_Data priv)
@@ -370,10 +408,10 @@ _ecore_buffer_x11_dri2_buffer_free(Ecore_Buffer_Module_Data bmPriv EINA_UNUSED,
           }
      }
 
-   if (buf->tbm_surface)
+   if (buf->tbm.surface)
      {
-        tbm_surface_destroy(buf->tbm_surface);
-        buf->tbm_surface = NULL;
+        tbm_surface_destroy(buf->tbm.surface);
+        buf->tbm.surface = NULL;
      }
 
    free(buf);
@@ -434,8 +472,9 @@ _ecore_buffer_x11_dri2_buffer_import(Ecore_Buffer_Module_Data bmPriv EINA_UNUSED
 
    //Import tbm_surface
    bo = tbm_bo_import(bm->tbm_mgr, bufs->name);
-   buf->tbm_surface = tbm_surface_internal_create_with_bos(buf->w, buf->h, format, &bo, 1);
-   EINA_SAFETY_ON_NULL_GOTO(buf->tbm_surface, on_error);
+   buf->tbm.surface = tbm_surface_internal_create_with_bos(buf->w, buf->h, format, &bo, 1);
+   buf->tbm.owned = EINA_TRUE;
+   EINA_SAFETY_ON_NULL_GOTO(buf->tbm.surface, on_error);
    tbm_bo_unref(bo);
    free(bufs);
 
@@ -452,8 +491,8 @@ on_error:
              DRI2DestroyDrawable(xdpy, buf->pixmap);
           }
 
-        if (buf->tbm_surface)
-          tbm_surface_destroy(buf->tbm_surface);
+        if (buf->tbm.surface)
+          tbm_surface_destroy(buf->tbm.surface);
 
         free(buf);
      }
@@ -470,6 +509,12 @@ _ecore_buffer_x11_dri2_pixmap_get(Ecore_Buffer_Module_Data bmPriv EINA_UNUSED,
 {
    Buffer_Data* buf = (Buffer_Data*)priv;
    EINA_SAFETY_ON_NULL_RETURN_VAL(buf, 0);
+
+   if (!buf->tbm.owned)
+     {
+        LOG("Not Supported to get pixmap\n");
+        return 0;
+     }
    return buf->pixmap;
 }
 
@@ -479,7 +524,7 @@ _ecore_buffer_x11_dri2_tbm_bo_get(Ecore_Buffer_Module_Data bmPriv EINA_UNUSED,
 {
    Buffer_Data* buf = (Buffer_Data*)priv;
    EINA_SAFETY_ON_NULL_RETURN_VAL(buf, NULL);
-   return buf->tbm_surface;
+   return buf->tbm.surface;
 }
 
 static Ecore_Buffer_Backend _ecore_buffer_x11_dri2_backend = {
@@ -487,6 +532,7 @@ static Ecore_Buffer_Backend _ecore_buffer_x11_dri2_backend = {
      &_ecore_buffer_x11_dri2_init,
      &_ecore_buffer_x11_dri2_shutdown,
      &_ecore_buffer_x11_dri2_buffer_alloc,
+     &_ecore_buffer_x11_dri2_buffer_alloc_with_tbm_surface,
      &_ecore_buffer_x11_dri2_buffer_free,
      &_ecore_buffer_x11_dri2_buffer_export,
      &_ecore_buffer_x11_dri2_buffer_import,

@@ -246,6 +246,40 @@ ecore_buffer_new(const char* engine, unsigned int width, unsigned int height, Ec
    return bo;
 }
 
+EAPI Ecore_Buffer *
+ecore_buffer_new_with_tbm_surface(const char *engine, void *tbm_surface, unsigned int flags)
+{
+   Ecore_Buffer_Module *bm;
+   Ecore_Buffer *bo;
+   int w = 0, h = 0;
+   Ecore_Buffer_Format format = 0;
+   void *bo_data;
+
+   bm = _ecore_buffer_get_backend(engine);
+   if (!bm)
+     {
+        ERR("Failed to get Backend: %s", engine);
+        return NULL;
+     }
+
+   bo_data = bm->be->buffer_alloc_with_tbm_surface(bm->data, tbm_surface,
+                                                   &w, &h, &format, flags);
+   if (!bo_data)
+     return NULL;
+
+   bo = calloc(1, sizeof(Ecore_Buffer));
+   if (!bo) return NULL;
+
+   bo->bm = bm;
+   bo->flags = flags;
+   bo->buffer_data = bo_data;
+   bo->width = w;
+   bo->height = h;
+   bo->format = format;
+
+   return bo;
+}
+
 EAPI void
 ecore_buffer_free(Ecore_Buffer* buf)
 {

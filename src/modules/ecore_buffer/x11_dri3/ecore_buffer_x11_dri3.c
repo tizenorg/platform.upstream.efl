@@ -440,6 +440,33 @@ on_error:
    return NULL;
 }
 
+static Ecore_Buffer_Data
+_ecore_buffer_x11_dri3_buffer_alloc_with_tbm_surface(Ecore_Buffer_Module_Data bmPriv EINA_UNUSED,
+                                                     void *tbm_surface,
+                                                     int *ret_w, int *ret_h,
+                                                     Ecore_Buffer_Format *ret_format,
+                                                     unsigned int flags)
+{
+   Buffer_Data* buf;
+
+   buf = calloc(1, sizeof(Buffer_Data));
+   if (!buf) return NULL;
+
+   buf->w = tbm_surface_get_width(tbm_surface);
+   buf->h = tbm_surface_get_height(tbm_surface);
+   buf->format = tbm_surface_get_format(tbm_surface);
+   buf->flags = flags;
+   buf->is_imported = EINA_FALSE;
+   buf->tbm_surface = tbm_surface;
+
+   if (ret_w) *ret_w = buf->w;
+   if (ret_h) *ret_h = buf->h;
+   if (ret_format) *ret_format = buf->format;
+
+   return buf;
+}
+
+
 static void
 _ecore_buffer_x11_dri3_buffer_free(Ecore_Buffer_Module_Data bmPriv EINA_UNUSED,
                            Ecore_Buffer_Data priv)
@@ -570,6 +597,7 @@ static Ecore_Buffer_Backend _ecore_buffer_x11_dri3_backend = {
      &_ecore_buffer_x11_dri3_init,
      &_ecore_buffer_x11_dri3_shutdown,
      &_ecore_buffer_x11_dri3_buffer_alloc,
+     &_ecore_buffer_x11_dri3_buffer_alloc_with_tbm_surface,
      &_ecore_buffer_x11_dri3_buffer_free,
      &_ecore_buffer_x11_dri3_buffer_export,
      &_ecore_buffer_x11_dri3_buffer_import,

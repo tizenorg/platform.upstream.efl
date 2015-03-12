@@ -372,6 +372,11 @@ struct _Ecore_Buffer_Backend
                                                int width, int height,
                                                Ecore_Buffer_Format format,
                                                unsigned int flags);
+   Ecore_Buffer_Data           (*buffer_alloc_with_tbm_surface)(Ecore_Buffer_Module_Data bmPriv,
+                                                                void *tbm_surface,
+                                                                int *ret_w, int *ret_h,
+                                                                Ecore_Buffer_Format *ret_format,
+                                                                unsigned int flags);
    void                        (*buffer_free)(Ecore_Buffer_Module_Data bmPriv,
                                               Ecore_Buffer_Data priv);
    Ecore_Export_Type           (*buffer_export)(Ecore_Buffer_Module_Data bmPriv,
@@ -430,6 +435,16 @@ EAPI void          ecore_buffer_unregister(Ecore_Buffer_Backend *be);
  * @return Newly allocated Ecore_Buffer instance, NULL otherwise.
  */
 EAPI Ecore_Buffer *ecore_buffer_new(const char* engine, unsigned int width, unsigned int height, Ecore_Buffer_Format format, unsigned int flags);
+/**
+ * @brief Creates a new Ecore_Buffer based on given tbm surface.
+ *
+ * @param[in] engine
+ * @param[in] tbm_surface
+ * @param[in] flags
+ *
+ * @return Newly allocated Ecore_Buffer instance based on tbm surface, NULL otherwise.
+ */
+EAPI Ecore_Buffer *ecore_buffer_new_with_tbm_surface(const char *engine, void *tbm_surface, unsigned int flags);
 /**
  * @brief Free the given Ecore_Buffer.
  *

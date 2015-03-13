@@ -348,7 +348,11 @@ _fbo_surface_cap_test(GLint color_ifmt, GLenum color_fmt,
    // Return the result
    if (fb_status != GL_FRAMEBUFFER_COMPLETE)
    {
-       // Put Error Log...
+        int err = glGetError();
+
+        if (err != GL_NO_ERROR)
+           DBG("glGetError() returns %x ", err);
+
       return 0;
    }
    else
@@ -1064,10 +1068,11 @@ _surface_buffers_destroy(EVGL_Surface *sfc)
 }
 
 static int
-_internal_config_set(EVGL_Surface *sfc, Evas_GL_Config *cfg)
+_internal_config_set(void *eng_data, EVGL_Surface *sfc, Evas_GL_Config *cfg)
 {
    int i = 0, cfg_index = -1;
    int color_bit = 0, depth_bit = 0, stencil_bit = 0, msaa_samples = 0;
+   int support_win_cfg = 1;
 
    // Check if engine is valid
    if (!evgl_engine)
@@ -1115,11 +1120,16 @@ _internal_config_set(EVGL_Surface *sfc, Evas_GL_Config *cfg)
              sfc->depth_stencil_fmt = evgl_engine->caps.fbo_fmts[i].depth_stencil_fmt;
              sfc->msaa_samples      = evgl_engine->caps.fbo_fmts[i].samples;
 
-             // TODO: Implement surface reconfigure and add depth+stencil support
-
              // Direct Rendering Option
-             if ((!depth_bit && !stencil_bit && !msaa_samples) || evgl_engine->direct_override)
-               sfc->direct_fb_opt = cfg->options_bits & EVAS_GL_OPTIONS_DIRECT;
+             if (((depth_bit > 0) || (stencil_bit > 0) || (msaa_samples > 0))
+                  && (evgl_engine->funcs->native_win_surface_config_check))
+               {
+                  DBG("request to check win cfg with depth %d,  stencil %d,  msaa %d", depth_bit, stencil_bit, msaa_samples);
+                  support_win_cfg = evgl_engine->funcs->native_win_surface_config_check(eng_data,depth_bit,stencil_bit,msaa_samples);
+               }
+
+             if ((sfc->direct_override) || (support_win_cfg == 1))
+               sfc->direct_fb_opt = !!(cfg->options_bits & EVAS_GL_OPTIONS_DIRECT);
 
              // Extra flags for direct rendering
              sfc->client_side_rotation = !!(cfg->options_bits & EVAS_GL_OPTIONS_CLIENT_SIDE_ROTATION);
@@ -1137,15 +1147,16 @@ _internal_config_set(EVGL_Surface *sfc, Evas_GL_Config *cfg)
      }
    else
      {
-        DBG("-------------Surface Config---------------");
+        DBG("-------------Evas GL Surface Config---------------");
         DBG("Selected Config Index: %d", cfg_index);
         DBG("  Color Format     : %s", _glenum_string_get(sfc->color_fmt));
         DBG("  Depth Format     : %s", _glenum_string_get(sfc->depth_fmt));
         DBG("  Stencil Format   : %s", _glenum_string_get(sfc->stencil_fmt));
         DBG("  D-Stencil Format : %s", _glenum_string_get(sfc->depth_stencil_fmt));
         DBG("  MSAA Samples     : %d", sfc->msaa_samples);
-        DBG("  Direct Option    : %d", sfc->direct_fb_opt);
+        DBG("  Direct Option    : %d%s", sfc->direct_fb_opt, sfc->direct_override ? " (override)" : "");
         DBG("  Client-side Rot. : %d", sfc->client_side_rotation);
+        DBG("--------------------------------------------------");
         sfc->cfg_index = cfg_index;
         return 1;
      }
@@ -1553,7 +1564,7 @@ evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
 {
    EVGL_Surface *sfc = NULL;
    char *s = NULL;
-   int direct_override = 0, direct_mem_opt = 0, evgl_msaa = 0;
+   int direct_override = 0, direct_mem_opt = 0;
    Eina_Bool need_reconfigure = EINA_FALSE;
    Eina_Bool dbg;
 
@@ -1623,7 +1634,7 @@ evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
        }
 
    // Set the internal config value
-   if (!_internal_config_set(sfc, cfg))
+   if (!_internal_config_set(eng_data, sfc, cfg))
      {
         ERR("Unsupported Format!");
         evas_gl_common_error_set(eng_data, EVAS_GL_BAD_CONFIG);
@@ -1788,7 +1799,7 @@ evgl_pbuffer_surface_create(void *eng_data, Evas_GL_Config *cfg,
    if (sfc->pbuffer.color_fmt != EVAS_GL_NO_FBO)
      {
         // Set the internal config value
-        if (!_internal_config_set(sfc, cfg))
+        if (!_internal_config_set(eng_data, sfc, cfg))
           {
              ERR("Unsupported Format!");
              evas_gl_common_error_set(eng_data, EVAS_GL_BAD_CONFIG);

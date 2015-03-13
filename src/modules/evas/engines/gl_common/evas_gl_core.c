@@ -12,6 +12,7 @@ typedef struct _GL_Format
 #define EVAS_GL_API_STRUCT_SIZE (sizeof(Evas_GL_API) + 300 * sizeof(void*))
 static Evas_GL_API *gl_funcs = NULL;
 static Evas_GL_API *gles1_funcs = NULL;
+static Evas_GL_API *gles3_funcs = NULL;
 
 EVGL_Engine *evgl_engine = NULL;
 int _evas_gl_log_dom   = -1;
@@ -176,7 +177,7 @@ _texture_allocate_2d(GLuint tex, GLint ifmt, GLenum fmt, GLenum type, int w, int
 {
    //if (!(*tex))
    //   glGenTextures(1, tex);
-   glBindTexture(GL_TEXTURE_2D, tex );
+   glBindTexture(GL_TEXTURE_2D, tex);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1648,7 +1649,6 @@ evgl_engine_init(void *eng_data, const EVGL_Interface *efunc)
 
    // Clear Function Pointers
    if (!gl_funcs) gl_funcs = calloc(1, EVAS_GL_API_STRUCT_SIZE);
-   if (!gles1_funcs) gles1_funcs = calloc(1, EVAS_GL_API_STRUCT_SIZE);
 
    // Direct surfaces map texid->Evas_GL_Surface
    evgl_engine->direct_surfaces = eina_hash_int32_new(NULL);
@@ -1809,15 +1809,15 @@ evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
 
    if (sfc->direct_fb_opt)
      {
-        if (!sfc->gles1_indirect)
+        if (!sfc->indirect)
           {
              eina_hash_add(evgl_engine->direct_surfaces, &sfc->color_buf, sfc);
              DBG("Added tex %d as direct surface: %p", sfc->color_buf, sfc);
           }
         else
           {
-             eina_hash_add(evgl_engine->direct_surfaces, &sfc->gles1_sfc_native, sfc);
-             DBG("Added tex %d as direct surface: %p", sfc->gles1_sfc_native, sfc);
+             eina_hash_add(evgl_engine->direct_surfaces, &sfc->indirect_sfc_native, sfc);
+             DBG("Added native %p as direct surface: %p", sfc->indirect_sfc_native, sfc);
           }
      }
 
@@ -2024,23 +2024,26 @@ evgl_surface_destroy(void *eng_data, EVGL_Surface *sfc)
           }
      }
 
-   // Destroy surface used for 1.1
-   if (sfc->gles1_indirect)
+   // Destroy indirect surface
+   if (sfc->indirect)
      {
         int ret;
-        if (dbg) DBG("sfc %p is used for GLES 1.x indirect rendering", sfc);
+        if (dbg) DBG("sfc %p is used for indirect rendering", sfc);
 
-        if (!evgl_engine->funcs->gles1_surface_destroy)
+        if (!evgl_engine->funcs->indirect_surface_destroy)
           {
-             ERR("Error destroying GLES 1.x surface");
+             ERR("Error destroying indirect surface");
              return 0;
           }
 
-        DBG("Destroying special surface used for GLES 1.x rendering");
-        ret = evgl_engine->funcs->gles1_surface_destroy(eng_data, sfc);
+        DBG("Destroying special surface used for indirect rendering");
+        ret = evgl_engine->funcs->indirect_surface_destroy(eng_data, sfc);
 
-        if (!ret) ERR("Engine failed to destroy a GLES1.x Surface.");
-        return ret;
+        if (!ret)
+          {
+             ERR("Engine failed to destroy indirect surface.");
+             return ret;
+          }
      }
 
 
@@ -2080,15 +2083,15 @@ evgl_surface_destroy(void *eng_data, EVGL_Surface *sfc)
 
    if (sfc->direct_fb_opt)
      {
-        if (!sfc->gles1_indirect)
+        if (!sfc->indirect)
           {
              eina_hash_del(evgl_engine->direct_surfaces, &sfc->color_buf, sfc);
              DBG("Removed tex %d as direct surface: %p", sfc->color_buf, sfc);
           }
         else
           {
-             eina_hash_del(evgl_engine->direct_surfaces, &sfc->gles1_sfc_native, sfc);
-             DBG("Removed native %p as direct surface: %p", sfc->gles1_sfc_native, sfc);
+             eina_hash_del(evgl_engine->direct_surfaces, &sfc->indirect_sfc_native, sfc);
+             DBG("Removed native %p as direct surface: %p", sfc->indirect_sfc_native, sfc);
           }
      }
 
@@ -2225,11 +2228,11 @@ evgl_context_destroy(void *eng_data, EVGL_Context *ctx)
         return 0;
      }
 
-   // Destroy GLES1 indirect rendering context
-   if (ctx->gles1_context &&
-       !evgl_engine->funcs->context_destroy(eng_data, ctx->context))
+   // Destroy indirect rendering context
+   if (ctx->indirect_context &&
+       !evgl_engine->funcs->context_destroy(eng_data, ctx->indirect_context))
      {
-        ERR("Error destroying the GLES1 context.");
+        ERR("Error destroying the indirect context.");
         return 0;
      }
 
@@ -2280,7 +2283,7 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
 
    if (!rsc)
      {
-        DBG("Creating new TLS for this thread: %lu", eina_thread_self());
+        DBG("Creating new TLS for this thread: %lu", (unsigned long)eina_thread_self());
         rsc = _evgl_tls_resource_create(eng_data);
         if (!rsc) return 0;
      }
@@ -2424,7 +2427,7 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
 
    if (!ctx->fbo_image_supported)
      {
-        if (dbg) DBG("ctx %p is GLES 1", ctx);
+        if (dbg) DBG("ctx %p is GLES %d", ctx, ctx->version);
         if (_evgl_direct_renderable(rsc, sfc))
           {
              // Transition from indirect rendering to direct rendering
@@ -2440,20 +2443,21 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
           }
         else
           {
-             if (dbg) DBG("Calling make_current(%p, %p)", sfc->gles1_sfc, ctx->context);
-             if (!ctx->gles1_context)
+             if (dbg) DBG("Calling make_current(%p, %p)", sfc->indirect_sfc, ctx->context);
+             if (!ctx->indirect_context)
                {
-                  ctx->gles1_context =
-                        evgl_engine->funcs->gles1_context_create(eng_data, ctx, sfc);
+                  ctx->indirect_context =
+                        evgl_engine->funcs->gles_context_create(eng_data, ctx, sfc);
                }
-             if (!evgl_engine->funcs->make_current(eng_data, sfc->gles1_sfc,
-                                                   ctx->gles1_context, EINA_TRUE))
+             if (dbg) DBG("Calling make_current(%p, %p)", sfc->indirect_sfc, ctx->context);
+             if (!evgl_engine->funcs->make_current(eng_data, sfc->indirect_sfc,
+                                                   ctx->indirect_context, EINA_TRUE))
                {
-                  ERR("Failed to make current with GLES1 indirect surface.");
+                  ERR("Failed to make current with indirect surface.");
                   return 0;
                }
 
-             // Transition from direct rendering to pixmap surface rendering
+             // Transition from direct rendering to indirect rendering
              if (rsc->direct.rendered)
                {
                   glViewport(ctx->viewport_coord[0], ctx->viewport_coord[1], ctx->viewport_coord[2], ctx->viewport_coord[3]);
@@ -2465,7 +2469,7 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
              rsc->direct.rendered = 0;
           }
      }
-   else // gles 2.x and 3.x
+   else
      {
         Eina_Bool use_extension = EINA_FALSE;
         if ((ctx->version == EVAS_GL_GLES_1_X) && (gles1_funcs))
@@ -2585,10 +2589,17 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
 const char *
 evgl_string_query(int name)
 {
+   EVGL_Resource *rsc;
+   int ctx_version = EVAS_GL_GLES_2_X;
+
    switch(name)
      {
       case EVAS_GL_EXTENSIONS:
-         return evgl_api_ext_string_get(EINA_FALSE, EINA_FALSE);
+         rsc = _evgl_tls_resource_get();
+         if ((rsc) && (rsc->current_ctx))
+           ctx_version = rsc->current_ctx->version;
+         return evgl_api_ext_string_get(EINA_FALSE, ctx_version);
+
       default:
          return "";
      };
@@ -2663,7 +2674,7 @@ evgl_native_surface_get(EVGL_Surface *sfc, Evas_Native_Surface *ns)
         return 0;
      }
 
-   if (!sfc->gles1_indirect)
+   if (!sfc->indirect)
      {
         ns->type = EVAS_NATIVE_SURFACE_EVASGL;
         ns->version = EVAS_NATIVE_SURFACE_VERSION;
@@ -2673,8 +2684,8 @@ evgl_native_surface_get(EVGL_Surface *sfc, Evas_Native_Surface *ns)
      {
         ns->type = EVAS_NATIVE_SURFACE_X11;
         ns->version = EVAS_NATIVE_SURFACE_VERSION;
-        ns->data.x11.pixmap = (unsigned long)(intptr_t)sfc->gles1_sfc_native;
-        ns->data.x11.visual = sfc->gles1_sfc_visual;
+        ns->data.x11.pixmap = (unsigned long)(intptr_t)sfc->indirect_sfc_native;
+        ns->data.x11.visual = sfc->indirect_sfc_visual;
      }
 
    return 1;
@@ -2830,8 +2841,22 @@ evgl_api_get(Evas_GL_Context_Version version)
      }
    else if (version == EVAS_GL_GLES_1_X)
      {
+        if (!gles1_funcs) gles1_funcs = calloc(1, EVAS_GL_API_STRUCT_SIZE);
+
         _evgl_api_gles1_get(gles1_funcs, evgl_engine->api_debug_mode);
         return gles1_funcs;
+     }
+   else if (version == EVAS_GL_GLES_3_X)
+     {
+        // Allocate gles3 funcs here, as this is called only if GLES_3 is supported
+        if (!gles3_funcs) gles3_funcs = calloc(1, EVAS_GL_API_STRUCT_SIZE);
+
+        if (!_evgl_api_gles3_get(gles3_funcs, evgl_engine->api_debug_mode))
+          {
+             free(gles3_funcs);
+             gles3_funcs = NULL;
+          }
+        return gles3_funcs;
      }
    else return NULL;
 }

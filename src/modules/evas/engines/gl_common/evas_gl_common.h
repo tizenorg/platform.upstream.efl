@@ -134,7 +134,7 @@
 #endif
 
 #ifndef GL_UNPACK_ROW_LENGTH
-# define GL_UNPACK_ROW_LENGTH 0x0cf2
+# define GL_UNPACK_ROW_LENGTH 0x0CF2
 #endif
 #ifndef EGL_NO_DISPLAY
 # define EGL_NO_DISPLAY 0
@@ -514,6 +514,7 @@ struct _Evas_Engine_GL_Context
 #endif
 
    GLuint preserve_bit;
+   int gles_version;
 };
 
 struct _Evas_GL_Texture_Pool

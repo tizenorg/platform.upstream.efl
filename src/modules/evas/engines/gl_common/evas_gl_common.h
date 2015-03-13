@@ -136,7 +136,9 @@
 #ifndef GL_UNPACK_ROW_LENGTH
 # define GL_UNPACK_ROW_LENGTH 0x0cf2
 #endif
-
+#ifndef EGL_NO_DISPLAY
+# define EGL_NO_DISPLAY 0
+#endif
 #ifndef EGL_NO_CONTEXT
 # define EGL_NO_CONTEXT 0
 #endif
@@ -218,6 +220,15 @@
 #endif
 #ifndef EGL_MAP_GL_TEXTURE_OPTION_WRITE_SEC
 #define EGL_MAP_GL_TEXTURE_OPTION_WRITE_SEC (1<<1)
+#endif
+#ifndef EGL_GL_TEXTURE_2D_KHR
+#define EGL_GL_TEXTURE_2D_KHR 0x30B1
+#endif
+#ifndef EGL_GL_TEXTURE_LEVEL_KHR
+#define EGL_GL_TEXTURE_LEVEL_KHR 0x30BC
+#endif
+#ifndef EGL_IMAGE_PRESERVED_KHR
+#define EGL_IMAGE_PRESERVED_KHR 0x30D2
 #endif
 
 // Evas_3d require GL_BGR, but that's an extention and will not be necessary once we move to Evas_GL_Image
@@ -378,6 +389,7 @@ struct _Evas_GL_Shared
    Eina_Hash          *native_pm_hash;
    Eina_Hash          *native_tex_hash;
    Eina_Hash          *native_wl_hash;
+   Eina_Hash          *native_evasgl_hash;
 
 #ifdef GL_GLES
    // FIXME: hack.

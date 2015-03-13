@@ -480,7 +480,8 @@ typedef enum _Evas_Native_Surface_Type
    EVAS_NATIVE_SURFACE_WL, /**< Wayland system based type. buffer of surface */
    // TIZEN ONLY (20150112) : NOT FIXED
    EVAS_NATIVE_SURFACE_TIZEN,
-   EVAS_NATIVE_SURFACE_TBM    /**< Tizen system based type. This is used for tizen buffer manager. */
+   EVAS_NATIVE_SURFACE_TBM,    /**< Tizen system based type. This is used for tizen buffer manager. */
+   EVAS_NATIVE_SURFACE_EVASGL, /**< Evas GL based type. evas gl surface */
    //
 } Evas_Native_Surface_Type;
 
@@ -550,6 +551,10 @@ struct _Evas_Native_Surface
          float ratio; /**< width/height ratio of the source image */
          int   flip; /**< flip (0:none, 1:horizontal, 2:vertical, 3:both) */
       } tbm; /**< Set this struct fields if your surface data is Tizen based. */
+      struct
+      {
+         void *surface; /**< evas gl surface to use */
+      } evasgl; /**< Set this struct fields if surface data is Evas GL based. */
       //
    } data; /**< Choose one union data according to your surface. */
 };

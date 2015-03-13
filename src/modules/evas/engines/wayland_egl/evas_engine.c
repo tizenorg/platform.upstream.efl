@@ -63,6 +63,7 @@ Evas_GL_Common_Context_Call glsym_evas_gl_common_image_all_unload = NULL;
 Evas_GL_Preload glsym_evas_gl_preload_init = NULL;
 Evas_GL_Preload glsym_evas_gl_preload_shutdown = NULL;
 EVGL_Engine_Call glsym_evgl_engine_shutdown = NULL;
+EVGL_Native_Surface_Call glsym_evgl_native_surface_egl_image_get = NULL;
 Evas_Gl_Symbols glsym_evas_gl_symbols = NULL;
 
 Evas_GL_Common_Context_New glsym_evas_gl_common_context_new = NULL;
@@ -143,6 +144,7 @@ gl_symbols(void)
    LINK2GENERIC(evas_gl_preload_render_relax);
    LINK2GENERIC(evas_gl_preload_init);
    LINK2GENERIC(evas_gl_preload_shutdown);
+   LINK2GENERIC(evgl_native_surface_egl_image_get);
    LINK2GENERIC(evgl_engine_shutdown);
    LINK2GENERIC(evas_gl_symbols);
    LINK2GENERIC(evas_gl_common_error_get);
@@ -1015,6 +1017,21 @@ _native_cb_bind(void *data EINA_UNUSED, void *image)
         glBindTexture(GL_TEXTURE_2D, n->ns.data.opengl.texture_id);
         GLERR(__FUNCTION__, __FILE__, __LINE__, "");
      }
+  else if (n->ns.type == EVAS_NATIVE_SURFACE_EVASGL)
+    {
+        if (n->egl_surface)
+          {
+            void *surface = glsym_evgl_native_surface_egl_image_get(n->egl_surface);
+            if (glsym_glEGLImageTargetTexture2DOES)
+              {
+                glsym_glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, surface);
+                if (eglGetError() != EGL_SUCCESS)
+                  ERR("glEGLImageTargetTexture2DOES() failed.");
+              }
+            else
+              ERR("Try glEGLImageTargetTexture2DOES on EGL with no support");
+          }
+    }
 }
 
 static void
@@ -1031,6 +1048,10 @@ _native_cb_unbind(void *data EINA_UNUSED, void *image)
         glBindTexture(GL_TEXTURE_2D, 0);
         GLERR(__FUNCTION__, __FILE__, __LINE__, "");
      }
+  else if (n->ns.type == EVAS_NATIVE_SURFACE_EVASGL)
+    {
+      // nothing
+    }
 }
 
 static void
@@ -1052,7 +1073,10 @@ _native_cb_free(void *data, void *image)
         texid = n->ns.data.opengl.texture_id;
         eina_hash_del(ob->gl_context->shared->native_tex_hash, &texid, img);
      }
-
+  else if (n->ns.type == EVAS_NATIVE_SURFACE_EVASGL)
+    {
+      eina_hash_del(eng_get_ob(re)->gl_context->shared->native_evasgl_hash, &n->ns.data.evasgl.surface, img);
+    }
    img->native.data = NULL;
    img->native.func.data = NULL;
    img->native.func.bind = NULL;
@@ -1072,6 +1096,7 @@ eng_image_native_set(void *data, void *image, void *native)
    Evas_GL_Image *img, *img2;
    unsigned int tex = 0, fbo = 0;
    uint32_t texid;
+   void *buffer = NULL;
 
    if (!(re = (Render_Engine *)data)) return NULL;
    if (!(ob = eng_get_ob(re))) return NULL;
@@ -1107,6 +1132,16 @@ eng_image_native_set(void *data, void *image, void *native)
                return img;
           }
      }
+   else if ((ns) && (ns->type == EVAS_NATIVE_SURFACE_EVASGL))
+     {
+        buffer = ns->data.evasgl.surface;
+        if (img->native.data)
+          {
+             Evas_Native_Surface *ens = img->native.data;
+             if (ens->data.evasgl.surface == buffer)
+               return img;
+          }
+     }
 
    if ((!ns) && (!img->native.data)) return img;
 
@@ -1135,6 +1170,21 @@ eng_image_native_set(void *data, void *image, void *native)
                   return img2;
                }
           }
+     }
+   else if (ns->type == EVAS_NATIVE_SURFACE_EVASGL)
+     {
+         img2 = eina_hash_find(eng_get_ob(re)->gl_context->shared->native_evasgl_hash, &buffer);
+        if (img2 == img) return img;
+        if (img2)
+          {
+             n = img2->native.data;
+             if (n)
+              {
+                 glsym_evas_gl_common_image_ref(img2);
+                 glsym_evas_gl_common_image_free(img);
+                 return img2;
+              }
+         }
      }
 
    img2 = glsym_evas_gl_common_image_new_from_data(ob->gl_context, img->w,
@@ -1168,6 +1218,32 @@ eng_image_native_set(void *data, void *image, void *native)
                   glsym_evas_gl_common_image_native_enable(img);
                }
           }
+     }
+   else if (ns->type == EVAS_NATIVE_SURFACE_EVASGL)
+     {
+       if (native)
+         {
+           n = calloc(1, sizeof(Native));
+           if (n)
+             {
+               memcpy(&(n->ns), ns, sizeof(Evas_Native_Surface));
+
+               eina_hash_add(eng_get_ob(re)->gl_context->shared->native_evasgl_hash, &buffer, img);
+
+               n->egl_surface = ns->data.evasgl.surface;
+               img->native.yinvert     = 0;
+               img->native.loose       = 0;
+               img->native.data        = n;
+               img->native.func.data   = re;
+               img->native.func.bind   = _native_cb_bind;
+               img->native.func.unbind = _native_cb_unbind;
+               img->native.func.free   = _native_cb_free;
+               img->native.target      = GL_TEXTURE_2D;
+               img->native.mipmap      = 0;
+
+               glsym_evas_gl_common_image_native_enable(img);
+             }
+         }
      }
 
    return img;

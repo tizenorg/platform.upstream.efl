@@ -1851,13 +1851,13 @@ struct _Edje_Patterns
 
    int             ref;
    Eina_Bool       delete_me : 1;
-   
+
    size_t          patterns_size;
    size_t          max_length;
    unsigned int    finals[];
 };
 
-typedef enum _Edje_User_Defined_Type 
+typedef enum _Edje_User_Defined_Type
 {
    EDJE_USER_SWALLOW,
    EDJE_USER_BOX_PACK,
@@ -2007,7 +2007,7 @@ EAPI extern Eina_Mempool *_emp_part;
 
 void  _edje_part_pos_set(Edje *ed, Edje_Real_Part *ep, int mode, FLOAT_T pos, FLOAT_T v1, FLOAT_T v2, FLOAT_T v3, FLOAT_T v4);
 
-/** Find the description of the part by state name and state value.
+/** @brief Find the description of the part by state name and state value.
  * The param 'approximate' on the approximate calculation of the state value,
  * it used for amination calculate, when used transition from 0.0 to 1.0.
  * If need exact matching state name and value set EINA_FALSE to 'approximate'.

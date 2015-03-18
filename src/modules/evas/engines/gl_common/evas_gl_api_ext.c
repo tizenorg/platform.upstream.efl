@@ -30,6 +30,7 @@ typedef _getproc_fn (*fp_getproc)(const char *);
 #define _EVASGL_EXT_BEGIN(name)
 #define _EVASGL_EXT_END()
 #define _EVASGL_EXT_DRVNAME(name)
+#define _EVASGL_EXT_DRVNAME_PRIVATE(name)
 #define _EVASGL_EXT_DRVNAME_DESKTOP(deskname)
 #define _EVASGL_EXT_FUNCTION_BEGIN(ret, name, param) \
    ret (*gl_ext_sym_##name) param = NULL; \
@@ -46,6 +47,7 @@ typedef _getproc_fn (*fp_getproc)(const char *);
 #undef _EVASGL_EXT_BEGIN
 #undef _EVASGL_EXT_END
 #undef _EVASGL_EXT_DRVNAME
+#undef _EVASGL_EXT_DRVNAME_PRIVATE
 #undef _EVASGL_EXT_DRVNAME_DESKTOP
 #undef _EVASGL_EXT_FUNCTION_BEGIN
 #undef _EVASGL_EXT_FUNCTION_END
@@ -64,6 +66,9 @@ typedef _getproc_fn (*fp_getproc)(const char *);
    int _gles3_ext_support_##name = 0;
 #define _EVASGL_EXT_END()
 #define _EVASGL_EXT_DRVNAME(name)
+#define _EVASGL_EXT_DRVNAME_PRIVATE(name) \
+   int _gl_ext_support_func_##name = 0; \
+   int _gles1_ext_support_func_##name = 0;
 #define _EVASGL_EXT_DRVNAME_DESKTOP(deskname)
 #define _EVASGL_EXT_FUNCTION_BEGIN(ret, name, param)
 #define _EVASGL_EXT_FUNCTION_END()
@@ -77,6 +82,7 @@ typedef _getproc_fn (*fp_getproc)(const char *);
 #undef _EVASGL_EXT_BEGIN
 #undef _EVASGL_EXT_END
 #undef _EVASGL_EXT_DRVNAME
+#undef _EVASGL_EXT_DRVNAME_PRIVATE
 #undef _EVASGL_EXT_DRVNAME_DESKTOP
 #undef _EVASGL_EXT_FUNCTION_BEGIN
 #undef _EVASGL_EXT_FUNCTION_END
@@ -358,6 +364,9 @@ re->info->info.screen);
 #define _EVASGL_EXT_DRVNAME(name) \
    if (_EVASGL_EXT_CHECK_SUPPORT(#name)) *ext_support = 1;
 
+#define _EVASGL_EXT_DRVNAME_PRIVATE(name) \
+   if (_EVASGL_EXT_CHECK_SUPPORT(#name)) { *ext_support = 1; _gl_ext_support_func_##name = 1; }
+
 #define _EVASGL_EXT_DRVNAME_DESKTOP(deskname) \
    if (_EVASGL_EXT_CHECK_SUPPORT(deskname)) *ext_support = 1;
 
@@ -395,6 +404,7 @@ re->info->info.screen);
 #undef _EVASGL_EXT_BEGIN
 #undef _EVASGL_EXT_END
 #undef _EVASGL_EXT_DRVNAME
+#undef _EVASGL_EXT_DRVNAME_PRIVATE
 #undef _EVASGL_EXT_DRVNAME_DESKTOP
 #undef _EVASGL_EXT_FUNCTION_BEGIN
 #undef _EVASGL_EXT_FUNCTION_END
@@ -405,6 +415,8 @@ re->info->info.screen);
 
    /////////////////////////////////////////////////////////////////////////////////////////////////////
    // Extension HEADER
+   _gl_ext_string[0] = 0x00; //NULL;
+   _gl_ext_string_official[0] = 0x00;
    /////////////////////////////////////////////////////////////////////////////////////////////////////
 #define _EVASGL_EXT_BEGIN(name) \
      if (_gl_ext_support_##name != 0) \
@@ -417,12 +429,19 @@ re->info->info.screen);
 #define _EVASGL_EXT_END()
 #define _EVASGL_EXT_CHECK_SUPPORT(name)
 #define _EVASGL_EXT_DISCARD_SUPPORT()
+#define _EVASGL_EXT_DRVNAME_PRINT(name) \
+       { \
+          strncat(_gl_ext_string, name" ", MAX_EXTENSION_STRING_BUFFER); \
+          if ((strncmp(name, "GL", 2) == 0) && (strstr(_gl_ext_string_official, name) == NULL)) \
+            strncat(_gl_ext_string_official, name" ", MAX_EXTENSION_STRING_BUFFER); \
+       }
 #define _EVASGL_EXT_DRVNAME(name) \
-   if (_curext_supported) \
-     { \
-        strncat(_gl_ext_string, #name" ", MAX_EXTENSION_STRING_BUFFER); \
-        strncat(_gl_ext_string_official, #name" ", MAX_EXTENSION_STRING_BUFFER); \
-     }
+     if (_curext_supported) \
+       _EVASGL_EXT_DRVNAME_PRINT(#name)
+#define _EVASGL_EXT_DRVNAME_PRIVATE(name) \
+     if (_curext_supported && _gl_ext_support_func_##name) \
+       _EVASGL_EXT_DRVNAME_PRINT(#name)
+
 #define _EVASGL_EXT_DRVNAME_DESKTOP(deskname)
 #define _EVASGL_EXT_FUNCTION_BEGIN(ret, name, param)
 #define _EVASGL_EXT_FUNCTION_END()
@@ -435,8 +454,10 @@ re->info->info.screen);
 #undef _EVASGL_EXT_DISCARD_SUPPORT
 #undef _EVASGL_EXT_BEGIN
 #undef _EVASGL_EXT_END
+#undef _EVASGL_EXT_DRVNAME_PRINT
 #undef _EVASGL_EXT_DRVNAME
 #undef _EVASGL_EXT_DRVNAME_DESKTOP
+#undef _EVASGL_EXT_DRVNAME_PRIVATE
 #undef _EVASGL_EXT_FUNCTION_BEGIN
 #undef _EVASGL_EXT_FUNCTION_END
 #undef _EVASGL_EXT_FUNCTION_DRVFUNC
@@ -472,6 +493,7 @@ evgl_api_ext_get(Evas_GL_API *gl_funcs)
 #define _EVASGL_EXT_END() \
      }
 #define _EVASGL_EXT_DRVNAME(name)
+#define _EVASGL_EXT_DRVNAME_PRIVATE(name)
 #define _EVASGL_EXT_DRVNAME_DESKTOP(deskname)
 #define _EVASGL_EXT_FUNCTION_BEGIN(ret, name, param) \
    ORD(name);
@@ -492,6 +514,7 @@ evgl_api_ext_get(Evas_GL_API *gl_funcs)
 #undef _EVASGL_EXT_BEGIN
 #undef _EVASGL_EXT_END
 #undef _EVASGL_EXT_DRVNAME
+#undef _EVASGL_EXT_DRVNAME_PRIVATE
 #undef _EVASGL_EXT_DRVNAME_DESKTOP
 #undef _EVASGL_EXT_FUNCTION_BEGIN
 #undef _EVASGL_EXT_FUNCTION_END
@@ -601,6 +624,9 @@ _evgl_api_gles1_ext_init(void)
 #define _EVASGL_EXT_DRVNAME(name) \
    if (_EVASGL_EXT_CHECK_SUPPORT(#name)) *ext_support = 1;
 
+#define _EVASGL_EXT_DRVNAME_PRIVATE(name) \
+   if (_EVASGL_EXT_CHECK_SUPPORT(#name)) { *ext_support = 1; _gles1_ext_support_func_##name = 1; }
+
 #define _EVASGL_EXT_DRVNAME_DESKTOP(deskname) \
    if (_EVASGL_EXT_CHECK_SUPPORT(deskname)) *ext_support = 1;
 
@@ -640,6 +666,7 @@ _evgl_api_gles1_ext_init(void)
 #undef _EVASGL_EXT_BEGIN
 #undef _EVASGL_EXT_END
 #undef _EVASGL_EXT_DRVNAME
+#undef _EVASGL_EXT_DRVNAME_PRIVATE
 #undef _EVASGL_EXT_DRVNAME_DESKTOP
 #undef _EVASGL_EXT_FUNCTION_BEGIN
 #undef _EVASGL_EXT_FUNCTION_END
@@ -658,7 +685,17 @@ _evgl_api_gles1_ext_init(void)
 #define _EVASGL_EXT_END()
 #define _EVASGL_EXT_CHECK_SUPPORT(name)
 #define _EVASGL_EXT_DISCARD_SUPPORT()
-#define _EVASGL_EXT_DRVNAME(name) if (_curext_supported) strcat(_gles1_ext_string, #name" ");
+#define _EVASGL_EXT_DRVNAME_PRINT(name) \
+     { \
+        if ((strncmp(name, "GL", 2) == 0) && (strstr(_gles1_ext_string, name) == NULL)) \
+          strcat(_gles1_ext_string, name" "); \
+     }
+#define _EVASGL_EXT_DRVNAME(name) \
+   if (_curext_supported) \
+      _EVASGL_EXT_DRVNAME_PRINT(#name)
+#define _EVASGL_EXT_DRVNAME_PRIVATE(name) \
+   if (_curext_supported && _gles1_ext_support_func_##name) \
+      _EVASGL_EXT_DRVNAME_PRINT(#name)
 #define _EVASGL_EXT_DRVNAME_DESKTOP(deskname)
 #define _EVASGL_EXT_FUNCTION_BEGIN(ret, name, param)
 #define _EVASGL_EXT_FUNCTION_END()
@@ -671,7 +708,9 @@ _evgl_api_gles1_ext_init(void)
 #undef _EVASGL_EXT_DISCARD_SUPPORT
 #undef _EVASGL_EXT_BEGIN
 #undef _EVASGL_EXT_END
+#undef _EVASGL_EXT_DRVNAME_PRINT
 #undef _EVASGL_EXT_DRVNAME
+#undef _EVASGL_EXT_DRVNAME_PRIVATE
 #undef _EVASGL_EXT_DRVNAME_DESKTOP
 #undef _EVASGL_EXT_FUNCTION_BEGIN
 #undef _EVASGL_EXT_FUNCTION_END
@@ -722,6 +761,7 @@ evgl_api_gles1_ext_get(Evas_GL_API *gl_funcs)
 #define _EVASGL_EXT_END() \
      }
 #define _EVASGL_EXT_DRVNAME(name)
+#define _EVASGL_EXT_DRVNAME_PRIVATE(name)
 #define _EVASGL_EXT_DRVNAME_DESKTOP(deskname)
 #define _EVASGL_EXT_FUNCTION_BEGIN(ret, name, param) \
    ORD(name);
@@ -741,6 +781,7 @@ evgl_api_gles1_ext_get(Evas_GL_API *gl_funcs)
 #undef _EVASGL_EXT_BEGIN
 #undef _EVASGL_EXT_END
 #undef _EVASGL_EXT_DRVNAME
+#undef _EVASGL_EXT_DRVNAME_PRIVATE
 #undef _EVASGL_EXT_DRVNAME_DESKTOP
 #undef _EVASGL_EXT_FUNCTION_BEGIN
 #undef _EVASGL_EXT_FUNCTION_END

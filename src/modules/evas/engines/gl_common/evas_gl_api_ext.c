@@ -68,7 +68,8 @@ typedef _getproc_fn (*fp_getproc)(const char *);
 #define _EVASGL_EXT_DRVNAME(name)
 #define _EVASGL_EXT_DRVNAME_PRIVATE(name) \
    int _gl_ext_support_func_##name = 0; \
-   int _gles1_ext_support_func_##name = 0;
+   int _gles1_ext_support_func_##name = 0; \
+   int _gles3_ext_support_func_##name = 0;
 #define _EVASGL_EXT_DRVNAME_DESKTOP(deskname)
 #define _EVASGL_EXT_FUNCTION_BEGIN(ret, name, param)
 #define _EVASGL_EXT_FUNCTION_END()

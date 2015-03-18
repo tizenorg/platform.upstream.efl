@@ -76,6 +76,8 @@ BuildRequires:  pkgconfig(fribidi)
 BuildRequires:  pkgconfig(fontconfig)
 BuildRequires:  pkgconfig(harfbuzz)
 BuildRequires:  pkgconfig(libtbm)
+BuildRequires:  pkgconfig(xcb-util)
+BuildRequires:  pkgconfig(xcb-present)
 
 #eeze
 BuildRequires:  libudev-devel

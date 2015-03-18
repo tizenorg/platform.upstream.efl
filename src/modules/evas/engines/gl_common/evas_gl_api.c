@@ -695,7 +695,7 @@ _evgl_glGetString(GLenum name)
         ret = glGetString(GL_SHADING_LANGUAGE_VERSION);
         if (!ret) return NULL;
 #ifdef GL_GLES
-        if (ret[15] != (GLubyte) '1')
+        if (ret[18] != (GLubyte) '1')
           {
              // We try not to remove the vendor fluff
              snprintf(_glsl, sizeof(_glsl), "OpenGL ES GLSL ES 1.00 Evas GL (%s)", ((char *) ret) + 18);

@@ -879,6 +879,19 @@ evas_xlib_swapper_bit_order_get(X_Swapper *swp EINA_UNUSED)
    return LSBFirst;
 }
 
+// TIZEN_ONLY [[
+void
+evas_xlib_swapper_buffer_size_get(X_Swapper *swp, int *w, int *h)
+{
+   if (!swp) return;
+
+   *w = swp->buf_w;
+   *h = swp->buf_h;
+
+   return;
+}
+// ]]
+
 #endif
 
 #else

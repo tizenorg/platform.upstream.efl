@@ -56,12 +56,12 @@ evas_software_xlib_swapbuf_setup_x(int w, int h, int rot, Outbuf_Depth depth,
    Outbuf             *buf;
    Gfx_Func_Convert    conv_func = NULL;
    int                 d;
-   
+
    buf = calloc(1, sizeof(Outbuf));
    if (!buf) return NULL;
 
    if (x_depth < 15) rot = 0;
-   
+
    buf->onebuf = 1;
    buf->w = w;
    buf->h = h;
@@ -92,9 +92,9 @@ evas_software_xlib_swapbuf_setup_x(int w, int h, int rot, Outbuf_Depth depth,
         free(buf);
         return NULL;
      }
-   
+
    eina_array_step_set(&buf->priv.onebuf_regions, sizeof (Eina_Array), 8);
-   
+
 #ifdef WORDS_BIGENDIAN
    if (evas_xlib_swapper_byte_order_get(buf->priv.swapper) == LSBFirst)
      buf->priv.x11.xlib.swap = 1;
@@ -124,7 +124,7 @@ evas_software_xlib_swapbuf_setup_x(int w, int h, int rot, Outbuf_Depth depth,
             (x_depth <= 8))
      {
         Convert_Pal_Mode pm = PAL_MODE_RGB332;
-        
+
         if ((vis->class == GrayScale) || (vis->class == StaticGray))
           grayscale = 1;
         if (grayscale)
@@ -160,7 +160,7 @@ evas_software_xlib_swapbuf_setup_x(int w, int h, int rot, Outbuf_Depth depth,
    d = evas_xlib_swapper_depth_get(buf->priv.swapper);
    if (buf->priv.pal)
      {
-        
+
         if (buf->rot == 0 || buf->rot == 180)
           conv_func = evas_common_convert_func_get(0, buf->w, buf->h, d,
                                                    buf->priv.mask.r,
@@ -232,7 +232,7 @@ evas_software_xlib_swapbuf_new_region_for_update(Outbuf *buf, int x, int y, int 
              d = evas_xlib_swapper_depth_get(buf->priv.swapper);
              bpp = d / 8;
 
-             data = evas_xlib_swapper_buffer_map(buf->priv.swapper, &bpl, 
+             data = evas_xlib_swapper_buffer_map(buf->priv.swapper, &bpl,
                                                  &(ww), &(hh));
 	     // To take stride into account, we do use bpl as the real image width, but return the real useful one.
 #ifdef EVAS_CSERVE2
@@ -262,7 +262,7 @@ evas_software_xlib_swapbuf_new_region_for_update(Outbuf *buf, int x, int y, int 
              eina_rectangle_free(rect);
              return NULL;
           }
-        
+
         // the clip region of the onebuf to render
         *cx = x;
         *cy = y;
@@ -274,7 +274,7 @@ evas_software_xlib_swapbuf_new_region_for_update(Outbuf *buf, int x, int y, int 
      {
         RGBA_Image         *im;
         Eina_Rectangle *rect;
-        
+
         rect = eina_rectangle_new(x, y, w, h);
         if (!rect) return NULL;
 #ifdef EVAS_CSERVE2
@@ -297,7 +297,7 @@ evas_software_xlib_swapbuf_new_region_for_update(Outbuf *buf, int x, int y, int 
           evas_cache_image_surface_alloc(&im->cache_entry, w, h);
         im->extended_info = rect;
         buf->priv.pending_writes = eina_list_append(buf->priv.pending_writes, im);
-        
+
         // the region is the update image
         *cx = 0;
         *cy = 0;
@@ -319,6 +319,9 @@ evas_software_xlib_swapbuf_flush(Outbuf *buf, Tilebuf_Rect *rects EINA_UNUSED, E
 {
    if (render_mode == EVAS_RENDER_MODE_ASYNC_INIT) return;
 
+   // TIZEN_ONLY
+   int buf_w, buf_h, temp;
+
    if (!buf->priv.pending_writes)
      {
         Eina_Rectangle *result, *rect;
@@ -335,7 +338,16 @@ evas_software_xlib_swapbuf_flush(Outbuf *buf, Tilebuf_Rect *rects EINA_UNUSED, E
              eina_rectangle_free(rect);
           }
         evas_xlib_swapper_buffer_unmap(buf->priv.swapper);
-        evas_xlib_swapper_swap(buf->priv.swapper, result, n);
+        // TIZEN_ONLY [[
+        evas_xlib_swapper_buffer_size_get(buf->priv.swapper, &buf_w, &buf_h);
+        if ((buf->rot == 90) || (buf->rot == 270))
+          {
+             temp = buf_w;
+             buf_w = buf_h;
+             buf_h = temp;
+          }
+        if ((buf_w == buf->w) && (buf_h == buf->h)) // ]]
+           evas_xlib_swapper_swap(buf->priv.swapper, result, n);
         eina_array_clean(&buf->priv.onebuf_regions);
         im = buf->priv.onebuf;
         buf->priv.onebuf = NULL;
@@ -354,7 +366,7 @@ evas_software_xlib_swapbuf_flush(Outbuf *buf, Tilebuf_Rect *rects EINA_UNUSED, E
         RGBA_Image *im;
         Eina_Rectangle *result;
         unsigned int n, i = 0;
-        
+
         n = eina_list_count(buf->priv.pending_writes);
         if (n == 0) return;
         result = alloca(n * sizeof(Eina_Rectangle));
@@ -362,7 +374,7 @@ evas_software_xlib_swapbuf_flush(Outbuf *buf, Tilebuf_Rect *rects EINA_UNUSED, E
           {
              Eina_Rectangle *rect = im->extended_info;
              int x, y, w, h;
-             
+
              x = rect->x; y = rect->y; w = rect->w; h = rect->h;
              if (buf->rot == 0)
                {
@@ -404,7 +416,17 @@ evas_software_xlib_swapbuf_flush(Outbuf *buf, Tilebuf_Rect *rects EINA_UNUSED, E
              i++;
           }
         evas_xlib_swapper_buffer_unmap(buf->priv.swapper);
-        evas_xlib_swapper_swap(buf->priv.swapper, result, n);
+        // TIZEN_ONLY [[
+        evas_xlib_swapper_buffer_size_get(buf->priv.swapper, &buf_w, &buf_h);
+        if ((buf->rot == 90) || (buf->rot == 270))
+           {
+              temp = buf_w;
+              buf_w = buf_h;
+              buf_h = temp;
+           }
+
+        if ((buf_w == buf->w) && (buf_h == buf->h)) // ]]
+           evas_xlib_swapper_swap(buf->priv.swapper, result, n);
 //        evas_xlib_swapper_swap(buf->priv.swapper, NULL, 0);
      }
 }
@@ -497,7 +519,7 @@ evas_software_xlib_swapbuf_push_updated_region(Outbuf *buf, RGBA_Image *update, 
    if (!src_data) return;
    if ((buf->rot == 0) || (buf->rot == 180))
      {
-        dst_data = evas_xlib_swapper_buffer_map(buf->priv.swapper, &bpl, 
+        dst_data = evas_xlib_swapper_buffer_map(buf->priv.swapper, &bpl,
                                                 &(ww), &(hh));
         if (!dst_data) return;
         if (buf->rot == 0)
@@ -517,7 +539,7 @@ evas_software_xlib_swapbuf_push_updated_region(Outbuf *buf, RGBA_Image *update, 
      }
    else
      {
-        dst_data = evas_xlib_swapper_buffer_map(buf->priv.swapper, &bpl, 
+        dst_data = evas_xlib_swapper_buffer_map(buf->priv.swapper, &bpl,
                                                 &(ww), &(hh));
         if (!dst_data) return;
         if (buf->rot == 90)
@@ -541,14 +563,14 @@ evas_software_xlib_swapbuf_push_updated_region(Outbuf *buf, RGBA_Image *update, 
    wid = bpl / bpp;
    dst_data += (bpl * r.y) + (r.x * bpp);
    if (buf->priv.pal)
-     conv_func(src_data, dst_data, 
+     conv_func(src_data, dst_data,
                update->cache_entry.w - w,
                wid - r.w,
                r.w, r.h,
                x + rx, y + ry,
                buf->priv.pal->lookup);
    else
-     conv_func(src_data, dst_data, 
+     conv_func(src_data, dst_data,
                update->cache_entry.w - w,
                wid - r.w,
                r.w, r.h,

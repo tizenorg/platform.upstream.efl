@@ -194,6 +194,14 @@ extern EAPI int _evas_log_dom_global;
 #include FT_SIZES_H
 #include FT_MODULE_H
 
+#ifndef FT_HAS_COLOR
+# define FT_HAS_COLOR(face) 0
+#endif
+
+#ifndef FT_LOAD_COLOR
+# define FT_LOAD_COLOR FT_LOAD_DEFAULT
+#endif
+
 #ifdef __GNUC__
 # if __GNUC__ >= 4
 // BROKEN in gcc 4 on amd64

@@ -1242,7 +1242,8 @@ _internal_config_set(void *eng_data, EVGL_Surface *sfc, Evas_GL_Config *cfg)
 {
    int i = 0, cfg_index = -1;
    int color_bit = 0, depth_bit = 0, stencil_bit = 0, msaa_samples = 0;
-   int support_win_cfg = 1;
+   int depth_size = 0;
+   Eina_Bool support_win_cfg = 1;
 
    // Check if engine is valid
    if (!evgl_engine)
@@ -1253,11 +1254,16 @@ _internal_config_set(void *eng_data, EVGL_Surface *sfc, Evas_GL_Config *cfg)
 
    // Convert Config Format to bitmask friendly format
    color_bit = (1 << cfg->color_format);
-   if (cfg->depth_bits) depth_bit = (1 << (cfg->depth_bits-1));
+   if (cfg->depth_bits)
+     {
+        depth_bit = (1 << (cfg->depth_bits-1));
+        depth_size = 8 * cfg->depth_bits;
+     }
    if (cfg->stencil_bits) stencil_bit = (1 << (cfg->stencil_bits-1));
    if (cfg->multisample_bits)
       msaa_samples = evgl_engine->caps.msaa_samples[cfg->multisample_bits-1];
 
+try_again:
    // Run through all the available formats and choose the first match
    for (i = 0; i < evgl_engine->caps.num_fbo_fmts; ++i)
      {
@@ -1294,12 +1300,23 @@ _internal_config_set(void *eng_data, EVGL_Surface *sfc, Evas_GL_Config *cfg)
              if (((depth_bit > 0) || (stencil_bit > 0) || (msaa_samples > 0))
                   && (evgl_engine->funcs->native_win_surface_config_check))
                {
-                  DBG("request to check win cfg with depth %d,  stencil %d,  msaa %d", depth_bit, stencil_bit, msaa_samples);
-                  support_win_cfg = evgl_engine->funcs->native_win_surface_config_check(eng_data,depth_bit,stencil_bit,msaa_samples);
+                  DBG("request to check win cfg with depth %d, stencil %d, msaa %d", depth_size, stencil_bit, msaa_samples);
+                  support_win_cfg = evgl_engine->funcs->native_win_surface_config_check(eng_data, depth_size, stencil_bit, msaa_samples);
                }
 
-             if ((sfc->direct_override) || (support_win_cfg == 1))
+             if ((sfc->direct_override) || support_win_cfg)
                sfc->direct_fb_opt = !!(cfg->options_bits & EVAS_GL_OPTIONS_DIRECT);
+             else if (cfg->options_bits & EVAS_GL_OPTIONS_DIRECT)
+               {
+                  const char *s1[] = { "", ":depth8", ":depth16", ":depth24", ":depth32" };
+                  const char *s2[] = { "", ":stencil1", ":stencil2", ":stencil4", ":stencil8", ":stencil16" };
+                  const char *s3[] = { "", ":msaa_low", ":msaa_mid", ":msaa_high" };
+                  INF("Can not enable direct rendering with depth %d, stencil %d "
+                      "and MSAA %d. When using Elementary GLView, try to set "
+                      "the accel_preference to \"opengl%s%s%s\".",
+                      depth_size, stencil_bit, msaa_samples,
+                      s1[cfg->depth_bits], s2[cfg->stencil_bits], s3[cfg->multisample_bits]);
+               }
 
              // Extra flags for direct rendering
              sfc->client_side_rotation = !!(cfg->options_bits & EVAS_GL_OPTIONS_CLIENT_SIDE_ROTATION);
@@ -1312,7 +1329,21 @@ _internal_config_set(void *eng_data, EVGL_Surface *sfc, Evas_GL_Config *cfg)
 
    if (cfg_index < 0)
      {
-        ERR("Unable to find the matching config format.");
+        ERR("Unable to find a matching config format.");
+        if ((stencil_bit > 8) || (depth_size > 24))
+          {
+             INF("Please note that Evas GL might not support 32-bit depth or "
+                 "16-bit stencil buffers, so depth24, stencil8 are the maximum "
+                 "recommended values.");
+             if (depth_size > 24)
+               {
+                  depth_bit = 4; // see DEPTH_BIT_24
+                  depth_size = 24;
+               }
+             if (stencil_bit > 8) stencil_bit = 8; // see STENCIL_BIT_8
+             DBG("Fallback to depth:%d, stencil:%d", depth_size, stencil_bit);
+             goto try_again;
+          }
         return 0;
      }
    else

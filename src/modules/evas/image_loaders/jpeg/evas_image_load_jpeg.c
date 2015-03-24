@@ -517,24 +517,29 @@ evas_image_load_file_head_jpeg_internal(unsigned int *w, unsigned int *h,
              opts->h = load_opts_w;
           }
 
-	if (opts->w > 0)
-	  {
-	     w2 = opts->w;
-	     h2 = (opts->w * *h) / *w;
-	     if ((opts->h > 0) && (h2 > opts->h))
-	       {
-	          unsigned int w3;
-		  h2 = opts->h;
-		  w3 = (opts->h * *w) / *h;
-		  if (w3 > w2)
-		    w2 = w3;
-	       }
-	  }
-	else if (opts->h > 0)
-	  {
-	     h2 = opts->h;
-	     w2 = (opts->h * *w) / *h;
-	  }
+        //TIZEN ONLY
+        if (opts->w < cinfo.output_width)
+          {
+             unsigned int ratio_scale;
+             for (ratio_scale = 1; ratio_scale < 4; ratio_scale++)
+               {
+                  scalew = cinfo.output_width >> ratio_scale;
+                  scaleh = scalew * h2 / w2;
+                  if ((scalew <= opts->w) && (scaleh <= opts->h)) break;
+               }
+             opts->w = scalew;
+             opts->h = scaleh;
+          }
+        w2 = opts->w;
+        h2 = (opts->w * *h) / *w;
+        if (h2 > opts->h)
+          {
+             unsigned int w3;
+             h2 = opts->h;
+             w3 = (opts->h * *w) / *h;
+             if (w3 > w2)
+               w2 = w3;
+          }
 	*w = w2;
 	*h = h2;
         if (change_wh)

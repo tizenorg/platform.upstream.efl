@@ -113,7 +113,7 @@ EVAS_GL_GLOBAL_GLES3_DECLARE()
  * @see @ref EVAS_GL_GLOBAL_GLES3_DEFINE
  * @see @ref EVAS_GL_GLOBAL_GLES3_USE
  *
- * @since_tizen 2.3
+ * @since_tizen 2.4
  */
 #define EVAS_GL_GLOBAL_GLES3_DECLARE() \
    extern Evas_GL_API *__evas_gl_glapi;
@@ -149,7 +149,7 @@ evgl_init(...)
  * @see @ref EVAS_GL_GLOBAL_GLES3_DECLARE
  * @see @ref EVAS_GL_GLOBAL_GLES3_USE
  *
- * @since_tizen 2.3
+ * @since_tizen 2.4
  */
 #define EVAS_GL_GLOBAL_GLES3_DEFINE() \
    Evas_GL_API *__evas_gl_glapi = NULL;
@@ -166,7 +166,7 @@ evgl_init(...)
  * @see @ref EVAS_GL_GLOBAL_GLES3_DECLARE
  * @see @ref EVAS_GL_GLOBAL_GLES3_DEFINE
  *
- * @since_tizen 2.3
+ * @since_tizen 2.4
  */
 #define EVAS_GL_GLOBAL_GLES3_USE(evgl, ctx) \
    do { __evas_gl_glapi = evas_gl_context_api_get(evgl, ctx); } while (0)

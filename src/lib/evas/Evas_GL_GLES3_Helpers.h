@@ -513,10 +513,12 @@ evgl_init(...)
 #define  glUniformMatrix3x4fv                    __evas_gl_glapi->glUniformMatrix3x4fv
 #define  glUniformMatrix4x3fv                    __evas_gl_glapi->glUniformMatrix4x3fv
 #define  glUnmapBuffer                           __evas_gl_glapi->glUnmapBuffer
+#define  glVertexAttribDivisor                   __evas_gl_glapi->glVertexAttribDivisor
 #define  glVertexAttribI4i                       __evas_gl_glapi->glVertexAttribI4i
 #define  glVertexAttribI4iv                      __evas_gl_glapi->glVertexAttribI4iv
 #define  glVertexAttribI4ui                      __evas_gl_glapi->glVertexAttribI4ui
 #define  glVertexAttribI4uiv                     __evas_gl_glapi->glVertexAttribI4uiv
+#define  glVertexAttribIPointer                  __evas_gl_glapi->glVertexAttribIPointer
 #define  glWaitSync                              __evas_gl_glapi->glWaitSync
 
 /**

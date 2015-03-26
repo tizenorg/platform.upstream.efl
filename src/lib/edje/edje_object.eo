@@ -9,7 +9,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Edje will automatically update the size hints on itself.
 
-            By default edje doesn't set size hints on itself. With this function
+            @since_tizen 2.3
+
+            @remark By default edje doesn't set size hints on itself. With this function
             call, it will do so if update is true. Be carefully, it cost a lot to
             trigger this feature as it will recalc the object every time it make
             sense to be sure that's its minimal size hint is always accurate. */
@@ -17,6 +19,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          get {
             /*@
             @brief Whether or not Edje will update size hints on itself.
+
+            @since_tizen 2.3
 
             @return @c true if does, @c false if it doesn't. */
          }
@@ -29,13 +33,17 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Set the RTL orientation for this object.
 
+            @since_tizen 2.3
+
             @since 1.1.0 */
          }
          get {
             /*@
             @brief Get the RTL orientation for this object.
 
-            You can RTL orientation explicitly with edje_object_mirrored_set.
+            @since_tizen 2.3
+
+            @remark You can RTL orientation explicitly with edje_object_mirrored_set.
 
             @return @c EINA_TRUE if the flag is set or @c EINA_FALSE if not.
             @since 1.1.0 */
@@ -49,7 +57,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Set the object's animation state.
 
-            This function starts or stops an Edje object's animation. The
+            @since_tizen 2.3
+
+            @remark This function starts or stops an Edje object's animation. The
             information if it's stopped can be retrieved by
             edje_object_animation_get().
 
@@ -59,10 +69,12 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Get the Edje object's animation state.
 
+            @since_tizen 2.3
+
             @return @c EINA_FALSE on error or if object is not animated;
             @c EINA_TRUE if animated.
 
-            This function returns if the animation is stopped or not. The
+            @remark This function returns if the animation is stopped or not. The
             animation state is set by edje_object_animation_set().
 
             @see edje_object_animation_set(). */
@@ -77,7 +89,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Set the Edje object to playing or paused states.
 
-            This function sets the Edje object @a obj to playing or paused
+            @since_tizen 2.3
+
+            @remark This function sets the Edje object @a obj to playing or paused
             states, depending on the parameter @a play. This has no effect if
             the object was already at that state.
 
@@ -87,11 +101,13 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Get the Edje object's state.
 
+            @since_tizen 2.3
+
             @return @c EINA_FALSE if the object is not connected, its @c delete_me flag
             is set, or it is at paused state; @c EINA_TRUE if the object is at playing
             state.
 
-            This function tells if an Edje object is playing or not. This state
+            @remark This function tells if an Edje object is playing or not. This state
             is set by edje_object_play_set().
 
             @see edje_object_play_set(). */
@@ -104,16 +120,18 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       perspective {
          set {
             /*@
-            Set the given perspective object on this Edje object.
+            @brief Set the given perspective object on this Edje object.
 
-            Make the given perspective object be the default perspective for this Edje
+            @since_tizen 2.3
+
+            @remark Make the given perspective object be the default perspective for this Edje
             object.
 
-            There can be only one perspective object per Edje object, and if a
+            @remark There can be only one perspective object per Edje object, and if a
             previous one was set, it will be removed and the new perspective object
             will be used.
 
-            An Edje perspective will only affect a part if it doesn't point to another
+            @remark An Edje perspective will only affect a part if it doesn't point to another
             part to be used as perspective.
 
             @see edje_object_perspective_new()
@@ -122,7 +140,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          }
          get {
             /*@
-            Get the current perspective used on this Edje object.
+            @brief Get the current perspective used on this Edje object.
+
+            @since_tizen 2.3
 
             @return The perspective object being used on this Edje object. Or @c NULL
             if there was none, and on errors.
@@ -138,7 +158,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Set the scaling factor for a given Edje object.
 
-            This function sets an @b individual scaling factor on the @a obj
+            @since_tizen 2.3
+
+            @remark This function sets an @b individual scaling factor on the @a obj
             Edje object. This property (or Edje's global scaling factor, when
             applicable), will affect this object's part sizes. If @p scale is
             not zero, than the individual scaling will @b override any global
@@ -157,7 +179,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Get a given Edje object's scaling factor.
 
-            This function returns the @c individual scaling factor set on the
+            @since_tizen 2.3
+
+            @remark This function returns the @c individual scaling factor set on the
             @a obj Edje object.
 
             @see edje_object_scale_set() for more details */
@@ -172,7 +196,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Get a given Edje object's base_scale factor.
 
-            This function returns the base_scale factor set on the
+            @since_tizen 2.3
+
+            @remark This function returns the base_scale factor set on the
             @a obj Edje object.
             The base_scale can be set in the collection of edc.
             If it isn't set, the default value is 1.0 */
@@ -187,6 +213,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Set the object text callback.
 
+            @since_tizen 2.3
+
             This function sets the callback to be called when the text changes. */
          }
          values {
@@ -198,6 +226,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          set {
             /*@
             @brief Moves the cursor to the beginning of the text part
+
+            @since_tizen 2.3
+
             @see evas_textblock_cursor_paragraph_first */
          }
          values {
@@ -209,6 +240,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          set {
             /*@
             @brief Move the cursor to the end of the line.
+
+            @since_tizen 2.3
+
             @see evas_textblock_cursor_line_char_last */
          }
          values {
@@ -219,9 +253,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       part_text_cursor_coord {
          set {
             /*@
-            Position the given cursor to a X,Y position.
+            @brief Position the given cursor to a X,Y position.
 
-            This is frequently used with the user cursor.
+            @since_tizen 2.3
+
+            @remark This is frequently used with the user cursor.
 
             @return True on success, false on error. */
             return: bool;
@@ -237,6 +273,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          set {
             /*@
             @brief Moves the cursor to the end of the text part.
+
+            @since_tizen 2.3
+
             @see evas_textblock_cursor_paragraph_last */
          }
          values {
@@ -249,7 +288,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Sets the text for an object part, but converts HTML escapes to UTF8
 
-            This converts the given string @p text to UTF8 assuming it contains HTML
+            @since_tizen 2.3
+
+            @remark This converts the given string @p text to UTF8 assuming it contains HTML
             style escapes like "&amp;" and "&copy;" etc. IF the part is of type TEXT,
             as opposed to TEXTBLOCK.
 
@@ -268,7 +309,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Set the function that provides item objects for named items in an edje entry text
 
-            Item objects may be deleted any time by Edje, and will be deleted when the
+            @since_tizen 2.3
+
+            @remark Item objects may be deleted any time by Edje, and will be deleted when the
             Edje object is deleted (or file is set to a new file). */
          }
          values {
@@ -280,6 +323,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          set {
             /*@
             @brief Move the cursor to the beginning of the line.
+
+            @since_tizen 2.3
+
             @see evas_textblock_cursor_line_char_first */
          }
          values {
@@ -292,12 +338,14 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Set an Edje message handler function for a given Edje object.
 
-            For scriptable programs on an Edje object's defining EDC file which
+            @since_tizen 2.3
+
+            @remark For scriptable programs on an Edje object's defining EDC file which
             send messages with the @c send_message() primitive, one can attach
             <b>handler functions</b>, to be called in the code which creates
             that object (see @ref edcref "the syntax" for EDC files).
 
-            This function associates a message handler function and the
+            @remark This function associates a message handler function and the
             attached data pointer to the object @p obj.
 
             @see edje_object_message_send() */
@@ -313,7 +361,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             @brief Get the minimum size specified -- as an EDC property -- for a
             given Edje object
 
-            This function retrieves the @p obj object's minimum size values,
+            @since_tizen 2.3
+
+            @remark This function retrieves the @p obj object's minimum size values,
             <b>as declared in its EDC group definition</b>. Minimum size of
             groups have the following syntax
             @code
@@ -325,17 +375,17 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             }
             @endcode
 
-            where one declares a minimum size of 100 pixels both for width and
+            @remark where one declares a minimum size of 100 pixels both for width and
             height. Those are (hint) values which should be respected when the
             given object/group is to be controlled by a given container object
             (e.g. an Edje object being "swallowed" into a given @c SWALLOW
             typed part, as in edje_object_part_swallow()). Check the complete
             @ref edcref "syntax reference" for EDC files.
 
-            @note If the @c min EDC property was not declared for @p obj, this
+            @remark If the @c min EDC property was not declared for @p obj, this
             call will return the value 0, for each axis.
 
-            @note On failure, this function will make all non-@c NULL size
+            @remark On failure, this function will make all non-@c NULL size
             pointers' pointed variables be set to zero.
 
             @see edje_object_size_max_get() */
@@ -350,6 +400,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Retrieve a list all accessibility part names
 
+            @since_tizen 2.3
+
             @return A list all accessibility part names on @p obj
             @since 1.7.0 */
             return: list<const(char)*> *;
@@ -359,6 +411,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          get {
             /*@
             @brief Gets the (last) file loading error for a given Edje object
+
+            @since_tizen 2.3
 
             @return The Edje loading error, one of:
             - #EDJE_LOAD_ERROR_NONE
@@ -372,7 +426,7 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             - #EDJE_LOAD_ERROR_UNKNOWN_COLLECTION
             - #EDJE_LOAD_ERROR_RECURSIVE_REFERENCE
 
-            This function is meant to be used after an Edje EDJ <b>file
+            @remark This function is meant to be used after an Edje EDJ <b>file
             loading</b>, what takes place with the edje_object_file_set()
             function. If that function does not return @c EINA_TRUE, one should
             check for the reason of failure with this one.
@@ -387,7 +441,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             @brief Get the maximum size specified -- as an EDC property -- for a
             given Edje object
 
-            This function retrieves the @p obj object's maximum size values,
+            @since_tizen 2.3
+
+            @remark This function retrieves the @p obj object's maximum size values,
             <b>as declared in its EDC group definition</b>. Maximum size of
             groups have the following syntax
             @code
@@ -399,18 +455,18 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             }
             @endcode
 
-            where one declares a maximum size of 100 pixels both for width and
+            @remark where one declares a maximum size of 100 pixels both for width and
             height. Those are (hint) values which should be respected when the
             given object/group is to be controlled by a given container object
             (e.g. an Edje object being "swallowed" into a given @c SWALLOW
             typed part, as in edje_object_part_swallow()). Check the complete
             @ref edcref "syntax reference" for EDC files.
 
-            @note If the @c max EDC property was not declared for @p obj, this
+            @remark If the @c max EDC property was not declared for @p obj, this
             call will return the maximum size a given Edje object may have, for
             each axis.
 
-            @note On failure, this function will make all non-@c NULL size
+            @remark On failure, this function will make all non-@c NULL size
             pointers' pointed variables be set to zero.
 
             @see edje_object_size_min_get() */
@@ -426,9 +482,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Removes all object from the table.
 
+         @since_tizen 2.3
+
          @return @c EINA_TRUE clear the table, @c EINA_FALSE on failure
 
-         Removes all object from the table indicated by part, except the
+         @remark Removes all object from the table indicated by part, except the
          internal ones set from the theme. */
 
          return: bool;
@@ -439,7 +497,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_external_param_type_get @const {
          /*@
-         Facility to query the type of the given parameter of the given part.
+         @brief Facility to query the type of the given parameter of the given part.
+
+         @since_tizen 2.3
 
          @return @c EDJE_EXTERNAL_PARAM_TYPE_MAX on errors, or another value
          from #Edje_External_Param_Type on success. */
@@ -454,7 +514,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          @brief Enables selection if the entry is an EXPLICIT selection mode
          type.
 
-         The default is to @b not allow selection. This function only affects user
+         @since_tizen 2.3
+
+         @remark The default is to @b not allow selection. This function only affects user
          selection, functions such as edje_object_part_text_select_all() and
          edje_object_part_text_select_none() are not affected. */
          params {
@@ -465,6 +527,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       part_state_get @const {
          /*@
          @brief Returns the state of the Edje part.
+
+         @since_tizen 2.3
 
          @return The part state:\n
          "default" for the default state\n
@@ -477,9 +541,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       text_markup_filter_callback_del_full {
          /*@
-         Delete a function and matching user data from the markup filter list.
+         @brief Delete a function and matching user data from the markup filter list.
 
-         Delete the given @p func filter and @p data user data from the list
+         @since_tizen 2.3
+
+         @remark Delete the given @p func filter and @p data user data from the list
          in @p part.
          Returns the user data pointer given when added.
 
@@ -500,9 +566,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Sets the drag step increment.
 
-         Sets the x,y step increments for a dragable object.
+         @since_tizen 2.3
 
-         Values for @p dx and @p dy are real numbers that range from 0 to 1,
+         @remark Sets the x,y step increments for a dragable object.
+
+         @remark Values for @p dx and @p dy are real numbers that range from 0 to 1,
          representing the relative size of the dragable area on that axis by which the
          part will be moved.
 
@@ -519,7 +587,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Gets the drag step increment values.
 
-         Gets the x and y step increments for the dragable object.
+         @since_tizen 2.3
+
+         @remark Gets the x and y step increments for the dragable object.
 
 
          @see edje_object_part_drag_step_set() */
@@ -534,7 +604,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Get the input method context in entry.
 
-         If ecore_imf was not available when edje was compiled, this function returns NULL
+         @since_tizen 2.3
+
+         @remark If ecore_imf was not available when edje was compiled, this function returns NULL
          otherwise, the returned pointer is an Ecore_IMF
 
          @return The input method context (Ecore_IMF_Context *) in entry
@@ -546,7 +618,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_select_begin @const {
          /*@
-         @brief Starts selecting at current cursor position */
+         @brief Starts selecting at current cursor position
+
+         @since_tizen 2.3
+
+         */
          params {
             @in const(char)* part; /*@ The part name */
          }
@@ -555,9 +631,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Return the text of the object part.
 
+         @since_tizen 2.3
+
          @return The text string
 
-         This function returns the style associated with the textblock part.
+         @remark This function returns the style associated with the textblock part.
 
          @since 1.2.0 */
          return: const(char)*;
@@ -569,9 +647,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Remove a signal-triggered callback from an object.
 
+         @since_tizen 2.3
+
          @return The data pointer
 
-         This function removes a callback, previously attached to the
+         @remark This function removes a callback, previously attached to the
          emittion of a signal, from the object @a obj. The parameters @a
          emission, @a source and @a func must match exactly those passed to
          a previous call to edje_object_signal_callback_add(). The data
@@ -592,6 +672,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       part_text_cursor_next {
          /*@
          @brief Advances the cursor to the next cursor position.
+
+         @since_tizen 2.3
+
          @see evas_textblock_cursor_char_next */
 
          return: bool;
@@ -604,7 +687,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Set the style of the
 
-         This function sets the style associated with the textblock part.
+         @since_tizen 2.3
+
+         @remark This function sets the style associated with the textblock part.
 
          @since 1.2.0 */
 
@@ -617,7 +702,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Insert text for an object part.
 
-         This function inserts the text for an object part at the end; It does not
+         @since_tizen 2.3
+
+         @remark This function inserts the text for an object part at the end; It does not
          move the cursor.
 
          @since 1.1 */
@@ -632,14 +719,16 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          @brief Retrieve the geometry of a given Edje part, in a given Edje
          object's group definition, <b>relative to the object's area</b>
 
-         This function gets the geometry of an Edje part within its
+         @since_tizen 2.3
+
+         @remark This function gets the geometry of an Edje part within its
          group. The @p x and @p y coordinates are relative to the top left
          corner of the whole @p obj object's area.
 
-         @note Use @c NULL pointers on the geometry components you're not
+         @remark Use @c NULL pointers on the geometry components you're not
          interested in: they'll be ignored by the function.
 
-         @note On failure, this function will make all non-@c NULL geometry
+         @remark On failure, this function will make all non-@c NULL geometry
          pointers' pointed variables be set to zero. */
          return: bool;
          params {
@@ -655,9 +744,12 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       part_text_input_panel_hide @const {
          /*@
          @brief Hide the input panel (virtual keyboard).
+
+         @since_tizen 2.3
+
          @see edje_object_part_text_input_panel_show
 
-         Note that input panel is shown or hidden automatically according to the focus state.
+         @remark Note that input panel is shown or hidden automatically according to the focus state.
          This API can be used in the case of manually controlling by using edje_object_part_text_input_panel_enabled_set.
 
          @since 1.2.0 */
@@ -669,9 +761,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Return item geometry.
 
+         @since_tizen 2.3
+
          @return 1 if item exists, 0 if not
 
-         This function return a list of Evas_Textblock_Rectangle item
+         @remark This function return a list of Evas_Textblock_Rectangle item
          rectangles. */
          return: bool;
          params {
@@ -687,6 +781,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Removes an object from the table.
 
+         @since_tizen 2.3
+
          @return @c EINA_TRUE object removed, @c EINA_FALSE on failure
 
          Removes an object from the table indicated by part. */
@@ -699,16 +795,22 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_select_abort @const {
          /*@
-         @brief Aborts any selection action on a part. */
+         @brief Aborts any selection action on a part.
+
+         @since_tizen 2.3
+
+         */
          params {
             @in const(char)* part; /*@ The part name */
          }
       }
       text_insert_filter_callback_del_full {
          /*@
-         Delete a function and matching user data from the filter list.
+         @brief Delete a function and matching user data from the filter list.
 
-         Delete the given @p func filter and @p data user data from the list
+         @since_tizen 2.3
+
+         @remark Delete the given @p func filter and @p data user data from the list
          in @p part.
          Returns the user data pointer given when added.
 
@@ -728,6 +830,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Delete the top style form the user style stack.
 
+         @since_tizen 2.3
+
          @since 1.2.0 */
 
          params {
@@ -736,9 +840,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_input_panel_imdata_set {
          /*@
-         Set the input panel-specific data to deliver to the input panel.
+         @brief Set the input panel-specific data to deliver to the input panel.
 
-         This API is used by applications to deliver specific data to the input panel.
+         @since_tizen 2.3
+
+         @remark This API is used by applications to deliver specific data to the input panel.
          The data format MUST be negotiated by both application and the input panel.
          The size and format of data are defined by the input panel.
 
@@ -752,7 +858,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_input_panel_imdata_get @const {
          /*@
-         Get the specific data of the current active input panel.
+         @brief Get the specific data of the current active input panel.
+
+         @since_tizen 2.3
 
          @since 1.2.0 */
          params {
@@ -765,7 +873,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Insert text for an object part.
 
-         This function inserts the text for an object part just before the
+         @since_tizen 2.3
+
+         @remark This function inserts the text for an object part just before the
          cursor position. */
 
          params {
@@ -777,9 +887,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Removes an object from the box.
 
+         @since_tizen 2.3
+
          @return Pointer to the object removed, or @c NULL.
 
-         Removes from the box indicated by part, the object in the position
+         @remark Removes from the box indicated by part, the object in the position
          pos.
 
          @see edje_object_part_box_remove()
@@ -793,7 +905,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_cursor_copy {
          /*@
-         @brief Copy the cursor to another cursor. */
+         @brief Copy the cursor to another cursor.
+
+         @since_tizen 2.3
+
+         */
 
          params {
             @in const(char)* part; /*@ The part name */
@@ -803,20 +919,22 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       parts_extends_calc {
          /*@
-         Calculate the geometry of the region, relative to a given Edje
+         @brief Calculate the geometry of the region, relative to a given Edje
          object's area, <b>occupied by all parts in the object</b>
 
-         This function gets the geometry of the rectangle equal to the area
+         @since_tizen 2.3
+
+         @remark This function gets the geometry of the rectangle equal to the area
          required to group all parts in @p obj's group/collection. The @p x
          and @p y coordinates are relative to the top left corner of the
          whole @p obj object's area. Parts placed out of the group's
          boundaries will also be taken in account, so that @p x and @p y
          <b>may be negative</b>.
 
-         @note Use @c NULL pointers on the geometry components you're not
+         @remark Use @c NULL pointers on the geometry components you're not
          interested in: they'll be ignored by the function.
 
-         @note On failure, this function will make all non-@c NULL geometry
+         @remark On failure, this function will make all non-@c NULL geometry
          pointers' pointed variables be set to zero. */
 
          return: bool;
@@ -835,16 +953,18 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Set the dragable object location.
 
-         Places the dragable object at the given location.
+         @since_tizen 2.3
 
-         Values for @p dx and @p dy are real numbers that range from 0 to 1,
+         @remark Places the dragable object at the given location.
+
+         @remark Values for @p dx and @p dy are real numbers that range from 0 to 1,
          representing the relative position to the dragable area on that axis.
 
-         This value means, for the vertical axis, that 0.0 will be at the top if the
+         @remark This value means, for the vertical axis, that 0.0 will be at the top if the
          first parameter of @c y in the dragable part theme is 1, and at bottom if it
          is -1.
 
-         For the horizontal axis, 0.0 means left if the first parameter of @c x in the
+         @remark For the horizontal axis, 0.0 means left if the first parameter of @c x in the
          dragable part theme is 1, and right if it is -1.
 
          @see edje_object_part_drag_value_get() */
@@ -860,7 +980,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Get the dragable object location.
 
-         Values for @p dx and @p dy are real numbers that range from 0 to 1,
+         @since_tizen 2.3
+
+         @remark Values for @p dx and @p dy are real numbers that range from 0 to 1,
          representing the relative position to the dragable area on that axis.
 
          @see edje_object_part_drag_value_set()
@@ -877,13 +999,17 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Force a Size/Geometry calculation.
 
-         Forces the object @p obj to recalculation layout regardless of
+         @since_tizen 2.3
+
+         @remark Forces the object @p obj to recalculation layout regardless of
          freeze/thaw. */
 
       }
       part_text_cursor_pos_set {
          /*@
          @brief Sets the cursor position to the given value
+
+         @since_tizen 2.3
 
          @since 1.1.0 */
 
@@ -897,6 +1023,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Retrieves the current position of the cursor
 
+         @since_tizen 2.3
+
          @return The cursor position
          @since 1.1.0 */
          return: int;
@@ -909,9 +1037,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Freezes the Edje object.
 
+         @since_tizen 2.3
+
          @return The frozen state or 0 on Error
 
-         This function puts all changes on hold. Successive freezes will
+         @remark This function puts all changes on hold. Successive freezes will
          nest, requiring an equal number of thaws.
 
          @see edje_object_thaw() */
@@ -921,9 +1051,12 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       part_text_cursor_content_get @const {
          /*@
          @brief Returns the content (char) at the cursor position.
+
+         @since_tizen 2.3
+
          @see evas_textblock_cursor_content_get
 
-         You must free the return (if not NULL) after you are done with it.
+         @remark You must free the return (if not NULL) after you are done with it.
 
          @return The character string pointed to (may be a multi-byte utf8 sequence) terminated by a nul byte. */
          return: char *;
@@ -936,7 +1069,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Set the layout of the input panel.
 
-         The layout of the input panel or virtual keyboard can make it easier or
+         @since_tizen 2.3
+
+         @remark The layout of the input panel or virtual keyboard can make it easier or
          harder to enter content. This allows you to hint what kind of input you
          are expecting to enter and thus have the input panel automatically
          come up with the right mode.
@@ -952,6 +1087,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Get the layout of the input panel.
 
+         @since_tizen 2.3
+
          @return Layout type of the input panel
 
          @see edje_object_part_text_input_panel_layout_set
@@ -964,6 +1101,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       part_table_pack {
          /*@
          @brief Packs an object into the table.
+
+         @since_tizen 2.3
 
          @return @c EINA_TRUE object was added, @c EINA_FALSE on failure
 
@@ -981,9 +1120,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_input_panel_language_set {
          /*@
-         Set the language mode of the input panel.
+         @brief Set the language mode of the input panel.
 
-         This API can be used if you want to show the Alphabet keyboard.
+         @since_tizen 2.3
+
+         @remark This API can be used if you want to show the Alphabet keyboard.
 
          @since 1.2.0 */
 
@@ -994,9 +1135,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_input_panel_language_get @const {
          /*@
-         Get the language mode of the input panel.
+         @brief Get the language mode of the input panel.
 
-         See @ref edje_object_part_text_input_panel_language_set for more details.
+         @since_tizen 2.3
+
+         @remark See @ref edje_object_part_text_input_panel_language_set for more details.
 
          @return input panel language type
          @since 1.2.0 */
@@ -1008,6 +1151,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       part_table_col_row_size_get @const {
          /*@
          @brief Gets the number of columns and rows the table has.
+
+         @since_tizen 2.3
 
          @return @c EINA_TRUE get some data, @c EINA_FALSE on failure
 
@@ -1023,14 +1168,16 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Get the object created by this external part.
 
-         Parts of type external creates the part object using information
+         @since_tizen 2.3
+
+         @remark Parts of type external creates the part object using information
          provided by external plugins. It's somehow like "swallow"
          (edje_object_part_swallow()), but it's all set automatically.
 
-         This function returns the part created by such external plugins and
+         @remark This function returns the part created by such external plugins and
          being currently managed by this Edje.
 
-         @note Almost all swallow rules apply: you should not move, resize,
+         @remark Almost all swallow rules apply: you should not move, resize,
          hide, show, set the color or clipper of such part. It's a bit
          more restrictive as one must @b never delete this object!
 
@@ -1045,7 +1192,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Get an object contained in an part of type EXTERNAL
 
-         The @p content string must not be NULL. Its actual value depends on the
+         @since_tizen 2.3
+
+         @remark The @p content string must not be NULL. Its actual value depends on the
          code providing the EXTERNAL. */
          return: Evas_Object *;
          params {
@@ -1057,15 +1206,17 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Preload the images on the Edje Object in the background.
 
+         @since_tizen 2.3
+
          @return @c EINA_FASLE if obj was not a valid Edje object
          otherwise @c EINA_TRUE
 
-         This function requests the preload of all data images (on the given
+         @remark This function requests the preload of all data images (on the given
          object) in the background. The work is queued before being processed
          (because there might be other pending requests of this type).
          It emits a signal "preload,done" when finished.
 
-         @note Use @c EINA_TRUE on scenarios where you don't need
+         @remark Use @c EINA_TRUE on scenarios where you don't need
          the image data preloaded anymore. */
 
          return: bool;
@@ -1078,6 +1229,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Sets the attribute to show the input panel automatically.
 
+         @since_tizen 2.3
+
          @since 1.1.0 */
 
          params {
@@ -1088,6 +1241,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       part_text_input_panel_enabled_get @const {
          /*@
          @brief Retrieve the attribute to show the input panel automatically.
+
+         @since_tizen 2.3
+
          @see edje_object_part_text_input_panel_enabled_set
 
          @return EINA_TRUE if it supports or EINA_FALSE otherwise
@@ -1099,7 +1255,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_select_extend @const {
          /*@
-         @brief Extends the current selection to the current cursor position */
+         @brief Extends the current selection to the current cursor position
+
+         @since_tizen 2.3
+
+         */
          params {
             @in const(char)* part; /*@ The part name */
          }
@@ -1108,10 +1268,12 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Inserts an object to the box.
 
+         @since_tizen 2.3
+
          @return @c EINA_TRUE: Successfully added.\n
          @c EINA_FALSE: An error occurred.
 
-         Adds child to the box indicated by part, in the position given by
+         @remark Adds child to the box indicated by part, in the position given by
          pos.
 
          @see edje_object_part_box_append()
@@ -1129,10 +1291,12 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Return a list of Evas_Textblock_Rectangle anchor rectangles.
 
+         @since_tizen 2.3
+
          @return The list of anchor rects (const Evas_Textblock_Rectangle
          *), do not modify! Geometry is relative to entry part.
 
-         This function return a list of Evas_Textblock_Rectangle anchor
+         @remark This function return a list of Evas_Textblock_Rectangle anchor
          rectangles. */
          return: const(list<const(Evas.Textblock_Rectangle)*>)*;
          params {
@@ -1142,7 +1306,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_cursor_down {
          /*@
-         @brief Moves the cursor to the char below the current cursor position. */
+         @brief Moves the cursor to the char below the current cursor position.
+
+         @since_tizen 2.3
+
+         */
 
          return: bool;
          params {
@@ -1154,9 +1322,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Sets the page step increments.
 
-         Sets the x,y page step increment values.
+         @since_tizen 2.3
 
-         Values for @p dx and @p dy are real numbers that range from 0 to 1,
+         @remark Sets the x,y page step increment values.
+
+         @remark Values for @p dx and @p dy are real numbers that range from 0 to 1,
          representing the relative size of the dragable area on that axis by which the
          part will be moved.
 
@@ -1173,7 +1343,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Gets the page step increments.
 
-         Gets the x,y page step increments for the dragable object.
+         @since_tizen 2.3
+
+         @remark Gets the x,y page step increments for the dragable object.
 
          @see edje_object_part_drag_page_set() */
          return: bool;
@@ -1187,10 +1359,12 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Prepends an object to the box.
 
+         @since_tizen 2.3
+
          @return @c EINA_TRUE: Successfully added.\n
          @c EINA_FALSE: An error occurred.
 
-         Prepends child to the box indicated by part.
+         @remark Prepends child to the box indicated by part.
 
          @see edje_object_part_box_append()
          @see edje_object_part_box_insert_before()
@@ -1206,12 +1380,14 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Send/emit an Edje signal to a given Edje object
 
-         This function sends a signal to the object @a obj. An Edje program,
+         @since_tizen 2.3
+
+         @remark This function sends a signal to the object @a obj. An Edje program,
          at @p obj's EDC specification level, can respond to a signal by
          having declared matching @c 'signal' and @c 'source' fields on its
          block (see @ref edcref "the syntax" for EDC files).
 
-         As an example,
+         @remark As an example,
          @code
          edje_object_signal_emit(obj, "a_signal", "");
          @endcode
@@ -1236,7 +1412,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Set the layout variation of the input panel.
 
-         The layout variation of the input panel or virtual keyboard can make it easier or
+         @since_tizen 2.3
+
+         @remark The layout variation of the input panel or virtual keyboard can make it easier or
          harder to enter content. This allows you to hint what kind of input you
          are expecting to enter and thus have the input panel automatically
          come up with the right mode.
@@ -1252,6 +1430,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Get the layout variation of the input panel.
 
+         @since_tizen 2.3
+
          @return Layout variation type of the input panel
 
          @see edje_object_part_text_input_panel_layout_variation_set
@@ -1265,18 +1445,20 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Send an (Edje) message to a given Edje object
 
-         This function sends an Edje message to @p obj and to all of its
+         @since_tizen 2.3
+
+         @remark This function sends an Edje message to @p obj and to all of its
          child objects, if it has any (swallowed objects are one kind of
          child object). @p type and @p msg @b must be matched accordingly,
          as documented in #Edje_Message_Type.
 
-         The @p id argument as a form of code and theme defining a common
+         @remark The @p id argument as a form of code and theme defining a common
          interface on message communication. One should define the same IDs
          on both code and EDC declaration (see @ref edcref "the syntax" for
          EDC files), to individualize messages (binding them to a given
          context).
 
-         The function to handle messages arriving @b from @b obj is set with
+         @remark The function to handle messages arriving @b from @b obj is set with
          edje_object_message_handler_set(). */
 
          params {
@@ -1289,6 +1471,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Set the selection to be none.
 
+         @since_tizen 2.3
+
          This function sets the selection text to be none. */
          params {
             @in const(char)* part; /*@ The part name */
@@ -1299,13 +1483,15 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          @brief Get a handle to the Evas object implementing a given Edje
          part, in an Edje object.
 
+         @since_tizen 2.3
+
          @return A pointer to the Evas object implementing the given part,
          or @c NULL on failure (e.g. the given part doesn't exist)
 
-         This function gets a pointer of the Evas object corresponding to a
+         @remark This function gets a pointer of the Evas object corresponding to a
          given part in the @p obj object's group.
 
-         You should @b never modify the state of the returned object (with
+         @remark You should @b never modify the state of the returned object (with
          @c evas_object_move() or @c evas_object_hide() for example),
          because it's meant to be managed by Edje, solely. You are safe to
          query information about its current state (with @c
@@ -1320,10 +1506,12 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Set the dragable object size.
 
-         Values for @p dw and @p dh are real numbers that range from 0 to 1,
+         @since_tizen 2.3
+
+         @remark Values for @p dw and @p dh are real numbers that range from 0 to 1,
          representing the relative size of the dragable area on that axis.
 
-         Sets the size of the dragable object.
+         @remark Sets the size of the dragable object.
 
          @see edje_object_part_drag_size_get() */
 
@@ -1338,7 +1526,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Get the dragable object size.
 
-         Gets the dragable object size.
+         @since_tizen 2.3
+
+         @remark Gets the dragable object size.
 
          @see edje_object_part_drag_size_set() */
          return: bool;
@@ -1350,9 +1540,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       text_insert_filter_callback_del {
          /*@
-         Delete a function from the filter list.
+         @brief Delete a function from the filter list.
 
-         Delete the given @p func filter from the list in @p part. Returns
+         @since_tizen 2.3
+
+         @remark Delete the given @p func filter from the list in @p part. Returns
          the user data pointer given when added.
 
          @see edje_object_text_insert_filter_callback_add
@@ -1370,7 +1562,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Determine dragable directions.
 
-         The dragable directions are defined in the EDC file, inside the @c dragable
+         @since_tizen 2.3
+
+         @remark The dragable directions are defined in the EDC file, inside the @c dragable
          section, by the attributes @c x and @c y. See the @ref edcref for more
          information.
 
@@ -1387,7 +1581,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Sets the raw (non escaped) text for an object part.
 
-         This funciton will not do escape for you if it is a TEXTBLOCK part, that is,
+         @since_tizen 2.3
+
+         @remark This funciton will not do escape for you if it is a TEXTBLOCK part, that is,
          if text contain tags, these tags will not be interpreted/parsed by TEXTBLOCK.
 
          @see edje_object_part_text_unescaped_get(). */
@@ -1402,10 +1598,12 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Returns the text of the object part, without escaping.
 
+         @since_tizen 2.3
+
          @return The @b allocated text string without escaping, or NULL on
          problems.
 
-         This function is the counterpart of
+         @remark This function is the counterpart of
          edje_object_part_text_unescaped_set(). Please notice that the
          result is newly allocated memory and should be released with free()
          when done.
@@ -1421,16 +1619,18 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          @brief Add a callback for an arriving Edje signal, emitted by
          a given Edje object.
 
-         Edje signals are one of the communication interfaces between
+         @since_tizen 2.3
+
+         @remark Edje signals are one of the communication interfaces between
          @b code and a given Edje object's @b theme. With signals, one can
          communicate two string values at a time, which are:
          - "emission" value: the name of the signal, in general
          - "source" value: a name for the signal's context, in general
 
-         Though there are those common uses for the two strings, one is free
+         @remark Though there are those common uses for the two strings, one is free
          to use them however they like.
 
-         This function adds a callback function to a signal emitted by @a obj, to
+         @remark This function adds a callback function to a signal emitted by @a obj, to
          be issued every time an EDC program like the following
          @code
          program {
@@ -1441,17 +1641,17 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          is run, if @p emission and @p source are given those same values,
          here.
 
-         Signal callback registration is powerful, in the way that @b blobs
+         @remark Signal callback registration is powerful, in the way that @b blobs
          may be used to match <b>multiple signals at once</b>. All the @c
          "*?[\" set of @c fnmatch() operators can be used, both for @p
          emission and @p source.
 
-         Edje has @b internal signals it will emit, automatically, on
+         @remark Edje has @b internal signals it will emit, automatically, on
          various actions taking place on group parts. For example, the mouse
          cursor being moved, pressed, released, etc., over a given part's
          area, all generate individual signals.
 
-         By using something like
+         @remark By using something like
          @code
          edje_object_signal_callback_add(obj, "mouse,down,*", "button.*",
          signal_cb, NULL);
@@ -1465,9 +1665,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          and @a source parameters of the callback function (e.g. @c
          "mouse,down,2" and @c "button.close"), for each of those events.
 
-         @note See @ref edcref "the syntax" for EDC files
+         @remark See @ref edcref "the syntax" for EDC files
          @see edje_object_signal_emit() on how to emits Edje signals from
-         code to a an object
+         @remark code to a an object
          @see edje_object_signal_callback_del_full() */
 
          params {
@@ -1482,6 +1682,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Set the selection to be everything.
 
+         @since_tizen 2.3
+
          This function selects all text of the object of the part. */
          params {
             @in const(char)* part; /*@ The part name */
@@ -1489,7 +1691,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_input_panel_return_key_disabled_set {
          /*@
-         Set the return key on the input panel to be disabled.
+         @brief Set the return key on the input panel to be disabled.
+
+         @since_tizen 2.3
 
          @since 1.2.0 */
 
@@ -1500,7 +1704,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_input_panel_return_key_disabled_get @const {
          /*@
-         Get whether the return key on the input panel should be disabled or not.
+         @brief Get whether the return key on the input panel should be disabled or not.
+
+         @since_tizen 2.3
 
          @return EINA_TRUE if it should be disabled
          @since 1.2.0 */
@@ -1513,6 +1719,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Set the autocapitalization type on the immodule.
 
+         @since_tizen 2.3
+
          @since 1.1.0 */
 
          params {
@@ -1523,6 +1731,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       part_text_autocapital_type_get @const {
          /*@
          @brief Retrieves the autocapitalization type
+
+         @since_tizen 2.3
 
          @return The autocapitalization type
          @since 1.1.0 */
@@ -1535,9 +1745,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Unswallow an object.
 
-         Causes the edje to regurgitate a previously swallowed object. :)
+         @since_tizen 2.3
 
-         @note @p obj_swallow will @b not be deleted or hidden.
+         @remark Causes the edje to regurgitate a previously swallowed object. :)
+
+         @remark @p obj_swallow will @b not be deleted or hidden.
          @note @p obj_swallow may appear shown on the evas depending on its state when
          it got unswallowed. Make sure you delete it or hide it if you do not want it to. */
 
@@ -1549,6 +1761,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Set whether the prediction is allowed or not.
 
+         @since_tizen 2.3
+
          @since 1.2.0 */
 
          params {
@@ -1559,6 +1773,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       part_text_prediction_allow_get @const {
          /*@
          @brief Get whether the prediction is allowed or not.
+
+         @since_tizen 2.3
 
          @return EINA_TRUE if prediction feature is allowed.
          @since 1.2.0 */
@@ -1572,14 +1788,16 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          @brief Retrive an <b>EDC data field's value</b> from a given Edje
          object's group.
 
+         @since_tizen 2.3
+
          @return The data's value string. Must not be freed.
 
-         This function fetches an EDC data field's value, which is declared
+         @remark This function fetches an EDC data field's value, which is declared
          on the objects building EDC file, <b>under its group</b>. EDC data
          blocks are most commonly used to pass arbitrary parameters from an
          application's theme to its code.
 
-         They look like the following:
+         @remark They look like the following:
 
          @code
          collections {
@@ -1593,7 +1811,7 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          }
          @endcode
 
-         EDC data fields always hold @b strings as values, hence the return
+         @remark EDC data fields always hold @b strings as values, hence the return
          type of this function. Check the complete @ref edcref "syntax reference"
          for EDC files.
 
@@ -1608,9 +1826,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       text_markup_filter_callback_add {
          /*@
-         Add a markup filter function for newly inserted text.
+         @brief Add a markup filter function for newly inserted text.
 
-         Whenever text is inserted (not the same as set) into the given @p part,
+         @since_tizen 2.3
+
+         @remark Whenever text is inserted (not the same as set) into the given @p part,
          the list of markup filter functions will be called to decide if and how
          the new text will be accepted.
          The text parameter in the @p func filter is always markup. It can be
@@ -1644,7 +1864,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Process an object's message queue.
 
-         This function goes through the object message queue processing the
+         @since_tizen 2.3
+
+         @remark This function goes through the object message queue processing the
          pending messages for @b this specific Edje object. Normally they'd
          be processed only at idle time. */
 
@@ -1653,9 +1875,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Removes an object from the box.
 
+         @since_tizen 2.3
+
          @return Pointer to the object removed, or @c NULL.
 
-         Removes child from the box indicated by part.
+         @remark Removes child from the box indicated by part.
 
          @see edje_object_part_box_remove_at()
          @see edje_object_part_box_remove_all() */
@@ -1670,11 +1894,13 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Thaws the Edje object.
 
+         @since_tizen 2.3
+
          @return The frozen state or 0 if the object is not frozen or on error.
 
-         This function thaws the given Edje object.
+         @remark This function thaws the given Edje object.
 
-         @note: If sucessives freezes were done, an equal number of
+         @remark: If sucessives freezes were done, an equal number of
          thaws will be required.
 
          @see edje_object_freeze() */
@@ -1684,6 +1910,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       part_swallow_get @const {
          /*@
          @brief Get the object currently swallowed by a part.
+
+         @since_tizen 2.3
 
          @return The swallowed object, or NULL if there is none. */
          return: Evas_Object *;
@@ -1695,7 +1923,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Reset the input method context if needed.
 
-         This can be necessary in the case where modifying the buffer would confuse on-going input method behavior
+         @since_tizen 2.3
+
+         @remark This can be necessary in the case where modifying the buffer would confuse on-going input method behavior
 
          @since 1.2.0 */
          params {
@@ -1704,9 +1934,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_input_panel_return_key_type_set {
          /*@
-         Set the "return" key type. This type is used to set string or icon on the "return" key of the input panel.
+         @brief Set the "return" key type. This type is used to set string or icon on the "return" key of the input panel.
 
-         An input panel displays the string or icon associated with this type
+         @since_tizen 2.3
+
+         @remark An input panel displays the string or icon associated with this type
 
          @since 1.2.0 */
 
@@ -1717,7 +1949,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_input_panel_return_key_type_get @const {
          /*@
-         Get the "return" key type.
+         @brief Get the "return" key type.
+
+         @since_tizen 2.3
 
          @see edje_object_part_text_input_panel_return_key_type_set() for more details
 
@@ -1732,6 +1966,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Retrieve a child from a table
 
+         @since_tizen 2.3
+
          @return The child Evas_Object */
          return: Evas_Object *;
          params {
@@ -1744,10 +1980,12 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Adds an object to the box.
 
+         @since_tizen 2.3
+
          @return @c EINA_TRUE: Successfully added.\n
          @c EINA_FALSE: An error occurred.
 
-         Inserts child in the box given by part, in the position marked by
+         @remark Inserts child in the box given by part, in the position marked by
          reference.
 
          @see edje_object_part_box_append()
@@ -1765,17 +2003,19 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Set the parameter for the external part.
 
-         Parts of type external may carry extra properties that have
+         @since_tizen 2.3
+
+         @remark Parts of type external may carry extra properties that have
          meanings defined by the external plugin. For instance, it may be a
          string that defines a button label and setting this property will
          change that label on the fly.
 
-         @note external parts have parameters set when they change
+         @remark external parts have parameters set when they change
          states. Those parameters will never be changed by this
          function. The interpretation of how state_set parameters and
          param_set will interact is up to the external plugin.
 
-         @note this function will not check if parameter value is valid
+         @remark this function will not check if parameter value is valid
          using #Edje_External_Param_Info minimum, maximum, valid
          choices and others. However these should be checked by the
          underlying implementation provided by the external
@@ -1798,7 +2038,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Get the parameter for the external part.
 
-         Parts of type external may carry extra properties that have
+         @since_tizen 2.3
+
+         @remark Parts of type external may carry extra properties that have
          meanings defined by the external plugin. For instance, it may be a
          string that defines a button label. This property can be modified by
          state parameters, by explicit calls to
@@ -1806,7 +2048,7 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          with edje_object_part_external_object_get() and calling native
          functions.
 
-         This function asks the external plugin what is the current value,
+         @remark This function asks the external plugin what is the current value,
          independent on how it was set.
 
          @return @c EINA_TRUE if everything went fine and @p param members
@@ -1827,7 +2069,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Calculate the minimum required size for a given Edje object.
 
-         This call works exactly as edje_object_size_min_restricted_calc(),
+         @since_tizen 2.3
+
+         @remark This call works exactly as edje_object_size_min_restricted_calc(),
          with the last two arguments set to 0. Please refer to its
          documentation, then. */
 
@@ -1842,10 +2086,12 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Appends an object to the box.
 
+         @since_tizen 2.3
+
          @return @c EINA_TRUE: Successfully added.\n
          @c EINA_FALSE: An error occurred.
 
-         Appends child to the box indicated by part.
+         @remark Appends child to the box indicated by part.
 
          @see edje_object_part_box_prepend()
          @see edje_object_part_box_insert_before()
@@ -1861,14 +2107,16 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Calculate the minimum required size for a given Edje object.
 
-         This call will trigger an internal recalculation of all parts of
+         @since_tizen 2.3
+
+         @remark This call will trigger an internal recalculation of all parts of
          the @p obj object, in order to return its minimum required
          dimensions for width and height. The user might choose to @b impose
          those minimum sizes, making the resulting calculation to get to values
          equal or bigger than @p restrictedw and @p restrictedh, for width and
          height, respectively.
 
-         @note At the end of this call, @p obj @b won't be automatically
+         @remark At the end of this call, @p obj @b won't be automatically
          resized to new dimensions, but just return the calculated
          sizes. The caller is the one up to change its geometry or not.
 
@@ -1890,10 +2138,12 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Removes all elements from the box.
 
+         @since_tizen 2.3
+
          @return 1: Successfully cleared.\n
          0: An error occurred.
 
-         Removes all the external objects from the box indicated by part.
+         @remark Removes all the external objects from the box indicated by part.
          Elements created from the theme will not be removed.
 
          @see edje_object_part_box_remove()
@@ -1909,10 +2159,12 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Pages x,y steps.
 
-         Pages x,y where the increment is defined by
+         @since_tizen 2.3
+
+         @remark Pages x,y where the increment is defined by
          edje_object_part_drag_page_set.
 
-         Values for @p dx and @p dy are real numbers that range from 0 to 1.
+         @remark Values for @p dx and @p dy are real numbers that range from 0 to 1.
 
          @warning Paging is bugged!
 
@@ -1929,6 +2181,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Sets the text for an object part
 
+         @since_tizen 2.3
+
          @return @c EINA_TRUE on success, @c EINA_FALSE otherwise */
 
          return: bool;
@@ -1941,9 +2195,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Return the text of the object part.
 
+         @since_tizen 2.3
+
          @return The text string
 
-         This function returns the text associated to the object part.
+         @remark This function returns the text associated to the object part.
 
          @see edje_object_part_text_set(). */
          return: const(char)*;
@@ -1953,8 +2209,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_input_panel_show_on_demand_set {
          /*@
-         Set the attribute to show the input panel in case of only an user's explicit Mouse Up event.
-         It doesn't request to show the input panel even though it has focus.
+         @brief Set the attribute to show the input panel in case of only an user's explicit Mouse Up event.
+
+         @since_tizen 2.3
+
+         @remark It doesn't request to show the input panel even though it has focus.
 
          @since 1.9.0 */
 
@@ -1965,7 +2224,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_input_panel_show_on_demand_get @const {
          /*@
-         Get the attribute to show the input panel in case of only an user's explicit Mouse Up event.
+         @brief Get the attribute to show the input panel in case of only an user's explicit Mouse Up event.
+
+         @since_tizen 2.3
 
          @return @c EINA_TRUE if the input panel will be shown in case of only Mouse up event.
          @since 1.9.0 */
@@ -1976,7 +2237,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_input_hint_set {
          /*@
-         Sets the input hint which allows input methods to fine-tune their behavior.
+         @brief Sets the input hint which allows input methods to fine-tune their behavior.
+
+         @since_tizen 2.3
 
          @since 1.12.0 */
 
@@ -1987,7 +2250,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_input_hint_get @const {
          /*@
-         Gets the value of input hint
+         @brief Gets the value of input hint
+
+         @since_tizen 2.3
 
          @return The value of input hint
          @since 1.12.0 */
@@ -2000,9 +2265,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Return the selection text of the object part.
 
+         @since_tizen 2.3
+
          @return The text string
 
-         This function returns selection text of the object part.
+         @remark This function returns selection text of the object part.
 
          @see edje_object_part_text_select_all()
          @see edje_object_part_text_select_none() */
@@ -2014,6 +2281,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       part_text_cursor_is_format_get @const {
          /*@
          @brief Returns whether the cursor points to a format.
+
+         @since_tizen 2.3
+
          @see evas_textblock_cursor_is_format
 
          @return EINA_TRUE if it's true, EINA_FALSE otherwise. */
@@ -2026,6 +2296,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       text_class_set {
          /*@
          @brief Sets Edje text class.
+
+         @since_tizen 2.3
 
          @return @c EINA_TRUE, on success or @c EINA_FALSE, on error
 
@@ -2041,9 +2313,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Gets font and font size from edje text class.
 
+         @since_tizen 2.3
+
          @return @c EINA_TRUE, on success or @c EINA_FALSE, on error
 
-         This function gets the font and the font size from the object
+         @remark This function gets the font and the font size from the object
          text class. */
          return: bool;
          params {
@@ -2056,19 +2330,21 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Sets the object color class.
 
-         This function sets the color values for an object level color
+         @since_tizen 2.3
+
+         @remark This function sets the color values for an object level color
          class. This will cause all edje parts in the specified object that
          have the specified color class to have their colors multiplied by
          these values.
 
-         The first color is the object, the second is the text outline, and
+         @remark The first color is the object, the second is the text outline, and
          the third is the text shadow. (Note that the second two only apply
          to text parts).
 
-         Setting color emits a signal "color_class,set" with source being
+         @remark Setting color emits a signal "color_class,set" with source being
          the given color.
 
-         @note unlike Evas, Edje colors are @b not pre-multiplied. That is,
+         @remark unlike Evas, Edje colors are @b not pre-multiplied. That is,
          half-transparent white is 255 255 255 128. */
 
          return: bool;
@@ -2092,18 +2368,20 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Gets the object color class.
 
+         @since_tizen 2.3
+
          @return EINA_TRUE if found or EINA_FALSE if not found and all
          values are zeroed.
 
-         This function gets the color values for an object level color
+         @remark This function gets the color values for an object level color
          class. If no explicit object color is set, then global values will
          be used.
 
-         The first color is the object, the second is the text outline, and
+         @remark The first color is the object, the second is the text outline, and
          the third is the text shadow. (Note that the second two only apply
          to text parts).
 
-         @note unlike Evas, Edje colors are @b not pre-multiplied. That is,
+         @remark unlike Evas, Edje colors are @b not pre-multiplied. That is,
          half-transparent white is 255 255 255 128. */
          return: bool;
          params {
@@ -2126,10 +2404,12 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Steps the dragable x,y steps.
 
-         Steps x,y where the step increment is the amount set by
+         @since_tizen 2.3
+
+         @remark Steps x,y where the step increment is the amount set by
          edje_object_part_drag_step_set.
 
-         Values for @p dx and @p dy are real numbers that range from 0 to 1.
+         @remark Values for @p dx and @p dy are real numbers that range from 0 to 1.
 
          @see edje_object_part_drag_page() */
 
@@ -2142,7 +2422,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_cursor_up {
          /*@
-         @brief Move the cursor to the char above the current cursor position. */
+         @brief Move the cursor to the char above the current cursor position.
+
+         @since_tizen 2.3
+
+         */
 
          return: bool;
          params {
@@ -2153,6 +2437,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       part_text_cursor_geometry_get @const {
          /*@
          @brief Returns the cursor geometry of the part relative to the edje
+
+         @since_tizen 2.3
+
          object. */
          params {
             @in const(char)* part; /*@ The part name */
@@ -2166,6 +2453,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Return a list of char anchor names.
 
+         @since_tizen 2.3
+
          @return The list of anchors (const char *), do not modify!
 
          This function returns a list of char anchor names. */
@@ -2176,9 +2465,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       text_insert_filter_callback_add {
          /*@
-         Add a filter function for newly inserted text.
+         @brief Add a filter function for newly inserted text.
 
-         Whenever text is inserted (not the same as set) into the given @p part,
+         @since_tizen 2.3
+
+         @remark Whenever text is inserted (not the same as set) into the given @p part,
          the list of filter functions will be called to decide if and how the new
          text will be accepted.
          There are three types of filters, EDJE_TEXT_FILTER_TEXT,
@@ -2216,7 +2507,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Show the input panel (virtual keyboard) based on the input panel property such as layout, autocapital types, and so on.
 
-         Note that input panel is shown or hidden automatically according to the focus state.
+         @since_tizen 2.3
+
+         @remark Note that input panel is shown or hidden automatically according to the focus state.
          This API can be used in the case of manually controlling by using edje_object_part_text_input_panel_enabled_set.
 
          @since 1.2.0 */
@@ -2229,13 +2522,15 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          @brief Check if an Edje part exists in a given Edje object's group
          definition.
 
+         @since_tizen 2.3
+
          @return @c EINA_TRUE, if the Edje part exists in @p obj's group or
          @c EINA_FALSE, otherwise (and on errors)
 
-         This function returns if a given part exists in the Edje group
+         @remark This function returns if a given part exists in the Edje group
          bound to object @p obj (with edje_object_file_set()).
 
-         This call is useful, for example, when one could expect or not a
+         @remark This call is useful, for example, when one could expect or not a
          given GUI element, depending on the @b theme applied to @p obj. */
          return: bool;
          params {
@@ -2245,9 +2540,11 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       text_markup_filter_callback_del {
          /*@
-         Delete a function from the markup filter list.
+         @brief Delete a function from the markup filter list.
 
-         Delete the given @p func filter from the list in @p part. Returns
+         @since_tizen 2.3
+
+         @remark Delete the given @p func filter from the list in @p part. Returns
          the user data pointer given when added.
 
          @see edje_object_text_markup_filter_callback_add
@@ -2266,6 +2563,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Return true if the cursor points to a visible format
          For example \\t, \\n, item and etc.
+
+         @since_tizen 2.3
+
          @see  evas_textblock_cursor_format_is_visible_get */
          return: bool;
          params {
@@ -2277,7 +2577,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief This function inserts text as if the user has inserted it.
 
-         This means it actually registers as a change and emits signals, triggers
+         @since_tizen 2.3
+
+         @remark This means it actually registers as a change and emits signals, triggers
          callbacks as appropriate.
 
          @since 1.2.0 */
@@ -2289,6 +2591,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       part_text_cursor_prev {
          /*@
          @brief Moves the cursor to the previous char
+
+         @since_tizen 2.3
+
          @see evas_textblock_cursor_char_prev */
 
          return: bool;
@@ -2300,6 +2605,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       part_text_item_list_get @const {
          /*@
          @brief Return a list of char item names.
+
+         @since_tizen 2.3
 
          @return The list of items (const char *), do not modify!
 
@@ -2314,32 +2621,34 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          @brief "Swallows" an object into one of the Edje object @c SWALLOW
          parts.
 
-         Swallowing an object into an Edje object is, for a given part of
+         @since_tizen 2.3
+
+         @remark Swallowing an object into an Edje object is, for a given part of
          type @c SWALLOW in the EDC group which gave life to @a obj, to set
          an external object to be controlled by @a obj, being displayed
          exactly over that part's region inside the whole Edje object's
          viewport.
 
-         From this point on, @a obj will have total control over @a
+         @remark From this point on, @a obj will have total control over @a
          obj_swallow's geometry and visibility. For instance, if @a obj is
          visible, as in @c evas_object_show(), the swallowed object will be
          visible too -- if the given @c SWALLOW part it's in is also
          visible. Other actions on @a obj will also reflect on the swallowed
          object as well (e.g. resizing, moving, raising/lowering, etc.).
 
-         Finally, all internal changes to @a part, specifically, will
+         @remark Finally, all internal changes to @a part, specifically, will
          reflect on the displaying of @a obj_swallow, for example state
          changes leading to different visibility states, geometries,
          positions, etc.
 
-         If an object has already been swallowed into this part, then it
+         @remark If an object has already been swallowed into this part, then it
          will first be unswallowed (as in edje_object_part_unswallow())
          before the new object is swallowed.
 
-         @note @a obj @b won't delete the swallowed object once it is
+         @remark @a obj @b won't delete the swallowed object once it is
          deleted -- @a obj_swallow will get to an unparented state again.
 
-         For more details on EDC @c SWALLOW parts, see @ref edcref "syntax
+         @remark For more details on EDC @c SWALLOW parts, see @ref edcref "syntax
          reference". */
 
          return: bool;

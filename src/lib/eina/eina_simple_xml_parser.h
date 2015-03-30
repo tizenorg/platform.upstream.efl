@@ -219,22 +219,24 @@ typedef Eina_Bool (*Eina_Simple_XML_Attribute_Cb)(void *data, const char *key, c
 
 
 /**
- * Parse a section of XML string text
+ * @brief Parse a section of XML string text
  *
- * @param buf the input string. May not contain \0 terminator.
- * @param buflen the input string size.
- * @param strip whenever this parser should strip leading and trailing
+ * @since_tizen 2.3
+ *
+ * @param[in] buf the input string. May not contain \0 terminator.
+ * @param[in] buflen the input string size.
+ * @param[in] strip whenever this parser should strip leading and trailing
  *        whitespace. These whitespace will still be issued, but as type
  *        #EINA_SIMPLE_XML_IGNORED.
- * @param func what to call back while parse to do some action.  The
+ * @param[in] func what to call back while parse to do some action.  The
  *        first parameter is the given user @a data, the second is the
  *        token type, the third is the pointer to content start (it's
  *        not a NULL terminated string!), the forth is where this
  *        content is located inside @a buf (does not include tag
  *        start, for instance "<!DOCTYPE value>" the offset points at
  *        "value"), the fifth is the size of the content. Whenever this
- *        function return #EINA_FALSE the parser will abort.  @param
- *        data what to give as context to @a func.
+ *        function return #EINA_FALSE the parser will abort.
+ * @param[in] data what to give as context to @a func.
  *
  * @return #EINA_TRUE on success or #EINA_FALSE if it was aborted by user or
  *         parsing error.
@@ -245,31 +247,35 @@ EAPI Eina_Bool eina_simple_xml_parse(const char *buf, unsigned buflen,
 
 
 /**
- * Given the contents of a tag, find where the attributes start.
+ * @brief Given the contents of a tag, find where the attributes start.
  *
- * @param buf the input string. May not contain \0 terminator.
- * @param buflen the input string size.
+ * @since_tizen 2.3
+ *
+ * @param[in] buf the input string. May not contain \0 terminator.
+ * @param[in] buflen the input string size.
  * @return pointer to the start of attributes, it can be used
  *         to feed eina_simple_xml_attributes_parse(). @c NULL is returned
  *         if no attributes were found.
  *
- * The tag contents is returned by eina_simple_xml_parse() when
+ * @remark The tag contents is returned by eina_simple_xml_parse() when
  * type is #EINA_SIMPLE_XML_OPEN or #EINA_SIMPLE_XML_OPEN_EMPTY.
  *
  */
 EAPI const char * eina_simple_xml_tag_attributes_find(const char *buf, unsigned buflen);
 
 /**
- * Given a buffer with xml attributes, parse them to key=value pairs.
+ * @brief Given a buffer with xml attributes, parse them to key=value pairs.
  *
- * @param buf the input string. May not contain \0 terminator.
- * @param buflen the input string size.
- * @param func what to call back while parse to do some action. The
+ * @since_tizen 2.3
+ *
+ * @param[in] buf the input string. May not contain \0 terminator.
+ * @param[in] buflen the input string size.
+ * @param[in] func what to call back while parse to do some action. The
  *        first parameter is the given user @a data, the second is the
  *        key (null-terminated) and the last is the value (null
  *        terminated). These strings should not be modified and
  *        reference is just valid until the function return.
- * @param data data to pass to the callback function.
+ * @param[in] data data to pass to the callback function.
  *
  * @return #EINA_TRUE on success or #EINA_FALSE if it was aborted by user or
  *         parsing error.
@@ -295,12 +301,14 @@ EAPI Eina_Bool
 eina_simple_xml_attribute_w3c_parse(const char *buf, Eina_Simple_XML_Attribute_Cb func, const void *data);
 
 /**
- * Create (and append) new attribute to tag.
+ * @brief Create (and append) new attribute to tag.
  *
- * @param parent if provided, will be set in the resulting structure
+ * @since_tizen 2.3
+ *
+ * @param[in] parent if provided, will be set in the resulting structure
  *        as well as the attribute will be appended to attributes list.
- * @param key Null-terminated string. Must not be @c NULL.
- * @param value Null-terminated string. If @c NULL, the empty string will be used.
+ * @param[in] key Null-terminated string. Must not be @c NULL.
+ * @param[in] value Null-terminated string. If @c NULL, the empty string will be used.
  *
  * @return Newly allocated memory or @c NULL on error. This memory should be
  *         released with eina_simple_xml_attribute_free() or indirectly
@@ -309,19 +317,23 @@ eina_simple_xml_attribute_w3c_parse(const char *buf, Eina_Simple_XML_Attribute_C
 EAPI Eina_Simple_XML_Attribute * eina_simple_xml_attribute_new(Eina_Simple_XML_Node_Tag *parent, const char *key, const char *value);
 
 /**
- * Remove attribute from parent and delete it.
+ * @brief Remove attribute from parent and delete it.
  *
- * @param attr attribute to release memory.
+ * @since_tizen 2.3
+ *
+ * @param[in] attr attribute to release memory.
  */
 EAPI void eina_simple_xml_attribute_free(Eina_Simple_XML_Attribute *attr);
 
 
 /**
- * Create new tag. If parent is provided, it is automatically appended.
+ * @brief Create new tag. If parent is provided, it is automatically appended.
  *
- * @param parent if provided, will be set in the resulting structure
+ * @since_tizen 2.3
+ *
+ * @param[in] parent if provided, will be set in the resulting structure
  *        as well as the tag will be appended to children list.
- * @param name Null-terminated string. Must not be @c NULL.
+ * @param[in] name Null-terminated string. Must not be @c NULL.
  *
  * @return Newly allocated memory or @c NULL on error. This memory should be
  *         released with eina_simple_xml_node_tag_free() or indirectly
@@ -338,12 +350,14 @@ EAPI void eina_simple_xml_node_tag_free(Eina_Simple_XML_Node_Tag *tag);
 
 
 /**
- * Create new data. If parent is provided, it is automatically appended.
+ * @brief Create new data. If parent is provided, it is automatically appended.
  *
- * @param parent if provided, will be set in the resulting structure
+ * @since_tizen 2.3
+ *
+ * @param[in] parent if provided, will be set in the resulting structure
  *        as well as the data will be appended to children list.
- * @param contents String to be used. Must not be @c NULL.
- * @param length size in bytes of @a contents.
+ * @param[in] contents String to be used. Must not be @c NULL.
+ * @param[in] length size in bytes of @a contents.
  *
  * @return Newly allocated memory or NULL on error. This memory should be
  *         released with eina_simple_xml_node_data_free() or indirectly
@@ -352,20 +366,24 @@ EAPI void eina_simple_xml_node_tag_free(Eina_Simple_XML_Node_Tag *tag);
 EAPI Eina_Simple_XML_Node_Data * eina_simple_xml_node_data_new(Eina_Simple_XML_Node_Tag *parent, const char *contents, size_t length);
 
 /**
- * Remove data from parent and delete it.
+ * @brief Remove data from parent and delete it.
  *
- * @param node to release memory.
+ * @since_tizen 2.3
+ *
+ * @param[in] node to release memory.
  */
 EAPI void eina_simple_xml_node_data_free(Eina_Simple_XML_Node_Data *node);
 
 
 /**
- * Create new cdata. If parent is provided, it is automatically appended.
+ * @brief Create new cdata. If parent is provided, it is automatically appended.
  *
- * @param parent if provided, will be set in the resulting structure
+ * @since_tizen 2.3
+ *
+ * @param[in] parent if provided, will be set in the resulting structure
  *        as well as the cdata will be appended to children list.
- * @param contents String to be used. Must not be @c NULL.
- * @param length size in bytes of @a content.
+ * @param[in] contents String to be used. Must not be @c NULL.
+ * @param[in] length size in bytes of @a content.
  *
  * @return Newly allocated memory or @c NULL on error. This memory should be
  *         released with eina_simple_xml_node_cdata_free() or indirectly
@@ -374,20 +392,24 @@ EAPI void eina_simple_xml_node_data_free(Eina_Simple_XML_Node_Data *node);
 EAPI Eina_Simple_XML_Node_CData * eina_simple_xml_node_cdata_new(Eina_Simple_XML_Node_Tag *parent, const char *contents, size_t length);
 
 /**
- * Remove cdata from parent and delete it.
+ * @brief Remove cdata from parent and delete it.
  *
- * @param node to release memory.
+ * @since_tizen 2.3
+ *
+ * @param[in] node to release memory.
  */
 EAPI void eina_simple_xml_node_cdata_free(Eina_Simple_XML_Node_Data *node);
 
 
 /**
- * Create new doctype child. If parent is provided, it is automatically appended.
+ * @brief Create new doctype child. If parent is provided, it is automatically appended.
  *
- * @param parent if provided, will be set in the resulting structure
+ * @since_tizen 2.3
+ *
+ * @param[in] parent if provided, will be set in the resulting structure
  *        as well as the doctype child will be appended to children list.
- * @param contents String to be used. Must not be @c NULL.
- * @param length size in bytes of @a content.
+ * @param[in] contents String to be used. Must not be @c NULL.
+ * @param[in] length size in bytes of @a content.
  *
  * @return Newly allocated memory or @c NULL on error. This memory should be
  *         released with eina_simple_xml_node_doctype_child_free() or indirectly
@@ -398,9 +420,11 @@ EAPI void eina_simple_xml_node_cdata_free(Eina_Simple_XML_Node_Data *node);
 EAPI Eina_Simple_XML_Node_Doctype_Child * eina_simple_xml_node_doctype_child_new(Eina_Simple_XML_Node_Tag *parent, const char *contents, size_t length);
 
 /**
- * Remove doctype child from parent and delete it.
+ * @brief Remove doctype child from parent and delete it.
  *
- * @param node to release memory.
+ * @since_tizen 2.3
+ *
+ * @param[in] node to release memory.
  *
  * @since 1.8
  */
@@ -408,12 +432,14 @@ EAPI void eina_simple_xml_node_doctype_child_free(Eina_Simple_XML_Node_Data *nod
 
 
 /**
- * Create new processing. If parent is provided, it is automatically appended.
+ * @brief Create new processing. If parent is provided, it is automatically appended.
  *
- * @param parent if provided, will be set in the resulting structure
+ * @since_tizen 2.3
+ *
+ * @param[in] parent if provided, will be set in the resulting structure
  *        as well as the processing will be appended to children list.
- * @param contents String to be used. Must not be @c NULL.
- * @param length size in bytes of @a contents.
+ * @param[in] contents String to be used. Must not be @c NULL.
+ * @param[in] length size in bytes of @a contents.
  *
  * @return Newly allocated memory or @c NULL on error. This memory should be
  *         released with eina_simple_xml_node_processing_free() or indirectly
@@ -422,20 +448,24 @@ EAPI void eina_simple_xml_node_doctype_child_free(Eina_Simple_XML_Node_Data *nod
 EAPI Eina_Simple_XML_Node_Processing * eina_simple_xml_node_processing_new(Eina_Simple_XML_Node_Tag *parent, const char *contents, size_t length);
 
 /**
- * Remove processing from parent and delete it.
+ * @brief Remove processing from parent and delete it.
  *
- * @param node processing to release memory.
+ * @since_tizen 2.3
+ *
+ * @param[in] node processing to release memory.
  */
 EAPI void eina_simple_xml_node_processing_free(Eina_Simple_XML_Node_Data *node);
 
 
 /**
- * Create new doctype. If parent is provided, it is automatically appended.
+ * @brief Create new doctype. If parent is provided, it is automatically appended.
  *
- * @param parent if provided, will be set in the resulting structure
+ * @since_tizen 2.3
+ *
+ * @param[in] parent if provided, will be set in the resulting structure
  *        as well as the doctype will be appended to children list.
- * @param contents String to be used. Must not be @c NULL.
- * @param length size in bytes of @a contents.
+ * @param[in] contents String to be used. Must not be @c NULL.
+ * @param[in] length size in bytes of @a contents.
  *
  * @return Newly allocated memory or @c NULL on error. This memory should be
  *         released with eina_simple_xml_node_doctype_free() or indirectly
@@ -444,20 +474,24 @@ EAPI void eina_simple_xml_node_processing_free(Eina_Simple_XML_Node_Data *node);
 EAPI Eina_Simple_XML_Node_Doctype * eina_simple_xml_node_doctype_new(Eina_Simple_XML_Node_Tag *parent, const char *contents, size_t length);
 
 /**
- * Remove doctype from parent and delete it.
+ * @brief Remove doctype from parent and delete it.
  *
- * @param node doctype to release memory.
+ * @since_tizen 2.3
+ *
+ * @param[in] node doctype to release memory.
  */
 EAPI void eina_simple_xml_node_doctype_free(Eina_Simple_XML_Node_Data *node);
 
 
 /**
- * Create new comment. If parent is provided, it is automatically appended.
+ * @brief Create new comment. If parent is provided, it is automatically appended.
  *
- * @param parent if provided, will be set in the resulting structure
+ * @since_tizen 2.3
+ *
+ * @param[in] parent if provided, will be set in the resulting structure
  *        as well as the comment will be appended to children list.
- * @param contents String to be used. Must not be @c NULL.
- * @param length size in bytes of @a contents.
+ * @param[in] contents String to be used. Must not be @c NULL.
+ * @param[in] length size in bytes of @a contents.
  *
  * @return Newly allocated memory or @c NULL on error. This memory should be
  *         released with eina_simple_xml_node_comment_free() or indirectly
@@ -466,19 +500,23 @@ EAPI void eina_simple_xml_node_doctype_free(Eina_Simple_XML_Node_Data *node);
 EAPI Eina_Simple_XML_Node_Comment * eina_simple_xml_node_comment_new(Eina_Simple_XML_Node_Tag *parent, const char *contents, size_t length);
 
 /**
- * Remove comment from parent and delete it.
+ * @brief Remove comment from parent and delete it.
  *
- * @param node comment to release memory.
+ * @since_tizen 2.3
+ *
+ * @param[in] node comment to release memory.
  */
 EAPI void eina_simple_xml_node_comment_free(Eina_Simple_XML_Node_Data *node);
 
 
 /**
- * Load a XML node tree based on the given string.
+ * @brief Load a XML node tree based on the given string.
  *
- * @param buf the input string. May not contain \0 terminator.
- * @param buflen the input string size.
- * @param strip whenever this parser should strip leading and trailing
+ * @since_tizen 2.3
+ *
+ * @param[in] buf the input string. May not contain \0 terminator.
+ * @param[in] buflen the input string size.
+ * @param[in] strip whenever this parser should strip leading and trailing
  *        whitespace.
  *
  * @return Document root with children tags, or @c NULL on errors.
@@ -488,17 +526,21 @@ EAPI void eina_simple_xml_node_comment_free(Eina_Simple_XML_Node_Data *node);
 EAPI Eina_Simple_XML_Node_Root * eina_simple_xml_node_load(const char *buf, unsigned buflen, Eina_Bool strip);
 
 /**
- * Free node tree build with eina_simple_xml_node_load()
+ * @brief Free node tree build with eina_simple_xml_node_load()
  *
- * @param root memory returned by eina_simple_xml_node_load()
+ * @since_tizen 2.3
+ *
+ * @param[in] root memory returned by eina_simple_xml_node_load()
  */
 EAPI void eina_simple_xml_node_root_free(Eina_Simple_XML_Node_Root *root);
 
 /**
- * Converts the node tree under the given element to a XML string.
+ * @brief Converts the node tree under the given element to a XML string.
  *
- * @param node the base node to convert.
- * @param indent Indentation string, or @c NULL to disable it.
+ * @since_tizen 2.3
+ *
+ * @param[in] node the base node to convert.
+ * @param[in] indent Indentation string, or @c NULL to disable it.
  *
  * @return @c NULL on errors or a newly allocated string on success.
  */

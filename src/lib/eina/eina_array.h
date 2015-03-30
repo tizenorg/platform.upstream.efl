@@ -156,9 +156,9 @@
  * An array must be created with eina_array_new(). It allocates all
  * the necessary data for an array. When not needed anymore, an array
  * is freed with eina_array_free(). This frees the memory used by the Eina_Array
- * itself, but does not free any memory used to store the data of each element. 
+ * itself, but does not free any memory used to store the data of each element.
  * To free that memory you must iterate over the array and free each data element
- * individually. A convenient way to do that is by using #EINA_ARRAY_ITER_NEXT. 
+ * individually. A convenient way to do that is by using #EINA_ARRAY_ITER_NEXT.
  * An example of that pattern is given in the description of @ref EINA_ARRAY_ITER_NEXT.
  *
  * @warning Functions do not check if the used array is valid or not. It's up to
@@ -176,10 +176,10 @@
  * element to a full array it grows and that when you remove an element from an
  * array it @b may shrink.
  *
- * Allocating memory is expensive, so when the array needs to grow it allocates 
- * enough memory to hold @p step additonal elements, not just the element 
- * currently being added. Similarly if you remove elements, it won't free space 
- * until you have removed @p step elements. 
+ * Allocating memory is expensive, so when the array needs to grow it allocates
+ * enough memory to hold @p step additonal elements, not just the element
+ * currently being added. Similarly if you remove elements, it won't free space
+ * until you have removed @p step elements.
  *
  * The following image illustrates how an Eina_Array grows:
  *
@@ -244,14 +244,16 @@ struct _Eina_Array
 /**
  * @brief Create a new array.
  *
- * @param step The count of pointers to add when increasing the array size.
+ * @since_tizen 2.3
+ *
+ * @param[in] step The count of pointers to add when increasing the array size.
  * @return @c NULL on failure, non @c NULL otherwise.
  *
- * This function creates a new array. When adding an element, the array
+ * @remark This function creates a new array. When adding an element, the array
  * allocates @p step elements. When that buffer is full, then adding
  * another element will increase the buffer by @p step elements again.
  *
- * This function return a valid array on success, or @c NULL if memory
+ * @remark This function return a valid array on success, or @c NULL if memory
  * allocation fails.
  */
 EAPI Eina_Array *eina_array_new(unsigned int step) EINA_WARN_UNUSED_RESULT EINA_MALLOC EINA_WARN_UNUSED_RESULT;
@@ -259,9 +261,11 @@ EAPI Eina_Array *eina_array_new(unsigned int step) EINA_WARN_UNUSED_RESULT EINA_
 /**
  * @brief Free an array.
  *
- * @param array The array to free.
+ * @since_tizen 2.3
  *
- * This function frees @p array. It calls first eina_array_flush() then
+ * @param[in] array The array to free.
+ *
+ * @remark This function frees @p array. It calls first eina_array_flush() then
  * free the memory of the pointer. It does not free the memory
  * allocated for the elements of @p array. To free them, walk the array with
  * #EINA_ARRAY_ITER_NEXT. For performance reasons, there is no check
@@ -272,11 +276,13 @@ EAPI void        eina_array_free(Eina_Array *array) EINA_ARG_NONNULL(1);
 /**
  * @brief Set the step of an array.
  *
- * @param array The array.
- * @param sizeof_eina_array Should be the value returned by sizeof(Eina_Array).
- * @param step The count of pointers to add when increasing the array size.
+ * @since_tizen 2.3
  *
- * This function sets the step of @p array to @p step. For performance
+ * @param[in] array The array.
+ * @param[in] sizeof_eina_array Should be the value returned by sizeof(Eina_Array).
+ * @param[in] step The count of pointers to add when increasing the array size.
+ *
+ * @remark This function sets the step of @p array to @p step. For performance
  * reasons, there is no check of @p array. If it is @c NULL or
  * invalid, the program may crash.
  *
@@ -288,9 +294,11 @@ EAPI void        eina_array_step_set(Eina_Array  *array,
 /**
  * @brief Clean an array.
  *
- * @param array The array to clean.
+ * @since_tizen 2.3
  *
- * This function sets the count member of @p array to 0, however it doesn't free
+ * @param[in] array The array to clean.
+ *
+ * @remark This function sets the count member of @p array to 0, however it doesn't free
  * any space. This is particularly useful if you need to empty the array and
  * add lots of elements quickly. For performance reasons, there is no check of
  * @p array. If it is @c NULL or invalid, the program may crash.
@@ -300,9 +308,11 @@ static inline void eina_array_clean(Eina_Array *array) EINA_ARG_NONNULL(1);
 /**
  * @brief Flush an array.
  *
- * @param array The array to flush.
+ * @since_tizen 2.3
  *
- * This function sets the count and total members of @p array to 0,
+ * @param[in] array The array to flush.
+ *
+ * @remark This function sets the count and total members of @p array to 0,
  * frees and set to NULL its data member. For performance reasons,
  * there is no check of @p array. If it is @c NULL or invalid, the
  * program may crash.
@@ -312,17 +322,19 @@ EAPI void eina_array_flush(Eina_Array *array) EINA_ARG_NONNULL(1);
 /**
  * @brief Rebuild an array by specifying the data to keep.
  *
- * @param array The array.
- * @param keep The functions which selects the data to keep.
- * @param gdata The data to pass to the function keep.
+ * @since_tizen 2.3
+ *
+ * @param[in] array The array.
+ * @param[in] keep The functions which selects the data to keep.
+ * @param[in] gdata The data to pass to the function keep.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
  *
- * This function rebuilds @p array be specifying the elements to keep with the
+ * @remark This function rebuilds @p array be specifying the elements to keep with the
  * function @p keep. No empty/invalid fields are left in the array. @p gdata is
  * an additional data to pass to @p keep. For performance reasons, there is no
  * check of @p array. If it is @c NULL or invalid, the program may crash.
  *
- * If it wasn't able to remove items due to an allocation failure, it will
+ * @remark If it wasn't able to remove items due to an allocation failure, it will
  * return #EINA_FALSE.
  */
 EAPI Eina_Bool eina_array_remove(Eina_Array * array,
@@ -332,11 +344,13 @@ EAPI Eina_Bool eina_array_remove(Eina_Array * array,
 /**
  * @brief Append a data to an array.
  *
- * @param array The array.
- * @param data The data to add.
+ * @since_tizen 2.3
+ *
+ * @param[in] array The array.
+ * @param[in] data The data to add.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
  *
- * This function appends @p data to @p array. For performance
+ * @remark This function appends @p data to @p array. For performance
  * reasons, there is no check of @p array. If it is @c NULL or
  * invalid, the program may crash. If @p data is @c NULL, or if an
  * allocation is necessary and fails, #EINA_FALSE is returned
@@ -348,10 +362,12 @@ static inline Eina_Bool eina_array_push(Eina_Array *array,
 /**
  * @brief Remove the last data of an array.
  *
- * @param array The array.
+ * @since_tizen 2.3
+ *
+ * @param[in] array The array.
  * @return The retrieved data.
  *
- * This function removes the last data of @p array, decreases the count
+ * @remark This function removes the last data of @p array, decreases the count
  * of @p array and returns the data. For performance reasons, there
  * is no check of @p array. If it is @c NULL or invalid, the program
  * may crash. If the count member is less or equal than 0, @c NULL is
@@ -362,11 +378,13 @@ static inline void     *eina_array_pop(Eina_Array *array) EINA_ARG_NONNULL(1);
 /**
  * @brief Return the data at a given position in an array.
  *
- * @param array The array.
- * @param idx The potition of the data to retrieve.
+ * @since_tizen 2.3
+ *
+ * @param[in] array The array.
+ * @param[in] idx The potition of the data to retrieve.
  * @return The retrieved data.
  *
- * This function returns the data at the position @p idx in @p
+ * @remark This function returns the data at the position @p idx in @p
  * array. For performance reasons, there is no check of @p array or @p
  * idx. If it is @c NULL or invalid, the program may crash.
  */
@@ -375,11 +393,13 @@ static inline void     *eina_array_data_get(const Eina_Array *array,
 /**
  * @brief Set the data at a given position in an array.
  *
- * @param array The array.
- * @param idx The position of the data to set.
- * @param data The data to set.
+ * @since_tizen 2.3
  *
- * This function sets the data at the position @p idx in @p
+ * @param[in] array The array.
+ * @param[in] idx The position of the data to set.
+ * @param[in] data The data to set.
+ *
+ * @remark This function sets the data at the position @p idx in @p
  * array to @p data, this effectively replaces the previously held data, you
  * must therefore get a pointer to it first if you need to free it. For
  * performance reasons, there is no check of @p array or @p idx. If it is @c
@@ -391,10 +411,12 @@ static inline void      eina_array_data_set(const Eina_Array *array,
 /**
  * @brief Return the number of elements in an array.
  *
- * @param array The array.
+ * @since_tizen 2.3
+ *
+ * @param[in] array The array.
  * @return The number of elements.
  *
- * This function returns the number of elements in @p array (array->count). For
+ * @remark This function returns the number of elements in @p array (array->count). For
  * performance reasons, there is no check of @p array. If it is
  * @c NULL or invalid, the program may crash.
  *
@@ -405,10 +427,12 @@ static inline unsigned int eina_array_count_get(const Eina_Array *array) EINA_AR
 /**
  * @brief Return the number of elements in an array.
  *
- * @param array The array.
+ * @since_tizen 2.3
+ *
+ * @param[in] array The array.
  * @return The number of elements.
  *
- * This function returns the number of elements in @p array (array->count). For
+ * @remark This function returns the number of elements in @p array (array->count). For
  * performance reasons, there is no check of @p array. If it is
  * @c NULL or invalid, the program may crash.
  */
@@ -417,10 +441,12 @@ static inline unsigned int eina_array_count(const Eina_Array *array) EINA_ARG_NO
 /**
  * @brief Get a new iterator associated to an array.
  *
- * @param array The array.
+ * @since_tizen 2.3
+ *
+ * @param[in] array The array.
  * @return A new iterator.
  *
- * This function returns a newly allocated iterator associated to
+ * @remark This function returns a newly allocated iterator associated to
  * @p array. If @p array is @c NULL or the count member of @p array is
  * less or equal than 0, this function returns @c NULL. If the memory can
  * not be allocated, @c NULL is returned. Otherwise, a valid iterator is returned.
@@ -430,10 +456,12 @@ EAPI Eina_Iterator        *eina_array_iterator_new(const Eina_Array *array) EINA
 /**
  * @brief Get a new accessor associated to an array.
  *
- * @param array The array.
+ * @since_tizen 2.3
+ *
+ * @param[in] array The array.
  * @return A new accessor.
  *
- * This function returns a newly allocated accessor associated to
+ * @remark This function returns a newly allocated accessor associated to
  * @p array. If @p array is @c NULL or the count member of @p array is
  * less or equal than 0, this function returns @c NULL. If the memory can
  * not be allocated, @c NULL is returned. Otherwise, a valid accessor is
@@ -443,12 +471,14 @@ EAPI Eina_Accessor        *eina_array_accessor_new(const Eina_Array *array) EINA
 /**
  * @brief Provide a safe way to iterate over an array
  *
- * @param array The array to iterate over.
- * @param cb The callback to call for each item.
- * @param fdata The user data to pass to the callback.
+ * @since_tizen 2.3
+ *
+ * @param[in] array The array to iterate over.
+ * @param[in] cb The callback to call for each item.
+ * @param[in] fdata The user data to pass to the callback.
  * @return #EINA_TRUE if it successfully iterate all items of the array.
  *
- * This function provides a safe way to iterate over an array. @p cb should
+ * @remark This function provides a safe way to iterate over an array. @p cb should
  * return #EINA_TRUE as long as you want the function to continue iterating.
  * If @p cb returns #EINA_FALSE, iterations will stop and the function will also
  * return #EINA_FALSE.

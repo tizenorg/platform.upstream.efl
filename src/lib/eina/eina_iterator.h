@@ -103,7 +103,7 @@
  *
  * To get the data and iterate, use eina_iterator_next(). To call a function on
  * all the elements of a container, use eina_iterator_foreach().
- * 
+ *
  * Here an @ref eina_iterator_example_page "example"
  */
 
@@ -199,9 +199,11 @@ struct _Eina_Iterator
 /**
  * @brief Free an iterator.
  *
- * @param iterator The iterator to free.
+ * @since_tizen 2.3
  *
- * This function frees @p iterator if it is not @c NULL;
+ * @param[in] iterator The iterator to free.
+ *
+ * @remark This function frees @p iterator if it is not @c NULL;
  */
 EAPI void      eina_iterator_free(Eina_Iterator *iterator);
 
@@ -209,10 +211,12 @@ EAPI void      eina_iterator_free(Eina_Iterator *iterator);
 /**
  * @brief Return the container of an iterator.
  *
- * @param iterator The iterator.
+ * @since_tizen 2.3
+ *
+ * @param[in] iterator The iterator.
  * @return The container which created the iterator.
  *
- * This function returns the container which created @p iterator. If
+ * @remark This function returns the container which created @p iterator. If
  * @p iterator is @c NULL, this function returns @c NULL.
  */
 EAPI void     *eina_iterator_container_get(Eina_Iterator *iterator) EINA_ARG_NONNULL(1) EINA_PURE;
@@ -220,11 +224,13 @@ EAPI void     *eina_iterator_container_get(Eina_Iterator *iterator) EINA_ARG_NON
 /**
  * @brief Return the value of the current element and go to the next one.
  *
- * @param iterator The iterator.
- * @param data The data of the element.
+ * @since_tizen 2.3
+ *
+ * @param[in] iterator The iterator.
+ * @param[in] data The data of the element.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
  *
- * This function returns the value of the current element pointed by
+ * @remark This function returns the value of the current element pointed by
  * @p iterator in @p data, then goes to the next element. If @p
  * iterator is @c NULL or if a problem occurred, #EINA_FALSE is
  * returned, otherwise #EINA_TRUE is returned.
@@ -236,11 +242,13 @@ EAPI Eina_Bool eina_iterator_next(Eina_Iterator *iterator,
 /**
  * @brief Iterate over the container and execute a callback on each element.
  *
- * @param iterator The iterator.
- * @param callback The callback called on each iteration.
- * @param fdata The data passed to the callback.
+ * @since_tizen 2.3
  *
- * This function iterates over the elements pointed by @p iterator,
+ * @param[in] iterator The iterator.
+ * @param[in] callback The callback called on each iteration.
+ * @param[in] fdata The data passed to the callback.
+ *
+ * @remark This function iterates over the elements pointed by @p iterator,
  * beginning from the current element. For Each element, the callback
  * @p cb is called with the data @p fdata. If @p iterator is @c NULL,
  * the function returns immediately. Also, if @p cb returns #EINA_FALSE,

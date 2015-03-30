@@ -165,16 +165,18 @@ EAPI extern Eina_Error EINA_ERROR_CONVERT_OUTRUN_STRING_LENGTH; /**< Not used, p
 /**
  * @brief Convert an integer number to a string in decimal base.
  *
- * @param n The integer to convert.
- * @param s The buffer to store the converted integer.
+ * @since_tizen 2.3
+ *
+ * @param[in] n The integer to convert.
+ * @param[out] s The buffer to store the converted integer.
  * @return The length of the string, including the nul terminated
  * character.
  *
- * This function converts @p n to a nul terminated string. The
+ * @remark This function converts @p n to a nul terminated string. The
  * converted string is in decimal base. As no check is done, @p s must
  * be a buffer that is sufficiently large to store the integer.
  *
- * The returned value is the length of the string, including the nul
+ * @remark The returned value is the length of the string, including the nul
  * terminated character.
  */
 EAPI int       eina_convert_itoa(int n, char *s)  EINA_ARG_NONNULL(2);
@@ -182,17 +184,19 @@ EAPI int       eina_convert_itoa(int n, char *s)  EINA_ARG_NONNULL(2);
 /**
  * @brief Convert an integer number to a string in hexadecimal base.
  *
- * @param n The integer to convert.
- * @param s The buffer to store the converted integer.
+ * @since_tizen 2.3
+ *
+ * @param[in] n The integer to convert.
+ * @param[out] s The buffer to store the converted integer.
  * @return The length of the string, including the nul terminated
  * character.
  *
- * This function converts @p n to a nul terminated string. The
+ * @remark This function converts @p n to a nul terminated string. The
  * converted string is in hexadecimal base and the alphabetical
  * cyphers are in lower case. As no check is done, @p s must be a
  * buffer that is sufficiently large to store the integer.
  *
- * The returned value is the length of the string, including the nul
+ * @remark The returned value is the length of the string, including the nul
  * terminated character.
  */
 EAPI int       eina_convert_xtoa(unsigned int n, char *s) EINA_ARG_NONNULL(2);
@@ -201,11 +205,13 @@ EAPI int       eina_convert_xtoa(unsigned int n, char *s) EINA_ARG_NONNULL(2);
 /**
  * @brief Convert a double to a string.
  *
- * @param d The double to convert.
- * @param des The destination buffer to store the converted double.
+ * @since_tizen 2.3
+ *
+ * @param[in] d The double to convert.
+ * @param[out] des The destination buffer to store the converted double.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
  *
- * This function converts the double @p d to a string. The string is
+ * @remark This function converts the double @p d to a string. The string is
  * stored in the buffer pointed by @p des and must be sufficiently
  * large to contain the converted double. The returned string is nul
  * terminated and has the following format:
@@ -214,10 +220,10 @@ EAPI int       eina_convert_xtoa(unsigned int n, char *s) EINA_ARG_NONNULL(2);
  * [-]0xh.hhhhhp[+-]e
  * @endcode
  *
- * where the h are the hexadecimal cyphers of the mantiss and e the
+ * @remark where the h are the hexadecimal cyphers of the mantiss and e the
  * exponent (a decimal number).
  *
- * The returned value is the length of the string, including the nul
+ * @remark The returned value is the length of the string, including the nul
  * character.
  */
 EAPI int       eina_convert_dtoa(double d, char *des) EINA_ARG_NONNULL(2);
@@ -225,24 +231,26 @@ EAPI int       eina_convert_dtoa(double d, char *des) EINA_ARG_NONNULL(2);
 /**
  * @brief Convert a string to a double.
  *
- * @param src The string to convert.
- * @param length The length of the string.
- * @param m The mantisse.
- * @param e The exponent.
+ * @since_tizen 2.3
+ *
+ * @param[in] src The string to convert.
+ * @param[in] length The length of the string.
+ * @param[out] m The mantisse.
+ * @param[out] e The exponent.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
  *
- * This function converts the string @p s of length @p length that
+ * @remark This function converts the string @p s of length @p length that
  * represent a double in hexadecimal base to a double. It is used to
  * replace the use of snprintf() with the \%a modifier, which is
  * missing on some platform (like Windows (tm) or OpenBSD).
  *
- * The string must have the following format:
+ * @remark The string must have the following format:
  *
  * @code
  * [-]0xh.hhhhhp[+-]e
  * @endcode
  *
- * where the h are the hexadecimal cyphers of the mantiss and e the
+ * @remark where the h are the hexadecimal cyphers of the mantiss and e the
  * exponent (a decimal number). If n is the number of cypers after the
  * point, the returned mantiss and exponents are:
  *
@@ -251,10 +259,10 @@ EAPI int       eina_convert_dtoa(double d, char *des) EINA_ARG_NONNULL(2);
  * exponent : 2^([+-]e - 4 * n)
  * @endcode
  *
- * The mantiss and exponent are stored in the buffers pointed
+ * @remark The mantiss and exponent are stored in the buffers pointed
  * respectively by @p m and @p e.
  *
- * If the string is invalid #EINA_FALSE is returned, otherwise #EINA_TRUE is
+ * @remark If the string is invalid #EINA_FALSE is returned, otherwise #EINA_TRUE is
  * returned.
  */
 EAPI Eina_Bool eina_convert_atod(const char *src,
@@ -266,11 +274,13 @@ EAPI Eina_Bool eina_convert_atod(const char *src,
 /**
  * @brief Convert a 32.32 fixed point number to a string.
  *
- * @param fp The fixed point number to convert.
- * @param des The destination buffer to store the converted fixed point number.
+ * @since_tizen 2.3
+ *
+ * @param[in] fp The fixed point number to convert.
+ * @param[out] des The destination buffer to store the converted fixed point number.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
  *
- * This function converts the 32.32 fixed point number @p fp to a
+ * @remark This function converts the 32.32 fixed point number @p fp to a
  * string. The string is stored in the buffer pointed by @p des and
  * must be sufficiently large to contain the converted fixed point
  * number. The returned string is terminated and has the following
@@ -280,13 +290,13 @@ EAPI Eina_Bool eina_convert_atod(const char *src,
  * [-]0xh.hhhhhp[+-]e
  * @endcode
  *
- * where the h are the hexadecimal cyphers of the mantiss and e the
+ * @remark where the h are the hexadecimal cyphers of the mantiss and e the
  * exponent (a decimal number).
  *
- * The returned value is the length of the string, including the nul
+ * @remark The returned value is the length of the string, including the nul
  * character.
  *
- * @note The code is the same than eina_convert_dtoa() except that it
+ * @remark The code is the same than eina_convert_dtoa() except that it
  * implements the frexp() function for fixed point numbers and does
  * some optimisations.
  */
@@ -296,23 +306,25 @@ EAPI int       eina_convert_fptoa(Eina_F32p32 fp,
 /**
  * @brief Convert a string to a 32.32 fixed point number.
  *
- * @param src The string to convert.
- * @param length The length of the string.
- * @param fp The fixed point number.
+ * @since_tizen 2.3
+ *
+ * @param[in] src The string to convert.
+ * @param[in] length The length of the string.
+ * @param[out] fp The fixed point number.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
  *
- * This function converts the string @p src of length @p length that
+ * @remark This function converts the string @p src of length @p length that
  * represent a double in hexadecimal base to a 32.32 fixed point
  * number stored in @p fp. The function always tries to convert the
  * string with eina_convert_atod().
  *
- * The string must have the following format:
+ * @remark The string must have the following format:
  *
  * @code
  * [-]0xh.hhhhhp[+-]e
  * @endcode
  *
- * where the h are the hexadecimal cyphers of the mantiss and e the
+ * @remark where the h are the hexadecimal cyphers of the mantiss and e the
  * exponent (a decimal number). If n is the number of cypers after the
  * point, the returned mantiss and exponents are:
  *
@@ -321,13 +333,13 @@ EAPI int       eina_convert_fptoa(Eina_F32p32 fp,
  * exponent : 2^([+-]e - 4 * n)
  * @endcode
  *
- * The mantiss and exponent are stored in the buffers pointed
+ * @remark The mantiss and exponent are stored in the buffers pointed
  * respectively by @p m and @p e.
  *
- * If the string is invalid, #EINA_FALSE is returned,
+ * @remark If the string is invalid, #EINA_FALSE is returned,
  * otherwise @p fp is computed and #EINA_TRUE is returned.
  *
- * @note The code uses eina_convert_atod() and do the correct bit
+ * @remark The code uses eina_convert_atod() and do the correct bit
  * shift to compute the fixed point number.
  */
 EAPI Eina_Bool eina_convert_atofp(const char  *src,

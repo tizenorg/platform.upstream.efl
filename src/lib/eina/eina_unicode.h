@@ -43,12 +43,14 @@ EAPI size_t        eina_unicode_strlen(const Eina_Unicode *ustr) EINA_ARG_NONNUL
 /**
  * @brief Returns the length of a Eina_Unicode string, up to a limit.
  *
- * This function returns the number of characters in string, up to a maximum
+ * @since_tizen 2.3
+ *
+ * @remark This function returns the number of characters in string, up to a maximum
  * of n.  If the terminating character is not found in the string, it returns
  * n.
  *
- * @param ustr String to search
- * @param n Max length to search
+ * @param[in] ustr String to search
+ * @param[in] n Max length to search
  * @return Number of characters or n.
  */
 EAPI size_t        eina_unicode_strnlen(const Eina_Unicode *ustr, int n) EINA_ARG_NONNULL(1) EINA_WARN_UNUSED_RESULT EINA_PURE;
@@ -63,11 +65,13 @@ EAPI Eina_Unicode *eina_unicode_strdup(const Eina_Unicode *text) EINA_WARN_UNUSE
 /**
  * @brief Same as strdup but cuts on the given size. Assumes n < len
  *
- * @param text The text to duplicate.
- * @param n The maximum size of the text to duplicate.
+ * @since_tizen 2.3
+ *
+ * @param[in] text The text to duplicate.
+ * @param[in] n The maximum size of the text to duplicate.
  * @return The duplicated string.
  *
- * This function duplicates @p text. The resuting string is cut on @p
+ * @remark This function duplicates @p text. The resuting string is cut on @p
  * n. @p n is assumed to be lesser  (<) than the length of @p
  * text. When not needed anymore, the returned string must be freed.
  *
@@ -101,9 +105,11 @@ EAPI Eina_Unicode *eina_unicode_strncpy(Eina_Unicode *dest, const Eina_Unicode *
 
 
 /**
- * @see eina_str_escape()
+ * @brief @see eina_str_escape()
  *
- * @param str The string to escape.
+ * @since_tizen 2.3
+ *
+ * @param[in] str The string to escape.
  * @return The escaped string.
  */
 EAPI Eina_Unicode *eina_unicode_escape(const Eina_Unicode *str) EINA_ARG_NONNULL(1) EINA_MALLOC EINA_WARN_UNUSED_RESULT;
@@ -112,30 +118,34 @@ EAPI Eina_Unicode *eina_unicode_escape(const Eina_Unicode *str) EINA_ARG_NONNULL
 
 
 /**
- * Reads UTF8 bytes from @p buf, starting at @p iindex and returns
+ * @brief Reads UTF8 bytes from @p buf, starting at @p iindex and returns
  * the decoded code point at @p iindex offset, and advances @p iindex
  * to the next code point after this. @p iindex is always advanced,
  * unless if the advancement is after the @c NULL.
  * On error: return a codepoint between DC80 to DCFF where the low 8 bits
  *   are the byte's value.
  *
- * @param buf the string
- * @param iindex the index to look at and return by.
+ * @since_tizen 2.3
+ *
+ * @param[in] buf the string
+ * @param[out] iindex the index to look at and return by.
  * @return the codepoint found, 0 if @p buf or @p iindex are NULL
  * @since 1.8.0
  */
 static inline Eina_Unicode eina_unicode_utf8_next_get(const char *buf, int *iindex) EINA_ARG_NONNULL(1, 2);
 
 /**
- * Reads UTF8 bytes from @p buf, starting at @p iindex and returns
+ * @brief Reads UTF8 bytes from @p buf, starting at @p iindex and returns
  * the decoded code point at @p iindex offset, and advances @p iindex
  * to the next code point after this. @p iindex is always advanced,
  * unless if the advancement is after the @c NULL.
  * On error: return a codepoint between DC80 to DCFF where the low 8 bits
  *   are the byte's value.
  *
- * @param buf the string
- * @param iindex the index to look at and return by.
+ * @since_tizen 2.3
+ *
+ * @param[in] buf the string
+ * @param[out] iindex the index to look at and return by.
  * @return the codepoint found, 0 if @p buf or @p iindex are NULL
  * @since 1.1.0
  * @deprecated use eina_unicode_utf8_next_get
@@ -143,46 +153,54 @@ static inline Eina_Unicode eina_unicode_utf8_next_get(const char *buf, int *iind
 EAPI Eina_Unicode eina_unicode_utf8_get_next(const char *buf, int *iindex) EINA_ARG_NONNULL(1, 2) EINA_DEPRECATED;
 
 /**
- * Reads UTF8 bytes from @p buf, starting at @p iindex and returns
+ * @brief Reads UTF8 bytes from @p buf, starting at @p iindex and returns
  * the decoded code point at @p iindex offset, and moves  àp iindex
  * to the previous code point. @p iindex is always moved, as long
  * as it's not past the start of the string.
  * On error: return a codepoint between DC80 to DCFF where the low 8 bits
  *   are the byte's value.
  *
- * @param buf the string
- * @param iindex the index to look at and return by.
+ * @since_tizen 2.3
+ *
+ * @param[in] buf the string
+ * @param[out] iindex the index to look at and return by.
  * @return the codepoint found.
  * @since 1.1.0
  */
 EAPI Eina_Unicode eina_unicode_utf8_get_prev(const char *buf, int *iindex) EINA_ARG_NONNULL(1, 2);
 
 /**
- * Returns the number of unicode characters in the string. That is,
+ * @brief Returns the number of unicode characters in the string. That is,
  * the number of Eina_Unicodes it'll take to store this string in
  * an Eina_Unicode string.
  *
- * @param buf the string
+ * @since_tizen 2.3
+ *
+ * @param[in] buf the string
  * @return the number of unicode characters (not bytes) in the string
  * @since 1.1.0
  */
 EAPI int eina_unicode_utf8_get_len(const char *buf) EINA_ARG_NONNULL(1);
 
 /**
- * Converts a utf-8 string to a newly allocated Eina_Unicode string.
+ * @brief Converts a utf-8 string to a newly allocated Eina_Unicode string.
  *
- * @param utf the string in utf-8
- * @param _len the length of the returned Eina_Unicode string.
+ * @since_tizen 2.3
+ *
+ * @param[in] utf the string in utf-8
+ * @param[out] _len the length of the returned Eina_Unicode string.
  * @return the newly allocated Eina_Unicode string.
  * @since 1.1.0
  */
 EAPI Eina_Unicode *eina_unicode_utf8_to_unicode(const char *utf, int *_len) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1) EINA_MALLOC;
 
 /**
- * Converts an Eina_Unicode string to a newly allocated utf-8 string.
+ * @brief Converts an Eina_Unicode string to a newly allocated utf-8 string.
  *
- * @param uni the Eina_Unicode string
- * @param _len the length byte length of the return utf8 string.
+ * @since_tizen 2.3
+ *
+ * @param[in] uni the Eina_Unicode string
+ * @param[out] _len the length byte length of the return utf8 string.
  * @return the newly allocated utf-8 string.
  * @since 1.1.0
  */

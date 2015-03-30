@@ -111,13 +111,15 @@ extern EAPI Eina_Error EINA_ERROR_MODULE_INIT_FAILED;
 /**
  * @brief Return a new module.
  *
- * @param file The name of the file module to load.
+ * @since_tizen 2.3
+ *
+ * @param[in] file The name of the file module to load.
  * @return A new module. If @p file is @c NULL, or if it does not exist,
  * the function returns @c NULL, otherwise, it allocates an Eina_Module,
  * stores a duplicate string of @p file, sets its reference to @c 0 and
  * its handle to @c NULL.
  *
- * When the new module is not needed anymore, use eina_module_free()
+ * @remark When the new module is not needed anymore, use eina_module_free()
  * to free the allocated memory.
  *
  * @see eina_module_load
@@ -128,10 +130,12 @@ EAPI Eina_Module *
 /**
  * @brief Delete a module.
  *
- * @param module The module to delete.
+ * @since_tizen 2.3
+ *
+ * @param[in] module The module to delete.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
  *
- * This function calls eina_module_unload() if @p module has been previously
+ * @remark This function calls eina_module_unload() if @p module has been previously
  * loaded and frees the allocated memory. On success this function
  * returns #EINA_TRUE and #EINA_FALSE otherwise. If @p module is @c NULL, the
  * function returns immediately.
@@ -142,10 +146,12 @@ EAPI Eina_Bool
 /**
  * @brief Load a module.
  *
- * @param module The module to load.
+ * @since_tizen 2.3
+ *
+ * @param[in] module The module to load.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
  *
- * This function load the shared file object passed in
+ * @remark This function load the shared file object passed in
  * eina_module_new(). If it is a internal Eina module (like the
  * mempools), it also initialize it. If the shared file object can not
  * be loaded, #EINA_FALSE is returned. If it is an internal Eina module and the
@@ -154,7 +160,7 @@ EAPI Eina_Bool
  * #EINA_TRUE is returned. If @p module is @c NULL, the function returns
  * immediately #EINA_FALSE.
  *
- * When the symbols of the shared file objects are not needed
+ * @remark When the symbols of the shared file objects are not needed
  * anymore, call eina_module_unload() to unload the module.
  */
 EAPI Eina_Bool
@@ -163,10 +169,12 @@ EAPI Eina_Bool
 /**
  * @brief Unload a module.
  *
- * @param module The module to load.
+ * @since_tizen 2.3
+ *
+ * @param[in] module The module to load.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
  *
- * This function unload the module @p module that has been previously
+ * @remark This function unload the module @p module that has been previously
  * loaded by eina_module_load(). If the reference counter of @p module is
  * strictly greater than @c 1, #EINA_FALSE is returned. Otherwise, the
  * shared object file is closed and if it is a internal Eina module, it
@@ -180,11 +188,13 @@ EAPI Eina_Bool
 /**
  * @brief Retrieve the data associated to a symbol.
  *
- * @param module The module.
- * @param symbol The symbol.
+ * @since_tizen 2.3
+ *
+ * @param[in] module The module.
+ * @param[in] symbol The symbol.
  * @return The data associated to the symbol, or @c NULL on failure.
  *
- * This function returns the data associated to @p symbol of @p module. @p
+ * @remark This function returns the data associated to @p symbol of @p module. @p
  * module must have been loaded before with eina_module_load(). If @p module
  * is @c NULL, or if it has not been correctly loaded before, the
  * function returns immediately @c NULL.
@@ -195,10 +205,12 @@ EAPI void *
 /**
  * @brief Return the file name associated to the module.
  *
- * @param module The module.
+ * @since_tizen 2.3
+ *
+ * @param[in] module The module.
  * @return The file name.
  *
- * This function returns the file name passed in eina_module_new(). If
+ * @remark This function returns the file name passed in eina_module_new(). If
  * @p module is @c NULL, the function returns immediately @c NULL. The
  * returned value must no be freed.
  */
@@ -208,7 +220,10 @@ EAPI const char *
 /**
  * @brief Define if on module load we should expose all symbol
  *
- * @param module The module to turn off/on symbol to be exposed
+ * @since_tizen 2.3
+ *
+ * @param[in] module The module to turn off/on symbol to be exposed
+ * @param[in] global The flag on module load we should expose all symbol
  * @since 1.11
  */
 EAPI void eina_module_symbol_global_set(Eina_Module *module, Eina_Bool global) EINA_ARG_NONNULL(1);
@@ -217,11 +232,13 @@ EAPI void eina_module_symbol_global_set(Eina_Module *module, Eina_Bool global) E
  * @brief Return the path built from the location of a library and a
  * given sub directory.
  *
- * @param symbol The symbol to search for.
- * @param sub_dir The subdirectory to append.
+ * @since_tizen 2.3
+ *
+ * @param[in] symbol The symbol to search for.
+ * @param[in] sub_dir The subdirectory to append.
  * @return The built path on success, @c NULL otherwise.
  *
- * This function returns the path built by concatenating the path of
+ * @remark This function returns the path built by concatenating the path of
  * the library containing the symbol @p symbol and @p sub_dir. @p sub_dir
  * can be @c NULL. The returned path must be freed when not used
  * anymore. If the symbol is not found, or dl_addr() is not supported,
@@ -234,11 +251,13 @@ EAPI char *
  * @brief Return the path built from the value of an environment variable and a
  * given sub directory.
  *
- * @param env The environment variable to expand.
- * @param sub_dir The subdirectory to append.
+ * @since_tizen 2.3
+ *
+ * @param[in] env The environment variable to expand.
+ * @param[in] sub_dir The subdirectory to append.
  * @return The built path on success, @c NULL otherwise.
  *
- * This function returns the path built by concatenating the value of
+ * @remark This function returns the path built by concatenating the value of
  * the environment variable named @p env and @p sub_dir. @p sub_dir
  * can be @c NULL. The returned path must be freed when not used
  * anymore. If the symbol is not found, or @p env does not exist, or
@@ -251,12 +270,14 @@ EAPI char *
 /**
  * @brief Get an array of modules found on the directory path matching an arch type.
  *
- * @param array The array that stores the list of the modules.
- * @param path The directory's path to search for modules.
- * @param arch The architecture string.
+ * @since_tizen 2.3
+ *
+ * @param[in] array The array that stores the list of the modules.
+ * @param[in] path The directory's path to search for modules.
+ * @param[in] arch The architecture string.
  * @return The array of modules found in @p path matching @p arch.
  *
- * This function adds to @p array the module names found in @p path
+ * @remark This function adds to @p array the module names found in @p path
  * which match the cpu architecture @p arch. If @p path or @p arch is
  * @c NULL, the function returns immediately @p array. @p array can be
  * @c NULL. In that case, it is created with 4 elements.
@@ -267,20 +288,22 @@ EAPI Eina_Array *
 /**
  * @brief Get a list of modules found on the directory path.
  *
- * @param array The array that stores the list of the modules.
- * @param path The directory's path to search for modules.
- * @param recursive Iterate recursively on the path.
- * @param cb Callback function to call on each module.
- * @param data Data passed to the callback function.
+ * @since_tizen 2.3
+ *
+ * @param[in] array The array that stores the list of the modules.
+ * @param[in] path The directory's path to search for modules.
+ * @param[in] recursive Iterate recursively on the path.
+ * @param[in] cb Callback function to call on each module.
+ * @param[in] data Data passed to the callback function.
  * @return The array of modules found in @p path.
  *
- * This function adds to @p array the list of modules found in
+ * @remark This function adds to @p array the list of modules found in
  * @p path. If @p recursive is #EINA_TRUE, then recursive search is
  * done. The callback @p cb is called on each module found, and @p data
  * is passed to @p cb. If @p path is @c NULL, the function returns
  * immediately @p array. If the returned value of @p cb is @c 0, the
  * module will not be added to the list, otherwise it will be added.
- * @p array can be @c NULL. In that case, it is created with 4
+ * @remark @p array can be @c NULL. In that case, it is created with 4
  * elements. @p cb can be @c NULL.
  */
 EAPI Eina_Array *
@@ -289,9 +312,11 @@ EAPI Eina_Array *
 /**
  * @brief Load every module on the list of modules.
  *
- * @param array The array of modules to load.
+ * @since_tizen 2.3
  *
- * This function calls eina_module_load() on each element found in
+ * @param[in] array The array of modules to load.
+ *
+ * @remark This function calls eina_module_load() on each element found in
  * @p array. If @p array is @c NULL, this function does nothing.
  */
 EAPI void
@@ -300,20 +325,24 @@ EAPI void
 /**
  * @brief Unload every module on the list of modules.
  *
- * @param array The array of modules to unload.
+ * @since_tizen 2.3
  *
- * This function calls eina_module_unload() on each element found in
+ * @param[in] array The array of modules to unload.
+ *
+ * @remark This function calls eina_module_unload() on each element found in
  * @p array. If @p array is @c NULL, this function does nothing.
  */
 EAPI void
  eina_module_list_unload(Eina_Array *array) EINA_ARG_NONNULL(1);
 
 /**
- * @p Free every module on the list of modules.
+ * @brief @p Free every module on the list of modules.
  *
- * @param array The array of modules to free.
+ * @since_tizen 2.3
  *
- * This function calls eina_module_free() on each element found in
+ * @param[in] array The array of modules to free.
+ *
+ * @remark This function calls eina_module_free() on each element found in
  * @p array. If @p array is @c NULL, this function does nothing.
  */
 EAPI void
@@ -322,11 +351,13 @@ EAPI void
 /**
  * @brief Find an module in array.
  *
- * @param array The array to find the module.
- * @param module The name of module to be searched.
+ * @since_tizen 2.3
+ *
+ * @param[in] array The array to find the module.
+ * @param[in] module The name of module to be searched.
  * @return The module to find on success, @c NULL otherwise.
  *
- * This function finds an @p module in @p array.
+ * @remark This function finds an @p module in @p array.
  * If the element is found  the function returns the module, else
  * @c NULL is returned.
  */

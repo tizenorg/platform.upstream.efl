@@ -76,8 +76,10 @@
 /**
  * @brief Retrieves an instance of an object for use in a program.
  *
- * @param  [in] obj The binary object to retrieve an instance of
- * @param  [in] olen The byte size
+ * @since_tizen 2.3
+ *
+ * @param[in] obj The binary object to retrieve an instance of
+ * @param[in] olen The byte size
  * @return  A pointer to an instance of the object on success,
  *          otherwise @c NULL on failure
  *
@@ -87,7 +89,7 @@
  *          it is added to the objects to be searched and a duplicated object
  *          of @p obj is returned.
  *
- * @note This function does not check the object size, but uses the
+ * @remark This function does not check the object size, but uses the
  *       exact given size. This can be used to share a part of a larger
  *       object or subobject.
  *
@@ -99,21 +101,25 @@ EAPI const void *eina_binshare_add_length(const void  *obj,
 /**
  * @brief Increments references of the given shared object.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] obj The shared object
  * @return    A pointer to an instance of the object on success,
  *            otherwise @c NULL on failure
  *
- * @note This is similar to eina_share_common_add(), but it's faster since it
+ * @remark This is similar to eina_share_common_add(), but it's faster since it
  *       avoids lookups if possible, but on the down side it requires the parameter
  *       to be shared before, in other words, it must be the return of a previous
  *       eina_binshare_add().
  *
- * @note There is no unref since this is the work of eina_binshare_del().
+ * @remark There is no unref since this is the work of eina_binshare_del().
  */
 EAPI const void *eina_binshare_ref(const void *obj);
 
 /**
  * @brief Notes that the given object has lost an instance.
+ *
+ * @since_tizen 2.3
  *
  * @param[in] obj The given object
  *
@@ -130,6 +136,8 @@ EAPI void        eina_binshare_del(const void *obj);
 /**
  * @brief Notes that the given object @b must be shared.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] obj The shared object to know the length \n
  *            It is safe to give @c NULL, in which case @c -1 is returned
  * @return    The length of the shared object
@@ -144,6 +152,8 @@ EAPI int         eina_binshare_length(const void *obj) EINA_WARN_UNUSED_RESULT E
 
 /**
  * @brief Dumps the contents of share_common.
+ *
+ * @since_tizen 2.3
  *
  * @details This function dumps all the objects from share_common to stdout with a
  *          DDD: prefix per line and a memory usage summary.

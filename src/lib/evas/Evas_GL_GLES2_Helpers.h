@@ -1,10 +1,10 @@
 /**
+ * @file Evas_GL_GLES2_Helpers.h
+ * @defgroup Evas_GL_GLES2_Helpers Evas GL GLES2 helpers
  * @ingroup Evas_GL
- * @{
  */
 
 /**
- * @file Evas_GL_GLES2_Helpers.h
  * @brief Provides a set of helper functions and macros to use GLES 2.0 with
  * @ref Evas_GL "Evas GL".
  *
@@ -24,7 +24,7 @@ if (glExtensionFunction)
  * @endcode
  *
  * When using Elementary @ref GLView, please include the header file
- * @ref Elementary_GL_Helpers.h instead.
+ * @ref Elementary_GL_Helpers "Elementary_GL_Helpers.h" instead.
  *
  * This header file should be included when using @ref Evas_GL "Evas GL"
  * directly at a low level and with an OpenGL-ES 2.0 context only.
@@ -32,7 +32,7 @@ if (glExtensionFunction)
  * @note When this file is included, all @c glFunctions are now macros, which
  *       means that the @ref Evas_GL_API struct can't be used anyore.
  *
- * @see elm_opengl_page
+ * @see @ref elm_opengl_page
  */
 #ifndef _EVAS_GL_GLES2_HELPERS_H
 #define _EVAS_GL_GLES2_HELPERS_H
@@ -43,7 +43,7 @@ if (glExtensionFunction)
 // local convenience macros
 
 /**
- * @name Convenience functions for OpenGL-ES 2.0
+ * @addtogroup Evas_GL_GLES2_Helpers
  * @{
  */
 
@@ -62,7 +62,8 @@ EVAS_GL_GLES2_USE(evasgl, context); // Add this at the beginning
 glFunction(); // All calls 'look' normal
  * @endcode
  *
- * @note Please use @ref ELEMENTARY_GL_USE() instead, when possible.
+ * @note Please use @ref ELEMENTARY_GLVIEW_USE() instead, when possible.
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  */
 #define EVAS_GL_GLES2_USE(evasgl, context) \
    Evas_GL_API *__evas_gl_glapi = evas_gl_context_api_get(evasgl, context);
@@ -73,21 +74,16 @@ glFunction(); // All calls 'look' normal
  * This is similar to @ref EVAS_GL_GLES2_USE except that it will return from
  * the function if the GL API can not be used.
  *
- * @note Please use @ref ELEMENTARY_GL_USE() instead, when possible.
+ * @note Please use @ref ELEMENTARY_GLVIEW_USE() instead, when possible.
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  */
 #define EVAS_GL_GLES2_USE_OR_RETURN(evasgl, context, retval) \
    Evas_GL_API *__evas_gl_glapi = evas_gl_context_api_get(evasgl, context); \
    if (!__evas_gl_glapi) return retval;
 
 // End of the convenience functions
-/** @} */
 
 // Global convenience macros
-
-/**
- * @name Convenience functions for OpenGL (global definitions)
- * @{
- */
 
 /**
  * @brief Convenience macro to use the GL helpers in simple applications: declare
@@ -107,13 +103,13 @@ EVAS_GL_GLOBAL_GLES2_DECLARE()
 // ...
  * @endcode
  *
- * @note Please use @ref ELEMENTARY_GL_USE() instead, when possible.
+ * @note Please use @ref ELEMENTARY_GLVIEW_USE() instead, when possible.
  *
  * @see @ref ELEMENTARY_GLVIEW_GLOBAL_DECLARE
  * @see @ref EVAS_GL_GLOBAL_GLES2_DEFINE
  * @see @ref EVAS_GL_GLOBAL_GLES2_USE
  *
- * @since_tizen 2.3
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  */
 #define EVAS_GL_GLOBAL_GLES2_DECLARE() \
    extern Evas_GL_API *__evas_gl_glapi;
@@ -149,7 +145,7 @@ evgl_init(...)
  * @see @ref EVAS_GL_GLOBAL_GLES2_DECLARE
  * @see @ref EVAS_GL_GLOBAL_GLES2_USE
  *
- * @since_tizen 2.3
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  */
 #define EVAS_GL_GLOBAL_GLES2_DEFINE() \
    Evas_GL_API *__evas_gl_glapi = NULL;
@@ -166,7 +162,7 @@ evgl_init(...)
  * @see @ref EVAS_GL_GLOBAL_GLES2_DECLARE
  * @see @ref EVAS_GL_GLOBAL_GLES2_DEFINE
  *
- * @since_tizen 2.3
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  */
 #define EVAS_GL_GLOBAL_GLES2_USE(evgl, ctx) \
    do { __evas_gl_glapi = evas_gl_context_api_get(evgl, ctx); } while (0)
@@ -416,14 +412,16 @@ evgl_init(...)
 #define evasglWaitSync                             __evas_gl_glapi->evasglWaitSync
 
 /**
+ * @ingroup Evas_GL_GLES2_Helpers
  * @brief Macro to check that the GL APIs are properly set (GLES 2.0)
+ * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
  */
 #define EVAS_GL_GLES2_API_CHECK() \
    ((__evas_gl_glapi != NULL) && (__evas_gl_glapi->version == EVAS_GL_API_VERSION) && (glActiveTexture))
 
-#endif
-
 /**
  * @}
  */
+
+#endif
 

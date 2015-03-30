@@ -1,13 +1,11 @@
 /**
  * @brief Instantiate a new Edje object
  *
- * @since_tizen 2.3
- *
- * @param[in] evas A valid Evas handle, the canvas to place the new object
+ * @param evas A valid Evas handle, the canvas to place the new object
  * in
  * @return A handle to the new object created or @c NULL, on errors.
  *
- * @remark This function creates a new Edje smart object, returning its @c
+ * This function creates a new Edje smart object, returning its @c
  * Evas_Object handle. An Edje object is useless without a (source)
  * file set to it, so you'd most probably call edje_object_file_set()
  * afterwards, like in:
@@ -34,7 +32,7 @@
  *
  * @endcode
  *
- * @remark You can get a callback every time edje re-calculates the object
+ * @note You can get a callback every time edje re-calculates the object
  * (either due to animation or some kind of signal or input). This is called
  * in-line just after the recalculation has occurred. It is a good idea not
  * to go and delete or alter the object inside this callbacks, simply make
@@ -47,7 +45,7 @@
  *
  * @see evas_object_smart_callback_add()
  *
- * @remark Before creating the first Edje object in your code, remember
+ * @note Before creating the first Edje object in your code, remember
  * to initialize the library, with edje_init(), or unexpected behavior
  * might occur.
  */
@@ -56,15 +54,13 @@ EAPI Evas_Object *edje_object_add                 (Evas *evas);
 /**
  * @brief Remove a signal-triggered callback from an object.
  *
- * @since_tizen 2.3
- *
- * @param[in] obj A valid Evas_Object handle.
- * @param[in] emission The emission string.
- * @param[in] source The source string.
- * @param[in] func The callback function.
+ * @param obj A valid Evas_Object handle.
+ * @param emission The emission string.
+ * @param source The source string.
+ * @param func The callback function.
  * @return The data pointer
  *
- * @remark This function removes a callback, previously attached to the
+ * This function removes a callback, previously attached to the
  * emittion of a signal, from the object @a obj. The parameters @a
  * emission, @a source and @a func must match exactly those passed to
  * a previous call to edje_object_signal_callback_add(). The data
@@ -80,18 +76,16 @@ EAPI void        *edje_object_signal_callback_del (Evas_Object *obj, const char 
  * @brief Unregister/delete a callback set for an arriving Edje
  * signal, emitted by a given Edje object.
  *
- * @since_tizen 2.3
- *
- * @param[in] obj A handle to an Edje object
- * @param[in] emission The signal's "emission" string
- * @param[in] source The signal's "source" string
- * @param[in] func The callback function passed on the callback's
+ * @param obj A handle to an Edje object
+ * @param emission The signal's "emission" string
+ * @param source The signal's "source" string
+ * @param func The callback function passed on the callback's
  * registration
- * @param[in] data The pointer given to be passed as data to @p func
+ * @param data The pointer given to be passed as data to @p func
  * @return @p data, on success or @c NULL, on errors (or if @p data
  * had this value)
  *
- * @remark This function removes a callback, previously attached to the
+ * This function removes a callback, previously attached to the
  * emittion of a signal, from the object @a obj. The parameters
  * @a emission, @a source, @a func and @a data must match exactly those
  * passed to a previous call to edje_object_signal_callback_add(). The
@@ -106,14 +100,12 @@ EAPI void        *edje_object_signal_callback_del_full(Evas_Object *obj, const c
 /**
  * @brief Delete the object color class.
  *
- * @since_tizen 2.3
+ * @param obj The edje object's reference.
+ * @param color_class The color class to be deleted.
  *
- * @param[in] obj The edje object's reference.
- * @param[in] color_class The color class to be deleted.
- *
- * @remark This function deletes any values at the object level for the
+ * This function deletes any values at the object level for the
  * specified object and color class.
- * @remark Deleting the color class will revert it to the values
+ * @note Deleting the color class will revert it to the values
  *       defined by edje_color_class_set() or the color class
  *       defined in the theme file.
  *
@@ -138,13 +130,11 @@ EINA_DEPRECATED EAPI void         edje_extern_object_min_size_set (Evas_Object *
 /**
  * @brief Set the object maximum size.
  *
- * @since_tizen 2.3
+ * @param obj A valid Evas_Object handle
+ * @param maxw The maximum width
+ * @param maxh The maximum height
  *
- * @param[in] obj A valid Evas_Object handle
- * @param[in] maxw The maximum width
- * @param[in] maxh The maximum height
- *
- * @remark This sets the maximum size restriction for the object.
+ * This sets the maximum size restriction for the object.
  *
  * @deprecated use evas_object_size_hint_max_set() instead.
  */
@@ -153,14 +143,12 @@ EAPI void         edje_extern_object_max_size_set (Evas_Object *obj, Evas_Coord 
 /**
  * @brief Set the object aspect size.
  *
- * @since_tizen 2.3
+ * @param obj A valid Evas_Object handle
+ * @param aspect The aspect control axes
+ * @param aw The aspect radio width
+ * @param ah The aspect ratio height
  *
- * @param[in] obj A valid Evas_Object handle
- * @param[in] aspect The aspect control axes
- * @param[in] aw The aspect radio width
- * @param[in] ah The aspect ratio height
- *
- * @remark This sets the desired aspect ratio to keep an object that will be
+ * This sets the desired aspect ratio to keep an object that will be
  * swallowed by Edje. The width and height define a preferred size
  * ASPECT and the object may be scaled to be larger or smaller, but
  * retaining the relative scale of both aspect width and height.
@@ -170,28 +158,27 @@ EAPI void         edje_extern_object_max_size_set (Evas_Object *obj, Evas_Coord 
 EAPI void         edje_extern_object_aspect_set   (Evas_Object *obj, Edje_Aspect_Control aspect, Evas_Coord aw, Evas_Coord ah);
 
 /**
+ *
  * @brief Sets the @b EDJ file (and group within it) to load an Edje
  * object's contents from
- *
- * @since_tizen 2.3
  *
  * @return @c EINA_TRUE, on success or @c EINA_FALSE, on errors (check
  * edje_object_load_error_get() after this call to get errors causes)
  *
- * @remark Edje expects EDJ files, which are theming objects' descriptions and
+ * Edje expects EDJ files, which are theming objects' descriptions and
  * resources packed together in an EET file, to read Edje object
  * definitions from. They usually are created with the @c .edj
  * extension. EDJ files, in turn, are assembled from @b textual object
  * description files, where one describes Edje objects declaratively
  * -- the EDC files (see @ref edcref "the syntax" for those files).
  *
- * @remark Those description files were designed so that many Edje object
+ * Those description files were designed so that many Edje object
  * definitions -- also called @b groups (or collections) -- could be
  * packed together <b>in the same EDJ file</b>, so that a whole
  * application's theme could be packed in one file only. This is the
  * reason for the @p group argument.
  *
- * @remark Use this function after you instantiate a new Edje object, so that
+ * Use this function after you instantiate a new Edje object, so that
  * you can "give him life", telling where to get its contents from.
  *
  * @see edje_object_add()
@@ -205,11 +192,10 @@ Edje object
 EAPI Eina_Bool edje_object_file_set(Eo *obj, const char *file, const char *group);
 
 /**
+ *
  * @brief Get the file and group name that a given Edje object is bound to
  *
- * @since_tizen 2.3
- *
- * @remark This gets the EDJ file's path, with the respective group set for
+ * This gets the EDJ file's path, with the respective group set for
  * the given Edje object. If @a obj is either not an Edje file, or has
  * not had its file/group set previously, by edje_object_file_set(),
  * then both @p file and @p group will be set to @c NULL, indicating
@@ -217,7 +203,7 @@ EAPI Eina_Bool edje_object_file_set(Eo *obj, const char *file, const char *group
  *
  * @see edje_object_file_set()
  *
- * @remark Use @c NULL pointers on the file/group components you're not
+ * @note Use @c NULL pointers on the file/group components you're not
  * interested in: they'll be ignored by the function.
  *
  * @param[out] file The path to the EDJ file to load @p from
@@ -228,28 +214,27 @@ EAPI void edje_object_file_get(const Eo *obj, const char **file, const char **gr
 
 
 /**
+ *
  * @brief Sets the @b EDJ file (and group within it) to load an Edje
  * object's contents from
- *
- * @since_tizen 2.3
  *
  * @return @c EINA_TRUE, on success or @c EINA_FALSE, on errors (check
  * edje_object_load_error_get() after this call to get errors causes)
  *
- * @remark Edje expects EDJ files, which are theming objects' descriptions and
+ * Edje expects EDJ files, which are theming objects' descriptions and
  * resources packed together in an EET file, to read Edje object
  * definitions from. They usually are created with the @c .edj
  * extension. EDJ files, in turn, are assembled from @b textual object
  * description files, where one describes Edje objects declaratively
  * -- the EDC files (see @ref edcref "the syntax" for those files).
  *
- * @remark Those description files were designed so that many Edje object
+ * Those description files were designed so that many Edje object
  * definitions -- also called @b groups (or collections) -- could be
  * packed together <b>in the same EDJ file</b>, so that a whole
  * application's theme could be packed in one file only. This is the
  * reason for the @p group argument.
  *
- * @remark Use this function after you instantiate a new Edje object, so that
+ * Use this function after you instantiate a new Edje object, so that
  * you can "give him life", telling where to get its contents from.
  *
  * @see edje_object_add()

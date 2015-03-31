@@ -39,9 +39,11 @@ typedef void         (*Edje_Signal_Cb)          (void *data, Evas_Object *obj, c
 /**
  * @brief Get extra data passed to callbacks.
  *
+ * @since_tizen 2.3
+ *
  * @return the extra data for that callback.
  *
- * Some callbacks pass extra information. This function gives access to that
+ * @remark Some callbacks pass extra information. This function gives access to that
  * extra information. It's somehow like event_info in smart callbacks.
  *
  * @see edje_object_signal_callback_add() for more on Edje signals.
@@ -138,21 +140,24 @@ EAPI void		edje_fontset_append_set		(const char *fonts);
 EAPI char             *edje_mmap_data_get(const Eina_File *f, const char *key);
 
 /**
- * Get data from the file level data block of an edje file
- * @param file The path to the .edj file
- * @param key The data key
+ * @brief Get data from the file level data block of an edje file
+ *
+ * @since_tizen 2.3
+ *
+ * @param[in] file The path to the .edj file
+ * @param[in] key The data key
  * @return The string value of the data or NULL if no key is found.
- * Must be freed by the user when no longer needed.
+ * @remark Must be freed by the user when no longer needed.
  *
- * If an edje file test.edj is built from the following edc:
+ * @remark If an edje file test.edj is built from the following edc:
  *
- * data {
+ * @remark data {
  *   item: "key1" "value1";
  *   item: "key2" "value2";
  * }
  * collections { ... }
  *
- * Then, edje_file_data_get("test.edj", "key1") will return "value1"
+ * @remark Then, edje_file_data_get("test.edj", "key1") will return "value1"
  *
  * @see edje_mmap_data_get()
  */
@@ -884,9 +889,11 @@ EAPI const Edje_External_Type       *edje_external_type_get         (const char 
 /**
  * @brief Set Edje's global scaling factor.
  *
- * @param scale The global scaling factor (the default value is @c 1.0)
+ * @since_tizen 2.3
  *
- * Edje's global scaling factor will affect all its objects which
+ * @param[in] scale The global scaling factor (the default value is @c 1.0)
+ *
+ * @remark Edje's global scaling factor will affect all its objects which
  * hadn't their individual scaling factors altered from the default
  * value (which is zero). If they had it set differently, by
  * edje_object_scale_set(), that factor will @b override the global
@@ -903,9 +910,11 @@ EAPI void         edje_scale_set                  (double scale);
 /**
  * @brief Retrieve Edje's global scaling factor.
  *
+ * @since_tizen 2.3
+ *
  * @return The global scaling factor
  *
- * This function returns Edje's global scaling factor.
+ * @remark This function returns Edje's global scaling factor.
  *
  * @see edje_scale_set() for more details
  *
@@ -960,7 +969,7 @@ typedef struct _Edje_Entry_Change_Info        Edje_Entry_Change_Info;
 
 /**
  * @typedef Edje_Text_Filter_Type
- * 
+ *
  * All Edje text filters type values.
  */
 typedef enum _Edje_Text_Filter_Type
@@ -973,7 +982,7 @@ typedef enum _Edje_Text_Filter_Type
 /**
  * @typedef Edje_Text_Autocapital_Type
  *
- * All Text auto capital mode type values 
+ * All Text auto capital mode type values
  *
  */
 typedef enum _Edje_Text_Autocapital_Type
@@ -986,7 +995,7 @@ typedef enum _Edje_Text_Autocapital_Type
 
 /**
  * @typedef Edje_Input_Panel_Lang
- * 
+ *
  */
 typedef enum _Edje_Input_Panel_Lang
 {
@@ -1031,7 +1040,7 @@ typedef enum _Edje_Input_Panel_Layout
 
 /*
  * @typedef Edje_Input_Hints
- * @brief Edje input hints 
+ * @brief Edje input hints
  */
 typedef enum
 {
@@ -1145,37 +1154,39 @@ EAPI void edje_password_show_last_timeout_set(double password_show_last_timeout)
 /**
  * @brief Set Edje color class.
  *
- * @param color_class
- * @param r Object Red value
- * @param g Object Green value
- * @param b Object Blue value
- * @param a Object Alpha value
- * @param r2 Outline Red value
- * @param g2 Outline Green value
- * @param b2 Outline Blue value
- * @param a2 Outline Alpha value
- * @param r3 Shadow Red value
- * @param g3 Shadow Green value
- * @param b3 Shadow Blue value
- * @param a3 Shadow Alpha value
+ * @since_tizen 2.3
  *
- * This function sets the color values for a process level color
+ * @param[in] color_class
+ * @param[in] r Object Red value
+ * @param[in] g Object Green value
+ * @param[in] b Object Blue value
+ * @param[in] a Object Alpha value
+ * @param[in] r2 Outline Red value
+ * @param[in] g2 Outline Green value
+ * @param[in] b2 Outline Blue value
+ * @param[in] a2 Outline Alpha value
+ * @param[in] r3 Shadow Red value
+ * @param[in] g3 Shadow Green value
+ * @param[in] b3 Shadow Blue value
+ * @param[in] a3 Shadow Alpha value
+ *
+ * @remark This function sets the color values for a process level color
  * class.  This will cause all edje parts in the current process that
  * have the specified color class to have their colors multiplied by
  * these values.  (Object level color classes set by
  * edje_object_color_class_set() will override the values set by this
  * function).
  *
- * The first color is the object, the second is the text outline, and
+ * @remark The first color is the object, the second is the text outline, and
  * the third is the text shadow. (Note that the second two only apply
  * to text parts).
  *
- * Setting color emits a signal "color_class,set" with source being
+ * @remark Setting color emits a signal "color_class,set" with source being
  * the given color class in all objects.
  *
  * @see edje_color_class_set().
  *
- * @note unlike Evas, Edje colors are @b not pre-multiplied. That is,
+ * @remark unlike Evas, Edje colors are @b not pre-multiplied. That is,
  *       half-transparent white is 255 255 255 128.
  *
  * @return Eina_Bool, EINA_TRUE on success and EINA_FALSE on failure.
@@ -1185,35 +1196,37 @@ EAPI Eina_Bool    edje_color_class_set            (const char *color_class, int 
 /**
  * @brief Get Edje color class.
  *
- * @param color_class
- * @param r Object Red value
- * @param g Object Green value
- * @param b Object Blue value
- * @param a Object Alpha value
- * @param r2 Outline Red value
- * @param g2 Outline Green value
- * @param b2 Outline Blue value
- * @param a2 Outline Alpha value
- * @param r3 Shadow Red value
- * @param g3 Shadow Green value
- * @param b3 Shadow Blue value
- * @param a3 Shadow Alpha value
+ * @since_tizen 2.3
+ *
+ * @param[in] color_class
+ * @param[out] r Object Red value
+ * @param[out] g Object Green value
+ * @param[out] b Object Blue value
+ * @param[out] a Object Alpha value
+ * @param[out] r2 Outline Red value
+ * @param[out] g2 Outline Green value
+ * @param[out] b2 Outline Blue value
+ * @param[out] a2 Outline Alpha value
+ * @param[out] r3 Shadow Red value
+ * @param[out] g3 Shadow Green value
+ * @param[out] b3 Shadow Blue value
+ * @param[out] a3 Shadow Alpha value
  *
  * @return EINA_TRUE if found or EINA_FALSE if not found and all
  *         values are zeroed.
  *
- * This function gets the color values for a process level color
+ * @remark This function gets the color values for a process level color
  * class. This value is the globally set and not per-object, that is,
  * the value that would be used by objects if they did not override with
  * edje_object_color_class_set().
  *
- * The first color is the object, the second is the text outline, and
+ * @remark The first color is the object, the second is the text outline, and
  * the third is the text shadow. (Note that the second two only apply
  * to text parts).
  *
  * @see edje_color_class_set().
  *
- * @note unlike Evas, Edje colors are @b not pre-multiplied. That is,
+ * @remark unlike Evas, Edje colors are @b not pre-multiplied. That is,
  *       half-transparent white is 255 255 255 128.
  */
 EAPI Eina_Bool    edje_color_class_get            (const char *color_class, int *r, int *g, int *b, int *a, int *r2, int *g2, int *b2, int *a2, int *r3, int *g3, int *b3, int *a3);
@@ -1221,11 +1234,13 @@ EAPI Eina_Bool    edje_color_class_get            (const char *color_class, int 
 /**
  * @brief Delete edje color class.
  *
- * @param color_class
+ * @since_tizen 2.3
  *
- * This function deletes any values at the process level for the
+ * @param[in] color_class
+ *
+ * @remark This function deletes any values at the process level for the
  * specified color class.
- * @note Deleting the color class will revert it to the
+ * @remark Deleting the color class will revert it to the
  *       values defined in the theme file.
  *
  * Deleting the color class will emit the signal "color_class,del"
@@ -1236,10 +1251,12 @@ EAPI void         edje_color_class_del            (const char *color_class);
 /**
  * @brief Lists color classes.
  *
+ * @since_tizen 2.3
+ *
  * @return A list of color class names (strings). These strings and
  * the list must be free()'d by the caller.
  *
- * This function lists all color classes known about by the current
+ * @remark This function lists all color classes known about by the current
  * process.
  *
  */
@@ -1537,16 +1554,18 @@ typedef enum _Edje_Drag_Dir
 /**
  * @brief Registers a custom layout to be used in edje boxes.
  *
- * @param name The name of the layout
- * @param func The function defining the layout
- * @param layout_data_get This function gets the custom data pointer
- * for func
- * @param layout_data_free Passed to func to free its private data
- * when needed
- * @param free_data Frees data
- * @param data Private pointer passed to layout_data_get
+ * @since_tizen 2.3
  *
- * This function registers custom layouts that can be referred from
+ * @param[in] name The name of the layout
+ * @param[in] func The function defining the layout
+ * @param[in] layout_data_get This function gets the custom data pointer
+ * for func
+ * @param[in] layout_data_free Passed to func to free its private data
+ * when needed
+ * @param[in] free_data Frees data
+ * @param[in] data Private pointer passed to layout_data_get
+ *
+ * @remark This function registers custom layouts that can be referred from
  * themes by the registered name. The Evas_Object_Box_Layout
  * functions receive two pointers for internal use, one being private
  * data, and the other the function to free that data when it's not
@@ -1614,13 +1633,15 @@ typedef enum _Edje_Object_Table_Homogeneous_Mode
 /**
  * @brief Set the Edje text class.
  *
- * @param text_class The text class name
- * @param font The font name
- * @param size The font size
+ * @since_tizen 2.3
+ *
+ * @param[in] text_class The text class name
+ * @param[in] font The font name
+ * @param[in] size The font size
  *
  * @return @c EINA_TRUE, on success or @c EINA_FALSE, on error
  *
- * This function updates all Edje members at the process level which
+ * @remark This function updates all Edje members at the process level which
  * belong to this text class with the new font attributes.
  * If the @p size is 0 then the font size will be kept with the previous size.
  * If the @p size is less then 0 then the font size will be calculated in the
@@ -1636,13 +1657,15 @@ EAPI Eina_Bool    edje_text_class_set             (const char *text_class, const
 /**
  * @brief Get the font and the font size from Edje text class.
  *
- * @param text_class The text class name
- * @param font The font name
- * @param size The font size
+ * @since_tizen 2.3
+ *
+ * @param[in] text_class The text class name
+ * @param[out] font The font name
+ * @param[out] size The font size
  *
  * @return @c EINA_TRUE, on success or @c EINA_FALSE, on error
  *
- * This function gets the font and the font name from the specified Edje
+ * @remark This function gets the font and the font name from the specified Edje
  * text class.
  *
  * @see edje_text_class_set().
@@ -1653,9 +1676,11 @@ EAPI Eina_Bool    edje_text_class_get             (const char *text_class, const
 /**
  * @brief Delete the text class.
  *
- * @param text_class The text class name string
+ * @since_tizen 2.3
  *
- * This function deletes any values at the process level for the
+ * @param[in] text_class The text class name string
+ *
+ * @remark This function deletes any values at the process level for the
  * specified text class.
  *
  */
@@ -1664,10 +1689,12 @@ EAPI void         edje_text_class_del             (const char *text_class);
 /**
  * @brief List text classes.
  *
+ * @since_tizen 2.3
+ *
  * @return A list of text class names (strings). These strings are
  * stringshares and the list must be free()'d by the caller.
  *
- * This function lists all text classes known about by the current
+ * @remark This function lists all text classes known about by the current
  * process.
  *
  */
@@ -1741,13 +1768,16 @@ EAPI void              edje_mmap_collection_list_free(Eina_List *lst);
 EAPI Eina_Bool         edje_mmap_group_exists(Eina_File *f, const char *glob);
 
 /**
- * Get a list of groups in an edje file
- * @param file The path to the edje file
+ * @brief Get a list of groups in an edje file
+ *
+ * @since_tizen 2.3
+ *
+ * @param[in] file The path to the edje file
  *
  * @return The Eina_List of group names (char *)
  * @see edje_mmap_collection_list()
  *
- * Note: the list must be freed using edje_file_collection_list_free()
+ * @remark Note: the list must be freed using edje_file_collection_list_free()
  * when you are done with it.
  *
  * @see edje_mmap_group_exists()
@@ -1755,31 +1785,39 @@ EAPI Eina_Bool         edje_mmap_group_exists(Eina_File *f, const char *glob);
 EAPI Eina_List        *edje_file_collection_list  (const char *file);
 
 /**
- * Free file collection list
- * @param lst The Eina_List of groups
+ * @brief Free file collection list
  *
- * Frees the list returned by edje_file_collection_list().
+ * @since_tizen 2.3
+ *
+ * @param[in] lst The Eina_List of groups
+ *
+ * @remark Frees the list returned by edje_file_collection_list().
  */
 EAPI void             edje_file_collection_list_free (Eina_List *lst);
 
 /**
- * Determine whether a group matching glob exists in an edje file.
- * @param file The file path
- * @param glob A glob to match on
+ * @brief Determine whether a group matching glob exists in an edje file.
+ *
+ * @since_tizen 2.3
+ *
+ * @param[in] file The file path
+ * @param[in] glob A glob to match on
  *
  * @return 1 if a match is found, 0 otherwise
  */
 EAPI Eina_Bool        edje_file_group_exists      (const char *file, const char *glob);
 
 /**
- * Converts the given Edje file load error code into a string
+ * @brief Converts the given Edje file load error code into a string
  * describing it in English.
  *
- * @param error the error code, a value in ::Edje_Load_Error.
+ * @since_tizen 2.3
+ *
+ * @param[in] error the error code, a value in ::Edje_Load_Error.
  * @return Always returns a valid string. If the given @p error is not
  *         supported, <code>"Unknown error"</code> is returned.
  *
- * edje_object_file_set() is a function which sets an error value,
+ * @remark edje_object_file_set() is a function which sets an error value,
  * afterwards, which can be fetched with
  * edje_object_load_error_get(). The function in question is meant
  * to be used in conjunction with the latter, for pretty-printing any
@@ -1879,9 +1917,11 @@ typedef enum _Edje_Action_Type
 /**
  * @brief Set edje trasitions' frame time.
  *
- * @param t The frame time, in seconds. Default value is 1/30.
+ * @since_tizen 2.3
  *
- * This function sets the edje built-in animations' frame time (thus,
+ * @param[in] t The frame time, in seconds. Default value is 1/30.
+ *
+ * @remark This function sets the edje built-in animations' frame time (thus,
  * affecting their resolution) by calling
  * ecore_animator_frametime_set(). This frame time can be retrieved
  * with edje_frametime_get().
@@ -1894,9 +1934,11 @@ EAPI void         edje_frametime_set              (double t);
 /**
  * @brief Get edje trasitions' frame time.
  *
+ * @since_tizen 2.3
+ *
  * @return The frame time, in seconds.
  *
- * This function returns the edje frame time set by
+ * @remark This function returns the edje frame time set by
  * edje_frametime_set() or the default value 1/30.
  *
  * @see edje_frametime_set()
@@ -1907,9 +1949,11 @@ EAPI double       edje_frametime_get              (void);
 /**
  * @brief Freeze Edje objects.
  *
- * This function freezes all Edje animations in the current process.
+ * @since_tizen 2.3
  *
- * @note: for freeze a specific object @see edje_object_freeze().
+ * @remark This function freezes all Edje animations in the current process.
+ *
+ * @remark: for freeze a specific object @see edje_object_freeze().
  *
  * @see edje_thaw()
  *
@@ -1919,9 +1963,11 @@ EAPI void         edje_freeze                     (void);
 /**
  * @brief Thaw Edje objects.
  *
- * This function thaws all Edje animations in the current process.
+ * @since_tizen 2.3
  *
- * @note for thaw a specific object @see edje_object_thaw().
+ * @remark This function thaws all Edje animations in the current process.
+ *
+ * @remark for thaw a specific object @see edje_object_thaw().
  *
  * @see edje_freeze()
  *
@@ -2056,7 +2102,9 @@ typedef void         (*Edje_Message_Handler_Cb) (void *data, Evas_Object *obj, E
 /**
  * @brief Process all queued up edje messages.
  *
- * This function triggers the processing of messages addressed to any
+ * @since_tizen 2.3
+ *
+ * @remark This function triggers the processing of messages addressed to any
  * (alive) edje objects.
  *
  */
@@ -2089,12 +2137,14 @@ EAPI void         edje_message_signal_process             (void);
 typedef struct _Edje_Perspective Edje_Perspective;
 
 /**
- * Creates a new perspective in the given canvas.
+ * @brief Creates a new perspective in the given canvas.
  *
- * @param e The given canvas (Evas).
+ * @since_tizen 2.3
+ *
+ * @param[in] e The given canvas (Evas).
  * @return An @ref Edje_Perspective object for this canvas, or @c NULL on errors.
  *
- * This function creates a perspective object that can be set on an Edje
+ * @remark This function creates a perspective object that can be set on an Edje
  * object, or globally to all Edje objects on this canvas.
  *
  * @see edje_perspective_set()
@@ -2102,11 +2152,13 @@ typedef struct _Edje_Perspective Edje_Perspective;
  */
 EAPI Edje_Perspective       *edje_perspective_new            (Evas *e);
 /**
- * Delete the given perspective object.
+ * @brief Delete the given perspective object.
  *
- * @param ps A valid perspective object, or @c NULL.
+ * @since_tizen 2.3
  *
- * This function will delete the perspective object. If the perspective
+ * @param[in] ps A valid perspective object, or @c NULL.
+ *
+ * @remark This function will delete the perspective object. If the perspective
  * effect was being applied to any Edje object or part, this effect won't be
  * applied anymore.
  *
@@ -2114,9 +2166,11 @@ EAPI Edje_Perspective       *edje_perspective_new            (Evas *e);
  */
 EAPI void                    edje_perspective_free           (Edje_Perspective *ps);
 /**
- * Setup the transform for this perspective object.
+ * @brief Setup the transform for this perspective object.
  *
- * This sets the parameters of the perspective transformation. X, Y and Z
+ * @since_tizen 2.3
+ *
+ * @remark This sets the parameters of the perspective transformation. X, Y and Z
  * values are used. The px and py points specify the "infinite distance" point
  * in the 3D conversion (where all lines converge to like when artists draw
  * 3D by hand). The @p z0 value specifies the z value at which there is a 1:1
@@ -2129,29 +2183,31 @@ EAPI void                    edje_perspective_free           (Edje_Perspective *
  * results are undefined) and the "z0" z value. This allows for some "depth"
  * control and @p foc must be greater than 0.
  *
- * @param ps The perspective object
- * @param px The perspective distance X coordinate
- * @param py The perspective distance Y coordinate
- * @param z0 The "0" z plane value
- * @param foc The focal distance
+ * @param[in] ps The perspective object
+ * @param[in] px The perspective distance X coordinate
+ * @param[in] py The perspective distance Y coordinate
+ * @param[in] z0 The "0" z plane value
+ * @param[in] foc The focal distance
  */
 EAPI void                    edje_perspective_set            (Edje_Perspective *ps, Evas_Coord px, Evas_Coord py, Evas_Coord z0, Evas_Coord foc);
 /**
- * Make this perspective object be global for its canvas.
+ * @brief Make this perspective object be global for its canvas.
  *
- * @param ps The given perspective object
- * @param global @c EINA_TRUE if the perspective should be global, @c
+ * @since_tizen 2.3
+ *
+ * @param[in] ps The given perspective object
+ * @param[in] global @c EINA_TRUE if the perspective should be global, @c
  * EINA_FALSE otherwise.
  *
- * The canvas which this perspective object is being set as global is the one
+ * @remark The canvas which this perspective object is being set as global is the one
  * given as argument upon the object creation (the @p evas parameter on the
  * function @c edje_perspective_new(evas) ).
  *
- * There can be only one global perspective object set per canvas, and if
+ * @remark There can be only one global perspective object set per canvas, and if
  * a perspective object is set to global when there was already another
  * global perspective set, the old one will be set as non-global.
  *
- * A global perspective just affects a part if its Edje object doesn't have a
+ * @remark A global perspective just affects a part if its Edje object doesn't have a
  * perspective object set to it, and if the part doesn't point to another
  * part to be used as perspective.
  *
@@ -2161,9 +2217,11 @@ EAPI void                    edje_perspective_set            (Edje_Perspective *
  */
 EAPI void                    edje_perspective_global_set     (Edje_Perspective *ps, Eina_Bool global);
 /**
- * Get whether the given perspective object is global or not.
+ * @brief Get whether the given perspective object is global or not.
  *
- * @param ps The given perspective object.
+ * @since_tizen 2.3
+ *
+ * @param[in] ps The given perspective object.
  * @return @c EINA_TRUE if this perspective object is global, @c EINA_FALSE
  * otherwise.
  *
@@ -2171,13 +2229,15 @@ EAPI void                    edje_perspective_global_set     (Edje_Perspective *
  */
 EAPI Eina_Bool               edje_perspective_global_get     (const Edje_Perspective *ps);
 /**
- * Get the global perspective object set for this canvas.
+ * @brief Get the global perspective object set for this canvas.
  *
- * @param e The given canvas (Evas).
+ * @since_tizen 2.3
+ *
+ * @param[in] e The given canvas (Evas).
  * @return The perspective object set as global for this canvas. Or @c NULL
  * if there is no global perspective set and on errors.
  *
- * This function will return the perspective object that was set as global
+ * @remark This function will return the perspective object that was set as global
  * with edje_perspective_global_set().
  *
  * @see edje_perspective_global_set()
@@ -2213,7 +2273,7 @@ EAPI const Edje_Perspective *edje_evas_global_perspective_get(const Evas *e);
  *
  * @see edje_audio_channel_mute_set()
  * @see edje_audio_channel_mute_get()
- * 
+ *
  * @since 1.9
  */
 typedef enum _Edje_Channel

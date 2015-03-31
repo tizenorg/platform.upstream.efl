@@ -471,10 +471,15 @@ eng_setup(Evas *eo_e, void *in)
         if (info->info.backend == EVAS_ENGINE_INFO_SOFTWARE_X11_BACKEND_XLIB)
           {
              static int try_swapbuf = -1;
+             char *s;
 
              if (try_swapbuf == -1)
                {
-                  if (getenv("EVAS_NO_DRI_SWAPBUF")) try_swapbuf = 0;
+                  if ((s = getenv("EVAS_NO_DRI_SWAPBUF")) != NULL)
+                    {
+                       if (atoi(s) == 1) try_swapbuf = 0;
+                       else try_swapbuf = 1;
+                    }
                   else try_swapbuf = 1;
                }
              if (try_swapbuf)

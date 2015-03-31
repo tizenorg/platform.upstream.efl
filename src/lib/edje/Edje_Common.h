@@ -39,11 +39,9 @@ typedef void         (*Edje_Signal_Cb)          (void *data, Evas_Object *obj, c
 /**
  * @brief Get extra data passed to callbacks.
  *
- * @since_tizen 2.3
- *
  * @return the extra data for that callback.
  *
- * @remark Some callbacks pass extra information. This function gives access to that
+ * Some callbacks pass extra information. This function gives access to that
  * extra information. It's somehow like event_info in smart callbacks.
  *
  * @see edje_object_signal_callback_add() for more on Edje signals.
@@ -71,11 +69,9 @@ EAPI void *       edje_object_signal_callback_extra_data_get(void);
 /**
  * @brief Initialize the Edje library.
  *
- * @since_tizen 2.3
- *
  * @return The new init count. The initial value is zero.
  *
- * @remark This function initializes the Edje library, making the proper calls
+ * This function initializes the Edje library, making the proper calls
  * to internal initialization functions. It will also initialize its
  * @b dependencies, making calls to @c eina_init(), @c ecore_init(),
  * @c embryo_init() and @c eet_init(). So, there is no need to call
@@ -94,12 +90,10 @@ EAPI int          edje_init                       (void);
 /**
  * @brief Shutdown the Edje library.
  *
- * @since_tizen 2.3
- *
  * @return The number of times the library has been initialized
  *         without being shutdown.
  *
- * @remark This function shuts down the Edje library. It will also call the
+ * This function shuts down the Edje library. It will also call the
  * shutdown functions of its @b dependencies, which are @c
  * eina_shutdown(), @c ecore_shutdown(), @c embryo_shutdown() and @c
  * eet_shutdown(), so there is no need to call these functions again,
@@ -117,56 +111,48 @@ EAPI int		edje_shutdown			(void);
 /**
  * @brief Set the edje append fontset.
  *
- * @since_tizen 2.3
+ * @param fonts The fontset to append.
  *
- * @param[in] fonts The fontset to append.
- *
- * @remark This function sets the edje append fontset.
+ * This function sets the edje append fontset.
  *
  */
 EAPI void		edje_fontset_append_set		(const char *fonts);
 
 /**
- * @brief Get data from the file level data block of an edje mapped file
- *
- * @since_tizen 2.3
- *
- * @param[in] f The mapped edje file
- * @param[in] key The data key
+ * Get data from the file level data block of an edje mapped file
+ * @param f The mapped edje file
+ * @param key The data key
  * @return The string value of the data or NULL if no key is found.
- * @remark Must be freed by the user when no longer needed.
+ * Must be freed by the user when no longer needed.
  *
- * @remark If an edje file test.edj is built from the following edc:
+ * If an edje file test.edj is built from the following edc:
  *
- * @remark data {
+ * data {
  *   item: "key1" "value1";
  *   item: "key2" "value2";
  * }
  * collections { ... }
  *
- * @remark Then, edje_file_data_get("test.edj", "key1") will return "value1"
+ * Then, edje_file_data_get("test.edj", "key1") will return "value1"
  */
 EAPI char             *edje_mmap_data_get(const Eina_File *f, const char *key);
 
 /**
- * @brief Get data from the file level data block of an edje file
- *
- * @since_tizen 2.3
- *
- * @param[in] file The path to the .edj file
- * @param[in] key The data key
+ * Get data from the file level data block of an edje file
+ * @param file The path to the .edj file
+ * @param key The data key
  * @return The string value of the data or NULL if no key is found.
- * @remark Must be freed by the user when no longer needed.
+ * Must be freed by the user when no longer needed.
  *
- * @remark If an edje file test.edj is built from the following edc:
+ * If an edje file test.edj is built from the following edc:
  *
- * @remark data {
+ * data {
  *   item: "key1" "value1";
  *   item: "key2" "value2";
  * }
  * collections { ... }
  *
- * @remark Then, edje_file_data_get("test.edj", "key1") will return "value1"
+ * Then, edje_file_data_get("test.edj", "key1") will return "value1"
  *
  * @see edje_mmap_data_get()
  */
@@ -174,13 +160,10 @@ EAPI char        *edje_file_data_get              (const char *file, const char 
 
 /**
  * @brief Load a new module in Edje.
- *
- * @since_tizen 2.3
- *
- * @param[in] module The name of the module that will be added to Edje.
+ * @param module The name of the module that will be added to Edje.
  * @return EINA_TRUE if the module was successfully loaded. Otherwise, EINA_FALSE.
  *
- * @remark Modules are used to add functionality to Edje.
+ * Modules are used to add functionality to Edje.
  * So, when a module is loaded, its functionality should be available for use.
  *
  */
@@ -188,12 +171,9 @@ EAPI Eina_Bool               edje_module_load                (const char *module
 
 /**
  * @brief Retrieves all modules that can be loaded.
- *
- * @since_tizen 2.3
- *
  * @return A list of all loadable modules.
  *
- * @remark This function retrieves all modules that can be loaded by edje_module_load().
+ * This function retrieves all modules that can be loaded by edje_module_load().
  *
  * @see edje_module_load().
  *
@@ -203,11 +183,9 @@ EAPI const Eina_List        *edje_available_modules_get      (void);
 /**
  * @brief Get the edje append fontset.
  *
- * @since_tizen 2.3
- *
  * @return The edje append fontset.
  *
- * @remark This function returns the edje append fontset set by
+ * This function returns the edje append fontset set by
  * edje_fontset_append_set() function.
  *
  * @see edje_fontset_append_set().
@@ -218,11 +196,9 @@ EAPI const char		*edje_fontset_append_get	(void);
 /**
  * @brief Set the file cache size.
  *
- * @since_tizen 2.3
+ * @param count The file cache size in edje file units. Default is 16.
  *
- * @param[in] count The file cache size in edje file units. Default is 16.
- *
- * @remark This function sets the file cache size. Edje keeps this cache in
+ * This function sets the file cache size. Edje keeps this cache in
  * order to prevent duplicates of edje file entries in memory. The
  * file cache size can be retrieved with edje_file_cache_get().
  *
@@ -235,11 +211,9 @@ EAPI void         edje_file_cache_set             (int count);
 /**
  * @brief Return the file cache size.
  *
- * @since_tizen 2.3
- *
  * @return The file cache size in edje file units. Default is 16.
  *
- * @remark This function returns the file cache size set by
+ * This function returns the file cache size set by
  * edje_file_cache_set().
  *
  * @see edje_file_cache_set()
@@ -251,9 +225,7 @@ EAPI int          edje_file_cache_get             (void);
 /**
  * @brief Clean the file cache.
  *
- * @since_tizen 2.3
- *
- * @remark This function cleans the file cache entries, but keeps this cache's
+ * This function cleans the file cache entries, but keeps this cache's
  * size to the last value set.
  *
  * @see edje_file_cache_set()
@@ -265,11 +237,9 @@ EAPI void         edje_file_cache_flush           (void);
 /**
  * @brief Set the collection cache size.
  *
- * @since_tizen 2.3
+ * @param count The collection cache size, in edje object units. Default is 16.
  *
- * @param[in] count The collection cache size, in edje object units. Default is 16.
- *
- * @remark This function sets the collection cache size. Edje keeps this cache
+ * This function sets the collection cache size. Edje keeps this cache
  * in order to prevent duplicates of edje {collection,group,part}
  * entries in memory. The collection cache size can be retrieved with
  * edje_collection_cache_get().
@@ -283,11 +253,9 @@ EAPI void         edje_collection_cache_set       (int count);
 /**
  * @brief Return the collection cache size.
  *
- * @since_tizen 2.3
- *
  * @return The collection cache size, in edje object units. Default is 16.
  *
- * @remark This function returns the collection cache size set by
+ * This function returns the collection cache size set by
  * edje_collection_cache_set().
  *
  * @see edje_collection_cache_set()
@@ -299,9 +267,7 @@ EAPI int          edje_collection_cache_get       (void);
 /**
  * @brief Clean the collection cache.
  *
- * @since_tizen 2.3
- *
- * @remark This function cleans the collection cache, but keeps this cache's
+ * This function cleans the collection cache, but keeps this cache's
  * size to the last value set.
  *
  * @see edje_collection_cache_set()
@@ -332,7 +298,7 @@ EAPI void         edje_collection_cache_flush     (void);
  */
 
 /**
- * @brief The possible types the parameters of an EXTERNAL part can be.
+ * The possible types the parameters of an EXTERNAL part can be.
  */
 typedef enum _Edje_External_Param_Type
 {
@@ -346,7 +312,7 @@ typedef enum _Edje_External_Param_Type
 } Edje_External_Param_Type;
 
 /**
- * @brief Flags that determine how a parameter may be accessed in different
+ * Flags that determine how a parameter may be accessed in different
  * circumstances.
  */
 typedef enum _Edje_External_Param_Flags
@@ -364,17 +330,15 @@ typedef enum _Edje_External_Param_Flags
 /**
  * @brief Converts type identifier to string nicer representation.
  *
- * @since_tizen 2.3
+ * This may be used to debug or other informational purposes.
  *
- * @remark This may be used to debug or other informational purposes.
- *
- * @param[in] type the identifier to convert.
+ * @param type the identifier to convert.
  * @return the string with the string representation, or @c "(unknown)".
  */
 EAPI const char *edje_external_param_type_str(Edje_External_Param_Type type) EINA_PURE;
 
 /**
- * @brief Struct that holds parameters for parts of type EXTERNAL.
+ * Struct that holds parameters for parts of type EXTERNAL.
  */
 struct _Edje_External_Param
 {
@@ -388,28 +352,26 @@ struct _Edje_External_Param
    const char               *s; /**< Used by both string and choice */
 };
 /**
- * @brief Struct that holds parameters for parts of type EXTERNAL.
+ * Struct that holds parameters for parts of type EXTERNAL.
  */
 typedef struct _Edje_External_Param Edje_External_Param;
 
 /**
- * @brief Helper macro to indicate an EXTERNAL's integer parameter is undefined.
+ * Helper macro to indicate an EXTERNAL's integer parameter is undefined.
  */
 #define EDJE_EXTERNAL_INT_UNSET INT_MAX
 /**
- * @brief Helper macro to indicate an EXTERNAL's double parameter is undefined.
+ * Helper macro to indicate an EXTERNAL's double parameter is undefined.
  */
 #define EDJE_EXTERNAL_DOUBLE_UNSET DBL_MAX
 
 /**
- * @brief Struct holding information about an EXTERNAL part's parameters.
+ * Struct holding information about an EXTERNAL part's parameters.
  *
- * @since_tizen 2.3
- *
- * @remark When creating types to use with EXTERNAL parts, an array of this type is
+ * When creating types to use with EXTERNAL parts, an array of this type is
  * used to describe the different parameters the object uses.
  *
- * @remark This struct holds the name, type and flags that define how and when the
+ * This struct holds the name, type and flags that define how and when the
  * parameter is used, as well as information specific to each type, like the
  * maximum or minimum value, that can be used by editors to restrict the
  * range of values to set for each parameter.
@@ -417,14 +379,12 @@ typedef struct _Edje_External_Param Edje_External_Param;
 typedef struct _Edje_External_Param_Info Edje_External_Param_Info;
 
 /**
- * @brief Struct holding information about an EXTERNAL part's parameters.
+ * Struct holding information about an EXTERNAL part's parameters.
  *
- * @since_tizen 2.3
- *
- * @remark When creating types to use with EXTERNAL parts, an array of this type is
+ * When creating types to use with EXTERNAL parts, an array of this type is
  * used to describe the different parameters the object uses.
  *
- * @remark This struct holds the name, type and flags that define how and when the
+ * This struct holds the name, type and flags that define how and when the
  * parameter is used, as well as information specific to each type, like the
  * maximum or minimum value, that can be used by editors to restrict the
  * range of values to set for each parameter.
@@ -591,11 +551,9 @@ struct _Edje_External_Type
 typedef struct _Edje_External_Type Edje_External_Type;
 
 /**
- * @brief Convenience struct used to mass-register types of EXTERNAL objects.
+ * Convenience struct used to mass-register types of EXTERNAL objects.
  *
- * @since_tizen 2.3
- *
- * @remark Used with edje_external_type_array_register().
+ * Used with edje_external_type_array_register().
  */
 struct _Edje_External_Type_Info
 {
@@ -623,18 +581,16 @@ typedef struct _Edje_External_Type_Info Edje_External_Type_Info;
  */
 
 /**
- * @brief Register a type to be used by EXTERNAL parts.
+ * Register a type to be used by EXTERNAL parts.
  *
- * @since_tizen 2.3
- *
- * @remark Parts of type EXTERNAL will call user defined functions
+ * Parts of type EXTERNAL will call user defined functions
  * to create and manipulate the object that's allocated in that part. This is
  * done by expecifying in the @c source property of the part the name of the
  * external to use, which must be one registered with this function.
  *
- * @param[in] type_name name to register and be known by edje's "source:"
+ * @param type_name name to register and be known by edje's "source:"
  *        parameter of "type: EXTERNAL" parts.
- * @param[in] type_info meta-information describing how to interact with it.
+ * @param type_info meta-information describing how to interact with it.
  *
  * @return @c EINA_TRUE on success, @c EINA_FALSE on failure (like
  *         type already registered).
@@ -644,11 +600,9 @@ typedef struct _Edje_External_Type_Info Edje_External_Type_Info;
 EAPI Eina_Bool    edje_external_type_register             (const char *type_name, const Edje_External_Type *type_info);
 
 /**
- * @brief Unregister a previously registered EXTERNAL type.
+ * Unregister a previously registered EXTERNAL type.
  *
- * @since_tizen 2.3
- *
- * @param[in] type_name name to unregister. It should have been registered with
+ * @param type_name name to unregister. It should have been registered with
  *        edje_external_type_register() before.
  *
  * @return @c EINA_TRUE on success, @c EINA_FALSE on failure (like
@@ -659,21 +613,19 @@ EAPI Eina_Bool    edje_external_type_register             (const char *type_name
 EAPI Eina_Bool    edje_external_type_unregister           (const char *type_name);
 
 /**
- * @brief Register a batch of types and their information.
+ * Register a batch of types and their information.
  *
- * @since_tizen 2.3
- *
- * @remark When several types will be registered it is recommended to use this
+ * When several types will be registered it is recommended to use this
  * function instead of several calls to edje_external_type_register(), as it
  * is faster.
  *
- * @remark The contents of the array will be referenced directly for as long as
+ * @note The contents of the array will be referenced directly for as long as
  * the type remains registered, so both the @c name and @c info in the
  * @p array must be kept alive during all this period (usually, the entire
  * program lifetime). The most common case would be to keep the array as a
  * @c static @c const type anyway.
  *
- * @param[in] array @c NULL terminated array with type name and
+ * @param array @c NULL terminated array with type name and
  *        information. Note that type name or information are
  *        referenced directly, so they must be kept alive after
  *        this function returns!
@@ -686,11 +638,9 @@ EAPI Eina_Bool    edje_external_type_unregister           (const char *type_name
 EAPI void         edje_external_type_array_register       (const Edje_External_Type_Info *array);
 
 /**
- * @brief Unregister a batch of given external type previously registered.
+ * Unregister a batch of given external type previously registered.
  *
- * @since_tizen 2.3
- *
- * @param[in] array @c NULL terminated array, should be the same as the
+ * @param array @c NULL terminated array, should be the same as the
  *        one used to register with edje_external_type_array_register()
  *
  * @see edje_external_type_unregister()
@@ -698,11 +648,9 @@ EAPI void         edje_external_type_array_register       (const Edje_External_T
 EAPI void         edje_external_type_array_unregister     (const Edje_External_Type_Info *array);
 
 /**
- * @brief Return the current ABI version for Edje_External_Type structure.
+ * Return the current ABI version for Edje_External_Type structure.
  *
- * @since_tizen 2.3
- *
- * @remark Always check this number before accessing Edje_External_Type in
+ * Always check this number before accessing Edje_External_Type in
  * your own software. If the number is not the same, your software may
  * access invalid memory and crash, or just get garbage values.
  *
@@ -711,7 +659,7 @@ EAPI void         edje_external_type_array_unregister     (const Edje_External_T
  *          (libedje.so) changes, but your type definition will
  *          not. Instead, use #EDJE_EXTERNAL_TYPE_ABI_VERSION.
  *
- * @remark Summary:
+ * Summary:
  *   - use edje_external_type_abi_version_get() to check.
  *   - use #EDJE_EXTERNAL_TYPE_ABI_VERSION to define/declare.
  *
@@ -721,13 +669,10 @@ EAPI void         edje_external_type_array_unregister     (const Edje_External_T
 EAPI unsigned int edje_external_type_abi_version_get      (void) EINA_CONST;
 
 /**
- * @brief
- *
- * @since_tizen 2.3
  *
  * @return an iterator of all the registered EXTERNAL types.
  *
- * @remark Each item in the iterator is an @c Eina_Hash_Tuple which has the type
+ * Each item in the iterator is an @c Eina_Hash_Tuple which has the type
  * of the external in the @c key and #Edje_External_Type as @c data.
  *
  * @code
@@ -769,31 +714,27 @@ EAPI unsigned int edje_external_type_abi_version_get      (void) EINA_CONST;
 EAPI Eina_Iterator                  *edje_external_iterator_get     (void);
 
 /**
- * @brief Conevenience function to find a specific parameter in a list of them.
+ * Conevenience function to find a specific parameter in a list of them.
  *
- * @since_tizen 2.3
- *
- * @param[in] params The list of parameters for the external
- * @param[in] key The parameter to look for
+ * @param params The list of parameters for the external
+ * @param key The parameter to look for
  *
  * @return The matching #Edje_External_Param or NULL if it's not found.
  */
 EAPI Edje_External_Param            *edje_external_param_find       (const Eina_List *params, const char *key);
 
 /**
- * @brief Get the value of the given parameter of integer type.
+ * Get the value of the given parameter of integer type.
  *
- * @since_tizen 2.3
- *
- * @remark Look for the @p key parameter in the @p params list and return its value in
+ * Look for the @p key parameter in the @p params list and return its value in
  * @p ret. If the parameter is found and is of type
  * #EDJE_EXTERNAL_PARAM_TYPE_INT, its value will be stored in the int pointed
  * by @p ret, returning EINA_TRUE. In any other case, the function returns
  * EINA_FALSE.
  *
- * @param[in] params List of parameters where to look
- * @param[in] key Name of the parameter to fetch
- * @param[out] ret Int pointer where to store the value, must not be NULL.
+ * @param params List of parameters where to look
+ * @param key Name of the parameter to fetch
+ * @param ret Int pointer where to store the value, must not be NULL.
  *
  * @return EINA_TRUE if the parameter was found and is of integer type,
  * EINA_FALSE otherwise.
@@ -801,19 +742,17 @@ EAPI Edje_External_Param            *edje_external_param_find       (const Eina_
 EAPI Eina_Bool                       edje_external_param_int_get    (const Eina_List *params, const char *key, int *ret);
 
 /**
- * @brief Get the value of the given parameter of double type.
+ * Get the value of the given parameter of double type.
  *
- * @since_tizen 2.3
- *
- * @remark Look for the @p key parameter in the @p params list and return its value in
+ * Look for the @p key parameter in the @p params list and return its value in
  * @p ret. If the parameter is found and is of type
  * #EDJE_EXTERNAL_PARAM_TYPE_DOUBLE, its value will be stored in the double
  * pointed by @p ret, returning EINA_TRUE. In any other case, the function
  * returns EINA_FALSE.
  *
- * @param[in] params List of parameters where to look
- * @param[in] key Name of the parameter to fetch
- * @param[out] ret Double pointer where to store the value, must not be NULL.
+ * @param params List of parameters where to look
+ * @param key Name of the parameter to fetch
+ * @param ret Double pointer where to store the value, must not be NULL.
  *
  * @return EINA_TRUE if the parameter was found and is of double type,
  * EINA_FALSE otherwise.
@@ -821,21 +760,19 @@ EAPI Eina_Bool                       edje_external_param_int_get    (const Eina_
 EAPI Eina_Bool                       edje_external_param_double_get (const Eina_List *params, const char *key, double *ret);
 
 /**
- * @brief Get the value of the given parameter of string type.
+ * Get the value of the given parameter of string type.
  *
- * @since_tizen 2.3
- *
- * @remark Look for the @p key parameter in the @p params list and return its value in
+ * Look for the @p key parameter in the @p params list and return its value in
  * @p ret. If the parameter is found and is of type
  * #EDJE_EXTERNAL_PARAM_TYPE_STRING, its value will be stored in the pointer
  * pointed by @p ret, returning EINA_TRUE. In any other case, the function
  * returns EINA_FALSE.
  *
- * @remark The string stored in @p ret must not be freed or modified.
+ * The string stored in @p ret must not be freed or modified.
  *
- * @param[in] params List of parameters where to look
- * @param[in] key Name of the parameter to fetch
- * @param[out] ret String pointer where to store the value, must not be NULL.
+ * @param params List of parameters where to look
+ * @param key Name of the parameter to fetch
+ * @param ret String pointer where to store the value, must not be NULL.
  *
  * @return EINA_TRUE if the parameter was found and is of string type,
  * EINA_FALSE otherwise.
@@ -843,19 +780,17 @@ EAPI Eina_Bool                       edje_external_param_double_get (const Eina_
 EAPI Eina_Bool                       edje_external_param_string_get (const Eina_List *params, const char *key, const char **ret);
 
 /**
- * @brief Get the value of the given parameter of boolean type.
+ * Get the value of the given parameter of boolean type.
  *
- * @since_tizen 2.3
- *
- * @remark Look for the @p key parameter in the @p params list and return its value in
+ * Look for the @p key parameter in the @p params list and return its value in
  * @p ret. If the parameter is found and is of type
  * #EDJE_EXTERNAL_PARAM_TYPE_BOOL, its value will be stored in the Eina_Bool
  * pointed by @p ret, returning EINA_TRUE. In any other case, the function
  * returns EINA_FALSE.
  *
- * @param[in] params List of parameters where to look
- * @param[in] key Name of the parameter to fetch
- * @param[out] ret Eina_Bool pointer where to store the value, must not be NULL.
+ * @param params List of parameters where to look
+ * @param key Name of the parameter to fetch
+ * @param ret Eina_Bool pointer where to store the value, must not be NULL.
  *
  * @return EINA_TRUE if the parameter was found and is of boolean type,
  * EINA_FALSE otherwise.
@@ -863,21 +798,19 @@ EAPI Eina_Bool                       edje_external_param_string_get (const Eina_
 EAPI Eina_Bool                       edje_external_param_bool_get   (const Eina_List *params, const char *key, Eina_Bool *ret);
 
 /**
- * @brief Get the value of the given parameter of choice type.
+ * Get the value of the given parameter of choice type.
  *
- * @since_tizen 2.3
- *
- * @remark Look for the @p key parameter in the @p params list and return its value in
+ * Look for the @p key parameter in the @p params list and return its value in
  * @p ret. If the parameter is found and is of type
  * #EDJE_EXTERNAL_PARAM_TYPE_CHOICE, its value will be stored in the string
  * pointed by @p ret, returning EINA_TRUE. In any other case, the function
  * returns EINA_FALSE.
  *
- * @remark The string stored in @p ret must not be freed or modified.
+ * The string stored in @p ret must not be freed or modified.
  *
- * @param[in] params List of parameters where to look
- * @param[in] key Name of the parameter to fetch
- * @param[out] ret String pointer where to store the value, must not be NULL.
+ * @param params List of parameters where to look
+ * @param key Name of the parameter to fetch
+ * @param ret String pointer where to store the value, must not be NULL.
  *
  * @return EINA_TRUE if the parameter was found and is of integer type,
  * EINA_FALSE otherwise.
@@ -885,15 +818,13 @@ EAPI Eina_Bool                       edje_external_param_bool_get   (const Eina_
 EAPI Eina_Bool                       edje_external_param_choice_get (const Eina_List *params, const char *key, const char **ret);
 
 /**
- * @brief Get the array of parameters information about a type given its name.
+ * Get the array of parameters information about a type given its name.
  *
- * @since_tizen 2.3
- *
- * @remark the type names and other strings are static, that means they are
+ * @note the type names and other strings are static, that means they are
  *       @b NOT translated. One must use
  *       Edje_External_Type::translate() to translate those.
  *
- * @param[in] type_name Edje external type name
+ * @param type_name Edje external type name
  *
  * @return the NULL terminated array, or @c NULL if type is unknown or
  *         it does not have any parameter information.
@@ -903,7 +834,7 @@ EAPI Eina_Bool                       edje_external_param_choice_get (const Eina_
 EAPI const Edje_External_Param_Info *edje_external_param_info_get   (const char *type_name);
 
 /**
- * @brief Get the #Edje_External_Type that defines an EXTERNAL type registered with
+ * Get the #Edje_External_Type that defines an EXTERNAL type registered with
  * the name @p type_name.
  */
 EAPI const Edje_External_Type       *edje_external_type_get         (const char *type_name);
@@ -953,11 +884,9 @@ EAPI const Edje_External_Type       *edje_external_type_get         (const char 
 /**
  * @brief Set Edje's global scaling factor.
  *
- * @since_tizen 2.3
+ * @param scale The global scaling factor (the default value is @c 1.0)
  *
- * @param[in] scale The global scaling factor (the default value is @c 1.0)
- *
- * @remark Edje's global scaling factor will affect all its objects which
+ * Edje's global scaling factor will affect all its objects which
  * hadn't their individual scaling factors altered from the default
  * value (which is zero). If they had it set differently, by
  * edje_object_scale_set(), that factor will @b override the global
@@ -974,11 +903,9 @@ EAPI void         edje_scale_set                  (double scale);
 /**
  * @brief Retrieve Edje's global scaling factor.
  *
- * @since_tizen 2.3
- *
  * @return The global scaling factor
  *
- * @remark This function returns Edje's global scaling factor.
+ * This function returns Edje's global scaling factor.
  *
  * @see edje_scale_set() for more details
  *
@@ -1033,7 +960,7 @@ typedef struct _Edje_Entry_Change_Info        Edje_Entry_Change_Info;
 
 /**
  * @typedef Edje_Text_Filter_Type
- *
+ * 
  * All Edje text filters type values.
  */
 typedef enum _Edje_Text_Filter_Type
@@ -1046,7 +973,7 @@ typedef enum _Edje_Text_Filter_Type
 /**
  * @typedef Edje_Text_Autocapital_Type
  *
- * All Text auto capital mode type values
+ * All Text auto capital mode type values 
  *
  */
 typedef enum _Edje_Text_Autocapital_Type
@@ -1059,7 +986,7 @@ typedef enum _Edje_Text_Autocapital_Type
 
 /**
  * @typedef Edje_Input_Panel_Lang
- *
+ * 
  */
 typedef enum _Edje_Input_Panel_Lang
 {
@@ -1104,7 +1031,7 @@ typedef enum _Edje_Input_Panel_Layout
 
 /*
  * @typedef Edje_Input_Hints
- * @brief Edje input hints
+ * @brief Edje input hints 
  */
 typedef enum
 {
@@ -1166,14 +1093,12 @@ typedef Evas_Object *(*Edje_Item_Provider_Cb)   (void *data, Evas_Object *obj, c
 /**
  * @brief Show last character in password mode.
  *
- * @since_tizen 2.3
+ * @param password_show_last If TRUE enable last character show in password mode.
  *
- * @param[in] password_show_last If TRUE enable last character show in password mode.
- *
- * @remark This function enables last input to be visible when in password mode for few seconds
+ * This function enables last input to be visible when in password mode for few seconds
  * or until the next input is entered.
  *
- * @remark The time out value is obtained by edje_password_show_last_timeout_set function.
+ * The time out value is obtained by edje_password_show_last_timeout_set function.
  *
  * @see edje_password_show_last_timeout_set().
  */
@@ -1182,14 +1107,12 @@ EAPI void edje_password_show_last_set(Eina_Bool password_show_last);
 /**
  * @brief Set's the timeout value in last show password mode.
  *
- * @since_tizen 2.3
+ * @param password_show_last_timeout The timeout value.
  *
- * @param[in] password_show_last_timeout The timeout value.
- *
- * @remark This functions sets the time out value for which the last input entered in password
+ * This functions sets the time out value for which the last input entered in password
  * mode will be visible. If the time out value is less than zero, the last input entered in password mode will be always visible.
  *
- * @remark This value can be used only when last show mode is set in password mode.
+ * This value can be used only when last show mode is set in password mode.
  *
  * @see edje_password_show_last_set().
  *
@@ -1222,39 +1145,37 @@ EAPI void edje_password_show_last_timeout_set(double password_show_last_timeout)
 /**
  * @brief Set Edje color class.
  *
- * @since_tizen 2.3
+ * @param color_class
+ * @param r Object Red value
+ * @param g Object Green value
+ * @param b Object Blue value
+ * @param a Object Alpha value
+ * @param r2 Outline Red value
+ * @param g2 Outline Green value
+ * @param b2 Outline Blue value
+ * @param a2 Outline Alpha value
+ * @param r3 Shadow Red value
+ * @param g3 Shadow Green value
+ * @param b3 Shadow Blue value
+ * @param a3 Shadow Alpha value
  *
- * @param[in] color_class
- * @param[in] r Object Red value
- * @param[in] g Object Green value
- * @param[in] b Object Blue value
- * @param[in] a Object Alpha value
- * @param[in] r2 Outline Red value
- * @param[in] g2 Outline Green value
- * @param[in] b2 Outline Blue value
- * @param[in] a2 Outline Alpha value
- * @param[in] r3 Shadow Red value
- * @param[in] g3 Shadow Green value
- * @param[in] b3 Shadow Blue value
- * @param[in] a3 Shadow Alpha value
- *
- * @remark This function sets the color values for a process level color
+ * This function sets the color values for a process level color
  * class.  This will cause all edje parts in the current process that
  * have the specified color class to have their colors multiplied by
  * these values.  (Object level color classes set by
  * edje_object_color_class_set() will override the values set by this
  * function).
  *
- * @remark The first color is the object, the second is the text outline, and
+ * The first color is the object, the second is the text outline, and
  * the third is the text shadow. (Note that the second two only apply
  * to text parts).
  *
- * @remark Setting color emits a signal "color_class,set" with source being
+ * Setting color emits a signal "color_class,set" with source being
  * the given color class in all objects.
  *
  * @see edje_color_class_set().
  *
- * @remark unlike Evas, Edje colors are @b not pre-multiplied. That is,
+ * @note unlike Evas, Edje colors are @b not pre-multiplied. That is,
  *       half-transparent white is 255 255 255 128.
  *
  * @return Eina_Bool, EINA_TRUE on success and EINA_FALSE on failure.
@@ -1264,37 +1185,35 @@ EAPI Eina_Bool    edje_color_class_set            (const char *color_class, int 
 /**
  * @brief Get Edje color class.
  *
- * @since_tizen 2.3
- *
- * @param[in] color_class
- * @param[out] r Object Red value
- * @param[out] g Object Green value
- * @param[out] b Object Blue value
- * @param[out] a Object Alpha value
- * @param[out] r2 Outline Red value
- * @param[out] g2 Outline Green value
- * @param[out] b2 Outline Blue value
- * @param[out] a2 Outline Alpha value
- * @param[out] r3 Shadow Red value
- * @param[out] g3 Shadow Green value
- * @param[out] b3 Shadow Blue value
- * @param[out] a3 Shadow Alpha value
+ * @param color_class
+ * @param r Object Red value
+ * @param g Object Green value
+ * @param b Object Blue value
+ * @param a Object Alpha value
+ * @param r2 Outline Red value
+ * @param g2 Outline Green value
+ * @param b2 Outline Blue value
+ * @param a2 Outline Alpha value
+ * @param r3 Shadow Red value
+ * @param g3 Shadow Green value
+ * @param b3 Shadow Blue value
+ * @param a3 Shadow Alpha value
  *
  * @return EINA_TRUE if found or EINA_FALSE if not found and all
  *         values are zeroed.
  *
- * @remark This function gets the color values for a process level color
+ * This function gets the color values for a process level color
  * class. This value is the globally set and not per-object, that is,
  * the value that would be used by objects if they did not override with
  * edje_object_color_class_set().
  *
- * @remark The first color is the object, the second is the text outline, and
+ * The first color is the object, the second is the text outline, and
  * the third is the text shadow. (Note that the second two only apply
  * to text parts).
  *
  * @see edje_color_class_set().
  *
- * @remark unlike Evas, Edje colors are @b not pre-multiplied. That is,
+ * @note unlike Evas, Edje colors are @b not pre-multiplied. That is,
  *       half-transparent white is 255 255 255 128.
  */
 EAPI Eina_Bool    edje_color_class_get            (const char *color_class, int *r, int *g, int *b, int *a, int *r2, int *g2, int *b2, int *a2, int *r3, int *g3, int *b3, int *a3);
@@ -1302,13 +1221,11 @@ EAPI Eina_Bool    edje_color_class_get            (const char *color_class, int 
 /**
  * @brief Delete edje color class.
  *
- * @since_tizen 2.3
+ * @param color_class
  *
- * @param[in] color_class
- *
- * @remark This function deletes any values at the process level for the
+ * This function deletes any values at the process level for the
  * specified color class.
- * @remark Deleting the color class will revert it to the
+ * @note Deleting the color class will revert it to the
  *       values defined in the theme file.
  *
  * Deleting the color class will emit the signal "color_class,del"
@@ -1319,12 +1236,10 @@ EAPI void         edje_color_class_del            (const char *color_class);
 /**
  * @brief Lists color classes.
  *
- * @since_tizen 2.3
- *
  * @return A list of color class names (strings). These strings and
  * the list must be free()'d by the caller.
  *
- * @remark This function lists all color classes known about by the current
+ * This function lists all color classes known about by the current
  * process.
  *
  */
@@ -1622,18 +1537,16 @@ typedef enum _Edje_Drag_Dir
 /**
  * @brief Registers a custom layout to be used in edje boxes.
  *
- * @since_tizen 2.3
- *
- * @param[in] name The name of the layout
- * @param[in] func The function defining the layout
- * @param[in] layout_data_get This function gets the custom data pointer
+ * @param name The name of the layout
+ * @param func The function defining the layout
+ * @param layout_data_get This function gets the custom data pointer
  * for func
- * @param[in] layout_data_free Passed to func to free its private data
+ * @param layout_data_free Passed to func to free its private data
  * when needed
- * @param[in] free_data Frees data
- * @param[in] data Private pointer passed to layout_data_get
+ * @param free_data Frees data
+ * @param data Private pointer passed to layout_data_get
  *
- * @remark This function registers custom layouts that can be referred from
+ * This function registers custom layouts that can be referred from
  * themes by the registered name. The Evas_Object_Box_Layout
  * functions receive two pointers for internal use, one being private
  * data, and the other the function to free that data when it's not
@@ -1701,15 +1614,13 @@ typedef enum _Edje_Object_Table_Homogeneous_Mode
 /**
  * @brief Set the Edje text class.
  *
- * @since_tizen 2.3
- *
- * @param[in] text_class The text class name
- * @param[in] font The font name
- * @param[in] size The font size
+ * @param text_class The text class name
+ * @param font The font name
+ * @param size The font size
  *
  * @return @c EINA_TRUE, on success or @c EINA_FALSE, on error
  *
- * @remark This function updates all Edje members at the process level which
+ * This function updates all Edje members at the process level which
  * belong to this text class with the new font attributes.
  * If the @p size is 0 then the font size will be kept with the previous size.
  * If the @p size is less then 0 then the font size will be calculated in the
@@ -1725,15 +1636,13 @@ EAPI Eina_Bool    edje_text_class_set             (const char *text_class, const
 /**
  * @brief Get the font and the font size from Edje text class.
  *
- * @since_tizen 2.3
- *
- * @param[in] text_class The text class name
- * @param[out] font The font name
- * @param[out] size The font size
+ * @param text_class The text class name
+ * @param font The font name
+ * @param size The font size
  *
  * @return @c EINA_TRUE, on success or @c EINA_FALSE, on error
  *
- * @remark This function gets the font and the font name from the specified Edje
+ * This function gets the font and the font name from the specified Edje
  * text class.
  *
  * @see edje_text_class_set().
@@ -1744,11 +1653,9 @@ EAPI Eina_Bool    edje_text_class_get             (const char *text_class, const
 /**
  * @brief Delete the text class.
  *
- * @since_tizen 2.3
+ * @param text_class The text class name string
  *
- * @param[in] text_class The text class name string
- *
- * @remark This function deletes any values at the process level for the
+ * This function deletes any values at the process level for the
  * specified text class.
  *
  */
@@ -1757,12 +1664,10 @@ EAPI void         edje_text_class_del             (const char *text_class);
 /**
  * @brief List text classes.
  *
- * @since_tizen 2.3
- *
  * @return A list of text class names (strings). These strings are
  * stringshares and the list must be free()'d by the caller.
  *
- * @remark This function lists all text classes known about by the current
+ * This function lists all text classes known about by the current
  * process.
  *
  */
@@ -1808,53 +1713,41 @@ typedef enum _Edje_Load_Error
 
 
 /**
- * @brief Get a list of groups in an edje mapped file
- *
- * @since_tizen 2.3
- *
- * @param[in] f The mapped file
+ * Get a list of groups in an edje mapped file
+ * @param f The mapped file
  *
  * @return The Eina_List of group names (char *)
  *
- * @remark Note: the list must be freed using edje_mmap_collection_list_free()
+ * Note: the list must be freed using edje_mmap_collection_list_free()
  * when you are done with it.
  */
 EAPI Eina_List        *edje_mmap_collection_list(Eina_File *f);
 
 /**
- * @brief Free file collection list
+ * Free file collection list
+ * @param lst The Eina_List of groups
  *
- * @since_tizen 2.3
- *
- * @param[in] lst The Eina_List of groups
- *
- * @remark Frees the list returned by edje_mmap_collection_list().
+ * Frees the list returned by edje_mmap_collection_list().
  */
 EAPI void              edje_mmap_collection_list_free(Eina_List *lst);
 
 /**
- * @brief Determine whether a group matching glob exists in an edje mapped file.
- *
- * @since_tizen 2.3
- *
- * @param[in] f The mapped file
- * @param[in] glob A glob to match on
+ * Determine whether a group matching glob exists in an edje mapped file.
+ * @param f The mapped file
+ * @param glob A glob to match on
  *
  * @return 1 if a match is found, 0 otherwise
  */
 EAPI Eina_Bool         edje_mmap_group_exists(Eina_File *f, const char *glob);
 
 /**
- * @brief Get a list of groups in an edje file
- *
- * @since_tizen 2.3
- *
- * @param[in] file The path to the edje file
+ * Get a list of groups in an edje file
+ * @param file The path to the edje file
  *
  * @return The Eina_List of group names (char *)
  * @see edje_mmap_collection_list()
  *
- * @remark Note: the list must be freed using edje_file_collection_list_free()
+ * Note: the list must be freed using edje_file_collection_list_free()
  * when you are done with it.
  *
  * @see edje_mmap_group_exists()
@@ -1862,39 +1755,31 @@ EAPI Eina_Bool         edje_mmap_group_exists(Eina_File *f, const char *glob);
 EAPI Eina_List        *edje_file_collection_list  (const char *file);
 
 /**
- * @brief Free file collection list
+ * Free file collection list
+ * @param lst The Eina_List of groups
  *
- * @since_tizen 2.3
- *
- * @param[in] lst The Eina_List of groups
- *
- * @remark Frees the list returned by edje_file_collection_list().
+ * Frees the list returned by edje_file_collection_list().
  */
 EAPI void             edje_file_collection_list_free (Eina_List *lst);
 
 /**
- * @brief Determine whether a group matching glob exists in an edje file.
- *
- * @since_tizen 2.3
- *
- * @param[in] file The file path
- * @param[in] glob A glob to match on
+ * Determine whether a group matching glob exists in an edje file.
+ * @param file The file path
+ * @param glob A glob to match on
  *
  * @return 1 if a match is found, 0 otherwise
  */
 EAPI Eina_Bool        edje_file_group_exists      (const char *file, const char *glob);
 
 /**
- * @brief Converts the given Edje file load error code into a string
+ * Converts the given Edje file load error code into a string
  * describing it in English.
  *
- * @since_tizen 2.3
- *
- * @param[in] error the error code, a value in ::Edje_Load_Error.
+ * @param error the error code, a value in ::Edje_Load_Error.
  * @return Always returns a valid string. If the given @p error is not
  *         supported, <code>"Unknown error"</code> is returned.
  *
- * @remark edje_object_file_set() is a function which sets an error value,
+ * edje_object_file_set() is a function which sets an error value,
  * afterwards, which can be fetched with
  * edje_object_load_error_get(). The function in question is meant
  * to be used in conjunction with the latter, for pretty-printing any
@@ -1994,11 +1879,9 @@ typedef enum _Edje_Action_Type
 /**
  * @brief Set edje trasitions' frame time.
  *
- * @since_tizen 2.3
+ * @param t The frame time, in seconds. Default value is 1/30.
  *
- * @param[in] t The frame time, in seconds. Default value is 1/30.
- *
- * @remark This function sets the edje built-in animations' frame time (thus,
+ * This function sets the edje built-in animations' frame time (thus,
  * affecting their resolution) by calling
  * ecore_animator_frametime_set(). This frame time can be retrieved
  * with edje_frametime_get().
@@ -2011,11 +1894,9 @@ EAPI void         edje_frametime_set              (double t);
 /**
  * @brief Get edje trasitions' frame time.
  *
- * @since_tizen 2.3
- *
  * @return The frame time, in seconds.
  *
- * @remark This function returns the edje frame time set by
+ * This function returns the edje frame time set by
  * edje_frametime_set() or the default value 1/30.
  *
  * @see edje_frametime_set()
@@ -2026,11 +1907,9 @@ EAPI double       edje_frametime_get              (void);
 /**
  * @brief Freeze Edje objects.
  *
- * @since_tizen 2.3
+ * This function freezes all Edje animations in the current process.
  *
- * @remark This function freezes all Edje animations in the current process.
- *
- * @remark: for freeze a specific object @see edje_object_freeze().
+ * @note: for freeze a specific object @see edje_object_freeze().
  *
  * @see edje_thaw()
  *
@@ -2040,11 +1919,9 @@ EAPI void         edje_freeze                     (void);
 /**
  * @brief Thaw Edje objects.
  *
- * @since_tizen 2.3
+ * This function thaws all Edje animations in the current process.
  *
- * @remark This function thaws all Edje animations in the current process.
- *
- * @remark for thaw a specific object @see edje_object_thaw().
+ * @note for thaw a specific object @see edje_object_thaw().
  *
  * @see edje_freeze()
  *
@@ -2077,10 +1954,8 @@ EAPI void         edje_thaw                       (void);
  */
 
 /**
- * @brief Identifiers of Edje message types, which can be sent back and forth
+ * Identifiers of Edje message types, which can be sent back and forth
  * code and a given Edje object's theme file/group.
- *
- * @since_tizen 2.3
  *
  * @see edje_object_message_send()
  * @see edje_object_message_handler_set()
@@ -2181,9 +2056,7 @@ typedef void         (*Edje_Message_Handler_Cb) (void *data, Evas_Object *obj, E
 /**
  * @brief Process all queued up edje messages.
  *
- * @since_tizen 2.3
- *
- * @remark This function triggers the processing of messages addressed to any
+ * This function triggers the processing of messages addressed to any
  * (alive) edje objects.
  *
  */
@@ -2216,14 +2089,12 @@ EAPI void         edje_message_signal_process             (void);
 typedef struct _Edje_Perspective Edje_Perspective;
 
 /**
- * @brief Creates a new perspective in the given canvas.
+ * Creates a new perspective in the given canvas.
  *
- * @since_tizen 2.3
- *
- * @param[in] e The given canvas (Evas).
+ * @param e The given canvas (Evas).
  * @return An @ref Edje_Perspective object for this canvas, or @c NULL on errors.
  *
- * @remark This function creates a perspective object that can be set on an Edje
+ * This function creates a perspective object that can be set on an Edje
  * object, or globally to all Edje objects on this canvas.
  *
  * @see edje_perspective_set()
@@ -2231,13 +2102,11 @@ typedef struct _Edje_Perspective Edje_Perspective;
  */
 EAPI Edje_Perspective       *edje_perspective_new            (Evas *e);
 /**
- * @brief Delete the given perspective object.
+ * Delete the given perspective object.
  *
- * @since_tizen 2.3
+ * @param ps A valid perspective object, or @c NULL.
  *
- * @param[in] ps A valid perspective object, or @c NULL.
- *
- * @remark This function will delete the perspective object. If the perspective
+ * This function will delete the perspective object. If the perspective
  * effect was being applied to any Edje object or part, this effect won't be
  * applied anymore.
  *
@@ -2245,11 +2114,9 @@ EAPI Edje_Perspective       *edje_perspective_new            (Evas *e);
  */
 EAPI void                    edje_perspective_free           (Edje_Perspective *ps);
 /**
- * @brief Setup the transform for this perspective object.
+ * Setup the transform for this perspective object.
  *
- * @since_tizen 2.3
- *
- * @remark This sets the parameters of the perspective transformation. X, Y and Z
+ * This sets the parameters of the perspective transformation. X, Y and Z
  * values are used. The px and py points specify the "infinite distance" point
  * in the 3D conversion (where all lines converge to like when artists draw
  * 3D by hand). The @p z0 value specifies the z value at which there is a 1:1
@@ -2262,31 +2129,29 @@ EAPI void                    edje_perspective_free           (Edje_Perspective *
  * results are undefined) and the "z0" z value. This allows for some "depth"
  * control and @p foc must be greater than 0.
  *
- * @param[in] ps The perspective object
- * @param[in] px The perspective distance X coordinate
- * @param[in] py The perspective distance Y coordinate
- * @param[in] z0 The "0" z plane value
- * @param[in] foc The focal distance
+ * @param ps The perspective object
+ * @param px The perspective distance X coordinate
+ * @param py The perspective distance Y coordinate
+ * @param z0 The "0" z plane value
+ * @param foc The focal distance
  */
 EAPI void                    edje_perspective_set            (Edje_Perspective *ps, Evas_Coord px, Evas_Coord py, Evas_Coord z0, Evas_Coord foc);
 /**
- * @brief Make this perspective object be global for its canvas.
+ * Make this perspective object be global for its canvas.
  *
- * @since_tizen 2.3
- *
- * @param[in] ps The given perspective object
- * @param[in] global @c EINA_TRUE if the perspective should be global, @c
+ * @param ps The given perspective object
+ * @param global @c EINA_TRUE if the perspective should be global, @c
  * EINA_FALSE otherwise.
  *
- * @remark The canvas which this perspective object is being set as global is the one
+ * The canvas which this perspective object is being set as global is the one
  * given as argument upon the object creation (the @p evas parameter on the
  * function @c edje_perspective_new(evas) ).
  *
- * @remark There can be only one global perspective object set per canvas, and if
+ * There can be only one global perspective object set per canvas, and if
  * a perspective object is set to global when there was already another
  * global perspective set, the old one will be set as non-global.
  *
- * @remark A global perspective just affects a part if its Edje object doesn't have a
+ * A global perspective just affects a part if its Edje object doesn't have a
  * perspective object set to it, and if the part doesn't point to another
  * part to be used as perspective.
  *
@@ -2296,11 +2161,9 @@ EAPI void                    edje_perspective_set            (Edje_Perspective *
  */
 EAPI void                    edje_perspective_global_set     (Edje_Perspective *ps, Eina_Bool global);
 /**
- * @brief Get whether the given perspective object is global or not.
+ * Get whether the given perspective object is global or not.
  *
- * @since_tizen 2.3
- *
- * @param[in] ps The given perspective object.
+ * @param ps The given perspective object.
  * @return @c EINA_TRUE if this perspective object is global, @c EINA_FALSE
  * otherwise.
  *
@@ -2308,15 +2171,13 @@ EAPI void                    edje_perspective_global_set     (Edje_Perspective *
  */
 EAPI Eina_Bool               edje_perspective_global_get     (const Edje_Perspective *ps);
 /**
- * @brief Get the global perspective object set for this canvas.
+ * Get the global perspective object set for this canvas.
  *
- * @since_tizen 2.3
- *
- * @param[in] e The given canvas (Evas).
+ * @param e The given canvas (Evas).
  * @return The perspective object set as global for this canvas. Or @c NULL
  * if there is no global perspective set and on errors.
  *
- * @remark This function will return the perspective object that was set as global
+ * This function will return the perspective object that was set as global
  * with edje_perspective_global_set().
  *
  * @see edje_perspective_global_set()
@@ -2347,14 +2208,12 @@ EAPI const Edje_Perspective *edje_evas_global_perspective_get(const Evas *e);
  */
 
 /**
- * @brief Identifiers of Edje message types, which can be sent back and forth
+ * Identifiers of Edje message types, which can be sent back and forth
  * code and a given Edje object's theme file/group.
- *
- * @since_tizen 2.3
  *
  * @see edje_audio_channel_mute_set()
  * @see edje_audio_channel_mute_get()
- *
+ * 
  * @since 1.9
  */
 typedef enum _Edje_Channel
@@ -2370,14 +2229,12 @@ typedef enum _Edje_Channel
 } Edje_Channel;
 
 /**
- * @brief Set the mute state of audio for the process as a whole
+ * Set the mute state of audio for the process as a whole
  *
- * @since_tizen 2.3
+ * @param channel The channel to set the mute state of
+ * @param mute The mute state
  *
- * @param[in] channel The channel to set the mute state of
- * @param[in] mute The mute state
- *
- * @remark This sets the mute (no output) state of audio for the given channel.
+ * This sets the mute (no output) state of audio for the given channel.
  *
  * @see edje_audio_channel_mute_get()
  *
@@ -2386,11 +2243,9 @@ typedef enum _Edje_Channel
 EAPI void edje_audio_channel_mute_set(Edje_Channel channel, Eina_Bool mute);
 
 /**
- * @brief Get the mute state of the given channel
+ * Get the mute state of the given channel
  *
- * @since_tizen 2.3
- *
- * @param[in] channel The channel to get the mute state of
+ * @param channel The channel to get the mute state of
  * @return The mute state of the channel
  *
  * @see edje_audio_channel_mute_set()
@@ -2400,13 +2255,10 @@ EAPI void edje_audio_channel_mute_set(Edje_Channel channel, Eina_Bool mute);
 EAPI Eina_Bool edje_audio_channel_mute_get(Edje_Channel channel);
 
 /**
- * @brief Get the part name of an edje part object
- *
- * @since_tizen 2.3
- *
- * @param[in] obj An edje part object
+ * Get the part name of an edje part object
+ * @param obj An edje part object
  * @return The name of the part, if the object is an edje part, or @c NULL
- * @remark If this function returns @c NULL, @p obj was not an Edje part object
+ * @note If this function returns @c NULL, @p obj was not an Edje part object
  * @see edje_object_part_object_get()
  * @since 1.10
  */

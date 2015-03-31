@@ -170,24 +170,20 @@ struct _Old_Edje_Part_Description
 };
 
 /**
- * @brief Convert old Edje files into new Edje files.
+ * Convert old Edje files into new Edje files.
  *
- * @since_tizen 2.3
- *
- * @param[in] file an Eet_File to write the new Edje file to
- * @param[in] oedf the old Edje file
+ * @param file an Eet_File to write the new Edje file to
+ * @param oedf the old Edje file
  *
  * @return an Edje_File pointer to the converted file
  */
 Edje_File *_edje_file_convert(Eet_File *file, Old_Edje_File *oedf);
 
 /**
- * @brief Convert old edje part collection into the new Edje file.
+ * Convert old edje part collection into the new Edje file.
  *
- * @since_tizen 2.3
- *
- * @param[in] file an Eet_File to write the new Edje file to
- * @param[in] oedc The Old edje part collection
+ * @param file an Eet_File to write the new Edje file to
+ * @param oedc The Old edje part collection
  *
  * @return a new Edje part collection
  */
@@ -195,13 +191,11 @@ Edje_Part_Collection *_edje_collection_convert(Edje_File *file,
                                                Old_Edje_Part_Collection *oedc);
 
 /**
- * @brief Convert old Edje part descripton into new format.
+ * Convert old Edje part descripton into new format.
  *
- * @since_tizen 2.3
- *
- * @param[in] type The edje par description common type
- * @param[in] ce an edje collection directory entry
- * @param[in] the old edje part descripton
+ * @param type The edje par description common type
+ * @param ce an edje collection directory entry
+ * @param the old edje part descripton
  *
  * @return a new edje part descripton common
  */
@@ -210,20 +204,16 @@ Edje_Part_Description_Common *_edje_description_convert(int type,
                                                         Old_Edje_Part_Description *oed);
 
 /**
- * @brief Get the current Edje file.
- *
- * @since_tizen 2.3
+ * Get the current Edje file.
  *
  * @return the current Edje file
  */
 const Edje_File *_edje_file_get(void);
 
 /**
- * @brief Set the current Edje file.
+ * Set the current Edje file.
  *
- * @since_tizen 2.3
- *
- * @param[in] edf the Edje file to set
+ * @param edf the Edje file to set
  *
  */
 void _edje_file_set(const Edje_File *edf);

@@ -1059,7 +1059,8 @@ dri3_swap_buffers (dri3_drawable *drawable, int64_t target_msc, int64_t divisor,
 int
 dri3_get_buffer_age(dri3_drawable *drawable)
 {
-   int back_id = DRI3_BACK_ID(dri3_find_back(drawable));
+   if(!drawable) return 0;
+   int back_id = DRI3_BACK_ID(_dri3_find_back(drawable));
 
    if (back_id < 0 || !drawable->buffers[back_id])
       return 0;

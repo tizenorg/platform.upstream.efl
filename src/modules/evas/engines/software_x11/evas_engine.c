@@ -522,9 +522,14 @@ eng_setup(Evas *eo_e, void *in)
           {
               // TIZEN_ONLY [[
               static int try_dri3_swapbuf = -1;
+              char *v;
               if (try_dri3_swapbuf == -1)
                  {
-                    if (getenv("EVAS_DRI3_SWAPBUF")) try_dri3_swapbuf = 1;
+                    if ((v = getenv("EVAS_DRI3_SWAPBUF")) != NULL)
+                       {
+                          if (atoi(v) == 1) try_dri3_swapbuf = 1;
+                          else try_dri3_swapbuf = 0;
+                       }
                     else try_dri3_swapbuf = 0;
                  }
               if (try_dri3_swapbuf)
@@ -543,9 +548,14 @@ eng_setup(Evas *eo_e, void *in)
               // TIZEN_ONLY ]]
 
               static int try_swapbuf = -1;
+              char *s;
               if (try_swapbuf == -1)
                  {
-                    if (getenv("EVAS_NO_DRI_SWAPBUF")) try_swapbuf = 0;
+                    if ((s = getenv("EVAS_NO_DRI_SWAPBUF")) != NULL)
+                       {
+                          if (atoi(s) == 1) try_swapbuf = 0;
+                          else try_swapbuf = 1;
+                       }
                     else try_swapbuf = 1;
                  }
 

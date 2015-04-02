@@ -20,6 +20,7 @@ static const Eo_Test_Case etc[] = {
   { "Eo init", eo_test_init },
   { "Eo general", eo_test_general },
   { "Eo class errors", eo_test_class_errors },
+  { "Eo class behaviour errors", eo_test_class_behaviour_errors },
   { "Eo call errors", eo_test_call_errors },
   { "Eo eina value", eo_test_value },
   { "Eo threaded eo calls", eo_test_threaded_calls },
@@ -65,7 +66,9 @@ eo_suite_build(int argc, const char **argv)
 	etc[i].build(tc);
 
 	suite_add_tcase(s, tc);
+#ifndef _WIN32
 	tcase_set_timeout(tc, 0);
+#endif
      }
 
    return s;

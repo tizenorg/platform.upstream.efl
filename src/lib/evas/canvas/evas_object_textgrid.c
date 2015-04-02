@@ -658,9 +658,10 @@ evas_object_textgrid_render(Evas_Object *eo_obj,
                   else c = eina_array_data_get(palette, cells->fg);
                   if ((c) && (c->a > 0))
                     {
-                       evas_object_textgrid_row_text_append(row, eo_obj, o, xp,
-                                                            cells->codepoint,
-                                                            c->r, c->g, c->b, c->a);
+                       if (cells->codepoint > 0)
+                         evas_object_textgrid_row_text_append(row, eo_obj, o, xp,
+                                                              cells->codepoint,
+                                                              c->r, c->g, c->b, c->a);
                        // XXX: underlines and strikethroughs dont get
                        // merged into horizontal runs like bg rects above
                        if (cells->underline)
@@ -716,6 +717,7 @@ evas_object_textgrid_render(Evas_Object *eo_obj,
 		  if (!fad)
 		    {
                        ERR("Failed to allocate Evas_Font_Array_Data.");
+                       eina_inarray_free(texts->array);
                        free(texts);
                        return;
 		    }
@@ -1428,7 +1430,7 @@ EOLIAN static Evas_Textgrid_Font_Style
 _evas_textgrid_supported_font_styles_get(Eo *eo_obj EINA_UNUSED, Evas_Textgrid_Data *o EINA_UNUSED)
 {
    /* FIXME: to do */
-   return 0;
+   return EVAS_TEXTGRID_FONT_STYLE_NORMAL;
 }
 
 EOLIAN static void

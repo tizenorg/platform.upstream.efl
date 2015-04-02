@@ -27,6 +27,7 @@ static const Evas_Test_Case etc[] = {
   { "Filters", evas_test_filters },
   { "Images", evas_test_image_object },
   { "Meshes", evas_test_mesh },
+  { "Masking", evas_test_mask },
   { NULL, NULL }
 };
 
@@ -69,7 +70,9 @@ evas_suite_build(int argc, const char **argv)
 	etc[i].build(tc);
 
 	suite_add_tcase(s, tc);
+#ifndef _WIN32
 	tcase_set_timeout(tc, 0);
+#endif
      }
 
    return s;

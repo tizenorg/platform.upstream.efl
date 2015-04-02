@@ -227,7 +227,7 @@ public:
 };
 
 template <typename T, typename CloneAllocator>
-class list<T, CloneAllocator, typename std::enable_if<std::is_base_of<efl::eo::base, T>::value>::type>
+class list<T, CloneAllocator, typename std::enable_if<std::is_base_of<::efl::eo::concrete, T>::value>::type>
   : ptr_list<Eo, typename std::conditional
              <std::is_same<CloneAllocator, default_clone_allocator_placeholder>::value
               , eo_clone_allocator, CloneAllocator>::type>
@@ -413,6 +413,27 @@ public:
   using _base_type::max_size;
   using _base_type::native_handle;
 
+  /**
+   * @brief Get a constant @ref eina::accessor for the list.
+   * @return Constant <tt>eina::accessor</tt> to the list.
+   *
+   * Version of @ref accessor() to const-qualified inline lists. Returns
+   * a const-qualified <tt>eina::accessor</tt> instead.
+   */
+  eina::accessor<T const> accessor() const
+  {
+    return eina::accessor<T const>(eina_list_accessor_new(this->_impl._list));
+  }
+
+  /**
+   * @brief Get a @ref eina::accessor for the list.
+   * @return <tt>eina::accessor</tt> to the list.
+   */
+  eina::accessor<T> accessor()
+  {
+    return eina::accessor<T>(eina_list_accessor_new(this->_impl._list));
+  }
+
   friend bool operator==(list<T, CloneAllocator> const& rhs, list<T, CloneAllocator> const& lhs)
   {
     return rhs.size() == lhs.size() && std::equal(rhs.begin(), rhs.end(), lhs.begin());
@@ -461,7 +482,7 @@ public:
 };
 
 template <typename T>
-class range_list<T, typename std::enable_if<std::is_base_of<efl::eo::base, T>::value>::type>
+class range_list<T, typename std::enable_if<std::is_base_of<::efl::eo::concrete, T>::value>::type>
   : range_ptr_list<typename std::conditional<std::is_const<T>::value, Eo const, Eo>::type>
 {
   typedef range_ptr_list<typename std::conditional<std::is_const<T>::value, Eo const, Eo>::type> _base_type;

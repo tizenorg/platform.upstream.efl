@@ -4,8 +4,11 @@
 #include <cassert>
 
 void eolian_cxx_test_parse(TCase* tc);
+void eolian_cxx_test_wrapper(TCase* tc);
 void eolian_cxx_test_generate(TCase* tc);
 void eolian_cxx_test_callback(TCase* tc);
+void eolian_cxx_test_address_of(TCase* tc);
+void eolian_cxx_test_inheritance(TCase* tc);
 
 typedef struct _Eolian_Cxx_Test_Case Eolian_Cxx_Test_Case;
 struct _Eolian_Cxx_Test_Case
@@ -16,8 +19,11 @@ struct _Eolian_Cxx_Test_Case
 
 static const Eolian_Cxx_Test_Case etc[] = {
   { "Eolian-Cxx Parsing", eolian_cxx_test_parse },
+  { "Eolian-Cxx Wrapper", eolian_cxx_test_wrapper },
   { "Eolian-Cxx Generation", eolian_cxx_test_generate },
   { "Eolian-Cxx Callback", eolian_cxx_test_callback },
+  { "Eolian-Cxx Address_of", eolian_cxx_test_address_of },
+  { "Eolian-Cxx Inheritance", eolian_cxx_test_inheritance },
   { NULL, NULL }
 };
 
@@ -59,7 +65,9 @@ eolian_cxx_build_suite(int argc, const char **argv)
            continue;
 
         tc = tcase_create(etc[i].test_case);
+#ifndef _WIN32
         tcase_set_timeout(tc, 0);
+#endif
 
         etc[i].build(tc);
         suite_add_tcase(s, tc);

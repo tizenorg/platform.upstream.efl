@@ -195,7 +195,6 @@ typedef enum
    EOLIAN_TYPE_REGULAR_ENUM,
    EOLIAN_TYPE_COMPLEX,
    EOLIAN_TYPE_POINTER,
-   EOLIAN_TYPE_FUNCTION,
    EOLIAN_TYPE_STRUCT,
    EOLIAN_TYPE_STRUCT_OPAQUE,
    EOLIAN_TYPE_ENUM,
@@ -328,6 +327,50 @@ EAPI Eina_Bool eolian_eo_file_parse(const char *filename);
  * @ingroup Eolian
  */
 EAPI Eina_Bool eolian_eot_file_parse(const char *filepath);
+
+/*
+ * @brief Get an iterator to all .eo file names with paths.
+ *
+ * @see eolian_all_eo_files_get
+ * @see eolian_all_eot_file_paths_get
+ * @see eolian_all_eot_files_get
+ *
+ * @ingroup Eolian
+ */
+EAPI Eina_Iterator *eolian_all_eo_file_paths_get(void);
+
+/*
+ * @brief Get an iterator to all .eot file names with paths.
+ *
+ * @see eolian_all_eo_files_get
+ * @see eolian_all_eo_file_paths_get
+ * @see eolian_all_eot_files_get
+ *
+ * @ingroup Eolian
+ */
+EAPI Eina_Iterator *eolian_all_eot_file_paths_get(void);
+
+/*
+ * @brief Get an iterator to all .eo file names (without paths).
+ *
+ * @see eolian_all_eo_file_paths_get
+ * @see eolian_all_eot_file_paths_get
+ * @see eolian_all_eot_files_get
+ *
+ * @ingroup Eolian
+ */
+EAPI Eina_Iterator *eolian_all_eo_files_get(void);
+
+/*
+ * @brief Get an iterator to all .eot file names (without paths).
+ *
+ * @see eolian_all_eo_file_paths_get
+ * @see eolian_all_eot_file_paths_get
+ * @see eolian_all_eo_files_get
+ *
+ * @ingroup Eolian
+ */
+EAPI Eina_Iterator *eolian_all_eot_files_get(void);
 
 /*
  * @brief Init Eolian.
@@ -831,6 +874,16 @@ EAPI Eina_Bool eolian_function_is_legacy_only(const Eolian_Function *function_id
 EAPI Eina_Bool eolian_function_is_class(const Eolian_Function *function_id);
 
 /*
+ * @brief Get whether a function is C only (i.e. not bindable).
+ *
+ * @param[in] function_id Id of the function
+ * @return EINA_TRUE and EINA_FALSE respectively
+ *
+ * @ingroup Eolian
+ */
+EAPI Eina_Bool eolian_function_is_c_only(const Eolian_Function *function_id);
+
+/*
  * @brief Indicates if a function is a constructing function of a given class.
  *
  * @param[in] klass the class
@@ -1151,6 +1204,16 @@ EAPI const Eolian_Class *eolian_constructor_class_get(const Eolian_Constructor *
 EAPI const Eolian_Function *eolian_constructor_function_get(const Eolian_Constructor *ctor);
 
 /*
+ * @brief Checks if a constructor is tagged optional.
+ *
+ * @param[in] ctor the handle of the constructor
+ * @return EINA_TRUE if optional, EINA_FALSE if not (or if input is NULL).
+ *
+ * @ingroup Eolian
+ */
+EAPI Eina_Bool eolian_constructor_is_optional(const Eolian_Constructor *ctor);
+
+/*
  * @brief Get an iterator to the constructing functions defined in a class.
  *
  * @param[in] klass the class.
@@ -1333,16 +1396,6 @@ EAPI Eina_Iterator *eolian_type_enums_get_by_file(const char *fname);
 EAPI Eolian_Type_Type eolian_type_type_get(const Eolian_Type *tp);
 
 /*
- * @brief Get an iterator to all arguments of a function type.
- *
- * @param[in] tp the type.
- * @return the iterator when @c tp is an EOLIAN_TYPE_FUNCTION, NULL otherwise.
- *
- * @ingroup Eolian
- */
-EAPI Eina_Iterator *eolian_type_arguments_get(const Eolian_Type *tp);
-
-/*
  * @brief Get an iterator to all subtypes of a type.
  *
  * @param[in] tp the type.
@@ -1490,16 +1543,6 @@ EAPI Eina_Stringshare *eolian_type_description_get(const Eolian_Type *tp);
  * @ingroup Eolian
  */
 EAPI Eina_Stringshare *eolian_type_file_get(const Eolian_Type *tp);
-
-/*
- * @brief Get the return type of a function type.
- *
- * @param[in] tp the type.
- * @return the return type when @c tp is an EOLIAN_TYPE_FUNCTION, NULL otherwise.
- *
- * @ingroup Eolian
- */
-EAPI const Eolian_Type *eolian_type_return_type_get(const Eolian_Type *tp);
 
 /*
  * @brief Get the base type of a pointer or alias type.

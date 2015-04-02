@@ -572,6 +572,7 @@ static Ecore_Evas_Engine_Func _ecore_buffer_engine_func =
      NULL,
      NULL,
      NULL,
+     NULL,
      _ecore_evas_buffer_alpha_set,
      NULL, //transparent
      NULL, // profiles_set
@@ -739,6 +740,17 @@ ecore_evas_buffer_pixels_get(Ecore_Evas *ee)
    bdata = ee->engine.data;
    _ecore_evas_buffer_render(ee);
    return bdata->pixels;
+}
+
+EAPI Ecore_Evas *
+ecore_evas_buffer_ecore_evas_parent_get(Ecore_Evas *ee)
+{
+   Ecore_Evas_Engine_Buffer_Data *bdata;
+
+   EINA_SAFETY_ON_NULL_RETURN_VAL(ee, NULL);
+
+   bdata = ee->engine.data;
+   return evas_object_data_get(bdata->image, "Ecore_Evas_Parent");
 }
 
 EAPI Evas_Object *

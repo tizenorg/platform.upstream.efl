@@ -2,7 +2,7 @@ MAINTAINERCLEANFILES = Makefile.in
 CLEANFILES =
 BUILT_SOURCES =
 
-EOLIAN_FLAGS = \
+EOLIAN_FLAGS = -I$(srcdir)\
 	       -I$(srcdir)/lib/eo \
 	       -I$(srcdir)/lib/ector \
 	       -I$(srcdir)/lib/evas/canvas \
@@ -80,8 +80,8 @@ include Makefile_Eolian_Cxx.am
 include Makefile_Eet_Cxx.am
 include Makefile_Eo_Cxx.am
 include Makefile_Efl_Cxx.am
-
 include Makefile_Elua.am
+include Makefile_Elocation.am
 
 .PHONY: benchmark examples
 
@@ -108,6 +108,7 @@ examples/eio \
 examples/eldbus \
 examples/edje \
 examples/emotion \
+examples/elocation \
 examples/ethumb_client
 
 if HAVE_ELUA

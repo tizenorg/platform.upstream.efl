@@ -21,7 +21,7 @@ int _eo_log_dom = -1;
 
 static _Eo_Class **_eo_classes;
 static Eo_Id _eo_classes_last_id;
-static Eina_Bool _eo_init_count = 0;
+static int _eo_init_count = 0;
 static Eo_Op _eo_ops_last_id = 0;
 
 static size_t _eo_sz = 0;
@@ -933,7 +933,10 @@ _eo_add_internal_end(Eo *eo_id)
      }
 
    if (EINA_UNLIKELY(!fptr->o.obj))
-      return NULL;
+     {
+        ERR("Corrupt call stuck, shouldn't happen, please report!");
+        return NULL;
+     }
 
    if (!fptr->o.obj->condtor_done || fptr->o.obj->do_error)
      {
@@ -1446,7 +1449,7 @@ eo_class_new(const Eo_Class_Description *desc, const Eo_Class *parent_id, ...)
            memset(tmp, 0, arrsize);
 
         _eo_classes = tmp;
-        _eo_classes[klass->header.id - 1] = klass;
+        _eo_classes[_UNMASK_ID(klass->header.id) - 1] = klass;
      }
    eina_spinlock_release(&_eo_class_creation_lock);
 
@@ -1855,7 +1858,7 @@ eo_destructed_is(const Eo *obj_id)
 {
    EO_OBJ_POINTER_RETURN_VAL(obj_id, obj, EINA_FALSE);
 
-   return obj->del;
+   return obj->destructed;
 }
 
 EAPI void
@@ -1876,7 +1879,7 @@ eo_manual_free(Eo *obj_id)
         return EINA_FALSE;
      }
 
-   if (!obj->del)
+   if (!obj->destructed)
      {
         ERR("Tried deleting the object %p while still referenced(%d).", obj_id, obj->refcount);
         return EINA_FALSE;

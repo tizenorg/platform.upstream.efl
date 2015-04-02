@@ -1,4 +1,4 @@
-EFL_VERSION([1], [12], [2], [release])
+EFL_VERSION([1], [13], [0], [release])
 AC_INIT([efl], [efl_version], [enlightenment-devel@lists.sourceforge.net])
 
 AC_PREREQ([2.60])
@@ -15,9 +15,11 @@ AH_BOTTOM([
 ])
 
 
-AM_INIT_AUTOMAKE([1.6 dist-bzip2 dist-xz -Wall color-tests subdir-objects])
+AM_INIT_AUTOMAKE([1.6 dist-xz -Wall color-tests subdir-objects])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
+# Due to a bug in automake 1.14 we need to use this after AM_INIT_AUTOMAKE
+# http://debbugs.gnu.org/cgi/bugreport.cgi?bug=15981
 AC_USE_SYSTEM_EXTENSIONS
 
 CFOPT_WARNING=""
@@ -249,14 +251,12 @@ AM_GNU_GETTEXT_VERSION([0.18])
 m4_ifdef([AC_GNU_GETTEXT], [
 AC_GNU_GETTEXT([external])
 po_makefile_in=po/Makefile.in
-po_makevars="${srcdir}/po/Makevars:po/Makevars.in"
 have_po="yes"
 ],
 [
 m4_ifdef([AM_GNU_GETTEXT], [
 AM_GNU_GETTEXT([external])
 po_makefile_in=po/Makefile.in
-po_makevars="${srcdir}/po/Makevars:po/Makevars.in"
 have_po="yes"
 ],
 [
@@ -673,16 +673,21 @@ fi
 AM_CONDITIONAL([HAVE_SYSTEMD_USER_SESSION], [test "x${have_systemd_user_session}" = "xyes"])
 AC_SUBST([USER_SESSION_DIR])
 
-
 if test "x${have_systemd_pkg}" = "xauto" -o "x${have_systemd_pkg}" = "xyes"; then
    PKG_CHECK_MODULES([SYSTEMD], [libsystemd-daemon >= 192 libsystemd-journal >= 192],
    [have_systemd_pkg="yes"],
    [have_systemd_pkg="no"])
 fi
 
+PKG_CHECK_MODULES(SYSTEMD_LOGIN, [libsystemd-login >= 198],
+                  [have_systemd_login=yes], [have_systemd_login=no])
+AS_IF([test "x$have_systemd_login" = "xyes"],
+      [AC_DEFINE([HAVE_SYSTEMD_LOGIN], [1], [Have systemd-login])])
+AM_CONDITIONAL(HAVE_SYSTEMD_LOGIN, test "x$have_systemd_login" = "xyes")
+
 # check for systemd library if requested
 if test "x${want_systemd}" = "xyes" -a "x${have_systemd_pkg}" = "xno"; then
-   AC_MSG_ERROR([Systemd dependencie requested but not found])
+   AC_MSG_ERROR([Systemd dependency requested but not found])
 fi
 
 AM_CONDITIONAL([WANT_SYSTEMD], [test "${want_systemd}" = "yes"])
@@ -1873,6 +1878,28 @@ if test "x${have_egl}" = "xyes"; then
    evas_engine_gl_common_libs="-lEGL"
 else
    evas_engine_gl_common_libs="-lGL"
+fi
+
+# The lines below fix compiling/linking of gl_generic on OSX
+if test "x${have_darwin}" = "xyes"; then
+   if test "x${have_evas_engine_gl_cocoa}" = "xyes"; then
+      # If gl_cocoa is enabled, Apple's Core OpenGL (CGL) should be the default OpenGL.
+      # CFLAGS and LIBS are determined by evas-gl_cocoa.
+      evas_engine_gl_common_libs="${evas_engine_gl_cocoa_libs}"
+      evas_engine_gl_common_cflags="${evas_engine_gl_cocoa_cflags}"
+   else
+      # If evas-gl_cocoa is disabled, the only supported OpenGL engine on OSX (for now)
+      # is evas-gl_x11. Without its CFLAGS and LIBS explicitely set, gl_generic
+      # cannot compile (nor link).
+      evas_engine_gl_common_libs=""
+      evas_engine_gl_common_cflags=""
+
+      if test "x${have_evas_engine_gl_xlib}" = "xyes"; then
+         evas_engine_gl_common_libs="${evas_engine_gl_xlib_libs}"
+         evas_engine_gl_common_cflags="${evas_engine_gl_xlib_cflags}"
+      fi
+      ### XXX Check for other supported engines supported on OSX (dec. 2014: NONE)
+   fi
 fi
 
 AC_SUBST([evas_engine_gl_common_cflags])
@@ -3117,7 +3144,8 @@ EFL_INTERNAL_DEPEND_PKG([ECORE_DRM], [eeze])
 EFL_INTERNAL_DEPEND_PKG([ECORE_DRM], [eo])
 EFL_INTERNAL_DEPEND_PKG([ECORE_DRM], [eina])
 
-EFL_DEPEND_PKG([ECORE_DRM], [DRM], [libdrm >= 2.4 xkbcommon >= 0.3.0 libsystemd-login >= 192 gbm])
+EFL_DEPEND_PKG([ECORE_DRM], [DRM], [libdrm >= 2.4 xkbcommon >= 0.3.0 gbm])
+EFL_DEPEND_PKG([ECORE_DRM], [LIBINPUT], [libinput >= 0.6.0])
 
 EFL_EVAL_PKGS([ECORE_DRM])
 
@@ -4442,6 +4470,42 @@ EFL_EVAL_PKGS([ELUA])
 EFL_LIB_END_OPTIONAL([Elua])
 #### End of Elua
 
+#### Elocation
+
+EFL_LIB_START([Elocation])
+
+### Default values
+
+### Additional options to configure
+
+### Checks for programs
+
+### Checks for libraries
+EFL_PLATFORM_DEPEND([ELOCATION], [evil])
+EFL_INTERNAL_DEPEND_PKG([ELOCATION], [eina])
+EFL_INTERNAL_DEPEND_PKG([ELOCATION], [eo])
+EFL_INTERNAL_DEPEND_PKG([ELOCATION], [ecore])
+EFL_INTERNAL_DEPEND_PKG([ELOCATION], [eldbus])
+
+EFL_ADD_LIBS([ELOCATION], [-lm])
+
+### Checks for header files
+
+### Checks for types
+
+### Checks for structures
+
+### Checks for compiler characteristics
+
+### Checks for linker characteristics
+
+### Checks for library functions
+
+### Check availability
+
+EFL_LIB_END([Elocation])
+#### End of Elocation
+
 ### Add Wayland server library if test is enabled
 if test "x${want_tests}" = "xyes" -a "x${want_wayland}" = "xyes"; then
    EFL_DEPEND_PKG([ECORE_WAYLAND_SRV], [WAYLAND], [wayland-server >= 1.3.0])
@@ -4558,6 +4622,7 @@ src/examples/emotion/Makefile
 src/examples/ethumb_client/Makefile
 src/examples/elua/Makefile
 src/examples/eolian_cxx/Makefile
+src/examples/elocation/Makefile
 src/lib/eina/eina_config.h
 src/lib/ecore_x/ecore_x_version.h
 src/lib/efl/Efl_Config.h
@@ -4625,12 +4690,13 @@ pc/edje-cxx.pc
 pc/emotion.pc
 pc/ethumb.pc
 pc/ethumb_client.pc
+pc/elocation.pc
+pc/elua.pc
 dbus-services/org.enlightenment.Efreet.service
 dbus-services/org.enlightenment.Ethumb.service
 systemd-services/efreet.service
 systemd-services/ethumb.service
 $po_makefile_in
-$po_makevars
 cmakeconfig/EflConfig.cmake
 cmakeconfig/EflConfigVersion.cmake:cmakeconfig/EFLConfigVersion.cmake.in
 cmakeconfig/EinaConfig.cmake
@@ -4671,6 +4737,8 @@ cmakeconfig/EthumbClientConfig.cmake
 cmakeconfig/EthumbClientConfigVersion.cmake:cmakeconfig/EFLConfigVersion.cmake.in
 cmakeconfig/EmotionConfig.cmake
 cmakeconfig/EmotionConfigVersion.cmake:cmakeconfig/EFLConfigVersion.cmake.in
+cmakeconfig/EluaConfig.cmake
+cmakeconfig/EluaConfigVersion.cmake:cmakeconfig/EFLConfigVersion.cmake.in
 ])
 
 AC_OUTPUT
@@ -4772,7 +4840,7 @@ fi
 echo "Ecore_Audio.....: ${efl_lib_optional_ecore_audio} (${features_ecore_audio})"
 echo "Ecore_Avahi.....: yes (${features_ecore_avahi})"
 echo "Ecore_Evas......: ${efl_lib_optional_ecore_evas} (${features_ecore_evas})"
-echo "Ector...........: yes"
+#echo "Ector...........: yes"
 echo "Eeze............: ${efl_lib_optional_eeze} (${features_eeze})"
 echo "EPhysics........: ${efl_lib_optional_ephysics}"
 echo "Edje............: ${efl_lib_optional_edje} (${features_edje})"

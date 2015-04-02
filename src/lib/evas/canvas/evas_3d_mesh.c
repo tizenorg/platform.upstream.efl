@@ -27,9 +27,7 @@ evas_3d_mesh_frame_free(Evas_3D_Mesh_Frame *frame)
    int i;
 
    if (frame->material)
-     {
-        evas_3d_material_mesh_del(frame->material, frame->mesh);
-     }
+     evas_3d_material_mesh_del(frame->material, frame->mesh);
 
    for (i = 0; i < EVAS_3D_VERTEX_ATTRIB_COUNT; i++)
      {
@@ -119,6 +117,9 @@ _mesh_init(Evas_3D_Mesh_Data *pd)
    pd->assembly = EVAS_3D_VERTEX_ASSEMBLY_TRIANGLES;
 
    pd->nodes = NULL;
+   pd->blend_sfactor = EVAS_3D_BLEND_ONE;
+   pd->blend_dfactor = EVAS_3D_BLEND_ZERO;
+   pd->blending = EINA_FALSE;
 }
 
 static inline void
@@ -772,68 +773,78 @@ _evas_3d_mesh_fog_enable_get(Eo *obj EINA_UNUSED, Evas_3D_Mesh_Data *pd)
 }
 
 EOLIAN static void
-_evas_3d_mesh_file_set(Eo *obj, Evas_3D_Mesh_Data *pd, Evas_3D_Mesh_File_Type type, const char *file, const char *key EINA_UNUSED)
+_evas_3d_mesh_blending_enable_set(Eo *obj, Evas_3D_Mesh_Data *pd, Eina_Bool blending)
+{
+   pd->blending = blending;
+   eo_do(obj, evas_3d_object_change(EVAS_3D_STATE_MESH_BLENDING, NULL));
+}
+
+EOLIAN static Eina_Bool
+_evas_3d_mesh_blending_enable_get(Eo *obj EINA_UNUSED, Evas_3D_Mesh_Data *pd)
+{
+   return pd->blending;
+}
+
+EOLIAN static void
+_evas_3d_mesh_blending_func_set(Eo *obj, Evas_3D_Mesh_Data *pd, Evas_3D_Blend_Func sfactor, Evas_3D_Blend_Func dfactor)
+{
+   pd->blend_sfactor = sfactor;
+   pd->blend_dfactor = dfactor;
+   eo_do(obj, evas_3d_object_change(EVAS_3D_STATE_MESH_BLENDING, NULL));
+}
+
+EOLIAN static void
+_evas_3d_mesh_blending_func_get(Eo *obj EINA_UNUSED, Evas_3D_Mesh_Data *pd,
+                                   Evas_3D_Blend_Func *sfactor, Evas_3D_Blend_Func *dfactor)
+{
+   if (sfactor) *sfactor = pd->blend_sfactor;
+   if (dfactor) *dfactor = pd->blend_dfactor;
+}
+
+EOLIAN static void
+_evas_3d_mesh_mmap_set(Eo *obj, Evas_3D_Mesh_Data *pd,
+                       Eina_File *file, const char *key EINA_UNUSED)
 {
    _mesh_fini(pd);
    _mesh_init(pd);
 
    if (file == NULL) return;
 
-   switch (type)
-     {
-      case EVAS_3D_MESH_FILE_TYPE_MD2:
-        evas_3d_mesh_file_md2_set(obj, file);
-        break;
-      case EVAS_3D_MESH_FILE_TYPE_OBJ:
-        evas_3d_mesh_file_obj_set(obj, file);
-        break;
-      case EVAS_3D_MESH_FILE_TYPE_EET:
-        evas_3d_mesh_file_eet_set(obj, file);
-        break;
-      default:
-        ERR("Invalid mesh file type.");
-        break;
-     }
+   evas_common_load_model_from_eina_file(obj, file);
 }
 
-EOLIAN static void
-_evas_3d_mesh_save(Eo *obj, Evas_3D_Mesh_Data *pd, Evas_3D_Mesh_File_Type type,
-                   const char *file, const char *key EINA_UNUSED)
+EOLIAN static Eina_Bool
+_evas_3d_mesh_efl_file_file_set(Eo *obj, Evas_3D_Mesh_Data *pd,
+                                const char *file,
+                                const char *key EINA_UNUSED)
 {
-   if ((file == NULL) || (obj == NULL) || (pd == NULL)) return;
+   _mesh_fini(pd);
+   _mesh_init(pd);
 
-   switch (type)
+   if (file == NULL) return EINA_FALSE;
+
+   evas_common_load_model_from_file(obj, file);
+   return EINA_TRUE;
+}
+
+EOLIAN static Eina_Bool
+_evas_3d_mesh_efl_file_save(Eo *obj, Evas_3D_Mesh_Data *pd,
+                   const char *file,
+                   const char *key EINA_UNUSED,
+                   const char *flags EINA_UNUSED)
+{
+   if ((file == NULL) || (obj == NULL) || (pd == NULL)) return EINA_FALSE;
+
+   Evas_3D_Mesh_Frame *f = evas_3d_mesh_frame_find(pd, 0);
+
+   if (f == NULL)
      {
-      case EVAS_3D_MESH_FILE_TYPE_OBJ:
-        {
-           Evas_3D_Mesh_Frame *f = evas_3d_mesh_frame_find(pd, 0);
-
-           if (f == NULL)
-             {
-                ERR("Not existing mesh frame.");
-                return;
-             }
-
-           evas_3d_mesh_save_obj(obj, file, f);//file without extension!
-           break;
-        }
-      case EVAS_3D_MESH_FILE_TYPE_EET:
-        {
-           Evas_3D_Mesh_Frame *f = evas_3d_mesh_frame_find(pd, 0);
-
-           if (f == NULL)
-             {
-                ERR("Not existing mesh frame.");
-                return;
-             }
-
-           evas_3d_mesh_save_eet(obj, file, f);
-           break;
-        }
-      default:
-        ERR("Invalid mesh file type.");
-        break;
+        ERR("Not existing mesh frame.");
+        return EINA_FALSE;
      }
+
+   evas_common_save_model_to_file(obj, file, f);
+   return EINA_TRUE;
 }
 
 static inline void

@@ -2390,6 +2390,7 @@ _eina_value_type_array_copy(const Eina_Value_Type *type EINA_UNUSED, const void 
 
  error:
    _eina_value_type_array_flush_elements(d);
+   eina_inarray_free(d->array);
    return EINA_FALSE;
 }
 
@@ -5016,7 +5017,7 @@ eina_value_new(const Eina_Value_Type *type)
    if (!value) return NULL;
    if (!eina_value_setup(value, type))
      {
-        free(value);
+        eina_mempool_free(_eina_value_mp, value);
         return NULL;
      }
    return value;

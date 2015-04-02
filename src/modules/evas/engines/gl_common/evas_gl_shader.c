@@ -78,6 +78,7 @@ _evas_gl_common_shader_program_binary_init(Evas_GL_Program *p,
    glBindAttribLocation(p->prog, SHAD_TEXUV3, "tex_coord3");
    glBindAttribLocation(p->prog, SHAD_TEXA,   "tex_coorda");
    glBindAttribLocation(p->prog, SHAD_TEXSAM, "tex_sample");
+   glBindAttribLocation(p->prog, SHAD_TEXM,   "tex_coordm");
 
    glGetProgramiv(p->prog, GL_LINK_STATUS, &ok);
    GLERR(__FUNCTION__, __FILE__, __LINE__, "");
@@ -203,6 +204,8 @@ _evas_gl_common_shader_program_source_init(Evas_GL_Program *p,
    GLERR(__FUNCTION__, __FILE__, __LINE__, "");
    glBindAttribLocation(p->prog, SHAD_TEXSAM, "tex_sample");
    GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+   glBindAttribLocation(p->prog, SHAD_TEXM, "tex_coordm");
+   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 
    glLinkProgram(p->prog);
    GLERR(__FUNCTION__, __FILE__, __LINE__, "");
@@ -282,8 +285,11 @@ _evas_gl_common_shader_binary_save(Evas_GL_Shared *shared)
    int res = 0;
    char bin_dir_path[PATH_MAX];
    char bin_file_path[PATH_MAX];
+   char del_file[PATH_MAX];
    char tmp_file[PATH_MAX];
    unsigned int i;
+   Eina_Iterator *it;
+   Eina_File_Direct_Info *info;
 
    if (!evas_gl_common_file_cache_dir_check(bin_dir_path, sizeof(bin_dir_path)))
      {
@@ -291,8 +297,32 @@ _evas_gl_common_shader_binary_save(Evas_GL_Shared *shared)
         if (!res) return 0; /* we can't make directory */
      }
 
-   evas_gl_common_file_cache_file_check(bin_dir_path, "binary_shader", bin_file_path,
-                              sizeof(bin_dir_path));
+   if (!evas_gl_common_file_cache_file_check(bin_dir_path, "binary_shader", bin_file_path,
+                                              sizeof(bin_dir_path)))
+     {
+       it = eina_file_stat_ls(bin_dir_path);
+
+       if (it)
+         {
+            EINA_ITERATOR_FOREACH(it, info)
+              {
+                 if (strstr(info->path + info->name_start, "binary_shader"))
+                   {
+                      snprintf(del_file, sizeof(del_file), "%s/%s", bin_dir_path, info->path + info->name_start);
+                      if (!unlink(del_file))
+                        {
+                           DBG("Deleted a file. %s", del_file);
+                           break;
+                        }
+                      else
+                        ERR("Could not delete a file. %s", del_file);
+                   }
+              }
+           eina_iterator_free(it);
+         }
+       else
+         ERR("Could not get a file list");
+     }
 
    /* use mkstemp for writing */
    snprintf(tmp_file, sizeof(tmp_file), "%s.XXXXXX", bin_file_path);

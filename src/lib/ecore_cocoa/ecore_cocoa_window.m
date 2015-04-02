@@ -4,6 +4,7 @@
 
 #include <Ecore.h>
 #include <Ecore_Cocoa.h>
+#include "ecore_cocoa_private.h"
 #import "ecore_cocoa_window.h"
 
 @implementation EcoreCocoaWindow
@@ -58,14 +59,43 @@
    event = malloc(sizeof(Ecore_Cocoa_Event_Video_Resize));
    if (event == NULL)
      {
-        // FIXME Use Eina_Log
-        printf("Failed to allocate Ecore_Cocoa_Event_Video_Resize\n");
+        DBG("Failed to allocate Ecore_Cocoa_Event_Video_Resize\n");
         return;
      }
    event->w = size.width;
    event->h = size.height -
       (([self isFullScreen] == YES) ? 0 : ecore_cocoa_titlebar_height_get());
+   event->wid = [notif object];
    ecore_event_add(ECORE_COCOA_EVENT_RESIZE, event, NULL, NULL);
+   ecore_main_loop_iterate();
+}
+
+- (void)windowDidBecomeKey:(NSNotification *)notification
+{
+  Ecore_Cocoa_Event_Window *e;
+
+  e = malloc(sizeof(Ecore_Cocoa_Event_Window));
+  if (!e)
+    {
+      DBG("GOT_FOCUS: Failed to allocate Ecore_Cocoa_Event_Window\n");
+      return;
+    }
+  e->wid = [notification object];
+  ecore_event_add(ECORE_COCOA_EVENT_GOT_FOCUS, e, NULL, NULL);
+}
+
+- (void)windowDidResignKey:(NSNotification *)notification
+{
+  Ecore_Cocoa_Event_Window *e;
+
+  e = malloc(sizeof(Ecore_Cocoa_Event_Window));
+  if (!e)
+    {
+      DBG("LOST_FOCUS: Failed to allocate Ecore_Cocoa_Event_Window\n");
+      return;
+    }
+  e->wid = [notification object];
+  ecore_event_add(ECORE_COCOA_EVENT_LOST_FOCUS, e, NULL, NULL);
 }
 
 @end
@@ -192,7 +222,7 @@ ecore_cocoa_window_show(Ecore_Cocoa_Window *window)
 {
   if (!window || [window->window isVisible])
     {
-      printf("Window(%p) is not visible\n", window->window);
+      DBG("Window(%p) is not visible\n", window->window);
       return;
     }
 
@@ -240,4 +270,14 @@ ecore_cocoa_window_view_set(Ecore_Cocoa_Window *window,
   [v addTrackingArea:area];
 
   [area release];
+}
+
+Ecore_Cocoa_Window_Id ecore_cocoa_window_get_window_id(Ecore_Cocoa_Window *window)
+{
+  if (!window)
+    return 0;
+
+  DBG("Return : %p", window->window);
+
+  return window->window;
 }

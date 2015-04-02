@@ -2,22 +2,24 @@
 # Copyright (c) 2013 Rosetta Contributors and Canonical Ltd 2013
 # This file is distributed under the same license as the enlightenment package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2013.
-# Саша Петровић <salepetronije@gmail.com>, 2013.
+# Саша Петровић <salepetronije@gmail.com>, 2013, 2015.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: enlightenment\n"
 "Report-Msgid-Bugs-To: enlightenment-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2014-09-09 11:26+0200\n"
-"PO-Revision-Date: 2013-06-20 04:43+0000\n"
+"POT-Creation-Date: 2015-02-04 18:08+0900\n"
+"PO-Revision-Date: 2015-02-03 12:35+0100\n"
 "Last-Translator: Саша Петровић <salepetronije@gmail.com>\n"
-"Language-Team: српски <српски <xfce-i18n@xfce.org>>\n"
+"Language-Team: српски <xfce4@xfce4.org>\n"
 "Language: sr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-12-19 05:39+0000\n"
-"X-Generator: Launchpad (build 16872)\n"
+"X-Launchpad-Export-Date: 2014-06-14 05:42+0000\n"
+"X-Generator: Gtranslator 2.91.6\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: src/lib/ecore/ecore_getopt.c:89
 msgid "Version:"
@@ -30,11 +32,11 @@ msgstr "Употреба:"
 #: src/lib/ecore/ecore_getopt.c:105
 #, c-format
 msgid "%s [options]"
-msgstr ""
+msgstr "%s [могућности]"
 
 #: src/lib/ecore/ecore_getopt.c:305
 msgid "Copyright:"
-msgstr "Ауторска права:"
+msgstr "Права умножавања:"
 
 #: src/lib/ecore/ecore_getopt.c:317
 msgid "License:"
@@ -50,16 +52,15 @@ msgstr "Задато: "
 
 #: src/lib/ecore/ecore_getopt.c:606
 msgid "Choices: "
-msgstr "Избори: "
+msgstr "Избор: "
 
 #: src/lib/ecore/ecore_getopt.c:644 src/lib/ecore/ecore_getopt.c:645
 msgid "No categories available."
-msgstr ""
+msgstr "Нема доступних врста."
 
 #: src/lib/ecore/ecore_getopt.c:649
-#, fuzzy
 msgid "Categories: "
-msgstr "Избори: "
+msgstr "Врсте: "
 
 #: src/lib/ecore/ecore_getopt.c:771
 msgid "Options:\n"
@@ -67,12 +68,12 @@ msgstr "Могућности:\n"
 
 #: src/lib/ecore/ecore_getopt.c:780
 msgid "Positional arguments:\n"
-msgstr ""
+msgstr "Одреднице положаја:\n"
 
 #: src/lib/ecore/ecore_getopt.c:847
-#, fuzzy, c-format
+#, c-format
 msgid "ERROR: unknown category '%s'.\n"
-msgstr "ГРЕШКА: непозната могућност --%s.\n"
+msgstr "ГРЕШКА: Непозната врста „%s“.\n"
 
 #: src/lib/ecore/ecore_getopt.c:951
 #, c-format
@@ -161,16 +162,16 @@ msgstr "ГРЕШКА: могућност -%c захтева одредницу!\
 #: src/lib/ecore/ecore_getopt.c:1878
 #, c-format
 msgid "ERROR: missing required positional argument %s.\n"
-msgstr ""
+msgstr "Грешка: недостаје потребна одредница положаја %s.\n"
 
 #: src/lib/ecore/ecore_getopt.c:1910
 #, c-format
 msgid "ERROR: unsupported action type %d for positional argument %s\n"
-msgstr ""
+msgstr "Грешка: неподржана радња врсте %d за одредницу положаја %s\n"
 
 #: src/lib/ecore/ecore_getopt.c:2031 src/lib/ecore/ecore_getopt.c:2097
 msgid "ERROR: no parser provided.\n"
-msgstr "ГРЕШКА: није обезбеђен расчлањивач.\n"
+msgstr "ГРЕШКА: није обезбеђен рашчлањивач.\n"
 
 #: src/lib/ecore/ecore_getopt.c:2036 src/lib/ecore/ecore_getopt.c:2102
 msgid "ERROR: no values provided.\n"
@@ -196,7 +197,7 @@ msgstr " Погледајте -%c.\n"
 
 #: src/lib/ecore/ecore_getopt.c:2137
 msgid "ERROR: invalid positional arguments found."
-msgstr ""
+msgstr "Грешка: нађена је неисправна одредница положаја."
 
 #: src/lib/ecore/ecore_getopt.c:2172
 #, c-format
@@ -208,34 +209,34 @@ msgstr "ГРЕШКА: неисправна геометријска вредно
 msgid "ERROR: incorrect size value '%s'\n"
 msgstr "ГРЕШКА: неисправна вредност величине  „%s“\n"
 
-#: src/lib/efreet/efreet_base.c:120
+#: src/lib/efreet/efreet_base.c:123
 msgid "Desktop"
 msgstr "Радна површ"
 
-#: src/lib/efreet/efreet_base.c:128
+#: src/lib/efreet/efreet_base.c:131
 msgid "Downloads"
 msgstr "Преузимања"
 
-#: src/lib/efreet/efreet_base.c:137
+#: src/lib/efreet/efreet_base.c:140
 msgid "Templates"
 msgstr "Обрасци"
 
-#: src/lib/efreet/efreet_base.c:146
+#: src/lib/efreet/efreet_base.c:149
 msgid "Public"
 msgstr "Јавно"
 
-#: src/lib/efreet/efreet_base.c:155
+#: src/lib/efreet/efreet_base.c:158
 msgid "Documents"
 msgstr "Документа"
 
-#: src/lib/efreet/efreet_base.c:163
+#: src/lib/efreet/efreet_base.c:166
 msgid "Music"
 msgstr "Музика"
 
-#: src/lib/efreet/efreet_base.c:171
+#: src/lib/efreet/efreet_base.c:174
 msgid "Pictures"
 msgstr "Слике"
 
-#: src/lib/efreet/efreet_base.c:179
+#: src/lib/efreet/efreet_base.c:182
 msgid "Videos"
 msgstr "Видео снимци"

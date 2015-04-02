@@ -422,7 +422,6 @@ evas_xlib_image_get_buffers(RGBA_Image *im)
     XSync(d, 0);
 
     im->image.data = exim->buf_data;
-    im->cache_entry.w = exim->buf->pitch/4;
 
     evas_xlib_image_buffer_unmap(exim);
 
@@ -469,20 +468,6 @@ evas_xlib_image_dri_new(int w, int h, Visual *vis, int depth)
     return exim;
 }
 
-static void
-_native_bind_cb(void *data EINA_UNUSED, void *image, int x, int y, int w, int h)
-{
-   RGBA_Image *im = image;
-   DRI_Native *n = im->native.data;
-
-   if ((n) && (n->ns.type == EVAS_NATIVE_SURFACE_X11))
-     {
-        if (evas_xlib_image_get_buffers(im))
-          {
-             evas_common_image_colorspace_dirty(im);
-          }
-     }
-}
 
 static void
 _native_free_cb(void *data EINA_UNUSED, void *image)
@@ -500,7 +485,6 @@ _native_free_cb(void *data EINA_UNUSED, void *image)
 
     im->native.data        = NULL;
     im->native.func.data   = NULL;
-    im->native.func.bind   = NULL;
     im->native.func.free   = NULL;
     im->image.data         = NULL;
     free(n);
@@ -560,7 +544,6 @@ evas_xlib_image_dri_native_set(void *data, void *image, void *native)
     n->exim = exim;
     im->native.data = n;
     im->native.func.data = NULL;
-    im->native.func.bind = _native_bind_cb;
     im->native.func.free = _native_free_cb;
 
     if (evas_xlib_image_dri_init(exim, d)) evas_xlib_image_get_buffers(im);

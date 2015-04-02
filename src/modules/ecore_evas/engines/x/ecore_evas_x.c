@@ -437,6 +437,21 @@ _ecore_evas_x_gl_window_new(Ecore_Evas *ee, Ecore_X_Window parent, int x, int y,
                        einfo->swap_mode = opt[op];
                     }
 #endif
+                  else if (opt[op] == ECORE_EVAS_GL_X11_OPT_GL_DEPTH)
+                    {
+                       op++;
+                       einfo->depth_bits = opt[op];
+                    }
+                  else if (opt[op] == ECORE_EVAS_GL_X11_OPT_GL_STENCIL)
+                    {
+                       op++;
+                       einfo->stencil_bits = opt[op];
+                    }
+                  else if (opt[op] == ECORE_EVAS_GL_X11_OPT_GL_MSAA)
+                    {
+                       op++;
+                       einfo->msaa_bits = opt[op];
+                    }
                }
           }
 
@@ -883,7 +898,7 @@ _ecore_evas_x_event_property_change(void *data EINA_UNUSED, int type EINA_UNUSED
         ee->prop.maximized  = EINA_FALSE;
         ee->prop.sticky     = EINA_FALSE;
         ee->prop.fullscreen = EINA_FALSE;
-        ee->prop.focus_skip = EINA_FALSE;
+//        ee->prop.focus_skip = EINA_FALSE;
         
         ecore_x_netwm_window_state_get(e->win, &state, &num);
         if (state)
@@ -913,11 +928,9 @@ _ecore_evas_x_event_property_change(void *data EINA_UNUSED, int type EINA_UNUSED
                        break;
                      case ECORE_X_WINDOW_STATE_SKIP_TASKBAR:
                        edata->state.skip_taskbar = 1;
-                       ee->prop.focus_skip = EINA_TRUE;
                        break;
                      case ECORE_X_WINDOW_STATE_SKIP_PAGER:
                        edata->state.skip_pager = 1;
-                       ee->prop.focus_skip = EINA_TRUE;
                        break;
                      case ECORE_X_WINDOW_STATE_FULLSCREEN:
                        ee->prop.fullscreen = 1;
@@ -941,8 +954,8 @@ _ecore_evas_x_event_property_change(void *data EINA_UNUSED, int type EINA_UNUSED
             (prev.x.maximized_v != edata->state.maximized_v) ||
             (prev.x.maximized_h != edata->state.maximized_h) ||
 //                 (prev.x.shaded != edata->state.shaded) ||
-//                 (prev.x.skip_taskbar != edata->state.skip_taskbar) ||
-//                 (prev.x.skip_pager != edata->state.skip_pager) ||
+            (prev.x.skip_taskbar != edata->state.skip_taskbar) ||
+            (prev.x.skip_pager != edata->state.skip_pager) ||
             (prev.x.fullscreen != edata->state.fullscreen) ||
 //                 (prev.x.above != edata->state.above) ||
 //                 (prev.x.below != edata->state.below) ||
@@ -1927,6 +1940,8 @@ _ecore_evas_x_free(Ecore_Evas *ee)
    _ecore_evas_x_group_leader_unset(ee);
    if (edata->sync_counter)
      ecore_x_sync_counter_free(edata->sync_counter);
+   if (edata->netwm_sync_counter)
+     ecore_x_sync_counter_free(edata->netwm_sync_counter);
    if (edata->win_shaped_input)
      ecore_x_window_free(edata->win_shaped_input);
    ecore_event_window_unregister(ee->prop.window);
@@ -2903,6 +2918,7 @@ _ecore_evas_x_activate(Ecore_Evas *ee)
 static void
 _ecore_evas_x_title_set(Ecore_Evas *ee, const char *t)
 {
+   if (eina_streq(ee->prop.title, t)) return;
    if (ee->prop.title) free(ee->prop.title);
    ee->prop.title = NULL;
    if (!t) return;
@@ -2914,12 +2930,18 @@ _ecore_evas_x_title_set(Ecore_Evas *ee, const char *t)
 static void
 _ecore_evas_x_name_class_set(Ecore_Evas *ee, const char *n, const char *c)
 {
-   if (ee->prop.name) free(ee->prop.name);
-   if (ee->prop.clas) free(ee->prop.clas);
-   ee->prop.name = NULL;
-   ee->prop.clas = NULL;
-   if (n) ee->prop.name = strdup(n);
-   if (c) ee->prop.clas = strdup(c);
+   if (!eina_streq(n, ee->prop.name))
+     {
+        free(ee->prop.name);
+        ee->prop.name = NULL;
+        if (n) ee->prop.name = strdup(n);
+     }
+   if (!eina_streq(c, ee->prop.clas))
+     {
+        free(ee->prop.clas);
+        ee->prop.clas = NULL;
+        if (c) ee->prop.clas = strdup(c);
+     }
    ecore_x_icccm_name_class_set(ee->prop.window, ee->prop.name, ee->prop.clas);
 }
 
@@ -2974,6 +2996,12 @@ _ecore_evas_object_cursor_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj 
 
    ee = data;
    if (ee) ee->prop.cursor.object = NULL;
+}
+
+static void
+_ecore_evas_x_object_cursor_unset(Ecore_Evas *ee)
+{
+   evas_object_event_callback_del_full(ee->prop.cursor.object, EVAS_CALLBACK_DEL, _ecore_evas_object_cursor_del, ee);
 }
 
 static void
@@ -3058,7 +3086,7 @@ _ecore_evas_x_iconified_set(Ecore_Evas *ee, Eina_Bool on)
    Ecore_Evas_Engine_Data_X11 *edata = ee->engine.data;
 
    if (ee->prop.iconified == on) return;
-   if (((ee->should_be_visible) && (!ee->visible)) || (!ee->visible))
+   if (((ee->should_be_visible) && (!ee->visible)) || (ee->visible))
      ee->prop.iconified = on;
    _ecore_evas_x_hints_update(ee);
    if (on)
@@ -3550,6 +3578,7 @@ static Ecore_Evas_Engine_Func _ecore_x_engine_func =
    _ecore_evas_x_size_base_set,
    _ecore_evas_x_size_step_set,
    _ecore_evas_x_object_cursor_set,
+   _ecore_evas_x_object_cursor_unset,
    _ecore_evas_x_layer_set,
    _ecore_evas_x_focus_set,
    _ecore_evas_x_iconified_set,

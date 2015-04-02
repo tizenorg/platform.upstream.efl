@@ -40,7 +40,7 @@ void inherit_constructor(void* this_, Args args);
 ///
 /// The derived class @p D will inherit all EO operations and event
 /// callbacks from the parent class @p P, as well as from the <c>Base
-/// Class</c> (@ref efl::eo::base) since every EO C++ Class must
+/// Class</c> (@ref efl::eo::concrete) since every EO C++ Class must
 /// inherit from it.
 ///
 /// efl::eo::inherit makes use of meta-template elements to build (in
@@ -81,7 +81,7 @@ struct inherit
         (_eo_cls, NULL,
          detail::inherit_constructor
          <tuple_type, E...>
-         (static_cast<void*>(this), tuple_type(std::move(args)...)));
+         (static_cast<void*>(this), tuple_type(std::forward<Args>(args)...)));
   }
 
    /// @brief Class destructor.
@@ -104,12 +104,6 @@ struct inherit
    /// @return A pointer to the <em>EO Class</em>.
    ///
    Eo_Class const* _eo_class() const { return _eo_cls; }
-
-   template <typename T>
-   void parent_set(T& p_)
-   {
-      detail::parent_set(_eo_raw, p_._eo_ptr());
-   }
 
    Eo* _release()
    {

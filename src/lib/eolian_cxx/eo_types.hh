@@ -14,7 +14,7 @@ struct eo_parameter;
 struct eo_function;
 struct eo_event;
 
-typedef std::vector<std::string> extensions_container_type;
+typedef std::vector<std::string> ancestors_container_type;
 typedef std::vector<std::string> includes_container_type;
 typedef std::vector<eo_constructor> constructors_container_type;
 typedef std::vector<eo_function> functions_container_type;
@@ -31,19 +31,25 @@ struct eolian_type
    eolian_type()
      : native("")
      , category(unknown_)
+     , is_const(false)
      , is_own(false)
+     , is_class(false)
      , binding()
      , includes()
    {}
 
    eolian_type(std::string native_,
                category_type category_,
+               bool is_const_,
                bool is_own_,
+               bool is_class_,
                std::string binding_,
                includes_container_type includes_)
      : native(native_)
      , category(category_)
+     , is_const(is_const_)
      , is_own(is_own_)
+     , is_class(is_class_)
      , binding(binding_)
      , includes(includes_)
    {
@@ -54,27 +60,62 @@ struct eolian_type
    eolian_type(std::string native_,
                category_type category_,
                includes_container_type const& includes_)
-     : eolian_type(native_, category_, false, "", includes_)
+     : eolian_type(native_, category_, false, false, false, "", includes_)
    {
       assert(category == callback_);
    }
 
    std::string native;
    category_type category;
+   bool is_const;
    bool is_own;
+   bool is_class;
    std::string binding;
    includes_container_type includes;
 };
 
-typedef std::vector<eolian_type> eolian_type_instance;
+typedef std::vector<eolian_type> eolian_type_container;
+
+struct eolian_type_instance
+{
+  eolian_type_instance()
+    : is_out(false)
+    , is_nonull(false)
+    , parts()
+  {}
+
+  eolian_type_instance(std::initializer_list<eolian_type> il,
+                       bool is_out_ = false,
+                       bool is_nonull_ = false)
+    : is_out(is_out_)
+    , is_nonull(is_nonull_)
+    , parts(il)
+  {}
+
+  explicit eolian_type_instance(std::size_t size)
+    : is_out(false)
+    , is_nonull(false)
+    , parts(size)
+  {}
+
+  bool empty() const { return parts.empty(); }
+  std::size_t size() const { return parts.size(); }
+
+  eolian_type& front() { return parts.front(); }
+  eolian_type const& front() const { return parts.front(); }
+
+  bool is_out;
+  bool is_nonull;
+  eolian_type_container parts;
+};
 
 const efl::eolian::eolian_type
-void_type { "void", efl::eolian::eolian_type::simple_, false, "", {} };
+void_type { "void", efl::eolian::eolian_type::simple_, false, false, false, "", {} };
 
 inline bool
 type_is_void(eolian_type_instance const& type)
 {
-   return type.empty() || type[0].native.compare("void") == 0;
+   return type.empty() || type.front().native.compare("void") == 0;
 }
 
 inline bool
@@ -90,12 +131,38 @@ type_is_binding(eolian_type_instance const& type)
    return type_is_binding(type.front());
 }
 
+inline bool
+type_is_out(eolian_type_instance const& type)
+{
+   return type.is_out;
+}
+
+inline bool
+type_is_class(eolian_type const& type)
+{
+   return type.is_class;
+}
+
+inline bool
+type_is_class(eolian_type_instance const& type)
+{
+   assert(!type.empty());
+   return type_is_class(type.front());
+}
+
+inline bool
+type_is_nonull(eolian_type_instance const& type)
+{
+   return type.is_nonull;
+}
+
 inline eolian_type
 type_to_native(eolian_type const& type)
 {
    eolian_type native(type);
    native.binding.clear();
    native.category = eolian_type::simple_;
+   native.is_class = false;
    return native;
 }
 
@@ -116,6 +183,13 @@ inline bool
 type_is_complex(eolian_type const& type)
 {
    return type.category == eolian_type::complex_;
+}
+
+inline bool
+type_is_complex(eolian_type_instance const& type_ins)
+{
+   assert(!type_ins.empty());
+   return type_is_complex(type_ins.front());
 }
 
 template <typename T>
@@ -152,8 +226,8 @@ struct eo_class
    eo_class_type type;
    std::string name;
    std::string eo_name;
-   std::string parent;
-   extensions_container_type extensions;
+   ancestors_container_type parents;
+   ancestors_container_type ancestors;
    constructors_container_type constructors;
    functions_container_type functions;
    events_container_type events;
@@ -200,7 +274,7 @@ struct eo_event
 inline bool
 function_is_void(eo_function const& func)
 {
-   return func.ret.empty() || func.ret[0].native.compare("void") == 0;
+   return func.ret.empty() || func.ret.front().native.compare("void") == 0;
 }
 
 inline bool

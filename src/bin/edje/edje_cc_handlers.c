@@ -214,7 +214,7 @@ static void st_collections_group_inherit(void);
 static void st_collections_group_program_source(void);
 static void st_collections_group_part_remove(void);
 static void st_collections_group_program_remove(void);
-static void st_collections_group_script_only(void);
+static void st_collections_group_lua_script_only(void);
 static void st_collections_group_script_recursion(void);
 static void st_collections_group_alias(void);
 static void st_collections_group_min(void);
@@ -244,6 +244,7 @@ static void st_collections_group_parts_part_insert_before(void);
 static void st_collections_group_parts_part_insert_after(void);
 static void st_collections_group_parts_part_effect(void);
 static void st_collections_group_parts_part_mouse_events(void);
+static void st_collections_group_parts_part_anti_alias(void);
 static void st_collections_group_parts_part_repeat_events(void);
 static void st_collections_group_parts_part_ignore_flags(void);
 static void st_collections_group_parts_part_scale(void);
@@ -558,9 +559,8 @@ New_Statement_Handler statement_handlers[] =
      {"collections.group.target_group", st_collections_group_target_group}, /* dup */
      {"collections.group.part_remove", st_collections_group_part_remove},
      {"collections.group.program_remove", st_collections_group_program_remove},
-     {"collections.group.script_only", st_collections_group_script_only},
+     {"collections.group.lua_script_only", st_collections_group_lua_script_only},
      {"collections.group.script_recursion", st_collections_group_script_recursion},
-     {"collections.group.lua_script_only", st_collections_group_script_only},
      {"collections.group.alias", st_collections_group_alias},
      {"collections.group.min", st_collections_group_min},
      {"collections.group.max", st_collections_group_max},
@@ -594,6 +594,7 @@ New_Statement_Handler statement_handlers[] =
      {"collections.group.parts.part.insert_after", st_collections_group_parts_part_insert_after},
      {"collections.group.parts.part.effect", st_collections_group_parts_part_effect},
      {"collections.group.parts.part.mouse_events", st_collections_group_parts_part_mouse_events},
+     {"collections.group.parts.part.anti_alias", st_collections_group_parts_part_anti_alias},
      {"collections.group.parts.part.repeat_events", st_collections_group_parts_part_repeat_events},
      {"collections.group.parts.part.ignore_flags", st_collections_group_parts_part_ignore_flags},
      {"collections.group.parts.part.scale", st_collections_group_parts_part_scale},
@@ -3108,9 +3109,10 @@ double_named_group:
         [group name]
     @effect
         The name that will be used by the application to load the resulting
-        Edje object and to identify the group to swallow in a GROUP part. If a
-        group with the same name exists already it will be completely overriden
-        by the new group.
+        Edje object and to identify the group to swallow in a GROUP part. If
+        group with the same name exists already, it won't be compiled.
+        Only a single name statement is valid for group, use alias instead if
+        you want to give additional names.
     @endproperty
 */
 static void
@@ -3162,6 +3164,7 @@ _part_copy(Edje_Part *ep, Edje_Part *ep2)
 
    ep->type = ep2->type;
    ep->mouse_events = ep2->mouse_events;
+   ep->anti_alias = ep2->anti_alias;
    ep->repeat_events = ep2->repeat_events;
    ep->ignore_flags = ep2->ignore_flags;
    ep->scale = ep2->scale;
@@ -3588,7 +3591,7 @@ st_collections_group_inherit(void)
 /**
     @page edcref
     @property
-        script_only
+        lua_script_only
     @parameters
         [on/off]
     @effect
@@ -3597,7 +3600,7 @@ st_collections_group_inherit(void)
     @endproperty
 */
 static void
-st_collections_group_script_only(void)
+st_collections_group_lua_script_only(void)
 {
    Edje_Part_Collection *pc;
 
@@ -4200,6 +4203,7 @@ edje_cc_handlers_part_make(int id)
    ep->id = id;
    ep->type = EDJE_PART_TYPE_IMAGE;
    ep->mouse_events = pcp->default_mouse_events;
+   ep->anti_alias = 1;
    ep->repeat_events = 0;
    ep->ignore_flags = EVAS_EVENT_FLAG_NONE;
    ep->scale = 0;
@@ -4435,6 +4439,7 @@ st_collections_group_parts_part_inherit(void)
         if (pc->parts[i] == current_part)
           {
              ERR("Cannot inherit from same part '%s' in group '%s'", name, current_de->entry);
+             free(name);
              exit(-1);
           }
         pname = current_part->name;
@@ -4449,9 +4454,8 @@ st_collections_group_parts_part_inherit(void)
      }
 
    ERR("Cannot inherit non-existing part '%s' in group '%s'", name, current_de->entry);
-   exit(-1);
-
    free(name);
+   exit(-1);
 }
 
 static void
@@ -4907,6 +4911,24 @@ st_collections_group_parts_part_nomouse(void)
 {
    check_arg_count(0);
    current_part->mouse_events = 0;
+}
+
+/**
+    @page edcref
+    @property
+        anti_alias
+    @parameters
+        [1 or 0]
+    @effect
+        Takes a boolean value specifying whether part is anti_alias (1) or not
+        (0). The default value is 1.
+    @endproperty
+*/
+static void
+st_collections_group_parts_part_anti_alias(void)
+{
+   check_arg_count(1);
+   current_part->anti_alias = parse_bool(0);
 }
 
 /**
@@ -6567,13 +6589,11 @@ st_collections_group_parts_part_description_state(void)
    Edje_Part *ep;
    Edje_Part_Description_Common *ed;
    char *s;
+   double val;
 
    check_min_arg_count(1);
 
    ep = current_part;
-
-   ed = ep->default_desc;
-   if (ep->other.desc_count) ed = ep->other.desc[ep->other.desc_count - 1];
 
    s = parse_str(0);
    if (!strcmp (s, "custom"))
@@ -6582,13 +6602,25 @@ st_collections_group_parts_part_description_state(void)
             file_in, line - 1, s);
         exit(-1);
      }
+   if (get_arg_count() == 1)
+     val = 0.0;
+   else
+     val = parse_float_range(1, 0.0, 1.0);
+
+   /* if only default desc exists and current desc is not default, commence paddling */
+   if ((!ep->other.desc_count) && (val || (!eina_streq(s, "default"))))
+     {
+        ERR("parse error %s:%i. invalid state name: '%s'. \"default\" state must always be first.",
+            file_in, line - 1, s);
+        exit(-1);
+     }
+   ed = ep->default_desc;
+   if (ep->other.desc_count) ed = ep->other.desc[ep->other.desc_count - 1];
 
    free((void *)ed->state.name);
    ed->state.name = s;
-   if (get_arg_count() == 1)
-     ed->state.value = 0.0;
-   else
-     ed->state.value = parse_float_range(1, 0.0, 1.0);
+   ed->state.value = val;
+
    _part_description_state_update(ed);
 }
 
@@ -9812,7 +9844,6 @@ st_collections_group_parts_part_description_map_color(void)
      {
         ERR("not enough memory");
         exit(-1);
-        return;
      }
 
    *color = tmp;
@@ -10462,6 +10493,24 @@ st_collections_group_programs_program_name(void)
         Signals may be globbed, but only one signal keyword per program
         may be used. ex: signal: "mouse,clicked,*"; (clicking any mouse button
         that matches source starts program).
+        A list of global signal, that edje provide:
+          - hold,on;
+          - hold,off;
+          - mounse,in;
+          - mounse,out;
+          - mouse,down,N: where N - mouse button number;
+          - mouse,down,N,double: where N - mouse button number;
+          - mouse,down,N,triple: where N - mouse button number;
+          - mouse,up,N: where N - mouse button number;
+          - mouse,clicked,N: where N - mouse button number;
+          - mouse,move;
+          - mouse,wheel,N,M: where N - the direction (by default is 0),
+            M - 1 if wheel scrolled up and -1 if down;
+          - drag,start;
+          - drag;
+          - drag,stop;
+          - focus,part,in;
+          - focus,part,out.
     @endproperty
 */
 static void
@@ -10488,7 +10537,7 @@ st_collections_group_programs_program_signal(void)
         [source name]
     @effect
         Source of accepted signal. Sources may be globbed, but only one source
-        keyword per program may be used. ex:source: "button-*"; (Signals from
+        keyword per program may be used. ex: source: "button-*"; (Signals from
         any part or program named "button-*" are accepted).
     @endproperty
 */

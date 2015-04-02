@@ -17,7 +17,6 @@
 /ecore-win32.pc
 /ecore-x.pc
 /ecore.pc
-/ector.pc
 /edje.pc
 /eet.pc
 /eeze.pc
@@ -29,6 +28,7 @@
 /eet-cxx.pc
 /eio.pc
 /eldbus.pc
+/elocation.pc
 /embryo.pc
 /emotion.pc
 /eo.pc
@@ -60,3 +60,4 @@
 /ecore-audio-cxx.pc
 /efl.pc
 /efl-cxx.pc
+/elua.pc

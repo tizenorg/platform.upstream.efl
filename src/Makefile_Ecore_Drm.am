@@ -16,9 +16,15 @@ lib/ecore_drm/ecore_drm_inputs.c \
 lib/ecore_drm/ecore_drm_output.c \
 lib/ecore_drm/ecore_drm_tty.c \
 lib/ecore_drm/ecore_drm_device.c \
+lib/ecore_drm/ecore_drm_launcher.c \
 lib/ecore_drm/ecore_drm_dbus.c \
 lib/ecore_drm/ecore_drm.c \
 lib/ecore_drm/ecore_drm_private.h
+
+if HAVE_SYSTEMD_LOGIN
+lib_ecore_drm_libecore_drm_la_SOURCES += \
+lib/ecore_drm/ecore_drm_logind.c
+endif
 
 lib_ecore_drm_libecore_drm_la_CPPFLAGS = \
   -I$(top_builddir)/src/lib/efl \
@@ -27,6 +33,9 @@ lib_ecore_drm_libecore_drm_la_CPPFLAGS = \
   -DMODULE_ARCH=\"$(MODULE_ARCH)\"
 
 lib_ecore_drm_libecore_drm_la_LIBADD = @ECORE_DRM_LIBS@
+if HAVE_SYSTEMD_LOGIN
+lib_ecore_drm_libecore_drm_la_LIBADD += @SYSTEMD_LOGIN_LIBS@
+endif
 lib_ecore_drm_libecore_drm_la_DEPENDENCIES = @ECORE_DRM_INTERNAL_LIBS@
 lib_ecore_drm_libecore_drm_la_LDFLAGS = @EFL_LTLIBRARY_FLAGS@
 

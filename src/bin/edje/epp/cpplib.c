@@ -2724,7 +2724,6 @@ macroexpand(cpp_reader * pfile, HASHNODE * hp)
 	 * macarg absorbed the rest of the args. */
 	i = 0;
 	rest_args = 0;
-	rest_args = 0;
 	FORWARD(1);		/* Discard the open-parenthesis before the first arg.  */
 	do
 	  {
@@ -3325,14 +3324,21 @@ do_include(cpp_reader * pfile, struct directive *keyword,
      {
 	strncpy(fname, (const char *)fbeg, flen);
 	fname[flen] = 0;
-	if (redundant_include_p(pfile, fname))
-	   return 0;
+        if (redundant_include_p(pfile, fname))
+          {
+             free(fname);
+             return 0;
+          }
 	if (importing)
 	   f = lookup_import(pfile, fname, NULL);
 	else
 	   f = open_include_file(pfile, fname, NULL);
-	if (f == -2)
-	   return 0;		/* Already included this file */
+        /* Already included this file */
+        if (f == -2)
+          {
+             free(fname);
+             return 0;
+          }
      }
    else
      {
@@ -3381,13 +3387,19 @@ do_include(cpp_reader * pfile, struct directive *keyword,
 	      * of redundant include files: #import, #pragma once, and
 	      * redundant_include_p.  It would be nice if they were unified.  */
 	     if (redundant_include_p(pfile, fname))
-		return 0;
+           {
+              free(fname);
+              return 0;
+           }
 	     if (importing)
 		f = lookup_import(pfile, fname, searchptr);
 	     else
 		f = open_include_file(pfile, fname, searchptr);
 	     if (f == -2)
-		return 0;	/* Already included this file */
+           {
+              free(fname);
+              return 0;	/* Already included this file */
+           }
 #ifdef EACCES
 	     else if (f == -1 && errno == EACCES)
 		cpp_warning(pfile, "Header file %s exists, but is not readable",
@@ -3468,6 +3480,7 @@ do_include(cpp_reader * pfile, struct directive *keyword,
 	     if (!strcmp(ptr->fname, fname))
 	       {
 		  close(f);
+          free(fname);
 		  return 0;	/* This file was once'd. */
 	       }
 	  }
@@ -3525,6 +3538,11 @@ do_include(cpp_reader * pfile, struct directive *keyword,
 	if (angle_brackets)
 	   pfile->system_include_depth--;
      }
+
+   // We are leaking fname here. This is intended as it may still be used later
+   // on. It would be better on to track that correctly and fix it, but as it
+   // only affect recursive include this leak is not important and time will be
+   // better spent somewhere else.
    return 0;
 }
 
@@ -5672,6 +5690,7 @@ push_parse_file(cpp_reader * pfile, const char *fname)
    char               *p;
    int                 f;
    cpp_buffer         *fp;
+   char               *epath = 0;
 
    /* The code looks at the defaults through this pointer, rather than through
     * the constant structure above.  This pointer gets changed if an environment
@@ -5819,8 +5838,6 @@ push_parse_file(cpp_reader * pfile, const char *fname)
 
    {				/* read the appropriate environment variable and if it exists
 				 * replace include_defaults with the listed path. */
-      char               *epath = 0;
-
       switch ((opts->objc << 1) + opts->cplusplus)
 	{
 	case 0:
@@ -5994,6 +6011,7 @@ push_parse_file(cpp_reader * pfile, const char *fname)
 	     if (fd < 0)
 	       {
 		  cpp_perror_with_name(pfile, pend->arg);
+          if (epath) free(include_defaults);
 		  return FATAL_EXIT_CODE;
 	       }
 	     cpp_push_buffer(pfile, NULL, 0);
@@ -6139,6 +6157,7 @@ push_parse_file(cpp_reader * pfile, const char *fname)
 	       {
 		  cpp_perror_with_name(pfile, pend->arg);
                   if (f) close(f);
+          if (epath) free(include_defaults);
 		  return FATAL_EXIT_CODE;
 	       }
 	     cpp_push_buffer(pfile, NULL, 0);
@@ -6159,6 +6178,7 @@ push_parse_file(cpp_reader * pfile, const char *fname)
 
    if (finclude(pfile, f, fname, 0, NULL))
       output_line_command(pfile, 0, same_file);
+   if (epath) free(include_defaults);
    return SUCCESS_EXIT_CODE;
 }
 

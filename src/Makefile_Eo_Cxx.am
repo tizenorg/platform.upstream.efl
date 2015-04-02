@@ -1,7 +1,17 @@
 
+### Generated Headers
+
+generated_eo_cxx_bindings = \
+lib/eo/eo_base.eo.hh \
+lib/eo/eo_abstract_class.eo.hh
+
 ### Library
 
 if HAVE_CXX11
+
+CLEANFILES += $(generated_eo_cxx_bindings)
+
+nodist_installed_eocxxheaders_DATA = $(generated_eo_cxx_bindings)
 
 installed_eocxxmainheadersdir = $(includedir)/eo-cxx-@VMAJ@/
 dist_installed_eocxxmainheaders_DATA = \
@@ -9,7 +19,7 @@ bindings/eo_cxx/Eo.hh
 
 installed_eocxxheadersdir = $(includedir)/eo-cxx-@VMAJ@/
 dist_installed_eocxxheaders_DATA = \
-bindings/eo_cxx/eo_base.hh \
+bindings/eo_cxx/eo_concrete.hh \
 bindings/eo_cxx/eo_event.hh \
 bindings/eo_cxx/eo_init.hh \
 bindings/eo_cxx/eo_wref.hh \

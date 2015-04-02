@@ -211,25 +211,33 @@ _ecore_evas_wl_common_cb_window_configure(void *data EINA_UNUSED, int type EINA_
    if (!ee->prop.fullscreen)
      {
         int fw = 0, fh = 0;
-        int maxw, maxh;
-        int minw, minh;
-        double a;
+        int maxw = 0, maxh = 0;
+        int minw = 0, minh = 0;
+        double a = 0.0;
 
         evas_output_framespace_get(ee->evas, NULL, NULL, &fw, &fh);
 
         if (ECORE_EVAS_PORTRAIT(ee))
           {
-             minw = (ee->prop.min.w + fw);
-             minh = (ee->prop.min.h + fh);
-             maxw = (ee->prop.max.w + fw);
-             maxh = (ee->prop.max.h + fh);
+             if (ee->prop.min.w > 0) 
+               minw = (ee->prop.min.w - fw);
+             if (ee->prop.min.h > 0) 
+               minh = (ee->prop.min.h - fh);
+             if (ee->prop.max.w > 0) 
+               maxw = (ee->prop.max.w + fw);
+             if (ee->prop.max.h > 0) 
+               maxh = (ee->prop.max.h + fh);
           }
         else
           {
-             minw = (ee->prop.min.w + fh);
-             minh = (ee->prop.min.h + fw);
-             maxw = (ee->prop.max.w + fh);
-             maxh = (ee->prop.max.h + fw);
+             if (ee->prop.min.w > 0)
+               minw = (ee->prop.min.w - fh);
+             if (ee->prop.min.h > 0)
+               minh = (ee->prop.min.h - fw);
+             if (ee->prop.max.w > 0)
+               maxw = (ee->prop.max.w + fh);
+             if (ee->prop.max.h > 0)
+               maxh = (ee->prop.max.h + fw);
           }
 
         /* adjust size using aspect */
@@ -293,10 +301,15 @@ _ecore_evas_wl_common_cb_window_configure(void *data EINA_UNUSED, int type EINA_
                nh = (minh + (((nh - minh) / ee->prop.step.h) * ee->prop.step.h));
           }
 
-        if (nw > maxw) nw = maxw;
-        else if (nw < minw) nw = minw;
-        if (nh > maxh) nh = maxh;
-        else if (nh < minh) nh = minh;
+        if ((maxw > 0) && (nw > maxw)) 
+          nw = maxw;
+        else if (nw < minw) 
+          nw = minw;
+
+        if ((maxh > 0) && (nh > maxh)) 
+          nh = maxh;
+        else if (nh < minh) 
+          nh = minh;
 
         orig_w = nw;
         orig_h = nh;
@@ -572,6 +585,7 @@ _ecore_evas_wl_common_free(Ecore_Evas *ee)
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
+   if (!ee) return;
    wdata = ee->engine.data;
    if (wdata->frame_callback) wl_callback_destroy(wdata->frame_callback);
    wdata->frame_callback = NULL;
@@ -595,6 +609,7 @@ _ecore_evas_wl_common_resize(Ecore_Evas *ee, int w, int h)
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
+   if (!ee) return;
    if (w < 1) w = 1;
    if (h < 1) h = 1;
 
@@ -606,24 +621,33 @@ _ecore_evas_wl_common_resize(Ecore_Evas *ee, int w, int h)
    if (!ee->prop.fullscreen)
      {
         int fw = 0, fh = 0;
-        int maxw, maxh;
-        int minw, minh;
-        double a;
+        int maxw = 0, maxh = 0;
+        int minw = 0, minh = 0;
+        double a = 0.0;
+
         evas_output_framespace_get(ee->evas, NULL, NULL, &fw, &fh);
 
         if (ECORE_EVAS_PORTRAIT(ee))
           {
-             minw = (ee->prop.min.w - fw);
-             minh = (ee->prop.min.h - fh);
-             maxw = (ee->prop.max.w + fw);
-             maxh = (ee->prop.max.h + fh);
+             if (ee->prop.min.w > 0) 
+               minw = (ee->prop.min.w - fw);
+             if (ee->prop.min.h > 0) 
+               minh = (ee->prop.min.h - fh);
+             if (ee->prop.max.w > 0) 
+               maxw = (ee->prop.max.w + fw);
+             if (ee->prop.max.h > 0) 
+               maxh = (ee->prop.max.h + fh);
           }
         else
           {
-             minw = (ee->prop.min.w - fh);
-             minh = (ee->prop.min.h - fw);
-             maxw = (ee->prop.max.w + fh);
-             maxh = (ee->prop.max.h + fw);
+             if (ee->prop.min.w > 0)
+               minw = (ee->prop.min.w - fh);
+             if (ee->prop.min.h > 0)
+               minh = (ee->prop.min.h - fw);
+             if (ee->prop.max.w > 0)
+               maxw = (ee->prop.max.w + fh);
+             if (ee->prop.max.h > 0)
+               maxh = (ee->prop.max.h + fw);
           }
 
         /* adjust size using aspect */
@@ -687,10 +711,15 @@ _ecore_evas_wl_common_resize(Ecore_Evas *ee, int w, int h)
                h = (minh + (((h - minh) / ee->prop.step.h) * ee->prop.step.h));
           }
 
-        if (w > maxw) w = maxw;
-        else if (w < minw) w = minw;
-        if (h > maxh) h = maxh;
-        else if (h < minh) h = minh;
+        if ((maxw > 0) && (w > maxw)) 
+          w = maxw;
+        else if (w < minw) 
+          w = minw;
+
+        if ((maxh > 0) && (h > maxh)) 
+          h = maxh;
+        else if (h < minh) 
+          h = minh;
 
         orig_w = w;
         orig_h = h;
@@ -1069,6 +1098,7 @@ _ecore_evas_wl_common_title_set(Ecore_Evas *ee, const char *title)
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!ee) return;
+   if (eina_streq(ee->prop.title, title)) return;
    if (ee->prop.title) free(ee->prop.title);
    ee->prop.title = NULL;
    if (title) ee->prop.title = strdup(title);
@@ -1094,13 +1124,18 @@ _ecore_evas_wl_common_name_class_set(Ecore_Evas *ee, const char *n, const char *
 
    if (!ee) return;
    wdata = ee->engine.data;
-   if (ee->prop.name) free(ee->prop.name);
-   if (ee->prop.clas) free(ee->prop.clas);
-   ee->prop.name = NULL;
-   ee->prop.clas = NULL;
-   if (n) ee->prop.name = strdup(n);
-   if (c) ee->prop.clas = strdup(c);
-
+   if (!eina_streq(ee->prop.name, n))
+     {
+        if (ee->prop.name) free(ee->prop.name);
+        ee->prop.name = NULL;
+        if (n) ee->prop.name = strdup(n);
+     }
+   if (!eina_streq(ee->prop.clas, c))
+     {
+        if (ee->prop.clas) free(ee->prop.clas);
+        ee->prop.clas = NULL;
+        if (c) ee->prop.clas = strdup(c);
+     }
    if (ee->prop.clas)
      ecore_wl_window_class_name_set(wdata->win, ee->prop.clas);
 }
@@ -1162,6 +1197,7 @@ _ecore_evas_wl_common_aspect_set(Ecore_Evas *ee, double aspect)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
+   if (!ee) return;
    if (ee->prop.aspect == aspect) return;
    ee->prop.aspect = aspect;
 }
@@ -1176,12 +1212,19 @@ _ecore_evas_object_cursor_del(void *data, Evas *e EINA_UNUSED, Evas_Object *obj 
 }
 
 void
+_ecore_evas_wl_common_object_cursor_unset(Ecore_Evas *ee)
+{
+   evas_object_event_callback_del_full(ee->prop.cursor.object, EVAS_CALLBACK_DEL, _ecore_evas_object_cursor_del, ee);
+}
+
+void
 _ecore_evas_wl_common_object_cursor_set(Ecore_Evas *ee, Evas_Object *obj, int layer, int hot_x, int hot_y)
 {
    int x, y, fx, fy;
    Ecore_Evas_Engine_Wl_Data *wdata = ee->engine.data;
    Evas_Object *old;
 
+   if (!ee) return;
    old = ee->prop.cursor.object;
    if (obj == NULL)
      {
@@ -1335,6 +1378,7 @@ _ecore_evas_wl_common_pre_render(Ecore_Evas *ee)
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
+   if (!ee) return 0;
    if (ee->in_async_render)
      {
         /* EDBG("ee=%p is rendering asynchronously, skip", ee); */
@@ -1437,6 +1481,7 @@ _ecore_evas_wl_common_render(Ecore_Evas *ee)
    Ecore_Wl_Window *win = NULL;
    Ecore_Evas_Engine_Wl_Data *wdata;
 
+   if (!ee) return 0;
    if (!(wdata = ee->engine.data)) return 0;
    if (!(win = wdata->win)) return 0;
 

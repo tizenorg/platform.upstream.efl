@@ -2300,6 +2300,7 @@ START_TEST(eina_value_test_timeval)
 {
    Eina_Value *value, other;
    struct timeval itv, otv;
+   time_t t;
    char c;
    char *str;
    char buf[64];
@@ -2313,7 +2314,8 @@ START_TEST(eina_value_test_timeval)
    itv.tv_usec = 123;
    fail_unless(eina_value_set(value, itv));
    fail_unless(eina_value_get(value, &otv));
-   fail_unless(memcmp(&itv, &otv, sizeof(struct timeval)) == 0);
+   fail_unless(itv.tv_sec == otv.tv_sec);
+   fail_unless(itv.tv_usec == otv.tv_usec);
 
    itv.tv_sec = 3;
    itv.tv_usec = -1;
@@ -2321,7 +2323,8 @@ START_TEST(eina_value_test_timeval)
    fail_unless(eina_value_get(value, &otv));
    itv.tv_sec = 2;
    itv.tv_usec = 999999;
-   fail_unless(memcmp(&itv, &otv, sizeof(struct timeval)) == 0);
+   fail_unless(itv.tv_sec == otv.tv_sec);
+   fail_unless(itv.tv_usec == otv.tv_usec);
 
    fail_unless(eina_value_setup(&other, EINA_VALUE_TYPE_CHAR));
    fail_unless(eina_value_convert(value, &other));
@@ -2335,7 +2338,8 @@ START_TEST(eina_value_test_timeval)
    str = eina_value_to_string(value);
    fail_unless(str != NULL);
 
-   strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", localtime(&(itv.tv_sec)));
+   t = itv.tv_sec;
+   strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", localtime(&(t)));
    ck_assert_str_eq(str, buf);
    free(str);
 

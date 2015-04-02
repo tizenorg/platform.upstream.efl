@@ -1105,7 +1105,7 @@ typedef Evas_Object *(*Edje_Item_Provider_Cb)   (void *data, Evas_Object *obj, c
 EAPI void edje_password_show_last_set(Eina_Bool password_show_last);
 
 /**
- * @brief Set's the timeout value in last show password mode.
+ * @brief Set the timeout value in last show password mode.
  *
  * @param password_show_last_timeout The timeout value.
  *
@@ -1289,8 +1289,10 @@ typedef enum _Edje_Part_Type
    EDJE_PART_TYPE_EXTERNAL  = 10, /**< External type value */
    EDJE_PART_TYPE_PROXY     = 11, /**< Proxy type value */
    EDJE_PART_TYPE_SPACER    = 12, /**< Spacer type value @since 1.7 */
-   EDJE_PART_TYPE_LAST      = 13  /**< Last type value */
-
+   EDJE_PART_TYPE_MESH_NODE = 13,
+   EDJE_PART_TYPE_LIGHT     = 14,
+   EDJE_PART_TYPE_CAMERA    = 15,
+   EDJE_PART_TYPE_LAST      = 16  /**< Last type value */
 } Edje_Part_Type;
 /**
  * @}

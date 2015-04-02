@@ -104,9 +104,7 @@ old/README.evas \
 old/README.evil \
 spec/efl.spec \
 pkgbuild/PKGBUILD \
-pkgbuild/efl.install \
-po/xgettext_wrapper.sh \
-po/Makevars.in
+pkgbuild/efl.install
 
 if HAVE_FREEBSD
 pkgconfigdir = $(libdir)data/pkgconfig
@@ -153,7 +151,8 @@ pc/efreet-trash.pc \
 pc/edje.pc \
 pc/emotion.pc \
 pc/ethumb.pc \
-pc/ethumb_client.pc
+pc/ethumb_client.pc \
+pc/elocation.pc
 
 if HAVE_CXX11
 pkgconfig_DATA += \
@@ -164,6 +163,10 @@ pc/eolian-cxx.pc \
 pc/edje-cxx.pc \
 pc/eet-cxx.pc \
 pc/eo-cxx.pc
+endif
+
+if HAVE_ELUA
+pkgconfig_DATA += pc/elua.pc
 endif
 
 if BUILD_ENGINE_SOFTWARE_X11
@@ -359,6 +362,10 @@ emotion_cmakeconfig_DATA = \
 cmakeconfig/EmotionConfig.cmake \
 cmakeconfig/EmotionConfigVersion.cmake
 
+elua_cmakeconfigdir = $(libdir)/cmake/Elua
+elua_cmakeconfig_DATA = \
+cmakeconfig/EluaConfig.cmake \
+cmakeconfig/EluaConfigVersion.cmake
 
 # D-Bus services:
 
@@ -439,15 +446,3 @@ pkgbuild::
 
 clean-local:
 	rm -rf benchmark coverage
-
-# Makevars is generated in top source directory, even for out-of-tree
-distclean-local:
-	rm -f $(top_srcdir)/po/Makevars
-
-# we need this to remove Makevars from dist
-dist-hook:
-	rm -f $(distdir)/po/Makevars
-
-# in dist tree po is read only, and we need to generate Makevars in there
-distcheck-hook:
-	chmod +w $(distdir)/po

@@ -117,7 +117,10 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
                int      indirect EINA_UNUSED,
                int      alpha,
                int      rot,
-               Render_Engine_Swap_Mode swap_mode)
+               Render_Engine_Swap_Mode swap_mode,
+               int depth_bits,
+               int stencil_bits,
+               int msaa_bits)
 {
    Outbuf *gw;
    GLContext context;
@@ -127,8 +130,9 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
 #else
    GLXContext rgbactx;
 #endif
-   const GLubyte *vendor, *renderer, *version;
+   const GLubyte *vendor, *renderer, *version, *glslversion;
    int blacklist = 0;
+   int val = 0;
 
    if (!fbconf) eng_best_visual_get(info);
    if (!_evas_gl_x11_vi) return NULL;
@@ -150,6 +154,9 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
    gw->swap_mode = swap_mode;
    gw->info = info;
    gw->evas = e;
+   gw->depth_bits = depth_bits;
+   gw->stencil_bits = stencil_bits;
+   gw->msaa_bits = msaa_bits;
 
    if (gw->alpha && _evas_gl_x11_rgba_vi)
      gw->visualinfo = _evas_gl_x11_rgba_vi;
@@ -175,8 +182,7 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
         eng_window_free(gw);
         return NULL;
      }
-   eglBindAPI(EGL_OPENGL_ES_API);
-   if (eglGetError() != EGL_SUCCESS)
+   if (!eglBindAPI(EGL_OPENGL_ES_API))
      {
         ERR("eglBindAPI() fail. code=%#x", eglGetError());
         eng_window_free(gw);
@@ -209,7 +215,7 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
 
    if (context == EGL_NO_CONTEXT)
      _tls_context_set(gw->egl_context[0]);
-
+   
    if (eglMakeCurrent(gw->egl_disp,
                       gw->egl_surface[0],
                       gw->egl_surface[0],
@@ -223,14 +229,17 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
    vendor = glGetString(GL_VENDOR);
    renderer = glGetString(GL_RENDERER);
    version = glGetString(GL_VERSION);
+   glslversion = glGetString(GL_SHADING_LANGUAGE_VERSION);
    if (!vendor)   vendor   = (unsigned char *)"-UNKNOWN-";
    if (!renderer) renderer = (unsigned char *)"-UNKNOWN-";
    if (!version)  version  = (unsigned char *)"-UNKNOWN-";
+   if (!glslversion) glslversion = (unsigned char *)"-UNKNOWN-";
    if (getenv("EVAS_GL_INFO"))
      {
-        fprintf(stderr, "vendor: %s\n", vendor);
+        fprintf(stderr, "vendor  : %s\n", vendor);
         fprintf(stderr, "renderer: %s\n", renderer);
-        fprintf(stderr, "version: %s\n", version);
+        fprintf(stderr, "version : %s\n", version);
+        fprintf(stderr, "glsl ver: %s\n", glslversion);
      }
 
    if (strstr((const char *)vendor, "Mesa Project"))
@@ -251,6 +260,17 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
         eng_window_free(gw);
         return NULL;
      }
+
+   eglGetConfigAttrib(gw->egl_disp, gw->egl_config, EGL_DEPTH_SIZE, &val);
+   gw->detected.depth_buffer_size = val;
+   DBG("Detected depth size %d", val);
+   eglGetConfigAttrib(gw->egl_disp, gw->egl_config, EGL_STENCIL_SIZE, &val);
+   gw->detected.stencil_buffer_size = val;
+   DBG("Detected stencil size %d", val);
+   eglGetConfigAttrib(gw->egl_disp, gw->egl_config, EGL_SAMPLES, &val);
+   gw->detected.msaa = val;
+   DBG("Detected msaa %d", val);
+
 // GLX
 #else
    context = _tls_context_get();
@@ -310,12 +330,19 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
    vendor = glGetString(GL_VENDOR);
    renderer = glGetString(GL_RENDERER);
    version = glGetString(GL_VERSION);
+   glslversion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+   if (!vendor)   vendor   = (unsigned char *)"-UNKNOWN-";
+   if (!renderer) renderer = (unsigned char *)"-UNKNOWN-";
+   if (!version)  version  = (unsigned char *)"-UNKNOWN-";
+   if (!glslversion) glslversion = (unsigned char *)"-UNKNOWN-";
    if (getenv("EVAS_GL_INFO"))
      {
-        fprintf(stderr, "vendor: %s\n", vendor);
+        fprintf(stderr, "vendor  : %s\n", vendor);
         fprintf(stderr, "renderer: %s\n", renderer);
-        fprintf(stderr, "version: %s\n", version);
+        fprintf(stderr, "version : %s\n", version);
+        fprintf(stderr, "glsl ver: %s\n", glslversion);
      }
+
    //   examples:
    // vendor: NVIDIA Corporation
    // renderer: NVIDIA Tegra
@@ -372,7 +399,7 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
    // vendor: VMware, Inc.
    // renderer: Gallium 0.4 on softpipe
    // version: 2.1 Mesa 7.9-devel
-   //
+   // 
    if (strstr((const char *)vendor, "Mesa Project"))
      {
         if (strstr((const char *)renderer, "Software Rasterizer"))
@@ -416,6 +443,13 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
      {
         // noothing yet. add more cases and options over time
      }
+
+   glXGetConfig(gw->disp, gw->visualinfo, GLX_DEPTH_SIZE, &val);
+   gw->detected.depth_buffer_size = val;
+   glXGetConfig(gw->disp, gw->visualinfo, GLX_STENCIL_SIZE, &val);
+   gw->detected.stencil_buffer_size = val;
+   glXGetConfig(gw->disp, gw->visualinfo, GLX_SAMPLES, &val);
+   gw->detected.msaa = val;
 #endif
 
    gw->gl_context = glsym_evas_gl_common_context_new();
@@ -714,10 +748,46 @@ eng_best_visual_get(Evas_Engine_Info_GL_X11 *einfo)
                   config_attrs[n++] = EGL_ALPHA_SIZE;
                   config_attrs[n++] = 0;
                }
-             config_attrs[n++] = EGL_DEPTH_SIZE;
-             config_attrs[n++] = 0;
-             config_attrs[n++] = EGL_STENCIL_SIZE;
-             config_attrs[n++] = 0;
+
+             // Tizen Only :: Direct Rendering Option for widget (e.g. WEBKIT)
+             /*
+               * Sometimes, Tizen Widget uses Evas GL with Direct Rendering.
+               * This widget also runs with depth/stencil.
+               * Unfortunately, Application can not know this widget uses Evas GL that runs with DR, Depth/Stencil buffer.
+               * Although application does not set depth/stencil buffer size,
+               * evas gl render engine should set depth/stencil buffer size with minimum.
+               * This is HACK code for tizen platform.
+               */
+
+             if (einfo->depth_bits)
+               {
+                  config_attrs[n++] = EGL_DEPTH_SIZE;
+                  config_attrs[n++] = einfo->depth_bits;
+               }
+             else
+               {
+                  config_attrs[n++] = EGL_DEPTH_SIZE;
+                  config_attrs[n++] = 1;
+               }
+
+             if (einfo->stencil_bits)
+               {
+                  config_attrs[n++] = EGL_STENCIL_SIZE;
+                  config_attrs[n++] = einfo->stencil_bits;
+               }
+             else
+              {
+                  config_attrs[n++] = EGL_STENCIL_SIZE;
+                  config_attrs[n++] = 1;
+              }
+
+             if (einfo->msaa_bits)
+               {
+                  config_attrs[n++] = EGL_SAMPLE_BUFFERS;
+                  config_attrs[n++] = 1;
+                  config_attrs[n++] = EGL_SAMPLES;
+                  config_attrs[n++] = einfo->msaa_bits;
+               }
              config_attrs[n++] = EGL_NONE;
              num = 0;
              if ((!eglChooseConfig(egl_disp, config_attrs, configs, 200, &num))

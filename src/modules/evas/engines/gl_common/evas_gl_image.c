@@ -599,8 +599,7 @@ evas_gl_common_image_content_hint_set(Evas_GL_Image *im, int hint)
    if (im->content_hint == hint) return;
    im->content_hint = hint;
    if (!im->gc) return;
-   if ((!im->gc->shared->info.sec_image_map)
-       && (!im->gc->shared->info.sec_tbm_surface)) return;
+   if (!im->gc->shared->info.sec_image_map) return;
    if (!im->gc->shared->info.bgra) return;
    // does not handle yuv yet.
    // TODO: Check this list of cspaces
@@ -764,8 +763,9 @@ evas_gl_common_image_update(Evas_Engine_GL_Context *gc, Evas_GL_Image *im)
 {
    Image_Entry *ie;
    if (!im->im) return;
-   ie = (Image_Entry *)(im->im);
+   ie = &im->im->cache_entry;
    evas_gl_common_image_alloc_ensure(im);
+
 /*
    if ((im->cs.space == EVAS_COLORSPACE_YCBCR422P601_PL) ||
        (im->cs.space == EVAS_COLORSPACE_YCBCR422P709_PL))
@@ -787,6 +787,7 @@ evas_gl_common_image_update(Evas_Engine_GL_Context *gc, Evas_GL_Image *im)
      }
    else
  */
+
    switch (im->cs.space)
      {
       case EVAS_COLORSPACE_ARGB8888:
@@ -805,36 +806,36 @@ evas_gl_common_image_update(Evas_Engine_GL_Context *gc, Evas_GL_Image *im)
              ((im->dirty) || (ie->animated.animated) || (ie->flags.updated_data)))
           {
 #ifdef EVAS_CSERVE2
-              if (evas_cache2_image_cached(&im->im->cache_entry))
+              if (evas_cache2_image_cached(ie))
                 {
-                   evas_cache2_image_load_data(&im->im->cache_entry);
+                   evas_cache2_image_load_data(ie);
                    evas_gl_common_texture_update(im->tex, im->im);
-                   evas_cache2_image_unload_data(&im->im->cache_entry);
+                   evas_cache2_image_unload_data(ie);
                 }
               else
 #endif
                 {
-                   evas_cache_image_load_data(&im->im->cache_entry);
+                   evas_cache_image_load_data(ie);
                    evas_gl_common_texture_update(im->tex, im->im);
-                   evas_cache_image_unload_data(&im->im->cache_entry);
+                   evas_cache_image_unload_data(ie);
                 }
              ie->flags.updated_data = 0;
           }
-	if (!im->tex)
+        else if (!im->tex && !ie->load_error)
           {
 #ifdef EVAS_CSERVE2
-             if (evas_cache2_image_cached(&im->im->cache_entry))
+             if (evas_cache2_image_cached(ie))
                {
-                  evas_cache2_image_load_data(&im->im->cache_entry);
+                  evas_cache2_image_load_data(ie);
                   im->tex = evas_gl_common_texture_new(gc, im->im);
-                  evas_cache2_image_unload_data(&im->im->cache_entry);
+                  evas_cache2_image_unload_data(ie);
                }
              else
 #endif
                {
-                  evas_cache_image_load_data(&im->im->cache_entry);
+                  evas_cache_image_load_data(ie);
                   im->tex = evas_gl_common_texture_new(gc, im->im);
-                  evas_cache_image_unload_data(&im->im->cache_entry);
+                  evas_cache_image_unload_data(ie);
                }
           }
         im->dirty = 0;
@@ -843,15 +844,15 @@ evas_gl_common_image_update(Evas_Engine_GL_Context *gc, Evas_GL_Image *im)
       case EVAS_COLORSPACE_ETC1_ALPHA:
         if ((im->tex) && (im->dirty))
           {
-             evas_cache_image_load_data(&im->im->cache_entry);
+             evas_cache_image_load_data(ie);
              evas_gl_common_texture_rgb_a_pair_update(im->tex, im->im);
-             evas_cache_image_unload_data(&im->im->cache_entry);
+             evas_cache_image_unload_data(ie);
           }
-        else if ((!im->tex))
+        else if (!im->tex && !ie->load_error)
           {
-             evas_cache_image_load_data(&im->im->cache_entry);
+             evas_cache_image_load_data(ie);
              im->tex = evas_gl_common_texture_rgb_a_pair_new(gc, im->im);
-             evas_cache_image_unload_data(&im->im->cache_entry);
+             evas_cache_image_unload_data(ie);
           }
         im->dirty = 0;
         if (!im->tex) return;
@@ -860,16 +861,12 @@ evas_gl_common_image_update(Evas_Engine_GL_Context *gc, Evas_GL_Image *im)
       case EVAS_COLORSPACE_YCBCR422P709_PL:
         if ((im->tex) && (im->dirty))
           {
-             evas_gl_common_texture_yuv_update(im->tex, im->cs.data,
-                                               im->im->cache_entry.w,
-                                               im->im->cache_entry.h);
+             evas_gl_common_texture_yuv_update(im->tex, im->cs.data, ie->w, ie->h);
              im->dirty = 0;
           }
         if ((!im->tex) && (im->cs.data) && (*((unsigned char **)im->cs.data)))
           {
-             im->tex = evas_gl_common_texture_yuv_new(gc, im->cs.data,
-                                                      im->im->cache_entry.w,
-                                                      im->im->cache_entry.h);
+             im->tex = evas_gl_common_texture_yuv_new(gc, im->cs.data, ie->w, ie->h);
              im->dirty = 0;
           }
         if (!im->tex) return;
@@ -877,16 +874,12 @@ evas_gl_common_image_update(Evas_Engine_GL_Context *gc, Evas_GL_Image *im)
       case EVAS_COLORSPACE_YCBCR422601_PL:
         if ((im->tex) && (im->dirty))
           {
-             evas_gl_common_texture_yuy2_update(im->tex, im->cs.data,
-                                                im->im->cache_entry.w,
-                                                im->im->cache_entry.h);
+             evas_gl_common_texture_yuy2_update(im->tex, im->cs.data, ie->w, ie->h);
              im->dirty = 0;
           }
         if ((!im->tex) && (im->cs.data) && (*((unsigned char **)im->cs.data)))
           {
-             im->tex = evas_gl_common_texture_yuy2_new(gc, im->cs.data,
-                                                       im->im->cache_entry.w,
-                                                       im->im->cache_entry.h);
+             im->tex = evas_gl_common_texture_yuy2_new(gc, im->cs.data, ie->w, ie->h);
              im->dirty = 0;
           }
         if (!im->tex) return;
@@ -894,16 +887,12 @@ evas_gl_common_image_update(Evas_Engine_GL_Context *gc, Evas_GL_Image *im)
       case EVAS_COLORSPACE_YCBCR420NV12601_PL:
         if ((im->tex) && (im->dirty))
           {
-             evas_gl_common_texture_nv12_update(im->tex, im->cs.data,
-                                                im->im->cache_entry.w,
-                                                im->im->cache_entry.h);
+             evas_gl_common_texture_nv12_update(im->tex, im->cs.data, ie->w, ie->h);
              im->dirty = 0;
           }
         if ((!im->tex) && (im->cs.data) && (*((unsigned char **)im->cs.data)))
           {
-             im->tex = evas_gl_common_texture_nv12_new(gc, im->cs.data,
-                                                       im->im->cache_entry.w,
-                                                       im->im->cache_entry.h);
+             im->tex = evas_gl_common_texture_nv12_new(gc, im->cs.data, ie->w, ie->h);
              im->dirty = 0;
           }
         if (!im->tex) return;
@@ -911,16 +900,12 @@ evas_gl_common_image_update(Evas_Engine_GL_Context *gc, Evas_GL_Image *im)
       case EVAS_COLORSPACE_YCBCR420TM12601_PL:
         if ((im->tex) && (im->dirty))
           {
-             evas_gl_common_texture_nv12tiled_update(im->tex, im->cs.data,
-                                                     im->im->cache_entry.w,
-                                                     im->im->cache_entry.h);
+             evas_gl_common_texture_nv12tiled_update(im->tex, im->cs.data, ie->w, ie->h);
              im->dirty = 0;
           }
         if ((!im->tex) && (im->cs.data) && (*((unsigned char **)im->cs.data)))
           {
-             im->tex = evas_gl_common_texture_nv12tiled_new(gc, im->cs.data,
-                                                            im->im->cache_entry.w,
-                                                            im->im->cache_entry.h);
+             im->tex = evas_gl_common_texture_nv12tiled_new(gc, im->cs.data, ie->w, ie->h);
              im->dirty = 0;
           }
         if (!im->tex) return;
@@ -935,6 +920,8 @@ void
 evas_gl_common_image_map_draw(Evas_Engine_GL_Context *gc, Evas_GL_Image *im,
                               int npoints, RGBA_Map_Point *p, int smooth, int level EINA_UNUSED)
 {
+   int mmx = 0, mmy = 0, mmw = 0, mmh = 0, mdx = 0, mdy = 0, mdw = 0, mdh = 0;
+   Evas_GL_Texture *mtex = NULL;
    RGBA_Draw_Context *dc;
    int r, g, b, a;
    int c, cx, cy, cw, ch;
@@ -961,8 +948,27 @@ evas_gl_common_image_map_draw(Evas_Engine_GL_Context *gc, Evas_GL_Image *im,
    if (!im->tex) return;
    im->tex->im = im;
 
+   if (dc->clip.mask)
+     {
+        Evas_GL_Image *mask = dc->clip.mask;
+        double mx, my, mw, mh;
+
+        mdx = mx = dc->clip.mask_x;
+        mdy = my = dc->clip.mask_y;
+        mdw = mw = mask->w;
+        mdh = mh = mask->h;
+        if (c) RECTS_CLIP_TO_RECT(mx, my, mw, mh, cx, cy, cw, ch);
+        //RECTS_CLIP_TO_RECT(mx, my, mw, mh, dx, dy, dw, dh);
+        mmx = mx - dc->clip.mask_x;
+        mmy = my - dc->clip.mask_y;
+        mmw = mw;
+        mmh = mh;
+        mtex = mask->tex;
+     }
+
    evas_gl_common_context_image_map_push(gc, im->tex, npoints, p,
                                          c, cx, cy, cw, ch,
+                                         mtex, mmx, mmy, mmw, mmh, mdx, mdy, mdw, mdh,
                                          r, g, b, a, smooth, im->tex_only,
                                          im->cs.space);
 }
@@ -972,11 +978,15 @@ _evas_gl_common_image_push(Evas_Engine_GL_Context *gc, Evas_GL_Image *im,
                            int dx, int dy, int dw, int dh,
                            int sx, int sy, int sw, int sh,
                            int cx, int cy, int cw, int ch,
-                           int r, int g, int b, int a, Eina_Bool smooth,
+                           int r, int g, int b, int a,
+                           Evas_GL_Image *mask, int mask_x, int mask_y,
+                           Eina_Bool smooth,
                            Eina_Bool yuv, Eina_Bool yuy2, Eina_Bool nv12,
                            Eina_Bool rgb_a_pair)
 {
+   double mmx = 0, mmy = 0, mmw = 0, mmh = 0;
    double ssx, ssy, ssw, ssh;
+   Evas_GL_Texture *mtex = NULL;
    int nx, ny, nw, nh;
 
    nx = dx; ny = dy; nw = dw; nh = dh;
@@ -984,6 +994,21 @@ _evas_gl_common_image_push(Evas_Engine_GL_Context *gc, Evas_GL_Image *im,
                       cx, cy, cw, ch);
    if ((nw < 1) || (nh < 1)) return;
    if (!im->tex) return;
+
+   if (mask && mask->tex)
+     {
+        double mx, my, mw, mh;
+
+        mx = mask_x; my = mask_y; mw = mask->w; mh = mask->h;
+        RECTS_CLIP_TO_RECT(mx, my, mw, mh, cx, cy, cw, ch);
+        RECTS_CLIP_TO_RECT(mx, my, mw, mh, dx, dy, dw, dh);
+        mmx = mx - mask_x;
+        mmy = my - mask_y;
+        mmw = mw;
+        mmh = mh;
+        mtex = mask->tex;
+     }
+
    if ((nx == dx) && (ny == dy) && (nw == dw) && (nh == dh))
      {
         if (yuv)
@@ -991,6 +1016,7 @@ _evas_gl_common_image_push(Evas_Engine_GL_Context *gc, Evas_GL_Image *im,
                                           im->tex,
                                           sx, sy, sw, sh,
                                           dx, dy, dw, dh,
+                                          mtex, mmx, mmy, mmw, mmh,
                                           r, g, b, a,
                                           smooth);
         else if (yuy2)
@@ -998,6 +1024,7 @@ _evas_gl_common_image_push(Evas_Engine_GL_Context *gc, Evas_GL_Image *im,
                                            im->tex,
                                            sx, sy, sw, sh,
                                            dx, dy, dw, dh,
+                                           mtex, mmx, mmy, mmw, mmh,
                                            r, g, b, a,
                                            smooth);
         else if (nv12)
@@ -1005,6 +1032,7 @@ _evas_gl_common_image_push(Evas_Engine_GL_Context *gc, Evas_GL_Image *im,
                                            im->tex,
                                            sx, sy, sw, sh,
                                            dx, dy, dw, dh,
+                                           mtex, mmx, mmy, mmw, mmh,
                                            r, g, b, a,
                                            smooth);
         else if (rgb_a_pair)
@@ -1012,6 +1040,7 @@ _evas_gl_common_image_push(Evas_Engine_GL_Context *gc, Evas_GL_Image *im,
                                                  im->tex,
                                                  sx, sy, sw, sh,
                                                  dx, dy, dw, dh,
+                                                 mtex, mmx, mmy, mmw, mmh,
                                                  r, g, b, a,
                                                  smooth);
         else
@@ -1019,6 +1048,7 @@ _evas_gl_common_image_push(Evas_Engine_GL_Context *gc, Evas_GL_Image *im,
                                             im->tex,
                                             sx, sy, sw, sh,
                                             dx, dy, dw, dh,
+                                            mtex, mmx, mmy, mmw, mmh,
                                             r, g, b, a,
                                             smooth, im->tex_only);
         return;
@@ -1034,6 +1064,7 @@ _evas_gl_common_image_push(Evas_Engine_GL_Context *gc, Evas_GL_Image *im,
                                      im->tex,
                                      ssx, ssy, ssw, ssh,
                                      nx, ny, nw, nh,
+                                     mtex, mmx, mmy, mmw, mmh,
                                      r, g, b, a,
                                      smooth);
    else if (yuy2)
@@ -1041,6 +1072,7 @@ _evas_gl_common_image_push(Evas_Engine_GL_Context *gc, Evas_GL_Image *im,
                                       im->tex,
                                       ssx, ssy, ssw, ssh,
                                       nx, ny, nw, nh,
+                                      mtex, mmx, mmy, mmw, mmh,
                                       r, g, b, a,
                                       smooth);
    else if (nv12)
@@ -1048,6 +1080,7 @@ _evas_gl_common_image_push(Evas_Engine_GL_Context *gc, Evas_GL_Image *im,
                                       im->tex,
                                       ssx, ssy, ssw, ssh,
                                       nx, ny, nw, nh,
+                                      mtex, mmx, mmy, mmw, mmh,
                                       r, g, b, a,
                                       smooth);
    else if (rgb_a_pair)
@@ -1055,6 +1088,7 @@ _evas_gl_common_image_push(Evas_Engine_GL_Context *gc, Evas_GL_Image *im,
                                             im->tex,
                                             ssx, ssy, ssw, ssh,
                                             nx, ny, nw, nh,
+                                            mtex, mmx, mmy, mmw, mmh,
                                             r, g, b, a,
                                             smooth);
    else
@@ -1062,6 +1096,7 @@ _evas_gl_common_image_push(Evas_Engine_GL_Context *gc, Evas_GL_Image *im,
                                        im->tex,
                                        ssx, ssy, ssw, ssh,
                                        nx, ny, nw, nh,
+                                       mtex, mmx, mmy, mmw, mmh,
                                        r, g, b, a,
                                        smooth, im->tex_only);
 }
@@ -1078,6 +1113,8 @@ evas_gl_common_image_draw(Evas_Engine_GL_Context *gc, Evas_GL_Image *im, int sx,
    Eina_Bool yuy2 = EINA_FALSE;
    Eina_Bool nv12 = EINA_FALSE;
    Eina_Bool rgb_a_pair = EINA_FALSE;
+   Evas_GL_Image *mask;
+   int mask_x, mask_y;
 
    if (sw < 1) sw = 1;
    if (sh < 1) sh = 1;
@@ -1092,6 +1129,22 @@ evas_gl_common_image_draw(Evas_Engine_GL_Context *gc, Evas_GL_Image *im, int sx,
    else
      {
 	r = g = b = a = 255;
+     }
+
+   // Prepare mask image, if there is one
+   mask = dc->clip.mask;
+   mask_x = dc->clip.mask_x;
+   mask_y = dc->clip.mask_y;
+   if (mask)
+     {
+        evas_gl_common_image_update(gc, mask);
+        if (!mask->tex)
+          {
+             ERR("Failed to apply mask image");
+             mask = NULL;
+             mask_x = 0;
+             mask_y = 0;
+          }
      }
 
    evas_gl_common_image_update(gc, im);
@@ -1127,14 +1180,16 @@ evas_gl_common_image_draw(Evas_Engine_GL_Context *gc, Evas_GL_Image *im, int sx,
        ((gc->shared->info.tune.cutout.max > 0) &&
            (gc->dc->cutout.active > gc->shared->info.tune.cutout.max)))
      {
-        if (gc->dc->clip.use)
+        if (mask || gc->dc->clip.use)
           {
              _evas_gl_common_image_push(gc, im,
                                         dx, dy, dw, dh,
                                         sx, sy, sw, sh,
                                         gc->dc->clip.x, gc->dc->clip.y,
                                         gc->dc->clip.w, gc->dc->clip.h,
-                                        r, g, b, a, smooth,
+                                        r, g, b, a,
+                                        mask, mask_x, mask_y,
+                                        smooth,
                                         yuv, yuy2, nv12, rgb_a_pair);
           }
         else
@@ -1143,7 +1198,9 @@ evas_gl_common_image_draw(Evas_Engine_GL_Context *gc, Evas_GL_Image *im, int sx,
                                         dx, dy, dw, dh,
                                         sx, sy, sw, sh,
                                         dx, dy, dw, dh,
-                                        r, g, b, a, smooth,
+                                        r, g, b, a,
+                                        mask, mask_x, mask_y,
+                                        smooth,
                                         yuv, yuy2, nv12, rgb_a_pair);
           }
         return;
@@ -1168,7 +1225,9 @@ evas_gl_common_image_draw(Evas_Engine_GL_Context *gc, Evas_GL_Image *im, int sx,
                                    dx, dy, dw, dh,
                                    sx, sy, sw, sh,
                                    rct->x, rct->y, rct->w, rct->h,
-                                   r, g, b, a, smooth,
+                                   r, g, b, a,
+                                   mask, mask_x, mask_y,
+                                   smooth,
                                    yuv, yuy2, nv12, rgb_a_pair);
      }
    evas_common_draw_context_cutouts_free(_evas_gl_common_cutout_rects);

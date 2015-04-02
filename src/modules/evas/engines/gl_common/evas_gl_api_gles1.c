@@ -1015,11 +1015,63 @@ _evgl_gles1_glGetPointerv(GLenum pname, GLvoid **params)
 static const GLubyte *
 _evgl_gles1_glGetString(GLenum name)
 {
-   const GLubyte * ret;
+   static char _version[128] = {0};
+   EVGL_Resource *rsc;
+   const GLubyte *ret;
+
    if (!_gles1_api.glGetString)
      return NULL;
-   ret = _gles1_api.glGetString(name);
-   return ret;
+
+   if ((!(rsc = _evgl_tls_resource_get())) || !rsc->current_ctx)
+     {
+        ERR("Current context is NULL, not calling glGetString");
+        // This sets evas_gl_error_get instead of glGetError...
+        evas_gl_common_error_set(NULL, EVAS_GL_BAD_CONTEXT);
+        return NULL;
+     }
+
+   if (rsc->current_ctx->version != EVAS_GL_GLES_1_X)
+     {
+        ERR("Invalid context version %d", (int) rsc->current_ctx->version);
+        evas_gl_common_error_set(NULL, EVAS_GL_BAD_MATCH);
+        return NULL;
+     }
+
+   switch (name)
+     {
+      case GL_VENDOR:
+      case GL_RENDERER:
+      case GL_SHADING_LANGUAGE_VERSION:
+        break;
+      case GL_VERSION:
+        ret = glGetString(GL_VERSION);
+        if (!ret) return NULL;
+#ifdef GL_GLES
+        if (ret[13] != (GLubyte) '1')
+          {
+             // We try not to remove the vendor fluff
+             snprintf(_version, sizeof(_version), "OpenGL ES-CM 1.1 Evas GL (%s)", ((char *) ret) + 10);
+             _version[sizeof(_version) - 1] = '\0';
+             return (const GLubyte *) _version;
+          }
+        return ret;
+#else
+        // Desktop GL, we still keep the official name
+        snprintf(_version, sizeof(_version), "OpenGL ES-CM 1.1 Evas GL (%s)", (char *) ret);
+        _version[sizeof(_version) - 1] = '\0';
+        return (const GLubyte *) _version;
+#endif
+
+      case GL_EXTENSIONS:
+        return (GLubyte *) evgl_api_ext_string_get(EINA_TRUE, EVAS_GL_GLES_1_X);
+
+      default:
+        WRN("Unknown string requested: %x", (unsigned int) name);
+        break;
+     }
+
+   return _gles1_api.glGetString(name);
+
 }
 
 static void
@@ -1691,6 +1743,11 @@ _evgl_gles1_glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 
                   _gles1_api.glViewport(nc[0], nc[1], nc[2], nc[3]);
                }
+
+             ctx->viewport_direct[0] = nc[0];
+             ctx->viewport_direct[1] = nc[1];
+             ctx->viewport_direct[2] = nc[2];
+             ctx->viewport_direct[3] = nc[3];
 
              // Keep a copy of the original coordinates
              ctx->viewport_coord[0] = x;
@@ -3940,6 +3997,9 @@ _evgl_gles1_api_init(void)
      }
 
    _evgl_load_gles1_apis(_gles1_handle, &_gles1_api);
+   if (!_evgl_api_gles1_ext_init())
+     WRN("Could not initialize OpenGL ES 1 extensions yet.");
+
    _initialized = EINA_TRUE;
    return EINA_TRUE;
 }
@@ -4098,8 +4158,8 @@ _debug_gles1_api_get(Evas_GL_API *funcs)
    ORD(glVertexPointer);
    ORD(glViewport);
 #undef ORD
-   // TODO: Add gles1 extensions
-   //evgl_api_gles1_ext_get(funcs);
+
+   evgl_api_gles1_ext_get(funcs);
 }
 
 static void
@@ -4256,8 +4316,8 @@ _normal_gles1_api_get(Evas_GL_API *funcs)
    ORD(glVertexPointer);
    ORD(glViewport);
 #undef ORD
-   // TODO: Add GLES 1.1 extensions
-   //evgl_api_gles1_ext_get(funcs);
+
+   evgl_api_gles1_ext_get(funcs);
 }
 
 void
@@ -4275,4 +4335,10 @@ _evgl_api_gles1_get(Evas_GL_API *funcs, Eina_Bool debug)
    // TODO: Implement these wrappers first
    //if (evgl_engine->direct_scissor_off)
      //_direct_scissor_off_api_get(funcs);
+}
+
+Evas_GL_API *
+_evgl_api_gles1_internal_get(void)
+{
+   return &_gles1_api;
 }

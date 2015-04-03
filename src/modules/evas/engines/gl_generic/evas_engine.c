@@ -2026,7 +2026,7 @@ _evas_render_op_to_ector_rop(Evas_Render_Op op)
 }
 
 static void
-eng_ector_renderer_draw(void *data, void *context EINA_UNUSED, void *surface, Ector_Renderer *renderer, Eina_Array *clips, int x, int y, Eina_Bool do_async EINA_UNUSED)
+eng_ector_renderer_draw(void *data, void *context EINA_UNUSED, void *surface, Ector_Renderer *renderer, Eina_Array *clips, Eina_Bool do_async EINA_UNUSED)
 {
    Evas_GL_Image *dst = surface;
    Evas_Engine_GL_Context *gc;
@@ -2109,12 +2109,14 @@ eng_ector_begin(void *data EINA_UNUSED, void *context EINA_UNUSED, void *surface
    if (use_cairo)
      {
         eo_do(_software_ector,
-              ector_cairo_software_surface_set(software_buffer, w, h));
+              ector_cairo_software_surface_set(software_buffer, w, h),
+              ector_surface_reference_point_set(x, y));
      }
    else
      {
         eo_do(_software_ector,
-              ector_software_surface_set(software_buffer, w, h));
+              ector_software_surface_set(software_buffer, w, h),
+              ector_surface_reference_point_set(x, y));
      }
 }
 

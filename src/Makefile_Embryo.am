@@ -60,6 +60,11 @@ bin_embryo_embryo_cc_LDADD = @USE_EMBRYO_LIBS@
 endif
 bin_embryo_embryo_cc_DEPENDENCIES = @USE_EMBRYO_INTERNAL_LIBS@
 
+### TIZEN_ONLY(20150404): Apply ASLR to executable files.
+bin_embryo_embryo_cc_LDFLAGS = -pie
+bin_embryo_embryo_cc_CFLAGS = -fPIE
+bin_embryo_embryo_cc_CPPFLAGS += -fPIE
+
 EXTRA_DIST += \
 bin/embryo/embryo_cc_sc5.scp \
 bin/embryo/embryo_cc_sc7.scp

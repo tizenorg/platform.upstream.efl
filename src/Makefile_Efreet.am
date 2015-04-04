@@ -102,6 +102,17 @@ bin_efreet_efreet_icon_cache_create_LDADD = $(USE_EFREET_BIN_LIBS)
 bin_efreet_efreet_icon_cache_create_DEPENDENCIES = @USE_EFREET_INTERNAL_LIBS@
 bin_efreet_efreet_icon_cache_create_SOURCES = bin/efreet/efreet_icon_cache_create.c
 
+### TIZEN_ONLY(20150404): Apply ASLR to executable files.
+bin_efreet_efreetd_LDFLAGS = -pie
+bin_efreet_efreetd_CFLAGS = -fPIE
+bin_efreet_efreetd_CPPFLAGS += -fPIE
+bin_efreet_efreet_desktop_cache_create_LDFLAGS = -pie
+bin_efreet_efreet_desktop_cache_create_CFLAGS = -fPIE
+bin_efreet_efreet_desktop_cache_create_CPPFLAGS += -fPIE
+bin_efreet_efreet_icon_cache_create_LDFLAGS = -pie
+bin_efreet_efreet_icon_cache_create_CFLAGS = -fPIE
+bin_efreet_efreet_icon_cache_create_CPPFLAGS += -fPIE
+
 ### Unit tests
 
 if EFL_ENABLE_TESTS

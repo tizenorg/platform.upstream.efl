@@ -517,6 +517,8 @@ _ecore_buffer_x11_dri3_buffer_import(Ecore_Buffer_Module_Data bmPriv,
    Buffer_Module_Data *bm = (Buffer_Module_Data*)bmPriv;
    Buffer_Data* buf;
    tbm_bo bo;
+   tbm_surface_info_s info;
+   int i, num_plane;
    
    EINA_SAFETY_ON_FALSE_RETURN_VAL(type == EXPORT_TYPE_FD, NULL);
    EINA_SAFETY_ON_FALSE_RETURN_VAL(export_id > 0, NULL);
@@ -532,7 +534,21 @@ _ecore_buffer_x11_dri3_buffer_import(Ecore_Buffer_Module_Data bmPriv,
 
    //Import tbm_surface
    bo = tbm_bo_import_fd(bm->tbm_mgr, export_id);
-   buf->tbm_surface = tbm_surface_internal_create_with_bos(buf->w, buf->h, format, &bo, 1);
+
+   num_plane = __buf_get_num_planes(format);
+   info.width = w;
+   info.height = h;
+   info.format = format;
+   info.bpp = __buf_get_bpp(format);
+   info.size = w * h * info.bpp;
+   for ( i = 0 ; i < num_plane ; i++)
+   {
+      info.planes[i].size = w * h * info.bpp;
+      info.planes[i].stride = w * info.bpp;
+      info.planes[i].offset = 0;
+   }
+
+   buf->tbm_surface = tbm_surface_internal_create_with_bos(&info, &bo, 1);
    EINA_SAFETY_ON_NULL_GOTO(buf->tbm_surface, on_error);
    tbm_bo_unref(bo);
 

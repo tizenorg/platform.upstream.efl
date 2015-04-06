@@ -304,6 +304,8 @@ _ecore_buffer_x11_dri2_buffer_alloc(Ecore_Buffer_Module_Data bmPriv,
 
    int rw, rh, rcount;
    unsigned int attachment = DRI2BufferFrontLeft;
+   tbm_surface_info_s info;
+   int i;
 
    bpp = __buf_get_bpp(format);
    EINA_SAFETY_ON_TRUE_RETURN_VAL((bpp != 32), NULL);
@@ -330,7 +332,20 @@ _ecore_buffer_x11_dri2_buffer_alloc(Ecore_Buffer_Module_Data bmPriv,
 
    //Import tbm_surface
    bo = tbm_bo_import(bm->tbm_mgr, bufs->name);
-   buf->tbm.surface = tbm_surface_internal_create_with_bos(buf->w, buf->h, format, &bo, 1);
+
+   info.width = width;
+   info.height =  height;
+   info.format = format;
+   info.bpp = bpp;
+   info.size = width * bufs->pitch;
+   for ( i = 0 ; i < num_plane ; i++)
+   {
+      info.planes[i].size = width * bufs->pitch;
+      info.planes[i].stride = bufs->pitch;
+      info.planes[i].offset = 0;
+   }
+
+   buf->tbm.surface = tbm_surface_internal_create_with_bos(&info, &bo, 1);
    buf->tbm.owned = EINA_TRUE;
    EINA_SAFETY_ON_NULL_GOTO(buf->tbm.surface, on_error);
    tbm_bo_unref(bo);
@@ -446,6 +461,8 @@ _ecore_buffer_x11_dri2_buffer_import(Ecore_Buffer_Module_Data bmPriv EINA_UNUSED
    tbm_bo bo = NULL;
    int rcount;
    unsigned int attachment = DRI2BufferFrontLeft;
+   tbm_surface_info_s info;
+   int num_plane,i;
 
    EINA_SAFETY_ON_FALSE_RETURN_VAL(type == EXPORT_TYPE_ID, NULL);
    xdpy = ecore_x_display_get();
@@ -472,7 +489,21 @@ _ecore_buffer_x11_dri2_buffer_import(Ecore_Buffer_Module_Data bmPriv EINA_UNUSED
 
    //Import tbm_surface
    bo = tbm_bo_import(bm->tbm_mgr, bufs->name);
-   buf->tbm.surface = tbm_surface_internal_create_with_bos(buf->w, buf->h, format, &bo, 1);
+
+   num_plane = __buf_get_num_planes(format);
+   info.width = w;
+   info.height = h;
+   info.format = format;
+   info.bpp = __buf_get_bpp(format);
+   info.size = w * bufs->pitch;
+   for ( i = 0 ; i < num_plane ; i++)
+   {
+      info.planes[i].size = w * bufs->pitch;
+      info.planes[i].stride = bufs->pitch;
+      info.planes[i].offset = 0;
+   }
+
+   buf->tbm.surface = tbm_surface_internal_create_with_bos(&info, &bo, 1);
    buf->tbm.owned = EINA_TRUE;
    EINA_SAFETY_ON_NULL_GOTO(buf->tbm.surface, on_error);
    tbm_bo_unref(bo);

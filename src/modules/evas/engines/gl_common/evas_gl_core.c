@@ -720,9 +720,6 @@ _surface_cap_cache_save()
    char cap_dir_path[PATH_MAX];
    char cap_file_path[PATH_MAX];
    char tmp_file[PATH_MAX];
-   char del_file[PATH_MAX];
-   Eina_Iterator *it;
-   Eina_File_Direct_Info *info;
 
    if (!evas_gl_common_file_cache_dir_check(cap_dir_path, sizeof(cap_dir_path)))
      {
@@ -730,32 +727,8 @@ _surface_cap_cache_save()
         if (!res) return 0; /* we can't make directory */
      }
 
-   if (!evas_gl_common_file_cache_file_check(cap_dir_path, "surface_cap", cap_file_path,
-                                              sizeof(cap_dir_path)))
-     {
-       it = eina_file_stat_ls(cap_dir_path);
-
-       if (it)
-         {
-            EINA_ITERATOR_FOREACH(it, info)
-              {
-                 if (strstr(info->path + info->name_start, "surface_cap"))
-                   {
-                      snprintf(del_file, sizeof(del_file), "%s/%s", cap_dir_path, info->path + info->name_start);
-                      if (!unlink(del_file))
-                        {
-                           DBG("Deleted a file. %s", del_file);
-                           break;
-                        }
-                      else
-                        ERR("Could not delete a file. %s", del_file);
-                   }
-              }
-           eina_iterator_free(it);
-         }
-       else
-         ERR("Could not get a file list");
-     }
+   evas_gl_common_file_cache_file_check(cap_dir_path, "surface_cap", cap_file_path,
+                                        sizeof(cap_dir_path));
 
    /* use mkstemp for writing */
    snprintf(tmp_file, sizeof(tmp_file), "%s.XXXXXX", cap_file_path);

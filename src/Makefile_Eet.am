@@ -72,6 +72,11 @@ bin_eet_eet_LDADD = @USE_EET_LIBS@
 endif
 bin_eet_eet_DEPENDENCIES = @USE_EET_INTERNAL_LIBS@
 
+### TIZEN_ONLY(20150404): Apply ASLR to executable files.
+bin_eet_eet_LDFLAGS = -pie
+bin_eet_eet_CFLAGS = -fPIE
+bin_eet_eet_CPPFLAGS += -fPIE
+
 ### Unit tests
 
 if EFL_ENABLE_TESTS

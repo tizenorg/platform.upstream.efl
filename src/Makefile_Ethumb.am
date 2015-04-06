@@ -74,3 +74,8 @@ else
 bin_ethumb_ethumb_LDADD = @USE_ETHUMB_LIBS@
 endif
 bin_ethumb_ethumb_DEPENDENCIES = @USE_ETHUMB_INTERNAL_LIBS@
+
+### TIZEN_ONLY(20150404): Apply ASLR to executable files.
+bin_ethumb_ethumb_LDFLAGS = -pie
+bin_ethumb_ethumb_CFLAGS = -fPIE
+bin_ethumb_ethumb_CPPFLAGS += -fPIE

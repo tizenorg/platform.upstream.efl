@@ -239,6 +239,34 @@ tests/edje/edje_tests_helpers.h \
 tests/edje/data/complex_layout.edc \
 tests/edje/data/test_layout.edc
 
+### TIZEN_ONLY(20150404): Apply ASLR to executable files.
+bin_edje_edje_cc_LDFLAGS = -pie
+bin_edje_edje_cc_CFLAGS = -fPIE
+bin_edje_edje_cc_CPPFLAGS += -fPIE
+bin_edje_edje_decc_LDFLAGS = -pie
+bin_edje_edje_decc_CFLAGS = -fPIE
+bin_edje_edje_decc_CPPFLAGS += -fPIE
+bin_edje_edje_player_LDFLAGS = -pie
+bin_edje_edje_player_CFLAGS = -fPIE
+bin_edje_edje_player_CPPFLAGS += -fPIE
+bin_edje_edje_inspector_LDFLAGS = -pie
+bin_edje_edje_inspector_CFLAGS = -fPIE
+bin_edje_edje_inspector_CPPFLAGS += -fPIE
+bin_edje_edje_external_inspector_LDFLAGS = -pie
+bin_edje_edje_external_inspector_CFLAGS = -fPIE
+bin_edje_edje_external_inspector_CPPFLAGS += -fPIE
+bin_edje_edje_codegen_LDFLAGS = -pie
+bin_edje_edje_codegen_CFLAGS = -fPIE
+bin_edje_edje_codegen_CPPFLAGS += -fPIE
+bin_edje_edje_pick_LDFLAGS = -pie
+bin_edje_edje_pick_CFLAGS = -fPIE
+bin_edje_edje_pick_CPPFLAGS += -fPIE
+bin_edje_edje_watch_LDFLAGS = -pie
+bin_edje_edje_watch_CFLAGS = -fPIE
+bin_edje_edje_watch_CPPFLAGS += -fPIE
+bin_edje_epp_epp_LDFLAGS = -pie
+bin_edje_epp_epp_CFLAGS = -fPIE
+bin_edje_epp_epp_CPPFLAGS += -fPIE
 
 bin_SCRIPTS += bin/edje/edje_recc
 

@@ -4,140 +4,44 @@
 
 #include "evas_common_private.h"
 #include "evas_xlib_image.h"
-#include "evas_xlib_outbuf.h"
 
-
-Eina_Bool
-evas_xlib_image_shm_copy(RGBA_Image *im)
+static void
+evas_xlib_image_update(void *data EINA_UNUSED, void *image, int x, int y, int w, int h)
 {
-   Native *n = NULL;
-   Display *d;
-   Evas_X_Image *exim;
-   Evas_Native_Surface *ns;
+   RGBA_Image *im = image;
+   Native *n = im->native.data;
+   char *pix;
+   int bpl, rows, bpp;
 
-   if (im->native.data)
-     n = im->native.data;
-   if (!n)
-     return EINA_FALSE;
-
-   exim = n->exim;
-   d = n->d;
-   ns = &(n->ns);
-   if (n->ns.type == EVAS_NATIVE_SURFACE_X11)
+   if (ecore_x_image_get(n->exim, n->pixmap, 0, 0, x, y, w, h))
      {
-        XGrabServer(d);
-        if (!XShmGetImage(d, (Drawable)ns->data.x11.pixmap, exim->xim, 0, 0, 0xffffffff))
+        pix = ecore_x_image_data_get(n->exim, &bpl, &rows, &bpp);
+        if (!ecore_x_image_is_argb32_get(n->exim))
           {
-             ERR("XShmGetImage failed.");
-             XUngrabServer(d);
-             return EINA_FALSE;
+             if (!im->image.data)
+               im->image.data = (DATA32 *)malloc(im->cache_entry.w * im->cache_entry.h * sizeof(DATA32));
+             Ecore_X_Colormap colormap = ecore_x_default_colormap_get(ecore_x_display_get(), ecore_x_default_screen_get());
+             ecore_x_image_to_argb_convert(pix, bpp, bpl, colormap, n->visual,
+                                           x, y, w, h,
+                                           im->image.data, (w * sizeof(int)), 0, 0);
           }
-        XUngrabServer(d);
-        XSync(d, 0);
+        else
+          {
+             im->image.data = (DATA32 *)pix;
+          }
      }
-   im->image.data = exim->data;
-
-   return EINA_TRUE;
 }
 
-void
-evas_xlib_image_free(Evas_X_Image *exim)
+static void
+_native_bind_cb(void *data EINA_UNUSED, void *image, int x, int y, int w, int h)
 {
-   XShmDetach(exim->dis, &exim->shminfo);
-   XDestroyImage(exim->xim);
-   exim->xim = NULL;
-   shmdt(exim->shminfo.shmaddr);
-   shmctl(exim->shminfo.shmid, IPC_RMID, 0);
-   free(exim);
-}
+   RGBA_Image *im = image;
+   Native *n = im->native.data;
 
-Evas_X_Image *
-evas_xlib_image_new(int w, int h, Visual *vis, int depth)
-{
-   Evas_X_Image *exim;
-
-   exim = calloc(1, sizeof(Evas_X_Image));
-   if (!exim)
-     return NULL;
-
-   exim->w = w;
-   exim->h = h;
-   exim->visual = vis;
-   exim->depth = depth;
-   return exim;
-}
-
-void
-evas_xlib_image_shm_create(Evas_X_Image *exim, Display *display)
-{
-   exim->xim = XShmCreateImage(display, exim->visual, exim->depth,
-                             ZPixmap, NULL, &(exim->shminfo),
-                             exim->w, exim->h);
-   if (!exim->xim)
-   {
-     ERR("XShmCreateImage failed.");
-     return;
-   }
-
-   exim->shminfo.shmid = shmget(IPC_PRIVATE,
-                              exim->xim->bytes_per_line * exim->xim->height,
-                              IPC_CREAT | 0666);
-   if (exim->shminfo.shmid == -1)
+   if ((n) && (n->ns.type == EVAS_NATIVE_SURFACE_X11))
      {
-        ERR("shmget failed.");
-        XDestroyImage(exim->xim);
-        exim->xim = NULL;
-        return;
+        evas_xlib_image_update(data, image, x, y, w, h);
      }
-
-   exim->shminfo.readOnly = False;
-   exim->shminfo.shmaddr = shmat(exim->shminfo.shmid, 0, 0);
-   exim->xim->data = exim->shminfo.shmaddr;
-   if ((exim->xim->data == (char *)-1) ||
-       (!exim->xim->data))
-     {
-        ERR("shmat failed.");
-        shmdt(exim->shminfo.shmaddr);
-        shmctl(exim->shminfo.shmid, IPC_RMID, 0);
-        XDestroyImage(exim->xim);
-        exim->xim = NULL;
-        return;
-     }
-
-   XShmAttach(display, &exim->shminfo);
-   exim->data = (unsigned char *)exim->xim->data;
-
-   exim->bpl = exim->xim->bytes_per_line;
-   exim->rows = exim->xim->height;
-   if (exim->xim->bits_per_pixel <= 8)
-     exim->bpp = 1;
-   else if (exim->xim->bits_per_pixel <= 16)
-     exim->bpp = 2;
-   else
-     exim->bpp = 4;
-}
-
-void *
-evas_xlib_image_data_get(Evas_X_Image *exim,
-                         int *bpl,
-                         int *rows,
-                         int *bpp,
-                         Display *display)
-{
-   if (!exim->xim)
-     {
-        evas_xlib_image_shm_create(exim, display);
-     }
-   if (!exim->xim)
-     {
-        return NULL;
-     }
-   if (bpl) *bpl = exim->bpl;
-   if (rows) *rows = exim->rows;
-   if (bpp) *bpp = exim->bpp;
-   exim->dis = display;
-
-   return exim->data;
 }
 
 static void
@@ -146,17 +50,16 @@ _native_free_cb(void *data EINA_UNUSED, void *image)
    RGBA_Image *im = image;
    Native *n = im->native.data;
 
-   //TODO: deal with pixmap hash
    if (n->exim)
      {
-        evas_xlib_image_free(n->exim);
+        ecore_x_image_free(n->exim);
         n->exim = NULL;
      }
    n->visual = NULL;
-   n->d = NULL;
 
    im->native.data        = NULL;
    im->native.func.data   = NULL;
+   im->native.func.bind   = NULL;
    im->native.func.free   = NULL;
    im->image.data         = NULL;
    free(n);
@@ -165,64 +68,44 @@ _native_free_cb(void *data EINA_UNUSED, void *image)
 void *
 evas_xlib_image_native_set(void *data, void *image, void *native)
 {
-   Display *d = NULL;
+   RGBA_Image *im = image;
+   Evas_Native_Surface *ns = native;
+   Native  *n = NULL;
+   Ecore_X_Image *exim = NULL;
    Visual  *vis = NULL;
    Pixmap   pm = 0;
-   Native  *n = NULL;
-   RGBA_Image *im = image;
-   int w, h;
-   Evas_X_Image *exim;
-   char* pix;
-   Evas_Native_Surface *ns = native;
-   Outbuf *ob = (Outbuf *)data;
+   int w, h, depth;
 
-   Window wdum;
-   int idum;
-   unsigned int uidum, depth = 0;
-
-   d = ob->priv.x11.xlib.disp;
-
-   if (ns)
+   if ((ns) && (ns->type == EVAS_NATIVE_SURFACE_X11))
      {
         vis = ns->data.x11.visual;
         pm = ns->data.x11.pixmap;
-     }
 
-   // get pixmap depth info
-   XGetGeometry(d, pm, &wdum, &idum, &idum, &uidum, &uidum, &uidum, &depth);
+        depth = ecore_x_drawable_depth_get(pm);
 
-   //TODO: deal with pixmap cache
-   w = im->cache_entry.w;
-   h = im->cache_entry.h;
+        w = im->cache_entry.w;
+        h = im->cache_entry.h;
 
-   exim = evas_xlib_image_new(w, h, vis, depth);
-   if (!exim)
-     {
-        ERR("evas_xlib_image_new failed.");
-        return EINA_FALSE;
-     }
-
-   if (ns)
-     {
-        n = calloc(1, sizeof(Native));
-        if (n)
+        exim = ecore_x_image_new(w, h, vis, depth);
+        if (!exim)
           {
-             memcpy(&(n->ns), ns, sizeof(Evas_Native_Surface));
-             n->pixmap = pm;
-             n->visual = vis;
-             n->d = d;
-             n->exim = exim;
-             im->native.data = n;
-             im->native.func.data = NULL;
-             im->native.func.free = _native_free_cb;
+             ERR("ecore_x_image_new failed.");
+             return NULL;
           }
-     }
 
-   pix = evas_xlib_image_data_get(exim, NULL, NULL, NULL, d);
-   if (pix == NULL)
-   {
-      ERR("evas_xlib_image_data_get failed.");
-   }
-   evas_xlib_image_shm_copy(im);
+        n = calloc(1, sizeof(Native));
+        if (!n) return NULL;
+
+        memcpy(&(n->ns), ns, sizeof(Evas_Native_Surface));
+        n->pixmap = pm;
+        n->visual = vis;
+        n->exim = exim;
+        im->native.data = n;
+        im->native.func.data = NULL;
+        im->native.func.bind = _native_bind_cb;
+        im->native.func.free = _native_free_cb;
+
+        evas_xlib_image_update(data, image, 0, 0, w, h);
+     }
    return im;
 }

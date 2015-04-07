@@ -99,11 +99,7 @@ evas_gl_common_file_cache_file_check(const char *cache_dir, const char *cache_na
    driver = (char *)glGetString(GL_RENDERER);
    version = (char *)glGetString(GL_VERSION);
 
-   if (!vendor)  vendor  = (unsigned char *)"-UNKNOWN-";
-   if (!driver)  driver  = (unsigned char *)"-UNKNOWN-";
-   if (!version) version = (unsigned char *)"-UNKNOWN-";
-
-   new_path_len = snprintf(before_name, sizeof(before_name), "%s::%s::%s::%s.%d::%s.eet", vendor, version, driver, MODULE_ARCH, evas_version->micro, cache_name);
+   new_path_len = snprintf(before_name, sizeof(before_name), "%s::%s::%s::%s::%s.eet", vendor, version, driver, MODULE_ARCH, cache_name);
 
    /* remove '/' from file name */
    for (i = 0; i < new_path_len; i++)

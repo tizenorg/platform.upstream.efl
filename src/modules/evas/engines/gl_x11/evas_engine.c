@@ -2336,6 +2336,8 @@ eng_image_native_set(void *data, void *image, void *native)
               im->native.func.free   = _native_free_cb;
               im->native.target      = GL_TEXTURE_2D;
               im->native.mipmap      = 0;
+              //Tizen Only
+              im->native.offbuffer   = 1;
               glsym_evas_gl_common_image_native_enable(im);
             }
         }
@@ -2541,7 +2543,9 @@ eng_image_native_set(void *data, void *image, void *native)
                       im->native.func.bind   = _native_bind_cb;
                       im->native.func.unbind = _native_unbind_cb;
                       im->native.func.free   = _native_free_cb;
-                      
+                      //Tizen Only
+                      im->native.offbuffer   = 0;
+
                       glsym_evas_gl_common_image_native_enable(im);
                    }
               }
@@ -2578,6 +2582,8 @@ eng_image_native_set(void *data, void *image, void *native)
               im->native.func.free   = _native_free_cb;
               im->native.target      = GL_TEXTURE_2D;
               im->native.mipmap      = 0;
+              //Tizen Only
+              im->native.offbuffer   = 0;
 
               // FIXME: need to implement mapping sub texture regions
               // x, y, w, h for possible texture atlasing

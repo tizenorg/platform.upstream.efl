@@ -17,7 +17,7 @@
 typedef unsigned int uint;
 #endif
 
-inline int Alpha(uint c)
+static inline int Alpha(uint c)
 {
    return c>>24;
 }

@@ -27,7 +27,18 @@
 #include <xcb/xcb.h>
 #include <xcb/dri3.h>
 #include <xcb/present.h>
-#include <tbm_bufmgr.h>
+
+typedef struct _tbm_bufmgr *tbm_bufmgr;
+typedef struct _tbm_bo *tbm_bo;
+
+typedef union _tbm_bo_handle
+{
+    void     *ptr;
+    int32_t  s32;
+    uint32_t u32;
+    int64_t  s64;
+    uint64_t u64;
+} tbm_bo_handle;
 
 
 #define DRI3_MAX_BACK   3

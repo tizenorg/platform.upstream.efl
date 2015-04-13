@@ -39,8 +39,7 @@ evas_eolian_files = \
 	lib/evas/canvas/efl_vg_root_node.eo \
 	lib/evas/canvas/efl_vg_gradient.eo \
 	lib/evas/canvas/efl_vg_gradient_radial.eo \
-	lib/evas/canvas/efl_vg_gradient_linear.eo \
-	lib/evas/canvas/efl_vg_image.eo
+	lib/evas/canvas/efl_vg_gradient_linear.eo
 
 evas_eolian_c = $(evas_eolian_files:%.eo=%.eo.c)
 evas_eolian_h = $(evas_eolian_files:%.eo=%.eo.h) \
@@ -88,7 +87,8 @@ lib/evas/include/evas_macros.h \
 lib/evas/include/evas_mmx.h \
 lib/evas/include/evas_common_private.h \
 lib/evas/include/evas_blend_ops.h \
-lib/evas/include/evas_filter.h
+lib/evas/include/evas_filter.h \
+lib/evas/canvas/evas_vg_private.h
 
 # Linebreak
 
@@ -153,8 +153,7 @@ lib/evas/canvas/evas_stats.c \
 lib/evas/canvas/evas_touch_point.c \
 lib/evas/canvas/evas_map.c \
 lib/evas/canvas/evas_gl.c \
-lib/evas/canvas/evas_out.c \
-lib/evas/canvas/evas_vg_loader_svg.c
+lib/evas/canvas/evas_out.c
 
 # Cache
 lib_evas_libevas_la_SOURCES += \
@@ -225,7 +224,6 @@ lib/evas/canvas/evas_vg_gradient.c \
 lib/evas/canvas/evas_vg_gradient_linear.c \
 lib/evas/canvas/evas_vg_gradient_radial.c \
 lib/evas/canvas/evas_vg_utils.c \
-lib/evas/canvas/evas_vg_image.c \
 lib/evas/canvas/evas_vg_shape.c
 
 # Engine

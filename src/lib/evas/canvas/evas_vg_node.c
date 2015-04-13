@@ -2,6 +2,7 @@
 #include "evas_private.h"
 
 #include "evas_vg_private.h"
+#include "efl_vg_root_node.eo.h"
 
 #include <string.h>
 #include <math.h>
@@ -22,7 +23,7 @@ _efl_vg_base_property_changed(void *data, Eo *obj, const Eo_Event_Description *d
    return EINA_TRUE;
 }
 
-void
+static void
 _efl_vg_base_transformation_set(Eo *obj,
                                 Efl_VG_Base_Data *pd,
                                 const Eina_Matrix3 *m)
@@ -43,7 +44,7 @@ _efl_vg_base_transformation_get(Eo *obj EINA_UNUSED, Efl_VG_Base_Data *pd)
    return pd->m;
 }
 
-void
+static void
 _efl_vg_base_origin_set(Eo *obj,
                         Efl_VG_Base_Data *pd,
                         double x, double y)
@@ -54,7 +55,7 @@ _efl_vg_base_origin_set(Eo *obj,
    _efl_vg_base_changed(obj);
 }
 
-void
+static void
 _efl_vg_base_origin_get(Eo *obj EINA_UNUSED,
                         Efl_VG_Base_Data *pd,
                         double *x, double *y)
@@ -63,7 +64,7 @@ _efl_vg_base_origin_get(Eo *obj EINA_UNUSED,
    if (y) *y = pd->y;
 }
 
-void
+static void
 _efl_vg_base_efl_gfx_base_position_set(Eo *obj EINA_UNUSED,
                                        Efl_VG_Base_Data *pd,
                                        int x, int y)
@@ -74,7 +75,7 @@ _efl_vg_base_efl_gfx_base_position_set(Eo *obj EINA_UNUSED,
    _efl_vg_base_changed(obj);
 }
 
-void
+static void
 _efl_vg_base_efl_gfx_base_position_get(Eo *obj EINA_UNUSED,
                                        Efl_VG_Base_Data *pd,
                                        int *x, int *y)
@@ -83,7 +84,7 @@ _efl_vg_base_efl_gfx_base_position_get(Eo *obj EINA_UNUSED,
    if (y) *y = pd->y;
 }
 
-void
+static void
 _efl_vg_base_efl_gfx_base_visible_set(Eo *obj EINA_UNUSED,
                                       Efl_VG_Base_Data *pd, Eina_Bool v)
 {
@@ -93,14 +94,14 @@ _efl_vg_base_efl_gfx_base_visible_set(Eo *obj EINA_UNUSED,
 }
 
 
-Eina_Bool
+static Eina_Bool
 _efl_vg_base_efl_gfx_base_visible_get(Eo *obj EINA_UNUSED,
                                       Efl_VG_Base_Data *pd)
 {
    return pd->visibility;
 }
 
-void
+static void
 _efl_vg_base_efl_gfx_base_color_set(Eo *obj EINA_UNUSED,
                                     Efl_VG_Base_Data *pd,
                                     int r, int g, int b, int a)
@@ -133,7 +134,7 @@ _efl_vg_base_efl_gfx_base_color_set(Eo *obj EINA_UNUSED,
    _efl_vg_base_changed(obj);
 }
 
-Eina_Bool
+static Eina_Bool
 _efl_vg_base_efl_gfx_base_color_part_set(Eo *obj, Efl_VG_Base_Data *pd,
                                          const char *part,
                                          int r, int g, int b, int a)
@@ -144,7 +145,7 @@ _efl_vg_base_efl_gfx_base_color_part_set(Eo *obj, Efl_VG_Base_Data *pd,
    return EINA_TRUE;
 }
 
-void
+static void
 _efl_vg_base_efl_gfx_base_color_get(Eo *obj EINA_UNUSED,
                                     Efl_VG_Base_Data *pd,
                                     int *r, int *g, int *b, int *a)
@@ -155,7 +156,7 @@ _efl_vg_base_efl_gfx_base_color_get(Eo *obj EINA_UNUSED,
    if (a) *a = pd->a;
 }
 
-Eina_Bool
+static Eina_Bool
 _efl_vg_base_efl_gfx_base_color_part_get(Eo *obj, Efl_VG_Base_Data *pd,
                                          const char *part,
                                          int *r, int *g, int *b, int *a)
@@ -166,7 +167,7 @@ _efl_vg_base_efl_gfx_base_color_part_get(Eo *obj, Efl_VG_Base_Data *pd,
    return EINA_TRUE;
 }
 
-void
+static void
 _efl_vg_base_mask_set(Eo *obj EINA_UNUSED,
                        Efl_VG_Base_Data *pd,
                        Efl_VG_Base *r)
@@ -179,22 +180,22 @@ _efl_vg_base_mask_set(Eo *obj EINA_UNUSED,
    _efl_vg_base_changed(obj);
 }
 
-Efl_VG_Base*
+static Efl_VG_Base*
 _efl_vg_base_mask_get(Eo *obj EINA_UNUSED, Efl_VG_Base_Data *pd)
 {
    return pd->mask;
 }
 
-void
+static void
 _efl_vg_base_efl_gfx_base_size_get(Eo *obj,
                                    Efl_VG_Base_Data *pd EINA_UNUSED,
                                    int *w, int *h)
 {
-   Eina_Rectangle bound = { 0, 0, 0, 0 };
+   Eina_Rectangle r = { 0, 0, 0, 0 };
 
-   eo_do(obj, efl_vg_bound_get(&bound));
-   if (w) *w = bound.w;
-   if (h) *h = bound.h;
+   eo_do(obj, efl_vg_bounds_get(&r));
+   if (w) *w = r.w;
+   if (h) *h = r.h;
 }
 
 // Parent should be a container otherwise dismissing the stacking operation
@@ -229,7 +230,7 @@ _efl_vg_base_parent_checked_get(Eo *obj,
    return EINA_FALSE;
 }
 
-void
+static void
 _efl_vg_base_eo_base_constructor(Eo *obj,
                                  Efl_VG_Base_Data *pd)
 {
@@ -245,7 +246,18 @@ _efl_vg_base_eo_base_constructor(Eo *obj,
    pd->changed = EINA_TRUE;
 }
 
-void
+static void
+_efl_vg_base_eo_base_destructor(Eo *obj, Efl_VG_Base_Data *pd)
+{
+   if (pd->m)
+     {
+        free(pd->m);
+        pd->m = NULL;
+     }
+   eo_do_super(obj, MY_CLASS, eo_destructor());
+}
+
+static void
 _efl_vg_base_eo_base_parent_set(Eo *obj,
                                 Efl_VG_Base_Data *pd EINA_UNUSED,
                                 Eo *parent)
@@ -291,7 +303,7 @@ _efl_vg_base_eo_base_parent_set(Eo *obj,
    return ;
 }
 
-void
+static void
 _efl_vg_base_efl_gfx_stack_raise(Eo *obj, Efl_VG_Base_Data *pd EINA_UNUSED)
 {
    Efl_VG_Container_Data *cd;
@@ -319,7 +331,7 @@ _efl_vg_base_efl_gfx_stack_raise(Eo *obj, Efl_VG_Base_Data *pd EINA_UNUSED)
    eo_error_set(obj);
 }
 
-void
+static void
 _efl_vg_base_efl_gfx_stack_stack_above(Eo *obj,
                                        Efl_VG_Base_Data *pd EINA_UNUSED,
                                        Efl_Gfx_Stack *above)
@@ -349,7 +361,7 @@ _efl_vg_base_efl_gfx_stack_stack_above(Eo *obj,
    eo_error_set(obj);
 }
 
-void
+static void
 _efl_vg_base_efl_gfx_stack_stack_below(Eo *obj,
                                        Efl_VG_Base_Data *pd EINA_UNUSED,
                                        Efl_Gfx_Stack *below)
@@ -379,7 +391,7 @@ _efl_vg_base_efl_gfx_stack_stack_below(Eo *obj,
    eo_error_set(obj);
 }
 
-void
+static void
 _efl_vg_base_efl_gfx_stack_lower(Eo *obj, Efl_VG_Base_Data *pd EINA_UNUSED)
 {
    Efl_VG_Container_Data *cd;
@@ -407,26 +419,110 @@ _efl_vg_base_efl_gfx_stack_lower(Eo *obj, Efl_VG_Base_Data *pd EINA_UNUSED)
    eo_error_set(obj);
 }
 
-Efl_Gfx_Stack *
-_efl_vg_base_efl_gfx_stack_below_get(Eo *obj, Efl_VG_Base_Data *pd)
+static Eo *
+_efl_vg_base_root_parent_get(Eo *obj)
 {
-   // FIXME: need to implement bound_get
-   return NULL;
+   Eo *parent;
+
+   if (eo_isa(obj, EFL_VG_ROOT_NODE_CLASS))
+     return obj;
+
+   eo_do(obj, parent = eo_parent_get());
+
+   if (!parent) return NULL;
+   return _efl_vg_base_root_parent_get(parent);
 }
 
-Efl_Gfx_Stack *
-_efl_vg_base_efl_gfx_stack_above_get(Eo *obj, Efl_VG_Base_Data *pd)
+static void
+_efl_vg_base_walk_down_at(Eo *root, Eina_Array *a, Eina_Rectangle *r)
 {
-   // FIXME: need to implement bound_get
-   return NULL;
+   Eina_Rectangle bounds;
+
+   eo_do(root, efl_vg_bounds_get(&bounds));
+   if (!eina_rectangles_intersect(&bounds, r)) return ;
+
+   eina_array_push(a, root);
+
+   if (eo_isa(root, EFL_VG_CONTAINER_CLASS))
+     {
+        Efl_VG_Container_Data *cd;
+        Eina_List *l;
+        Eo *child;
+
+        cd = eo_data_scope_get(root, EFL_VG_CONTAINER_CLASS);
+        EINA_LIST_FOREACH(cd->children, l, child)
+          _efl_vg_base_walk_down_at(child, a, r);
+     }
 }
 
-Eina_Bool
-_efl_vg_base_original_bound_get(Eo *obj,
-                                Efl_VG_Base_Data *pd,
-                                Eina_Rectangle *r)
+static void
+_efl_vg_base_object_at(Eo *obj, Eina_Array *a, Eina_Rectangle *r)
 {
-   return EINA_FALSE;
+   Eo *root;
+
+   root = _efl_vg_base_root_parent_get(obj);
+   if (!root) return ;
+
+   _efl_vg_base_walk_down_at(root, a, r);
+}
+
+static Efl_Gfx_Stack *
+_efl_vg_base_efl_gfx_stack_below_get(Eo *obj, Efl_VG_Base_Data *pd EINA_UNUSED)
+{
+   Eina_Rectangle r;
+   Eina_Array a;
+   Eo *current;
+   Eo *below = NULL;
+   Eina_Array_Iterator iterator;
+   unsigned int i;
+
+   eo_do(obj, efl_vg_bounds_get(&r));
+
+   eina_array_step_set(&a, sizeof (Eina_Array), 8);
+
+   _efl_vg_base_object_at(obj, &a, &r);
+
+   EINA_ARRAY_ITER_NEXT(&a, i, current, iterator)
+     if (current == obj)
+       {
+          i++;
+          if (i < eina_array_count(&a))
+            below = eina_array_data_get(&a, i);
+          break;
+       }
+
+   eina_array_flush(&a);
+
+   return below;
+}
+
+static Efl_Gfx_Stack *
+_efl_vg_base_efl_gfx_stack_above_get(Eo *obj, Efl_VG_Base_Data *pd EINA_UNUSED)
+{
+   Eina_Rectangle r;
+   Eina_Array a;
+   Eo *current;
+   Eo *above = NULL;
+   Eina_Array_Iterator iterator;
+   unsigned int i;
+
+   eo_do(obj, efl_vg_bounds_get(&r));
+
+   eina_array_step_set(&a, sizeof (Eina_Array), 8);
+
+   _efl_vg_base_object_at(obj, &a, &r);
+
+   EINA_ARRAY_ITER_NEXT(&a, i, current, iterator)
+     if (current == obj)
+       {
+          if (i > 0)
+            above = eina_array_data_get(&a, i - 1);
+          break;
+       }
+
+   eina_array_flush(&a);
+
+   return above;
 }
 
 EAPI Eina_Bool

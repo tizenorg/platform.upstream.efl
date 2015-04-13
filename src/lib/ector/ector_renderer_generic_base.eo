@@ -86,9 +86,8 @@ abstract Ector.Renderer.Generic.Base (Eo.Base)
    }
    methods {
       bounds_get {
-         return: bool @warn_unused;
 	 params {
-	    @out Eina_Rectangle *r;
+	    @out Eina_Rectangle r;
 	 }
       }
       draw {
@@ -109,6 +108,7 @@ abstract Ector.Renderer.Generic.Base (Eo.Base)
       }
    }
    implements {
+      Eo.Base.destructor;
       @virtual .draw;
       @virtual .bounds_get;
       @virtual .done;

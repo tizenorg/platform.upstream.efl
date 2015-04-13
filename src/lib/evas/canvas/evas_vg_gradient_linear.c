@@ -101,10 +101,21 @@ _efl_vg_gradient_linear_eo_base_constructor(Eo *obj,
    nd->data = pd;
 }
 
-void
+static void
 _efl_vg_gradient_linear_eo_base_destructor(Eo *obj, Efl_VG_Gradient_Linear_Data *pd EINA_UNUSED)
 {
    eo_do_super(obj, MY_CLASS, eo_destructor());
+}
+
+static void
+_efl_vg_gradient_linear_efl_vg_base_bounds_get(Eo *obj, Efl_VG_Gradient_Linear_Data *pd, Eina_Rectangle *r)
+{
+   Efl_VG_Base_Data *nd;
+
+   nd = eo_data_scope_get(obj, EFL_VG_BASE_CLASS);
+   EINA_RECTANGLE_SET(r,
+                      nd->x + pd->start.x, nd->y + pd->start.y,
+                      pd->end.x - pd->start.x, pd->end.y - pd->start.x);
 }
 
 EAPI void

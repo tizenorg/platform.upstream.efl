@@ -20,6 +20,8 @@ static void (*cairo_pattern_add_color_stop_rgba)(cairo_pattern_t *pattern, doubl
                                                  double red, double green, double blue, double alpha) = NULL;
 static void (*cairo_pattern_destroy)(cairo_pattern_t *pattern) = NULL;
 
+static void (*cairo_pattern_set_extend)(cairo_pattern_t *pattern, cairo_extend_t extend) = NULL;
+
 typedef struct _Ector_Renderer_Cairo_Gradient_Linear_Data Ector_Renderer_Cairo_Gradient_Linear_Data;
 struct _Ector_Renderer_Cairo_Gradient_Linear_Data
 {
@@ -48,10 +50,19 @@ _ector_renderer_cairo_gradient_linear_ector_renderer_generic_base_prepare(Eo *ob
 
    pd->pat = cairo_pattern_create_linear(gld->start.x, gld->start.y,
                                      gld->end.x, gld->end.y);
+   int r,g,b,a;
    for (i = 0; i < gd->colors_count; i++)
-     cairo_pattern_add_color_stop_rgba(pd->pat, gd->colors[i].offset,
-                                       gd->colors[i].r, gd->colors[i].g,
-                                       gd->colors[i].b, gd->colors[i].a);
+     {
+       r = gd->colors[i].r;
+       g = gd->colors[i].g;
+       b = gd->colors[i].b;
+       a = gd->colors[i].a;
+       ector_color_argb_unpremul(a, &r, &g, &b);
+       cairo_pattern_add_color_stop_rgba(pd->pat, gd->colors[i].offset, r/255.0, g/255.0, b/255.0, a/255.0);
+     }
+
+   USE(obj, cairo_pattern_set_extend, EINA_FALSE);
+   cairo_pattern_set_extend(pd->pat, _ector_cairo_extent_get(gd->s));
 
    if (!pd->parent)
      {
@@ -70,6 +81,8 @@ _ector_renderer_cairo_gradient_linear_ector_renderer_generic_base_draw(Eo *obj,
                                                                        Ector_Renderer_Cairo_Gradient_Linear_Data *pd,
                                                                        Ector_Rop op, Eina_Array *clips, unsigned int mul_col)
 {
+   if (pd->pat) return EINA_FALSE;
+
    Ector_Renderer_Generic_Gradient_Linear_Data *gld;
 
    // FIXME: don't ignore clipping !
@@ -101,6 +114,23 @@ _ector_renderer_cairo_gradient_linear_ector_renderer_cairo_base_fill(Eo *obj,
    cairo_set_source(pd->parent->cairo, pd->pat);
 
    return EINA_TRUE;
+}
+
+static void
+_ector_renderer_cairo_gradient_linear_ector_renderer_generic_base_bounds_get(Eo *obj,
+                                                                             Ector_Renderer_Cairo_Gradient_Linear_Data *pd EINA_UNUSED,
+                                                                             Eina_Rectangle *r)
+{
+   Ector_Renderer_Generic_Gradient_Linear_Data *gld;
+   Ector_Renderer_Cairo_Base_Data *bd;
+
+   gld = eo_data_scope_get(obj, ECTOR_RENDERER_GENERIC_GRADIENT_RADIAL_MIXIN);
+   bd = eo_data_scope_get(obj, ECTOR_RENDERER_CAIRO_BASE_CLASS);
+   EINA_RECTANGLE_SET(r,
+                      bd->generic->origin.x + gld->start.x,
+                      bd->generic->origin.y + gld->start.y,
+                      gld->end.x - gld->start.x,
+                      gld->end.y - gld->start.x);
 }
 
 void

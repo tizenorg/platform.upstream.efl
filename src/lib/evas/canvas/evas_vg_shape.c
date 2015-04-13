@@ -28,12 +28,13 @@ struct _Efl_VG_Shape_Data
    } stroke;
 };
 
-static Eina_Bool
-_efl_vg_shape_efl_vg_base_bound_get(Eo *obj,
-                                    Efl_VG_Shape_Data *pd,
+static void
+_efl_vg_shape_efl_vg_base_bounds_get(Eo *obj,
+                                    Efl_VG_Shape_Data *pd EINA_UNUSED,
                                     Eina_Rectangle *r)
 {
-   return EINA_FALSE;
+   // FIXME: Use the renderer bounding box when it has been created instead of an estimation
+   eo_do(obj, efl_gfx_shape_bounds_get(r));
 }
 
 static void

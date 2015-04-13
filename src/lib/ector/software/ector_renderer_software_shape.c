@@ -30,18 +30,35 @@ typedef struct _Outline
    int contours_alloc;
 }Outline;
 
+
+static inline void
+_grow_outline_contour(Outline *outline, int num)
+{
+   if ( outline->ft_outline.n_contours + num > outline->contours_alloc)
+     {
+        outline->contours_alloc += 5;
+        outline->ft_outline.contours = (short *) realloc(outline->ft_outline.contours, outline->contours_alloc * sizeof(short));
+     }
+}
+
+static inline void
+_grow_outline_points(Outline *outline, int num)
+{
+   if ( outline->ft_outline.n_points + num > outline->points_alloc)
+     {
+        outline->points_alloc += 50;
+        outline->ft_outline.points = (SW_FT_Vector *) realloc(outline->ft_outline.points, outline->points_alloc * sizeof(SW_FT_Vector));
+        outline->ft_outline.tags = (char *) realloc(outline->ft_outline.tags, outline->points_alloc * sizeof(char));
+     }
+}
 static Outline *
 _outline_create()
 {
    Outline *outline = (Outline *) calloc(1, sizeof(Outline));
-
-   outline->ft_outline.points = (SW_FT_Vector *) calloc(50, sizeof(SW_FT_Vector));
-   outline->ft_outline.tags = (char *) calloc(50, sizeof(char));
-
-   outline->ft_outline.contours = (short *) calloc(5, sizeof(short));
-
-   outline->points_alloc = 50;
-   outline->contours_alloc = 5;
+   outline->points_alloc = 0;
+   outline->contours_alloc = 0;
+   _grow_outline_contour(outline, 1);
+   _grow_outline_points(outline, 1);
    return outline;
 }
 
@@ -63,17 +80,14 @@ _outline_move_to(Outline *outline, double x, double y)
 {
    SW_FT_Outline *ft_outline = &outline->ft_outline;
 
-   if (ft_outline->n_contours == outline->contours_alloc)
-     {
-        outline->contours_alloc += 5;
-        ft_outline->contours = (short *) realloc(ft_outline->contours, outline->contours_alloc * sizeof(short));
-     }
+   _grow_outline_points(outline, 1);
    ft_outline->points[ft_outline->n_points].x = x;
    ft_outline->points[ft_outline->n_points].y = y;
    ft_outline->tags[ft_outline->n_points] = SW_FT_CURVE_TAG_ON;
 
    if (ft_outline->n_points)
      {
+        _grow_outline_contour(outline, 1);
         ft_outline->contours[ft_outline->n_contours] = ft_outline->n_points - 1;
         ft_outline->n_contours++;
      }
@@ -86,11 +100,7 @@ _outline_end(Outline *outline)
 {
    SW_FT_Outline *ft_outline = &outline->ft_outline;
 
-   if (ft_outline->n_contours == outline->contours_alloc)
-     {
-        outline->contours_alloc += 1;
-        ft_outline->contours = (short *) realloc(ft_outline->contours, outline->contours_alloc * sizeof(short));
-     }
+   _grow_outline_contour(outline, 1);
 
    if (ft_outline->n_points)
      {
@@ -104,12 +114,7 @@ static void  _outline_line_to(Outline *outline, double x, double y)
 {
    SW_FT_Outline *ft_outline = &outline->ft_outline;
 
-   if (ft_outline->n_points == outline->points_alloc)
-     {
-        outline->points_alloc += 50;
-        ft_outline->points = (SW_FT_Vector *) realloc(ft_outline->points, outline->points_alloc * sizeof(SW_FT_Vector));
-        ft_outline->tags = (char *) realloc(ft_outline->tags, outline->points_alloc * sizeof(char));
-     }
+   _grow_outline_points(outline, 1);
    ft_outline->points[ft_outline->n_points].x = x;
    ft_outline->points[ft_outline->n_points].y = y;
    ft_outline->tags[ft_outline->n_points] = SW_FT_CURVE_TAG_ON;
@@ -145,12 +150,7 @@ static void  _outline_cubic_to(Outline *outline, double cx1, double cy1, double 
 {
    SW_FT_Outline *ft_outline = &outline->ft_outline;
 
-   if (ft_outline->n_points == outline->points_alloc)
-     {
-        outline->points_alloc += 50;
-        ft_outline->points = (SW_FT_Vector *) realloc(ft_outline->points, outline->points_alloc * sizeof(SW_FT_Vector));
-        ft_outline->tags = (char *) realloc(ft_outline->tags, outline->points_alloc * sizeof(char));
-     }
+   _grow_outline_points(outline, 3);
 
    ft_outline->points[ft_outline->n_points].x = cx1;
    ft_outline->points[ft_outline->n_points].y = cy1;
@@ -260,30 +260,11 @@ _generate_shape_data(Ector_Renderer_Software_Shape_Data *pd)
    return EINA_TRUE;
 }
 
-static Eina_Bool
-_ector_renderer_software_shape_ector_renderer_generic_base_prepare(Eo *obj, Ector_Renderer_Software_Shape_Data *pd)
+static void 
+_update_rle(Eo *obj, Ector_Renderer_Software_Shape_Data *pd)
 {
    const Efl_Gfx_Path_Command *cmds = NULL;
    const double *pts = NULL;
-
-   // FIXME: shouldn't that be part of the shape generic implementation ?
-   if (pd->shape->fill)
-     eo_do(pd->shape->fill, ector_renderer_prepare());
-   if (pd->shape->stroke.fill)
-     eo_do(pd->shape->stroke.fill, ector_renderer_prepare());
-   if (pd->shape->stroke.marker)
-     eo_do(pd->shape->stroke.marker, ector_renderer_prepare());
-
-   // shouldn't that be moved to the software base object
-   if (!pd->surface)
-     {
-        Eo *parent;
-        eo_do(obj, parent = eo_parent_get());
-        if (!parent) return EINA_FALSE;
-        pd->surface = eo_data_xref(parent, ECTOR_SOFTWARE_SURFACE_CLASS, obj);
-        if (!pd->surface) return EINA_FALSE;
-     }
-
    eo_do(obj, efl_gfx_shape_path_get(&cmds, &pts));
    if (cmds && (_generate_stroke_data(pd) || _generate_shape_data(pd)))
      {
@@ -305,14 +286,38 @@ _ector_renderer_software_shape_ector_renderer_generic_base_prepare(Eo *obj, Ecto
           }
         _outline_destroy(outline);
      }
+}
 
+static Eina_Bool
+_ector_renderer_software_shape_ector_renderer_generic_base_prepare(Eo *obj, Ector_Renderer_Software_Shape_Data *pd)
+{
+   // FIXME: shouldn't that be part of the shape generic implementation ?
+   if (pd->shape->fill)
+     eo_do(pd->shape->fill, ector_renderer_prepare());
+   if (pd->shape->stroke.fill)
+     eo_do(pd->shape->stroke.fill, ector_renderer_prepare());
+   if (pd->shape->stroke.marker)
+     eo_do(pd->shape->stroke.marker, ector_renderer_prepare());
+
+   // shouldn't that be moved to the software base object
+   if (!pd->surface)
+     {
+        Eo *parent;
+        eo_do(obj, parent = eo_parent_get());
+        if (!parent) return EINA_FALSE;
+        pd->surface = eo_data_xref(parent, ECTOR_SOFTWARE_SURFACE_CLASS, obj);
+        if (!pd->surface) return EINA_FALSE;
+     }
    return EINA_TRUE;
 }
 
 static Eina_Bool
-_ector_renderer_software_shape_ector_renderer_generic_base_draw(Eo *obj EINA_UNUSED, Ector_Renderer_Software_Shape_Data *pd, Ector_Rop op, Eina_Array *clips, unsigned int mul_col)
+_ector_renderer_software_shape_ector_renderer_generic_base_draw(Eo *obj, Ector_Renderer_Software_Shape_Data *pd, Ector_Rop op, Eina_Array *clips, unsigned int mul_col)
 {
    int x, y;
+
+   // do lazy creation of rle
+   _update_rle(obj, pd);
 
    // adjust the offset
    x = pd->surface->x + (int)pd->base->origin.x;

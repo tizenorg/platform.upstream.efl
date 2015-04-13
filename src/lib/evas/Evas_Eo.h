@@ -832,4 +832,3 @@ typedef Eo      Evas_VG_Node;
 #include "canvas/efl_vg_gradient.eo.h"
 #include "canvas/efl_vg_gradient_linear.eo.h"
 #include "canvas/efl_vg_gradient_radial.eo.h"
-#include "canvas/efl_vg_image.eo.h"

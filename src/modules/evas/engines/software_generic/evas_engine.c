@@ -3267,6 +3267,9 @@ _draw_thread_ector_surface_set(void *data)
    unsigned int x = 0;
    unsigned int y = 0;
 
+   // flush the cpu pipeline before ector drawing.
+   evas_common_cpu_end_opt();
+
    if (surface)
      {
         pixels = evas_cache_image_pixels(&surface->cache_entry);
@@ -3288,8 +3291,6 @@ _draw_thread_ector_surface_set(void *data)
               ector_software_surface_set(pixels, w, h),
               ector_surface_reference_point_set(x, y));
      }
-
-   evas_common_cpu_end_opt();
 
    eina_mempool_free(_mp_command_ector_surface, ector_surface);
 }
@@ -3532,6 +3533,7 @@ static Evas_Func func =
      NULL, // eng_texture_filter_set
      NULL, // eng_texture_filter_get
      NULL, // eng_texture_image_set
+     NULL, // eng_output_copy
      eng_ector_get,
      eng_ector_begin,
      eng_ector_renderer_draw,
@@ -4623,8 +4625,6 @@ static Evas_Module_Api evas_modapi =
    }
 };
 
-EVAS_MODULE_DEFINE(EVAS_MODULE_TYPE_ENGINE, engine, software_generic);
-
 Eina_Bool evas_engine_software_generic_init(void)
 {
    return evas_module_register(&evas_modapi, EVAS_MODULE_TYPE_ENGINE);
@@ -4680,6 +4680,13 @@ static void (*cairo_destroy)(cairo_t *cr) = NULL;
 typedef struct _Ector_Cairo_Software_Surface_Data Ector_Cairo_Software_Surface_Data;
 struct _Ector_Cairo_Software_Surface_Data
 {
+   cairo_surface_t *surface;
+   cairo_t *ctx;
+
+   void *pixels;
+
+   unsigned int width;
+   unsigned int height;
 };
 
 void
@@ -4719,6 +4726,9 @@ _ector_cairo_software_surface_surface_set(Eo *obj, Ector_Cairo_Software_Surface_
 void
 _ector_cairo_software_surface_surface_get(Eo *obj EINA_UNUSED, Ector_Cairo_Software_Surface_Data *pd, void **pixels, unsigned int *width, unsigned int *height)
 {
+   if (pixels) *pixels = pd->pixels;
+   if (width) *width = pd->width;
+   if (height) *height = pd->height;
 }
 
 #include "ector_cairo_software_surface.eo.c"

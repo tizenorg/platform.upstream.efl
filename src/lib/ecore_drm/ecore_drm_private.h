@@ -133,7 +133,7 @@ struct _Ecore_Drm_Output
 
    Ecore_Drm_Fb *current, *next;
    Ecore_Drm_Fb *dumb[NUM_FRAME_BUFFERS];
-   Ecore_Drm_Backlight *backlight;   
+   Ecore_Drm_Backlight *backlight;
 };
 
 struct _Ecore_Drm_Seat
@@ -181,7 +181,7 @@ struct _Ecore_Drm_Evdev
    /*        } pt[EVDEV_MAX_SLOTS]; */
    /*   } abs; */
 
-   struct 
+   struct
      {
         int x, y;
         unsigned int last, prev;
@@ -191,7 +191,7 @@ struct _Ecore_Drm_Evdev
         uint32_t prev_button, last_button;
      } mouse;
 
-   struct 
+   struct
      {
         struct xkb_keymap *keymap;
         struct xkb_state *state;
@@ -221,7 +221,7 @@ struct _Ecore_Drm_Sprite
    unsigned int crtcs;
    unsigned int plane_id;
 
-   struct 
+   struct
      {
         int x, y;
         unsigned int w, h;

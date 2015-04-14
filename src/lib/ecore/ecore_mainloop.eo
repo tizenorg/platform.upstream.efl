@@ -19,7 +19,7 @@ class Ecore_Mainloop (Eo.Base)
       iterate_may_block {
          return: int;
          params {
-            int may_block;
+            @in int may_block;
          }
       }
       begin {

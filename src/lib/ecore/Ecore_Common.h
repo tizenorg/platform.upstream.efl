@@ -120,14 +120,16 @@ typedef Eina_Bool (*Ecore_Task_Cb)(void *data);
 typedef int (*Ecore_Select_Function)(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
 
 /**
- * Runs a single iteration of the main loop to process everything on the
+ * @brief Runs a single iteration of the main loop to process everything on the
  * queue.
  *
- * It does everything that is already done inside an @c Ecore main loop, like
+ * @since_tizen 2.3
+ *
+ * @remark It does everything that is already done inside an @c Ecore main loop, like
  * checking for expired timers, idlers, etc. But it will do it only once and
  * return, instead of keep watching for new events.
  *
- * DO NOT use this function unless you are the person God comes to ask for
+ * @remark DO NOT use this function unless you are the person God comes to ask for
  * advice when He has trouble managing the Universe.
  *
  * @see ecore_main_loop_iterate_may_block()
@@ -155,38 +157,44 @@ EAPI void ecore_main_loop_iterate(void);
 EAPI int ecore_main_loop_iterate_may_block(int may_block);
 
 /**
- * Sets the function to use when monitoring multiple file descriptors,
+ * @brief Sets the function to use when monitoring multiple file descriptors,
  * and waiting until one of more of the file descriptors before ready
  * for some class of I/O operation.
  *
- * This function will be used instead of the system call select and
+ * @since_tizen 2.3
+ *
+ * @remark This function will be used instead of the system call select and
  * could possible be used to integrate the Ecore event loop with an
  * external event loop.
  *
  * @warning you don't know how to use, don't even try to use it.
  *
- * @param func The function to be used.
+ * @param[in] func The function to be used.
  */
 EAPI void ecore_main_loop_select_func_set(Ecore_Select_Function func);
 
 /**
- * Gets the select function set by ecore_select_func_set(),
+ * @brief Gets the select function set by ecore_select_func_set(),
  * or the native select function if none was set.
+ *
+ * @since_tizen 2.3
  *
  */
 EAPI Ecore_Select_Function ecore_main_loop_select_func_get(void);
 
 /**
- * Request ecore to integrate GLib's main loop.
+ * @brief Request ecore to integrate GLib's main loop.
  *
- * This will add a small overhead during every main loop interaction
+ * @since_tizen 2.3
+ *
+ * @remark This will add a small overhead during every main loop interaction
  * by checking glib's default main context (used by its main loop). If
  * it have events to be checked (timers, file descriptors or idlers),
  * then these will be polled alongside with Ecore's own events, then
  * dispatched before Ecore's. This is done by calling
  * ecore_main_loop_select_func_set().
  *
- * This will cooperate with previously set
+ * @remark This will cooperate with previously set
  * ecore_main_loop_select_func_set() by calling the old
  * function. Similarly, if you want to override
  * ecore_main_loop_select_func_set() after main loop is integrated,
@@ -194,14 +202,14 @@ EAPI Ecore_Select_Function ecore_main_loop_select_func_get(void);
  * ecore_main_loop_select_func_get() right after
  * ecore_main_loop_glib_integrate()).
  *
- * This is useful to use GMainLoop libraries, like GTK, GUPnP,
+ * @remark This is useful to use GMainLoop libraries, like GTK, GUPnP,
  * LibSoup, GConf and more. Adobe Flash plugin and other plugins
  * systems depend on this as well.
  *
- * Once initialized/integrated, it will be valid until Ecore is
+ * @remark Once initialized/integrated, it will be valid until Ecore is
  * completely shut down.
  *
- * Example of use:
+ * @remark Example of use:
  * @code
  *
  * int main(void)
@@ -220,8 +228,8 @@ EAPI Ecore_Select_Function ecore_main_loop_select_func_get(void);
  *
  * @endcode
  *
- * @note This is only available if Ecore was compiled with GLib support.
- * @note You don't need to call this function if Ecore was compiled with
+ * @remark This is only available if Ecore was compiled with GLib support.
+ * @remark You don't need to call this function if Ecore was compiled with
  * --with-glib=always.
  *
  * @return @c EINA_TRUE on success of @c EINA_FALSE if it failed,
@@ -230,9 +238,11 @@ EAPI Ecore_Select_Function ecore_main_loop_select_func_get(void);
 EAPI Eina_Bool ecore_main_loop_glib_integrate(void);
 
 /**
- * Disable always integrating glib
+ * @brief Disable always integrating glib
  *
- * If ecore is compiled with --with-glib=always (to always call
+ * @since_tizen 2.3
+ *
+ * @remark If ecore is compiled with --with-glib=always (to always call
  * ecore_main_loop_glib_integrate() when ecore_init() is called), then calling
  * this before calling ecore_init() will disable the integration.
  * This is for apps that explicitly do not want this to happen for whatever
@@ -241,30 +251,34 @@ EAPI Eina_Bool ecore_main_loop_glib_integrate(void);
 EAPI void ecore_main_loop_glib_always_integrate_disable(void);
 
 /**
- * Runs the application main loop.
+ * @brief Runs the application main loop.
  *
- * This function will not return until @ref ecore_main_loop_quit is called. It
+ * @since_tizen 2.3
+ *
+ * @remark This function will not return until @ref ecore_main_loop_quit is called. It
  * will check for expired timers, idlers, file descriptors being watched by fd
  * handlers, etc. Once everything is done, before entering again on idle state,
  * any callback set as @c Idle_Enterer will be called.
  *
- * Each main loop iteration is done by calling ecore_main_loop_iterate()
+ * @remark Each main loop iteration is done by calling ecore_main_loop_iterate()
  * internally.
  *
- * The polling (select) function used can be changed with
+ * @remark The polling (select) function used can be changed with
  * ecore_main_loop_select_func_set().
  *
- * The function used to check for file descriptors, events, and that has a
+ * @remark The function used to check for file descriptors, events, and that has a
  * timeout for the timers can be changed using
  * ecore_main_loop_select_func_set().
  */
 EAPI void ecore_main_loop_begin(void);
 
 /**
- * Quits the main loop once all the events currently on the queue have
+ * @brief Quits the main loop once all the events currently on the queue have
  * been processed.
  *
- * This function returns immediately, but will mark the ecore_main_loop_begin()
+ * @since_tizen 2.3
+ *
+ * @remark This function returns immediately, but will mark the ecore_main_loop_begin()
  * function to return at the end of the current main loop iteration.
  */
 EAPI void ecore_main_loop_quit(void);
@@ -304,12 +318,14 @@ typedef void (*Ecore_Cb)(void *data);
 typedef void *(*Ecore_Data_Cb)(void *data);
 
 /**
- * Add a function to be called by ecore_fork_reset()
+ * @brief Add a function to be called by ecore_fork_reset()
  *
- * @param func The function to add.
- * @param data The data to pass to this function.
+ * @since_tizen 2.3
  *
- * This queues @p func to be called (and passed @p data as its argument) when
+ * @param[in] func The function to add.
+ * @param[in] data The data to pass to this function.
+ *
+ * @remark This queues @p func to be called (and passed @p data as its argument) when
  * ecore_fork_reset() is called. This allows other libraries and subsystems
  * to also reset their internal state after a fork.
  *
@@ -319,12 +335,14 @@ typedef void *(*Ecore_Data_Cb)(void *data);
 EAPI Eina_Bool ecore_fork_reset_callback_add(Ecore_Cb func, const void *data);
 
 /**
- * This removes the callback specified
+ * @brief This removes the callback specified
  *
- * @param func The function to delete.
- * @param data The data passed to this function.
+ * @since_tizen 2.3
  *
- * This deletes the callback added by ecore_fork_reset_callback_add() using
+ * @param[in] func The function to delete.
+ * @param[in] data The data passed to this function.
+ *
+ * @remark This deletes the callback added by ecore_fork_reset_callback_add() using
  * the function and data pointer to specify which to remove.
  *
  * @return EINA_TRUE on success, else EINA_FALSE.
@@ -333,16 +351,18 @@ EAPI Eina_Bool ecore_fork_reset_callback_add(Ecore_Cb func, const void *data);
 EAPI Eina_Bool ecore_fork_reset_callback_del(Ecore_Cb func, const void *data);
 
 /**
- * Reset the ecore internal state after a fork
+ * @brief Reset the ecore internal state after a fork
  *
- * Ecore maintains internal data that can be affected by the fork() system call
+ * @since_tizen 2.3
+ *
+ * @remark Ecore maintains internal data that can be affected by the fork() system call
  * which creates a duplicate of the current process. This also duplicates
  * file descriptors which is problematic in that these file descriptors still
  * point to their original sources. This function makes ecore reset internal
  * state (e.g. pipes used for signalling between threads) so they function
  * correctly afterwards.
  *
- * It is highly suggested that you call this function after any fork()
+ * @remark It is highly suggested that you call this function after any fork()
  * system call inside the child process if you intend to use ecore features
  * after this point and not call any exec() family functions. Not doing so
  * will cause possible misbehaviour.
@@ -353,16 +373,19 @@ EAPI void ecore_fork_reset(void);
 
 /**
  * @brief Call callback asynchronously in the main loop.
+ *
+ * @since_tizen 2.3
+ *
  * @since 1.1.0
  *
- * @param callback The callback to call in the main loop
- * @param data The data to give to that call back
+ * @param[in] callback The callback to call in the main loop
+ * @param[in] data The data to give to that call back
  *
- * For all calls that need to happen in the main loop (most EFL functions do),
+ * @remark For all calls that need to happen in the main loop (most EFL functions do),
  * this helper function provides the infrastructure needed to do it safely
  * by avoiding dead lock, race condition and properly wake up the main loop.
  *
- * Remember after that function call, you should never touch again the @p data
+ * @remark Remember after that function call, you should never touch again the @p data
  * in the thread, it is owned by the main loop and your callback should take
  * care of freeing it if necessary.
  */
@@ -370,17 +393,20 @@ EAPI void ecore_main_loop_thread_safe_call_async(Ecore_Cb callback, void *data);
 
 /**
  * @brief Call callback synchronously in the main loop.
+ *
+ * @since_tizen 2.3
+ *
  * @since 1.1.0
  *
- * @param callback The callback to call in the main loop
- * @param data The data to give to that call back
+ * @param[in] callback The callback to call in the main loop
+ * @param[in] data The data to give to that call back
  * @return the value returned by the callback in the main loop
  *
- * For all calls that need to happen in the main loop (most EFL functions do),
+ * @remark For all calls that need to happen in the main loop (most EFL functions do),
  * this helper function provides the infrastructure needed to do it safely
  * by avoiding dead lock, race condition and properly wake up the main loop.
  *
- * Remember this function will block until the callback is executed in the
+ * @remark Remember this function will block until the callback is executed in the
  * main loop. It can take time and you have no guaranty about the timeline.
  */
 EAPI void *ecore_main_loop_thread_safe_call_sync(Ecore_Data_Cb callback, void *data);
@@ -400,33 +426,39 @@ EAPI void ecore_main_loop_thread_safe_call_wait(double wait);
 
 /**
  * @brief This function suspend the main loop in a know state
+ *
+ * @since_tizen 2.3
+ *
  * @since 1.1.0
  *
  * @result the number of time ecore_thread_main_loop_begin() has been called
  * in this thread, if the main loop was suspended correctly. If not, it return @c -1.
  *
- * This function suspend the main loop in a know state, this let you
+ * @remark This function suspend the main loop in a know state, this let you
  * use any EFL call you want after it return. Be carefully, the main loop
  * is blocked until you call ecore_thread_main_loop_end(). This is
  * the only sane way to achieve pseudo thread safety.
  *
- * Notice that until the main loop is blocked, the thread is blocked
+ * @remark Notice that until the main loop is blocked, the thread is blocked
  * and their is noway around that.
  *
- * We still advise you, when possible, to use ecore_main_loop_thread_safe_call_async()
+ * @remark We still advise you, when possible, to use ecore_main_loop_thread_safe_call_async()
  * as it will not block the thread nor the main loop.
  */
 EAPI int ecore_thread_main_loop_begin(void);
 
 /**
  * @brief Unlock the main loop.
+ *
+ * @since_tizen 2.3
+ *
  * @since 1.1.0
  *
  * @result the number of time ecore_thread_main_loop_end() need to be called before
  * the main loop is unlocked again. @c -1 will be returned if you are trying to unlock
  * when there wasn't enough call to ecore_thread_main_loop_begin().
  *
- * After a call to ecore_thread_main_loop_begin(), you need to absolutely
+ * @remark After a call to ecore_thread_main_loop_begin(), you need to absolutely
  * call ecore_thread_main_loop_end(), or you application will stay frozen.
  */
 EAPI int ecore_thread_main_loop_end(void);
@@ -618,12 +650,15 @@ struct _Ecore_Event_Signal_Realtime
 
 /**
  * @brief Add an event handler.
- * @param type The type of the event this handler will get called for
- * @param func The function to call when the event is found in the queue
- * @param data A data pointer to pass to the called function @p func
+ *
+ * @since_tizen 2.3
+ *
+ * @param[in] type The type of the event this handler will get called for
+ * @param[in] func The function to call when the event is found in the queue
+ * @param[in] data A data pointer to pass to the called function @p func
  * @return A new Event handler, or @c NULL on failure.
  *
- * Add an event handler to the list of handlers. This will, on success, return
+ * @remark Add an event handler to the list of handlers. This will, on success, return
  * a handle to the event handler object that was created, that can be used
  * later to remove the handler using ecore_event_handler_del(). The @p type
  * parameter is the integer of the event type that will trigger this callback
@@ -632,7 +667,7 @@ struct _Ecore_Event_Signal_Realtime
  * structure that is specific to that event type, and a data pointer that is
  * provided in this call as the @p data parameter.
  *
- * When the callback @p func is called, it must return 1 or 0. If it returns
+ * @remark When the callback @p func is called, it must return 1 or 0. If it returns
  * 1 (or ECORE_CALLBACK_PASS_ON), It will keep being called as per normal, for
  * each handler set up for that event type. If it returns 0 (or
  * ECORE_CALLBACK_DONE), it will cease processing handlers for that particular
@@ -643,10 +678,13 @@ EAPI Ecore_Event_Handler *ecore_event_handler_add(int type, Ecore_Event_Handler_
 
 /**
  * @brief Delete an event handler.
- * @param event_handler Event handler handle to delete
+ *
+ * @since_tizen 2.3
+ *
+ * @param[in] event_handler Event handler handle to delete
  * @return Data passed to handler
  *
- * Delete a specified event handler from the handler list. On success this will
+ * @remark Delete a specified event handler from the handler list. On success this will
  * delete the event handler and return the pointer passed as @p data when the
  * handler was added by ecore_event_handler_add(). On failure @c NULL will be
  * returned. Once a handler is deleted it will no longer be called.
@@ -655,13 +693,16 @@ EAPI void *ecore_event_handler_del(Ecore_Event_Handler *event_handler);
 
 /**
  * @brief Add an event to the event queue.
- * @param type The event type to add to the end of the event queue
- * @param ev The data structure passed as @c event to event handlers
- * @param func_free The function to be called to free @a ev
- * @param data The data pointer to be passed to the free function
+ *
+ * @since_tizen 2.3
+ *
+ * @param[in] type The event type to add to the end of the event queue
+ * @param[in] ev The data structure passed as @c event to event handlers
+ * @param[in] func_free The function to be called to free @a ev
+ * @param[in] data The data pointer to be passed to the free function
  * @return A Handle for that event on success, otherwise NULL
  *
- * If it succeeds, an event of type @a type will be added to the queue for
+ * @remark If it succeeds, an event of type @a type will be added to the queue for
  * processing by event handlers added by ecore_event_handler_add(). The @a ev
  * parameter will be passed as the @c event parameter of the handler. When the
  * event is no longer needed, @a func_free will be called and passed @a ev for
@@ -672,10 +713,13 @@ EAPI Ecore_Event *ecore_event_add(int type, void *ev, Ecore_End_Cb func_free, vo
 
 /**
  * @brief Delete an event from the queue.
- * @param event The event handle to delete
+ *
+ * @since_tizen 2.3
+ *
+ * @param[in] event The event handle to delete
  * @return The data pointer originally set for the event free function
  *
- * This deletes the event @p event from the event queue, and returns the
+ * @remark This deletes the event @p event from the event queue, and returns the
  * @p data parameter originally set when adding it with ecore_event_add(). This
  * does not immediately call the free function, and it may be called later on
  * cleanup, and so if the free function depends on the data pointer to work,
@@ -685,30 +729,39 @@ EAPI void *ecore_event_del(Ecore_Event *event);
 
 /**
  * @brief Get the data associated with an #Ecore_Event_Handler
- * @param eh The event handler
+ *
+ * @since_tizen 2.3
+ *
+ * @param[in] eh The event handler
  * @return The data
  *
- * This function returns the data previously associated with @p eh by
+ * @remark This function returns the data previously associated with @p eh by
  * ecore_event_handler_add().
  */
 EAPI void *ecore_event_handler_data_get(Ecore_Event_Handler *eh);
 
 /**
  * @brief Set the data associated with an #Ecore_Event_Handler
- * @param eh The event handler
- * @param data The data to associate
+ *
+ * @since_tizen 2.3
+ *
+ * @param[in] eh The event handler
+ * @param[in] data The data to associate
  * @return The previous data
  *
- * This function sets @p data to @p eh and returns the old data pointer
+ * @remark This function sets @p data to @p eh and returns the old data pointer
  * which was previously associated with @p eh by ecore_event_handler_add().
  */
 EAPI void *ecore_event_handler_data_set(Ecore_Event_Handler *eh, const void *data);
 
 /**
  * @brief Allocate a new event type id sensibly and return the new id.
+ *
+ * @since_tizen 2.3
+ *
  * @return A new event type id.
  *
- * This function allocates a new event type id and returns it. Once an event
+ * @remark This function allocates a new event type id and returns it. Once an event
  * type has been allocated it can never be de-allocated during the life of
  * the program. There is no guarantee of the contents of this event ID, or how
  * it is calculated, except that the ID will be unique to the current instance
@@ -719,13 +772,15 @@ EAPI int ecore_event_type_new(void);
 /**
  * @brief Add a filter the current event queue.
  *
- * @param func_start Function to call just before filtering and return data
- * @param func_filter Function to call on each event
- * @param func_end Function to call after the queue has been filtered
- * @param data Data to pass to the filter functions
+ * @since_tizen 2.3
+ *
+ * @param[in] func_start Function to call just before filtering and return data
+ * @param[in] func_filter Function to call on each event
+ * @param[in] func_end Function to call after the queue has been filtered
+ * @param[in] data Data to pass to the filter functions
  * @return A filter handle on success, @c NULL otherwise.
  *
- * Adds a callback to filter events from the event queue. Filters are called on
+ * @remark Adds a callback to filter events from the event queue. Filters are called on
  * the queue just before Event handler processing to try and remove redundant
  * events. Just as processing is about to start @a func_start is called and
  * passed the @a data pointer, the return value of this functions is passed to
@@ -740,22 +795,28 @@ EAPI Ecore_Event_Filter *ecore_event_filter_add(Ecore_Data_Cb func_start, Ecore_
 
 /**
  * @brief Delete an event filter.
- * @param ef The event filter handle
+ *
+ * @since_tizen 2.3
+ *
+ * @param[in] ef The event filter handle
  * @return The data set for the filter on success, @c NULL otherwise.
  *
- * Delete a filter that has been added by its @p ef handle.
+ * @remark Delete a filter that has been added by its @p ef handle.
  */
 EAPI void *ecore_event_filter_del(Ecore_Event_Filter *ef);
 
 /**
  * @brief Return the current event type being handled.
+ *
+ * @since_tizen 2.3
+ *
  * @return The current event type being handled if inside a handler callback,
  * ECORE_EVENT_NONE otherwise
  *
- * If the program is currently inside an Ecore event handler callback this
+ * @remark If the program is currently inside an Ecore event handler callback this
  * will return the type of the current event being processed.
  *
- * This is useful when certain Ecore modules such as Ecore_Evas "swallow"
+ * @remark This is useful when certain Ecore modules such as Ecore_Evas "swallow"
  * events and not all the original information is passed on. In special cases
  * this extra information may be useful or needed and using this call can let
  * the program know if the event type being handled is one it wants to get more
@@ -765,13 +826,16 @@ EAPI int ecore_event_current_type_get(void);
 
 /**
  * @brief Return the current event type pointer handled.
+ *
+ * @since_tizen 2.3
+ *
  * @return The current event pointer being handled if inside a handler callback,
  * @c NULL otherwise.
  *
- * If the program is currently inside an Ecore event handler callback this
+ * @remark If the program is currently inside an Ecore event handler callback this
  * will return the pointer of the current event being processed.
  *
- * This is useful when certain Ecore modules such as Ecore_Evas "swallow"
+ * @remark This is useful when certain Ecore modules such as Ecore_Evas "swallow"
  * events and not all the original information is passed on. In special cases
  * this extra information may be useful or needed and using this call can let
  * the program access the event data if the type of the event is handled by
@@ -1367,33 +1431,35 @@ typedef Eina_Bool (*Ecore_Win32_Handle_Cb)(void *data, Ecore_Win32_Handler *wh);
 /**
  * @brief Adds a callback for activity on the given file descriptor.
  *
- * @param fd The file descriptor to watch.
- * @param flags To monitor it for reading use @c ECORE_FD_READ, for writing @c
+ * @since_tizen 2.3
+ *
+ * @param[in] fd The file descriptor to watch.
+ * @param[in] flags To monitor it for reading use @c ECORE_FD_READ, for writing @c
  * ECORE_FD_WRITE, and for error @c ECORE_FD_ERROR. Values by |(ored).
- * @param func The callback function.
- * @param data The data to pass to the callback.
- * @param buf_func The function to call to check if any data has been buffered
+ * @param[in] func The callback function.
+ * @param[in] data The data to pass to the callback.
+ * @param[in] buf_func The function to call to check if any data has been buffered
  * and already read from the fd. May be @c NULL.
- * @param buf_data The data to pass to the @p buf_func function.
+ * @param[in] buf_data The data to pass to the @p buf_func function.
  * @return A fd handler handle on success, @c NULL otherwise.
  *
- * @a func will be called during the execution of @ref Ecore_Main_Loop_Page
+ * @remark @a func will be called during the execution of @ref Ecore_Main_Loop_Page
  * when the file descriptor is available for reading, writing, or there has been
  * an error(depending on the given @a flags).
  *
- * When @a func returns ECORE_CALLBACK_CANCEL, it indicates that the
+ * @remark When @a func returns ECORE_CALLBACK_CANCEL, it indicates that the
  * handler should be marked for deletion (identical to calling @ref
  * ecore_main_fd_handler_del).
  *
  * @warning @a buf_func is meant for @b internal use only and should be @b
  * avoided.
  *
- * The return value of @a buf_func has a different meaning, when it returns
+ * @remark The return value of @a buf_func has a different meaning, when it returns
  * ECORE_CALLBACK_CANCEL, it indicates that @a func @b shouldn't be called, and
  * when it returns ECORE_CALLBACK_RENEW it indicates @a func should be called.
  * The return value of @a buf_func will not cause the FD handler to be deleted.
  *
- * @a buf_func is called during event loop handling to check if data that has
+ * @remark @a buf_func is called during event loop handling to check if data that has
  * been read from the file descriptor is in a buffer and is available to read.
  * Some systems, notably xlib, handle their own buffering, and would otherwise
  * not work with select(). These systems should use a @a buf_func. This is a
@@ -1407,17 +1473,19 @@ EAPI Ecore_Fd_Handler *ecore_main_fd_handler_add(int fd, Ecore_Fd_Handler_Flags 
 /**
  * @brief Adds a callback for activity on the given file descriptor.
  *
- * @param fd The file descriptor to watch.
- * @param flags To monitor it for reading use @c ECORE_FD_READ, for writing @c
+ * @since_tizen 2.3
+ *
+ * @param[in] fd The file descriptor to watch.
+ * @param[in] flags To monitor it for reading use @c ECORE_FD_READ, for writing @c
  * ECORE_FD_WRITE, and for error @c ECORE_FD_ERROR. Values by |(ored).
- * @param func The callback function.
- * @param data The data to pass to the callback.
- * @param buf_func The function to call to check if any data has been buffered
+ * @param[in] func The callback function.
+ * @param[in] data The data to pass to the callback.
+ * @param[in] buf_func The function to call to check if any data has been buffered
  * and already read from the fd. May be @c NULL.
- * @param buf_data The data to pass to the @p buf_func function.
+ * @param[in] buf_data The data to pass to the @p buf_func function.
  * @return A fd handler handle on success, @c NULL otherwise.
  *
- * This function is identical to ecore_main_fd_handler_add, except that it supports regular files.
+ * @remark This function is identical to ecore_main_fd_handler_add, except that it supports regular files.
  * @warning This function should ONLY be called with ECORE_FD_ERROR, otherwise it will call the fd
  * handler constantly.
  * @warning Do not use this function unless you know what you are doing.
@@ -1429,23 +1497,28 @@ EAPI Ecore_Fd_Handler *ecore_main_fd_handler_file_add(int fd, Ecore_Fd_Handler_F
 /**
  * @brief Set the prepare callback with data for a given #Ecore_Fd_Handler
  *
- * @param fd_handler The fd handler
- * @param func The prep function
- * @param data The data to pass to the prep function
+ * @since_tizen 2.3
  *
- * This function will be called prior to any fd handler's callback function
+ * @param[in] fd_handler The fd handler
+ * @param[in] func The prep function
+ * @param[in] data The data to pass to the prep function
+ *
+ * @remark This function will be called prior to any fd handler's callback function
  * (even the other fd handlers), before entering the main loop select function.
  *
- * @note Once a prepare callback is set for a fd handler, it cannot be changed.
+ * @remark Once a prepare callback is set for a fd handler, it cannot be changed.
  * You need to delete the fd handler and create a new one, to set another
  * callback.
- * @note You probably don't need this function. It is only necessary for very
+ * @remark You probably don't need this function. It is only necessary for very
  * uncommon cases that need special behavior.
  */
 EAPI void ecore_main_fd_handler_prepare_callback_set(Ecore_Fd_Handler *fd_handler, Ecore_Fd_Prep_Cb func, const void *data);
 /**
  * @brief Marks an FD handler for deletion.
- * @param fd_handler The FD handler.
+ *
+ * @since_tizen 2.3
+ *
+ * @param[in] fd_handler The FD handler.
  * @return The data pointer set using @ref ecore_main_fd_handler_add, for
  * @a fd_handler on success, @c NULL otherwise.
  * This function marks an fd handler to be deleted during an iteration of the
@@ -1459,14 +1532,20 @@ EAPI void ecore_main_fd_handler_prepare_callback_set(Ecore_Fd_Handler *fd_handle
 EAPI void *ecore_main_fd_handler_del(Ecore_Fd_Handler *fd_handler);
 /**
  * @brief Retrieves the file descriptor that the given handler is handling.
- * @param fd_handler The given FD handler.
+ *
+ * @since_tizen 2.3
+ *
+ * @param[in] fd_handler The given FD handler.
  * @return The file descriptor the handler is watching.
  */
 EAPI int ecore_main_fd_handler_fd_get(Ecore_Fd_Handler *fd_handler);
 /**
  * @brief Gets which flags are active on an FD handler.
- * @param fd_handler The given FD handler.
- * @param flags The flags, @c ECORE_FD_READ, @c ECORE_FD_WRITE or
+ *
+ * @since_tizen 2.3
+ *
+ * @param[in] fd_handler The given FD handler.
+ * @param[in] flags The flags, @c ECORE_FD_READ, @c ECORE_FD_WRITE or
  * @c ECORE_FD_ERROR to query.
  * @return @c EINA_TRUE if any of the given flags are active, @c EINA_FALSE
  * otherwise.
@@ -1474,8 +1553,11 @@ EAPI int ecore_main_fd_handler_fd_get(Ecore_Fd_Handler *fd_handler);
 EAPI Eina_Bool ecore_main_fd_handler_active_get(Ecore_Fd_Handler *fd_handler, Ecore_Fd_Handler_Flags flags);
 /**
  * @brief Set what active streams the given FD handler should be monitoring.
- * @param fd_handler The given FD handler.
- * @param flags The flags to be watching.
+ *
+ * @since_tizen 2.3
+ *
+ * @param[in] fd_handler The given FD handler.
+ * @param[in] flags The flags to be watching.
  */
 EAPI void ecore_main_fd_handler_active_set(Ecore_Fd_Handler *fd_handler, Ecore_Fd_Handler_Flags flags);
 
@@ -1510,9 +1592,11 @@ EAPI void *ecore_main_win32_handler_del(Ecore_Win32_Handler *win32_handler);
  */
 
 /**
- * Retrieves the current system time as a floating point value in seconds.
+ * @brief Retrieves the current system time as a floating point value in seconds.
  *
- * This uses a monotonic clock and thus never goes back in time while
+ * @since_tizen 2.3
+ *
+ * @remark This uses a monotonic clock and thus never goes back in time while
  * machine is live (even if user changes time or timezone changes,
  * however it may be reset whenever the machine is restarted).
  *
@@ -1527,7 +1611,9 @@ EAPI void *ecore_main_win32_handler_del(Ecore_Win32_Handler *win32_handler);
 EAPI double ecore_time_get(void);
 
 /**
- * Retrieves the current UNIX time as a floating point value in seconds.
+ * @brief Retrieves the current UNIX time as a floating point value in seconds.
+ *
+ * @since_tizen 2.3
  *
  * @see ecore_time_get().
  * @see ecore_loop_time_get().
@@ -1537,10 +1623,12 @@ EAPI double ecore_time_get(void);
 EAPI double ecore_time_unix_get(void);
 
 /**
- * Retrieves the time at which the last loop stopped waiting for timeouts or
+ * @brief Retrieves the time at which the last loop stopped waiting for timeouts or
  * events.
  *
- * This gets the time that the main loop ceased waiting for timouts and/or
+ * @since_tizen 2.3
+ *
+ * @remark This gets the time that the main loop ceased waiting for timouts and/or
  * events to come in or for signals or any other interrupt source. This should
  * be considered a reference point for all time based activity that should
  * calculate its timepoint from the return of ecore_loop_time_get(). Use this
@@ -1549,7 +1637,7 @@ EAPI double ecore_time_unix_get(void);
  * other times obtained on this run. If you need absolute time references, use
  * ecore_time_unix_get() instead.
  *
- * This function can be called before any loop has ever been run, but either
+ * @remark This function can be called before any loop has ever been run, but either
  * ecore_init() or ecore_time_get() must have been called once.
  *
  * @return The number of seconds. Start time is not defined (it may be
@@ -1692,37 +1780,39 @@ typedef void (*Ecore_Thread_Cb)(void *data, Ecore_Thread *thread);
 typedef void (*Ecore_Thread_Notify_Cb)(void *data, Ecore_Thread *thread, void *msg_data);
 
 /**
- * Schedule a task to run in a parallel thread to avoid locking the main loop
+ * @brief Schedule a task to run in a parallel thread to avoid locking the main loop
  *
- * @param func_blocking The function that should run in another thread.
- * @param func_end Function to call from main loop when @p func_blocking
+ * @since_tizen 2.3
+ *
+ * @param[in] func_blocking The function that should run in another thread.
+ * @param[in] func_end Function to call from main loop when @p func_blocking
  * completes its task successfully (may be NULL)
- * @param func_cancel Function to call from main loop if the thread running
+ * @param[in] func_cancel Function to call from main loop if the thread running
  * @p func_blocking is cancelled or fails to start (may be NULL)
- * @param data User context data to pass to all callbacks.
+ * @param[in] data User context data to pass to all callbacks.
  * @return A new thread handler, or @c NULL on failure.
  *
- * This function will try to create a new thread to run @p func_blocking in,
+ * @remark This function will try to create a new thread to run @p func_blocking in,
  * or if the maximum number of concurrent threads has been reached, will
  * add it to the pending list, where it will wait until a thread becomes
  * available. The return value will be an ::Ecore_Thread handle that can
  * be used to cancel the thread before its completion.
  *
- * @note This function should always return immediately, but in the rare
+ * @remark This function should always return immediately, but in the rare
  * case that Ecore is built with no thread support, @p func_blocking will
  * be called here, actually blocking the main loop.
  *
- * Once a thread becomes available, @p func_blocking will be run in it until
+ * @remark Once a thread becomes available, @p func_blocking will be run in it until
  * it finishes, then @p func_end is called from the thread containing the
  * main loop to inform the user of its completion. While in @p func_blocking,
  * no functions from the EFL can be used, except for those from Eina that are
  * marked to be thread-safe. Even for the latter, caution needs to be taken
  * if the data is shared across several threads.
  *
- * @p func_end will be called from the main thread when @p func_blocking ends,
+ * @remark @p func_end will be called from the main thread when @p func_blocking ends,
  * so here it's safe to use anything from the EFL freely.
  *
- * The thread can also be cancelled before its completion calling
+ * @remark The thread can also be cancelled before its completion calling
  *ecore_thread_cancel(), either from the main thread or @p func_blocking.
  * In this case, @p func_cancel will be called, also from the main thread
  * to inform of this happening. If the thread could not be created, this
@@ -1730,10 +1820,10 @@ typedef void (*Ecore_Thread_Notify_Cb)(void *data, Ecore_Thread *thread, void *m
  * also safe to call any EFL function here, as it will be running in the
  * main thread.
  *
- * Inside @p func_blocking, it's possible to call ecore_thread_reschedule()
+ * @remark Inside @p func_blocking, it's possible to call ecore_thread_reschedule()
  * to tell Ecore that this function should be called again.
  *
- * Be aware that no assumptions can be made about the order in which the
+ * @remark Be aware that no assumptions can be made about the order in which the
  * @p func_end callbacks for each task will be called. Once the function is
  * running in a different thread, it's the OS that will handle its running
  * schedule, and different functions may take longer to finish than others.
@@ -1751,27 +1841,29 @@ typedef void (*Ecore_Thread_Notify_Cb)(void *data, Ecore_Thread *thread, void *m
 EAPI Ecore_Thread *ecore_thread_run(Ecore_Thread_Cb func_blocking, Ecore_Thread_Cb func_end, Ecore_Thread_Cb func_cancel, const void *data);
 
 /**
- * Launch a thread to run a task that can talk back to the main thread
+ * @brief Launch a thread to run a task that can talk back to the main thread
  *
- * @param func_heavy The function that should run in another thread.
- * @param func_notify Function that receives the data sent from the thread
- * @param func_end Function to call from main loop when @p func_heavy
+ * @since_tizen 2.3
+ *
+ * @param[in] func_heavy The function that should run in another thread.
+ * @param[in] func_notify Function that receives the data sent from the thread
+ * @param[in] func_end Function to call from main loop when @p func_heavy
  * completes its task successfully
- * @param func_cancel Function to call from main loop if the thread running
+ * @param[in] func_cancel Function to call from main loop if the thread running
  * @p func_heavy is cancelled or fails to start
- * @param data User context data to pass to all callback.
- * @param try_no_queue If you want to run outside of the thread pool.
+ * @param[in] data User context data to pass to all callback.
+ * @param[in] try_no_queue If you want to run outside of the thread pool.
  * @return A new thread handler, or @c NULL on failure.
  *
- * See ecore_thread_run() for a general description of this function.
+ * @remark See ecore_thread_run() for a general description of this function.
  *
- * The difference with the above is that ecore_thread_run() is meant for
+ * @remark The difference with the above is that ecore_thread_run() is meant for
  * tasks that don't need to communicate anything until they finish, while
  * this function is provided with a new callback, @p func_notify, that will
  * be called from the main thread for every message sent from @p func_heavy
  * with ecore_thread_feedback().
  *
- * Like ecore_thread_run(), a new thread will be launched to run
+ * @remark Like ecore_thread_run(), a new thread will be launched to run
  * @p func_heavy unless the maximum number of simultaneous threads has been
  * reached, in which case the function will be scheduled to run whenever a
  * running task ends and a thread becomes free. But if @p try_no_queue is
@@ -1779,7 +1871,7 @@ EAPI Ecore_Thread *ecore_thread_run(Ecore_Thread_Cb func_blocking, Ecore_Thread_
  * the task. If it fails, it will revert to the normal behaviour of using a
  * thread from the pool as if @p try_no_queue had not been set.
  *
- * Keep in mind that Ecore handles the thread pool based on the number of
+ * @remark Keep in mind that Ecore handles the thread pool based on the number of
  * CPUs available, but running a thread outside of the pool doesn't count for
  * this, so having too many of them may have drastic effects over the
  * program's performance.
@@ -1795,20 +1887,22 @@ EAPI Ecore_Thread *ecore_thread_feedback_run(Ecore_Thread_Cb func_heavy, Ecore_T
                                              const void *data, Eina_Bool try_no_queue);
 
 /**
- * Cancel a running thread.
+ * @brief Cancel a running thread.
  *
- * @param thread The thread to cancel.
+ * @since_tizen 2.3
+ *
+ * @param[in] thread The thread to cancel.
  * @return Will return @c EINA_TRUE if the thread has been cancelled,
  *         @c EINA_FALSE if it is pending.
  *
- * This function can be called both in the main loop or in the running thread.
+ * @remark This function can be called both in the main loop or in the running thread.
  *
- * This function cancels a running thread. If @p thread can be immediately
+ * @remark This function cancels a running thread. If @p thread can be immediately
  * cancelled (it's still pending execution after creation or rescheduling),
  * then the @c cancel callback will be called, @p thread will be freed and
  * the function will return @c EINA_TRUE.
  *
- * If the thread is already running, then this function returns @c EINA_FALSE
+ * @remark If the thread is already running, then this function returns @c EINA_FALSE
  * after marking the @p thread as pending cancellation. For the thread to
  * actually be terminated, it needs to return from the user function back
  * into Ecore control. This can happen in several ways:
@@ -1819,12 +1913,12 @@ EAPI Ecore_Thread *ecore_thread_feedback_run(Ecore_Thread_Cb func_heavy, Ecore_T
  * @li The function is prepared to leave early by checking if
  * ecore_thread_check() returns @c EINA_TRUE.
  *
- * The user function can cancel itself by calling ecore_thread_cancel(), but
+ * @remark The user function can cancel itself by calling ecore_thread_cancel(), but
  * it should always use the ::Ecore_Thread handle passed to it and never
  * share it with the main loop thread by means of shared user data or any
  * other way.
  *
- * @p thread will be freed and should not be used again if this function
+ * @remark @p thread will be freed and should not be used again if this function
  * returns @c EINA_TRUE or after the @c func_cancel callback returns.
  *
  * @see ecore_thread_check()
@@ -1842,15 +1936,17 @@ EAPI Eina_Bool ecore_thread_cancel(Ecore_Thread *thread);
 EAPI Eina_Bool ecore_thread_wait(Ecore_Thread *thread, double wait);
 
 /**
- * Checks if a thread is pending cancellation
+ * @brief Checks if a thread is pending cancellation
  *
- * @param thread The thread to test.
+ * @since_tizen 2.3
+ *
+ * @param[in] thread The thread to test.
  * @return @c EINA_TRUE if the thread is pending cancellation,
  *         @c EINA_FALSE if it is not.
  *
- * This function can be called both in the main loop or in the running thread.
+ * @remark This function can be called both in the main loop or in the running thread.
  *
- * When ecore_thread_cancel() is called on an already running task, the
+ * @remark When ecore_thread_cancel() is called on an already running task, the
  * thread is marked as pending cancellation. This function returns @c EINA_TRUE
  * if this mark is set for the given @p thread and can be used from the
  * main loop thread to check if a still active thread has been cancelled,
@@ -1863,22 +1959,24 @@ EAPI Eina_Bool ecore_thread_wait(Ecore_Thread *thread, double wait);
 EAPI Eina_Bool ecore_thread_check(Ecore_Thread *thread);
 
 /**
- * Sends data from the worker thread to the main loop
+ * @brief Sends data from the worker thread to the main loop
  *
- * @param thread The current ::Ecore_Thread context to send data from
- * @param msg_data Data to be transmitted to the main loop
+ * @since_tizen 2.3
+ *
+ * @param[in] thread The current ::Ecore_Thread context to send data from
+ * @param[in] msg_data Data to be transmitted to the main loop
  * @return @c EINA_TRUE if @p msg_data was successfully sent to main loop,
  *         @c EINA_FALSE if anything goes wrong.
  *
- * You should use this function only in the @c func_heavy call.
+ * @remark You should use this function only in the @c func_heavy call.
  *
- * Only the address to @p msg_data will be sent and once this function
+ * @remark Only the address to @p msg_data will be sent and once this function
  * returns @c EINA_TRUE, the job running in the thread should never touch the
  * contents of it again. The data sent should be malloc()'ed or something
  * similar, as long as it's not memory local to the thread that risks being
  * overwritten or deleted once it goes out of scope or the thread finishes.
  *
- * Care must be taken that @p msg_data is properly freed in the @c func_notify
+ * @remark Care must be taken that @p msg_data is properly freed in the @c func_notify
  * callback set when creating the thread.
  *
  * @see ecore_thread_feedback_run()
@@ -1886,24 +1984,26 @@ EAPI Eina_Bool ecore_thread_check(Ecore_Thread *thread);
 EAPI Eina_Bool ecore_thread_feedback(Ecore_Thread *thread, const void *msg_data);
 
 /**
- * Asks for the function in the thread to be called again at a later time
+ * @brief Asks for the function in the thread to be called again at a later time
  *
- * @param thread The current ::Ecore_Thread context to rescheduled
+ * @since_tizen 2.3
+ *
+ * @param[in] thread The current ::Ecore_Thread context to rescheduled
  * @return @c EINA_TRUE if the task was successfully rescheduled,
  *         @c EINA_FALSE if anything goes wrong.
  *
- * This function should be called only from the same function represented
+ * @remark This function should be called only from the same function represented
  * by @p thread.
  *
- * Calling this function will mark the thread for a reschedule, so as soon
+ * @remark Calling this function will mark the thread for a reschedule, so as soon
  * as it returns, it will be added to the end of the list of pending tasks.
  * If no other tasks are waiting or there are sufficient threads available,
  * the rescheduled task will be launched again immediately.
  *
- * This should never return @c EINA_FALSE, unless it was called from the wrong
+ * @remark This should never return @c EINA_FALSE, unless it was called from the wrong
  * thread or with the wrong arguments.
  *
- * The @c func_end callback set when the thread is created will not be
+ * @remark The @c func_end callback set when the thread is created will not be
  * called until the function in the thread returns without being rescheduled.
  * Similarly, if the @p thread is cancelled, the reschedule will not take
  * effect.
@@ -1911,14 +2011,16 @@ EAPI Eina_Bool ecore_thread_feedback(Ecore_Thread *thread, const void *msg_data)
 EAPI Eina_Bool ecore_thread_reschedule(Ecore_Thread *thread);
 
 /**
- * Gets the number of active threads running jobs
+ * @brief Gets the number of active threads running jobs
+ *
+ * @since_tizen 2.3
  *
  * @return Number of active threads running jobs
  *
- * This returns the number of threads currently running jobs of any type
+ * @remark This returns the number of threads currently running jobs of any type
  * through the Ecore_Thread API.
  *
- * @note Jobs started through the ecore_thread_feedback_run() function with
+ * @remark Jobs started through the ecore_thread_feedback_run() function with
  * the @c try_no_queue parameter set to @c EINA_TRUE will not be accounted for
  * in the return of this function unless the thread creation fails and it
  * falls back to using one from the pool.
@@ -1926,47 +2028,55 @@ EAPI Eina_Bool ecore_thread_reschedule(Ecore_Thread *thread);
 EAPI int ecore_thread_active_get(void);
 
 /**
- * Gets the number of short jobs waiting for a thread to run
+ * @brief Gets the number of short jobs waiting for a thread to run
+ *
+ * @since_tizen 2.3
  *
  * @return Number of pending threads running "short" jobs
  *
- * This returns the number of tasks started with ecore_thread_run() that are
+ * @remark This returns the number of tasks started with ecore_thread_run() that are
  * pending, waiting for a thread to become available to run them.
  */
 EAPI int ecore_thread_pending_get(void);
 
 /**
- * Gets the number of feedback jobs waiting for a thread to run
+ * @brief Gets the number of feedback jobs waiting for a thread to run
+ *
+ * @since_tizen 2.3
  *
  * @return Number of pending threads running "feedback" jobs
  *
- * This returns the number of tasks started with ecore_thread_feedback_run()
+ * @remark This returns the number of tasks started with ecore_thread_feedback_run()
  * that are pending, waiting for a thread to become available to run them.
  */
 EAPI int ecore_thread_pending_feedback_get(void);
 
 /**
- * Gets the total number of pending jobs
+ * @brief Gets the total number of pending jobs
+ *
+ * @since_tizen 2.3
  *
  * @return Number of pending threads running jobs
  *
- * Same as the sum of ecore_thread_pending_get() and
+ * @remark Same as the sum of ecore_thread_pending_get() and
  *ecore_thread_pending_feedback_get().
  */
 EAPI int ecore_thread_pending_total_get(void);
 
 /**
- * Gets the maximum number of threads that can run simultaneously
+ * @brief Gets the maximum number of threads that can run simultaneously
+ *
+ * @since_tizen 2.3
  *
  * @return Max possible number of Ecore_Thread's running concurrently
  *
- * This returns the maximum number of Ecore_Thread's that may be running at
+ * @remark This returns the maximum number of Ecore_Thread's that may be running at
  * the same time. If this number is reached, new jobs started by either
  *ecore_thread_run() or ecore_thread_feedback_run() will be added to the
  * respective pending queue until one of the running threads finishes its
  * task and becomes available to run a new one.
  *
- * By default, this will be the number of available CPUs for the
+ * @remark By default, this will be the number of available CPUs for the
  * running program (as returned by eina_cpu_count()), or 1 if this value
  * could not be fetched.
  *
@@ -1976,11 +2086,13 @@ EAPI int ecore_thread_pending_total_get(void);
 EAPI int ecore_thread_max_get(void);
 
 /**
- * Sets the maximum number of threads allowed to run simultaneously
+ * @brief Sets the maximum number of threads allowed to run simultaneously
  *
- * @param num The new maximum
+ * @since_tizen 2.3
  *
- * This sets a new value for the maximum number of concurrently running
+ * @param[in] num The new maximum
+ *
+ * @remark This sets a new value for the maximum number of concurrently running
  * Ecore_Thread's. It @b must an integer between 1 and (16 * @c x), where @c x
  * is the number for CPUs available.
  *
@@ -1990,9 +2102,11 @@ EAPI int ecore_thread_max_get(void);
 EAPI void ecore_thread_max_set(int num);
 
 /**
- * Resets the maximum number of concurrently running threads to the default
+ * @brief Resets the maximum number of concurrently running threads to the default
  *
- * This resets the value returned by ecore_thread_max_get() back to its
+ * @since_tizen 2.3
+ *
+ * @remark This resets the value returned by ecore_thread_max_get() back to its
  * default.
  *
  * @see ecore_thread_max_get()
@@ -2001,43 +2115,47 @@ EAPI void ecore_thread_max_set(int num);
 EAPI void ecore_thread_max_reset(void);
 
 /**
- * Gets the number of threads available for running tasks
+ * @brief Gets the number of threads available for running tasks
+ *
+ * @since_tizen 2.3
  *
  * @return The number of available threads
  *
- * Same as doing ecore_thread_max_get() - ecore_thread_active_get().
+ * @remark Same as doing ecore_thread_max_get() - ecore_thread_active_get().
  *
- * This function may return a negative number only in the case the user
+ * @remark This function may return a negative number only in the case the user
  * changed the maximum number of running threads while other tasks are
  * running.
  */
 EAPI int ecore_thread_available_get(void);
 
 /**
- * Adds some data to a hash local to the thread
+ * @brief Adds some data to a hash local to the thread
  *
- * @param thread The thread context the data belongs to
- * @param key The name under which the data will be stored
- * @param value The data to add
- * @param cb Function to free the data when removed from the hash
- * @param direct If true, this will not copy the key string (like
+ * @since_tizen 2.3
+ *
+ * @param[in] thread The thread context the data belongs to
+ * @param[in] key The name under which the data will be stored
+ * @param[in] value The data to add
+ * @param[in] cb Function to free the data when removed from the hash
+ * @param[in] direct If true, this will not copy the key string (like
  * eina_hash_direct_add())
  * @return @c EINA_TRUE on success, @c EINA_FALSE on failure.
  *
- * Ecore Thread has a mechanism to share data across several worker functions
+ * @remark Ecore Thread has a mechanism to share data across several worker functions
  * that run on the same system thread. That is, the data is stored per
  * thread and for a worker function to have access to it, it must be run
  * by the same thread that stored the data.
  *
- * When there are no more workers pending, the thread will be destroyed
+ * @remark When there are no more workers pending, the thread will be destroyed
  * along with the internal hash and any data left in it will be freed with
  * the @p cb function given.
  *
- * This set of functions is useful to share things around several instances
+ * @remark This set of functions is useful to share things around several instances
  * of a function when that thing is costly to create and can be reused, but
  * may only be used by one function at a time.
  *
- * For example, if you have a program doing requisitions to a database,
+ * @remark For example, if you have a program doing requisitions to a database,
  * these requisitions can be done in threads so that waiting for the
  * database to respond doesn't block the UI. Each of these threads will
  * run a function, and each function will be dependent on a connection to
@@ -2057,7 +2175,7 @@ EAPI int ecore_thread_available_get(void);
  * create one and add it to the pool. When no more connections are needed,
  * they are all closed.
  *
- * The last option is the most efficient, but it requires a lot of work to
+ * @remark The last option is the most efficient, but it requires a lot of work to
  * implement properly. Using thread local data helps to achieve the same
  * result while avoiding doing all the tracking work on your code. The way
  * to use it would be, at the worker function, to ask for the connection
@@ -2070,17 +2188,17 @@ EAPI int ecore_thread_available_get(void);
  * destroyed and the callback used when saving the connection will be called
  * to close it.
  *
- * This function adds the data @p value to the thread data under the given
+ * @remark This function adds the data @p value to the thread data under the given
  * @p key.
  * No other value in the hash may have the same @p key. If you need to
  * change the value under a @p key, or you don't know if one exists already,
  * you can use ecore_thread_local_data_set().
  *
- * Neither @p key nor @p value may be @c NULL and @p key will be copied in the
+ * @remark Neither @p key nor @p value may be @c NULL and @p key will be copied in the
  * hash, unless @p direct is set, in which case the string used should not
  * be freed until the data is removed from the hash.
  *
- * The @p cb function will be called when the data in the hash needs to be
+ * @remark The @p cb function will be called when the data in the hash needs to be
  * freed, be it because it got deleted with ecore_thread_local_data_del() or
  * because @p thread was terminated and the hash destroyed. This parameter
  * may be NULL, in which case @p value needs to be manually freed after
@@ -2088,7 +2206,7 @@ EAPI int ecore_thread_available_get(void);
  * ecore_thread_local_data_set(), but it's very unlikely that this is what
  * you want.
  *
- * This function, and all of the others in the @c ecore_thread_local_data
+ * @remark This function, and all of the others in the @c ecore_thread_local_data
  * family of functions, can only be called within the worker function running
  * in the thread. Do not call them from the main loop or from a thread
  * other than the one represented by @p thread.
@@ -2101,24 +2219,26 @@ EAPI Eina_Bool ecore_thread_local_data_add(Ecore_Thread *thread, const char *key
                                            Eina_Free_Cb cb, Eina_Bool direct);
 
 /**
- * Sets some data in the hash local to the given thread
+ * @brief Sets some data in the hash local to the given thread
  *
- * @param thread The thread context the data belongs to
- * @param key The name under which the data will be stored
- * @param value The data to add
- * @param cb Function to free the data when removed from the hash
+ * @since_tizen 2.3
  *
- * If no data exists in the hash under the @p key, this function adds
+ * @param[in] thread The thread context the data belongs to
+ * @param[in] key The name under which the data will be stored
+ * @param[in] value The data to add
+ * @param[in] cb Function to free the data when removed from the hash
+ *
+ * @remark If no data exists in the hash under the @p key, this function adds
  * @p value in the hash under the given @p key and returns NULL.
  * The key itself is copied.
  *
- * If the hash already contains something under @p key, the data will be
+ * @remark If the hash already contains something under @p key, the data will be
  * replaced by @p value and the old value will be returned.
  *
- * @c NULL will also be returned if either @p key or @p value are @c NULL, or
+ * @remark @c NULL will also be returned if either @p key or @p value are @c NULL, or
  * if an error occurred.
  *
- * This function, and all of the others in the @c ecore_thread_local_data
+ * @remark This function, and all of the others in the @c ecore_thread_local_data
  * family of functions, can only be called within the worker function running
  * in the thread. Do not call them from the main loop or from a thread
  * other than the one represented by @p thread.
@@ -2130,15 +2250,17 @@ EAPI Eina_Bool ecore_thread_local_data_add(Ecore_Thread *thread, const char *key
 EAPI void *ecore_thread_local_data_set(Ecore_Thread *thread, const char *key, void *value, Eina_Free_Cb cb);
 
 /**
- * Gets data stored in the hash local to the given thread
+ * @brief Gets data stored in the hash local to the given thread
  *
- * @param thread The thread context the data belongs to
- * @param key The name under which the data is stored
+ * @since_tizen 2.3
+ *
+ * @param[in] thread The thread context the data belongs to
+ * @param[in] key The name under which the data is stored
  * @return The value under the given key, or @c NULL on error.
  *
- * Finds and return the data stored in the shared hash under the key @p key.
+ * @remark Finds and return the data stored in the shared hash under the key @p key.
  *
- * This function, and all of the others in the @c ecore_thread_local_data
+ * @remark This function, and all of the others in the @c ecore_thread_local_data
  * family of functions, can only be called within the worker function running
  * in the thread. Do not call them from the main loop or from a thread
  * other than the one represented by @p thread.
@@ -2149,23 +2271,25 @@ EAPI void *ecore_thread_local_data_set(Ecore_Thread *thread, const char *key, vo
 EAPI void *ecore_thread_local_data_find(Ecore_Thread *thread, const char *key);
 
 /**
- * Deletes from the thread's hash the data corresponding to the given key
+ * @brief Deletes from the thread's hash the data corresponding to the given key
  *
- * @param thread The thread context the data belongs to
- * @param key The name under which the data is stored
+ * @since_tizen 2.3
+ *
+ * @param[in] thread The thread context the data belongs to
+ * @param[in] key The name under which the data is stored
  * @return @c EINA_TRUE on success, @c EINA_FALSE on failure.
  *
- * If there's any data stored associated with @p key in the global hash,
+ * @remark If there's any data stored associated with @p key in the global hash,
  * this function will remove it from it and return @c EINA_TRUE. If no data
  * exists or an error occurs, it returns @c EINA_FALSE.
  *
- * If the data was added to the hash with a free function, then it will
+ * @remark If the data was added to the hash with a free function, then it will
  * also be freed after removing it from the hash, otherwise it requires
  * to be manually freed by the user, which means that if no other reference
  * to it exists before calling this function, it will result in a memory
  * leak.
  *
- * This function, and all of the others in the @c ecore_thread_local_data
+ * @remark This function, and all of the others in the @c ecore_thread_local_data
  * family of functions, can only be called within the worker function running
  * in the thread. Do not call them from the main loop or from a thread
  * other than the one represented by @p thread.
@@ -2175,36 +2299,38 @@ EAPI void *ecore_thread_local_data_find(Ecore_Thread *thread, const char *key);
 EAPI Eina_Bool ecore_thread_local_data_del(Ecore_Thread *thread, const char *key);
 
 /**
- * Adds some data to a hash shared by all threads
+ * @brief Adds some data to a hash shared by all threads
  *
- * @param key The name under which the data will be stored
- * @param value The data to add
- * @param cb Function to free the data when removed from the hash
- * @param direct If true, this will not copy the key string (like
+ * @since_tizen 2.3
+ *
+ * @param[in] key The name under which the data will be stored
+ * @param[in] value The data to add
+ * @param[in] cb Function to free the data when removed from the hash
+ * @param[in] direct If true, this will not copy the key string (like
  * eina_hash_direct_add())
  * @return @c EINA_TRUE on success, @c EINA_FALSE on failure.
  *
- * Ecore Thread keeps a hash that can be used to share data across several
+ * @remark Ecore Thread keeps a hash that can be used to share data across several
  * threads, including the main loop one, without having to manually handle
  * mutexes to do so safely.
  *
- * This function adds the data @p value to this hash under the given @p key.
+ * @remark This function adds the data @p value to this hash under the given @p key.
  * No other value in the hash may have the same @p key. If you need to
  * change the value under a @p key, or you don't know if one exists already,
  * you can use ecore_thread_global_data_set().
  *
- * Neither @p key nor @p value may be @c NULL and @p key will be copied in the
+ * @remark Neither @p key nor @p value may be @c NULL and @p key will be copied in the
  * hash, unless @p direct is set, in which case the string used should not
  * be freed until the data is removed from the hash.
  *
- * The @p cb function will be called when the data in the hash needs to be
+ * @remark The @p cb function will be called when the data in the hash needs to be
  * freed, be it because it got deleted with ecore_thread_global_data_del() or
  * because Ecore Thread was shut down and the hash destroyed. This parameter
  * may be NULL, in which case @p value needs to be manually freed after
  * removing it from the hash with either ecore_thread_global_data_del() or
  *ecore_thread_global_data_set().
  *
- * Manually freeing any data that was added to the hash with a @p cb function
+ * @remark Manually freeing any data that was added to the hash with a @p cb function
  * is likely to produce a segmentation fault, or any other strange
  * happenings, later on in the program.
  *
@@ -2215,20 +2341,22 @@ EAPI Eina_Bool ecore_thread_local_data_del(Ecore_Thread *thread, const char *key
 EAPI Eina_Bool ecore_thread_global_data_add(const char *key, void *value, Eina_Free_Cb cb, Eina_Bool direct);
 
 /**
- * Sets some data in the hash shared by all threads
+ * @brief Sets some data in the hash shared by all threads
  *
- * @param key The name under which the data will be stored
- * @param value The data to add
- * @param cb Function to free the data when removed from the hash
+ * @since_tizen 2.3
  *
- * If no data exists in the hash under the @p key, this function adds
+ * @param[in] key The name under which the data will be stored
+ * @param[in] value The data to add
+ * @param[in] cb Function to free the data when removed from the hash
+ *
+ * @remark If no data exists in the hash under the @p key, this function adds
  * @p value in the hash under the given @p key and returns NULL.
  * The key itself is copied.
  *
- * If the hash already contains something under @p key, the data will be
+ * @remark If the hash already contains something under @p key, the data will be
  * replaced by @p value and the old value will be returned.
  *
- * @c NULL will also be returned if either @p key or @p value are @c NULL, or
+ * @remark @c NULL will also be returned if either @p key or @p value are @c NULL, or
  * if an error occurred.
  *
  * @see ecore_thread_global_data_add()
@@ -2238,14 +2366,16 @@ EAPI Eina_Bool ecore_thread_global_data_add(const char *key, void *value, Eina_F
 EAPI void *ecore_thread_global_data_set(const char *key, void *value, Eina_Free_Cb cb);
 
 /**
- * Gets data stored in the hash shared by all threads
+ * @brief Gets data stored in the hash shared by all threads
  *
- * @param key The name under which the data is stored
+ * @since_tizen 2.3
+ *
+ * @param[in] key The name under which the data is stored
  * @return The value under the given key, or @c NULL on error.
  *
- * Finds and return the data stored in the shared hash under the key @p key.
+ * @remark Finds and return the data stored in the shared hash under the key @p key.
  *
- * Keep in mind that the data returned may be used by more than one thread
+ * @remark Keep in mind that the data returned may be used by more than one thread
  * at the same time and no reference counting is done on it by Ecore.
  * Freeing the data or modifying its contents may require additional
  * precautions to be considered, depending on the application's design.
@@ -2256,22 +2386,24 @@ EAPI void *ecore_thread_global_data_set(const char *key, void *value, Eina_Free_
 EAPI void *ecore_thread_global_data_find(const char *key);
 
 /**
- * Deletes from the shared hash the data corresponding to the given key
+ * @brief Deletes from the shared hash the data corresponding to the given key
  *
- * @param key The name under which the data is stored
+ * @since_tizen 2.3
+ *
+ * @param[in] key The name under which the data is stored
  * @return @c EINA_TRUE on success, @c EINA_FALSE on failure.
  *
- * If there's any data stored associated with @p key in the global hash,
+ * @remark If there's any data stored associated with @p key in the global hash,
  * this function will remove it from it and return @c EINA_TRUE. If no data
  * exists or an error occurs, it returns @c EINA_FALSE.
  *
- * If the data was added to the hash with a free function, then it will
+ * @remark If the data was added to the hash with a free function, then it will
  * also be freed after removing it from the hash, otherwise it requires
  * to be manually freed by the user, which means that if no other reference
  * to it exists before calling this function, it will result in a memory
  * leak.
  *
- * Note, also, that freeing data that other threads may be using will result
+ * @remark Note, also, that freeing data that other threads may be using will result
  * in a crash, so appropriate care must be taken by the application when
  * that possibility exists.
  *
@@ -2280,25 +2412,27 @@ EAPI void *ecore_thread_global_data_find(const char *key);
 EAPI Eina_Bool ecore_thread_global_data_del(const char *key);
 
 /**
- * Gets data stored in the shared hash, or wait for it if it doesn't exist
+ * @brief Gets data stored in the shared hash, or wait for it if it doesn't exist
  *
- * @param key The name under which the data is stored
- * @param seconds The amount of time in seconds to wait for the data.
+ * @since_tizen 2.3
+ *
+ * @param[in] key The name under which the data is stored
+ * @param[in] seconds The amount of time in seconds to wait for the data.
  * @return The value under the given key, or @c NULL on error.
  *
- * Finds and return the data stored in the shared hash under the key @p key.
+ * @remark Finds and return the data stored in the shared hash under the key @p key.
  *
- * If there's nothing in the hash under the given @p key, the function
+ * @remark If there's nothing in the hash under the given @p key, the function
  * will block and wait up to @p seconds seconds for some other thread to
  * add it with either ecore_thread_global_data_add() or
  * ecore_thread_global_data_set(). If after waiting there's still no data
  * to get, @c NULL will be returned.
  *
- * If @p seconds is 0, then no waiting will happen and this function works
+ * @remark If @p seconds is 0, then no waiting will happen and this function works
  * like ecore_thread_global_data_find(). If @p seconds is less than 0, then
  * the function will wait indefinitely.
  *
- * Keep in mind that the data returned may be used by more than one thread
+ * @remark Keep in mind that the data returned may be used by more than one thread
  * at the same time and no reference counting is done on it by Ecore.
  * Freeing the data or modifying its contents may require additional
  * precautions to be considered, depending on the application's design.
@@ -2342,13 +2476,15 @@ typedef struct _Ecore_Pipe Ecore_Pipe; /**< A handle for pipes */
 typedef void (*Ecore_Pipe_Cb)(void *data, void *buffer, unsigned int nbyte);
 
 /**
- * Create two file descriptors (sockets on Windows). Add
+ * @brief Create two file descriptors (sockets on Windows). Add
  * a callback that will be called when the file descriptor that
  * is listened receives data. An event is also put in the event
  * queue when data is received.
  *
- * @param handler The handler called when data is received.
- * @param data    Data to pass to @p handler when it is called.
+ * @since_tizen 2.3
+ *
+ * @param[in] handler The handler called when data is received.
+ * @param[in] data    Data to pass to @p handler when it is called.
  * @return        A newly created Ecore_Pipe object if successful.
  *                @c NULL otherwise.
  */
@@ -2376,34 +2512,42 @@ EAPI Ecore_Pipe *ecore_pipe_full_add(Ecore_Pipe_Cb handler,
                                      Eina_Bool write_survive_fork);
 
 /**
- * Free an Ecore_Pipe object created with ecore_pipe_add().
+ * @brief Free an Ecore_Pipe object created with ecore_pipe_add().
  *
- * @param p The Ecore_Pipe object to be freed.
+ * @since_tizen 2.3
+ *
+ * @param[in] p The Ecore_Pipe object to be freed.
  * @return The pointer to the private data
  */
 EAPI void *ecore_pipe_del(Ecore_Pipe *p);
 
 /**
- * Write on the file descriptor the data passed as parameter.
+ * @brief Write on the file descriptor the data passed as parameter.
  *
- * @param p      The Ecore_Pipe object.
- * @param buffer The data to write into the pipe.
- * @param nbytes The size of the @p buffer in bytes
+ * @since_tizen 2.3
+ *
+ * @param[in] p      The Ecore_Pipe object.
+ * @param[in] buffer The data to write into the pipe.
+ * @param[in] nbytes The size of the @p buffer in bytes
  * @return       @c EINA_TRUE on a successful write, @c EINA_FALSE on error.
  */
 EAPI Eina_Bool ecore_pipe_write(Ecore_Pipe *p, const void *buffer, unsigned int nbytes);
 
 /**
- * Close the write end of an Ecore_Pipe object created with ecore_pipe_add().
+ * @brief Close the write end of an Ecore_Pipe object created with ecore_pipe_add().
  *
- * @param p The Ecore_Pipe object.
+ * @since_tizen 2.3
+ *
+ * @param[in] p The Ecore_Pipe object.
  */
 EAPI void ecore_pipe_write_close(Ecore_Pipe *p);
 
 /**
- * Close the read end of an Ecore_Pipe object created with ecore_pipe_add().
+ * @brief Close the read end of an Ecore_Pipe object created with ecore_pipe_add().
  *
- * @param p The Ecore_Pipe object.
+ * @since_tizen 2.3
+ *
+ * @param[in] p The Ecore_Pipe object.
  */
 EAPI void ecore_pipe_read_close(Ecore_Pipe *p);
 
@@ -2424,20 +2568,24 @@ EAPI int ecore_pipe_read_fd(Ecore_Pipe *p);
 EAPI int ecore_pipe_write_fd(Ecore_Pipe *p);
 
 /**
- * Start monitoring again the pipe for reading. See ecore_pipe_freeze() for
+ * @brief Start monitoring again the pipe for reading. See ecore_pipe_freeze() for
  * stopping the monitoring activity. This will not work if
  * ecore_pipe_read_close() was previously called on the same pipe.
  *
- * @param p The Ecore_Pipe object.
+ * @since_tizen 2.3
+ *
+ * @param[in] p The Ecore_Pipe object.
  * @since 1.1
  */
 EAPI void ecore_pipe_thaw(Ecore_Pipe *p);
 
 /**
- * Stop monitoring if necessary the pipe for reading. See ecore_pipe_thaw()
+ * @brief Stop monitoring if necessary the pipe for reading. See ecore_pipe_thaw()
  * for monitoring it again.
  *
- * @param p The Ecore_Pipe object.
+ * @since_tizen 2.3
+ *
+ * @param[in] p The Ecore_Pipe object.
  * @since 1.1
  */
 EAPI void ecore_pipe_freeze(Ecore_Pipe *p);
@@ -2445,13 +2593,15 @@ EAPI void ecore_pipe_freeze(Ecore_Pipe *p);
 /**
  * @brief Wait from another thread on the read side of a pipe.
  *
- * @param p The pipe to watch on.
- * @param message_count The minimal number of message to wait before exiting.
- * @param wait The amount of time in second to wait before exiting.
+ * @since_tizen 2.3
+ *
+ * @param[in] p The pipe to watch on.
+ * @param[in] message_count The minimal number of message to wait before exiting.
+ * @param[in] wait The amount of time in second to wait before exiting.
  * @return the number of message catched during that wait call.
  * @since 1.1
  *
- * Negative value for @p wait means infite wait.
+ * @remark Negative value for @p wait means infite wait.
  */
 EAPI int ecore_pipe_wait(Ecore_Pipe *p, int message_count, double wait);
 
@@ -2645,20 +2795,26 @@ typedef Eo    Ecore_Poller; /**< A handle for pollers */
 
 /**
  * @brief Sets the time(in seconds) between ticks for the given poller type.
- * @param type The poller type to adjust.
- * @param poll_time The time(in seconds) between ticks of the timer.
  *
- * This will adjust the time between ticks of the given timer type defined by
+ * @since_tizen 2.3
+ *
+ * @param[in] type The poller type to adjust.
+ * @param[in] poll_time The time(in seconds) between ticks of the timer.
+ *
+ * @remark This will adjust the time between ticks of the given timer type defined by
  * @p type to the time period defined by @p poll_time.
  */
 EAPI void ecore_poller_poll_interval_set(Ecore_Poller_Type type, double poll_time);
 
 /**
  * @brief Gets the time(in seconds) between ticks for the given poller type.
- * @param type The poller type to query.
+ *
+ * @since_tizen 2.3
+ *
+ * @param[in] type The poller type to query.
  * @return The time in seconds between ticks of the poller timer.
  *
- * This will get the time between ticks of the specified poller timer.
+ * @remark This will get the time between ticks of the specified poller timer.
  */
 EAPI double ecore_poller_poll_interval_get(Ecore_Poller_Type type);
 
@@ -2750,24 +2906,28 @@ typedef Eo Ecore_Animator; /**< A handle for animators */
 /**
  * @brief Set the animator call interval in seconds.
  *
- * @param frametime The time in seconds in between animator ticks.
+ * @since_tizen 2.3
  *
- * This function sets the time interval (in seconds) between animator ticks.
+ * @param[in] frametime The time in seconds in between animator ticks.
+ *
+ * @remark This function sets the time interval (in seconds) between animator ticks.
  * At every tick the callback of every existing animator will be called.
  *
  * @warning Too small a value may cause performance issues and too high a
  * value may cause your animation to seem "jerky".
  *
- * @note The default @p frametime value is 1/30th of a second.
+ * @remark The default @p frametime value is 1/30th of a second.
  */
 EAPI void ecore_animator_frametime_set(double frametime);
 
 /**
  * @brief Get the animator call interval in seconds.
  *
+ * @since_tizen 2.3
+ *
  * @return The time in second in between animator ticks.
  *
- * This function retrieves the time in seconds between animator ticks.
+ * @remark This function retrieves the time in seconds between animator ticks.
  *
  * @see ecore_animator_frametime_set()
  */
@@ -2777,17 +2937,19 @@ EAPI double ecore_animator_frametime_get(void);
  * @brief Maps an input position from 0.0 to 1.0 along a timeline to a
  * position in a different curve.
  *
- * @param pos The input position to map
- * @param map The mapping to use
- * @param v1 A parameter use by the mapping (pass 0.0 if not used)
- * @param v2 A parameter use by the mapping (pass 0.0 if not used)
+ * @since_tizen 2.3
+ *
+ * @param[in] pos The input position to map
+ * @param[in] map The mapping to use
+ * @param[in] v1 A parameter use by the mapping (pass 0.0 if not used)
+ * @param[in] v2 A parameter use by the mapping (pass 0.0 if not used)
  * @return The mapped value
  *
- * Takes an input position (0.0 to 1.0) and maps to a new position (normally
+ * @remark Takes an input position (0.0 to 1.0) and maps to a new position (normally
  * between 0.0 and 1.0, but it may go above/below 0.0 or 1.0 to show that it
  * has "overshot" the mark) using some interpolation (mapping) algorithm.
  *
- * This function useful to create non-linear animations. It offers a variety
+ * @remark This function useful to create non-linear animations. It offers a variety
  * of possible animation curves to be used:
  * @li ECORE_POS_MAP_LINEAR - Linear, returns @p pos
  * @li ECORE_POS_MAP_ACCELERATE - Start slow then speed up
@@ -2809,12 +2971,12 @@ EAPI double ecore_animator_frametime_get(void);
  * the ground at 1.0, and bounce v2 times, with decay factor of v1
  * @li ECORE_POS_MAP_SPRING - Start at 0.0 then "wobble" like a spring rest
  * position 1.0, and wobble v2 times, with decay factor of v1
- * @note When not listed v1 and v2 have no effect.
+ * @remark When not listed v1 and v2 have no effect.
  *
  * @image html ecore-pos-map.png
  * @image latex ecore-pos-map.eps width=\textwidth
  *
- * One way to use this would be:
+ * @remark One way to use this would be:
  * @code
  * double pos; // input position in a timeline from 0.0 to 1.0
  * double out; // output position after mapping
@@ -2902,9 +3064,11 @@ EAPI double ecore_animator_pos_map_n(double pos, Ecore_Pos_Map map, int v_size, 
 /**
  * @brief Set the source of animator ticks for the mainloop
  *
- * @param source The source of animator ticks to use
+ * @since_tizen 2.3
  *
- * This sets the source of animator ticks. When an animator is active the
+ * @param[in] source The source of animator ticks to use
+ *
+ * @remark This sets the source of animator ticks. When an animator is active the
  * mainloop will "tick" over frame by frame calling all animators that are
  * registered until none are. The mainloop will tick at a given rate based
  * on the animator source. The default source is the system clock timer
@@ -2928,9 +3092,11 @@ EAPI void ecore_animator_source_set(Ecore_Animator_Source source);
 /**
  * @brief Get the animator source currently set.
  *
+ * @since_tizen 2.3
+ *
  * @return The current animator source
  *
- * This gets the current animator source.
+ * @remark This gets the current animator source.
  *
  * @see ecore_animator_source_set()
  */
@@ -2939,10 +3105,12 @@ EAPI Ecore_Animator_Source ecore_animator_source_get(void);
 /**
  * @brief Set the function that begins a custom animator tick source
  *
- * @param func The function to call when ticking is to begin
- * @param data The data passed to the tick begin function as its parameter
+ * @since_tizen 2.3
  *
- * The Ecore Animator infrastructure handles tracking if animators are needed
+ * @param[in] func The function to call when ticking is to begin
+ * @param[in] data The data passed to the tick begin function as its parameter
+ *
+ * @remark The Ecore Animator infrastructure handles tracking if animators are needed
  * or not and which ones need to be called and when, but when the tick source
  * is custom, you have to provide a tick source by calling
  * ecore_animator_custom_tick() to indicate a frame tick happened. In order
@@ -2962,10 +3130,12 @@ EAPI void ecore_animator_custom_source_tick_begin_callback_set(Ecore_Cb func, co
 /**
  * @brief Set the function that ends a custom animator tick source
  *
- * @param func The function to call when ticking is to end
- * @param data The data passed to the tick end function as its parameter
+ * @since_tizen 2.3
  *
- * This function is a matching pair to the function set by
+ * @param[in] func The function to call when ticking is to end
+ * @param[in] data The data passed to the tick end function as its parameter
+ *
+ * @remark This function is a matching pair to the function set by
  * ecore_animator_custom_source_tick_begin_callback_set() and is called
  * when ticking is to stop. If @p func is @c NULL then no function will be
  * called to stop ticking. For more information please see
@@ -2982,7 +3152,9 @@ EAPI void ecore_animator_custom_source_tick_end_callback_set(Ecore_Cb func, cons
 /**
  * @brief Trigger a custom animator tick
  *
- * When animator source is set to ECORE_ANIMATOR_SOURCE_CUSTOM, then calling
+ * @since_tizen 2.3
+ *
+ * @remark When animator source is set to ECORE_ANIMATOR_SOURCE_CUSTOM, then calling
  * this function triggers a run of all animators currently registered with
  * Ecore as this indicates a "frame tick" happened. This will do nothing if
  * the animator source(set by ecore_animator_source_set()) is not set to
@@ -3032,7 +3204,10 @@ typedef Eo Ecore_Timer; /**< A handle for timers */
 #define _ECORE_TIMER_EO_CLASS_TYPE
 
 /**
- * Retrieves the current precision used by timer infrastructure.
+ * @brief Retrieves the current precision used by timer infrastructure.
+ *
+ * @since_tizen 2.3
+ *
  * @return Current precision.
  * @see ecore_timer_precision_set()
  */
@@ -3041,25 +3216,27 @@ EAPI double ecore_timer_precision_get(void);
 /**
  * @brief Sets the precision to be used by timer infrastructure.
  *
- * @param precision allowed introduced timeout delay, in seconds.
+ * @since_tizen 2.3
  *
- * This sets the precision for @b all timers. The precision determines how much
+ * @param[in] precision allowed introduced timeout delay, in seconds.
+ *
+ * @remark This sets the precision for @b all timers. The precision determines how much
  * of an difference from the requested interval is acceptable. One common reason
  * to use this function is to @b increase the allowed timeout and thus @b
  * decrease precision of the timers, this is because less precise the timers
  * result in the system waking up less often and thus consuming less resources.
  *
- * Be aware that kernel may delay delivery even further, these delays
+ * @remark Be aware that kernel may delay delivery even further, these delays
  * are always possible due other tasks having higher priorities or
  * other scheduler policies.
  *
- * Example:
+ * @remark Example:
  *  We have 2 timers, one that expires in a 2.0s and another that
  *  expires in 2.1s, if precision is 0.1s, then the Ecore will request
  *  for the next expire to happen in 2.1s and not 2.0s and another one
  *  of 0.1 as it would before.
  *
- * @note Ecore is smart enough to see if there are timers in the
+ * @remark Ecore is smart enough to see if there are timers in the
  * precision range, if it does not, in our example if no second timer
  * in (T + precision) existed, then it would use the minimum timeout.
  */

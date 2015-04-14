@@ -145,19 +145,19 @@ EAPI extern int ECORE_DRM_EVENT_ACTIVATE;
 /**
  * @file
  * @brief Ecore functions for dealing with drm, virtual terminals
- * 
+ *
  * @defgroup Ecore_Drm_Group Ecore_Drm - Drm Integration
  * @ingroup Ecore
- * 
+ *
  * Ecore_Drm provides a wrapper and functions for using libdrm
- * 
+ *
  * @li @ref Ecore_Drm_Init_Group
  * @li @ref Ecore_Drm_Device_Group
  * @li @ref Ecore_Drm_Tty_Group
  * @li @ref Ecore_Drm_Output_Group
  * @li @ref Ecore_Drm_Input_Group
  * @li @ref Ecore_Drm_Sprite_Group
- * 
+ *
  */
 
 EAPI int ecore_drm_init(void);

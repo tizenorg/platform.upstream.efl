@@ -75,15 +75,15 @@ struct _Ecore_Ipc_Client
    unsigned char     *buf;
    int                buf_size;
    int                max_buf_size;
-   
+
    struct {
       Ecore_Ipc_Msg_Head i, o;
    } prev;
-   
+
    int               event_count;
    char              delete_me : 1;
 };
-   
+
 struct _Ecore_Ipc_Server
 {
    ECORE_MAGIC;
@@ -97,7 +97,7 @@ struct _Ecore_Ipc_Server
    struct {
       Ecore_Ipc_Msg_Head i, o;
    } prev;
-   
+
    int               event_count;
    char              delete_me : 1;
 };

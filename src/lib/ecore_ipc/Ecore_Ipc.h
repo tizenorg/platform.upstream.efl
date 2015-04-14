@@ -132,7 +132,7 @@ EAPI unsigned long long _ecore_ipc_swap_64(unsigned long long v) EINA_DEPRECATED
                 p->v = (char *)ptr; \
                 ptr += strlen(p->v) + 1; \
             } \
-    } 
+    }
 #define ECORE_IPC_PUTS(v, l)\
     { \
         strcpy((char *)ptr, p->v); \
@@ -233,7 +233,7 @@ typedef enum _Ecore_Ipc_Type
    ECORE_IPC_USE_SSL = (1 << 4),
    ECORE_IPC_NO_PROXY = (1 << 5)
 } Ecore_Ipc_Type;
-   
+
 typedef struct _Ecore_Ipc_Event_Client_Add  Ecore_Ipc_Event_Client_Add;
 typedef struct _Ecore_Ipc_Event_Client_Del  Ecore_Ipc_Event_Client_Del;
 typedef struct _Ecore_Ipc_Event_Server_Add  Ecore_Ipc_Event_Server_Add;
@@ -317,7 +317,7 @@ struct _Ecore_Ipc_Event_Server_Data
    void             *data; /**< The message data */
    int               size; /**< The data length (in bytes) */
 };
-   
+
 EAPI extern int ECORE_IPC_EVENT_CLIENT_ADD;
 EAPI extern int ECORE_IPC_EVENT_CLIENT_DEL;
 EAPI extern int ECORE_IPC_EVENT_SERVER_ADD;
@@ -344,7 +344,7 @@ EAPI void              ecore_ipc_server_data_size_max_set(Ecore_Ipc_Server *srv,
 EAPI int               ecore_ipc_server_data_size_max_get(Ecore_Ipc_Server *srv);
 EAPI const char       *ecore_ipc_server_ip_get(Ecore_Ipc_Server *svr);
 EAPI void              ecore_ipc_server_flush(Ecore_Ipc_Server *svr);
-    
+
 /* FIXME: this needs to become an ipc message */
 EAPI int               ecore_ipc_client_send(Ecore_Ipc_Client *cl, int major, int minor, int ref, int ref_to, int response, const void *data, int size);
 EAPI Ecore_Ipc_Server *ecore_ipc_client_server_get(Ecore_Ipc_Client *cl);
@@ -359,7 +359,7 @@ EAPI void              ecore_ipc_client_flush(Ecore_Ipc_Client *cl);
 EAPI int               ecore_ipc_ssl_available_get(void);
 /* FIXME: need to add a callback to "ok" large ipc messages greater than */
 /*        a certain size (security/DOS attack safety) */
-   
+
 #ifdef __cplusplus
 }
 #endif

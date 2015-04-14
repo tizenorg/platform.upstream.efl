@@ -5,7 +5,7 @@ class Evas_3D_Camera (Evas_3D_Object, Evas.Common_Interface)
    methods {
       projection_matrix_set {
          /*@
-          Set the projection matrix of the given camera.
+           Set the projection matrix of the given camera.
 
            @param camera     The given camera.
            @param matrix     Pointer to the array of 16 Evas_Real values in column major order.

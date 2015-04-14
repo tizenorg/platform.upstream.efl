@@ -5,7 +5,10 @@ class Evas.Polygon (Evas.Object)
    methods {
       point_add {
          /*@
-         Adds the given point to the given evas polygon object.
+         @brief Adds the given point to the given evas polygon object.
+
+         @since_tizen 2.3
+
          @ingroup Evas_Polygon_Group */
          params {
             @in Evas_Coord x; /*@ The X coordinate of the given point. */
@@ -14,7 +17,11 @@ class Evas.Polygon (Evas.Object)
       }
       points_clear {
          /*@
-         Removes all of the points from the given evas polygon object. */
+         @brief Removes all of the points from the given evas polygon object.
+
+         @since_tizen 2.3
+
+         */
       }
    }
    implements {

@@ -7,19 +7,17 @@
  * reads, then two writes, a miss on read is 'just' two reads */
 static void
 _op_blend_p_c_dp_neon(DATA32 * __restrict s, DATA8 *m EINA_UNUSED, DATA32 c, DATA32 * __restrict d, int l) {
-
-/* Current this neon code is a little buggy, color blending won't be done
-   correctly. So leave the code depend on the compilier optimization. */
-#if 1
-   int i;
+#ifdef BUILD_NEON_INTRINSICS
+   DATA32 *e;
    int alpha;
-
-   for (i = 0; i < l; i++)
-     {
-        DATA32 sc = MUL4_SYM(c, s[i]);
-        alpha = 256 - (sc >> 24);
-        d[i] = sc + MUL_256(alpha, d[i]);
-     }
+   UNROLL8_PLD_WHILE(d, l, e,
+                     {
+                        DATA32 sc = MUL4_SYM(c, *s);
+                        alpha = 256 - (sc >> 24);
+                        *d = sc + MUL_256(alpha, *d);
+                        d++;
+                        s++;
+                     });
 #else
 #define AP	"blend_p_c_dp_"
    asm volatile (

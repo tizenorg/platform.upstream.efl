@@ -92,7 +92,7 @@ typedef void (*Ecore_File_Download_Completion_Cb)(void *data, const char *file, 
 
 /**
  * @typedef _Ecore_File_Progress_Return
- * What to do with the download as a return from the 
+ * What to do with the download as a return from the
  * Ecore_File_Download_Progress_Cb function, if provided.
  */
 typedef enum _Ecore_File_Progress_Return

@@ -202,7 +202,7 @@ struct _Ecore_Evas
          Eina_Bool       supported;      // indicate that the underlying window system supports window manager rotation protocol
          Eina_Bool       app_set;        // indicate that the ee supports window manager rotation protocol
          Eina_Bool       win_resize;     // indicate that the ee will be resized by the WM
-         int             angle;          // rotation value which is decided by the WM 
+         int             angle;          // rotation value which is decided by the WM
          int             w, h;           // window size to rotate
          int             preferred_rot;  // preferred rotation hint
          int            *available_rots; // array of avaialable rotation values

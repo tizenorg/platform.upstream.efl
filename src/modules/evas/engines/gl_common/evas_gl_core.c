@@ -271,6 +271,29 @@ _egl_image_create(EVGL_Context *context, GLuint tex)
 }
 
 static void
+_egl_image_destroy(void *image)
+{
+#ifdef GL_GLES
+   EGLDisplay dpy = EGL_NO_DISPLAY;
+   EVGL_Resource *rsc = NULL;
+
+   // Retrieve the resource object
+   if (!(rsc = _evgl_tls_resource_get()))
+     {
+        ERR("Error creating resources in tls.");
+        return;
+     }
+
+   dpy = (EGLDisplay)rsc->display;
+   if (!dpy) return;
+
+   EXT_FUNC(eglDestroyImage)(dpy, image);
+#else
+   (void) image;
+#endif
+}
+
+static void
 _framebuffer_create(GLuint *buf, Eina_Bool use_extension)
 {
    if (use_extension)
@@ -1192,6 +1215,11 @@ _surface_buffers_allocate(void *eng_data, EVGL_Surface *sfc, int w, int h, int m
 static int
 _surface_buffers_destroy(EVGL_Surface *sfc)
 {
+   if (sfc->egl_image)
+     {
+        _egl_image_destroy(sfc->egl_image);
+        sfc->egl_image = NULL;
+     }
    if (sfc->color_buf)
       _texture_destroy(&sfc->color_buf);
    if (sfc->depth_buf)
@@ -1779,32 +1807,22 @@ evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
    sfc->w = w;
    sfc->h = h;
 
-   // Check for Direct rendering override env var.
-   if (!evgl_engine->direct_override)
-     if ((s = getenv("EVAS_GL_DIRECT_OVERRIDE")))
-       {
-          WRN("DIRECT_OVERRIDE flag is set to '%s' for the whole application. "
-              "This should never be done except for debugging purposes.", s);
-          direct_override = atoi(s);
-          if (direct_override == 1)
-            evgl_engine->direct_override = 1;
-          else
-            evgl_engine->direct_override = -1;
-       }
+   // Extra options for DR
+   if (cfg->options_bits & EVAS_GL_OPTIONS_DIRECT_MEMORY_OPTIMIZE)
+     {
+        DBG("Setting DIRECT_MEMORY_OPTIMIZE bit");
+        sfc->direct_mem_opt = EINA_TRUE;
+     }
+   else if (evgl_engine->direct_mem_opt == 1)
+     sfc->direct_mem_opt = EINA_TRUE;
 
-   // Check if Direct Rendering Memory Optimzation flag is on
-   // Creates resources on demand when it fallsback to fbo rendering
-   if (!evgl_engine->direct_mem_opt)
-     if ((s = getenv("EVAS_GL_DIRECT_MEM_OPT")))
-       {
-          WRN("DIRECT_MEMORY_OPTIMIZE flag is set to '%s' for the whole application. "
-              "This should never be done except for debugging purposes.", s);
-          direct_mem_opt = atoi(s);
-          if (direct_mem_opt == 1)
-            evgl_engine->direct_mem_opt = 1;
-          else
-            evgl_engine->direct_mem_opt = -1;
-       }
+   if (cfg->options_bits & EVAS_GL_OPTIONS_DIRECT_OVERRIDE)
+     {
+        DBG("Setting DIRECT_OVERRIDE bit");
+        sfc->direct_override = EINA_TRUE;
+     }
+   else if (evgl_engine->direct_override == 1)
+     sfc->direct_override = EINA_TRUE;
 
    // Set the internal config value
    if (!_internal_config_set(eng_data, sfc, cfg))
@@ -1812,26 +1830,6 @@ evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
         ERR("Unsupported Format!");
         evas_gl_common_error_set(eng_data, EVAS_GL_BAD_CONFIG);
         goto error;
-     }
-
-   // Extra options allowed only if DR is set
-   if (sfc->direct_fb_opt)
-     {
-        if (cfg->options_bits & EVAS_GL_OPTIONS_DIRECT_MEMORY_OPTIMIZE)
-          {
-             DBG("Setting DIRECT_MEMORY_OPTIMIZE bit");
-             sfc->direct_mem_opt = EINA_TRUE;
-          }
-        else if (evgl_engine->direct_mem_opt == 1)
-          sfc->direct_mem_opt = EINA_TRUE;
-
-        if (cfg->options_bits & EVAS_GL_OPTIONS_DIRECT_OVERRIDE)
-          {
-             DBG("Setting DIRECT_OVERRIDE bit");
-             sfc->direct_override = EINA_TRUE;
-          }
-        else if (evgl_engine->direct_override == 1)
-          sfc->direct_override = EINA_TRUE;
      }
 
    // Keep track of all the created surfaces
@@ -1921,12 +1919,22 @@ evgl_pbuffer_surface_create(void *eng_data, Evas_GL_Config *cfg,
    sfc->pbuffer.color_fmt = cfg->color_format;
    sfc->pbuffer.is_pbuffer = EINA_TRUE;
 
-   // Set the context current with resource context/surface
-   if (!_internal_resource_make_current(eng_data, NULL))
+   // Extra options for DR
+   if (cfg->options_bits & EVAS_GL_OPTIONS_DIRECT_MEMORY_OPTIMIZE)
      {
-        ERR("Error doing an internal resource make current");
-        goto error;
+        DBG("Setting DIRECT_MEMORY_OPTIMIZE bit");
+        sfc->direct_mem_opt = EINA_TRUE;
      }
+   else if (evgl_engine->direct_mem_opt == 1)
+     sfc->direct_mem_opt = EINA_TRUE;
+
+   if (cfg->options_bits & EVAS_GL_OPTIONS_DIRECT_OVERRIDE)
+     {
+        DBG("Setting DIRECT_OVERRIDE bit");
+        sfc->direct_override = EINA_TRUE;
+     }
+   else if (evgl_engine->direct_override == 1)
+     sfc->direct_override = EINA_TRUE;
 
    // If the surface is defined as RGB or RGBA, then create an FBO
    if (sfc->pbuffer.color_fmt != EVAS_GL_NO_FBO)
@@ -1937,36 +1945,6 @@ evgl_pbuffer_surface_create(void *eng_data, Evas_GL_Config *cfg,
              ERR("Unsupported Format!");
              evas_gl_common_error_set(eng_data, EVAS_GL_BAD_CONFIG);
              goto error;
-          }
-
-        // What is DR for PBuffer?
-        /*
-        if (sfc->direct_fb_opt)
-          {
-             if (cfg->options_bits & EVAS_GL_OPTIONS_DIRECT_MEMORY_OPTIMIZE)
-               sfc->direct_mem_opt = EINA_TRUE;
-             if (cfg->options_bits & EVAS_GL_OPTIONS_DIRECT_OVERRIDE)
-               sfc->direct_override = EINA_TRUE;
-          }
-        */
-
-        // Create internal buffers
-        if (!_surface_buffers_create(sfc))
-          {
-             ERR("Unable Create Specificed Surfaces.");
-             evas_gl_common_error_set(eng_data, EVAS_GL_BAD_ALLOC);
-             goto error;
-          };
-
-        // Allocate resources for fallback unless the flag is on
-        if (!sfc->direct_mem_opt)
-          {
-             if (!_surface_buffers_allocate(eng_data, sfc, sfc->w, sfc->h, 0))
-               {
-                  ERR("Unable Create Allocate Memory for Surface.");
-                  evas_gl_common_error_set(eng_data, EVAS_GL_BAD_ALLOC);
-                  goto error;
-               }
           }
      }
 
@@ -1982,13 +1960,6 @@ evgl_pbuffer_surface_create(void *eng_data, Evas_GL_Config *cfg,
      }
 
    sfc->pbuffer.native_surface = pbuffer;
-
-   if (dbg) DBG("Calling make_current(NULL, NULL)");
-   if (!evgl_engine->funcs->make_current(eng_data, NULL, NULL, 0))
-     {
-        ERR("Error doing make_current(NULL, NULL).");
-        goto error;
-     }
 
    // Keep track of all the created surfaces
    LKL(evgl_engine->resource_lock);
@@ -2410,7 +2381,7 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
              // Destroy created resources
              if (sfc->buffers_allocated)
                {
-                  if (!_surface_buffers_allocate(eng_data, sfc, 0, 0, 1))
+                  if (!_surface_buffers_destroy(sfc))
                     {
                        ERR("Unable to destroy surface buffers!");
                        evas_gl_common_error_set(eng_data, EVAS_GL_BAD_ALLOC);
@@ -2421,7 +2392,7 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
           }
         else
           {
-             if (evgl_engine->direct_override)
+             if (sfc->direct_override)
                {
                   DBG("Not creating fallback surfaces even though it should. Use at OWN discretion!");
                }
@@ -2580,7 +2551,7 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
              if ((rsc->current_ctx != ctx) || (ctx->current_sfc != sfc) || (rsc->direct.rendered))
                {
                   sfc->current_ctx = ctx;
-                  if ((sfc->direct_mem_opt) && (sfc->direct_fb_opt))
+                  if ((sfc->direct_mem_opt) && (sfc->direct_override))
                     {
                        DBG("Not creating fallback surfaces even though it should. Use at OWN discretion!");
                     }

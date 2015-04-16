@@ -151,13 +151,15 @@ typedef void (*Eina_Rbtree_Free_Cb)(Eina_Rbtree *node, void *data);
 /**
  * @brief Insert a new node inside an existing red black tree.
  *
- * @param root The root of an exisiting valid red black tree.
- * @param node The new node to insert.
- * @param cmp The callback that is able to compare two nodes.
- * @param data Private data to help the compare function.
+ * @since_tizen 2.3
+ *
+ * @param[in] root The root of an exisiting valid red black tree.
+ * @param[in] node The new node to insert.
+ * @param[in] cmp The callback that is able to compare two nodes.
+ * @param[in] data Private data to help the compare function.
  * @return The new root of the red black tree.
  *
- * This function insert a new node in a valid red black tree. @c NULL is
+ * @remark This function insert a new node in a valid red black tree. @c NULL is
  * an empty valid red black tree. The resulting new tree is a valid red
  * black tree. This function doesn't allocate any data.
  */
@@ -166,13 +168,15 @@ EAPI Eina_Rbtree          *eina_rbtree_inline_insert(Eina_Rbtree *root, Eina_Rbt
 /**
  * @brief Remove a node from an existing red black tree.
  *
- * @param root The root of a valid red black tree.
- * @param node The node to remove from the tree.
- * @param cmp The callback that is able to compare two nodes.
- * @param data Private data to help the compare function.
+ * @since_tizen 2.3
+ *
+ * @param[in] root The root of a valid red black tree.
+ * @param[in] node The node to remove from the tree.
+ * @param[in] cmp The callback that is able to compare two nodes.
+ * @param[in] data Private data to help the compare function.
  * @return The new root of the red black tree.
  *
- * This function remove a new node in a valid red black tree that should
+ * @remark This function remove a new node in a valid red black tree that should
  * contain the node that you are removing. This function will return @c NULL
  * when the red black tree got empty. This function doesn't free any data.
  */
@@ -181,9 +185,11 @@ EAPI Eina_Rbtree          *eina_rbtree_inline_remove(Eina_Rbtree *root, Eina_Rbt
 /**
  * @brief Delete all nodes from a valid red black tree.
  *
- * @param root The root of a valid red black tree.
- * @param func The callback that will free each node.
- * @param data Private data to help the compare function.
+ * @since_tizen 2.3
+ *
+ * @param[in] root The root of a valid red black tree.
+ * @param[in] func The callback that will free each node.
+ * @param[in] data Private data to help the compare function.
  *
  */
 EAPI void                  eina_rbtree_delete(Eina_Rbtree *root, Eina_Rbtree_Free_Cb func, void *data) EINA_ARG_NONNULL(2);
@@ -194,15 +200,17 @@ static inline Eina_Rbtree *eina_rbtree_inline_lookup(const Eina_Rbtree *root, co
 /**
  * @brief Returned a new prefix iterator associated to a rbtree.
  *
- * @param root The root of rbtree.
+ * @since_tizen 2.3
+ *
+ * @param[in] root The root of rbtree.
  * @return A new iterator.
  *
- * This function returns a newly allocated iterator associated to @p
+ * @remark This function returns a newly allocated iterator associated to @p
  * root. It will iterate the tree using prefix walk. If @p root is @c
  * NULL, this function still returns a valid iterator that will always
  * return false on eina_iterator_next(), thus keeping API sane.
  *
- * If the memory can not be allocated, @c NULL is returned.
+ * @remark If the memory can not be allocated, @c NULL is returned.
  * Otherwise, a valid iterator is returned.
  *
  * @warning if the rbtree structure changes then the iterator becomes
@@ -214,15 +222,17 @@ EAPI Eina_Iterator        *eina_rbtree_iterator_prefix(const Eina_Rbtree *root) 
 /**
  * @brief Returned a new prefix iterator associated to a rbtree.
  *
- * @param root The root of rbtree.
+ * @since_tizen 2.3
+ *
+ * @param[in] root The root of rbtree.
  * @return A new iterator.
  *
- * This function returns a newly allocated iterator associated to @p
+ * @remark This function returns a newly allocated iterator associated to @p
  * root. It will iterate the tree using infix walk. If @p root is @c
  * NULL, this function still returns a valid iterator that will always
  * return false on eina_iterator_next(), thus keeping API sane.
  *
- * If the memory can not be allocated, @c NULL is returned.
+ * @remark If the memory can not be allocated, @c NULL is returned.
  * Otherwise, a valid iterator is returned.
  *
  * @warning if the rbtree structure changes then the iterator becomes
@@ -234,15 +244,17 @@ EAPI Eina_Iterator        *eina_rbtree_iterator_infix(const Eina_Rbtree *root) E
 /**
  * @brief Returned a new prefix iterator associated to a rbtree.
  *
- * @param root The root of rbtree.
+ * @since_tizen 2.3
+ *
+ * @param[in] root The root of rbtree.
  * @return A new iterator.
  *
- * This function returns a newly allocated iterator associated to @p
+ * @remark This function returns a newly allocated iterator associated to @p
  * root. It will iterate the tree using postfix walk. If @p root is @c
  * NULL, this function still returns a valid iterator that will always
  * return false on eina_iterator_next(), thus keeping API sane.
  *
- * If the memory can not be allocated, @c NULL is returned.
+ * @remark If the memory can not be allocated, @c NULL is returned.
  * Otherwise, a valid iterator is returned.
  *
  * @warning if the rbtree structure changes then the iterator becomes

@@ -85,18 +85,20 @@
 /**
  * @brief Copy a c-string to another.
  *
- * @param dst The destination string.
- * @param src The source string.
- * @param siz The size of the destination string.
+ * @since_tizen 2.3
+ *
+ * @param[out] dst The destination string.
+ * @param[in] src The source string.
+ * @param[in] siz The size of the destination string.
  * @return The length of the source string.
  *
- * This function copies up to @p siz - 1 characters from the
+ * @remark This function copies up to @p siz - 1 characters from the
  * NULL-terminated string @p src to @p dst, NULL-terminating the result
  * (unless @p siz is equal to 0). The returned value is the length of
  * @p src. If the returned value is greater than @p siz, truncation
  * occurred.
  *
- * @note The main difference between eina_strlcpy and strncpy is that this
+ * @remark The main difference between eina_strlcpy and strncpy is that this
  * ensures @p dst is NULL-terminated even if no @c NULL byte is found in the first
  * @p siz bytes of src.
  */
@@ -105,12 +107,14 @@ EAPI size_t          eina_strlcpy(char *dst, const char *src, size_t siz) EINA_A
 /**
  * @brief Append a c-string.
  *
- * @param dst The destination string.
- * @param src The source string.
- * @param siz The size of the destination string.
+ * @since_tizen 2.3
+ *
+ * @param[in] dst The destination string.
+ * @param[in] src The source string.
+ * @param[in] siz The size of the destination string.
  * @return The length of the source string plus MIN(siz, strlen(initial dst))
  *
- * This function appends @p src to @p dst of size @p siz (unlike
+ * @remark This function appends @p src to @p dst of size @p siz (unlike
  * strncat, @p siz is the full size of @p dst, not space left).  At
  * most @p siz - 1 characters will be copied.  Always NULL-terminates
  * (unless @p siz <= strlen(dst)). This function returns strlen(src) +
@@ -123,11 +127,13 @@ EAPI size_t          eina_strlcat(char *dst, const char *src, size_t siz) EINA_A
 /**
  * @brief Check if the given string has the given prefix.
  *
- * @param str The string to work with.
- * @param prefix The prefix to check for.
+ * @since_tizen 2.3
+ *
+ * @param[in] str The string to work with.
+ * @param[in] prefix The prefix to check for.
  * @return #EINA_TRUE if the string has the given prefix, #EINA_FALSE otherwise.
  *
- * This function returns #EINA_TRUE if @p str has the prefix
+ * @remark This function returns #EINA_TRUE if @p str has the prefix
  * @p prefix, #EINA_FALSE otherwise. If the length of @p prefix is
  * greater than @p str, #EINA_FALSE is returned.
  */
@@ -136,11 +142,13 @@ EAPI Eina_Bool       eina_str_has_prefix(const char *str, const char *prefix) EI
 /**
  * @brief Check if the given string has the given suffix.
  *
- * @param str The string to work with.
- * @param suffix The suffix to check for.
+ * @since_tizen 2.3
+ *
+ * @param[in] str The string to work with.
+ * @param[in] suffix The suffix to check for.
  * @return #EINA_TRUE if the string has the given suffix, #EINA_FALSE otherwise.
  *
- * This function returns #EINA_TRUE if @p str has the suffix
+ * @remark This function returns #EINA_TRUE if @p str has the suffix
  * @p suffix, #EINA_FALSE otherwise. If the length of @p suffix is
  * greater than @p str, #EINA_FALSE is returned.
  */
@@ -149,11 +157,13 @@ EAPI Eina_Bool       eina_str_has_suffix(const char *str, const char *suffix) EI
 /**
  * @brief Check if the given string has the given extension.
  *
- * @param str The string to work with.
- * @param ext The  extension to check for.
+ * @since_tizen 2.3
+ *
+ * @param[in] str The string to work with.
+ * @param[in] ext The  extension to check for.
  * @return #EINA_TRUE if the string has the given extension, #EINA_FALSE otherwise.
  *
- * This function does the same as eina_str_has_suffix(), except it's case
+ * @remark This function does the same as eina_str_has_suffix(), except it's case
  * insensitive.
  */
 EAPI Eina_Bool       eina_str_has_extension(const char *str, const char *ext) EINA_PURE EINA_ARG_NONNULL(1, 2) EINA_WARN_UNUSED_RESULT;
@@ -161,15 +171,17 @@ EAPI Eina_Bool       eina_str_has_extension(const char *str, const char *ext) EI
 /**
  * @brief Split a string using a delimiter.
  *
- * @param string The string to split.
- * @param delimiter The string which specifies the places at which to split the string.
- * @param max_tokens The maximum number of strings to split string into, or a number less
+ * @since_tizen 2.3
+ *
+ * @param[in] string The string to split.
+ * @param[in] delimiter The string which specifies the places at which to split the string.
+ * @param[in] max_tokens The maximum number of strings to split string into, or a number less
  *                   than 1 to split as many times as possible. This parameter
  *                   IGNORES the added @c NULL terminator.
  * @return A newly-allocated NULL-terminated array of strings or @c NULL if it
  * fails to allocate the array.
  *
- * This function splits @p string into a maximum of @p max_tokens pieces,
+ * @remark This function splits @p string into a maximum of @p max_tokens pieces,
  * using the given delimiter @p delimiter. @p delimiter is not included in any
  * of the resulting strings, unless @p max_tokens is reached. If
  * @p max_tokens is less than @c 1, the string is splitted as many times as possible. If
@@ -179,7 +191,7 @@ EAPI Eina_Bool       eina_str_has_extension(const char *str, const char *ext) EI
  * allocate the array. To free it, free the first element of the array and the
  * array itself.
  *
- * @note If you need the number of elements in the returned array see
+ * @remark If you need the number of elements in the returned array see
  * eina_str_split_full().
  */
 EAPI char          **eina_str_split(const char *string, const char *delimiter, int max_tokens) EINA_ARG_NONNULL(1, 2) EINA_MALLOC EINA_WARN_UNUSED_RESULT;
@@ -187,18 +199,20 @@ EAPI char          **eina_str_split(const char *string, const char *delimiter, i
 /**
  * @brief Split a string using a delimiter and returns number of elements.
  *
- * @param string The string to split.
- * @param delimiter The string which specifies the places at which to split the string.
- * @param max_tokens The maximum number of strings to split string into, or a number less
+ * @since_tizen 2.3
+ *
+ * @param[in] string The string to split.
+ * @param[in] delimiter The string which specifies the places at which to split the string.
+ * @param[in] max_tokens The maximum number of strings to split string into, or a number less
  *                   than 1 to split as many times as possible. This parameter
  *                   IGNORES the added @c NULL terminator.
- * @param elements Where to return the number of elements in returned
+ * @param[out] elements Where to return the number of elements in returned
  *        array. This array is guaranteed to be no greater than @p max_tokens, and
  *        it will NOT count the @c NULL terminator element.
  * @return A newly-allocated NULL-terminated array of strings or @c NULL if it
  * fails to allocate the array.
  *
- * This function splits @p string into a maximum of @p max_tokens pieces,
+ * @remark This function splits @p string into a maximum of @p max_tokens pieces,
  * using the given delimiter @p delimiter. @p delimiter is not included in any
  * of the resulting strings, unless @p max_tokens is reached. If
  * @p max_tokens is less than @c 1, the string is splitted as many times as possible. If
@@ -208,7 +222,7 @@ EAPI char          **eina_str_split(const char *string, const char *delimiter, i
  * allocate the array. To free it, free the first element of the array and the
  * array itself.
  *
- * @note The actual size of the returned array, when @p elements returns greater than zero,
+ * @remark The actual size of the returned array, when @p elements returns greater than zero,
  *       will always be @p elements + 1. This is due to the @c NULL terminator element that
  *       is added to the array for safety. If it returns @c 6, the number of split strings returned
  *       will be 6, but the size of the array (including the @c NULL element) will actually be 7.
@@ -221,16 +235,18 @@ EAPI char          **eina_str_split_full(const char *string, const char *delimit
 /**
  * @brief Join two strings of known length.
  *
- * @param dst The buffer to store the result.
- * @param size Size (in byte) of the buffer.
- * @param sep The separator character to use.
- * @param a First string to use, before @p sep.
- * @param a_len length of @p a.
- * @param b Second string to use, after @p sep.
- * @param b_len length of @p b.
+ * @since_tizen 2.3
+ *
+ * @param[out] dst The buffer to store the result.
+ * @param[in] size Size (in byte) of the buffer.
+ * @param[in] sep The separator character to use.
+ * @param[in] a First string to use, before @p sep.
+ * @param[in] a_len length of @p a.
+ * @param[in] b Second string to use, after @p sep.
+ * @param[in] b_len length of @p b.
  * @return The number of characters printed.
  *
- * This function joins the strings @p a and @p b (in that order) and
+ * @remark This function joins the strings @p a and @p b (in that order) and
  * separate them with @p sep. The result is stored in the buffer
  * @p dst and at most @p size - 1 characters will be written and the
  * string is NULL-terminated. @p a_len is the length of @p a (not
@@ -250,19 +266,21 @@ EAPI size_t          eina_str_join_len(char *dst, size_t size, char sep, const c
 /**
  * @brief Use Iconv to convert a text string from one encoding to another.
  *
- * @param enc_from Encoding to convert from.
- * @param enc_to Encoding to convert to.
- * @param text The text to convert.
+ * @since_tizen 2.3
+ *
+ * @param[in] enc_from Encoding to convert from.
+ * @param[in] enc_to Encoding to convert to.
+ * @param[in] text The text to convert.
  * @return The converted text.
  *
- * This function converts @p text, encoded in @p enc_from. On success,
+ * @remark This function converts @p text, encoded in @p enc_from. On success,
  * the converted text is returned and is encoded in @p enc_to. On
  * failure, @c NULL is returned. Iconv is used to convert @p text. If
  * Iconv is not available, @c NULL is returned. When not used anymore,
  * the returned value must be freed.
  *
  * @warning This function is guaranteed to break when '\0' characters are in @p text.
- * DO NOT USE THIS FUNCTION IF YOUR TEXT CONTAINS NON-TERMINATING '\0' CHARACTERS.
+ * @remark DO NOT USE THIS FUNCTION IF YOUR TEXT CONTAINS NON-TERMINATING '\0' CHARACTERS.
  */
 EAPI char           *eina_str_convert(const char *enc_from, const char *enc_to, const char *text) EINA_WARN_UNUSED_RESULT EINA_MALLOC EINA_ARG_NONNULL(1, 2, 3);
 
@@ -290,10 +308,12 @@ EAPI char           *eina_str_convert_len(const char *enc_from, const char *enc_
 /**
  * @brief Escape slashes, spaces and apostrophes in strings.
  *
- * @param str The string to escape.
+ * @since_tizen 2.3
+ *
+ * @param[in] str The string to escape.
  * @return The escaped string.
  *
- * Escaping is done by adding a slash "\" before any occurrence of slashes "\",
+ * @remark Escaping is done by adding a slash "\" before any occurrence of slashes "\",
  * spaces " " or apostrophes "'". This function returns a newly allocated
  * escaped string on success, @c NULL on failure. When not used anymore, the
  * returned value must be freed.
@@ -304,9 +324,11 @@ EAPI char           *eina_str_escape(const char *str) EINA_WARN_UNUSED_RESULT EI
 /**
  * @brief Lowercase all the characters in range [A-Z] in the given string.
  *
- * @param str The string to lowercase.
+ * @since_tizen 2.3
  *
- * This function modifies the original string, changing all characters
+ * @param[out] str The string to lowercase.
+ *
+ * @remark This function modifies the original string, changing all characters
  * in [A-Z] to lowercase. If @p str is @c NULL or is an empty string,
  * this function does nothing.
  */
@@ -315,9 +337,11 @@ EAPI void            eina_str_tolower(char **str);
 /**
  * @brief Uppercase all the characters in range [a-z] in the given string.
  *
- * @param str The string to uppercase.
+ * @since_tizen 2.3
  *
- * This function modifies the original string, changing all characters
+ * @param[out] str The string to uppercase.
+ *
+ * @remark This function modifies the original string, changing all characters
  * in [a-z] to uppercase. If @p str is @c NULL or is an empty string,
  * this function does nothing.
  */

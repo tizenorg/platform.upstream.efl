@@ -77,13 +77,15 @@ typedef enum {
 /**
  * @brief Check if the given spans intersect.
  *
- * @param c1 The column of the first span.
- * @param l1 The length of the first span.
- * @param c2 The column of the second span.
- * @param l2 The length of the second span.
+ * @since_tizen 2.3
+ *
+ * @param[in] c1 The column of the first span.
+ * @param[in] l1 The length of the first span.
+ * @param[in] c2 The column of the second span.
+ * @param[in] l2 The length of the second span.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
  *
- * This function returns #EINA_TRUE if the  given spans intersect, #EINA_FALSE
+ * @remark This function returns #EINA_TRUE if the  given spans intersect, #EINA_FALSE
  * otherwise.
  */
 static inline int         eina_spans_intersect(int c1, int l1, int c2, int l2) EINA_WARN_UNUSED_RESULT;
@@ -91,10 +93,12 @@ static inline int         eina_spans_intersect(int c1, int l1, int c2, int l2) E
 /**
  * @brief Check if the given rectangle is empty.
  *
- * @param r The rectangle to check.
+ * @since_tizen 2.3
+ *
+ * @param[in] r The rectangle to check.
  * @return #EINA_TRUE if the rectangle is empty, #EINA_FALSE otherwise.
  *
- * This function returns #EINA_TRUE if @p r is empty, #EINA_FALSE
+ * @remark This function returns #EINA_TRUE if @p r is empty, #EINA_FALSE
  * otherwise. No check is done on @p r, so it must be a valid
  * rectangle.
  */
@@ -103,13 +107,15 @@ static inline Eina_Bool   eina_rectangle_is_empty(const Eina_Rectangle *r) EINA_
 /**
  * @brief Set the coordinates and size of the given rectangle.
  *
- * @param r The rectangle.
- * @param x The top-left x coordinate of the rectangle.
- * @param y The top-left y coordinate of the rectangle.
- * @param w The width of the rectangle.
- * @param h The height of the rectangle.
+ * @since_tizen 2.3
  *
- * This function sets its top-left x coordinate to @p x, its top-left
+ * @param[in] r The rectangle.
+ * @param[in] x The top-left x coordinate of the rectangle.
+ * @param[in] y The top-left y coordinate of the rectangle.
+ * @param[in] w The width of the rectangle.
+ * @param[in] h The height of the rectangle.
+ *
+ * @remark This function sets its top-left x coordinate to @p x, its top-left
  * y coordinate to @p y, its width to @p w and its height to @p h. No
  * check is done on @p r, so it must be a valid rectangle.
  */
@@ -118,11 +124,13 @@ static inline void        eina_rectangle_coords_from(Eina_Rectangle *r, int x, i
 /**
  * @brief Check if the given rectangles intersect.
  *
- * @param r1 The first rectangle.
- * @param r2 The second rectangle.
+ * @since_tizen 2.3
+ *
+ * @param[in] r1 The first rectangle.
+ * @param[in] r2 The second rectangle.
  * @return #EINA_TRUE if the rectangles intersect, #EINA_FALSE otherwise.
  *
- * This function returns #EINA_TRUE if @p r1 and @p r2 intersect, #EINA_FALSE
+ * @remark This function returns #EINA_TRUE if @p r1 and @p r2 intersect, #EINA_FALSE
  * otherwise. No check is done on @p r1 and @p r2, so they must be valid
  * rectangles.
  */
@@ -131,11 +139,13 @@ static inline Eina_Bool   eina_rectangles_intersect(const Eina_Rectangle *r1, co
 /**
  * @brief Check if the given x-coordinate is in the rectangle .
  *
- * @param r The rectangle.
- * @param x The x coordinate.
+ * @since_tizen 2.3
+ *
+ * @param[in] r The rectangle.
+ * @param[in] x The x coordinate.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
  *
- * This function returns #EINA_TRUE if @p x is in @p r with respect to
+ * @remark This function returns #EINA_TRUE if @p x is in @p r with respect to
  * the horizontal direction, #EINA_FALSE otherwise. No check is done
  * on @p r, so it must be a valid rectangle.
  */
@@ -144,11 +154,13 @@ static inline Eina_Bool   eina_rectangle_xcoord_inside(const Eina_Rectangle *r, 
 /**
  * @brief Check if the given y-coordinate is in the rectangle .
  *
- * @param r The rectangle.
- * @param y The y coordinate.
+ * @since_tizen 2.3
+ *
+ * @param[in] r The rectangle.
+ * @param[in] y The y coordinate.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
  *
- * This function returns #EINA_TRUE if @p y is in @p r with respect to
+ * @remark This function returns #EINA_TRUE if @p y is in @p r with respect to
  * the vertical direction, #EINA_FALSE otherwise. No check is done
  * on @p r, so it must be a valid rectangle.
  */
@@ -157,12 +169,14 @@ static inline Eina_Bool   eina_rectangle_ycoord_inside(const Eina_Rectangle *r, 
 /**
  * @brief Check if the given point is in the rectangle .
  *
- * @param r The rectangle.
- * @param x The x coordinate of the point.
- * @param y The y coordinate of the point.
+ * @since_tizen 2.3
+ *
+ * @param[in] r The rectangle.
+ * @param[in] x The x coordinate of the point.
+ * @param[in] y The y coordinate of the point.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
  *
- * This function returns #EINA_TRUE if the point of coordinate (@p x,
+ * @remark This function returns #EINA_TRUE if the point of coordinate (@p x,
  * @p y) is in @p r, #EINA_FALSE otherwise. No check is done on @p r,
  * so it must be a valid rectangle.
  */
@@ -171,10 +185,12 @@ static inline Eina_Bool   eina_rectangle_coords_inside(const Eina_Rectangle *r, 
 /**
  * @brief Get the union of two rectangles.
  *
- * @param dst The first rectangle.
- * @param src The second rectangle.
+ * @since_tizen 2.3
  *
- * This function get the union of the rectangles @p dst and @p src. The
+ * @param[in] dst The first rectangle.
+ * @param[in] src The second rectangle.
+ *
+ * @remark This function get the union of the rectangles @p dst and @p src. The
  * result is stored in @p dst. No check is done on @p dst or @p src,
  * so they must be valid rectangles.
  */
@@ -183,33 +199,39 @@ static inline void        eina_rectangle_union(Eina_Rectangle *dst, const Eina_R
 /**
  * @brief Get the intersection of two rectangles.
  *
- * @param dst The first rectangle.
- * @param src The second rectangle.
+ * @since_tizen 2.3
+ *
+ * @param[in] dst The first rectangle.
+ * @param[in] src The second rectangle.
  * @return #EINA_TRUE if the rectangles intersect, #EINA_FALSE
  * otherwise.
  *
- * This function get the intersection of the rectangles @p dst and
+ * @remark This function get the intersection of the rectangles @p dst and
  * @p src. The result is stored in @p dst. No check is done on @p dst
  * or @p src, so they must be valid rectangles.
  */
 static inline Eina_Bool   eina_rectangle_intersection(Eina_Rectangle *dst, const Eina_Rectangle *src) EINA_ARG_NONNULL(1, 2) EINA_WARN_UNUSED_RESULT;
 
 /**
- * @brief FIXME I am useless and used by no one
+ * @brief Rescale the coordinates from @in rectangle as if it where relative to @out rectangle
  *
- * @param in The inner rectangle.
- * @param out The outer rectangle.
- * @param res The resulting rectangle.
+ * @since_tizen 2.3
+ *
+ * @param[in] out The outer rectangle.
+ * @param[in] in The inner rectangle.
+ * @param[out] res The resulting rectangle.
  *
  */
 static inline void        eina_rectangle_rescale_in(const Eina_Rectangle *out, const Eina_Rectangle *in, Eina_Rectangle *res) EINA_ARG_NONNULL(1, 2, 3);
 
 /**
- * @brief FIXME I am useless and used by no one
+ * @brief Rescale the coordinates from @out rectangle as if it where relative to @in rectangle
  *
- * @param in The inner rectangle.
- * @param out The outer rectangle.
- * @param res The resulting rectangle.
+ * @since_tizen 2.3
+ *
+ * @param[in] out The outer rectangle.
+ * @param[in] in The inner rectangle.
+ * @param[out] res The resulting rectangle.
  *
  */
 static inline void        eina_rectangle_rescale_out(const Eina_Rectangle *out, const Eina_Rectangle *in, Eina_Rectangle *res) EINA_ARG_NONNULL(1, 2, 3);
@@ -341,11 +363,13 @@ static inline Eina_Bool   eina_rectangle_subtract(Eina_Rectangle *thiz, Eina_Rec
 /**
  * @brief Add a rectangle in a new pool.
  *
- * @param w The width of the rectangle.
- * @param h The height of the rectangle.
+ * @since_tizen 2.3
+ *
+ * @param[in] w The width of the rectangle.
+ * @param[in] h The height of the rectangle.
  * @return A newly allocated pool on success, @c NULL otherwise.
  *
- * This function adds the rectangle of size (@p width, @p height) to a
+ * @remark This function adds the rectangle of size (@p width, @p height) to a
  * new pool. If the pool can not be created, @c NULL is
  * returned. Otherwise the newly allocated pool is returned.
  */
@@ -354,10 +378,12 @@ EAPI Eina_Rectangle_Pool *eina_rectangle_pool_new(int w, int h) EINA_MALLOC EINA
 /**
  * @brief Return the pool of the given rectangle.
  *
- * @param rect The rectangle.
+ * @since_tizen 2.3
+ *
+ * @param[in] rect The rectangle.
  * @return The pool of the given rectangle.
  *
- * This function returns the pool in which @p rect is. If  @p rect is
+ * @remark This function returns the pool in which @p rect is. If  @p rect is
  * @c NULL, @c NULL is returned.
  */
 EAPI Eina_Rectangle_Pool *eina_rectangle_pool_get(Eina_Rectangle *rect) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1);
@@ -365,12 +391,14 @@ EAPI Eina_Rectangle_Pool *eina_rectangle_pool_get(Eina_Rectangle *rect) EINA_WAR
 /**
  * @brief Return the width and height of the given pool.
  *
- * @param pool The pool.
- * @param w The returned width.
- * @param h The returned height.
+ * @since_tizen 2.3
+ *
+ * @param[in] pool The pool.
+ * @param[out] w The returned width.
+ * @param[out] h The returned height.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
  *
- * This function returns the width and height of @p pool and store
+ * @remark This function returns the width and height of @p pool and store
  * them in respectively @p w and @p h if they are not @c NULL. If
  * @p pool is @c NULL, #EINA_FALSE is returned. Otherwise #EINA_TRUE is
  * returned.
@@ -380,10 +408,12 @@ EAPI Eina_Bool            eina_rectangle_pool_geometry_get(Eina_Rectangle_Pool *
 /**
  * @brief Get the data from the given pool.
  *
- * @param pool The pool.
+ * @since_tizen 2.3
+ *
+ * @param[in] pool The pool.
  * @return The returned data.
  *
- * This function gets the data from @p pool set by
+ * @remark This function gets the data from @p pool set by
  * eina_rectangle_pool_data_set(). If @p pool is @c NULL, this
  * function returns @c NULL.
  */
@@ -392,10 +422,12 @@ EAPI void                *eina_rectangle_pool_data_get(Eina_Rectangle_Pool *pool
 /**
  * @brief Set the data to the given pool.
  *
- * @param pool The pool.
- * @param data The data to set.
+ * @since_tizen 2.3
  *
- * This function sets @p data to @p pool. If @p pool is @c NULL, this
+ * @param[in] pool The pool.
+ * @param[in] data The data to set.
+ *
+ * @remark This function sets @p data to @p pool. If @p pool is @c NULL, this
  * function does nothing.
  */
 EAPI void                 eina_rectangle_pool_data_set(Eina_Rectangle_Pool *pool, const void *data) EINA_ARG_NONNULL(1);
@@ -403,9 +435,11 @@ EAPI void                 eina_rectangle_pool_data_set(Eina_Rectangle_Pool *pool
 /**
  * @brief Free the given pool.
  *
- * @param pool The pool to free.
+ * @since_tizen 2.3
  *
- * This function frees the allocated data of @p pool. If @p pool is
+ * @param[in] pool The pool to free.
+ *
+ * @remark This function frees the allocated data of @p pool. If @p pool is
  * @c NULL, this function returned immediately.
  */
 EAPI void                 eina_rectangle_pool_free(Eina_Rectangle_Pool *pool) EINA_ARG_NONNULL(1);
@@ -413,22 +447,26 @@ EAPI void                 eina_rectangle_pool_free(Eina_Rectangle_Pool *pool) EI
 /**
  * @brief Return the number of rectangles in the given pool.
  *
- * @param pool The pool.
+ * @since_tizen 2.3
+ *
+ * @param[in] pool The pool.
  * @return The number of rectangles in the pool.
  *
- * This function returns the number of rectangles in @p pool.
+ * @remark This function returns the number of rectangles in @p pool.
  */
 EAPI int                  eina_rectangle_pool_count(Eina_Rectangle_Pool *pool) EINA_ARG_NONNULL(1) EINA_WARN_UNUSED_RESULT;
 
 /**
  * @brief Request a rectangle of given size in the given pool.
  *
- * @param pool The pool.
- * @param w The width of the rectangle to request.
- * @param h The height of the rectangle to request.
+ * @since_tizen 2.3
+ *
+ * @param[in] pool The pool.
+ * @param[in] w The width of the rectangle to request.
+ * @param[in] h The height of the rectangle to request.
  * @return The requested rectangle on success, @c NULL otherwise.
  *
- * This function retrieve from @p pool the rectangle of width @p w and
+ * @remark This function retrieve from @p pool the rectangle of width @p w and
  * height @p h. If @p pool is @c NULL, or @p w or @p h are non-positive,
  * the function returns @c NULL. If @p w or @p h are greater than the
  * pool size, the function returns @c NULL. On success, the function
@@ -440,9 +478,11 @@ EAPI Eina_Rectangle      *eina_rectangle_pool_request(Eina_Rectangle_Pool *pool,
 /**
  * @brief Remove the given rectangle from the pool.
  *
- * @param rect The rectangle to remove from the pool.
+ * @since_tizen 2.3
  *
- * This function removes @p rect from the pool. If @p rect is
+ * @param[in] rect The rectangle to remove from the pool.
+ *
+ * @remark This function removes @p rect from the pool. If @p rect is
  * @c NULL, the function returns immediately. Otherwise it removes @p
  * rect from the pool.
  */
@@ -474,13 +514,15 @@ EAPI void                 eina_rectangle_pool_release(Eina_Rectangle *rect) EINA
 /**
  * @brief Create a new rectangle.
  *
- * @param x The X coordinate of the top left corner of the rectangle.
- * @param y The Y coordinate of the top left corner of the rectangle.
- * @param w The width of the rectangle.
- * @param h The height of the rectangle.
+ * @since_tizen 2.3
+ *
+ * @param[in] x The X coordinate of the top left corner of the rectangle.
+ * @param[in] y The Y coordinate of the top left corner of the rectangle.
+ * @param[in] w The width of the rectangle.
+ * @param[in] h The height of the rectangle.
  * @return The new rectangle on success, @ NULL otherwise.
  *
- * This function creates a rectangle which top left corner has the
+ * @remark This function creates a rectangle which top left corner has the
  * coordinates (@p x, @p y), with height @p w and height @p h and adds
  * it to the rectangles pool. No check is done on @p w and @p h. This
  * function returns a new rectangle on success, @c NULL otherwhise.
@@ -490,18 +532,22 @@ EAPI Eina_Rectangle *eina_rectangle_new(int x, int y, int w, int h) EINA_MALLOC 
 /**
  * @brief Free the given rectangle.
  *
- * @param rect The rectangle to free.
+ * @since_tizen 2.3
  *
- * This function removes @p rect from the rectangles pool.
+ * @param[in] rect The rectangle to free.
+ *
+ * @remark This function removes @p rect from the rectangles pool.
  */
 EAPI void            eina_rectangle_free(Eina_Rectangle *rect) EINA_ARG_NONNULL(1);
 
 /**
  * @brief Sets the type of given rectangle pool.
  *
- * @param pool The rectangle pool for which type is to be set.
+ * @since_tizen 2.3
  *
- * This function sets @p type of @p pool.
+ * @param[in] pool The rectangle pool for which type is to be set.
+ *
+ * @remark This function sets @p type of @p pool.
  * @see Eina_Rectangle_Packing
  * @since 1.11
  */

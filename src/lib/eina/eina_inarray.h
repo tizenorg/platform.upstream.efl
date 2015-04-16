@@ -237,6 +237,8 @@ struct _Eina_Inarray
 /**
  * @brief Creates a new inline array.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] member_size The size of each member in the array
  * @param[in] step The step size by which to resize the array, do this using the following
  *             extra amount
@@ -245,9 +247,9 @@ struct _Eina_Inarray
  * @details This creates a new array where members are inlined in a sequence. Each
  *          member has @a member_size bytes.
  *
- * @note If the @a step is @c 0, then a safe default is chosen.
+ * @remark If the @a step is @c 0, then a safe default is chosen.
  *
- * @note On failure, @c NULL is returned. If @p member_size is zero, then @c NULL is returned.
+ * @remark On failure, @c NULL is returned. If @p member_size is zero, then @c NULL is returned.
  *
  * @see eina_inarray_free()
  *
@@ -258,6 +260,8 @@ EAPI Eina_Inarray *eina_inarray_new(unsigned int member_size,
 
 /**
  * @brief Frees an array and its members.
+ *
+ * @since_tizen 2.3
  *
  * @param[in] array The array object
  *
@@ -270,6 +274,8 @@ EAPI void eina_inarray_free(Eina_Inarray *array) EINA_ARG_NONNULL(1);
 /**
  * @brief Initializes an inline array.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] array The array object to initialize
  * @param[in] sizeof_eina_inarray The size of array object
  * @param[in] member_size The size of each member in the array
@@ -279,7 +285,7 @@ EAPI void eina_inarray_free(Eina_Inarray *array) EINA_ARG_NONNULL(1);
  * @details This initializes an array. If the @p step is @c 0, then a safe default is
  *          chosen.
  *
- * @note This is useful for arrays inlined into other structures or
+ * @remark This is useful for arrays inlined into other structures or
  *       allocated to a stack.
  *
  * @see eina_inarray_flush()
@@ -294,6 +300,8 @@ EAPI void eina_inarray_step_set(Eina_Inarray *array,
 /**
  * @brief Removes every member from the array.
  *
+ * @since_tizen 2.3
+ *
  *
  * @param[in] array The array object
  *
@@ -303,6 +311,8 @@ EAPI void eina_inarray_flush(Eina_Inarray *array) EINA_ARG_NONNULL(1);
 
 /**
  * @brief Copies the data as the last member of the array.
+ *
+ * @since_tizen 2.3
  *
  * @param[in] array The array object
  * @param[in] data The data to be copied at the end
@@ -335,6 +345,8 @@ EAPI void *eina_inarray_grow(Eina_Inarray *array, unsigned int size);
 /**
  * @brief Copies the data to the array at a position found by the comparison function.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] array The array object
  * @param[in] data The data to be copied
  * @param[in] compare The compare function
@@ -345,7 +357,7 @@ EAPI void *eina_inarray_grow(Eina_Inarray *array, unsigned int size);
  *          its contents are copied to the members array using the previously
  *          defined @c member_size.
  *
- * @note The data given to the @p compare function is a pointer to the member
+ * @remark The data given to the @p compare function is a pointer to the member
  *       memory itself, do no change it.
  *
  * @see eina_inarray_insert_sorted()
@@ -361,6 +373,8 @@ EAPI int eina_inarray_insert(Eina_Inarray *array,
 /**
  * @brief Copies the data to the array at a position found by the comparison function.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] array The array object
  * @param[in] data The data to be copied
  * @param[in] compare The compare function
@@ -371,10 +385,10 @@ EAPI int eina_inarray_insert(Eina_Inarray *array,
  *          its contents are copied to the members array using the previously
  *          defined @p member_size.
  *
- * @note The data given to the @p compare function is a pointer to the member
+ * @remark The data given to the @p compare function is a pointer to the member
  *       memory itself, do no change it.
  *
- * @note This variation optimizes the insertion position assuming that the array
+ * @remark This variation optimizes the insertion position assuming that the array
  *       is already sorted by doing a binary search.
  *
  * @see eina_inarray_sort()
@@ -387,6 +401,8 @@ EAPI int eina_inarray_insert_sorted(Eina_Inarray *array,
 
 /**
  * @brief Finds data and removes the matching member.
+ *
+ * @since_tizen 2.3
  *
  * @param[in] array The array object
  * @param[in] data The data to be found and removed
@@ -407,10 +423,12 @@ EAPI int eina_inarray_remove(Eina_Inarray *array,
 /**
  * @brief Removes the last member of the array.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] array The array object
  * @return The data poped out of the array
  *
- * @note The data could be considered valid only until any other operation touched the Inarray.
+ * @remark The data could be considered valid only until any other operation touched the Inarray.
  *
  * @since 1.2
  */
@@ -418,6 +436,8 @@ EAPI void *eina_inarray_pop(Eina_Inarray *array) EINA_ARG_NONNULL(1);
 
 /**
  * @brief Gets the member at the given position.
+ *
+ * @since_tizen 2.3
  *
  * @param[in] array The array object
  * @param[in] position The member position
@@ -439,6 +459,8 @@ EAPI void *eina_inarray_nth(const Eina_Inarray *array,
 /**
  * @brief Copies the data at the given position in the array.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] array The array object
  * @param[in] position The position to insert the member at
  * @param[in] data The data to be copied at the position
@@ -449,13 +471,13 @@ EAPI void *eina_inarray_nth(const Eina_Inarray *array,
  *          copied to the members array using the previously defined
  *          @p member_size.
  *
- * @note All the members from @a position to the end of the array are
+ * @remark All the members from @a position to the end of the array are
  *       shifted to the end.
  *
- * @note If @a position is equal to the end of the array (equal to
+ * @remark If @a position is equal to the end of the array (equal to
  *       eina_inarray_count()), then the member is appended.
  *
- * @note If @a position is bigger than the array length, it fails.
+ * @remark If @a position is bigger than the array length, it fails.
  *
  * @since 1.2
  */
@@ -466,26 +488,28 @@ EAPI Eina_Bool eina_inarray_insert_at(Eina_Inarray *array,
 /**
  * @brief Opens a space at the given position, returning its pointer.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] array The array object
  * @param[in] position The position to insert first member at (open/allocate space)
  * @param[in] member_count The number of times @c member_size bytes are allocated
  * @return A pointer to the first member memory allocated, otherwise @c NULL on errors
  *
- * @note This is similar to eina_inarray_insert_at(), but useful if the
+ * @remark This is similar to eina_inarray_insert_at(), but useful if the
  *       members contents are still unknown or unallocated. It makes
  *       room for the required number of items and returns the pointer to the
  *       first item, similar to malloc(member_count * member_size), with the
  *       guarantee that all the memory is within the members array.
  *
- * @note The new member memory is undefined, it's not automatically zeroed.
+ * @remark The new member memory is undefined, it's not automatically zeroed.
  *
- * @note All the members from @a position to the end of the array are
+ * @remark All the members from @a position to the end of the array are
  *       shifted to the end.
  *
- * @note If @a position is equal to the end of the array (equal to
+ * @remark If @a position is equal to the end of the array (equal to
  *       eina_inarray_count()), then the member is appended.
  *
- * @note If @a position is bigger than the array length, it fails.
+ * @remark If @a position is bigger than the array length, it fails.
  *
  * @since 1.2
  */
@@ -495,6 +519,8 @@ EAPI void *eina_inarray_alloc_at(Eina_Inarray *array,
 
 /**
  * @brief Copies the data to the given position.
+ *
+ * @since_tizen 2.3
  *
  * @param[in] array The array object
  * @param[in] position The position to copy the member at
@@ -506,7 +532,7 @@ EAPI void *eina_inarray_alloc_at(Eina_Inarray *array,
  *          copied to the members array using the previously defined
  *          @p member_size.
  *
- * @note If @p position does not exist, it fails.
+ * @remark If @p position does not exist, it fails.
  *
  * @since 1.2
  */
@@ -517,11 +543,13 @@ EAPI Eina_Bool eina_inarray_replace_at(Eina_Inarray *array,
 /**
  * @brief Removes a member from the given position.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] array The array object
  * @param[in] position The position from which to remove a member
  * @return #EINA_TRUE on success, otherwise #EINA_FALSE on failure
  *
- * @note The member is removed from an array and members after it are moved
+ * @remark The member is removed from an array and members after it are moved
  *       towards the array head.
  *
  * @see eina_inarray_pop()
@@ -535,9 +563,11 @@ EAPI Eina_Bool eina_inarray_remove_at(Eina_Inarray *array,
 /**
  * @brief Reverses members in the array.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] array The array object
  *
- * @note If you do not want to change the array, just walk through its elements
+ * @remark If you do not want to change the array, just walk through its elements
  *       backwards, then use the EINA_INARRAY_REVERSE_FOREACH() macro.
  *
  * @see EINA_INARRAY_REVERSE_FOREACH()
@@ -549,12 +579,14 @@ EAPI void eina_inarray_reverse(Eina_Inarray *array) EINA_ARG_NONNULL(1);
 /**
  * @brief Applies a quick sort to the array.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] array The array object
  * @param[in] compare The compare function
  *
  * @details This applies a quick sort to the @a array.
  *
- * @note The data given to the @a compare function is a pointer to the member
+ * @remark The data given to the @a compare function is a pointer to the member
  *       memory itself, do no change it.
  *
  * @see eina_inarray_insert_sorted()
@@ -567,6 +599,8 @@ EAPI void eina_inarray_sort(Eina_Inarray *array,
 /**
  * @brief Searches for a member (linear walk).
  *
+ * @since_tizen 2.3
+ *
  * @param[in] array The array object
  * @param[in] data The member to search using the @p compare function
  * @param[in] compare The compare function
@@ -575,7 +609,7 @@ EAPI void eina_inarray_sort(Eina_Inarray *array,
  * @details This walks through an array by linearly looking for the given data compared by
  *          the @p compare function.
  *
- * @note The data given to the @p compare function is a pointer to the member
+ * @remark The data given to the @p compare function is a pointer to the member
  *       memory itself, do no change it.
  *
  * @see eina_inarray_lookup_sorted()
@@ -589,14 +623,16 @@ EAPI int eina_inarray_search(const Eina_Inarray *array,
 /**
  * @brief Searches for member (binary search walk).
  *
+ * @since_tizen 2.3
+ *
  * @param[in] array The array object
  * @param[in] data The member to search using the @p compare function
  * @param[in] compare The compare function
  * @return The member index, otherwise @c -1 if not found
  *
- * @note Uses a binary search for the given data as compared by the @p compare function.
+ * @remark Uses a binary search for the given data as compared by the @p compare function.
  *
- * @note The data given to the @p compare function is a pointer to the member
+ * @remark The data given to the @p compare function is a pointer to the member
  *       memory itself, do no change it.
  *
  * @since 1.2
@@ -608,6 +644,8 @@ EAPI int eina_inarray_search_sorted(const Eina_Inarray *array,
 /**
  * @brief Calls @p function for each array member.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] array The array object
  * @param[in] function The callback function
  * @param[in] user_data The user data given to a callback @a function
@@ -615,11 +653,11 @@ EAPI int eina_inarray_search_sorted(const Eina_Inarray *array,
  *
  * @details This calls @p function for every given data in @p array.
  *
- * @note This is a safe way to iterate over an array. @p function should return #EINA_TRUE
+ * @remark This is a safe way to iterate over an array. @p function should return #EINA_TRUE
  *       as long as you want the function to continue iterating, by
  *       returning #EINA_FALSE it stops and returns #EINA_FALSE as the result.
  *
- * @note The data given to @p function is a pointer to the member memory itself.
+ * @remark The data given to @p function is a pointer to the member memory itself.
  *
  * @see EINA_INARRAY_FOREACH()
  *
@@ -631,6 +669,8 @@ EAPI Eina_Bool eina_inarray_foreach(const Eina_Inarray *array,
 
 /**
  * @brief Removes all the members that match.
+ *
+ * @since_tizen 2.3
  *
  * @param[in] array The array object
  * @param[in] match The match function
@@ -660,6 +700,8 @@ EAPI Eina_Bool eina_inarray_resize(Eina_Inarray *array, unsigned int new_size);
 /**
  * @brief Counts the number of members in an array.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] array The array object
  * @return The number of members in the array
  *
@@ -670,13 +712,15 @@ EAPI unsigned int eina_inarray_count(const Eina_Inarray *array) EINA_ARG_NONNULL
 /**
  * @brief Returns a new iterator associated to an array.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] array The array object
  * @return A new iterator
  *
  * @details This function returns a newly allocated iterator associated to
  *          @p array.
  *
- * @note If the memory cannot be allocated, @c NULL is returned.
+ * @remark If the memory cannot be allocated, @c NULL is returned.
  *       Otherwise, a valid iterator is returned.
  *
  * @warning If the array structure changes then the iterator becomes
@@ -690,15 +734,17 @@ EAPI Eina_Iterator *eina_inarray_iterator_new(const Eina_Inarray *array) EINA_MA
 /**
  * @brief Returns a new reversed iterator associated to an array.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] array The array object
  * @return A new iterator
  *
  * @details This function returns a newly allocated iterator associated to
  *          @p array.
  *
- * @note Unlike eina_inarray_iterator_new(), this walks through the array backwards.
+ * @remark Unlike eina_inarray_iterator_new(), this walks through the array backwards.
  *
- * @note If the memory cannot be allocated, @c NULL is returned.
+ * @remark If the memory cannot be allocated, @c NULL is returned.
  *       Otherwise, a valid iterator is returned.
  *
  * @warning If the array structure changes then the iterator becomes
@@ -712,13 +758,15 @@ EAPI Eina_Iterator *eina_inarray_iterator_reversed_new(const Eina_Inarray *array
 /**
  * @brief Returns a new accessor associated to an array.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] array The array object
  * @return A new accessor
  *
  * @details This function returns a newly allocated accessor associated to
  *          @p array.
  *
- * @note If the memory cannot be allocated, @c NULL is returned
+ * @remark If the memory cannot be allocated, @c NULL is returned
  *       Otherwise, a valid accessor is returned.
  *
  * @since 1.2

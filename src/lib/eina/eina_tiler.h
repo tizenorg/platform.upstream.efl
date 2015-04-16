@@ -177,8 +177,10 @@ typedef struct _Eina_Tile_Grid_Slicer Eina_Tile_Grid_Slicer;
 /**
  * @brief Creates a new tiler with @p w width and @p h height.
  *
- * @param w Width of the tiler
- * @param h Height of the tiler
+ * @since_tizen 2.3
+ *
+ * @param[in] w Width of the tiler
+ * @param[in] h Height of the tiler
  * @return The newly created tiler
  *
  * @see eina_tiler_free()
@@ -187,18 +189,22 @@ EAPI Eina_Tiler        *eina_tiler_new(int w, int h);
 /**
  * @brief Frees a tiler.
  *
- * @param t The tiler to free.
+ * @since_tizen 2.3
  *
- * This function frees @p t. It does not free the memory allocated for the
+ * @param[in] t The tiler to free.
+ *
+ * @remark This function frees @p t. It does not free the memory allocated for the
  * elements of @p t.
  */
 EAPI void               eina_tiler_free(Eina_Tiler *t);
 /**
  * @brief Sets the size of tiles for a tiler.
  *
- * @param t The tiler whose tile size will be set.
- * @param w Width of the tiles.
- * @param h Height of the tiles.
+ * @since_tizen 2.3
+ *
+ * @param[in] t The tiler whose tile size will be set.
+ * @param[in] w Width of the tiles.
+ * @param[in] h Height of the tiles.
  *
  * @warning @p w and @p h @b must be greater than zero, otherwise tile size
  * won't be changed.
@@ -255,8 +261,10 @@ EAPI Eina_Bool          eina_tiler_empty(Eina_Tiler *t);
 /**
  * @brief Adds a rectangle to a tiler.
  *
- * @param t The tiler in which to add a container.
- * @param r The rectangle to be added.
+ * @since_tizen 2.3
+ *
+ * @param[in] t The tiler in which to add a container.
+ * @param[in] r The rectangle to be added.
  * @return #EINA_TRUE on success, #EINA_FALSE on failure.
  *
  * @see eina_tiler_rect_del()
@@ -275,7 +283,9 @@ EAPI void               eina_tiler_rect_del(Eina_Tiler *t, const Eina_Rectangle 
 /**
  * @brief Removes all rectangles from tiles.
  *
- * @param t The tiler to clear.
+ * @since_tizen 2.3
+ *
+ * @param[in] t The tiler to clear.
  *
  * @see eina_tiler_rect_del()
  */
@@ -283,7 +293,9 @@ EAPI void               eina_tiler_clear(Eina_Tiler *t);
 /**
  * @brief Create a iterator to access the tilers calculated rectangles.
  *
- * @param t The tiler to iterate over.
+ * @since_tizen 2.3
+ *
+ * @param[in] t The tiler to iterate over.
  * @return A iterator containing Eina_Rectangle.
  */
 EAPI Eina_Iterator     *eina_tiler_iterator_new(const Eina_Tiler *t);
@@ -291,19 +303,21 @@ EAPI Eina_Iterator     *eina_tiler_iterator_new(const Eina_Tiler *t);
 /**
  * @brief Creates a new Eina_Iterator that iterates over a list of tiles.
  *
- * @param   x X axis coordinate.
- * @param   y Y axis coordinate.
- * @param   w width.
- * @param   h height.
- * @param   tile_w tile width.
- * @param   tile_h tile height.
+ * @since_tizen 2.3
+ *
+ * @param[in]   x X axis coordinate.
+ * @param[in]   y Y axis coordinate.
+ * @param[in]   w width.
+ * @param[in]   h height.
+ * @param[in]   tile_w tile width.
+ * @param[in]   tile_h tile height.
  * @return  A pointer to the Eina_Iterator. @c NULL on failure.
  *
- * The region defined by @a x, @a y, @a w, @a h will be divided in to a grid of
+ * @remark The region defined by @a x, @a y, @a w, @a h will be divided in to a grid of
  * tiles of width @a tile_w and height @p tile_h, the returned iterator will
  * iterate over every tile in the grid having as its data a #Eina_Tile_Grid_Info.
  *
- * @note This is a convenience function, iterating over the returned iterator is
+ * @remark This is a convenience function, iterating over the returned iterator is
  * equivalent to calling eina_tile_grid_slicer_setup() and calling
  * eina_tile_grid_slicer_next() untill it returns #EINA_FALSE.
  */
@@ -364,35 +378,39 @@ EAPI Eina_Bool           eina_tiler_equal(Eina_Tiler *t1, Eina_Tiler *t2);
 /**
  * @brief Iterates over the tiles set by eina_tile_grid_slicer_setup().
  *
- * @param   slc Pointer to an Eina_Tile_Grid_Slicer struct.
- * @param   rect Pointer to a struct Eina_Tile_Grid_Info *.
+ * @since_tizen 2.3
+ *
+ * @param[in]   slc Pointer to an Eina_Tile_Grid_Slicer struct.
+ * @param[out]   rect Pointer to a struct Eina_Tile_Grid_Info *.
  * @return  #EINA_TRUE if the current rect is valid. #EINA_FALSE if there
  * is no more rects to iterate over (and thus the current one isn't valid).
  *
- * This functions iterates over each Eina_Tile_Grid_Info *rect of the grid.
+ * @remark This functions iterates over each Eina_Tile_Grid_Info *rect of the grid.
  * eina_tile_grid_slicer_setup() must be called first, and *rect is only valid
  * if this function returns #EINA_TRUE. Its content shouldn't be modified.
  *
- * @note Consider using eina_tile_grid_slicer_iterator_new() instead.
+ * @remark Consider using eina_tile_grid_slicer_iterator_new() instead.
  */
 static inline Eina_Bool eina_tile_grid_slicer_next(Eina_Tile_Grid_Slicer *slc, const Eina_Tile_Grid_Info **rect);
 /**
  * @brief Setup an Eina_Tile_Grid_Slicer struct.
  *
- * @param   slc Pointer to an Eina_Tile_Grid_Slicer struct.
- * @param   x X axis coordinate.
- * @param   y Y axis coordinate.
- * @param   w width.
- * @param   h height.
- * @param   tile_w tile width.
- * @param   tile_h tile height.
+ * @since_tizen 2.3
+ *
+ * @param[in]   slc Pointer to an Eina_Tile_Grid_Slicer struct.
+ * @param[in]   x X axis coordinate.
+ * @param[in]   y Y axis coordinate.
+ * @param[in]   w width.
+ * @param[in]   h height.
+ * @param[in]   tile_w tile width.
+ * @param[in]   tile_h tile height.
  * @return  A pointer to the Eina_Iterator. @c NULL on failure.
  *
- * The region defined by @a x, @a y, @a w, @a h will be divided in to a grid of
+ * @remark The region defined by @a x, @a y, @a w, @a h will be divided in to a grid of
  * tiles of width @a tile_w and height @p tile_h, @p slc can then be used with
  * eina_tile_grid_slicer_next() to access each tile.
  *
- * @note Consider using eina_tile_grid_slicer_iterator_new() instead.
+ * @remark Consider using eina_tile_grid_slicer_iterator_new() instead.
  */
 static inline Eina_Bool eina_tile_grid_slicer_setup(Eina_Tile_Grid_Slicer *slc, int x, int y, int w, int h, int tile_w, int tile_h);
 

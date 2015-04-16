@@ -202,6 +202,8 @@ struct _Eina_Accessor
 /**
  * @brief Frees an accessor.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] accessor The accessor to free
  *
  * @details This function frees @a accessor if it is not @c NULL.
@@ -211,9 +213,11 @@ EAPI void      eina_accessor_free(Eina_Accessor *accessor);
 /**
  * @brief Gets the data of an accessor at the given position.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] accessor The accessor
  * @param[in] position The position of the element
- * @param[in] data The pointer that stores the data to retrieve
+ * @param[out] data The pointer that stores the data to retrieve
  * @return #EINA_TRUE on success, otherwise #EINA_FALSE
  *
  * @details This function retrieves the data of the element pointed by
@@ -229,6 +233,8 @@ EAPI Eina_Bool eina_accessor_data_get(Eina_Accessor *accessor,
 /**
  * @brief Gets the container of an accessor.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] accessor The accessor
  * @return The container that created the accessor
  *
@@ -239,6 +245,8 @@ EAPI void *eina_accessor_container_get(Eina_Accessor *accessor) EINA_ARG_NONNULL
 
 /**
  * @brief Iterates over the container and executes a callback on the chosen elements.
+ *
+ * @since_tizen 2.3
  *
  * @param[in] accessor The accessor
  * @param[in] cb The callback called on the chosen elements
@@ -262,10 +270,12 @@ EAPI void  eina_accessor_over(Eina_Accessor *accessor,
 /**
  * @brief Locks the container of the accessor.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] accessor The accessor
  * @return #EINA_TRUE on success, otherwise #EINA_FALSE
  *
- * @note If the container of the @p accessor permits it, it is locked. When a
+ * @remark If the container of the @p accessor permits it, it is locked. When a
  *       container is locked by calling eina_accessor_over() on it, it returns
  *       immediately. If @p accessor is @c NULL or if a problem occurs, #EINA_FALSE
  *       is returned, otherwise #EINA_TRUE is returned. If the container is not
@@ -287,10 +297,12 @@ EAPI Eina_Accessor* eina_accessor_clone(Eina_Accessor *accessor) EINA_ARG_NONNUL
 /**
  * @brief Unlock the container of the accessor.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] accessor The accessor
  * @return #EINA_TRUE on success, otherwise #EINA_FALSE
  *
- * @note If the container of the @p accessor permits it and is previously
+ * @remark If the container of the @p accessor permits it and is previously
  *       locked, it is unlocked. If @p accessor is @c NULL or if a
  *       problem occurs, #EINA_FALSE is returned, otherwise #EINA_TRUE
  *       is returned. If the container is not lockable, it returns #EINA_TRUE.

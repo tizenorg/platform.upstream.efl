@@ -36,39 +36,39 @@
  *
  * @brief Functions to handle files and directories.
  *
- * This module performs internal housekeeping and utility tasks for Eina_File. 
+ * This module performs internal housekeeping and utility tasks for Eina_File.
  * It also provides the underlying data types for things like file handles, file
- * maps and file iterators. 
+ * maps and file iterators.
  *
  * @{
  */
 
-/** 
+/**
  * @typedef Eina_File_Map
- * 
+ *
  * Type definition for an Eina File Map.
- * 
- */ 
+ *
+ */
 typedef struct _Eina_File_Map Eina_File_Map;
 
 /**
  * @typedef Eina_Lines_Iterator
- * 
+ *
  * Type definition for an Eina Lines Iterator.
- * 
+ *
  */
 typedef struct _Eina_Lines_Iterator Eina_Lines_Iterator;
 
 /**
  * @struct _Eina_File
- * 
+ *
  * This is the underlying data structure that represents a file in Eina.
- * 
+ *
  */
 struct _Eina_File
 {
    EINA_MAGIC;            /**< Indicates whether Eina Magic should be used. */
-   const char *filename;  /**< The absolute path of the file. Note that the path given when calling @ref eina_file_open will be run through @ref eina_file_path_sanitize before it is stored here. */ 
+   const char *filename;  /**< The absolute path of the file. Note that the path given when calling @ref eina_file_open will be run through @ref eina_file_path_sanitize before it is stored here. */
    Eina_Hash *map;        /**< Tracks portions of a file that have been mapped with mmap(2).  The key is a tuple offset/length and the data is a pointer to the mapped region. */
    Eina_Hash *rmap;       /**< Similar function to #map, but used to look up mapped areas by pointer rather than offset/length. */
    void *global_map;      /**< A pointer to the entire contents of the file that have been mapped with mmap(2).  This is the common case, and EFL and is optimized for it. */
@@ -106,9 +106,9 @@ struct _Eina_File
 
 /**
  * @struct _Eina_File_Map
- * 
+ *
  * This represents a memory mapped region of a file.
- * 
+ *
  */
 struct _Eina_File_Map
 {
@@ -125,13 +125,13 @@ struct _Eina_File_Map
 
 /**
  * @struct _Eina_Lines_Iterator
- * 
+ *
  * This represents a line iterator a file.
- * 
+ *
  */
 struct _Eina_Lines_Iterator
 {
-   Eina_Iterator iterator;  /**< The iterator itself */ 
+   Eina_Iterator iterator;  /**< The iterator itself */
 
    Eina_File *fp;   /**< The file this iterator is associated with */
    const char *map; /**< A pointer to the head of the file that has been mapped with mmap(2). */

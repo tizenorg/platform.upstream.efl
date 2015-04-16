@@ -115,6 +115,8 @@ typedef struct _Eina_Counter Eina_Counter;
 /**
  * @brief Returns a counter.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] name The name of the counter
  * @return A newly allocated counter
  *
@@ -122,13 +124,15 @@ typedef struct _Eina_Counter Eina_Counter;
  *          name. If @p name is @c NULL, the function returns @c NULL
  *          immediately. If memory allocation fails, @c NULL is returned.
  *
- * @note Whe the new counter is not needed anymore, use eina_counter_free() to
+ * @remark Whe the new counter is not needed anymore, use eina_counter_free() to
  *       free the allocated memory.
  */
 EAPI Eina_Counter *eina_counter_new(const char *name) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1);
 
 /**
  * @brief Deletes a counter.
+ *
+ * @since_tizen 2.3
  *
  * @param[in] counter The counter to delete
  *
@@ -142,23 +146,27 @@ EAPI void          eina_counter_free(Eina_Counter *counter) EINA_ARG_NONNULL(1);
 /**
  * @brief Starts the time count.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] counter The counter
  *
  * @details This function specifies that the part of the code beginning just
  *          after its call is being timed, using @p counter. If
  *          @p counter is @c NULL, this function returns immediately.
  *
- * @note This function adds the clock associated to @p counter in a list. If
+ * @remark This function adds the clock associated to @p counter in a list. If
  *       the memory needed by that clock can not be allocated, the function
  *       returns and nothing is done.
  *
- * @note To stop the timing, eina_counter_stop() must be called with the
+ * @remark To stop the timing, eina_counter_stop() must be called with the
  *       same counter.
  */
 EAPI void          eina_counter_start(Eina_Counter *counter) EINA_ARG_NONNULL(1);
 
 /**
  * @brief Stops the time count.
+ *
+ * @since_tizen 2.3
  *
  * @param[in] counter The counter
  * @param[in] specimen The number of the test
@@ -175,6 +183,8 @@ EAPI void          eina_counter_stop(Eina_Counter *counter,
 /**
  * @brief Dumps the result of all the clocks of a counter to a stream.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] counter The counter
  * @return A string with a summary of the test
  *
@@ -188,7 +198,7 @@ EAPI void          eina_counter_stop(Eina_Counter *counter,
  * 1              208                120000           120208
  * @endverbatim
  *
- * @note The unit of time is nanoseconds.
+ * @remark The unit of time is nanoseconds.
  */
 EAPI char         *eina_counter_dump(Eina_Counter *counter) EINA_ARG_NONNULL(1);
 

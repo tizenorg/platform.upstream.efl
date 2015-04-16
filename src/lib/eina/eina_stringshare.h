@@ -177,17 +177,19 @@ typedef const char Eina_Stringshare;
  * @brief Retrieve an instance of a string with a specific size for use in a
  * program.
  *
- * @param   str The string to retrieve an instance of.
- * @param   slen The string size (<= strlen(str)).
+ * @since_tizen 2.3
+ *
+ * @param[in]   str The string to retrieve an instance of.
+ * @param[in]   slen The string size (<= strlen(str)).
  * @return  A pointer to an instance of the string on success.
  *          @c NULL on failure.
  *
- * This function retrieves an instance of @p str. If @p str is
+ * @remark This function retrieves an instance of @p str. If @p str is
  * @c NULL, then @c NULL is returned. If @p str is already stored, it
  * is just returned and its reference counter is increased. Otherwise
  * a duplicated string of @p str is returned.
  *
- * This function does not check string size, but uses the
+ * @remark This function does not check string size, but uses the
  * exact given size. This can be used to share_common part of a larger
  * buffer or substring.
  *
@@ -198,16 +200,18 @@ EAPI Eina_Stringshare  *eina_stringshare_add_length(const char *str, unsigned in
 /**
  * @brief Retrieve an instance of a string for use in a program.
  *
- * @param   str The NULL-terminated string to retrieve an instance of.
+ * @since_tizen 2.3
+ *
+ * @param[in]   str The NULL-terminated string to retrieve an instance of.
  * @return  A pointer to an instance of the string on success.
  *          @c NULL on failure.
  *
- * This function retrieves an instance of @p str. If @p str is
+ * @remark This function retrieves an instance of @p str. If @p str is
  * @c NULL, then @c NULL is returned. If @p str is already stored, it
  * is just returned and its reference counter is increased. Otherwise
  * a duplicated string of @p str is returned.
  *
- * The string @p str must be NULL terminated ('@\0') and its full
+ * @remark The string @p str must be NULL terminated ('@\0') and its full
  * length will be used. To use part of the string or non-null
  * terminated, use eina_stringshare_add_length() instead.
  *
@@ -219,16 +223,18 @@ EAPI Eina_Stringshare  *eina_stringshare_add(const char *str) EINA_WARN_UNUSED_R
  * @brief Retrieve an instance of a string for use in a program
  * from a format string.
  *
- * @param   fmt The NULL-terminated format string to retrieve an instance of.
+ * @since_tizen 2.3
+ *
+ * @param[in]   fmt The NULL-terminated format string to retrieve an instance of.
  * @return  A pointer to an instance of the string on success.
  *          @c NULL on failure.
  *
- * This function retrieves an instance of @p fmt. If @p fmt is
+ * @remark This function retrieves an instance of @p fmt. If @p fmt is
  * @c NULL, then @c NULL is returned. If @p fmt is already stored, it
  * is just returned and its reference counter is increased. Otherwise
  * a duplicated string is returned.
  *
- * The format string @p fmt must be NULL-terminated ('@\0') and its full
+ * @remark The format string @p fmt must be NULL-terminated ('@\0') and its full
  * length will be used. To use part of the format string or non-null
  * terminated, use eina_stringshare_nprintf() instead.
  *
@@ -240,17 +246,19 @@ EAPI Eina_Stringshare  *eina_stringshare_printf(const char *fmt, ...) EINA_WARN_
  * @brief Retrieve an instance of a string for use in a program
  * from a format string.
  *
- * @param   fmt The NULL-terminated format string to retrieve an instance of.
- * @param   args The va_args for @p fmt
+ * @since_tizen 2.3
+ *
+ * @param[in]   fmt The NULL-terminated format string to retrieve an instance of.
+ * @param[in]   args The va_args for @p fmt
  * @return  A pointer to an instance of the string on success.
  *          @c NULL on failure.
  *
- * This function retrieves an instance of @p fmt with @p args. If @p fmt is
+ * @remark This function retrieves an instance of @p fmt with @p args. If @p fmt is
  * @c NULL, then @c NULL is returned. If @p fmt with @p args is already stored, it
  * is just returned and its reference counter is increased. Otherwise
  * a duplicated string is returned.
  *
- * The format string @p fmt must be NULL-terminated ('@\0') and its full
+ * @remark The format string @p fmt must be NULL-terminated ('@\0') and its full
  * length will be used. To use part of the format string or non-null
  * terminated, use eina_stringshare_nprintf() instead.
  *
@@ -261,17 +269,20 @@ EAPI Eina_Stringshare  *eina_stringshare_vprintf(const char *fmt, va_list args) 
 /**
  * @brief Retrieve an instance of a string for use in a program
  * from a format string with size limitation.
- * @param   len The length of the format string to use
- * @param   fmt The format string to retrieve an instance of.
+ *
+ * @since_tizen 2.3
+ *
+ * @param[in]   len The length of the format string to use
+ * @param[in]   fmt The format string to retrieve an instance of.
  * @return  A pointer to an instance of the string on success.
  *          @c NULL on failure.
  *
- * This function retrieves an instance of @p fmt limited by @p len. If @p fmt is
+ * @remark This function retrieves an instance of @p fmt limited by @p len. If @p fmt is
  * @c NULL or @p len is < 1, then @c NULL is returned. If the resulting string
  * is already stored, it is returned and its reference counter is increased.
  * Otherwise a duplicated string is returned.
  *
- * @p len length of the format string will be used. To use the
+ * @remark @p len length of the format string will be used. To use the
  * entire format string, use eina_stringshare_printf() instead.
  *
  * @see eina_stringshare_printf()
@@ -279,32 +290,36 @@ EAPI Eina_Stringshare  *eina_stringshare_vprintf(const char *fmt, va_list args) 
 EAPI Eina_Stringshare  *eina_stringshare_nprintf(unsigned int len, const char *fmt, ...) EINA_WARN_UNUSED_RESULT EINA_PRINTF(2, 3);
 
 /**
- * Increment references of the given shared string.
+ * @brief Increment references of the given shared string.
  *
- * @param str The shared string.
+ * @since_tizen 2.3
+ *
+ * @param[in] str The shared string.
  * @return    A pointer to an instance of the string on success.
  *            @c NULL on failure.
  *
- * This is similar to eina_share_common_add(), but it's faster since it will
+ * @remark This is similar to eina_share_common_add(), but it's faster since it will
  * avoid lookups if possible, but on the down side it requires the parameter
  * to be shared string. In other words, it must be the return of a previous
  * call to one of the stringshare functions.
  *
- * There is no unref since this is the work of eina_share_common_del().
+ * @remark There is no unref since this is the work of eina_share_common_del().
  */
 EAPI Eina_Stringshare  *eina_stringshare_ref(Eina_Stringshare *str);
 
 /**
  * @brief Note that the given string has lost an instance.
  *
- * @param str string The given string.
+ * @since_tizen 2.3
  *
- * This function decreases the reference counter associated to @p str
+ * @param[in] str string The given string.
+ *
+ * @remark This function decreases the reference counter associated to @p str
  * if it exists. If that counter reaches 0, the memory associated to
  * @p str is freed. If @p str is @c NULL, the function returns
  * immediately.
  *
- * @note If the given pointer is not shared, bad things will happen, likely a
+ * @remark If the given pointer is not shared, bad things will happen, likely a
  * segmentation fault.
  */
 EAPI void               eina_stringshare_del(Eina_Stringshare *str);
@@ -312,14 +327,16 @@ EAPI void               eina_stringshare_del(Eina_Stringshare *str);
 /**
  * @brief Note that the given string @b must be shared.
  *
- * @param str the shared string to know the length. It is safe to
+ * @since_tizen 2.3
+ *
+ * @param[in] str the shared string to know the length. It is safe to
  *        give @c NULL, in that case @c 0 is returned.
  * @return The length of a shared string.
  *
- * This function is a cheap way to known the length of a shared
+ * @remark This function is a cheap way to known the length of a shared
  * string.
  *
- * @note If the given pointer is not shared, bad things will happen, likely a
+ * @remark If the given pointer is not shared, bad things will happen, likely a
  * segmentation fault. If in doubt, try strlen().
  */
 EAPI int                eina_stringshare_strlen(Eina_Stringshare *str) EINA_PURE EINA_WARN_UNUSED_RESULT;
@@ -327,7 +344,9 @@ EAPI int                eina_stringshare_strlen(Eina_Stringshare *str) EINA_PURE
 /**
  * @brief Dump the contents of the share_common.
  *
- * This function dumps all strings in the share_common to stdout with a
+ * @since_tizen 2.3
+ *
+ * @remark This function dumps all strings in the share_common to stdout with a
  * DDD: prefix per line and a memory usage summary.
  */
 EAPI void               eina_stringshare_dump(void);

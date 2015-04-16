@@ -604,19 +604,19 @@ eina_tls_new(Eina_TLS *key)
    return eina_tls_cb_new(key, NULL);
 }
 
-static inline void 
+static inline void
 eina_tls_free(Eina_TLS key)
 {
    pthread_key_delete(key);
 }
 
-static inline void * 
+static inline void *
 eina_tls_get(Eina_TLS key)
 {
    return pthread_getspecific(key);
 }
 
-static inline Eina_Bool 
+static inline Eina_Bool
 eina_tls_set(Eina_TLS key, const void *data)
 {
    if (pthread_setspecific(key, data) != 0)

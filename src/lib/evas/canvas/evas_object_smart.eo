@@ -73,9 +73,11 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
       data {
          set {
             /*@
-            Store a pointer to user data for a given smart object.
+            @brief Store a pointer to user data for a given smart object.
 
-            This data is stored @b independently of the one set by
+            @since_tizen 2.3
+
+            @remark This data is stored @b independently of the one set by
             evas_object_data_set(), naturally.
 
             @see evas_object_smart_data_get()
@@ -89,12 +91,14 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
       members {
          get {
             /*@
-            Retrieves the list of the member objects of a given Evas smart
+            @brief Retrieves the list of the member objects of a given Evas smart
             object
+
+            @since_tizen 2.3
 
             @return Returns the list of the member objects of @p obj.
 
-            The returned list should be freed with @c eina_list_free() when you
+            @remark The returned list should be freed with @c eina_list_free() when you
             no longer need it.
 
             @since 1.7 This function will return @c NULL when a non-smart object is passed.
@@ -132,24 +136,26 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
       }
       callbacks_descriptions_set {
          /*@
-         Set an smart object @b instance's smart callbacks descriptions.
+         @brief Set an smart object @b instance's smart callbacks descriptions.
+
+         @since_tizen 2.3
 
          @return @c EINA_TRUE on success, @c EINA_FALSE on failure.
 
-         These descriptions are hints to be used by introspection and are
+         @remark These descriptions are hints to be used by introspection and are
          not enforced in any way.
 
-         It will not be checked if instance callbacks descriptions have the
+         @remark It will not be checked if instance callbacks descriptions have the
          same name as respective possibly registered in the smart object
          @b class. Both are kept in different arrays and users of
          evas_object_smart_callbacks_descriptions_get() should handle this
          case as they wish.
 
-         @note Becase @p descriptions must be @c NULL terminated, and
+         @remark Becase @p descriptions must be @c NULL terminated, and
          because a @c NULL name makes little sense, too,
          Evas_Smart_Cb_Description.name must @b not be @c NULL.
 
-         @note While instance callbacks descriptions are possible, they are
+         @remark While instance callbacks descriptions are possible, they are
          @b not recommended. Use @b class callbacks descriptions
          instead as they make you smart object user's life simpler and
          will use less memory, as descriptions and arrays will be
@@ -168,20 +174,22 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
       }
       callbacks_descriptions_get @const {
          /*@
-         Retrieve an smart object's know smart callback descriptions (both
+         @brief Retrieve an smart object's know smart callback descriptions (both
          instance and class ones).
 
-         This call searches for registered callback descriptions for both
+         @since_tizen 2.3
+
+         @remark This call searches for registered callback descriptions for both
          instance and class of the given smart object. These arrays will be
          sorted by Evas_Smart_Cb_Description.name and also @c NULL
          terminated, so both @a class_count and @a instance_count can be
          ignored, if the caller wishes so. The terminator @c NULL is not
          counted in these values.
 
-         @note If just class descriptions are of interest, try
+         @remark If just class descriptions are of interest, try
          evas_smart_callbacks_descriptions_get() instead.
 
-         @note Use @c NULL pointers on the descriptions/counters you're not
+         @remark Use @c NULL pointers on the descriptions/counters you're not
          interested in: they'll be ignored by the function.
 
          @see evas_smart_callbacks_descriptions_get()
@@ -254,11 +262,13 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
       }
       add {
          /*@
-         Instantiates a new smart object described by @p s.
+         @brief Instantiates a new smart object described by @p s.
+
+         @since_tizen 2.3
 
          @return a new #Evas_Object handle
 
-         This is the function one should use when defining the public
+         @remark This is the function one should use when defining the public
          function @b adding an instance of the new smart object to a given
          canvas. It will take care of setting all of its internals to work
          as they should, if the user set things properly, as seem on the
@@ -269,15 +279,17 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
       }
       member_add {
          /*@
-         Set an Evas object as a member of a given smart object.
+         @brief Set an Evas object as a member of a given smart object.
 
-         Members will automatically be stacked and layered together with the
+         @since_tizen 2.3
+
+         @remark Members will automatically be stacked and layered together with the
          smart object. The various stacking functions will operate on
          members relative to the other members instead of the entire canvas,
          since they now live on an exclusive layer (see
          evas_object_stack_above(), for more details).
 
-         Any @p smart_obj object's specific implementation of the @c
+         @remark Any @p smart_obj object's specific implementation of the @c
          member_add() smart function will take place too, naturally.
 
          @see evas_object_smart_member_del()
@@ -304,9 +316,11 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
       }
       changed {
          /*@
-         Mark smart object as changed, dirty.
+         @brief Mark smart object as changed, dirty.
 
-         This will flag the given object as needing recalculation,
+         @since_tizen 2.3
+
+         @remark This will flag the given object as needing recalculation,
          forcefully. As an effect, on the next rendering cycle its @b
          calculate() (see #Evas_Smart_Class) smart function will be called.
 
@@ -318,9 +332,11 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
       }
       member_del {
          /*@
-         Removes a member object from a given smart object.
+         @brief Removes a member object from a given smart object.
 
-         This removes a member object from a smart object, if it was added
+         @since_tizen 2.3
+
+         @remark This removes a member object from a smart object, if it was added
          to any. The object will still be on the canvas, but no longer
          associated with whichever smart object it was associated with.
 

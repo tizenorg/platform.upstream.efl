@@ -525,7 +525,7 @@ struct _Image_Entry_Flags
    Eina_Bool alpha_sparse  : 1;
    Eina_Bool preload_done  : 1;
    Eina_Bool delete_me     : 1;
-   
+
    Eina_Bool pending       : 1;
    Eina_Bool rotated       : 1;
    Eina_Bool unload_cancel : 1;
@@ -629,7 +629,7 @@ struct _Image_Entry
    /* Reference to the file */
    Eina_File             *f;
    void                  *loader_data;
-  
+
    Image_Entry_Flags      flags;
    Evas_Image_Scale_Hint  scale_hint;
    void                  *data1, *data2;

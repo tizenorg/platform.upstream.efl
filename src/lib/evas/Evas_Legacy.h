@@ -14,18 +14,20 @@ EAPI void                    evas_font_reinit(void);
  * @{
  */
 /**
- * Creates a new empty evas.
+ * @brief Creates a new empty evas.
  *
- * Note that before you can use the evas, you will to at a minimum:
+ * @since_tizen 2.3
+ *
+ * @remark Note that before you can use the evas, you will to at a minimum:
  * @li Set its render method with @ref evas_output_method_set .
  * @li Set its viewport size with @ref evas_output_viewport_set .
  * @li Set its size of the canvas with @ref evas_output_size_set .
  * @li Ensure that the render engine is given the correct settings
  *     with @ref evas_engine_info_set .
  *
- * This function should only fail if the memory allocation fails
+ * @remark This function should only fail if the memory allocation fails
  *
- * @note this function is very low level. Instead of using it
+ * @remark this function is very low level. Instead of using it
  *       directly, consider using the high level functions in
  *       @ref Ecore_Evas_Group such as @c ecore_evas_new(). See
  *       @ref Ecore.
@@ -39,12 +41,14 @@ EAPI void                    evas_font_reinit(void);
 EAPI Evas             *evas_new(void) EINA_WARN_UNUSED_RESULT EINA_MALLOC;
 
 /**
- * Frees the given evas and any objects created on it.
+ * @brief Frees the given evas and any objects created on it.
  *
- * Any objects with 'free' callbacks will have those callbacks called
+ * @since_tizen 2.3
+ *
+ * @remark Any objects with 'free' callbacks will have those callbacks called
  * in this function.
  *
- * @param   e The given evas.
+ * @param[in]   e The given evas.
  *
  * @ingroup Evas_Canvas
  */
@@ -64,24 +68,26 @@ EAPI void              evas_free(Evas *e)  EINA_ARG_NONNULL(1);
  */
 
 /**
- * Add (register) a callback function to a given canvas event.
+ * @brief Add (register) a callback function to a given canvas event.
  *
- * @param e Canvas to attach a callback to
- * @param type The type of event that will trigger the callback
- * @param func The (callback) function to be called when the event is
+ * @since_tizen 2.3
+ *
+ * @param[in] e Canvas to attach a callback to
+ * @param[in] type The type of event that will trigger the callback
+ * @param[in] func The (callback) function to be called when the event is
  *        triggered
- * @param data The data pointer to be passed to @p func
+ * @param[in] data The data pointer to be passed to @p func
  *
- * This function adds a function callback to the canvas @p e when the
+ * @remark This function adds a function callback to the canvas @p e when the
  * event of type @p type occurs on it. The function pointer is @p
  * func.
  *
- * In the event of a memory allocation error during the addition of
+ * @remark In the event of a memory allocation error during the addition of
  * the callback to the canvas, evas_alloc_error() should be used to
  * determine the nature of the error, if any, and the program should
  * sensibly try and recover.
  *
- * A callback function must have the ::Evas_Event_Cb prototype
+ * @remark A callback function must have the ::Evas_Event_Cb prototype
  * definition. The first parameter (@p data) in this definition will
  * have the same value passed to evas_event_callback_add() as the @p
  * data parameter, at runtime. The second parameter @p e is the canvas
@@ -91,7 +97,7 @@ EAPI void              evas_free(Evas *e)  EINA_ARG_NONNULL(1);
  * the callback. This is so because some events don't carry extra
  * context with them, but others do.
  *
- * The event type @p type to trigger the function may be one of
+ * @remark The event type @p type to trigger the function may be one of
  * #EVAS_CALLBACK_RENDER_FLUSH_PRE, #EVAS_CALLBACK_RENDER_FLUSH_POST,
  * #EVAS_CALLBACK_CANVAS_FOCUS_IN, #EVAS_CALLBACK_CANVAS_FOCUS_OUT,
  * #EVAS_CALLBACK_CANVAS_OBJECT_FOCUS_IN and
@@ -101,25 +107,25 @@ EAPI void              evas_free(Evas *e)  EINA_ARG_NONNULL(1);
  * data -- a pointer to the recently focused Evas object. For the
  * others the @p event_info pointer is going to be @c NULL.
  *
- * Example:
+ * @remark Example:
  * @dontinclude evas-events.c
  * @skip evas_event_callback_add(d.canvas, EVAS_CALLBACK_RENDER_FLUSH_PRE
  * @until two canvas event callbacks
  *
- * Looking to the callbacks registered above,
+ * @remark Looking to the callbacks registered above,
  * @dontinclude evas-events.c
  * @skip called when our rectangle gets focus
  * @until let's have our events back
  *
- * we see that the canvas flushes its rendering pipeline
+ * @remark we see that the canvas flushes its rendering pipeline
  * (#EVAS_CALLBACK_RENDER_FLUSH_PRE) whenever the @c _resize_cb
  * routine takes place: it has to redraw that image at a different
  * size. Also, the callback on an object being focused comes just
  * after we focus it explicitly, on code.
  *
- * See the full @ref Example_Evas_Events "example".
+ * @remark See the full @ref Example_Evas_Events "example".
  *
- * @note Be careful not to add the same callback multiple times, if
+ * @remark Be careful not to add the same callback multiple times, if
  * that's not what you want, because Evas won't check if a callback
  * existed before exactly as the one being registered (and thus, call
  * it more than once on the event, in this case). This would make
@@ -128,16 +134,18 @@ EAPI void              evas_free(Evas *e)  EINA_ARG_NONNULL(1);
 EAPI void  evas_event_callback_add(Evas *e, Evas_Callback_Type type, Evas_Event_Cb func, const void *data) EINA_ARG_NONNULL(1, 3);
 
 /**
- * Add (register) a callback function to a given canvas event with a
+ * @brief Add (register) a callback function to a given canvas event with a
  * non-default priority set. Except for the priority field, it's exactly the
  * same as @ref evas_event_callback_add
  *
- * @param e Canvas to attach a callback to
- * @param type The type of event that will trigger the callback
- * @param priority The priority of the callback, lower values called first.
- * @param func The (callback) function to be called when the event is
+ * @since_tizen 2.3
+ *
+ * @param[in] e Canvas to attach a callback to
+ * @param[in] type The type of event that will trigger the callback
+ * @param[in] priority The priority of the callback, lower values called first.
+ * @param[in] func The (callback) function to be called when the event is
  *        triggered
- * @param data The data pointer to be passed to @p func
+ * @param[in] data The data pointer to be passed to @p func
  *
  * @see evas_event_callback_add
  * @since 1.1
@@ -145,21 +153,23 @@ EAPI void  evas_event_callback_add(Evas *e, Evas_Callback_Type type, Evas_Event_
 EAPI void  evas_event_callback_priority_add(Evas *e, Evas_Callback_Type type, Evas_Callback_Priority priority, Evas_Event_Cb func, const void *data) EINA_ARG_NONNULL(1, 4);
 
 /**
- * Delete a callback function from the canvas.
+ * @brief Delete a callback function from the canvas.
  *
- * @param e Canvas to remove a callback from
- * @param type The type of event that was triggering the callback
- * @param func The function that was to be called when the event was triggered
+ * @since_tizen 2.3
+ *
+ * @param[in] e Canvas to remove a callback from
+ * @param[in] type The type of event that was triggering the callback
+ * @param[in] func The function that was to be called when the event was triggered
  * @return The data pointer that was to be passed to the callback
  *
- * This function removes the most recently added callback from the
+ * @remark This function removes the most recently added callback from the
  * canvas @p e which was triggered by the event type @p type and was
  * calling the function @p func when triggered. If the removal is
  * successful it will also return the data pointer that was passed to
  * evas_event_callback_add() when the callback was added to the
  * canvas. If not successful @c NULL will be returned.
  *
- * Example:
+ * @remark Example:
  * @code
  * extern Evas *e;
  * void *my_data;
@@ -171,17 +181,19 @@ EAPI void  evas_event_callback_priority_add(Evas *e, Evas_Callback_Type type, Ev
 EAPI void *evas_event_callback_del(Evas *e, Evas_Callback_Type type, Evas_Event_Cb func) EINA_ARG_NONNULL(1, 3);
 
 /**
- * Delete (unregister) a callback function registered to a given
+ * @brief Delete (unregister) a callback function registered to a given
  * canvas event.
  *
- * @param e Canvas to remove an event callback from
- * @param type The type of event that was triggering the callback
- * @param func The function that was to be called when the event was
+ * @since_tizen 2.3
+ *
+ * @param[in] e Canvas to remove an event callback from
+ * @param[in] type The type of event that was triggering the callback
+ * @param[in] func The function that was to be called when the event was
  *        triggered
- * @param data The data pointer that was to be passed to the callback
+ * @param[in] data The data pointer that was to be passed to the callback
  * @return The data pointer that was to be passed to the callback
  *
- * This function removes <b>the first</b> added callback from the
+ * @remark This function removes <b>the first</b> added callback from the
  * canvas @p e matching the event type @p type, the registered
  * function pointer @p func and the callback data pointer @p data. If
  * the removal is successful it will also return the data pointer that
@@ -190,32 +202,34 @@ EAPI void *evas_event_callback_del(Evas *e, Evas_Callback_Type type, Evas_Event_
  * canvas. If not successful @c NULL will be returned. A common use
  * would be to remove an exact match of a callback.
  *
- * Example:
+ * @remark Example:
  * @dontinclude evas-events.c
  * @skip evas_event_callback_del_full(evas, EVAS_CALLBACK_RENDER_FLUSH_PRE,
  * @until _object_focus_in_cb, NULL);
  *
- * See the full @ref Example_Evas_Events "example".
+ * @remark See the full @ref Example_Evas_Events "example".
  *
- * @note For deletion of canvas events callbacks filtering by just
+ * @remark For deletion of canvas events callbacks filtering by just
  * type and function pointer, user evas_event_callback_del().
  */
 EAPI void *evas_event_callback_del_full(Evas *e, Evas_Callback_Type type, Evas_Event_Cb func, const void *data) EINA_ARG_NONNULL(1, 3);
 
 /**
- * Push a callback on the post-event callback stack
+ * @brief Push a callback on the post-event callback stack
  *
- * @param e Canvas to push the callback on
- * @param func The function that to be called when the stack is unwound
- * @param data The data pointer to be passed to the callback
+ * @since_tizen 2.3
  *
- * Evas has a stack of callbacks that get called after all the callbacks for
+ * @param[in] e Canvas to push the callback on
+ * @param[in] func The function that to be called when the stack is unwound
+ * @param[in] data The data pointer to be passed to the callback
+ *
+ * @remark Evas has a stack of callbacks that get called after all the callbacks for
  * an event have triggered (all the objects it triggers on and all the callbacks
  * in each object triggered). When all these have been called, the stack is
  * unwond from most recently to least recently pushed item and removed from the
  * stack calling the callback set for it.
  *
- * This is intended for doing reverse logic-like processing, example - when a
+ * @remark This is intended for doing reverse logic-like processing, example - when a
  * child object that happens to get the event later is meant to be able to
  * "steal" functions from a parent and thus on unwind of this stack have its
  * function called first, thus being able to set flags, or return 0 from the
@@ -228,12 +242,14 @@ EAPI void *evas_event_callback_del_full(Evas *e, Evas_Callback_Type type, Evas_E
 EAPI void  evas_post_event_callback_push(Evas *e, Evas_Object_Event_Post_Cb func, const void *data);
 
 /**
- * Remove a callback from the post-event callback stack
+ * @brief Remove a callback from the post-event callback stack
  *
- * @param e Canvas to push the callback on
- * @param func The function that to be called when the stack is unwound
+ * @since_tizen 2.3
  *
- * This removes a callback from the stack added with
+ * @param[in] e Canvas to push the callback on
+ * @param[in] func The function that to be called when the stack is unwound
+ *
+ * @remark This removes a callback from the stack added with
  * evas_post_event_callback_push(). The first instance of the function in
  * the callback stack is removed from being executed when the stack is
  * unwound. Further instances may still be run on unwind.
@@ -241,13 +257,15 @@ EAPI void  evas_post_event_callback_push(Evas *e, Evas_Object_Event_Post_Cb func
 EAPI void  evas_post_event_callback_remove(Evas *e, Evas_Object_Event_Post_Cb func);
 
 /**
- * Remove a callback from the post-event callback stack
+ * @brief Remove a callback from the post-event callback stack
  *
- * @param e Canvas to push the callback on
- * @param func The function that to be called when the stack is unwound
- * @param data The data pointer to be passed to the callback
+ * @since_tizen 2.3
  *
- * This removes a callback from the stack added with
+ * @param[in] e Canvas to push the callback on
+ * @param[in] func The function that to be called when the stack is unwound
+ * @param[in] data The data pointer to be passed to the callback
+ *
+ * @remark This removes a callback from the stack added with
  * evas_post_event_callback_push(). The first instance of the function and data
  * in the callback stack is removed from being executed when the stack is
  * unwound. Further instances may still be run on unwind.
@@ -265,11 +283,13 @@ EAPI void  evas_post_event_callback_remove_full(Evas *e, Evas_Object_Event_Post_
  */
 
 /**
- * Freeze all input events processing.
+ * @brief Freeze all input events processing.
  *
- * @param e The canvas to freeze input events processing on.
+ * @since_tizen 2.3
  *
- * This function will indicate to Evas that the canvas @p e is to have
+ * @param[in] e The canvas to freeze input events processing on.
+ *
+ * @remark This function will indicate to Evas that the canvas @p e is to have
  * all input event processing frozen until a matching
  * evas_event_thaw() function is called on the same canvas. All events
  * of this kind during the freeze will get @b discarded. Every freeze
@@ -278,7 +298,7 @@ EAPI void  evas_post_event_callback_remove_full(Evas *e, Evas_Object_Event_Post_
  * when you don't want the user to interact with your user interface
  * when you're populating a view or changing the layout.
  *
- * Example:
+ * @remark Example:
  * @dontinclude evas-events.c
  * @skip freeze input for 3 seconds
  * @until }
@@ -286,9 +306,9 @@ EAPI void  evas_post_event_callback_remove_full(Evas *e, Evas_Object_Event_Post_
  * @skip let's have our events back
  * @until }
  *
- * See the full @ref Example_Evas_Events "example".
+ * @remark See the full @ref Example_Evas_Events "example".
  *
- * If you run that example, you'll see the canvas ignoring all input
+ * @remark If you run that example, you'll see the canvas ignoring all input
  * events for 3 seconds, when the "f" key is pressed. In a more
  * realistic code we would be freezing while a toolkit or Edje was
  * doing some UI changes, thawing it back afterwards.
@@ -296,33 +316,37 @@ EAPI void  evas_post_event_callback_remove_full(Evas *e, Evas_Object_Event_Post_
 EAPI void             evas_event_freeze(Evas *e) EINA_ARG_NONNULL(1);
 
 /**
- * Thaw a canvas out after freezing (for input events).
+ * @brief Thaw a canvas out after freezing (for input events).
  *
- * @param e The canvas to thaw out.
+ * @since_tizen 2.3
  *
- * This will thaw out a canvas after a matching evas_event_freeze()
+ * @param[in] e The canvas to thaw out.
+ *
+ * @remark This will thaw out a canvas after a matching evas_event_freeze()
  * call. If this call completely thaws out a canvas, i.e., there's no
  * other unbalanced call to evas_event_freeze(), events will start to
  * be processed again, but any "missed" events will @b not be
  * evaluated.
  *
- * See evas_event_freeze() for an example.
+ * @remark See evas_event_freeze() for an example.
  */
 EAPI void             evas_event_thaw(Evas *e) EINA_ARG_NONNULL(1);
 
 /**
- * Return the freeze count on input events of a given canvas.
+ * @brief Return the freeze count on input events of a given canvas.
  *
- * @param e The canvas to fetch the freeze count from.
+ * @since_tizen 2.3
  *
- * This returns the number of times the canvas has been told to freeze
+ * @param[in] e The canvas to fetch the freeze count from.
+ *
+ * @remark This returns the number of times the canvas has been told to freeze
  * input events. It is possible to call evas_event_freeze() multiple
  * times, and these must be matched by evas_event_thaw() calls. This
  * call allows the program to discover just how many times things have
  * been frozen in case it may want to break out of a deep freeze state
  * where the count is high.
  *
- * Example:
+ * @remark Example:
  * @code
  * extern Evas *evas;
  *
@@ -333,11 +357,13 @@ EAPI void             evas_event_thaw(Evas *e) EINA_ARG_NONNULL(1);
 EAPI int              evas_event_freeze_get(const Evas *e) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1);
 
 /**
- * After thaw of a canvas, re-evaluate the state of objects and call callbacks
+ * @brief After thaw of a canvas, re-evaluate the state of objects and call callbacks
  *
- * @param e The canvas to evaluate after a thaw
+ * @since_tizen 2.3
  *
- * This is normally called after evas_event_thaw() to re-evaluate mouse
+ * @param[in] e The canvas to evaluate after a thaw
+ *
+ * @remark This is normally called after evas_event_thaw() to re-evaluate mouse
  * containment and other states and thus also call callbacks for mouse in and
  * out on new objects if the state change demands it.
  */
@@ -369,11 +395,13 @@ EAPI void                    evas_font_available_list_free(Evas *e, Eina_List *a
  */
 
 /**
- * Increments object reference count to defer its deletion.
+ * @brief Increments object reference count to defer its deletion.
  *
- * @param obj The given Evas object to reference
+ * @since_tizen 2.3
  *
- * This increments the reference count of an object, which if greater
+ * @param[in] obj The given Evas object to reference
+ *
+ * @remark This increments the reference count of an object, which if greater
  * than 0 will defer deletion by evas_object_del() until all
  * references are released back (counter back to 0). References cannot
  * go below 0 and unreferencing past that will result in the reference
@@ -384,7 +412,7 @@ EAPI void                    evas_font_available_list_free(Evas *e, Eina_List *a
  * @see evas_object_unref()
  * @see evas_object_del()
  *
- * @note This is a <b>very simple</b> reference counting mechanism! For
+ * @remark This is a <b>very simple</b> reference counting mechanism! For
  * instance, Evas is not ready to check for pending references on a
  * canvas deletion, or things like that. This is useful on scenarios
  * where, inside a code block, callbacks exist which would possibly
@@ -393,7 +421,7 @@ EAPI void                    evas_font_available_list_free(Evas *e, Eina_List *a
  * evas_object_unref() it on the end. It would then be deleted at this
  * point, if it should be.
  *
- * Example:
+ * @remark Example:
  * @code
  *  evas_object_ref(obj);
  *
@@ -409,11 +437,13 @@ EAPI void                    evas_font_available_list_free(Evas *e, Eina_List *a
 EAPI void             evas_object_ref(Evas_Object *obj);
 
 /**
- * Decrements object reference count.
+ * @brief Decrements object reference count.
  *
- * @param obj The given Evas object to unreference
+ * @since_tizen 2.3
  *
- * This decrements the reference count of an object. If the object has
+ * @param[in] obj The given Evas object to unreference
+ *
+ * @remark This decrements the reference count of an object. If the object has
  * had evas_object_del() called on it while references were more than
  * 0, it will be deleted at the time this function is called and puts
  * the counter back to 0. See evas_object_ref() for more information.
@@ -427,11 +457,13 @@ EAPI void             evas_object_ref(Evas_Object *obj);
 EAPI void             evas_object_unref(Evas_Object *obj);
 
 /**
- * Get the object reference count.
+ * @brief Get the object reference count.
  *
- * @param obj The given Evas object to query
+ * @since_tizen 2.3
  *
- * This gets the reference count for an object (normally 0 until it is
+ * @param[in] obj The given Evas object to query
+ *
+ * @remark This gets the reference count for an object (normally 0 until it is
  * referenced). Values of 1 or greater mean that someone is holding a
  * reference to this object that needs to be unreffed before it can be
  * deleted.
@@ -446,16 +478,18 @@ EAPI void             evas_object_unref(Evas_Object *obj);
 EAPI int              evas_object_ref_get(const Evas_Object *obj);
 
 /**
- * Marks the given Evas object for deletion (when Evas will free its
+ * @brief Marks the given Evas object for deletion (when Evas will free its
  * memory).
  *
- * @param obj The given Evas object.
+ * @since_tizen 2.3
  *
- * This call will mark @p obj for deletion, which will take place
+ * @param[in] obj The given Evas object.
+ *
+ * @remark This call will mark @p obj for deletion, which will take place
  * whenever it has no more references to it (see evas_object_ref() and
  * evas_object_unref()).
  *
- * At actual deletion time, which may or may not be just after this
+ * @remark At actual deletion time, which may or may not be just after this
  * call, ::EVAS_CALLBACK_DEL and ::EVAS_CALLBACK_FREE callbacks will
  * be called. If the object currently had the focus, its
  * ::EVAS_CALLBACK_FOCUS_OUT callback will also be called.
@@ -468,31 +502,33 @@ EAPI int              evas_object_ref_get(const Evas_Object *obj);
 EAPI void             evas_object_del(Evas_Object *obj) EINA_ARG_NONNULL(1);
 
 /**
- * Retrieves the position and (rectangular) size of the given Evas
+ * @brief Retrieves the position and (rectangular) size of the given Evas
  * object.
  *
- * @param obj The given Evas object.
- * @param x Pointer to an integer in which to store the X coordinate
+ * @since_tizen 2.3
+ *
+ * @param[in] obj The given Evas object.
+ * @param[out] x Pointer to an integer in which to store the X coordinate
  *          of the object.
- * @param y Pointer to an integer in which to store the Y coordinate
+ * @param[out] y Pointer to an integer in which to store the Y coordinate
  *          of the object.
- * @param w Pointer to an integer in which to store the width of the
+ * @param[out] w Pointer to an integer in which to store the width of the
  *          object.
- * @param h Pointer to an integer in which to store the height of the
+ * @param[out] h Pointer to an integer in which to store the height of the
  *          object.
  *
- * The position, naturally, will be relative to the top left corner of
+ * @remark The position, naturally, will be relative to the top left corner of
  * the canvas' viewport.
  *
- * @note Use @c NULL pointers on the geometry components you're not
+ * @remark Use @c NULL pointers on the geometry components you're not
  * interested in: they'll be ignored by the function.
  *
- * Example:
+ * @remark Example:
  * @dontinclude evas-events.c
  * @skip int w, h, cw, ch;
  * @until return
  *
- * See the full @ref Example_Evas_Events "example".
+ * @remark See the full @ref Example_Evas_Events "example".
  *
  * @ingroup Evas_Object_Group_Basic
  */
@@ -527,11 +563,13 @@ EAPI void             evas_object_geometry_set(Evas_Object *obj, Evas_Coord x, E
 
 
 /**
- * Makes the given Evas object visible.
+ * @brief Makes the given Evas object visible.
  *
- * @param obj The given Evas object.
+ * @since_tizen 2.3
  *
- * Besides becoming visible, the object's ::EVAS_CALLBACK_SHOW
+ * @param[in] obj The given Evas object.
+ *
+ * @remark Besides becoming visible, the object's ::EVAS_CALLBACK_SHOW
  * callback will be called.
  *
  * @see evas_object_hide() for more on object visibility.
@@ -542,32 +580,34 @@ EAPI void             evas_object_geometry_set(Evas_Object *obj, Evas_Coord x, E
 EAPI void             evas_object_show(Evas_Object *obj) EINA_ARG_NONNULL(1);
 
 /**
- * Makes the given Evas object invisible.
+ * @brief Makes the given Evas object invisible.
  *
- * @param obj The given Evas object.
+ * @since_tizen 2.3
  *
- * Hidden objects, besides not being shown at all in your canvas,
+ * @param[in] obj The given Evas object.
+ *
+ * @remark Hidden objects, besides not being shown at all in your canvas,
  * won't be checked for changes on the canvas rendering
  * process. Furthermore, they will not catch input events. Thus, they
  * are much ligher (in processing needs) than an object that is
  * invisible due to indirect causes, such as being clipped or out of
  * the canvas' viewport.
  *
- * Besides becoming hidden, @p obj object's ::EVAS_CALLBACK_SHOW
+ * @remark Besides becoming hidden, @p obj object's ::EVAS_CALLBACK_SHOW
  * callback will be called.
  *
- * @note All objects are created in the hidden state! If you want them
+ * @remark All objects are created in the hidden state! If you want them
  * shown, use evas_object_show() after their creation.
  *
  * @see evas_object_show()
  * @see evas_object_visible_get()
  *
- * Example:
+ * @remark Example:
  * @dontinclude evas-object-manipulation.c
  * @skip if (evas_object_visible_get(d.clipper))
  * @until return
  *
- * See the full @ref Example_Evas_Object_Manipulation "example".
+ * @remark See the full @ref Example_Evas_Object_Manipulation "example".
  *
  * @ingroup Evas_Object_Group_Basic
  */
@@ -575,15 +615,17 @@ EAPI void             evas_object_hide(Evas_Object *obj) EINA_ARG_NONNULL(1);
 
 
 /**
- *
- * Sets the general/main color of the given Evas object to the given
+ * @brief Sets the general/main color of the given Evas object to the given
  * one.
  *
+ * @since_tizen 2.3
+ *
  * @see evas_object_color_get() (for an example)
- * @note These color values are expected to be premultiplied by @p a.
+ * @remark These color values are expected to be premultiplied by @p a.
  *
  * @ingroup Evas_Object_Group_Basic
  *
+ * @param[in] obj The given Evas object.
  * @param[in] r The red component of the given color.
  * @param[in] g The green component of the given color.
  * @param[in] b The blue component of the given color.
@@ -592,35 +634,37 @@ EAPI void             evas_object_hide(Evas_Object *obj) EINA_ARG_NONNULL(1);
 EAPI void evas_object_color_set(Evas_Object *obj, int r, int g, int b, int a);
 
 /**
+ * @brief Retrieves the general/main color of the given Evas object.
  *
- * Retrieves the general/main color of the given Evas object.
+ * @since_tizen 2.3
  *
- * Retrieves the “main” color's RGB component (and alpha channel)
+ * @remark Retrieves the “main” color's RGB component (and alpha channel)
  * values, <b>which range from 0 to 255</b>. For the alpha channel,
  * which defines the object's transparency level, 0 means totally
  * transparent, while 255 means opaque. These color values are
  * premultiplied by the alpha value.
  *
- * Usually you’ll use this attribute for text and rectangle objects,
+ * @remark Usually you’ll use this attribute for text and rectangle objects,
  * where the “main” color is their unique one. If set for objects
  * which themselves have colors, like the images one, those colors get
  * modulated by this one.
  *
- * @note All newly created Evas rectangles get the default color
+ * @remark All newly created Evas rectangles get the default color
  * values of <code>255 255 255 255</code> (opaque white).
  *
- * @note Use @c NULL pointers on the components you're not interested
+ * @remark Use @c NULL pointers on the components you're not interested
  * in: they'll be ignored by the function.
  *
- * Example:
+ * @remark Example:
  * @dontinclude evas-object-manipulation.c
  * @skip int alpha, r, g, b;
  * @until return
  *
- * See the full @ref Example_Evas_Object_Manipulation "example".
+ * @remark See the full @ref Example_Evas_Object_Manipulation "example".
  *
  * @ingroup Evas_Object_Group_Basic
  *
+ * @param[in] obj The given Evas object.
  * @param[out] r The red component of the given color.
  * @param[out] g The green component of the given color.
  * @param[out] b The blue component of the given color.
@@ -629,26 +673,31 @@ EAPI void evas_object_color_set(Evas_Object *obj, int r, int g, int b, int a);
 EAPI void evas_object_color_get(const Evas_Object *obj, int *r, int *g, int *b, int *a);
 
 /**
+ * @brief Move the given Evas object to the given location inside its canvas' viewport.
  *
- * Move the given Evas object to the given location inside its canvas' viewport.
+ * @since_tizen 2.3
  *
+ * @param[in] obj The given Evas object.
  * @param[in] x in
  * @param[in] y in
  */
 EAPI void evas_object_move(Evas_Object *obj, Evas_Coord x, Evas_Coord y);
 
 /**
+ * @brief Changes the size of the given Evas object.
  *
- * Changes the size of the given Evas object.
+ * @since_tizen 2.3
  *
+ * @param[in] obj The given Evas object.
  * @param[in] w in
  * @param[in] h in
  */
 EAPI void evas_object_resize(Evas_Object *obj, Evas_Coord w, Evas_Coord h);
 
 /**
+ * @brief Retrieves whether or not the given Evas object is visible.
  *
- * Retrieves whether or not the given Evas object is visible.
+ * @since_tizen 2.3
  *
  */
 EAPI Eina_Bool evas_object_visible_get(const Evas_Object *obj);
@@ -668,22 +717,24 @@ EAPI Eina_Bool evas_object_visible_get(const Evas_Object *obj);
  */
 
 /**
- * Add (register) a callback function to a given Evas object event.
+ * @brief Add (register) a callback function to a given Evas object event.
  *
- * @param obj Object to attach a callback to
- * @param type The type of event that will trigger the callback
- * @param func The function to be called when the event is triggered
- * @param data The data pointer to be passed to @p func
+ * @since_tizen 2.3
  *
- * This function adds a function callback to an object when the event
+ * @param[in] obj Object to attach a callback to
+ * @param[in] type The type of event that will trigger the callback
+ * @param[in] func The function to be called when the event is triggered
+ * @param[in] data The data pointer to be passed to @p func
+ *
+ * @remark This function adds a function callback to an object when the event
  * of type @p type occurs on object @p obj. The function is @p func.
  *
- * In the event of a memory allocation error during addition of the
+ * @remark In the event of a memory allocation error during addition of the
  * callback to the object, evas_alloc_error() should be used to
  * determine the nature of the error, if any, and the program should
  * sensibly try and recover.
  *
- * A callback function must have the ::Evas_Object_Event_Cb prototype
+ * @remark A callback function must have the ::Evas_Object_Event_Cb prototype
  * definition. The first parameter (@p data) in this definition will
  * have the same value passed to evas_object_event_callback_add() as
  * the @p data parameter, at runtime. The second parameter @p e is the
@@ -694,7 +745,7 @@ EAPI Eina_Bool evas_object_visible_get(const Evas_Object *obj);
  * event type that triggered the callback. This is so because some
  * events don't carry extra context with them, but others do.
  *
- * The event type @p type to trigger the function may be one of
+ * @remark The event type @p type to trigger the function may be one of
  * #EVAS_CALLBACK_MOUSE_IN, #EVAS_CALLBACK_MOUSE_OUT,
  * #EVAS_CALLBACK_MOUSE_DOWN, #EVAS_CALLBACK_MOUSE_UP,
  * #EVAS_CALLBACK_MOUSE_MOVE, #EVAS_CALLBACK_MOUSE_WHEEL,
@@ -708,7 +759,7 @@ EAPI Eina_Bool evas_object_visible_get(const Evas_Object *obj);
  * #EVAS_CALLBACK_HOLD, #EVAS_CALLBACK_CHANGED_SIZE_HINTS,
  * #EVAS_CALLBACK_IMAGE_PRELOADED or #EVAS_CALLBACK_IMAGE_UNLOADED.
  *
- * This determines the kind of event that will trigger the callback.
+ * @remark This determines the kind of event that will trigger the callback.
  * What follows is a list explaining better the nature of each type of
  * event, along with their associated @p event_info pointers:
  *
@@ -842,32 +893,34 @@ EAPI Eina_Bool evas_object_visible_get(const Evas_Object *obj);
  *
  * - #EVAS_CALLBACK_IMAGE_UNLOADED: @p event_info is @c NULL.
  *
- * @note Be careful not to add the same callback multiple times, if
+ * @remark Be careful not to add the same callback multiple times, if
  * that's not what you want, because Evas won't check if a callback
  * existed before exactly as the one being registered (and thus, call
  * it more than once on the event, in this case). This would make
  * sense if you passed different functions and/or callback data, only.
  *
- * Example:
+ * @remark Example:
  * @dontinclude evas-events.c
  * @skip evas_object_event_callback_add(
  * @until }
  *
- * See the full example @ref Example_Evas_Events "here".
+ * @remark See the full example @ref Example_Evas_Events "here".
  *
  */
 EAPI void      evas_object_event_callback_add(Evas_Object *obj, Evas_Callback_Type type, Evas_Object_Event_Cb func, const void *data) EINA_ARG_NONNULL(1, 3);
 
 /**
- * Add (register) a callback function to a given Evas object event with a
+ * @brief Add (register) a callback function to a given Evas object event with a
  * non-default priority set. Except for the priority field, it's exactly the
  * same as @ref evas_object_event_callback_add
  *
- * @param obj Object to attach a callback to
- * @param type The type of event that will trigger the callback
- * @param priority The priority of the callback, lower values called first.
- * @param func The function to be called when the event is triggered
- * @param data The data pointer to be passed to @p func
+ * @since_tizen 2.3
+ *
+ * @param[in] obj Object to attach a callback to
+ * @param[in] type The type of event that will trigger the callback
+ * @param[in] priority The priority of the callback, lower values called first.
+ * @param[in] func The function to be called when the event is triggered
+ * @param[in] data The data pointer to be passed to @p func
  *
  * @see evas_object_event_callback_add
  * @since 1.1
@@ -875,21 +928,23 @@ EAPI void      evas_object_event_callback_add(Evas_Object *obj, Evas_Callback_Ty
 EAPI void      evas_object_event_callback_priority_add(Evas_Object *obj, Evas_Callback_Type type, Evas_Callback_Priority priority, Evas_Object_Event_Cb func, const void *data) EINA_ARG_NONNULL(1, 4);
 
 /**
- * Delete a callback function from an object
+ * @brief Delete a callback function from an object
  *
- * @param obj Object to remove a callback from
- * @param type The type of event that was triggering the callback
- * @param func The function that was to be called when the event was triggered
+ * @since_tizen 2.3
+ *
+ * @param[in] obj Object to remove a callback from
+ * @param[in] type The type of event that was triggering the callback
+ * @param[in] func The function that was to be called when the event was triggered
  * @return The data pointer that was to be passed to the callback
  *
- * This function removes the most recently added callback from the
+ * @remark This function removes the most recently added callback from the
  * object @p obj which was triggered by the event type @p type and was
  * calling the function @p func when triggered. If the removal is
  * successful it will also return the data pointer that was passed to
  * evas_object_event_callback_add() when the callback was added to the
  * object. If not successful @c NULL will be returned.
  *
- * Example:
+ * @remark Example:
  * @code
  * extern Evas_Object *object;
  * void *my_data;
@@ -901,17 +956,19 @@ EAPI void      evas_object_event_callback_priority_add(Evas_Object *obj, Evas_Ca
 EAPI void     *evas_object_event_callback_del(Evas_Object *obj, Evas_Callback_Type type, Evas_Object_Event_Cb func) EINA_ARG_NONNULL(1, 3);
 
 /**
- * Delete (unregister) a callback function registered to a given
+ * @brief Delete (unregister) a callback function registered to a given
  * Evas object event.
  *
- * @param obj Object to remove a callback from
- * @param type The type of event that was triggering the callback
- * @param func The function that was to be called when the event was
+ * @since_tizen 2.3
+ *
+ * @param[in] obj Object to remove a callback from
+ * @param[in] type The type of event that was triggering the callback
+ * @param[in] func The function that was to be called when the event was
  * triggered
- * @param data The data pointer that was to be passed to the callback
+ * @param[in] data The data pointer that was to be passed to the callback
  * @return The data pointer that was to be passed to the callback
  *
- * This function removes the most recently added callback from the
+ * @remark This function removes the most recently added callback from the
  * object @p obj, which was triggered by the event type @p type and was
  * calling the function @p func with data @p data, when triggered. If
  * the removal is successful it will also return the data pointer that
@@ -919,11 +976,11 @@ EAPI void     *evas_object_event_callback_del(Evas_Object *obj, Evas_Callback_Ty
  * same as the parameter) when the callback was added to the
  * object. In errors, @c NULL will be returned.
  *
- * @note For deletion of Evas object events callbacks filtering by
+ * @remark For deletion of Evas object events callbacks filtering by
  * just type and function pointer, use
  * evas_object_event_callback_del().
  *
- * Example:
+ * @remark Example:
  * @code
  * extern Evas_Object *object;
  * void *my_data;
@@ -945,33 +1002,35 @@ EAPI void     *evas_object_event_callback_del_full(Evas_Object *obj, Evas_Callba
  */
 
 /**
- * Set an attached data pointer to an object with a given string key.
+ * @brief Set an attached data pointer to an object with a given string key.
  *
- * @param obj The object to attach the data pointer to
- * @param key The string key for the data to access it
- * @param data The pointer to the data to be attached
+ * @since_tizen 2.3
  *
- * This attaches the pointer @p data to the object @p obj, given the
+ * @param[in] obj The object to attach the data pointer to
+ * @param[in] key The string key for the data to access it
+ * @param[in] data The pointer to the data to be attached
+ *
+ * @remark This attaches the pointer @p data to the object @p obj, given the
  * access string @p key. This pointer will stay "hooked" to the object
  * until a new pointer with the same string key is attached with
  * evas_object_data_set() or it is deleted with
  * evas_object_data_del(). On deletion of the object @p obj, the
  * pointers will not be accessible from the object anymore.
  *
- * You can find the pointer attached under a string key using
+ * @remark You can find the pointer attached under a string key using
  * evas_object_data_get(). It is the job of the calling application to
  * free any data pointed to by @p data when it is no longer required.
  *
- * If @p data is @c NULL, the old value stored at @p key will be
+ * @remark If @p data is @c NULL, the old value stored at @p key will be
  * removed but no new value will be stored. This is synonymous with
  * calling evas_object_data_del() with @p obj and @p key.
  *
- * @note This function is very handy when you have data associated
+ * @remark This function is very handy when you have data associated
  * specifically to an Evas object, being of use only when dealing with
  * it. Than you don't have the burden to a pointer to it elsewhere,
  * using this family of functions.
  *
- * Example:
+ * @remark Example:
  *
  * @code
  * int *my_data;
@@ -985,14 +1044,16 @@ EAPI void     *evas_object_event_callback_del_full(Evas_Object *obj, Evas_Callba
 EAPI void                     evas_object_data_set(Evas_Object *obj, const char *key, const void *data) EINA_ARG_NONNULL(1, 2);
 
 /**
- * Return an attached data pointer on an Evas object by its given
+ * @brief Return an attached data pointer on an Evas object by its given
  * string key.
  *
- * @param obj The object to which the data was attached
- * @param key The string key the data was stored under
+ * @since_tizen 2.3
+ *
+ * @param[in] obj The object to which the data was attached
+ * @param[in] key The string key the data was stored under
  * @return The data pointer stored, or @c NULL if none was stored
  *
- * This function will return the data pointer attached to the object
+ * @remark This function will return the data pointer attached to the object
  * @p obj, stored using the string key @p key. If the object is valid
  * and a data pointer was stored under the given key, that pointer
  * will be returned. If this is not the case, @c NULL will be
@@ -1002,7 +1063,7 @@ EAPI void                     evas_object_data_set(Evas_Object *obj, const char 
  * well. @c NULL pointers are never stored as this is the return value
  * if an error occurs.
  *
- * Example:
+ * @remark Example:
  *
  * @code
  * int *my_data;
@@ -1016,17 +1077,19 @@ EAPI void                     evas_object_data_set(Evas_Object *obj, const char 
 EAPI void                    *evas_object_data_get(const Evas_Object *obj, const char *key) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1, 2);
 
 /**
- * Delete an attached data pointer from an object.
+ * @brief Delete an attached data pointer from an object.
  *
- * @param obj The object to delete the data pointer from
- * @param key The string key the data was stored under
+ * @since_tizen 2.3
+ *
+ * @param[in] obj The object to delete the data pointer from
+ * @param[in] key The string key the data was stored under
  * @return The original data pointer stored at @p key on @p obj
  *
- * This will remove the stored data pointer from @p obj stored under
+ * @remark This will remove the stored data pointer from @p obj stored under
  * @p key and return this same pointer, if actually there was data
  * there, or @c NULL, if nothing was stored under that key.
  *
- * Example:
+ * @remark Example:
  *
  * @code
  * int *my_data;
@@ -1463,8 +1526,11 @@ EAPI void *evas_object_intercept_focus_set_callback_del(Evas_Object *obj, Evas_O
  */
 
 /**
- * Adds a rectangle to the given evas.
- * @param   e The given evas.
+ * @brief Adds a rectangle to the given evas.
+ * @param[in]   e The given evas.
+ *
+ * @since_tizen 2.3
+ *
  * @return  The new rectangle object.
  *
  * @ingroup Evas_Object_Rectangle
@@ -1485,16 +1551,16 @@ EAPI Evas_Object *evas_object_rectangle_add(Evas *e) EINA_WARN_UNUSED_RESULT EIN
  * User can create shape objects as well as fill objects and give it to the
  * Evas_Object_Vg for drawing on the screen as well as managing the lifecycle
  * of the objects. enabling reuse of shape objects.
- * 
- * As Evas_Object_Vg is a Evas_Object all the operation that applicable to 
+ *
+ * As Evas_Object_Vg is a Evas_Object all the operation that applicable to
  * a Evas_Object can be performed on it(clipping , map, etc).
  *
  * To create any complex vector graphics you can create a hirarchy of shape
  * and fill objects and give the hirarchy to Evas_Object which  will be
  * responsible for drawing and showing on the screen.
- * 
+ *
  * As the shape object and fill object (linear and radial gradient) have
- * retain mode API, you only have to create it once and set the properties 
+ * retain mode API, you only have to create it once and set the properties
  * and give it to evas_object_vg.
  *
  * Any change in the property of shape/fill object will automaticaly notified
@@ -1540,7 +1606,7 @@ EAPI Evas_Object *evas_object_rectangle_add(Evas *e) EINA_WARN_UNUSED_RESULT EIN
  *       evas_vg_node_origin_set(10, 10),
  *       efl_gfx_shape_stroke_width_set(1.0),
  *       evas_vg_node_color_set(128, 128, 128, 80),
- *       efl_gfx_shape_path_set(path_cmd, points)); 
+ *       efl_gfx_shape_path_set(path_cmd, points));
  * @endcode
  *
  * @since 1.14
@@ -2307,12 +2373,14 @@ EAPI void evas_vg_gradient_radial_focal_get(Eo *obj, double *x, double *y);
  * @{
  */
 /**
- * Creates a new image object on the given Evas @p e canvas.
+ * @brief Creates a new image object on the given Evas @p e canvas.
  *
- * @param e The given canvas.
+ * @since_tizen 2.3
+ *
+ * @param[in] e The given canvas.
  * @return The created image object handle.
  *
- * @note If you intend to @b display an image somehow in a GUI,
+ * @remark If you intend to @b display an image somehow in a GUI,
  * besides binding it to a real image file/source (with
  * evas_object_image_file_set(), for example), you'll have to tell
  * this image object how to fill its space with the pixels it can get
@@ -2322,7 +2390,7 @@ EAPI void evas_vg_gradient_radial_focal_get(Eo *obj, double *x, double *y);
  *
  * @see evas_object_image_fill_set()
  *
- * Example:
+ * @remark Example:
  * @code
  * img = evas_object_image_add(canvas);
  * evas_object_image_file_set(img, "/path/to/img", NULL);
@@ -2331,17 +2399,19 @@ EAPI void evas_vg_gradient_radial_focal_get(Eo *obj, double *x, double *y);
 EAPI Evas_Object                  *evas_object_image_add(Evas *e) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1) EINA_MALLOC;
 
 /**
- * Creates a new image object that @b automatically scales its bound
+ * @brief Creates a new image object that @b automatically scales its bound
  * image to the object's area, on both axis.
  *
- * @param e The given canvas.
+ * @since_tizen 2.3
+ *
+ * @param[in] e The given canvas.
  * @return The created image object handle.
  *
- * This is a helper function around evas_object_image_add() and
+ * @remark This is a helper function around evas_object_image_add() and
  * evas_object_image_filled_set(). It has the same effect of applying
  * those functions in sequence, which is a very common use case.
  *
- * @note Whenever this object gets resized, the bound image will be
+ * @remark Whenever this object gets resized, the bound image will be
  * rescaled, too.
  *
  * @see evas_object_image_add()
@@ -2351,9 +2421,11 @@ EAPI Evas_Object                  *evas_object_image_add(Evas *e) EINA_WARN_UNUS
 EAPI Evas_Object                  *evas_object_image_filled_add(Evas *e) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1) EINA_MALLOC;
 
 /**
- * Sets the data for an image from memory to be loaded
+ * @brief Sets the data for an image from memory to be loaded
  *
- * This is the same as evas_object_image_file_set() but the file to be loaded
+ * @since_tizen 2.3
+ *
+ * @remark This is the same as evas_object_image_file_set() but the file to be loaded
  * may exist at an address in memory (the data for the file, not the filename
  * itself). The @p data at the address is copied and stored for future use, so
  * no @p data needs to be kept after this call is made. It will be managed and
@@ -2362,49 +2434,53 @@ EAPI Evas_Object                  *evas_object_image_filled_add(Evas *e) EINA_WA
  * invalid. Set the filename to @c NULL to reset to empty state and have the
  * image file data freed from memory using evas_object_image_file_set().
  *
- * The @p format is optional (pass @c NULL if you don't need/use it). It is
+ * @remark The @p format is optional (pass @c NULL if you don't need/use it). It is
  * used to help Evas guess better which loader to use for the data. It may
  * simply be the "extension" of the file as it would normally be on disk
  * such as "jpg" or "png" or "gif" etc.
  *
- * @param obj The given image object.
- * @param data The image file data address
- * @param size The size of the image file data in bytes
- * @param format The format of the file (optional), or @c NULL if not needed
- * @param key The image key in file, or @c NULL.
+ * @param[in] obj The given image object.
+ * @param[in] data The image file data address
+ * @param[in] size The size of the image file data in bytes
+ * @param[in] format The format of the file (optional), or @c NULL if not needed
+ * @param[in] key The image key in file, or @c NULL.
  */
 EAPI void                          evas_object_image_memfile_set(Evas_Object *obj, void *data, int size, char *format, char *key) EINA_ARG_NONNULL(1, 2);
 
 /**
- * Set the native surface of a given image of the canvas
+ * @brief Set the native surface of a given image of the canvas
  *
- * @param obj The given canvas pointer.
- * @param surf The new native surface.
+ * @since_tizen 2.3
  *
- * This function sets a native surface of a given canvas image.
+ * @param[in] obj The given canvas pointer.
+ * @param[in] surf The new native surface.
+ *
+ * @remark This function sets a native surface of a given canvas image.
  *
  */
 EAPI void                          evas_object_image_native_surface_set(Evas_Object *obj, Evas_Native_Surface *surf) EINA_ARG_NONNULL(1, 2);
 
 /**
- * Preload an image object's image data in the background
+ * @brief Preload an image object's image data in the background
  *
- * @param obj The given image object.
- * @param cancel @c EINA_FALSE will add it the preloading work queue,
+ * @since_tizen 2.3
+ *
+ * @param[in] obj The given image object.
+ * @param[in] cancel @c EINA_FALSE will add it the preloading work queue,
  *               @c EINA_TRUE will remove it (if it was issued before).
  *
- * This function requests the preload of the data image in the
+ * @remark This function requests the preload of the data image in the
  * background. The work is queued before being processed (because
  * there might be other pending requests of this type).
  *
- * Whenever the image data gets loaded, Evas will call
+ * @remark Whenever the image data gets loaded, Evas will call
  * #EVAS_CALLBACK_IMAGE_PRELOADED registered callbacks on @p obj (what
  * may be immediately, if the data was already preloaded before).
  *
- * Use @c EINA_TRUE for @p cancel on scenarios where you don't need
+ * @remark Use @c EINA_TRUE for @p cancel on scenarios where you don't need
  * the image data preloaded anymore.
  *
- * @note Any evas_object_show() call after evas_object_image_preload()
+ * @remark Any evas_object_show() call after evas_object_image_preload()
  * will make the latter to be @b cancelled, with the loading process
  * now taking place @b synchronously (and, thus, blocking the return
  * of the former until the image is loaded). It is highly advisable,
@@ -2414,40 +2490,46 @@ EAPI void                          evas_object_image_native_surface_set(Evas_Obj
 EAPI void                          evas_object_image_preload(Evas_Object *obj, Eina_Bool cancel) EINA_ARG_NONNULL(1);
 
 /**
- * Clear the source object on a proxy image object.
+ * @brief Clear the source object on a proxy image object.
  *
- * @param obj Image object to clear source of.
+ * @since_tizen 2.3
+ *
+ * @param[in] obj Image object to clear source of.
  * @return @c EINA_TRUE on success, @c EINA_FALSE on error.
  *
- * This is equivalent to calling evas_object_image_source_set() with a
+ * @remark This is equivalent to calling evas_object_image_source_set() with a
  * @c NULL source.
  */
 EAPI Eina_Bool                     evas_object_image_source_unset(Evas_Object *obj) EINA_ARG_NONNULL(1);
 
 /**
- * Enable an image to be used as an alpha mask.
+ * @brief Enable an image to be used as an alpha mask.
  *
- * This will set any flags, and discard any excess image data not used as an
+ * @since_tizen 2.3
+ *
+ * @remark This will set any flags, and discard any excess image data not used as an
  * alpha mask.
  *
- * Note there is little point in using a image as alpha mask unless it has an
+ * @remark Note there is little point in using a image as alpha mask unless it has an
  * alpha channel.
  *
- * @param obj Object to use as an alpha mask.
- * @param ismask Use image as alphamask, must be true.
+ * @param[in] obj Object to use as an alpha mask.
+ * @param[in] ismask Use image as alphamask, must be true.
  */
 EAPI void                          evas_object_image_alpha_mask_set(Evas_Object *obj, Eina_Bool ismask) EINA_ARG_NONNULL(1);
 
 /**
- *
+ * @brief
  * Set the source file from where an image object must fetch the real
  * image data (it may be an Eet file, besides pure image ones).
  *
- * If the file supports multiple data stored in it (as Eet files do),
+ * @since_tizen 2.3
+ *
+ * @remark If the file supports multiple data stored in it (as Eet files do),
  * you can specify the key to be used as the index of the image in
  * this file.
  *
- * Example:
+ * @remark Example:
  * @code
  * img = evas_object_image_add(canvas);
  * evas_object_image_file_set(img, "/path/to/img", NULL);
@@ -2472,13 +2554,14 @@ NULL, otherwise.
 EAPI void evas_object_image_file_set(Eo *obj, const char *file, const char *key);
 
 /**
- *
- * Retrieve the source file from where an image object is to fetch the
+ * @brief Retrieve the source file from where an image object is to fetch the
  * real image data (it may be an Eet file, besides pure image ones).
  *
- * You must @b not modify the strings on the returned pointers.
+ * @since_tizen 2.3
  *
- * @note Use @c NULL pointers on the file components you're not
+ * @remark You must @b not modify the strings on the returned pointers.
+ *
+ * @remark Use @c NULL pointers on the file components you're not
  * interested in: they'll be ignored by the function.
  *
  * @param[out] file The image file path.
@@ -2522,15 +2605,17 @@ NULL, otherwise.
 EAPI void evas_object_image_mmap_get(const Eo *obj, const Eina_File **f, const char **key);
 
 /**
- *
+ * @brief
  * Save the given image object's contents to an (image) file.
  *
- * The extension suffix on @p file will determine which <b>saver
+ * @since_tizen 2.3
+ *
+ * @remark The extension suffix on @p file will determine which <b>saver
  * module</b> Evas is to use when saving, thus the final file's
  * format. If the file supports multiple data stored in it (Eet ones),
  * you can specify the key to be used as the index of the image in it.
  *
- * You can specify some flags when saving the image.  Currently
+ * @remark You can specify some flags when saving the image.  Currently
  * acceptable flags are @c quality and @c compress. Eg.: @c
  * "quality=100 compress=9"
  *
@@ -2544,16 +2629,17 @@ none).
 EAPI Eina_Bool evas_object_image_save(const Eo *obj, const char *file, const char *key, const char *flags) EINA_ARG_NONNULL(2);
 
 /**
+ * @brief Check if an image object can be animated (have multiple frames)
  *
- * Check if an image object can be animated (have multiple frames)
+ * @since_tizen 2.3
  *
  * @return whether obj support animation
  *
- * This returns if the image file of an image object is capable of animation
+ * @remark This returns if the image file of an image object is capable of animation
  * such as an animated gif file might. This is only useful to be called once
  * the image object file has been set.
  *
- * Example:
+ * @remark Example:
  * @code
  * extern Evas_Object *obj;
  *
@@ -2598,14 +2684,15 @@ EAPI Eina_Bool evas_object_image_save(const Eo *obj, const char *file, const cha
 EAPI Eina_Bool evas_object_image_animated_get(const Eo *obj);
 
 /**
+ * @brief Set the load size of a given image object's source image.
  *
- * Set the load size of a given image object's source image.
+ * @since_tizen 2.3
  *
- * This function sets a new geometry size for the given canvas image.
+ * @remark This function sets a new geometry size for the given canvas image.
  * The image will be loaded into memory as if it was the set size instead of
  * the original size.
  *
- * @note The size of a given image object's source image will be less than or
+ * @remark The size of a given image object's source image will be less than or
  * equal to the size of @p w and @p h.
  *
  * @see evas_object_image_load_size_get()
@@ -2616,14 +2703,15 @@ EAPI Eina_Bool evas_object_image_animated_get(const Eo *obj);
 EAPI void evas_object_image_load_size_set(Eo *obj, int w, int h);
 
 /**
+ * @brief Get the load size of a given image object's source image.
  *
- * Get the load size of a given image object's source image.
+ * @since_tizen 2.3
  *
- * This function gets the geometry size set manually for the given canvas image.
+ * @remark This function gets the geometry size set manually for the given canvas image.
  *
- * @note Use @c NULL pointers on the size components you're not
+ * @remark Use @c NULL pointers on the size components you're not
  * interested in: they'll be ignored by the function.
- * @note @p w and @p h will be set with the image's loading size only if
+ * @remark @p w and @p h will be set with the image's loading size only if
  * the image's load size is set manually: if evas_object_image_load_size_set()
  * has not been called, @p w and @p h will be set with 0.
  *
@@ -2635,16 +2723,17 @@ EAPI void evas_object_image_load_size_set(Eo *obj, int w, int h);
 EAPI void evas_object_image_load_size_get(const Eo *obj, int *w, int *h);
 
 /**
- *
- * Sets whether to use high-quality image scaling algorithm on the
+ * @brief Sets whether to use high-quality image scaling algorithm on the
  * given image object.
  *
- * When enabled, a higher quality image scaling algorithm is used when
+ * @since_tizen 2.3
+ *
+ * @remark When enabled, a higher quality image scaling algorithm is used when
  * scaling images to sizes other than the source image's original
  * one. This gives better results but is more computationally
  * expensive.
  *
- * @note Image objects get created originally with smooth scaling @b
+ * @remark Image objects get created originally with smooth scaling @b
  * on.
  *
  * @see evas_object_image_smooth_scale_get()
@@ -2654,13 +2743,14 @@ EAPI void evas_object_image_load_size_get(const Eo *obj, int *w, int *h);
 EAPI void evas_object_image_smooth_scale_set(Eo *obj, Eina_Bool smooth_scale);
 
 /**
- *
- * Retrieves whether the given image object is using high-quality
+ * @brief Retrieves whether the given image object is using high-quality
  * image scaling algorithm.
+ *
+ * @since_tizen 2.3
  *
  * @return Whether smooth scale is being used.
  *
- * See @ref evas_object_image_smooth_scale_set() for more details.
+ * @remark See @ref evas_object_image_smooth_scale_set() for more details.
  *
  */
 EAPI Eina_Bool evas_object_image_smooth_scale_get(const Eo *obj);
@@ -2678,13 +2768,15 @@ EAPI Eina_Bool evas_object_image_smooth_scale_get(const Eo *obj);
  */
 
 /**
- * Creates a new text object on the provided canvas.
+ * @brief Creates a new text object on the provided canvas.
  *
- * @param e The canvas to create the text object on.
+ * @since_tizen 2.3
+ *
+ * @param[in] e The canvas to create the text object on.
  * @return @c NULL on error, a pointer to a new text object on
  * success.
  *
- * Text objects are for simple, single line text elements. If you want
+ * @remark Text objects are for simple, single line text elements. If you want
  * more elaborated text blocks, see @ref Evas_Object_Textblock.
  *
  * @see evas_object_text_font_source_set()
@@ -2694,8 +2786,9 @@ EAPI Eina_Bool evas_object_image_smooth_scale_get(const Eo *obj);
 EAPI Evas_Object         *evas_object_text_add(Evas *e) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1) EINA_MALLOC;
 
 /**
+ * @brief Sets the text string to be displayed by the given text object.
  *
- * Sets the text string to be displayed by the given text object.
+ * @since_tizen 2.3
  *
  * @see evas_object_text_text_get()
  *
@@ -2704,13 +2797,14 @@ EAPI Evas_Object         *evas_object_text_add(Evas *e) EINA_WARN_UNUSED_RESULT 
 EAPI void evas_object_text_text_set(Eo *obj, const char *text);
 
 /**
- *
- * Retrieves the text string currently being displayed by the given
+ * @brief Retrieves the text string currently being displayed by the given
  * text object.
+ *
+ * @since_tizen 2.3
  *
  * @return The text string currently being displayed on it.
  *
- * @note Do not free() the return value.
+ * @remark Do not free() the return value.
  *
  * @see evas_object_text_text_set()
  *
@@ -2720,10 +2814,11 @@ EAPI const char *evas_object_text_text_get(const Eo *obj);
 #include "canvas/evas_text.eo.legacy.h"
 
 /**
+ * @brief Set the font (source) file to be used on a given text object.
  *
- * Set the font (source) file to be used on a given text object.
+ * @since_tizen 2.3
  *
- * This function allows the font file to be explicitly set for a given
+ * @remark This function allows the font file to be explicitly set for a given
  * text object, overriding system lookup, which will first occur in
  * the given file's contents.
  *
@@ -2734,9 +2829,10 @@ EAPI const char *evas_object_text_text_get(const Eo *obj);
 EAPI void evas_object_text_font_source_set(Eo *obj, const char *font_source);
 
 /**
- *
- * Get the font file's path which is being used on a given text
+ * @brief Get the font file's path which is being used on a given text
  * object.
+ *
+ * @since_tizen 2.3
  *
  * @return The font file's path.
  *
@@ -2746,10 +2842,11 @@ EAPI void evas_object_text_font_source_set(Eo *obj, const char *font_source);
 EAPI const char *evas_object_text_font_source_get(const Eo *obj);
 
 /**
+ * @brief Set the font family or filename, and size on a given text object.
  *
- * Set the font family or filename, and size on a given text object.
+ * @since_tizen 2.3
  *
- * This function allows the font name and size of a text object to be
+ * @remark This function allows the font name and size of a text object to be
  * set. The @p font string has to follow fontconfig's convention on
  * naming fonts, as it's the underlying library used to query system
  * fonts by Evas (see the @c fc-list command's output, on your system,
@@ -2764,10 +2861,11 @@ EAPI const char *evas_object_text_font_source_get(const Eo *obj);
 EAPI void evas_object_text_font_set(Eo *obj, const char *font, Evas_Font_Size size);
 
 /**
+ * @brief Retrieve the font family and size in use on a given text object.
  *
- * Retrieve the font family and size in use on a given text object.
+ * @since_tizen 2.3
  *
- * This function allows the font name and size of a text object to be
+ * @remark This function allows the font name and size of a text object to be
  * queried. Be aware that the font name string is still owned by Evas
  * and should @b not have free() called on it by the caller of the
  * function.
@@ -2791,46 +2889,55 @@ EAPI void evas_object_text_font_get(const Eo *obj, const char **font, Evas_Font_
  */
 
 /**
- * Adds a textblock to the given evas.
- * @param   e The given evas.
+ * @brief Adds a textblock to the given evas.
+ * @param[in]   e The given evas.
+ *
+ * @since_tizen 2.3
+ *
  * @return  The new textblock object.
  */
 EAPI Evas_Object                             *evas_object_textblock_add(Evas *e) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1) EINA_MALLOC;
 
 /**
- * Return the plain version of the markup.
+ * @brief Return the plain version of the markup.
  *
- * Works as if you set the markup to a textblock and then retrieve the plain
+ * @since_tizen 2.3
+ *
+ * @remark Works as if you set the markup to a textblock and then retrieve the plain
  * version of the text. i.e: <br> and <\n> will be replaced with \n, &...; with
  * the actual char and etc.
  *
- * @param obj The textblock object to work with. (if @c NULL, tries the
+ * @param[in] obj The textblock object to work with. (if @c NULL, tries the
  * default).
- * @param text The markup text (if @c NULL, return @c NULL).
+ * @param[in] text The markup text (if @c NULL, return @c NULL).
  * @return An allocated plain text version of the markup.
  * @since 1.2
  */
 EAPI char                                    *evas_textblock_text_markup_to_utf8(const Evas_Object *obj, const char *text) EINA_WARN_UNUSED_RESULT EINA_MALLOC;
 
 /**
- * Return the markup version of the plain text.
+ * @brief Return the markup version of the plain text.
  *
- * Replaces \\n -\> \<br/\> \\t -\> \<tab/\> and etc. Generally needed before you pass
+ * @since_tizen 2.3
+ *
+ * @remark Replaces \\n -\> \<br/\> \\t -\> \<tab/\> and etc. Generally needed before you pass
  * plain text to be set in a textblock.
  *
- * @param obj the textblock object to work with (if @c NULL, it just does the
+ * @param[in] obj the textblock object to work with (if @c NULL, it just does the
  * default behaviour, i.e with no extra object information).
- * @param text The plain text (if @c NULL, return @c NULL).
+ * @param[in] text The plain text (if @c NULL, return @c NULL).
  * @return An allocated markup version of the plain text.
  * @since 1.2
  */
 EAPI char                                    *evas_textblock_text_utf8_to_markup(const Evas_Object *obj, const char *text) EINA_WARN_UNUSED_RESULT EINA_MALLOC;
 
 /**
- * Clear the textblock object.
- * @note Does *NOT* free the Evas object itself.
+ * @brief Clear the textblock object.
+ * @remark Does *NOT* free the Evas object itself.
  *
- * @param obj the object to clear.
+ * @since_tizen 2.3
+ *
+ * @param[in] obj the object to clear.
  * @return nothing.
  */
 EAPI void                                     evas_object_textblock_clear(Evas_Object *obj) EINA_ARG_NONNULL(1);
@@ -2956,8 +3063,11 @@ EAPI void evas_object_textgrid_font_get(const Eo *obj, const char **font_name, E
  * @{
  */
 /**
- * Adds a new evas line object to the given evas.
- * @param   e The given evas.
+ * @brief Adds a new evas line object to the given evas.
+ * @param[in]   e The given evas.
+ *
+ * @since_tizen 2.3
+ *
  * @return  The new evas line object.
  */
 EAPI Evas_Object *evas_object_line_add(Evas *e) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1) EINA_MALLOC;
@@ -2974,8 +3084,11 @@ EAPI Evas_Object *evas_object_line_add(Evas *e) EINA_WARN_UNUSED_RESULT EINA_ARG
  * @{
  */
 /**
- * Adds a new evas polygon object to the given evas.
- * @param   e The given evas.
+ * @brief Adds a new evas polygon object to the given evas.
+ * @param[in]   e The given evas.
+ *
+ * @since_tizen 2.3
+ *
  * @return  A new evas polygon object.
  */
 EAPI Evas_Object *evas_object_polygon_add(Evas *e) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1) EINA_MALLOC;
@@ -2997,13 +3110,15 @@ EAPI Evas_Object *evas_object_polygon_add(Evas *e) EINA_WARN_UNUSED_RESULT EINA_
  * @{
  */
 /**
- * Instantiates a new smart object described by @p s.
+ * @brief Instantiates a new smart object described by @p s.
  *
- * @param e the canvas on which to add the object
- * @param s the #Evas_Smart describing the smart object
+ * @since_tizen 2.3
+ *
+ * @param[in] e the canvas on which to add the object
+ * @param[in] s the #Evas_Smart describing the smart object
  * @return a new #Evas_Object handle
  *
- * This is the function one should use when defining the public
+ * @remark This is the function one should use when defining the public
  * function @b adding an instance of the new smart object to a given
  * canvas. It will take care of setting all of its internals to work
  * as they should, if the user set things properly, as seem on the
@@ -3014,18 +3129,20 @@ EAPI Evas_Object *evas_object_polygon_add(Evas *e) EINA_WARN_UNUSED_RESULT EINA_
 EAPI Evas_Object *evas_object_smart_add(Evas *e, Evas_Smart *s) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1, 2) EINA_MALLOC;
 
 /**
- * Set an Evas object as a member of a given smart object.
+ * @brief Set an Evas object as a member of a given smart object.
  *
- * @param obj The member object
- * @param smart_obj The smart object
+ * @since_tizen 2.3
  *
- * Members will automatically be stacked and layered together with the
+ * @param[in] obj The member object
+ * @param[in] smart_obj The smart object
+ *
+ * @remark Members will automatically be stacked and layered together with the
  * smart object. The various stacking functions will operate on
  * members relative to the other members instead of the entire canvas,
  * since they now live on an exclusive layer (see
  * evas_object_stack_above(), for more details).
  *
- * Any @p smart_obj object's specific implementation of the @c
+ * @remark Any @p smart_obj object's specific implementation of the @c
  * member_add() smart function will take place too, naturally.
  *
  * @see evas_object_smart_member_del()
@@ -3036,12 +3153,14 @@ EAPI Evas_Object *evas_object_smart_add(Evas *e, Evas_Smart *s) EINA_WARN_UNUSED
 EAPI void         evas_object_smart_member_add(Evas_Object *obj, Evas_Object *smart_obj) EINA_ARG_NONNULL(1, 2);
 
 /**
- * Removes a member object from a given smart object.
+ * @brief Removes a member object from a given smart object.
  *
- * @param obj the member object
+ * @since_tizen 2.3
+ *
+ * @param[in] obj the member object
  * @ingroup Evas_Smart_Object_Group
  *
- * This removes a member object from a smart object, if it was added
+ * @remark This removes a member object from a smart object, if it was added
  * to any. The object will still be on the canvas, but no longer
  * associated with whichever smart object it was associated with.
  *
@@ -3051,26 +3170,28 @@ EAPI void         evas_object_smart_member_add(Evas_Object *obj, Evas_Object *sm
 EAPI void         evas_object_smart_member_del(Evas_Object *obj) EINA_ARG_NONNULL(1);
 
 /**
- * Add (register) a callback function to the smart event specified by
+ * @brief Add (register) a callback function to the smart event specified by
  * @p event on the smart object @p obj.
  *
- * @param obj a smart object
- * @param event the event's name string
- * @param func the callback function
- * @param data user data to be passed to the callback function
+ * @since_tizen 2.3
  *
- * Smart callbacks look very similar to Evas callbacks, but are
+ * @param[in] obj a smart object
+ * @param[in] event the event's name string
+ * @param[in] func the callback function
+ * @param[in] data user data to be passed to the callback function
+ *
+ * @remark Smart callbacks look very similar to Evas callbacks, but are
  * implemented as smart object's custom ones.
  *
- * This function adds a function callback to an smart object when the
+ * @remark This function adds a function callback to an smart object when the
  * event named @p event occurs in it. The function is @p func.
  *
- * In the event of a memory allocation error during addition of the
+ * @remark In the event of a memory allocation error during addition of the
  * callback to the object, evas_alloc_error() should be used to
  * determine the nature of the error, if any, and the program should
  * sensibly try and recover.
  *
- * A smart callback function must have the ::Evas_Smart_Cb prototype
+ * @remark A smart callback function must have the ::Evas_Smart_Cb prototype
  * definition. The first parameter (@p data) in this definition will
  * have the same value passed to evas_object_smart_callback_add() as
  * the @p data parameter, at runtime. The second parameter @p obj is a
@@ -3079,7 +3200,7 @@ EAPI void         evas_object_smart_member_del(Evas_Object *obj) EINA_ARG_NONNUL
  * dependent on the smart object's implementation and semantic for the
  * given event.
  *
- * There is an infrastructure for introspection on smart objects'
+ * @remark There is an infrastructure for introspection on smart objects'
  * events (see evas_smart_callbacks_descriptions_get()), but no
  * internal smart objects on Evas implement them yet.
  *
@@ -3108,15 +3229,17 @@ EAPI void         evas_object_smart_callback_add(Evas_Object *obj, const char *e
 EAPI void         evas_object_smart_callback_priority_add(Evas_Object *obj, const char *event, Evas_Callback_Priority priority, Evas_Smart_Cb func, const void *data);
 
 /**
- * Delete (unregister) a callback function from the smart event
+ * @brief Delete (unregister) a callback function from the smart event
  * specified by @p event on the smart object @p obj.
  *
- * @param obj a smart object
- * @param event the event's name string
- * @param func the callback function
+ * @since_tizen 2.3
+ *
+ * @param[in] obj a smart object
+ * @param[in] event the event's name string
+ * @param[in] func the callback function
  * @return the data pointer
  *
- * This function removes <b>the first</b> added smart callback on the
+ * @remark This function removes <b>the first</b> added smart callback on the
  * object @p obj matching the event name @p event and the registered
  * function pointer @p func. If the removal is successful it will also
  * return the data pointer that was passed to
@@ -3131,16 +3254,18 @@ EAPI void         evas_object_smart_callback_priority_add(Evas_Object *obj, cons
 EAPI void        *evas_object_smart_callback_del(Evas_Object *obj, const char *event, Evas_Smart_Cb func) EINA_ARG_NONNULL(1, 2, 3);
 
 /**
- * Delete (unregister) a callback function from the smart event
+ * @brief Delete (unregister) a callback function from the smart event
  * specified by @p event on the smart object @p obj.
  *
- * @param obj a smart object
- * @param event the event's name string
- * @param func the callback function
- * @param data the data pointer that was passed to the callback
+ * @since_tizen 2.3
+ *
+ * @param[in] obj a smart object
+ * @param[in] event the event's name string
+ * @param[in] func the callback function
+ * @param[in] data the data pointer that was passed to the callback
  * @return the data pointer
  *
- * This function removes <b>the first</b> added smart callback on the
+ * @remark This function removes <b>the first</b> added smart callback on the
  * object @p obj matching the event name @p event, the registered
  * function pointer @p func and the callback data pointer @p data. If
  * the removal is successful it will also return the data pointer that
@@ -3153,20 +3278,22 @@ EAPI void        *evas_object_smart_callback_del(Evas_Object *obj, const char *e
  * @since 1.2
  * @ingroup Evas_Smart_Object_Group
  *
- * @note To delete all smart event callbacks which match @p type and @p func,
+ * @remark To delete all smart event callbacks which match @p type and @p func,
  * use evas_object_smart_callback_del().
  */
 EAPI void        *evas_object_smart_callback_del_full(Evas_Object *obj, const char *event, Evas_Smart_Cb func, const void *data) EINA_ARG_NONNULL(1, 2, 3);
 
 /**
- * Call a given smart callback on the smart object @p obj.
+ * @brief Call a given smart callback on the smart object @p obj.
  *
- * @param obj the smart object
- * @param event the event's name string
- * @param event_info pointer to an event specific struct or information to
+ * @since_tizen 2.3
+ *
+ * @param[in] obj the smart object
+ * @param[in] event the event's name string
+ * @param[in] event_info pointer to an event specific struct or information to
  * pass to the callback functions registered on this smart event
  *
- * This should be called @b internally, from the smart object's own
+ * @remark This should be called @b internally, from the smart object's own
  * code, when some specific event has occurred and the implementor
  * wants is to pertain to the object's events API (see @ref
  * Evas_Smart_Object_Group_Callbacks). The documentation for the smart
@@ -3210,11 +3337,13 @@ EAPI const void       *evas_object_smart_interface_get(const Evas_Object *obj, c
 EAPI void             *evas_object_smart_interface_data_get(const Evas_Object *obj, const Evas_Smart_Interface *iface);
 
 /**
- * This gets the internal counter that counts the number of smart calculations
+ * @brief This gets the internal counter that counts the number of smart calculations
  *
- * @param e The canvas to get the calculate counter from
+ * @since_tizen 2.3
  *
- * Whenever evas performs smart object calculations on the whole canvas
+ * @param[in] e The canvas to get the calculate counter from
+ *
+ * @remark Whenever evas performs smart object calculations on the whole canvas
  * it increments a counter by 1. This is the smart object calculate counter
  * that this function returns the value of. It starts at the value of 0 and
  * will increase (and eventually wrap around to negative values and so on) by
@@ -3263,15 +3392,17 @@ EAPI Evas_Object            *evas_object_smart_clipped_clipper_get(const Evas_Ob
  *
  * @{
  */
- 
- /**
- * Add a new box object on the provided canvas.
+
+/**
+ * @brief Add a new box object on the provided canvas.
  *
- * @param evas The canvas to create the box object on.
+ * @since_tizen 2.3
+ *
+ * @param[in] evas The canvas to create the box object on.
  * @return @c NULL on error, a pointer to a new box object on
  * success.
  *
- * After instantiation, if a box object hasn't its layout function
+ * @remark After instantiation, if a box object hasn't its layout function
  * set, via evas_object_box_layout_set(), it will have it by default
  * set to evas_object_box_layout_horizontal(). The remaining
  * properties of the box must be set/retrieved via
@@ -3280,64 +3411,70 @@ EAPI Evas_Object            *evas_object_smart_clipped_clipper_get(const Evas_Ob
 EAPI Evas_Object               *evas_object_box_add(Evas *evas) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1) EINA_MALLOC;
 
 /**
- * Get a property's value (by its given numerical identifier), on a
+ * @brief Get a property's value (by its given numerical identifier), on a
  * given box child element -- by a variable argument list
  *
- * @param o The box parenting the child element
- * @param opt The box option structure bound to the child box element
+ * @since_tizen 2.3
+ *
+ * @param[in] o The box parenting the child element
+ * @param[in] opt The box option structure bound to the child box element
  * to get a property from
- * @param property The numerical ID of the given property
- * @param args The variable argument list with pointers to where to
+ * @param[in] property The numerical ID of the given property
+ * @param[out] args The variable argument list with pointers to where to
  * store the values of this property. They @b must point to variables
  * of the same type the user has defined for them.
  * @return @c EINA_TRUE on success, @c EINA_FALSE on failure.
  *
- * This is a variable argument list variant of the
+ * @remark This is a variable argument list variant of the
  * evas_object_box_option_property_get(). See its documentation for
  * more details.
  */
 EAPI Eina_Bool                  evas_object_box_option_property_vget(const Evas_Object *o, Evas_Object_Box_Option *opt, int property, va_list args) EINA_ARG_NONNULL(1, 2);
 
 /**
- * Set a property value (by its given numerical identifier), on a
+ * @brief Set a property value (by its given numerical identifier), on a
  * given box child element -- by a variable argument list
  *
- * @param o The box parenting the child element
- * @param opt The box option structure bound to the child box element
+ * @since_tizen 2.3
+ *
+ * @param[in] o The box parenting the child element
+ * @param[in] opt The box option structure bound to the child box element
  * to set a property on
- * @param property The numerical ID of the given property
- * @param args The variable argument list implementing the value to
+ * @param[in] property The numerical ID of the given property
+ * @param[in] args The variable argument list implementing the value to
  * be set for this property. It @b must be of the same type the user has
  * defined for it.
  * @return @c EINA_TRUE on success, @c EINA_FALSE on failure.
  *
- * This is a variable argument list variant of the
+ * @remark This is a variable argument list variant of the
  * evas_object_box_option_property_set(). See its documentation for
  * more details.
  */
 EAPI Eina_Bool                  evas_object_box_option_property_vset(Evas_Object *o, Evas_Object_Box_Option *opt, int property, va_list args) EINA_ARG_NONNULL(1, 2);
 
 /**
- * Set a property value (by its given numerical identifier), on a
+ * @brief Set a property value (by its given numerical identifier), on a
  * given box child element
  *
- * @param o The box parenting the child element
- * @param opt The box option structure bound to the child box element
+ * @since_tizen 2.3
+ *
+ * @param[in] o The box parenting the child element
+ * @param[in] opt The box option structure bound to the child box element
  * to set a property on
- * @param property The numerical ID of the given property
- * @param ... (List of) actual value(s) to be set for this
+ * @param[in] property The numerical ID of the given property
+ * @param[in] ... (List of) actual value(s) to be set for this
  * property. It (they) @b must be of the same type the user has
  * defined for it (them).
  * @return @c EINA_TRUE on success, @c EINA_FALSE on failure.
  *
- * @note This call won't do anything for a canonical Evas box. Only
+ * @remark This call won't do anything for a canonical Evas box. Only
  * users which have @b subclassed it, setting custom box items options
  * (see #Evas_Object_Box_Option) on it, would benefit from this
  * function. They'd have to implement it and set it to be the
  * _Evas_Object_Box_Api::property_set smart class function of the box,
  * which is originally set to @c NULL.
  *
- * @note This function will internally create a variable argument
+ * @remark This function will internally create a variable argument
  * list, with the values passed after @p property, and call
  * evas_object_box_option_property_vset() with this list and the same
  * previous arguments.
@@ -3345,26 +3482,28 @@ EAPI Eina_Bool                  evas_object_box_option_property_vset(Evas_Object
 EAPI Eina_Bool                  evas_object_box_option_property_set(Evas_Object *o, Evas_Object_Box_Option *opt, int property, ...) EINA_ARG_NONNULL(1, 2);
 
 /**
- * Get a property's value (by its given numerical identifier), on a
+ * @brief Get a property's value (by its given numerical identifier), on a
  * given box child element
  *
- * @param o The box parenting the child element
- * @param opt The box option structure bound to the child box element
+ * @since_tizen 2.3
+ *
+ * @param[in] o The box parenting the child element
+ * @param[in] opt The box option structure bound to the child box element
  * to get a property from
- * @param property The numerical ID of the given property
- * @param ... (List of) pointer(s) where to store the value(s) set for
+ * @param[in] property The numerical ID of the given property
+ * @param[out] ... (List of) pointer(s) where to store the value(s) set for
  * this property. It (they) @b must point to variable(s) of the same
  * type the user has defined for it (them).
  * @return @c EINA_TRUE on success, @c EINA_FALSE on failure.
  *
- * @note This call won't do anything for a canonical Evas box. Only
+ * @remark This call won't do anything for a canonical Evas box. Only
  * users which have @b subclassed it, getting custom box items options
  * (see #Evas_Object_Box_Option) on it, would benefit from this
  * function. They'd have to implement it and get it to be the
  * _Evas_Object_Box_Api::property_get smart class function of the
  * box, which is originally get to @c NULL.
  *
- * @note This function will internally create a variable argument
+ * @remark This function will internally create a variable argument
  * list, with the values passed after @p property, and call
  * evas_object_box_option_property_vget() with this list and the same
  * previous arguments.
@@ -3372,16 +3511,18 @@ EAPI Eina_Bool                  evas_object_box_option_property_set(Evas_Object 
 EAPI Eina_Bool                  evas_object_box_option_property_get(const Evas_Object *o, Evas_Object_Box_Option *opt, int property, ...) EINA_ARG_NONNULL(1, 2);
 
 /**
- * Get the list of children objects in a given box object.
+ * @brief Get the list of children objects in a given box object.
  *
- * @param o The box to retrieve an items list from
+ * @since_tizen 2.3
+ *
+ * @param[in] o The box to retrieve an items list from
  * @return A list of @p o's child objects, on success, or @c NULL,
  * on errors (or if it has no child objects)
  *
- * The returned list should be freed with @c eina_list_free() when you
+ * @remark The returned list should be freed with @c eina_list_free() when you
  * no longer need it.
  *
- * @note This is a duplicate of the list kept by the box internally.
+ * @remark This is a duplicate of the list kept by the box internally.
  *       It's up to the user to destroy it when it no longer needs it.
  *       It's possible to remove objects from the box when walking
  *       this list, but these removals won't be reflected on it.
@@ -3402,14 +3543,22 @@ EAPI Eina_List                 *evas_object_box_children_get(const Evas_Object *
 /**
  * @brief Create a new table.
  *
- * @param evas Canvas in which table will be added.
+ * @since_tizen 2.3
+ *
+ * @param[in] evas Canvas in which table will be added.
  */
 EAPI Evas_Object                       *evas_object_table_add(Evas *evas) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1) EINA_MALLOC;
 
 /**
- * Get the child of the table at the given coordinates
+ * @brief Get the child of the table at the given coordinates
  *
- * @note This does not take into account col/row spanning
+ * @since_tizen 2.3
+ *
+ * @param[in] o The given Evas object.
+ * @param[in] col The number of col.
+ * @param[in] row The number of row.
+ *
+ * @remark This does not take into account col/row spanning
  */
 EAPI Evas_Object                       *evas_object_table_child_get(const Evas_Object *o, unsigned short col, unsigned short row) EINA_ARG_NONNULL(1);
 
@@ -3425,9 +3574,13 @@ EAPI Evas_Object                       *evas_object_table_child_get(const Evas_O
  * @{
  */
 /**
- * Create a new grid.
+ * @brief Create a new grid.
  *
- * It's set to a virtual size of 1x1 by default and add children with
+ * @since_tizen 2.3
+ *
+ * @param[in] evas Canvas in which grid will be added.
+ *
+ * @remark It's set to a virtual size of 1x1 by default and add children with
  * evas_object_grid_pack().
  * @since 1.1
  */

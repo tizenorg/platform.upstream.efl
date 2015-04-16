@@ -521,6 +521,8 @@ struct _Evas_GL_Config
 /**
  * @brief Creates a new Evas_GL object and returns a handle for GL rendering with the EFL.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] e The given Evas canvas to use
  *
  * @return The created Evas_GL object, or @c NULL in case of failure
@@ -532,6 +534,8 @@ EAPI Evas_GL                 *evas_gl_new                (Evas *e) EINA_WARN_UNU
 /**
  * @brief Frees an Evas_GL object.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] evas_gl   The given Evas_GL object to destroy
  *
  * @see evas_gl_new
@@ -542,6 +546,8 @@ EAPI void                     evas_gl_free               (Evas_GL *evas_gl) EINA
 
 /**
  * @brief Allocates a new config object for the user to fill out.
+ *
+ * @since_tizen 2.3
  *
  * @remarks As long as Evas creates a config object for the user, it takes care
  *          of the backward compatibility issue.
@@ -557,6 +563,8 @@ EAPI Evas_GL_Config          *evas_gl_config_new         (void);
 /**
  * @brief Frees a config object created from evas_gl_config_new.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] cfg  The configuration structure to free, it can not be accessed afterwards.
  *
  * @remarks As long as Evas creates a config object for the user, it takes care
@@ -570,6 +578,8 @@ EAPI void                     evas_gl_config_free        (Evas_GL_Config *cfg) E
 
 /**
  * @brief Creates and returns a new @ref Evas_GL_Surface object for GL Rendering.
+ *
+ * @since_tizen 2.3
  *
  * @param[in] evas_gl The given Evas_GL object
  * @param[in] cfg     The pixel format and configuration of the rendering surface
@@ -588,6 +598,8 @@ EAPI Evas_GL_Surface         *evas_gl_surface_create     (Evas_GL *evas_gl, Evas
 /**
  * @brief Create a pixel buffer surface
  *
+ * @since_tizen 2.3
+ *
  * @param[in] evas_gl     The given Evas_GL object
  * @param[in] cfg         Pixel format and configuration of the pixel buffer surface
  * @param[in] w           Requested width of the buffer
@@ -597,18 +609,18 @@ EAPI Evas_GL_Surface         *evas_gl_surface_create     (Evas_GL *evas_gl, Evas
  * @return The created GL surface object,
  *         otherwise @c NULL on failure
  *
- * The surface must be released with @ref evas_gl_surface_destroy.
+ * @remark The surface must be released with @ref evas_gl_surface_destroy.
  *
- * If the color format in @a cfg is @ref EVAS_GL_RGB_888 or @ref EVAS_GL_RGBA_8888,
+ * @remark If the color format in @a cfg is @ref EVAS_GL_RGB_888 or @ref EVAS_GL_RGBA_8888,
  * then Evas will automatically generate a framebuffer attached to this PBuffer.
  * Its properties can be queried using @ref evas_gl_native_surface_get.
  * If you want to attach an FBO yourself, or create a PBuffer surface only,
  * please use the color format @ref EVAS_GL_NO_FBO.
  *
- * Creating a 1x1 PBuffer surface can be useful in order to call
+ * @remark Creating a 1x1 PBuffer surface can be useful in order to call
  * @ref evas_gl_make_current() from another thread.
  *
- * @note The attribute list can be terminated by EVAS_GL_NONE or 0.
+ * @remark The attribute list can be terminated by EVAS_GL_NONE or 0.
  *       As of now, no special attributes are supported yet. Also, only EGL
  *       is supported at the moment of writing.
  *
@@ -621,15 +633,19 @@ EAPI Evas_GL_Surface         *evas_gl_pbuffer_surface_create(Evas_GL *evas_gl, E
 /**
  * @brief Destroys an Evas GL Surface.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] evas_gl   The given Evas_GL object
  * @param[in] surf      The given GL surface object
  *
- * @note This function can also destroy pbuffer surfaces.
+ * @remark This function can also destroy pbuffer surfaces.
  */
 EAPI void                     evas_gl_surface_destroy    (Evas_GL *evas_gl, Evas_GL_Surface *surf) EINA_ARG_NONNULL(1,2);
 
 /**
  * @brief Creates and returns a new Evas GL context object (OpenGL-ES 2.0).
+ *
+ * @since_tizen 2.3
  *
  * @param[in] evas_gl    The given Evas_GL object
  * @param[in] share_ctx  An Evas_GL context to share with the new context
@@ -648,6 +664,8 @@ EAPI Evas_GL_Context         *evas_gl_context_create     (Evas_GL *evas_gl, Evas
 /**
  * @brief Creates and returns a new Evas GL context object for OpenGL-ES 1.1 or 2.0.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] evas_gl    The given Evas_GL object
  * @param[in] share_ctx  A context to share (can be NULL)
  * @param[in] version    Major OpenGL-ES version number
@@ -655,13 +673,13 @@ EAPI Evas_GL_Context         *evas_gl_context_create     (Evas_GL *evas_gl, Evas
  * @return The created context,
  *         otherwise @c NULL on failure
  *
- * This function can be used to create OpenGL-ES 1.1 contexts, but OpenGL-ES 3.x
+ * @remark This function can be used to create OpenGL-ES 1.1 contexts, but OpenGL-ES 3.x
  * is not supported yet.
  *
- * The GL API bound to the created context must be queried using
+ * @remark The GL API bound to the created context must be queried using
  * @ref evas_gl_context_api_get (instead of @ref evas_gl_api_get).
  *
- * @note GLES 3.x is not supported yet.
+ * @remark GLES 3.x is not supported yet.
  *
  * @see Evas_GL_Context_Version
  * @see evas_gl_context_api_get
@@ -672,6 +690,8 @@ EAPI Evas_GL_Context         *evas_gl_context_version_create(Evas_GL *evas_gl, E
 
 /**
  * @brief Destroys the given Evas GL context object.
+ *
+ * @since_tizen 2.3
  *
  * @param[in] evas_gl The given Evas_GL object
  * @param[in] ctx     The given Evas GL context
@@ -686,6 +706,8 @@ EAPI void                     evas_gl_context_destroy    (Evas_GL *evas_gl, Evas
 /**
  * @brief Sets the given context as the current context for the given surface.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] evas_gl The given Evas_GL object
  * @param[in] surf The given Evas GL surface
  * @param[in] ctx The given Evas GL context
@@ -699,6 +721,8 @@ EAPI Eina_Bool                evas_gl_make_current       (Evas_GL *evas_gl, Evas
 /**
  * @brief Returns a pointer to a static, null-terminated string describing some aspect of Evas GL.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] evas_gl The given Evas_GL object
  * @param[in] name    A symbolic constant, only @ref EVAS_GL_EXTENSIONS is supported for now
  * @return A string describing some aspect of Evas GL
@@ -710,10 +734,12 @@ EAPI const char              *evas_gl_string_query       (Evas_GL *evas_gl, int 
 /**
  * @brief Returns a extension function from the Evas_GL glue layer.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] evas_gl  The given Evas_GL object
  * @param[in] name     The name of the function to return
  *
- * The available extension functions may depend on the backend engine Evas GL is
+ * @remark The available extension functions may depend on the backend engine Evas GL is
  * running on.
  *
  * @note Evas_GL extensions are not EGL or OpenGL extensions, but Evas_GL-specific
@@ -727,6 +753,8 @@ EAPI Evas_GL_Func             evas_gl_proc_address_get   (Evas_GL *evas_gl, cons
 
 /**
  * @brief Fills in the Native Surface information from a given Evas GL surface.
+ *
+ * @since_tizen 2.3
  *
  * @param[in]  evas_gl The given Evas_GL object
  * @param[in]  surf    The given Evas GL surface to retrieve the Native Surface information from
@@ -748,6 +776,8 @@ EAPI Eina_Bool                evas_gl_native_surface_get (Evas_GL *evas_gl, Evas
 /**
  * @brief Gets the API for rendering using OpenGL.
  *
+ * @since_tizen 2.3
+ *
  * @details This returns a structure that contains all the OpenGL functions you can
  *          use to render in Evas. These functions consist of all the standard
  *          OpenGL-ES2.0 functions and any additional ones that Evas has decided to provide.
@@ -758,7 +788,7 @@ EAPI Eina_Bool                evas_gl_native_surface_get (Evas_GL *evas_gl, Evas
  *
  * @return The API to use
  *
- * @note This function will always return an OpenGL-ES 2.0 API, please use
+ * @remark This function will always return an OpenGL-ES 2.0 API, please use
  *       @ref evas_gl_context_api_get instead to get an OpenGL-ES 1.1 set of APIs.
  *
  * @since_tizen @if MOBILE 2.3 @elseif WEARABLE 2.3.1 @endif
@@ -772,11 +802,13 @@ EAPI Evas_GL_API             *evas_gl_api_get            (Evas_GL *evas_gl) EINA
 /**
  * @brief Gets the API for rendering using OpenGL with non standard contexts.
  *
- * This function is similar to @ref evas_gl_api_get but takes an extra Evas GL
+ * @since_tizen 2.3
+ *
+ * @remark This function is similar to @ref evas_gl_api_get but takes an extra Evas GL
  * context argument as it is used to get the real API used by special contexts,
  * that have been instanciated with @ref evas_gl_context_version_create().
  *
- * This function can be used to get the GL API for a OpenGL-ES 1.1 context. When
+ * @remark This function can be used to get the GL API for a OpenGL-ES 1.1 context. When
  * using OpenGL-ES 1.1, applications should always use @ref evas_gl_context_api_get
  * and never call @ref evas_gl_api_get (this will always return a OpenGL-ES 2+ API).
  *
@@ -799,17 +831,19 @@ EAPI Evas_GL_API             *evas_gl_context_api_get    (Evas_GL *evas_gl, Evas
 /**
  * @brief Get the current rotation of the view, in degrees.
  *
- * This function should be called in order to properly handle the current
+ * @since_tizen 2.3
+ *
+ * @remark This function should be called in order to properly handle the current
  * rotation of the view. It will always return 0 unless the option
  * @ref EVAS_GL_OPTIONS_CLIENT_SIDE_ROTATION has been set.
  *
- * Indeed, in case of direct rendering to the back buffer, the client
+ * @remark Indeed, in case of direct rendering to the back buffer, the client
  * application is responsible for properly rotating its view. This can generally
  * be done by applying a rotation to a view matrix.
  *
  * @param[in] evas_gl    The current Evas_GL object
  *
- * @note The returned value may not be the same as the window rotation, for
+ * @remark The returned value may not be the same as the window rotation, for
  * example if indirect rendering is used as a fallback, or if the GPU supports
  * transparent rotation of the buffer during swap.
  *
@@ -824,12 +858,14 @@ EAPI int                      evas_gl_rotation_get       (Evas_GL *evas_gl) EINA
 /**
  * @brief Query a surface for its properties
  *
+ * @since_tizen 2.3
+ *
  * @param[in]  evas_gl    The current Evas_GL object
  * @param[in]  surface    An Evas_GL_Surface surface to query
  * @param[in]  attribute  Specifies the attribute to query.
  * @param[out] value      Returns the requested value (usually an int)
  *
- * The currently accepted attributes are the following:
+ * @remark The currently accepted attributes are the following:
  * @li @ref EVAS_GL_WIDTH,
  * @li @ref EVAS_GL_HEIGHT,
  * @li @ref EVAS_GL_TEXTURE_FORMAT,
@@ -846,15 +882,17 @@ EAPI Eina_Bool                evas_gl_surface_query      (Evas_GL *evas_gl, Evas
  *        Initially, the error is set to @ref EVAS_GL_SUCCESS. A call to @ref evas_gl_error_get
  *        resets the error to @ref EVAS_GL_SUCCESS.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] evas_gl The given Evas_GL object
  *
  * @return @ref EVAS_GL_SUCCESS in case of no error, or any other @c EVAS_GL error code.
  *
- * Since Evas GL is a glue layer for GL imitating EGL, the error codes returned
+ * @remark Since Evas GL is a glue layer for GL imitating EGL, the error codes returned
  * have a similar meaning as those defined in EGL, so please refer to the EGL
  * documentation for more information about the various error codes.
  *
- * @note Evas GL does not specify exactly which error codes will be returned in
+ * @remark Evas GL does not specify exactly which error codes will be returned in
  *       which circumstances. This is because different backends may behave
  *       differently and Evas GL will try to give the most meaningful error code
  *       based on the backend's error. Evas GL only tries to provide some
@@ -868,6 +906,8 @@ EAPI int                      evas_gl_error_get          (Evas_GL *evas_gl) EINA
 /**
  * @brief Returns the Evas GL context object in use or set by @ref evas_gl_make_current.
  *
+ * @since_tizen 2.3
+ *
  * @param[in] evas_gl The given Evas_GL object
  *
  * @return The current context for the calling thread, or @c NULL in case of
@@ -880,12 +920,14 @@ EAPI Evas_GL_Context         *evas_gl_current_context_get (Evas_GL *evas_gl) EIN
 /**
  * @brief Returns the Evas GL surface object in use or set by @ref evas_gl_make_current
  *
- * @param evas_gl The given Evas_GL object
+ * @since_tizen 2.3
+ *
+ * @param[in] evas_gl The given Evas_GL object
  *
  * @return The current surface for the calling thread, or @c NULL in case of
  *         failure and when there is no current surface in this thread.
  *
- * This can be used to get a handle to the current surface, so as to switch
+ * @remark This can be used to get a handle to the current surface, so as to switch
  * between contexts back and forth. Note that the OpenGL driver may stall when
  * doing so.
  *

@@ -18,10 +18,13 @@ typedef struct _EVGL_Surface_Cap    EVGL_Surface_Cap;
 typedef struct _EVGL_Surface_Format EVGL_Surface_Format;
 
 EAPI void         evgl_engine_shutdown(void *eng_data);
+EAPI void        *evgl_native_surface_buffer_get(EVGL_Surface *sfc);
+EAPI int          evgl_native_surface_yinvert_get(EVGL_Surface *sfc);
 
 typedef void (*EVGL_Engine_Call)(void *eng_data);
-EAPI void   *evgl_native_surface_egl_image_get(EVGL_Surface *sfc);
 typedef void *(*EVGL_Native_Surface_Call)(void *sfc);
+typedef int (*EVGL_Native_Surface_Yinvert_Call)(void *sfc);
+
 EVGL_Engine *evgl_engine_init(void *eng_data, const EVGL_Interface *efunc);
 
 void        *evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h);

@@ -240,18 +240,14 @@ _texture_attach_2d(GLuint tex, GLenum attach, GLenum attach2, int samples, Eina_
 }
 
 static void *
-_egl_image_create(EVGL_Context *context, GLuint tex)
+_egl_image_create(EVGL_Context *context, int target, void *buffer)
 {
 #ifdef GL_GLES
    EGLDisplay dpy = EGL_NO_DISPLAY;
    EGLContext ctx = EGL_NO_CONTEXT;
    EVGL_Resource *rsc = NULL;
-
-   int attribs[] = {
-      EGL_GL_TEXTURE_LEVEL_KHR, 0,
-      EGL_IMAGE_PRESERVED_KHR, 0,
-      EGL_NONE
-   };
+   int attribs[10];
+   int n = 0;
 
    // Retrieve the resource object
    if (!(rsc = _evgl_tls_resource_get()))
@@ -261,11 +257,19 @@ _egl_image_create(EVGL_Context *context, GLuint tex)
      }
 
    dpy = (EGLDisplay)rsc->display;
-   ctx = (EGLContext)context->context;
+   if (target == EGL_GL_TEXTURE_2D_KHR)
+     {
+        ctx = (EGLContext)context->context;
+        attribs[n++] = EGL_GL_TEXTURE_LEVEL_KHR;
+        attribs[n++] = 0;
+     }
+   attribs[n++] = EGL_IMAGE_PRESERVED_KHR;
+   attribs[n++] = 0;
+   attribs[n++] = EGL_NONE;
 
-   return EXT_FUNC(eglCreateImage)(dpy, ctx, EGL_GL_TEXTURE_2D_KHR, (EGLClientBuffer)tex, attribs);
+   return EXT_FUNC(eglCreateImage)(dpy, ctx, target, (EGLClientBuffer)(uintptr_t)buffer, attribs);
 #else
-   (void) context; (void) tex;
+   (void) context; (void) target; (void) buffer;
    return NULL;
 #endif
 }
@@ -859,6 +863,7 @@ _context_ext_check(EVGL_Context *ctx)
 {
    int fbo_supported = 0;
    int egl_image_supported = 0;
+   int texture_image_supported = 0;
 
    if (!ctx)
       return 0;
@@ -879,16 +884,24 @@ _context_ext_check(EVGL_Context *ctx)
          fbo_supported = 1;
      }
 
-   if (EXTENSION_SUPPORT(EGL_KHR_image_base)
-       && EXTENSION_SUPPORT(EGL_KHR_gl_texture_2D_image))
+   if (EXTENSION_SUPPORT(EGL_KHR_image_base))
      egl_image_supported = 1;
+
+   if (EXTENSION_SUPPORT(EGL_KHR_gl_texture_2D_image))
+     texture_image_supported = 1;
 #else
    fbo_supported = 1;
    egl_image_supported = 0;
+   texture_image_supported = 0;
 #endif
 
-   if (fbo_supported && egl_image_supported)
-     ctx->fbo_image_supported = 1;
+   if (egl_image_supported)
+     {
+        if (fbo_supported && texture_image_supported)
+          ctx->fbo_image_supported = 1;
+        else
+          ctx->pixmap_image_supported = 1;
+     }
 
    ctx->extension_checked = 1;
 
@@ -1176,7 +1189,7 @@ _surface_buffers_allocate(void *eng_data, EVGL_Surface *sfc, int w, int h, int m
         _texture_allocate_2d(sfc->color_buf, sfc->color_ifmt, sfc->color_fmt,
                              GL_UNSIGNED_BYTE, w, h);
         if ((sfc->current_ctx) && (sfc->current_ctx->fbo_image_supported))
-          sfc->egl_image = _egl_image_create(sfc->current_ctx, sfc->color_buf);
+          sfc->egl_image = _egl_image_create(sfc->current_ctx, EGL_GL_TEXTURE_2D_KHR, (void *)(uintptr_t)sfc->color_buf);
         sfc->buffer_mem[0] = w * h * 4;
      }
 
@@ -1831,6 +1844,7 @@ evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
         evas_gl_common_error_set(eng_data, EVAS_GL_BAD_CONFIG);
         goto error;
      }
+   sfc->cfg = cfg;
 
    // Keep track of all the created surfaces
    LKL(evgl_engine->resource_lock);
@@ -1947,6 +1961,7 @@ evgl_pbuffer_surface_create(void *eng_data, Evas_GL_Config *cfg,
              goto error;
           }
      }
+   sfc->cfg = cfg;
 
    // Not calling make_current
 
@@ -2427,7 +2442,7 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
           }
      }
 
-   if (!ctx->fbo_image_supported)
+   if (ctx->pixmap_image_supported)
      {
         if (dbg) DBG("ctx %p is GLES %d", ctx, ctx->version);
         if (_evgl_direct_renderable(rsc, sfc))
@@ -2445,13 +2460,17 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
           }
         else
           {
-             if (dbg) DBG("Calling make_current(%p, %p)", sfc->indirect_sfc, ctx->context);
+             if (!sfc->indirect_sfc)
+               {
+                  evgl_engine->funcs->indirect_surface_create(evgl_engine, eng_data, sfc, sfc->cfg, sfc->w, sfc->h);
+                  sfc->egl_image = _egl_image_create(NULL, EVAS_GL_NATIVE_PIXMAP, sfc->indirect_sfc_native);
+               }
              if (!ctx->indirect_context)
                {
                   ctx->indirect_context =
                         evgl_engine->funcs->gles_context_create(eng_data, ctx, sfc);
                }
-             if (dbg) DBG("Calling make_current(%p, %p)", sfc->indirect_sfc, ctx->context);
+             if (dbg) DBG("Calling make_current(%p, %p)", sfc->indirect_sfc, ctx->indirect_context);
              if (!evgl_engine->funcs->make_current(eng_data, sfc->indirect_sfc,
                                                    ctx->indirect_context, EINA_TRUE))
                {
@@ -2655,7 +2674,7 @@ evgl_safe_extension_get(const char *name, void **pfuncptr)
 }
 
 void *
-evgl_native_surface_egl_image_get(EVGL_Surface *sfc)
+evgl_native_surface_buffer_get(EVGL_Surface *sfc)
 {
    if (!evgl_engine)
      {
@@ -2664,6 +2683,22 @@ evgl_native_surface_egl_image_get(EVGL_Surface *sfc)
      }
 
    return sfc->egl_image;
+}
+
+int
+evgl_native_surface_yinvert_get(EVGL_Surface *sfc)
+{
+   int ret = 0;
+   if (!evgl_engine)
+     {
+        ERR("Invalid input data.  Engine: %p", evgl_engine);
+        return 0;
+     }
+
+   if (sfc->indirect)
+      ret = sfc->yinvert;
+
+   return ret;
 }
 
 int

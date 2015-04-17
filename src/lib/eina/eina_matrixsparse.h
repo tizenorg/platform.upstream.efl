@@ -76,7 +76,9 @@ typedef struct _Eina_Matrixsparse_Cell      Eina_Matrixsparse_Cell;
 /**
  * @brief Create a new Sparse Matrix.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] rows number of rows in matrix. Operations with rows greater than this
  *        value will fail.
@@ -100,7 +102,9 @@ EAPI Eina_Matrixsparse *eina_matrixsparse_new(unsigned long rows,
 /**
  * @brief Free resources allocated to Sparse Matrix.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] m The Sparse Matrix instance to free, must @b not be @c NULL.
  */
@@ -111,7 +115,9 @@ EAPI void eina_matrixsparse_free(Eina_Matrixsparse *m);
 /**
  * @brief Get the current size of Sparse Matrix.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark The given parameters are guaranteed to be set if they're not @c NULL,
  * even if this function fails (ie: @a m is not a valid matrix instance).
@@ -129,7 +135,9 @@ EAPI void eina_matrixsparse_size_get(const Eina_Matrixsparse *m,
 /**
  * @brief Resize the Sparse Matrix.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This will resize the sparse matrix, possibly freeing cells on rows
  * and columns that will cease to exist.
@@ -152,7 +160,9 @@ EAPI Eina_Bool eina_matrixsparse_size_set(Eina_Matrixsparse *m,
 /**
  * @brief Get the cell reference inside Sparse Matrix.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] m the sparse matrix to operate on.
  * @param[in] row the number of row.
@@ -170,7 +180,9 @@ EAPI Eina_Bool eina_matrixsparse_cell_idx_get(const Eina_Matrixsparse *m, unsign
 /**
  * @brief Get data associated with given cell reference.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] cell given cell reference, must @b not be @c NULL.
  *
@@ -184,7 +196,9 @@ EAPI void     *eina_matrixsparse_cell_data_get(const Eina_Matrixsparse_Cell *cel
 /**
  * @brief Get data associated with given cell given its indexes.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] m the sparse matrix to operate on.
  * @param[in] row the number of row.
@@ -200,7 +214,9 @@ EAPI void     *eina_matrixsparse_data_idx_get(const Eina_Matrixsparse *m, unsign
 /**
  * @brief Get position (indexes) of the given cell.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] cell the cell reference, must @b not be @c NULL.
  * @param[out] row where to store cell row number, may be @c NULL.
@@ -215,7 +231,9 @@ EAPI Eina_Bool eina_matrixsparse_cell_position_get(const Eina_Matrixsparse_Cell 
 /**
  * @brief Change cell reference value without freeing the possibly existing old value.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] cell the cell reference, must @b not be @c NULL.
  * @param[in] data new data to set.
@@ -231,7 +249,9 @@ EAPI Eina_Bool eina_matrixsparse_cell_data_replace(Eina_Matrixsparse_Cell *cell,
 /**
  * @brief Change cell value freeing the possibly existing old value.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark In contrast to eina_matrixsparse_cell_data_replace(), this function will
  * call @c free_func() on existing value.
@@ -250,7 +270,9 @@ EAPI Eina_Bool eina_matrixsparse_cell_data_set(Eina_Matrixsparse_Cell *cell, con
  * @brief Change cell value without freeing the possibly existing old value, using
  * indexes.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] m the sparse matrix, must @b not be @c NULL.
  * @param[in] row the row number to set the value.
@@ -269,7 +291,9 @@ EAPI Eina_Bool eina_matrixsparse_data_idx_replace(Eina_Matrixsparse *m, unsigned
  * @brief Change cell value freeing the possibly existing old value, using
  * indexes.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark In contrast to eina_matrixsparse_data_idx_replace(), this function will
  * call @c free_func() on existing value.
@@ -290,7 +314,9 @@ EAPI Eina_Bool eina_matrixsparse_data_idx_set(Eina_Matrixsparse *m, unsigned lon
 /**
  * @brief Clear (erase all cells) of row given its index.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark Existing cells will be cleared with @c free_func() given to
  * eina_matrixsparse_new().
@@ -311,7 +337,9 @@ EAPI Eina_Bool eina_matrixsparse_row_idx_clear(Eina_Matrixsparse *m, unsigned lo
 /**
  * @brief Clear (erase all cells) of column given its index.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark Existing cells will be cleared with @c free_func() given to
  * eina_matrixsparse_new().
@@ -332,7 +360,9 @@ EAPI Eina_Bool eina_matrixsparse_column_idx_clear(Eina_Matrixsparse *m, unsigned
 /**
  * @brief Clear (erase) cell given its indexes.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark Existing cell will be cleared with @c free_func() given to
  * eina_matrixsparse_new().
@@ -356,7 +386,9 @@ EAPI Eina_Bool eina_matrixsparse_cell_idx_clear(Eina_Matrixsparse *m, unsigned l
 /**
  * @brief Clear (erase) cell given its reference.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] cell the cell reference, must @b not be @c NULL.
  *
@@ -376,7 +408,9 @@ EAPI Eina_Bool eina_matrixsparse_cell_clear(Eina_Matrixsparse_Cell *cell);
 /**
  * @brief Creates a new iterator over existing matrix cells.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This is a cheap walk, it will just report existing cells and holes
  * in the sparse matrix will be ignored. That means the reported
@@ -398,7 +432,9 @@ EAPI Eina_Iterator *eina_matrixsparse_iterator_new(const Eina_Matrixsparse *m);
 /**
  * @brief Creates a new iterator over all matrix cells.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark Unlike eina_matrixsparse_iterator_new() this one will report all
  * matrix cells, even those that are still empty (holes). These will

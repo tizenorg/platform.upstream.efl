@@ -67,7 +67,9 @@ typedef struct _Eina_Lalloc Eina_Lalloc;
 /**
  * @brief Create a new lazy allocator.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] data The data for which memory will be allocated.
  * @param[in] alloc_cb The callback to allocate memory for @p data items.
@@ -85,7 +87,9 @@ EAPI Eina_Lalloc *eina_lalloc_new(void             *data,
 /**
  * @brief Free the resources for a lazy allocator.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] a The lazy allocator to free.
  *
@@ -95,7 +99,9 @@ EAPI void      eina_lalloc_free(Eina_Lalloc *a) EINA_ARG_NONNULL(1);
 /**
  * @brief Add several elements to a lazy allocator.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] a The lazy allocater to add items to.
  * @param[in] num The number of elements to add.
@@ -109,7 +115,9 @@ EAPI Eina_Bool eina_lalloc_elements_add(Eina_Lalloc *a,
 /**
  * @brief Allocate one more of whatever the lazy allocator is allocating.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] a The lazy allocator to add an item to.
  *

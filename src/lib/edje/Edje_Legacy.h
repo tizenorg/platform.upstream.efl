@@ -1,7 +1,9 @@
 /**
  * @brief Instantiate a new Edje object
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] evas A valid Evas handle, the canvas to place the new object
  * in
@@ -56,7 +58,9 @@ EAPI Evas_Object *edje_object_add                 (Evas *evas);
 /**
  * @brief Remove a signal-triggered callback from an object.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] obj A valid Evas_Object handle.
  * @param[in] emission The emission string.
@@ -80,7 +84,9 @@ EAPI void        *edje_object_signal_callback_del (Evas_Object *obj, const char 
  * @brief Unregister/delete a callback set for an arriving Edje
  * signal, emitted by a given Edje object.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] obj A handle to an Edje object
  * @param[in] emission The signal's "emission" string
@@ -106,7 +112,9 @@ EAPI void        *edje_object_signal_callback_del_full(Evas_Object *obj, const c
 /**
  * @brief Delete the object color class.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] obj The edje object's reference.
  * @param[in] color_class The color class to be deleted.
@@ -138,7 +146,9 @@ EINA_DEPRECATED EAPI void         edje_extern_object_min_size_set (Evas_Object *
 /**
  * @brief Set the object maximum size.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] obj A valid Evas_Object handle
  * @param[in] maxw The maximum width
@@ -171,7 +181,9 @@ EAPI void         edje_extern_object_aspect_set   (Evas_Object *obj, Edje_Aspect
  * @brief Sets the @b EDJ file (and group within it) to load an Edje
  * object's contents from
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return @c EINA_TRUE, on success or @c EINA_FALSE, on errors (check
  * edje_object_load_error_get() after this call to get errors causes)
@@ -205,7 +217,9 @@ EAPI Eina_Bool edje_object_file_set(Eo *obj, const char *file, const char *group
 /**
  * @brief Get the file and group name that a given Edje object is bound to
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This gets the EDJ file's path, with the respective group set for
  * the given Edje object. If @a obj is either not an Edje file, or has

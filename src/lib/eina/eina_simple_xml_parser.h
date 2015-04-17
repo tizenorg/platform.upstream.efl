@@ -221,7 +221,9 @@ typedef Eina_Bool (*Eina_Simple_XML_Attribute_Cb)(void *data, const char *key, c
 /**
  * @brief Parse a section of XML string text
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] buf the input string. May not contain \0 terminator.
  * @param[in] buflen the input string size.
@@ -249,7 +251,9 @@ EAPI Eina_Bool eina_simple_xml_parse(const char *buf, unsigned buflen,
 /**
  * @brief Given the contents of a tag, find where the attributes start.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] buf the input string. May not contain \0 terminator.
  * @param[in] buflen the input string size.
@@ -266,7 +270,9 @@ EAPI const char * eina_simple_xml_tag_attributes_find(const char *buf, unsigned 
 /**
  * @brief Given a buffer with xml attributes, parse them to key=value pairs.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] buf the input string. May not contain \0 terminator.
  * @param[in] buflen the input string size.
@@ -303,7 +309,9 @@ eina_simple_xml_attribute_w3c_parse(const char *buf, Eina_Simple_XML_Attribute_C
 /**
  * @brief Create (and append) new attribute to tag.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] parent if provided, will be set in the resulting structure
  *        as well as the attribute will be appended to attributes list.
@@ -319,7 +327,9 @@ EAPI Eina_Simple_XML_Attribute * eina_simple_xml_attribute_new(Eina_Simple_XML_N
 /**
  * @brief Remove attribute from parent and delete it.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] attr attribute to release memory.
  */
@@ -329,7 +339,9 @@ EAPI void eina_simple_xml_attribute_free(Eina_Simple_XML_Attribute *attr);
 /**
  * @brief Create new tag. If parent is provided, it is automatically appended.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] parent if provided, will be set in the resulting structure
  *        as well as the tag will be appended to children list.
@@ -352,7 +364,9 @@ EAPI void eina_simple_xml_node_tag_free(Eina_Simple_XML_Node_Tag *tag);
 /**
  * @brief Create new data. If parent is provided, it is automatically appended.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] parent if provided, will be set in the resulting structure
  *        as well as the data will be appended to children list.
@@ -368,7 +382,9 @@ EAPI Eina_Simple_XML_Node_Data * eina_simple_xml_node_data_new(Eina_Simple_XML_N
 /**
  * @brief Remove data from parent and delete it.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] node to release memory.
  */
@@ -378,7 +394,9 @@ EAPI void eina_simple_xml_node_data_free(Eina_Simple_XML_Node_Data *node);
 /**
  * @brief Create new cdata. If parent is provided, it is automatically appended.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] parent if provided, will be set in the resulting structure
  *        as well as the cdata will be appended to children list.
@@ -394,7 +412,9 @@ EAPI Eina_Simple_XML_Node_CData * eina_simple_xml_node_cdata_new(Eina_Simple_XML
 /**
  * @brief Remove cdata from parent and delete it.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] node to release memory.
  */
@@ -404,7 +424,9 @@ EAPI void eina_simple_xml_node_cdata_free(Eina_Simple_XML_Node_Data *node);
 /**
  * @brief Create new doctype child. If parent is provided, it is automatically appended.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] parent if provided, will be set in the resulting structure
  *        as well as the doctype child will be appended to children list.
@@ -422,7 +444,9 @@ EAPI Eina_Simple_XML_Node_Doctype_Child * eina_simple_xml_node_doctype_child_new
 /**
  * @brief Remove doctype child from parent and delete it.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] node to release memory.
  *
@@ -434,7 +458,9 @@ EAPI void eina_simple_xml_node_doctype_child_free(Eina_Simple_XML_Node_Data *nod
 /**
  * @brief Create new processing. If parent is provided, it is automatically appended.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] parent if provided, will be set in the resulting structure
  *        as well as the processing will be appended to children list.
@@ -450,7 +476,9 @@ EAPI Eina_Simple_XML_Node_Processing * eina_simple_xml_node_processing_new(Eina_
 /**
  * @brief Remove processing from parent and delete it.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] node processing to release memory.
  */
@@ -460,7 +488,9 @@ EAPI void eina_simple_xml_node_processing_free(Eina_Simple_XML_Node_Data *node);
 /**
  * @brief Create new doctype. If parent is provided, it is automatically appended.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] parent if provided, will be set in the resulting structure
  *        as well as the doctype will be appended to children list.
@@ -476,7 +506,9 @@ EAPI Eina_Simple_XML_Node_Doctype * eina_simple_xml_node_doctype_new(Eina_Simple
 /**
  * @brief Remove doctype from parent and delete it.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] node doctype to release memory.
  */
@@ -486,7 +518,9 @@ EAPI void eina_simple_xml_node_doctype_free(Eina_Simple_XML_Node_Data *node);
 /**
  * @brief Create new comment. If parent is provided, it is automatically appended.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] parent if provided, will be set in the resulting structure
  *        as well as the comment will be appended to children list.
@@ -502,7 +536,9 @@ EAPI Eina_Simple_XML_Node_Comment * eina_simple_xml_node_comment_new(Eina_Simple
 /**
  * @brief Remove comment from parent and delete it.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] node comment to release memory.
  */
@@ -512,7 +548,9 @@ EAPI void eina_simple_xml_node_comment_free(Eina_Simple_XML_Node_Data *node);
 /**
  * @brief Load a XML node tree based on the given string.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] buf the input string. May not contain \0 terminator.
  * @param[in] buflen the input string size.
@@ -528,7 +566,9 @@ EAPI Eina_Simple_XML_Node_Root * eina_simple_xml_node_load(const char *buf, unsi
 /**
  * @brief Free node tree build with eina_simple_xml_node_load()
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] root memory returned by eina_simple_xml_node_load()
  */
@@ -537,7 +577,9 @@ EAPI void eina_simple_xml_node_root_free(Eina_Simple_XML_Node_Root *root);
 /**
  * @brief Converts the node tree under the given element to a XML string.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] node the base node to convert.
  * @param[in] indent Indentation string, or @c NULL to disable it.

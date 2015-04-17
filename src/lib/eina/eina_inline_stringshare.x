@@ -30,7 +30,9 @@
 /**
  * @brief Replace the previously stringshared pointer with another stringshared pointer.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark The string pointed by @a p_str must be previously stringshared or
  * @c NULL and it will be eina_stringshare_del(). The new string must also
@@ -64,7 +66,9 @@ eina_stringshare_refplace(Eina_Stringshare **p_str, Eina_Stringshare *news)
 /**
  * @brief Replace the previously stringshared pointer with new content.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark The string pointed by @a p_str must be previously stringshared or
  * @c NULL and it will be eina_stringshare_del(). The new string will
@@ -94,7 +98,9 @@ eina_stringshare_replace(Eina_Stringshare **p_str, const char *news)
 /**
  * @brief Replace the previously stringshared pointer with a new content.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark The string pointed by @a p_str must be previously stringshared or
  * @c NULL and it will be eina_stringshare_del(). The new string will

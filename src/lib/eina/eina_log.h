@@ -962,7 +962,9 @@ EAPI void eina_log_print_cb_syslog(const Eina_Log_Domain *d,
 /**
  * @brief Alternative logging function, this outputs to the dlog.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] d The domain
  * @param[in] level Not used

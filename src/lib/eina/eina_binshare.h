@@ -76,7 +76,9 @@
 /**
  * @brief Retrieves an instance of an object for use in a program.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] obj The binary object to retrieve an instance of
  * @param[in] olen The byte size
@@ -101,7 +103,9 @@ EAPI const void *eina_binshare_add_length(const void  *obj,
 /**
  * @brief Increments references of the given shared object.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] obj The shared object
  * @return    A pointer to an instance of the object on success,
@@ -119,7 +123,9 @@ EAPI const void *eina_binshare_ref(const void *obj);
 /**
  * @brief Notes that the given object has lost an instance.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] obj The given object
  *
@@ -136,7 +142,9 @@ EAPI void        eina_binshare_del(const void *obj);
 /**
  * @brief Notes that the given object @b must be shared.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] obj The shared object to know the length \n
  *            It is safe to give @c NULL, in which case @c -1 is returned
@@ -153,7 +161,9 @@ EAPI int         eina_binshare_length(const void *obj) EINA_WARN_UNUSED_RESULT E
 /**
  * @brief Dumps the contents of share_common.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @details This function dumps all the objects from share_common to stdout with a
  *          DDD: prefix per line and a memory usage summary.

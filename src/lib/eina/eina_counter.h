@@ -115,7 +115,9 @@ typedef struct _Eina_Counter Eina_Counter;
 /**
  * @brief Returns a counter.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] name The name of the counter
  * @return A newly allocated counter
@@ -132,7 +134,9 @@ EAPI Eina_Counter *eina_counter_new(const char *name) EINA_WARN_UNUSED_RESULT EI
 /**
  * @brief Deletes a counter.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] counter The counter to delete
  *
@@ -146,7 +150,9 @@ EAPI void          eina_counter_free(Eina_Counter *counter) EINA_ARG_NONNULL(1);
 /**
  * @brief Starts the time count.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] counter The counter
  *
@@ -166,7 +172,9 @@ EAPI void          eina_counter_start(Eina_Counter *counter) EINA_ARG_NONNULL(1)
 /**
  * @brief Stops the time count.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] counter The counter
  * @param[in] specimen The number of the test
@@ -183,7 +191,9 @@ EAPI void          eina_counter_stop(Eina_Counter *counter,
 /**
  * @brief Dumps the result of all the clocks of a counter to a stream.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] counter The counter
  * @return A string with a summary of the test

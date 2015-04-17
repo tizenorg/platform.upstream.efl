@@ -36,7 +36,9 @@ typedef struct _Eina_Strbuf Eina_Binbuf;
 /**
  * @brief Create a new string buffer.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return Newly allocated string buffer instance.
  *
@@ -53,7 +55,9 @@ EAPI Eina_Binbuf *eina_binbuf_new(void) EINA_MALLOC EINA_WARN_UNUSED_RESULT;
  * @brief Create a new string buffer using the passed string. The passed
  * string is used directly as the buffer, it's somehow the opposite function of
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @ref eina_binbuf_string_steal . The passed string must be malloced.
  *
@@ -92,7 +96,9 @@ EAPI Eina_Binbuf *eina_binbuf_manage_read_only_new_length(const unsigned char *s
 /**
  * @brief Free a string buffer.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] buf The string buffer to free.
  *
@@ -104,7 +110,9 @@ EAPI void eina_binbuf_free(Eina_Binbuf *buf) EINA_ARG_NONNULL(1);
 /**
  * @brief Reset a string buffer.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] buf The string buffer to reset.
  *
@@ -116,7 +124,9 @@ EAPI void eina_binbuf_reset(Eina_Binbuf *buf) EINA_ARG_NONNULL(1);
 /**
  * @brief Append a string of exact length to a buffer, reallocating as necessary.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] buf The string buffer to append to.
  * @param[in] str The string to append.
@@ -159,7 +169,9 @@ EAPI Eina_Bool eina_binbuf_append_buffer(Eina_Binbuf *buf, const Eina_Binbuf *da
  * @brief Append a character to a string buffer, reallocating as
  * necessary.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] buf The string buffer to append to.
  * @param[in] c The char to append.
@@ -173,7 +185,9 @@ EAPI Eina_Bool eina_binbuf_append_char(Eina_Binbuf *buf, unsigned char c) EINA_A
 /**
  * @brief Insert a string of exact length to a buffer, reallocating as necessary.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] buf The string buffer to insert to.
  * @param[in] str The string to insert.
@@ -198,7 +212,9 @@ EAPI Eina_Bool eina_binbuf_insert_length(Eina_Binbuf *buf, const unsigned char *
  * @brief Insert a character to a string buffer, reallocating as
  * necessary.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] buf The string buffer to insert to.
  * @param[in] c The char to insert.
@@ -214,7 +230,9 @@ EAPI Eina_Bool eina_binbuf_insert_char(Eina_Binbuf *buf, unsigned char c, size_t
 /**
  * @brief Remove a slice of the given string buffer.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] buf The string buffer to remove a slice.
  * @param[in] start The initial (inclusive) slice position to start
@@ -233,7 +251,9 @@ EAPI Eina_Bool eina_binbuf_remove(Eina_Binbuf *buf, size_t start, size_t end) EI
 /**
  * @brief Retrieve a pointer to the contents of a string buffer
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] buf The string buffer.
  * @return The current string in the string buffer.
@@ -250,7 +270,9 @@ EAPI const unsigned char *eina_binbuf_string_get(const Eina_Binbuf *buf) EINA_AR
 /**
  * @brief Steal the contents of a string buffer.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] buf The string buffer to steal.
  * @return The current string in the string buffer.
@@ -267,7 +289,9 @@ EAPI unsigned char *eina_binbuf_string_steal(Eina_Binbuf *buf) EINA_MALLOC EINA_
 /**
  * @brief Free the contents of a string buffer but not the buffer.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] buf The string buffer to free the string of.
  *
@@ -279,7 +303,9 @@ EAPI void eina_binbuf_string_free(Eina_Binbuf *buf) EINA_ARG_NONNULL(1);
 /**
  * @brief Retrieve the length of the string buffer content.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] buf The string buffer.
  * @return The current length of the string, in bytes.

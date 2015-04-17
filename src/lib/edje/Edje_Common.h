@@ -39,7 +39,9 @@ typedef void         (*Edje_Signal_Cb)          (void *data, Evas_Object *obj, c
 /**
  * @brief Get extra data passed to callbacks.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return the extra data for that callback.
  *
@@ -142,7 +144,9 @@ EAPI char             *edje_mmap_data_get(const Eina_File *f, const char *key);
 /**
  * @brief Get data from the file level data block of an edje file
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] file The path to the .edj file
  * @param[in] key The data key
@@ -889,7 +893,9 @@ EAPI const Edje_External_Type       *edje_external_type_get         (const char 
 /**
  * @brief Set Edje's global scaling factor.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] scale The global scaling factor (the default value is @c 1.0)
  *
@@ -910,7 +916,9 @@ EAPI void         edje_scale_set                  (double scale);
 /**
  * @brief Retrieve Edje's global scaling factor.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return The global scaling factor
  *
@@ -1154,7 +1162,9 @@ EAPI void edje_password_show_last_timeout_set(double password_show_last_timeout)
 /**
  * @brief Set Edje color class.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] color_class
  * @param[in] r Object Red value
@@ -1196,7 +1206,9 @@ EAPI Eina_Bool    edje_color_class_set            (const char *color_class, int 
 /**
  * @brief Get Edje color class.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] color_class
  * @param[out] r Object Red value
@@ -1234,7 +1246,9 @@ EAPI Eina_Bool    edje_color_class_get            (const char *color_class, int 
 /**
  * @brief Delete edje color class.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] color_class
  *
@@ -1251,7 +1265,9 @@ EAPI void         edje_color_class_del            (const char *color_class);
 /**
  * @brief Lists color classes.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return A list of color class names (strings). These strings and
  * the list must be free()'d by the caller.
@@ -1556,7 +1572,9 @@ typedef enum _Edje_Drag_Dir
 /**
  * @brief Registers a custom layout to be used in edje boxes.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] name The name of the layout
  * @param[in] func The function defining the layout
@@ -1635,7 +1653,9 @@ typedef enum _Edje_Object_Table_Homogeneous_Mode
 /**
  * @brief Set the Edje text class.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] text_class The text class name
  * @param[in] font The font name
@@ -1659,7 +1679,9 @@ EAPI Eina_Bool    edje_text_class_set             (const char *text_class, const
 /**
  * @brief Get the font and the font size from Edje text class.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] text_class The text class name
  * @param[out] font The font name
@@ -1678,7 +1700,9 @@ EAPI Eina_Bool    edje_text_class_get             (const char *text_class, const
 /**
  * @brief Delete the text class.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] text_class The text class name string
  *
@@ -1691,7 +1715,9 @@ EAPI void         edje_text_class_del             (const char *text_class);
 /**
  * @brief List text classes.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return A list of text class names (strings). These strings are
  * stringshares and the list must be free()'d by the caller.
@@ -1772,7 +1798,9 @@ EAPI Eina_Bool         edje_mmap_group_exists(Eina_File *f, const char *glob);
 /**
  * @brief Get a list of groups in an edje file
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] file The path to the edje file
  *
@@ -1789,7 +1817,9 @@ EAPI Eina_List        *edje_file_collection_list  (const char *file);
 /**
  * @brief Free file collection list
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] lst The Eina_List of groups
  *
@@ -1800,7 +1830,9 @@ EAPI void             edje_file_collection_list_free (Eina_List *lst);
 /**
  * @brief Determine whether a group matching glob exists in an edje file.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] file The file path
  * @param[in] glob A glob to match on
@@ -1813,7 +1845,9 @@ EAPI Eina_Bool        edje_file_group_exists      (const char *file, const char 
  * @brief Converts the given Edje file load error code into a string
  * describing it in English.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] error the error code, a value in ::Edje_Load_Error.
  * @return Always returns a valid string. If the given @p error is not
@@ -1919,7 +1953,9 @@ typedef enum _Edje_Action_Type
 /**
  * @brief Set edje trasitions' frame time.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] t The frame time, in seconds. Default value is 1/30.
  *
@@ -1936,7 +1972,9 @@ EAPI void         edje_frametime_set              (double t);
 /**
  * @brief Get edje trasitions' frame time.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return The frame time, in seconds.
  *
@@ -1951,7 +1989,9 @@ EAPI double       edje_frametime_get              (void);
 /**
  * @brief Freeze Edje objects.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This function freezes all Edje animations in the current process.
  *
@@ -1965,7 +2005,9 @@ EAPI void         edje_freeze                     (void);
 /**
  * @brief Thaw Edje objects.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This function thaws all Edje animations in the current process.
  *
@@ -2104,7 +2146,9 @@ typedef void         (*Edje_Message_Handler_Cb) (void *data, Evas_Object *obj, E
 /**
  * @brief Process all queued up edje messages.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This function triggers the processing of messages addressed to any
  * (alive) edje objects.
@@ -2141,7 +2185,9 @@ typedef struct _Edje_Perspective Edje_Perspective;
 /**
  * @brief Creates a new perspective in the given canvas.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] e The given canvas (Evas).
  * @return An @ref Edje_Perspective object for this canvas, or @c NULL on errors.
@@ -2156,7 +2202,9 @@ EAPI Edje_Perspective       *edje_perspective_new            (Evas *e);
 /**
  * @brief Delete the given perspective object.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] ps A valid perspective object, or @c NULL.
  *
@@ -2170,7 +2218,9 @@ EAPI void                    edje_perspective_free           (Edje_Perspective *
 /**
  * @brief Setup the transform for this perspective object.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This sets the parameters of the perspective transformation. X, Y and Z
  * values are used. The px and py points specify the "infinite distance" point
@@ -2195,7 +2245,9 @@ EAPI void                    edje_perspective_set            (Edje_Perspective *
 /**
  * @brief Make this perspective object be global for its canvas.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] ps The given perspective object
  * @param[in] global @c EINA_TRUE if the perspective should be global, @c
@@ -2221,7 +2273,9 @@ EAPI void                    edje_perspective_global_set     (Edje_Perspective *
 /**
  * @brief Get whether the given perspective object is global or not.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] ps The given perspective object.
  * @return @c EINA_TRUE if this perspective object is global, @c EINA_FALSE
@@ -2233,7 +2287,9 @@ EAPI Eina_Bool               edje_perspective_global_get     (const Edje_Perspec
 /**
  * @brief Get the global perspective object set for this canvas.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] e The given canvas (Evas).
  * @return The perspective object set as global for this canvas. Or @c NULL

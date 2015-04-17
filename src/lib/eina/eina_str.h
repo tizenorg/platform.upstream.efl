@@ -85,7 +85,9 @@
 /**
  * @brief Copy a c-string to another.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[out] dst The destination string.
  * @param[in] src The source string.
@@ -107,7 +109,9 @@ EAPI size_t          eina_strlcpy(char *dst, const char *src, size_t siz) EINA_A
 /**
  * @brief Append a c-string.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] dst The destination string.
  * @param[in] src The source string.
@@ -127,7 +131,9 @@ EAPI size_t          eina_strlcat(char *dst, const char *src, size_t siz) EINA_A
 /**
  * @brief Check if the given string has the given prefix.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] str The string to work with.
  * @param[in] prefix The prefix to check for.
@@ -142,7 +148,9 @@ EAPI Eina_Bool       eina_str_has_prefix(const char *str, const char *prefix) EI
 /**
  * @brief Check if the given string has the given suffix.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] str The string to work with.
  * @param[in] suffix The suffix to check for.
@@ -157,7 +165,9 @@ EAPI Eina_Bool       eina_str_has_suffix(const char *str, const char *suffix) EI
 /**
  * @brief Check if the given string has the given extension.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] str The string to work with.
  * @param[in] ext The  extension to check for.
@@ -171,7 +181,9 @@ EAPI Eina_Bool       eina_str_has_extension(const char *str, const char *ext) EI
 /**
  * @brief Split a string using a delimiter.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] string The string to split.
  * @param[in] delimiter The string which specifies the places at which to split the string.
@@ -199,7 +211,9 @@ EAPI char          **eina_str_split(const char *string, const char *delimiter, i
 /**
  * @brief Split a string using a delimiter and returns number of elements.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] string The string to split.
  * @param[in] delimiter The string which specifies the places at which to split the string.
@@ -235,7 +249,9 @@ EAPI char          **eina_str_split_full(const char *string, const char *delimit
 /**
  * @brief Join two strings of known length.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[out] dst The buffer to store the result.
  * @param[in] size Size (in byte) of the buffer.
@@ -266,7 +282,9 @@ EAPI size_t          eina_str_join_len(char *dst, size_t size, char sep, const c
 /**
  * @brief Use Iconv to convert a text string from one encoding to another.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] enc_from Encoding to convert from.
  * @param[in] enc_to Encoding to convert to.
@@ -308,7 +326,9 @@ EAPI char           *eina_str_convert_len(const char *enc_from, const char *enc_
 /**
  * @brief Escape slashes, spaces and apostrophes in strings.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] str The string to escape.
  * @return The escaped string.
@@ -324,7 +344,9 @@ EAPI char           *eina_str_escape(const char *str) EINA_WARN_UNUSED_RESULT EI
 /**
  * @brief Lowercase all the characters in range [A-Z] in the given string.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[out] str The string to lowercase.
  *
@@ -337,7 +359,9 @@ EAPI void            eina_str_tolower(char **str);
 /**
  * @brief Uppercase all the characters in range [a-z] in the given string.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[out] str The string to uppercase.
  *

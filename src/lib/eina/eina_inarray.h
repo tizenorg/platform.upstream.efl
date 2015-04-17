@@ -237,7 +237,9 @@ struct _Eina_Inarray
 /**
  * @brief Creates a new inline array.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] member_size The size of each member in the array
  * @param[in] step The step size by which to resize the array, do this using the following
@@ -261,7 +263,9 @@ EAPI Eina_Inarray *eina_inarray_new(unsigned int member_size,
 /**
  * @brief Frees an array and its members.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  *
@@ -274,7 +278,9 @@ EAPI void eina_inarray_free(Eina_Inarray *array) EINA_ARG_NONNULL(1);
 /**
  * @brief Initializes an inline array.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object to initialize
  * @param[in] sizeof_eina_inarray The size of array object
@@ -300,7 +306,9 @@ EAPI void eina_inarray_step_set(Eina_Inarray *array,
 /**
  * @brief Removes every member from the array.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  *
  * @param[in] array The array object
@@ -312,7 +320,9 @@ EAPI void eina_inarray_flush(Eina_Inarray *array) EINA_ARG_NONNULL(1);
 /**
  * @brief Copies the data as the last member of the array.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @param[in] data The data to be copied at the end
@@ -345,7 +355,9 @@ EAPI void *eina_inarray_grow(Eina_Inarray *array, unsigned int size);
 /**
  * @brief Copies the data to the array at a position found by the comparison function.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @param[in] data The data to be copied
@@ -373,7 +385,9 @@ EAPI int eina_inarray_insert(Eina_Inarray *array,
 /**
  * @brief Copies the data to the array at a position found by the comparison function.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @param[in] data The data to be copied
@@ -402,7 +416,9 @@ EAPI int eina_inarray_insert_sorted(Eina_Inarray *array,
 /**
  * @brief Finds data and removes the matching member.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @param[in] data The data to be found and removed
@@ -423,7 +439,9 @@ EAPI int eina_inarray_remove(Eina_Inarray *array,
 /**
  * @brief Removes the last member of the array.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @return The data poped out of the array
@@ -437,7 +455,9 @@ EAPI void *eina_inarray_pop(Eina_Inarray *array) EINA_ARG_NONNULL(1);
 /**
  * @brief Gets the member at the given position.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @param[in] position The member position
@@ -459,7 +479,9 @@ EAPI void *eina_inarray_nth(const Eina_Inarray *array,
 /**
  * @brief Copies the data at the given position in the array.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @param[in] position The position to insert the member at
@@ -488,7 +510,9 @@ EAPI Eina_Bool eina_inarray_insert_at(Eina_Inarray *array,
 /**
  * @brief Opens a space at the given position, returning its pointer.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @param[in] position The position to insert first member at (open/allocate space)
@@ -520,7 +544,9 @@ EAPI void *eina_inarray_alloc_at(Eina_Inarray *array,
 /**
  * @brief Copies the data to the given position.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @param[in] position The position to copy the member at
@@ -543,7 +569,9 @@ EAPI Eina_Bool eina_inarray_replace_at(Eina_Inarray *array,
 /**
  * @brief Removes a member from the given position.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @param[in] position The position from which to remove a member
@@ -563,7 +591,9 @@ EAPI Eina_Bool eina_inarray_remove_at(Eina_Inarray *array,
 /**
  * @brief Reverses members in the array.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  *
@@ -579,7 +609,9 @@ EAPI void eina_inarray_reverse(Eina_Inarray *array) EINA_ARG_NONNULL(1);
 /**
  * @brief Applies a quick sort to the array.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @param[in] compare The compare function
@@ -599,7 +631,9 @@ EAPI void eina_inarray_sort(Eina_Inarray *array,
 /**
  * @brief Searches for a member (linear walk).
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @param[in] data The member to search using the @p compare function
@@ -623,7 +657,9 @@ EAPI int eina_inarray_search(const Eina_Inarray *array,
 /**
  * @brief Searches for member (binary search walk).
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @param[in] data The member to search using the @p compare function
@@ -644,7 +680,9 @@ EAPI int eina_inarray_search_sorted(const Eina_Inarray *array,
 /**
  * @brief Calls @p function for each array member.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @param[in] function The callback function
@@ -670,7 +708,9 @@ EAPI Eina_Bool eina_inarray_foreach(const Eina_Inarray *array,
 /**
  * @brief Removes all the members that match.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @param[in] match The match function
@@ -700,7 +740,9 @@ EAPI Eina_Bool eina_inarray_resize(Eina_Inarray *array, unsigned int new_size);
 /**
  * @brief Counts the number of members in an array.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @return The number of members in the array
@@ -712,7 +754,9 @@ EAPI unsigned int eina_inarray_count(const Eina_Inarray *array) EINA_ARG_NONNULL
 /**
  * @brief Returns a new iterator associated to an array.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @return A new iterator
@@ -734,7 +778,9 @@ EAPI Eina_Iterator *eina_inarray_iterator_new(const Eina_Inarray *array) EINA_MA
 /**
  * @brief Returns a new reversed iterator associated to an array.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @return A new iterator
@@ -758,7 +804,9 @@ EAPI Eina_Iterator *eina_inarray_iterator_reversed_new(const Eina_Inarray *array
 /**
  * @brief Returns a new accessor associated to an array.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array object
  * @return A new accessor

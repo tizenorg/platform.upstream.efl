@@ -344,7 +344,9 @@ struct _Eina_List_Accounting
 /**
  * @brief Append the given data to the given linked list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The given list.
  * @param[in] data The data to append.
@@ -373,7 +375,9 @@ EAPI Eina_List            *eina_list_append(Eina_List *list, const void *data) E
 /**
  * @brief Prepends the given data to the given linked list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The given list.
  * @param[in] data The data to prepend.
@@ -403,7 +407,9 @@ EAPI Eina_List            *eina_list_prepend(Eina_List *list, const void *data) 
 /**
  * @brief Insert the given data into the given linked list after the specified data.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The given linked list.
  * @param[in] data The data to insert.
@@ -438,7 +444,9 @@ EAPI Eina_List            *eina_list_append_relative(Eina_List *list, const void
 /**
  * @brief Append a list node to a linked list after the specified member
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The given linked list.
  * @param[in] data The data to insert.
@@ -462,7 +470,9 @@ EAPI Eina_List            *eina_list_append_relative_list(Eina_List *list, const
 /**
  * @brief Prepend a data pointer to a linked list before the specified member
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The given linked list.
  * @param[in] data The data to insert.
@@ -497,7 +507,9 @@ EAPI Eina_List            *eina_list_prepend_relative(Eina_List *list, const voi
 /**
  * @brief Prepend a list node to a linked list before the specified member
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The given linked list.
  * @param[in] data The data to insert.
@@ -521,7 +533,9 @@ EAPI Eina_List            *eina_list_prepend_relative_list(Eina_List *list, cons
 /**
  * @brief Insert a new node into a sorted list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The given linked list, @b must be sorted.
  * @param[in] func The function called for the sort.
@@ -549,7 +563,9 @@ EAPI Eina_List            *eina_list_sorted_insert(Eina_List *list, Eina_Compare
 /**
  * @brief Remove the first instance of the specified data from the given list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The given list.
  * @param[in] data The specified data.
@@ -570,7 +586,9 @@ EAPI Eina_List            *eina_list_remove(Eina_List *list, const void *data) E
 /**
  * @brief Remove the specified list node.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The given linked list.
  * @param[in] remove_list The list node which is to be removed.
@@ -610,7 +628,9 @@ EAPI Eina_List            *eina_list_remove_list(Eina_List *list, Eina_List *rem
 /**
  * @brief Move the specified data to the head of the list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list handle to move the data.
  * @param[in] move_list The list node to move.
@@ -646,7 +666,9 @@ EAPI Eina_List            *eina_list_promote_list(Eina_List *list, Eina_List *mo
 /**
  * @brief Move the specified data to the tail of the list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list handle to move the data.
  * @param[in] move_list The list node to move.
@@ -682,7 +704,9 @@ EAPI Eina_List            *eina_list_demote_list(Eina_List *list, Eina_List *mov
 /**
  * @brief Find a member of a list and return the member.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list to search for a data.
  * @param[in] data The data pointer to find in the list.
@@ -710,7 +734,9 @@ EAPI void                 *eina_list_data_find(const Eina_List *list, const void
 /**
  * @brief Find a member of a list and return the list node containing that member.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list to search for data.
  * @param[in] data The data pointer to find in the list.
@@ -729,7 +755,9 @@ EAPI Eina_List            *eina_list_data_find_list(const Eina_List *list, const
 /**
  * @brief Move a data pointer from one list to another
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[out] to The list to move the data to
  * @param[out] from The list to move from
@@ -747,7 +775,9 @@ EAPI Eina_Bool             eina_list_move(Eina_List **to, Eina_List **from, void
 /**
  * @brief Move a list node from one list to another
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[out] to The list to move the data to
  * @param[out] from The list to move from
@@ -767,7 +797,9 @@ EAPI Eina_Bool             eina_list_move_list(Eina_List **to, Eina_List **from,
  * @brief Free an entire list and all the nodes, ignoring the data contained.
 
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list to free
  * @return A @c NULL pointer
@@ -781,7 +813,9 @@ EAPI Eina_List            *eina_list_free(Eina_List *list);
 /**
  * @brief Get the nth member's data pointer in a list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list to get the specified member number from.
  * @param[in] n The number of the element (0 being the first).
@@ -802,7 +836,9 @@ EAPI void                 *eina_list_nth(const Eina_List *list, unsigned int n) 
 /**
  * @brief Get the nth member's list node in a list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list to get the specfied member number from.
  * @param[in] n The number of the element (0 being the first).
@@ -825,7 +861,9 @@ EAPI Eina_List            *eina_list_nth_list(const Eina_List *list, unsigned in
 /**
  * @brief Reverse all the elements in the list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list to reverse.
  * @return The list head after it has been reversed.
@@ -848,7 +886,9 @@ EAPI Eina_List            *eina_list_reverse(Eina_List *list) EINA_WARN_UNUSED_R
 /**
  * @brief Clone (copy) all the elements in the list in reverse order.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list to reverse.
  * @return The new list that has been reversed.
@@ -871,7 +911,9 @@ EAPI Eina_List            *eina_list_reverse_clone(const Eina_List *list) EINA_W
 /**
  * @brief Clone (copy) all the elements in the list in exactly same order.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list to clone.
  * @return The new list that has been cloned.
@@ -893,7 +935,9 @@ EAPI Eina_List            *eina_list_clone(const Eina_List *list) EINA_WARN_UNUS
 /**
  * @brief Sort a list according to the ordering func will return.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list handle to sort.
  * @param[in] limit The maximum number of list elements to sort.
@@ -938,7 +982,9 @@ EAPI Eina_List            *eina_list_sort(Eina_List *list, unsigned int limit, E
 /**
  * @brief Shuffle list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list handle to shuffle.
  * @param[in] func A function pointer that can return an int between 2 inclusives values
@@ -961,7 +1007,9 @@ EAPI Eina_List            *eina_list_shuffle(Eina_List *list, Eina_Random_Cb fun
 /**
  * @brief Merge two list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] left Head list to merge.
  * @param[in] right Tail list to merge.
@@ -983,7 +1031,9 @@ EAPI Eina_List            *eina_list_merge(Eina_List *left, Eina_List *right) EI
 /**
  * @brief Merge two sorted list according to the ordering func will return.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] left First list to merge.
  * @param[in] right Second list to merge.
@@ -1025,7 +1075,9 @@ EAPI Eina_List            *eina_list_sorted_merge(Eina_List *left, Eina_List *ri
 /**
  * @brief Split a list into 2 lists.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list List to split.
  * @param[in] relative The list will be split after @p relative.
@@ -1047,7 +1099,9 @@ EAPI Eina_List            *eina_list_split_list(Eina_List *list, Eina_List *rela
 /**
  * @brief Returns node nearest to data is in the sorted list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list to search for data, @b must be sorted.
  * @param[in] func A function pointer that can handle comparing the list data nodes.
@@ -1111,7 +1165,9 @@ EAPI Eina_List            *eina_list_search_sorted_near_list(const Eina_List *li
 /**
  * @brief Returns node if data is in the sorted list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list to search for data, @b must be sorted.
  * @param[in] func A function pointer that can handle comparing the list data nodes.
@@ -1149,7 +1205,9 @@ EAPI Eina_List            *eina_list_search_sorted_list(const Eina_List *list, E
 /**
  * @brief Returns node data if it is in the sorted list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list to search for data, @b must be sorted.
  * @param[in] func A function pointer that can handle comparing the list data nodes.
@@ -1187,7 +1245,9 @@ EAPI void                 *eina_list_search_sorted(const Eina_List *list, Eina_C
 /**
  * @brief Returns node if data is in the unsorted list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list to search for data, may be unsorted.
  * @param[in] func A function pointer that can handle comparing the list data nodes.
@@ -1215,7 +1275,9 @@ EAPI Eina_List            *eina_list_search_unsorted_list(const Eina_List *list,
 /**
  * @brief Returns node data if it is in the unsorted list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list to search for data, may be unsorted.
  * @param[in] func A function pointer that can handle comparing the list data nodes.
@@ -1243,7 +1305,9 @@ EAPI void                 *eina_list_search_unsorted(const Eina_List *list, Eina
 /**
  * @brief Get the last list node in the list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list to get the last list node from.
  * @return The last list node in the list.
@@ -1261,7 +1325,9 @@ static inline Eina_List   *eina_list_last(const Eina_List *list) EINA_PURE EINA_
 /**
  * @brief Get the next list node after the specified list node.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list node to get the next list node from
  * @return The next list node on success, @c NULL otherwise.
@@ -1277,7 +1343,9 @@ static inline Eina_List   *eina_list_next(const Eina_List *list) EINA_PURE EINA_
 /**
  * @brief Get the previous list node before the specified list node.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list node to get the previous list node from.
  * @return The previous list node o success, @c NULL otherwise.
@@ -1294,7 +1362,9 @@ static inline Eina_List   *eina_list_prev(const Eina_List *list) EINA_PURE EINA_
 /**
  * @brief Get the list node data member.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list node to get the data member of.
  * @return The data member from the list node.
@@ -1310,7 +1380,9 @@ static inline void        *eina_list_data_get(const Eina_List *list) EINA_PURE E
 /**
  * @brief Set the list node data member.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list node to get the data member of.
  * @param[in] data The data member to the list node.
@@ -1327,7 +1399,9 @@ static inline void        *eina_list_data_set(Eina_List *list, const void *data)
 /**
  * @brief Get the count of the number of items in a list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list whose count to return.
  * @return The number of members in the list.
@@ -1345,7 +1419,9 @@ static inline unsigned int eina_list_count(const Eina_List *list) EINA_PURE;
 /**
  * @brief Returns the last list node's data
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list
  * @return The node's data, or @c NULL on being passed a @c NULL pointer
@@ -1358,7 +1434,9 @@ static inline void        *eina_list_last_data_get(const Eina_List *list);
 /**
  * @brief Returned a new iterator associated to a list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list.
  * @return A new iterator.
@@ -1384,7 +1462,9 @@ EAPI Eina_Iterator        *eina_list_iterator_new(const Eina_List *list) EINA_MA
 /**
  * @brief Returned a new reversed iterator associated to a list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list.
  * @return A new iterator.
@@ -1412,7 +1492,9 @@ EAPI Eina_Iterator        *eina_list_iterator_reversed_new(const Eina_List *list
 /**
  * @brief Returned a new accessor associated to a list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list.
  * @return A new accessor.

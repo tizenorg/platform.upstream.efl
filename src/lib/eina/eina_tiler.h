@@ -177,7 +177,9 @@ typedef struct _Eina_Tile_Grid_Slicer Eina_Tile_Grid_Slicer;
 /**
  * @brief Creates a new tiler with @p w width and @p h height.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] w Width of the tiler
  * @param[in] h Height of the tiler
@@ -189,7 +191,9 @@ EAPI Eina_Tiler        *eina_tiler_new(int w, int h);
 /**
  * @brief Frees a tiler.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] t The tiler to free.
  *
@@ -200,7 +204,9 @@ EAPI void               eina_tiler_free(Eina_Tiler *t);
 /**
  * @brief Sets the size of tiles for a tiler.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] t The tiler whose tile size will be set.
  * @param[in] w Width of the tiles.
@@ -261,7 +267,9 @@ EAPI Eina_Bool          eina_tiler_empty(Eina_Tiler *t);
 /**
  * @brief Adds a rectangle to a tiler.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] t The tiler in which to add a container.
  * @param[in] r The rectangle to be added.
@@ -283,7 +291,9 @@ EAPI void               eina_tiler_rect_del(Eina_Tiler *t, const Eina_Rectangle 
 /**
  * @brief Removes all rectangles from tiles.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] t The tiler to clear.
  *
@@ -293,7 +303,9 @@ EAPI void               eina_tiler_clear(Eina_Tiler *t);
 /**
  * @brief Create a iterator to access the tilers calculated rectangles.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] t The tiler to iterate over.
  * @return A iterator containing Eina_Rectangle.
@@ -303,7 +315,9 @@ EAPI Eina_Iterator     *eina_tiler_iterator_new(const Eina_Tiler *t);
 /**
  * @brief Creates a new Eina_Iterator that iterates over a list of tiles.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in]   x X axis coordinate.
  * @param[in]   y Y axis coordinate.
@@ -378,7 +392,9 @@ EAPI Eina_Bool           eina_tiler_equal(Eina_Tiler *t1, Eina_Tiler *t2);
 /**
  * @brief Iterates over the tiles set by eina_tile_grid_slicer_setup().
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in]   slc Pointer to an Eina_Tile_Grid_Slicer struct.
  * @param[out]   rect Pointer to a struct Eina_Tile_Grid_Info *.
@@ -395,7 +411,9 @@ static inline Eina_Bool eina_tile_grid_slicer_next(Eina_Tile_Grid_Slicer *slc, c
 /**
  * @brief Setup an Eina_Tile_Grid_Slicer struct.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in]   slc Pointer to an Eina_Tile_Grid_Slicer struct.
  * @param[in]   x X axis coordinate.

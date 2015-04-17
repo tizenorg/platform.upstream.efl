@@ -123,7 +123,9 @@ typedef int (*Ecore_Select_Function)(int nfds, fd_set *readfds, fd_set *writefds
  * @brief Runs a single iteration of the main loop to process everything on the
  * queue.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark It does everything that is already done inside an @c Ecore main loop, like
  * checking for expired timers, idlers, etc. But it will do it only once and
@@ -161,7 +163,9 @@ EAPI int ecore_main_loop_iterate_may_block(int may_block);
  * and waiting until one of more of the file descriptors before ready
  * for some class of I/O operation.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This function will be used instead of the system call select and
  * could possible be used to integrate the Ecore event loop with an
@@ -177,7 +181,9 @@ EAPI void ecore_main_loop_select_func_set(Ecore_Select_Function func);
  * @brief Gets the select function set by ecore_select_func_set(),
  * or the native select function if none was set.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  */
 EAPI Ecore_Select_Function ecore_main_loop_select_func_get(void);
@@ -185,7 +191,9 @@ EAPI Ecore_Select_Function ecore_main_loop_select_func_get(void);
 /**
  * @brief Request ecore to integrate GLib's main loop.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This will add a small overhead during every main loop interaction
  * by checking glib's default main context (used by its main loop). If
@@ -240,7 +248,9 @@ EAPI Eina_Bool ecore_main_loop_glib_integrate(void);
 /**
  * @brief Disable always integrating glib
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark If ecore is compiled with --with-glib=always (to always call
  * ecore_main_loop_glib_integrate() when ecore_init() is called), then calling
@@ -253,7 +263,9 @@ EAPI void ecore_main_loop_glib_always_integrate_disable(void);
 /**
  * @brief Runs the application main loop.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This function will not return until @ref ecore_main_loop_quit is called. It
  * will check for expired timers, idlers, file descriptors being watched by fd
@@ -276,7 +288,9 @@ EAPI void ecore_main_loop_begin(void);
  * @brief Quits the main loop once all the events currently on the queue have
  * been processed.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This function returns immediately, but will mark the ecore_main_loop_begin()
  * function to return at the end of the current main loop iteration.
@@ -320,7 +334,9 @@ typedef void *(*Ecore_Data_Cb)(void *data);
 /**
  * @brief Add a function to be called by ecore_fork_reset()
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] func The function to add.
  * @param[in] data The data to pass to this function.
@@ -337,7 +353,9 @@ EAPI Eina_Bool ecore_fork_reset_callback_add(Ecore_Cb func, const void *data);
 /**
  * @brief This removes the callback specified
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] func The function to delete.
  * @param[in] data The data passed to this function.
@@ -353,7 +371,9 @@ EAPI Eina_Bool ecore_fork_reset_callback_del(Ecore_Cb func, const void *data);
 /**
  * @brief Reset the ecore internal state after a fork
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark Ecore maintains internal data that can be affected by the fork() system call
  * which creates a duplicate of the current process. This also duplicates
@@ -374,7 +394,9 @@ EAPI void ecore_fork_reset(void);
 /**
  * @brief Call callback asynchronously in the main loop.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @since 1.1.0
  *
@@ -394,7 +416,9 @@ EAPI void ecore_main_loop_thread_safe_call_async(Ecore_Cb callback, void *data);
 /**
  * @brief Call callback synchronously in the main loop.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @since 1.1.0
  *
@@ -427,7 +451,9 @@ EAPI void ecore_main_loop_thread_safe_call_wait(double wait);
 /**
  * @brief This function suspend the main loop in a know state
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @since 1.1.0
  *
@@ -450,7 +476,9 @@ EAPI int ecore_thread_main_loop_begin(void);
 /**
  * @brief Unlock the main loop.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @since 1.1.0
  *
@@ -651,7 +679,9 @@ struct _Ecore_Event_Signal_Realtime
 /**
  * @brief Add an event handler.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] type The type of the event this handler will get called for
  * @param[in] func The function to call when the event is found in the queue
@@ -679,7 +709,9 @@ EAPI Ecore_Event_Handler *ecore_event_handler_add(int type, Ecore_Event_Handler_
 /**
  * @brief Delete an event handler.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] event_handler Event handler handle to delete
  * @return Data passed to handler
@@ -694,7 +726,9 @@ EAPI void *ecore_event_handler_del(Ecore_Event_Handler *event_handler);
 /**
  * @brief Add an event to the event queue.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] type The event type to add to the end of the event queue
  * @param[in] ev The data structure passed as @c event to event handlers
@@ -714,7 +748,9 @@ EAPI Ecore_Event *ecore_event_add(int type, void *ev, Ecore_End_Cb func_free, vo
 /**
  * @brief Delete an event from the queue.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] event The event handle to delete
  * @return The data pointer originally set for the event free function
@@ -730,7 +766,9 @@ EAPI void *ecore_event_del(Ecore_Event *event);
 /**
  * @brief Get the data associated with an #Ecore_Event_Handler
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] eh The event handler
  * @return The data
@@ -743,7 +781,9 @@ EAPI void *ecore_event_handler_data_get(Ecore_Event_Handler *eh);
 /**
  * @brief Set the data associated with an #Ecore_Event_Handler
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] eh The event handler
  * @param[in] data The data to associate
@@ -757,7 +797,9 @@ EAPI void *ecore_event_handler_data_set(Ecore_Event_Handler *eh, const void *dat
 /**
  * @brief Allocate a new event type id sensibly and return the new id.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return A new event type id.
  *
@@ -772,7 +814,9 @@ EAPI int ecore_event_type_new(void);
 /**
  * @brief Add a filter the current event queue.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] func_start Function to call just before filtering and return data
  * @param[in] func_filter Function to call on each event
@@ -796,7 +840,9 @@ EAPI Ecore_Event_Filter *ecore_event_filter_add(Ecore_Data_Cb func_start, Ecore_
 /**
  * @brief Delete an event filter.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] ef The event filter handle
  * @return The data set for the filter on success, @c NULL otherwise.
@@ -808,7 +854,9 @@ EAPI void *ecore_event_filter_del(Ecore_Event_Filter *ef);
 /**
  * @brief Return the current event type being handled.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return The current event type being handled if inside a handler callback,
  * ECORE_EVENT_NONE otherwise
@@ -827,7 +875,9 @@ EAPI int ecore_event_current_type_get(void);
 /**
  * @brief Return the current event type pointer handled.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return The current event pointer being handled if inside a handler callback,
  * @c NULL otherwise.
@@ -1431,7 +1481,9 @@ typedef Eina_Bool (*Ecore_Win32_Handle_Cb)(void *data, Ecore_Win32_Handler *wh);
 /**
  * @brief Adds a callback for activity on the given file descriptor.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] fd The file descriptor to watch.
  * @param[in] flags To monitor it for reading use @c ECORE_FD_READ, for writing @c
@@ -1473,7 +1525,9 @@ EAPI Ecore_Fd_Handler *ecore_main_fd_handler_add(int fd, Ecore_Fd_Handler_Flags 
 /**
  * @brief Adds a callback for activity on the given file descriptor.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] fd The file descriptor to watch.
  * @param[in] flags To monitor it for reading use @c ECORE_FD_READ, for writing @c
@@ -1497,7 +1551,9 @@ EAPI Ecore_Fd_Handler *ecore_main_fd_handler_file_add(int fd, Ecore_Fd_Handler_F
 /**
  * @brief Set the prepare callback with data for a given #Ecore_Fd_Handler
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] fd_handler The fd handler
  * @param[in] func The prep function
@@ -1516,7 +1572,9 @@ EAPI void ecore_main_fd_handler_prepare_callback_set(Ecore_Fd_Handler *fd_handle
 /**
  * @brief Marks an FD handler for deletion.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] fd_handler The FD handler.
  * @return The data pointer set using @ref ecore_main_fd_handler_add, for
@@ -1533,7 +1591,9 @@ EAPI void *ecore_main_fd_handler_del(Ecore_Fd_Handler *fd_handler);
 /**
  * @brief Retrieves the file descriptor that the given handler is handling.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] fd_handler The given FD handler.
  * @return The file descriptor the handler is watching.
@@ -1542,7 +1602,9 @@ EAPI int ecore_main_fd_handler_fd_get(Ecore_Fd_Handler *fd_handler);
 /**
  * @brief Gets which flags are active on an FD handler.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] fd_handler The given FD handler.
  * @param[in] flags The flags, @c ECORE_FD_READ, @c ECORE_FD_WRITE or
@@ -1554,7 +1616,9 @@ EAPI Eina_Bool ecore_main_fd_handler_active_get(Ecore_Fd_Handler *fd_handler, Ec
 /**
  * @brief Set what active streams the given FD handler should be monitoring.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] fd_handler The given FD handler.
  * @param[in] flags The flags to be watching.
@@ -1594,7 +1658,9 @@ EAPI void *ecore_main_win32_handler_del(Ecore_Win32_Handler *win32_handler);
 /**
  * @brief Retrieves the current system time as a floating point value in seconds.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This uses a monotonic clock and thus never goes back in time while
  * machine is live (even if user changes time or timezone changes,
@@ -1613,7 +1679,9 @@ EAPI double ecore_time_get(void);
 /**
  * @brief Retrieves the current UNIX time as a floating point value in seconds.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @see ecore_time_get().
  * @see ecore_loop_time_get().
@@ -1626,7 +1694,9 @@ EAPI double ecore_time_unix_get(void);
  * @brief Retrieves the time at which the last loop stopped waiting for timeouts or
  * events.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This gets the time that the main loop ceased waiting for timouts and/or
  * events to come in or for signals or any other interrupt source. This should
@@ -1782,7 +1852,9 @@ typedef void (*Ecore_Thread_Notify_Cb)(void *data, Ecore_Thread *thread, void *m
 /**
  * @brief Schedule a task to run in a parallel thread to avoid locking the main loop
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] func_blocking The function that should run in another thread.
  * @param[in] func_end Function to call from main loop when @p func_blocking
@@ -1843,7 +1915,9 @@ EAPI Ecore_Thread *ecore_thread_run(Ecore_Thread_Cb func_blocking, Ecore_Thread_
 /**
  * @brief Launch a thread to run a task that can talk back to the main thread
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] func_heavy The function that should run in another thread.
  * @param[in] func_notify Function that receives the data sent from the thread
@@ -1889,7 +1963,9 @@ EAPI Ecore_Thread *ecore_thread_feedback_run(Ecore_Thread_Cb func_heavy, Ecore_T
 /**
  * @brief Cancel a running thread.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] thread The thread to cancel.
  * @return Will return @c EINA_TRUE if the thread has been cancelled,
@@ -1938,7 +2014,9 @@ EAPI Eina_Bool ecore_thread_wait(Ecore_Thread *thread, double wait);
 /**
  * @brief Checks if a thread is pending cancellation
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] thread The thread to test.
  * @return @c EINA_TRUE if the thread is pending cancellation,
@@ -1961,7 +2039,9 @@ EAPI Eina_Bool ecore_thread_check(Ecore_Thread *thread);
 /**
  * @brief Sends data from the worker thread to the main loop
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] thread The current ::Ecore_Thread context to send data from
  * @param[in] msg_data Data to be transmitted to the main loop
@@ -1986,7 +2066,9 @@ EAPI Eina_Bool ecore_thread_feedback(Ecore_Thread *thread, const void *msg_data)
 /**
  * @brief Asks for the function in the thread to be called again at a later time
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] thread The current ::Ecore_Thread context to rescheduled
  * @return @c EINA_TRUE if the task was successfully rescheduled,
@@ -2013,7 +2095,9 @@ EAPI Eina_Bool ecore_thread_reschedule(Ecore_Thread *thread);
 /**
  * @brief Gets the number of active threads running jobs
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return Number of active threads running jobs
  *
@@ -2030,7 +2114,9 @@ EAPI int ecore_thread_active_get(void);
 /**
  * @brief Gets the number of short jobs waiting for a thread to run
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return Number of pending threads running "short" jobs
  *
@@ -2042,7 +2128,9 @@ EAPI int ecore_thread_pending_get(void);
 /**
  * @brief Gets the number of feedback jobs waiting for a thread to run
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return Number of pending threads running "feedback" jobs
  *
@@ -2054,7 +2142,9 @@ EAPI int ecore_thread_pending_feedback_get(void);
 /**
  * @brief Gets the total number of pending jobs
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return Number of pending threads running jobs
  *
@@ -2066,7 +2156,9 @@ EAPI int ecore_thread_pending_total_get(void);
 /**
  * @brief Gets the maximum number of threads that can run simultaneously
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return Max possible number of Ecore_Thread's running concurrently
  *
@@ -2088,7 +2180,9 @@ EAPI int ecore_thread_max_get(void);
 /**
  * @brief Sets the maximum number of threads allowed to run simultaneously
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] num The new maximum
  *
@@ -2104,7 +2198,9 @@ EAPI void ecore_thread_max_set(int num);
 /**
  * @brief Resets the maximum number of concurrently running threads to the default
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This resets the value returned by ecore_thread_max_get() back to its
  * default.
@@ -2117,7 +2213,9 @@ EAPI void ecore_thread_max_reset(void);
 /**
  * @brief Gets the number of threads available for running tasks
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return The number of available threads
  *
@@ -2132,7 +2230,9 @@ EAPI int ecore_thread_available_get(void);
 /**
  * @brief Adds some data to a hash local to the thread
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] thread The thread context the data belongs to
  * @param[in] key The name under which the data will be stored
@@ -2221,7 +2321,9 @@ EAPI Eina_Bool ecore_thread_local_data_add(Ecore_Thread *thread, const char *key
 /**
  * @brief Sets some data in the hash local to the given thread
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] thread The thread context the data belongs to
  * @param[in] key The name under which the data will be stored
@@ -2252,7 +2354,9 @@ EAPI void *ecore_thread_local_data_set(Ecore_Thread *thread, const char *key, vo
 /**
  * @brief Gets data stored in the hash local to the given thread
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] thread The thread context the data belongs to
  * @param[in] key The name under which the data is stored
@@ -2273,7 +2377,9 @@ EAPI void *ecore_thread_local_data_find(Ecore_Thread *thread, const char *key);
 /**
  * @brief Deletes from the thread's hash the data corresponding to the given key
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] thread The thread context the data belongs to
  * @param[in] key The name under which the data is stored
@@ -2301,7 +2407,9 @@ EAPI Eina_Bool ecore_thread_local_data_del(Ecore_Thread *thread, const char *key
 /**
  * @brief Adds some data to a hash shared by all threads
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] key The name under which the data will be stored
  * @param[in] value The data to add
@@ -2343,7 +2451,9 @@ EAPI Eina_Bool ecore_thread_global_data_add(const char *key, void *value, Eina_F
 /**
  * @brief Sets some data in the hash shared by all threads
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] key The name under which the data will be stored
  * @param[in] value The data to add
@@ -2368,7 +2478,9 @@ EAPI void *ecore_thread_global_data_set(const char *key, void *value, Eina_Free_
 /**
  * @brief Gets data stored in the hash shared by all threads
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] key The name under which the data is stored
  * @return The value under the given key, or @c NULL on error.
@@ -2388,7 +2500,9 @@ EAPI void *ecore_thread_global_data_find(const char *key);
 /**
  * @brief Deletes from the shared hash the data corresponding to the given key
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] key The name under which the data is stored
  * @return @c EINA_TRUE on success, @c EINA_FALSE on failure.
@@ -2414,7 +2528,9 @@ EAPI Eina_Bool ecore_thread_global_data_del(const char *key);
 /**
  * @brief Gets data stored in the shared hash, or wait for it if it doesn't exist
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] key The name under which the data is stored
  * @param[in] seconds The amount of time in seconds to wait for the data.
@@ -2481,7 +2597,9 @@ typedef void (*Ecore_Pipe_Cb)(void *data, void *buffer, unsigned int nbyte);
  * is listened receives data. An event is also put in the event
  * queue when data is received.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] handler The handler called when data is received.
  * @param[in] data    Data to pass to @p handler when it is called.
@@ -2514,7 +2632,9 @@ EAPI Ecore_Pipe *ecore_pipe_full_add(Ecore_Pipe_Cb handler,
 /**
  * @brief Free an Ecore_Pipe object created with ecore_pipe_add().
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] p The Ecore_Pipe object to be freed.
  * @return The pointer to the private data
@@ -2524,7 +2644,9 @@ EAPI void *ecore_pipe_del(Ecore_Pipe *p);
 /**
  * @brief Write on the file descriptor the data passed as parameter.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] p      The Ecore_Pipe object.
  * @param[in] buffer The data to write into the pipe.
@@ -2536,7 +2658,9 @@ EAPI Eina_Bool ecore_pipe_write(Ecore_Pipe *p, const void *buffer, unsigned int 
 /**
  * @brief Close the write end of an Ecore_Pipe object created with ecore_pipe_add().
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] p The Ecore_Pipe object.
  */
@@ -2545,7 +2669,9 @@ EAPI void ecore_pipe_write_close(Ecore_Pipe *p);
 /**
  * @brief Close the read end of an Ecore_Pipe object created with ecore_pipe_add().
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] p The Ecore_Pipe object.
  */
@@ -2572,7 +2698,9 @@ EAPI int ecore_pipe_write_fd(Ecore_Pipe *p);
  * stopping the monitoring activity. This will not work if
  * ecore_pipe_read_close() was previously called on the same pipe.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] p The Ecore_Pipe object.
  * @since 1.1
@@ -2583,7 +2711,9 @@ EAPI void ecore_pipe_thaw(Ecore_Pipe *p);
  * @brief Stop monitoring if necessary the pipe for reading. See ecore_pipe_thaw()
  * for monitoring it again.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] p The Ecore_Pipe object.
  * @since 1.1
@@ -2593,7 +2723,9 @@ EAPI void ecore_pipe_freeze(Ecore_Pipe *p);
 /**
  * @brief Wait from another thread on the read side of a pipe.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] p The pipe to watch on.
  * @param[in] message_count The minimal number of message to wait before exiting.
@@ -2796,7 +2928,9 @@ typedef Eo    Ecore_Poller; /**< A handle for pollers */
 /**
  * @brief Sets the time(in seconds) between ticks for the given poller type.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] type The poller type to adjust.
  * @param[in] poll_time The time(in seconds) between ticks of the timer.
@@ -2809,7 +2943,9 @@ EAPI void ecore_poller_poll_interval_set(Ecore_Poller_Type type, double poll_tim
 /**
  * @brief Gets the time(in seconds) between ticks for the given poller type.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] type The poller type to query.
  * @return The time in seconds between ticks of the poller timer.
@@ -2906,7 +3042,9 @@ typedef Eo Ecore_Animator; /**< A handle for animators */
 /**
  * @brief Set the animator call interval in seconds.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] frametime The time in seconds in between animator ticks.
  *
@@ -2923,7 +3061,9 @@ EAPI void ecore_animator_frametime_set(double frametime);
 /**
  * @brief Get the animator call interval in seconds.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return The time in second in between animator ticks.
  *
@@ -2937,7 +3077,9 @@ EAPI double ecore_animator_frametime_get(void);
  * @brief Maps an input position from 0.0 to 1.0 along a timeline to a
  * position in a different curve.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] pos The input position to map
  * @param[in] map The mapping to use
@@ -3064,7 +3206,9 @@ EAPI double ecore_animator_pos_map_n(double pos, Ecore_Pos_Map map, int v_size, 
 /**
  * @brief Set the source of animator ticks for the mainloop
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] source The source of animator ticks to use
  *
@@ -3092,7 +3236,9 @@ EAPI void ecore_animator_source_set(Ecore_Animator_Source source);
 /**
  * @brief Get the animator source currently set.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return The current animator source
  *
@@ -3105,7 +3251,9 @@ EAPI Ecore_Animator_Source ecore_animator_source_get(void);
 /**
  * @brief Set the function that begins a custom animator tick source
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] func The function to call when ticking is to begin
  * @param[in] data The data passed to the tick begin function as its parameter
@@ -3130,7 +3278,9 @@ EAPI void ecore_animator_custom_source_tick_begin_callback_set(Ecore_Cb func, co
 /**
  * @brief Set the function that ends a custom animator tick source
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] func The function to call when ticking is to end
  * @param[in] data The data passed to the tick end function as its parameter
@@ -3152,7 +3302,9 @@ EAPI void ecore_animator_custom_source_tick_end_callback_set(Ecore_Cb func, cons
 /**
  * @brief Trigger a custom animator tick
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark When animator source is set to ECORE_ANIMATOR_SOURCE_CUSTOM, then calling
  * this function triggers a run of all animators currently registered with
@@ -3206,7 +3358,9 @@ typedef Eo Ecore_Timer; /**< A handle for timers */
 /**
  * @brief Retrieves the current precision used by timer infrastructure.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return Current precision.
  * @see ecore_timer_precision_set()
@@ -3216,7 +3370,9 @@ EAPI double ecore_timer_precision_get(void);
 /**
  * @brief Sets the precision to be used by timer infrastructure.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] precision allowed introduced timeout delay, in seconds.
  *

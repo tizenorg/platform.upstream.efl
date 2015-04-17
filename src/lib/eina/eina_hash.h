@@ -348,7 +348,9 @@ typedef Eina_Bool    (*Eina_Hash_Foreach)(const Eina_Hash *hash, const void *key
 /**
  * @brief Create a new hash table.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] key_length_cb The function called when getting the size of the key.
  * @param[in] key_cmp_cb The function called when comparing the keys.
@@ -385,7 +387,9 @@ EAPI Eina_Hash *eina_hash_new(Eina_Key_Length key_length_cb,
 /**
  * @brief Redefine the callback that clean the data of a hash
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The given hash table
  * @param[in] data_free_cb The function called on each value when the hash
@@ -403,7 +407,9 @@ EAPI void eina_hash_free_cb_set(Eina_Hash *hash, Eina_Free_Cb data_free_cb) EINA
 /**
  * @brief Create a new hash table using the djb2 algorithm.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] data_free_cb The function called on each value when the hash table
  * is freed, or when an item is deleted from it. @c NULL can be passed as
@@ -420,7 +426,9 @@ EAPI Eina_Hash *eina_hash_string_djb2_new(Eina_Free_Cb data_free_cb);
 /**
  * @brief Create a new hash table for use with strings.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] data_free_cb The function called on each value when the hash table
  * is freed, or when an item is deleted from it. @c NULL can be passed as
@@ -441,7 +449,9 @@ EAPI Eina_Hash *eina_hash_string_superfast_new(Eina_Free_Cb data_free_cb);
 /**
  * @brief Create a new hash table for use with strings with small bucket size.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] data_free_cb  The function called on each value when the hash table
  * is freed, or when an item is deleted from it. @c NULL can be passed as
@@ -461,7 +471,9 @@ EAPI Eina_Hash *eina_hash_string_small_new(Eina_Free_Cb data_free_cb);
 /**
  * @brief Create a new hash table for use with 32bit integers.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] data_free_cb  The function called on each value when the hash table
  * is freed, or when an item is deleted from it. @c NULL can be passed as
@@ -482,7 +494,9 @@ EAPI Eina_Hash *eina_hash_int32_new(Eina_Free_Cb data_free_cb);
 /**
  * @brief Create a new hash table for use with 64bit integers.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] data_free_cb  The function called on each value when the hash table
  * is freed, or when an item is deleted from it. @c NULL can be passed as
@@ -502,7 +516,9 @@ EAPI Eina_Hash *eina_hash_int64_new(Eina_Free_Cb data_free_cb);
 /**
  * @brief Create a new hash table for use with pointers.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] data_free_cb  The function called on each value when the hash table
  * is freed, or when an item is deleted from it. @c NULL can be passed as
@@ -530,7 +546,9 @@ EAPI Eina_Hash *eina_hash_pointer_new(Eina_Free_Cb data_free_cb);
 /**
  * @brief Create a new hash table optimized for stringshared values.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] data_free_cb  The function called on each value when the hash table
  * is freed, or when an item is deleted from it. @c NULL can be passed as
@@ -558,7 +576,9 @@ EAPI Eina_Hash *eina_hash_stringshared_new(Eina_Free_Cb data_free_cb);
 /**
  * @brief Add an entry to the given hash table.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The given hash table. Cannot be @c NULL.
  * @param[in] key A unique key. Cannot be @c NULL.
@@ -586,7 +606,9 @@ EAPI Eina_Bool  eina_hash_add(Eina_Hash  *hash,
  * @brief Add an entry to the given hash table without duplicating the string
  * key.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The given hash table. Cannot be @c NULL.
  * @param[in] key A unique key. Cannot be @c NULL.
@@ -616,7 +638,9 @@ EAPI Eina_Bool eina_hash_direct_add(Eina_Hash  *hash,
  * @brief Remove the entry identified by a key or a data from the given
  * hash table.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The given hash table.
  * @param[in] key  The key.
@@ -644,7 +668,9 @@ EAPI Eina_Bool eina_hash_del(Eina_Hash  *hash,
 /**
  * @brief Retrieve a specific entry in the given hash table.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The given hash table.
  * @param[in] key The key of the entry to find.
@@ -663,7 +689,9 @@ EAPI void *eina_hash_find(const Eina_Hash *hash,
  * @brief Modify the entry pointer at the specified key and return the old
  * entry.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The given hash table.
  * @param[in] key The key of the entry to modify.
@@ -683,7 +711,9 @@ EAPI void *eina_hash_modify(Eina_Hash  *hash,
  * @brief Modify the entry pointer at the specified key and return the
  * old entry or add the entry if not found.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The given hash table.
  * @param[in] key The key of the entry to modify.
@@ -704,7 +734,9 @@ EAPI void *eina_hash_set(Eina_Hash  *hash,
  * @brief Change the key associated with a data without triggering the
  * free callback.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash    The given hash table.
  * @param[in] old_key The current key associated with the data
@@ -722,7 +754,9 @@ EAPI Eina_Bool eina_hash_move(Eina_Hash  *hash,
 /**
  * @brief Free the given hash table resources.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The hash table to be freed.
  *
@@ -748,7 +782,9 @@ EAPI void      eina_hash_free(Eina_Hash *hash) EINA_ARG_NONNULL(1);
 /**
  * @brief Free the given hash table buckets resources.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The hash table whose buckets have to be freed.
  *
@@ -764,7 +800,9 @@ EAPI void      eina_hash_free_buckets(Eina_Hash *hash) EINA_ARG_NONNULL(1);
 /**
  * @brief Returns the number of entries in the given hash table.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The given hash table.
  * @return The number of entries in the hash table.
@@ -777,7 +815,9 @@ EAPI int       eina_hash_population(const Eina_Hash *hash) EINA_ARG_NONNULL(1);
 /**
  * @brief Add an entry to the given hash table.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The given hash table. Cannot be @c NULL.
  * @param[in] key A unique key. Cannot be @c NULL.
@@ -810,7 +850,9 @@ EAPI Eina_Bool eina_hash_add_by_hash(Eina_Hash  *hash,
  * @brief Add an entry to the given hash table and do not duplicate the string
  * key.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The given hash table. Cannot be @c NULL.
  * @param[in] key A unique key. Cannot be @c NULL.
@@ -846,7 +888,9 @@ EAPI Eina_Bool eina_hash_direct_add_by_hash(Eina_Hash  *hash,
  * @brief Remove the entry identified by a key and a key hash from the given
  * hash table.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The given hash table. Cannot be @c NULL.
  * @param[in] key The key. Cannot be @c NULL.
@@ -873,7 +917,9 @@ EAPI Eina_Bool eina_hash_del_by_key_hash(Eina_Hash  *hash,
 /**
  * @brief Remove the entry identified by a key from the given hash table.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This version will calculate key length and hash by using functions
  * provided to hash creation function.
@@ -900,7 +946,9 @@ EAPI Eina_Bool eina_hash_del_by_key(Eina_Hash  *hash,
 /**
  * @brief Remove the entry identified by a data from the given hash table.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This version is slow since there is no quick access to nodes based on data.
  *
@@ -926,7 +974,9 @@ EAPI Eina_Bool eina_hash_del_by_data(Eina_Hash  *hash,
  * @brief Remove the entry identified by a key and a key hash or a
  * data from the given hash table.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark If @p key is @c NULL, then @p data is used to find a match to
  * remove.
@@ -962,7 +1012,9 @@ EAPI Eina_Bool eina_hash_del_by_hash(Eina_Hash  *hash,
 /**
  * @brief Retrieve a specific entry in the given hash table.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The given hash table. Cannot be @c NULL.
  * @param[in] key The key of the entry to find.
@@ -987,7 +1039,9 @@ EAPI void *eina_hash_find_by_hash(const Eina_Hash *hash,
  * @brief Modify the entry pointer at the specified key and returns
  * the old entry.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The given hash table.
  * @param[in] key The key of the entry to modify.
@@ -1009,7 +1063,9 @@ EAPI void *eina_hash_modify_by_hash(Eina_Hash  *hash,
 /**
  * @brief Returned a new iterator associated to hash keys.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The hash.
  * @return A new iterator.
@@ -1031,7 +1087,9 @@ EAPI Eina_Iterator *eina_hash_iterator_key_new(const Eina_Hash *hash) EINA_MALLO
 /**
  * @brief Returned a new iterator associated to hash data.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The hash.
  * @return A new iterator.
@@ -1053,7 +1111,9 @@ EAPI Eina_Iterator *eina_hash_iterator_data_new(const Eina_Hash *hash) EINA_MALL
 /**
  * @brief Returned a new iterator associated to hash keys and data.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The hash.
  * @return A new iterator.
@@ -1078,7 +1138,9 @@ EAPI Eina_Iterator *eina_hash_iterator_tuple_new(const Eina_Hash *hash) EINA_MAL
 /**
  * @brief Call a function on every member stored in the hash table
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] hash The hash table whose members will be walked
  * @param[in] func The function to call on each parameter
@@ -1120,7 +1182,9 @@ EAPI void           eina_hash_foreach(const Eina_Hash  *hash,
 /**
  * @brief Append data to an #Eina_List inside a hash
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This function is identical to the sequence of calling
  * eina_hash_find(), eina_list_append(), eina_hash_set(),
@@ -1134,7 +1198,9 @@ EAPI void eina_hash_list_append(Eina_Hash *hash, const void *key, const void *da
 /**
  * @brief Append data to an #Eina_List inside a hash
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This function is identical to the sequence of calling
  * eina_hash_find(), eina_list_append(), eina_hash_set(),
@@ -1148,7 +1214,9 @@ EAPI void eina_hash_list_prepend(Eina_Hash *hash, const void *key, const void *d
 /**
  * @brief Append data to an #Eina_List inside a hash
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This function is identical to the sequence of calling
  * eina_hash_find(), eina_list_append(), eina_hash_set(),
@@ -1164,7 +1232,9 @@ EAPI void eina_hash_list_remove(Eina_Hash *hash, const void *key, const void *da
  * @brief
  * Paul Hsieh (http://www.azillionmonkeys.com/qed/hash.html) hash function used by WebCore (http://webkit.org/blog/8/hashtables-part-2/)
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] key The key to hash
  * @param[in] len The length of the key
@@ -1177,7 +1247,9 @@ EAPI int eina_hash_superfast(const char *key,
  * @brief
  * Hash function first reported by Dan Bernstein many years ago in comp.lang.c
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] key The key to hash
  * @param[in] len The length of the key
@@ -1189,7 +1261,9 @@ static inline int eina_hash_djb2(const char *key,
  * @brief
  * Hash function first reported by Dan Bernstein many years ago in comp.lang.c
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] key The key to hash
  * @param[in] plen The length of the key
@@ -1202,7 +1276,9 @@ static inline int eina_hash_djb2_len(const char *key,
  * @brief
  * Hash function from http://www.concentric.net/~Ttwang/tech/inthash.htm
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] pkey The key to hash
  * @param[in] len The length of the key
@@ -1214,7 +1290,9 @@ static inline int eina_hash_int32(const unsigned int *pkey,
  * @brief
  * Hash function from http://www.concentric.net/~Ttwang/tech/inthash.htm
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] pkey The key to hash
  * @param[in] len The length of the key
@@ -1227,7 +1305,9 @@ static inline int eina_hash_int64(const unsigned long long int *pkey,
  * @brief
  * Hash function from http://sites.google.com/site/murmurhash/
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] key The key to hash
  * @param[in] len The length of the key

@@ -521,7 +521,9 @@ struct _Evas_GL_Config
 /**
  * @brief Creates a new Evas_GL object and returns a handle for GL rendering with the EFL.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] e The given Evas canvas to use
  *
@@ -534,7 +536,9 @@ EAPI Evas_GL                 *evas_gl_new                (Evas *e) EINA_WARN_UNU
 /**
  * @brief Frees an Evas_GL object.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] evas_gl   The given Evas_GL object to destroy
  *
@@ -547,7 +551,9 @@ EAPI void                     evas_gl_free               (Evas_GL *evas_gl) EINA
 /**
  * @brief Allocates a new config object for the user to fill out.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remarks As long as Evas creates a config object for the user, it takes care
  *          of the backward compatibility issue.
@@ -563,7 +569,9 @@ EAPI Evas_GL_Config          *evas_gl_config_new         (void);
 /**
  * @brief Frees a config object created from evas_gl_config_new.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] cfg  The configuration structure to free, it can not be accessed afterwards.
  *
@@ -579,7 +587,9 @@ EAPI void                     evas_gl_config_free        (Evas_GL_Config *cfg) E
 /**
  * @brief Creates and returns a new @ref Evas_GL_Surface object for GL Rendering.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] evas_gl The given Evas_GL object
  * @param[in] cfg     The pixel format and configuration of the rendering surface
@@ -598,7 +608,9 @@ EAPI Evas_GL_Surface         *evas_gl_surface_create     (Evas_GL *evas_gl, Evas
 /**
  * @brief Create a pixel buffer surface
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] evas_gl     The given Evas_GL object
  * @param[in] cfg         Pixel format and configuration of the pixel buffer surface
@@ -633,7 +645,9 @@ EAPI Evas_GL_Surface         *evas_gl_pbuffer_surface_create(Evas_GL *evas_gl, E
 /**
  * @brief Destroys an Evas GL Surface.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] evas_gl   The given Evas_GL object
  * @param[in] surf      The given GL surface object
@@ -645,7 +659,9 @@ EAPI void                     evas_gl_surface_destroy    (Evas_GL *evas_gl, Evas
 /**
  * @brief Creates and returns a new Evas GL context object (OpenGL-ES 2.0).
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] evas_gl    The given Evas_GL object
  * @param[in] share_ctx  An Evas_GL context to share with the new context
@@ -664,7 +680,9 @@ EAPI Evas_GL_Context         *evas_gl_context_create     (Evas_GL *evas_gl, Evas
 /**
  * @brief Creates and returns a new Evas GL context object for OpenGL-ES 1.1 or 2.0.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] evas_gl    The given Evas_GL object
  * @param[in] share_ctx  A context to share (can be NULL)
@@ -691,7 +709,9 @@ EAPI Evas_GL_Context         *evas_gl_context_version_create(Evas_GL *evas_gl, E
 /**
  * @brief Destroys the given Evas GL context object.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] evas_gl The given Evas_GL object
  * @param[in] ctx     The given Evas GL context
@@ -706,7 +726,9 @@ EAPI void                     evas_gl_context_destroy    (Evas_GL *evas_gl, Evas
 /**
  * @brief Sets the given context as the current context for the given surface.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] evas_gl The given Evas_GL object
  * @param[in] surf The given Evas GL surface
@@ -721,7 +743,9 @@ EAPI Eina_Bool                evas_gl_make_current       (Evas_GL *evas_gl, Evas
 /**
  * @brief Returns a pointer to a static, null-terminated string describing some aspect of Evas GL.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] evas_gl The given Evas_GL object
  * @param[in] name    A symbolic constant, only @ref EVAS_GL_EXTENSIONS is supported for now
@@ -734,7 +758,9 @@ EAPI const char              *evas_gl_string_query       (Evas_GL *evas_gl, int 
 /**
  * @brief Returns a extension function from the Evas_GL glue layer.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] evas_gl  The given Evas_GL object
  * @param[in] name     The name of the function to return
@@ -754,7 +780,9 @@ EAPI Evas_GL_Func             evas_gl_proc_address_get   (Evas_GL *evas_gl, cons
 /**
  * @brief Fills in the Native Surface information from a given Evas GL surface.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in]  evas_gl The given Evas_GL object
  * @param[in]  surf    The given Evas GL surface to retrieve the Native Surface information from
@@ -776,7 +804,9 @@ EAPI Eina_Bool                evas_gl_native_surface_get (Evas_GL *evas_gl, Evas
 /**
  * @brief Gets the API for rendering using OpenGL.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @details This returns a structure that contains all the OpenGL functions you can
  *          use to render in Evas. These functions consist of all the standard
@@ -802,7 +832,9 @@ EAPI Evas_GL_API             *evas_gl_api_get            (Evas_GL *evas_gl) EINA
 /**
  * @brief Gets the API for rendering using OpenGL with non standard contexts.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This function is similar to @ref evas_gl_api_get but takes an extra Evas GL
  * context argument as it is used to get the real API used by special contexts,
@@ -831,7 +863,9 @@ EAPI Evas_GL_API             *evas_gl_context_api_get    (Evas_GL *evas_gl, Evas
 /**
  * @brief Get the current rotation of the view, in degrees.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark This function should be called in order to properly handle the current
  * rotation of the view. It will always return 0 unless the option
@@ -858,7 +892,9 @@ EAPI int                      evas_gl_rotation_get       (Evas_GL *evas_gl) EINA
 /**
  * @brief Query a surface for its properties
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in]  evas_gl    The current Evas_GL object
  * @param[in]  surface    An Evas_GL_Surface surface to query
@@ -882,7 +918,9 @@ EAPI Eina_Bool                evas_gl_surface_query      (Evas_GL *evas_gl, Evas
  *        Initially, the error is set to @ref EVAS_GL_SUCCESS. A call to @ref evas_gl_error_get
  *        resets the error to @ref EVAS_GL_SUCCESS.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] evas_gl The given Evas_GL object
  *
@@ -906,7 +944,9 @@ EAPI int                      evas_gl_error_get          (Evas_GL *evas_gl) EINA
 /**
  * @brief Returns the Evas GL context object in use or set by @ref evas_gl_make_current.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] evas_gl The given Evas_GL object
  *
@@ -920,7 +960,9 @@ EAPI Evas_GL_Context         *evas_gl_current_context_get (Evas_GL *evas_gl) EIN
 /**
  * @brief Returns the Evas GL surface object in use or set by @ref evas_gl_make_current
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] evas_gl The given Evas_GL object
  *

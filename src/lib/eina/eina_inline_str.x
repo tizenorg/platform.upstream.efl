@@ -28,7 +28,9 @@
 /**
  * @brief Count up to a given amount of bytes of the given string.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] str The string pointer.
  * @param[in] maxlen The maximum length to allow.
@@ -52,7 +54,9 @@ eina_strlen_bounded(const char *str, size_t maxlen)
 /**
  * @brief Join two strings of known length.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] dst The buffer to store the result.
  * @param[in] size Size (in byte) of the buffer.

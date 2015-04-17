@@ -111,7 +111,9 @@ extern EAPI Eina_Error EINA_ERROR_MODULE_INIT_FAILED;
 /**
  * @brief Return a new module.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] file The name of the file module to load.
  * @return A new module. If @p file is @c NULL, or if it does not exist,
@@ -130,7 +132,9 @@ EAPI Eina_Module *
 /**
  * @brief Delete a module.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] module The module to delete.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
@@ -146,7 +150,9 @@ EAPI Eina_Bool
 /**
  * @brief Load a module.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] module The module to load.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
@@ -169,7 +175,9 @@ EAPI Eina_Bool
 /**
  * @brief Unload a module.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] module The module to load.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
@@ -188,7 +196,9 @@ EAPI Eina_Bool
 /**
  * @brief Retrieve the data associated to a symbol.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] module The module.
  * @param[in] symbol The symbol.
@@ -205,7 +215,9 @@ EAPI void *
 /**
  * @brief Return the file name associated to the module.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] module The module.
  * @return The file name.
@@ -220,7 +232,9 @@ EAPI const char *
 /**
  * @brief Define if on module load we should expose all symbol
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] module The module to turn off/on symbol to be exposed
  * @param[in] global The flag on module load we should expose all symbol
@@ -232,7 +246,9 @@ EAPI void eina_module_symbol_global_set(Eina_Module *module, Eina_Bool global) E
  * @brief Return the path built from the location of a library and a
  * given sub directory.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] symbol The symbol to search for.
  * @param[in] sub_dir The subdirectory to append.
@@ -251,7 +267,9 @@ EAPI char *
  * @brief Return the path built from the value of an environment variable and a
  * given sub directory.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] env The environment variable to expand.
  * @param[in] sub_dir The subdirectory to append.
@@ -270,7 +288,9 @@ EAPI char *
 /**
  * @brief Get an array of modules found on the directory path matching an arch type.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array that stores the list of the modules.
  * @param[in] path The directory's path to search for modules.
@@ -288,7 +308,9 @@ EAPI Eina_Array *
 /**
  * @brief Get a list of modules found on the directory path.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array that stores the list of the modules.
  * @param[in] path The directory's path to search for modules.
@@ -312,7 +334,9 @@ EAPI Eina_Array *
 /**
  * @brief Load every module on the list of modules.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array of modules to load.
  *
@@ -325,7 +349,9 @@ EAPI void
 /**
  * @brief Unload every module on the list of modules.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array of modules to unload.
  *
@@ -338,7 +364,9 @@ EAPI void
 /**
  * @brief @p Free every module on the list of modules.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array of modules to free.
  *
@@ -351,7 +379,9 @@ EAPI void
 /**
  * @brief Find an module in array.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] array The array to find the module.
  * @param[in] module The name of module to be searched.

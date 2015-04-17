@@ -165,7 +165,9 @@ EAPI extern Eina_Error EINA_ERROR_CONVERT_OUTRUN_STRING_LENGTH; /**< Not used, p
 /**
  * @brief Convert an integer number to a string in decimal base.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] n The integer to convert.
  * @param[out] s The buffer to store the converted integer.
@@ -184,7 +186,9 @@ EAPI int       eina_convert_itoa(int n, char *s)  EINA_ARG_NONNULL(2);
 /**
  * @brief Convert an integer number to a string in hexadecimal base.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] n The integer to convert.
  * @param[out] s The buffer to store the converted integer.
@@ -205,7 +209,9 @@ EAPI int       eina_convert_xtoa(unsigned int n, char *s) EINA_ARG_NONNULL(2);
 /**
  * @brief Convert a double to a string.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] d The double to convert.
  * @param[out] des The destination buffer to store the converted double.
@@ -231,7 +237,9 @@ EAPI int       eina_convert_dtoa(double d, char *des) EINA_ARG_NONNULL(2);
 /**
  * @brief Convert a string to a double.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] src The string to convert.
  * @param[in] length The length of the string.
@@ -274,7 +282,9 @@ EAPI Eina_Bool eina_convert_atod(const char *src,
 /**
  * @brief Convert a 32.32 fixed point number to a string.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] fp The fixed point number to convert.
  * @param[out] des The destination buffer to store the converted fixed point number.
@@ -306,7 +316,9 @@ EAPI int       eina_convert_fptoa(Eina_F32p32 fp,
 /**
  * @brief Convert a string to a 32.32 fixed point number.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] src The string to convert.
  * @param[in] length The length of the string.

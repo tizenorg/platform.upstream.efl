@@ -422,7 +422,9 @@ struct _Eina_Inlist
 /**
  * @brief Add a new node to end of a list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark this code is meant to be fast: appends are O(1) and do not
  *       walk @a in_list.
@@ -443,7 +445,9 @@ EAPI Eina_Inlist *eina_inlist_append(Eina_Inlist *in_list,
 /**
  * @brief Add a new node to beginning of list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark this code is meant to be fast: appends are O(1) and do not
  *       walk @a in_list.
@@ -464,7 +468,9 @@ EAPI Eina_Inlist *eina_inlist_prepend(Eina_Inlist *in_list,
 /**
  * @brief Add a new node after the given relative item in list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark this code is meant to be fast: appends are O(1) and do not
  *       walk @a in_list.
@@ -492,7 +498,9 @@ EAPI Eina_Inlist *eina_inlist_append_relative(Eina_Inlist *in_list,
 /**
  * @brief Add a new node before the given relative item in list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark this code is meant to be fast: appends are O(1) and do not
  *       walk @a in_list.
@@ -520,7 +528,9 @@ EAPI Eina_Inlist *eina_inlist_prepend_relative(Eina_Inlist *in_list,
 /**
  * @brief Remove node from list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark this code is meant to be fast: appends are O(1) and do not
  *       walk @a list.
@@ -542,7 +552,9 @@ EAPI Eina_Inlist   *eina_inlist_remove(Eina_Inlist *in_list,
 /**
  * @brief Find given node in list, returns itself if found, NULL if not.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @warning this is an expensive call and has O(n) cost, possibly
  *    walking the whole list.
@@ -558,7 +570,9 @@ EAPI Eina_Inlist   *eina_inlist_find(Eina_Inlist *in_list,
 /**
  * @brief Move existing node to beginning of list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark this code is meant to be fast: appends are O(1) and do not
  *       walk @a list.
@@ -578,7 +592,9 @@ EAPI Eina_Inlist   *eina_inlist_promote(Eina_Inlist *list,
 /**
  * @brief Move existing node to end of list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @remark this code is meant to be fast: appends are O(1) and do not
  *       walk @a list.
@@ -630,7 +646,9 @@ static inline Eina_Inlist *eina_inlist_last(const Eina_Inlist *list) EINA_PURE E
 /**
  * @brief Get the count of the number of items in a list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list whose count to return.
  * @return The number of members in the list.
@@ -648,7 +666,9 @@ EAPI unsigned int   eina_inlist_count(const Eina_Inlist *list) EINA_WARN_UNUSED_
 /**
  * @brief Returns a new iterator associated to @a list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] in_list The list.
  * @return A new iterator.
@@ -671,7 +691,9 @@ EAPI Eina_Iterator *eina_inlist_iterator_new(const Eina_Inlist *in_list) EINA_MA
 /**
  * @brief Returns a new accessor associated to a list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] in_list The list.
  * @return A new accessor.
@@ -687,7 +709,9 @@ EAPI Eina_Accessor *eina_inlist_accessor_new(const Eina_Inlist *in_list) EINA_MA
 /**
  * @brief Insert a new node into a sorted list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The given linked list, @b must be sorted.
  * @param[in] item list node to insert, must not be @c NULL.
@@ -712,7 +736,9 @@ EAPI Eina_Inlist *eina_inlist_sorted_insert(Eina_Inlist *list, Eina_Inlist *item
 /**
  * @brief Create state with valid data in it.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @return A valid Eina_Inlist_Sorted_State.
  * @since 1.1.0
@@ -724,7 +750,9 @@ EAPI Eina_Inlist_Sorted_State *eina_inlist_sorted_state_new(void);
 /**
  * @brief Force an Eina_Inlist_Sorted_State to match the content of a list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] state The state to update
  * @param[in] list The list to match
@@ -740,7 +768,9 @@ EAPI int eina_inlist_sorted_state_init(Eina_Inlist_Sorted_State *state, Eina_Inl
 /**
  * @brief Free an Eina_Inlist_Sorted_State.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] state The state to destroy
  * @since 1.1.0
@@ -752,7 +782,9 @@ EAPI void eina_inlist_sorted_state_free(Eina_Inlist_Sorted_State *state);
 /**
  * @brief Insert a new node into a sorted list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The given linked list, @b must be sorted.
  * @param[in] item list node to insert, must not be @c NULL.
@@ -786,7 +818,9 @@ EAPI Eina_Inlist *eina_inlist_sorted_state_insert(Eina_Inlist *list,
 /**
  * @brief Sort a list according to the ordering func will return.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] head The list handle to sort.
  * @param[in] func A function pointer that can handle comparing the list data

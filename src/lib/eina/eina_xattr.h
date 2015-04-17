@@ -51,7 +51,9 @@ struct _Eina_Xattr
 /**
  * @brief Get an iterator that list all extended attribute of a file.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] file The filename to retrieve the extended attribute list from.
  * @return an iterator.
@@ -66,7 +68,9 @@ EAPI Eina_Iterator *eina_xattr_ls(const char *file) EINA_ARG_NONNULL(1) EINA_WAR
 /**
  * @brief Get an iterator that list all extended attribute value related to a fd.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] file The filename to retrieve the extended attribute list from.
  * @return an iterator.
@@ -81,7 +85,9 @@ EAPI Eina_Iterator *eina_xattr_value_ls(const char *file) EINA_ARG_NONNULL(1) EI
 /**
  * @brief Get an iterator that list all extended attribute related to a fd.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] fd The file descriptor to retrieve the extended attribute list from.
  * @return an iterator.
@@ -96,7 +102,9 @@ EAPI Eina_Iterator *eina_xattr_fd_ls(int fd) EINA_WARN_UNUSED_RESULT;
 /**
  * @brief Get an iterator that list all extended attribute value related to a fd.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] fd The file descriptor to retrieve the extended attribute list from.
  * @return an iterator.
@@ -131,7 +139,9 @@ EAPI Eina_Bool eina_xattr_fd_copy(int src, int dst);
 /**
  * @brief Retrieve an extended attribute from a file.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] file The file to retrieve the extended attribute from.
  * @param[in] attribute The extended attribute name to retrieve.
@@ -161,7 +171,9 @@ EAPI void *eina_xattr_fd_get(int fd, const char *attribute, ssize_t *size) EINA_
 /**
  * @brief Set an extended attribute on a file.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] file The file to set the extended attribute to.
  * @param[in] attribute The attribute to set.
@@ -214,7 +226,9 @@ EAPI Eina_Bool eina_xattr_fd_del(int fd, const char *attribute) EINA_ARG_NONNULL
 /**
  * @brief Set a string as a extended attribute properties.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] file The file to set the string to.
  * @param[in] attribute The attribute to set.
@@ -229,7 +243,9 @@ EAPI Eina_Bool eina_xattr_string_set(const char *file, const char *attribute, co
 /**
  * @brief Get a string from an extended attribute properties.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] file The file to get the string from.
  * @param[in] attribute The attribute to get.
@@ -244,7 +260,9 @@ EAPI char *eina_xattr_string_get(const char *file, const char *attribute);
 /**
  * @brief Set a double as a extended attribute properties.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] file The file to set the double to.
  * @param[in] attribute The attribute to set.
@@ -259,7 +277,9 @@ EAPI Eina_Bool eina_xattr_double_set(const char *file, const char *attribute, do
 /**
  * @brief Get a double from an extended attribute properties.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] file The file to get the string from.
  * @param[in] attribute The attribute to get.
@@ -275,7 +295,9 @@ EAPI Eina_Bool eina_xattr_double_get(const char *file, const char *attribute, do
 /**
  * @brief Set an int as a extended attribute properties.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] file The file to set the int to.
  * @param[in] attribute The attribute to set.
@@ -290,7 +312,9 @@ EAPI Eina_Bool eina_xattr_int_set(const char *file, const char *attribute, int v
 /**
  * @brief Get a int from an extended attribute properties.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] file The file to get the string from.
  * @param[in] attribute The attribute to get.

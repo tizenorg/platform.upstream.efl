@@ -114,7 +114,9 @@ struct _Eina_Clist
 /**
  * @brief Adds an element after the specified one.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] elem An element in the list
  * @param[in] to_add The element to add to the list
@@ -130,7 +132,9 @@ static inline void eina_clist_add_after(Eina_Clist *elem, Eina_Clist *to_add);
 /**
  * @brief Adds an element before the specified one.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] elem An element in the list
  * @param[in] to_add The element to add to the list
@@ -146,7 +150,9 @@ static inline void eina_clist_add_before(Eina_Clist *elem, Eina_Clist *to_add);
 /**
  * @brief Adds an element to the head of the list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list
  * @param[in] elem An element
@@ -162,7 +168,9 @@ static inline void eina_clist_add_head(Eina_Clist *list, Eina_Clist *elem);
 /**
  * @brief Adds an element at the tail of the list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list
  * @param[in] elem An element
@@ -178,7 +186,9 @@ static inline void eina_clist_add_tail(Eina_Clist *list, Eina_Clist *elem);
 /**
  * @brief Inits an (unlinked) element.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] elem An element
  * @pre The element is not in any list.
@@ -196,7 +206,9 @@ static inline void eina_clist_element_init(Eina_Clist *elem);
 /**
  * @brief Checks whether an element is in a list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] elem An element
  * @return TRUE if the element is in a list, else FALSE.
@@ -210,7 +222,9 @@ static inline int eina_clist_element_is_linked(Eina_Clist *elem);
 /**
  * @brief Removes an element from its list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] elem An element
  * @pre The element is already in a list.
@@ -223,7 +237,9 @@ static inline void eina_clist_remove(Eina_Clist *elem);
 /**
  * @brief Gets the next element.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list
  * @param[in] elem An element
@@ -237,7 +253,9 @@ static inline Eina_Clist *eina_clist_next(const Eina_Clist *list, const Eina_Cli
 /**
  * @brief Gets the previous element.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list
  * @param[in] elem An element
@@ -251,7 +269,9 @@ static inline Eina_Clist *eina_clist_prev(const Eina_Clist *list, const Eina_Cli
 /**
  * @brief Gets the first element.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list
  * @return The first element in @p list, otherwise @c NULL if @p list is empty
@@ -263,7 +283,9 @@ static inline Eina_Clist *eina_clist_head(const Eina_Clist *list);
 /**
  * @brief Gets the last element.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list
  * @return The last element in @p list, otherwise @c NULL if @p list is empty
@@ -275,7 +297,9 @@ static inline Eina_Clist *eina_clist_tail(const Eina_Clist *list);
 /**
  * @brief Checks whether a list is empty.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list
  * @return A non-zero value if @p list is empty, otherwise zero if it is not
@@ -287,7 +311,9 @@ static inline int eina_clist_empty(const Eina_Clist *list);
 /**
  * @brief Initializes a list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list
  * @pre The list is uninitialized
@@ -304,7 +330,9 @@ static inline void eina_clist_init(Eina_Clist *list);
 /**
  * @brief Counts the elements of a list.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] list The list
  * @return The number of items in the list
@@ -316,7 +344,9 @@ static inline unsigned int eina_clist_count(const Eina_Clist *list);
 /**
  * @brief Moves all elements from @p src to the tail of @p dst.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] dst The list to be appended to
  * @param[in] src The list to append
@@ -330,7 +360,9 @@ static inline void eina_clist_move_tail(Eina_Clist *dst, Eina_Clist *src);
 /**
  * @brief Moves all elements from @p src to the head of @p dst.
  *
- * @since_tizen 2.3
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE since_tizen 2.3.1
+ * @endif
  *
  * @param[in] dst The list to be prepended to
  * @param[in] src The list to prepend

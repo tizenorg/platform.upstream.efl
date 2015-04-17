@@ -8,7 +8,9 @@ class Evas.Textblock (Evas.Object)
             /*@
             @brief Sets the tetxblock's text to the markup text.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark assumes text does not include the unicode object replacement char (0xFFFC)
 
@@ -18,7 +20,9 @@ class Evas.Textblock (Evas.Object)
             /*@
             @brief Return the markup of the object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return the markup text of the object. */
          }
@@ -32,7 +36,9 @@ class Evas.Textblock (Evas.Object)
             @brief Sets the vertical alignment of text within the textblock object
             as a whole.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Normally alignment is 0.0 (top of object). Values given should be
             between 0.0 and 1.0 (1.0 bottom of object, 0.5 being vertically centered
@@ -44,7 +50,9 @@ class Evas.Textblock (Evas.Object)
             /*@
             @brief Gets the vertical alignment of a textblock
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return The alignment set for the object.
             @since 1.1 */
@@ -58,7 +66,9 @@ class Evas.Textblock (Evas.Object)
             /*@
             @brief Sets the BiDi delimiters used in the textblock.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark BiDi delimiters are use for in-paragraph separation of bidi segments. This
             is useful for example in recipients fields of e-mail clients where bidi
@@ -70,7 +80,9 @@ class Evas.Textblock (Evas.Object)
             /*@
             @brief Gets the BiDi delimiters used in the textblock.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark BiDi delimiters are use for in-paragraph separation of bidi segments. This
             is useful for example in recipients fields of e-mail clients where bidi
@@ -89,7 +101,9 @@ class Evas.Textblock (Evas.Object)
             /*@
             @brief Set the "replacement character" to use for the given textblock object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             */
          }
@@ -103,7 +117,9 @@ class Evas.Textblock (Evas.Object)
             @brief Sets newline mode. When true, newline character will behave
             as a paragraph separator.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @since 1.1 */
          }
@@ -112,7 +128,9 @@ class Evas.Textblock (Evas.Object)
             @brief Gets newline mode. When true, newline character behaves
             as a paragraph separator.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return @c EINA_TRUE if in legacy mode, @c EINA_FALSE otherwise.
             @since 1.1 */
@@ -126,7 +144,9 @@ class Evas.Textblock (Evas.Object)
             /*@
             @brief Set the objects style to ts.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return Returns no value. */
          }
@@ -134,7 +154,9 @@ class Evas.Textblock (Evas.Object)
             /*@
             @brief Return the style of an object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return the style of the object. */
          }
@@ -157,7 +179,9 @@ class Evas.Textblock (Evas.Object)
             @brief Get the formatted width and height. This calculates the actual size after restricting
             the textblock to the current size of the object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark The main difference between this and @ref evas_object_textblock_size_native_get
             is that the "native" function does not wrapping into account
@@ -193,7 +217,9 @@ class Evas.Textblock (Evas.Object)
             /*@
             @brief Return the object's main cursor.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return The @p obj's main cursor. */
             return: Evas_Textblock_Cursor *;
@@ -239,7 +265,9 @@ class Evas.Textblock (Evas.Object)
          /*@
          @brief Get the geometry of a line number.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE on success, @c EINA_FALSE otherwise. */
          return: bool;
@@ -255,7 +283,9 @@ class Evas.Textblock (Evas.Object)
         /*@
         @brief Get the "replacement character" for given textblock object. Returns
 
-        @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
         @c NULL if no replacement character is in use.
 
@@ -267,7 +297,9 @@ class Evas.Textblock (Evas.Object)
          /*@
          @brief Del the from the top of the user style stack.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @see evas_object_textblock_style_get
          @since 1.2 */
@@ -279,7 +311,9 @@ class Evas.Textblock (Evas.Object)
          to the start of the textblock. Association to the object means the cursor
          will be updated when the object will change.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark if you need speed and you know what you are doing, it's slightly faster to just allocate the cursor yourself and not associate it. (only people developing the actual object, and not users of the object).
 
@@ -298,7 +332,9 @@ class Evas.Textblock (Evas.Object)
          /*@
          @brief Get (don't remove) the style at the top of the user style stack.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return the style of the object.
          @see evas_object_textblock_style_get
@@ -316,7 +352,9 @@ class Evas.Textblock (Evas.Object)
          /*@
          @brief Clear the textblock object.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Does *NOT* free the Evas object itself.
 
@@ -328,7 +366,9 @@ class Evas.Textblock (Evas.Object)
          /*@
          @brief Push ts to the top of the user style stack.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark FIXME: API is solid but currently only supports 1 style in the stack.
 

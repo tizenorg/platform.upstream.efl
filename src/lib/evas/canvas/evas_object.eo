@@ -8,7 +8,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Sets the hints for an object's maximum size.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This is not a size enforcement in any way, it's just a hint that
             should be used whenever appropriate.
@@ -31,7 +33,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Retrieves the hints for an object's maximum size.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark These are hints on the maximum sizes @p obj should have. This is
             not a size enforcement in any way, it's just a hint that should be
@@ -87,7 +91,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Retrieves the type of the given Evas object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return The type of the object.
 
@@ -122,7 +128,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Sets the hints for an object's minimum size.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This is not a size enforcement in any way, it's just a hint that
             should be used whenever appropriate.
@@ -145,7 +153,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Retrieves the hints for an object's minimum size.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark These are hints on the minimum sizes @p obj should have. This is
             not a size enforcement in any way, it's just a hint that should be
@@ -166,7 +176,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Set pointer behavior.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This function has direct effect on event callbacks related to
             mouse.
@@ -187,7 +199,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Determine how pointer will behave.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return pointer behavior.
             @ingroup Evas_Object_Group_Extras */
@@ -201,7 +215,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Sets the render_op to be used for rendering the Evas object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @ingroup Evas_Object_Group_Extras */
          }
@@ -209,7 +225,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Retrieves the current value of the operation used for rendering the Evas object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return  one of the enumerated values in Evas_Render_Op.
             @ingroup Evas_Object_Group_Extras */
@@ -223,7 +241,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Set whether an Evas object is to freeze (discard) events.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark If @p freeze is @c EINA_TRUE, it will make events on @p obj to be @b
             discarded. Unlike evas_object_pass_events_set(), events will not be
@@ -247,7 +267,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Determine whether an object is set to freeze (discard) events.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return freeze whether @p obj is set to freeze events (@c EINA_TRUE) or
             not (@c EINA_FALSE)
@@ -268,7 +290,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Set current object transformation map.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This sets the map on a given object. It is copied from the @p map pointer,
             so there is no need to keep the @p map object if you don't need it anymore.
@@ -307,7 +331,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Get current object transformation map.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This returns the current internal map set on the indicated object. It is
             intended for read-only access and is only valid as long as the object is
@@ -336,7 +362,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Sets the hints for an object's aspect ratio.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This is not a size enforcement in any way, it's just a hint that should
             be used whenever appropriate.
@@ -351,7 +379,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Retrieves the hints for an object's aspect ratio.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark The different aspect ratio policies are documented in the
             #Evas_Aspect_Control type. A container respecting these size hints
@@ -407,7 +437,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Sets the layer of its canvas that the given object will be part of.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark If you don't use this function, you'll be dealing with an @b unique
             layer of objects, the default one. Additional layers are handy when
@@ -428,7 +460,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Retrieves the layer of its canvas that the given object is part of.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return  Number of its layer
 
@@ -444,7 +478,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Clip one object to another.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This function will clip the object @p obj to the area occupied by
             the object @p clip. This means the object @p obj will only be
@@ -499,7 +535,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Get the object clipping @p obj (if any).
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This function returns the object clipping @p obj. If @p obj is
             not being clipped at all, @c NULL is returned. The object @p obj
@@ -524,7 +562,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Sets the hints for an object's padding space.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This is not a size enforcement in any way, it's just a hint that
             should be used whenever appropriate.
@@ -535,7 +575,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Retrieves the hints for an object's padding space.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Padding is extra space an object takes on each of its delimiting
             rectangle sides, in canvas units. This space will be rendered
@@ -574,7 +616,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Set whether an Evas object is to repeat events.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark If @p repeat is @c EINA_TRUE, it will make events on @p obj to also
             be repeated for the @b next lower object in the objects' stack (see
@@ -599,7 +643,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Determine whether an object is set to repeat events.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return whether @p obj is set to repeat events (@c EINA_TRUE)
             or not (@c EINA_FALSE)
@@ -619,7 +665,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Sets the hints for an object's weight.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This is not a size enforcement in any way, it's just a hint that
             should be used whenever appropriate.
@@ -652,7 +700,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Retrieves the hints for an object's weight.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Accepted values are zero or positive values. Some users might use
             this hint as a boolean, but some might consider it as a @b
@@ -679,7 +729,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Sets the name of the given Evas object to the given name.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark There might be occasions where one would like to name his/her
             objects.
@@ -695,7 +747,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Retrieves the name of the given Evas object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return  The name of the object or @c NULL, if no name has been given
             to it.
@@ -717,7 +771,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             @brief Sets the scaling factor for an Evas object. Does not affect all
             objects.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This will multiply the object's dimension by the given factor, thus
             altering its geometry (width and height). Useful when you want
@@ -734,7 +790,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Retrieves the scaling factor for the given Evas object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return  The scaling factor.
 
@@ -753,7 +811,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             @brief Set a hint flag on the given Evas object that it's used as a "static
             clipper".
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This is a hint to Evas that this object is used as a big static
             clipper and shouldn't be moved with children and otherwise
@@ -768,7 +828,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Get the "static clipper" hint flag for a given Evas object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return @c EINA_TRUE if it's set as a static clipper,
             @c EINA_FALSE otherwise.
@@ -788,7 +850,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             @brief Sets or unsets a given object as the currently focused one on its
             canvas.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Changing focus only affects where (key) input events go. There can
             be only one object focused at any time. If @p focus is @c EINA_TRUE,
@@ -812,7 +876,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Retrieve whether an object has the focus.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return @c EINA_TRUE if the object has the focus, @c EINA_FALSE otherwise.
 
@@ -852,7 +918,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Enable or disable the map that is set.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Enable or disable the use of map for the object @p obj.
             On enable, the object geometry will be saved, and the new geometry will
@@ -866,7 +934,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Get the map enabled state
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This returns the currently enabled state of the map on the object indicated.
             The default map enable state is off. You can enable and disable it with
@@ -884,7 +954,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             @brief Set whether to use precise (usually expensive) point collision
             detection for a given Evas object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Use this function to make Evas treat objects' transparent areas as
             @b not belonging to it with regard to mouse pointer events. By
@@ -909,7 +981,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             @brief Determine whether an object is set to use precise point collision
             detection.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return whether @p obj is set to use precise point collision
             detection or not The default value is false.
@@ -928,7 +1002,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Sets the hints for an object's alignment.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark These are hints on how to align an object <b>inside the boundaries
             of a container/manager</b>. Accepted values are in the @c 0.0 to @c
@@ -974,7 +1050,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Retrieves the hints for on object's alignment.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This is not a size enforcement in any way, it's just a hint that
             should be used whenever appropriate.
@@ -998,7 +1076,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             @brief Set whether events on a smart object's member should get propagated
             up to its parent.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This function has @b no effect if @p obj is not a member of a smart
             object.
@@ -1018,7 +1098,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Retrieve whether an Evas object is set to propagate events.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return whether @p obj is set to propagate events (@c EINA_TRUE)
             or not (@c EINA_FALSE)
@@ -1038,7 +1120,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Set whether an Evas object is to pass (ignore) events.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark If @p pass is @c EINA_TRUE, it will make events on @p obj to be @b
             ignored. They will be triggered on the @b next lower object (that
@@ -1056,7 +1140,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Determine whether an object is set to pass (ignore) events.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return pass whether @p obj is set to pass events (@c EINA_TRUE) or not
             (@c EINA_FALSE)
@@ -1083,7 +1169,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Sets whether or not the given Evas object is to be drawn anti-aliased.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @ingroup Evas_Object_Group_Extras */
          }
@@ -1091,7 +1179,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Retrieves whether or not the given Evas object is to be drawn anti_aliased.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return  (@c EINA_TRUE) if the object is to be anti_aliased.  (@c EINA_FALSE) otherwise.
             @ingroup Evas_Object_Group_Extras */
@@ -1105,7 +1195,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Retrieve user data stored on a given smart object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return A pointer to data stored using
             evas_object_smart_data_set(), or @c NULL, if none has been
@@ -1136,7 +1228,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Get the Evas object stacked right below @p obj
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return the #Evas_Object directly below @p obj, if any, or @c NULL,
             if none
@@ -1155,7 +1249,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Return a list of objects currently clipped by @p obj.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return a list of objects being clipped by @p obj
 
@@ -1199,7 +1295,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Gets the parent smart object of a given Evas object, if it has one.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return Returns the parent smart object of @a obj or @c NULL, if @a
             obj is not a smart member of any
@@ -1213,7 +1311,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Get the Evas object stacked right above @p obj
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return the #Evas_Object directly above @p obj, if any, or @c NULL,
             if none
@@ -1232,7 +1332,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Retrieves the hints for an object's display mode
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark These are hints on the display mode @p obj. This is
             not a size enforcement in any way, it's just a hint that can be
@@ -1243,7 +1345,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             /*@
             @brief Sets the hints for an object's disply mode
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This is not a size enforcement in any way, it's just a hint that
             can be used whenever appropriate.*/
@@ -1266,7 +1370,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
          /*@
          @brief Requests @p keyname key events be directed to @p obj.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE, if the call succeeded, @c EINA_FALSE otherwise.
 
@@ -1320,7 +1426,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
          /*@
          @brief Stack @p obj immediately below @p below
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Objects, in a given canvas, are stacked in the order they get added
          to it.  This means that, if they overlap, the highest ones will
@@ -1350,7 +1458,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
          /*@
          @brief Raise @p obj to the top of its layer.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @p obj will, then, be the highest one in the layer it belongs
          @remark to. Object on other layers won't get touched.
@@ -1364,7 +1474,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
          /*@
          @brief Stack @p obj immediately above @p above
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Objects, in a given canvas, are stacked in the order they get added
          to it.  This means that, if they overlap, the highest ones will
@@ -1395,7 +1507,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
          @brief Checks whether a given smart object or any of its smart object
          parents is of a given smart class.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE, if @a obj or any of its parents is of type @a
          type, @c EINA_FALSE otherwise
@@ -1447,7 +1561,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
          /*@
          @brief Removes the grab on @p keyname key events by @p obj.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Removes a key grab on @p obj if @p keyname, @p modifiers, and @p
          not_modifiers match.
@@ -1476,7 +1592,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
          /*@
          @brief Lower @p obj to the bottom of its layer.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @p obj will, then, be the lowest one in the layer it belongs
          @remark to. Objects on other layers won't get touched.
@@ -1490,7 +1608,9 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
          /*@
          @brief Disable/cease clipping on a clipped @p obj object.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function disables clipping for the object @p obj, if it was
          already clipped, i.e., its visibility and color get detached from

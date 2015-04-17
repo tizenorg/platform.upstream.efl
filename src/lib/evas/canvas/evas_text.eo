@@ -8,7 +8,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             /*@
             @brief Sets the shadow color for the given text object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Shadow effects, which are fading colors decorating the text
             underneath it, will just be shown if the object is set to one of
@@ -30,7 +32,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             /*@
             @brief Retrieves the shadow color for the given text object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Use @c NULL pointers on the color components you're not
             interested in: they'll be ignored by the function.
@@ -49,7 +53,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             /*@
             @brief Sets the ellipsis that should be used for the text object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This is a value between 0.0 and 1.0 indicating the position of the text
             to be shown. 0.0 means the start will be shown and the end trimmed, 1.0
@@ -64,7 +70,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             /*@
             @brief Gets the ellipsis currently set on the text object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return The ellipsis set on the text object.
             @see evas_object_text_ellipsis_set.
@@ -79,7 +87,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             /*@
             @brief Sets the BiDi delimiters used in the textblock.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark BiDi delimiters are use for in-paragraph separation of bidi segments. This
             is useful for example in recipients fields of e-mail clients where bidi
@@ -91,7 +101,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             /*@
             @brief Gets the BiDi delimiters used in the textblock.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark BiDi delimiters are use for in-paragraph separation of bidi segments. This
             is useful for example in recipients fields of e-mail clients where bidi
@@ -109,7 +121,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             /*@
             @brief Sets the outline color for the given text object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Outline effects (colored lines around text glyphs) will just be
             shown if the object is set to one of the following styles:
@@ -124,7 +138,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             /*@
             @brief Retrieves the outline color for the given text object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Use @c NULL pointers on the color components you're not
             interested in: they'll be ignored by the function.
@@ -143,7 +159,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             /*@
             @brief Sets the 'glow 2' color for the given text object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark 'Glow 2' effects, which are glowing colors decorating the text's
             (immediate) surroundings, will just be shown if the object is set
@@ -156,7 +174,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             /*@
             @brief Retrieves the 'glow 2' color for the given text object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Use @c NULL pointers on the color components you're not
             interested in: they'll be ignored by the function.
@@ -175,7 +195,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             /*@
             @brief Sets the style to apply on the given text object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Text object styles are one of the values in
             #Evas_Text_Style_Type. Some of those values are combinations of
@@ -201,7 +223,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             /*@
             @brief Retrieves the style on use on the given text object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return the style type in use.
 
@@ -216,7 +240,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             /*@
             @brief Sets the glow color for the given text object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Glow effects, which are glowing colors decorating the text's
             surroundings, will just be shown if the object is set to the
@@ -233,7 +259,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             /*@
             @brief Retrieves the glow color for the given text object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Use @c NULL pointers on the color components you're not
             interested in: they'll be ignored by the function.
@@ -251,7 +279,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
          set {
             /*@ @brief Set an Evas filter program on this Text Object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark If the program fails to compile (syntax error, invalid
             buffer name, etc...), the standard text effects will be
@@ -276,7 +306,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
          set {
             /*@ @brief Bind an object to use as a mask or texture with Evas Filters.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This will create automatically a new RGBA buffer containing
             the source object's pixels (as it is rendered).
@@ -302,7 +334,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             /*@
             @brief Gets the text style pad of a text object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             */
          }
@@ -319,7 +353,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @brief Retrieves the direction of the text currently being displayed in the
             text object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return the direction of the text */
             return: Evas_BiDi_Direction;
@@ -360,7 +396,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
       last_up_to_pos @const {
          /*@ @brief Returns the logical position of the last char in the text up to the pos given. this is NOT the position of the last char because of the possibility of RTL in the text.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          */
          return: int;
@@ -384,7 +422,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
          /*@
          @brief Retrieve position and dimension information of a character within a text @c Evas_Object.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function is used to obtain the X, Y, width and height of the character
          located at @p pos within the @c Evas_Object @p obj. @p obj must be a text object

@@ -8,7 +8,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief Sets the output framespace size of the render engine of the given evas.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark The framespace size is used in the Wayland engines to denote space where
             the output is not drawn. This is mainly used in ecore_evas to draw borders
@@ -23,7 +25,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief Get the render engine's output framespace co-ordinates in canvas units.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @ingroup Evas_Output_Size
             @since 1.1 */
@@ -40,7 +44,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief Sets the output viewport of the given evas in evas units.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark The output viewport is the area of the evas that will be visible to
             the viewer.  The viewport will be stretched to fit the output
@@ -56,7 +62,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief Get the render engine's output viewport co-ordinates in canvas units.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Calling this function writes the current canvas output viewport
             size and location values into the variables pointed to by @p x, @p
@@ -102,7 +110,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief Set the default set of flags an event begins with
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Events in evas can have an event_flags member. This starts out with
             and initial value (no flags). This lets you set the default flags that
@@ -114,7 +124,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief Get the default set of flags an event begins with
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return The default event flags for that canvas
 
@@ -132,7 +144,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief Sets the output engine for the given evas.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Once the output engine for an evas is set, any attempt to change it
             will be ignored.  The value for @p render_method can be found using
@@ -147,7 +161,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief Retrieves the number of the output engine used for the given evas.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return  The ID number of the output engine being used.  @c 0 is
             returned if there is an error.
@@ -181,7 +197,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief Sets the output size of the render engine of the given evas.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark The evas will render to a rectangle of the given size once this
             function is called.  The output size is independent of the viewport
@@ -196,7 +214,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief Retrieve the output size of the render engine of the given evas.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark The output size is given in whatever the output units are for the
             engine.
@@ -216,7 +236,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief Attaches a specific pointer to the evas for fetching later
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @ingroup Evas_Canvas */
          }
@@ -224,7 +246,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief Returns the pointer attached by evas_data_attach_set()
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return The pointer attached
             @ingroup Evas_Canvas */
@@ -258,7 +282,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief Applies the engine settings for the given evas from the given
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @c Evas_Engine_Info structure.
 
@@ -280,7 +306,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief Retrieves the current render engine info struct from the given evas.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark The returned structure is publicly modifiable.  The contents are
             valid until either @ref evas_engine_info_set or @ref evas_render
@@ -364,7 +392,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief Returns a handle to the list of lock keys registered in the canvas
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @p e. This is required to check for which locks are set at a given
             @remark time with the evas_key_lock_is_set() function.
@@ -385,7 +415,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief This function returns the current known pointer co-ordinates
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This function returns the current known canvas unit co-ordinates of
             the mouse pointer and sets the contents of the Evas_Coords pointed
@@ -424,7 +456,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief This gets the internal counter that counts the number of smart calculations
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Whenever evas performs smart object calculations on the whole canvas
             it increments a counter by 1. This is the smart object calculate counter
@@ -444,7 +478,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief Get the focus state known by the given evas
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return @c EINA_TRUE if it got the focus, @c EINA_FALSE otherwise.
             @ingroup Evas_Canvas */
@@ -468,7 +504,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief This function returns the current known pointer co-ordinates
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This function returns the current known screen/output co-ordinates
             of the mouse pointer and sets the contents of the integers pointed
@@ -495,7 +533,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief Returns whether the mouse pointer is logically inside the canvas
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return An integer that is 1 if the mouse is inside the canvas, 0 otherwise
             @ingroup Evas_Pointer_Group
@@ -571,7 +611,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             canvas @p e. This is required to check for which modifiers are set
             at a given time with the evas_key_modifier_is_set() function.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @see evas_key_modifier_add
             @see evas_key_modifier_del
@@ -589,7 +631,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             /*@
             @brief Returns a bitmask with the mouse buttons currently pressed, set to 1
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return A bitmask of the currently depressed buttons on the canvas
             @ingroup Evas_Pointer_Group
@@ -666,7 +710,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @brief Enables or turns on programmatically the lock key with name @p
          keyname.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark The effect will be as if the key was put on its active state after
          this call.
@@ -703,7 +749,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          returned from different calls to it may be ORed together,
          naturally.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @returns the bit mask or 0 if the @p keyname key wasn't registered as a
          modifier for canvas @p e.
@@ -728,7 +776,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          @brief Adds the @p keyname key to the current list of modifier keys.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Modifiers are keys like shift, alt and ctrl, i.e., keys which are
          meant to be pressed together with others, altering the behavior of
@@ -761,7 +811,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          @brief Disables or turns off programmatically the modifier key with name
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark @p keyname.
 
@@ -936,7 +988,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          @brief Inform to the evas that it lost the focus.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @ingroup Evas_Canvas */
 
@@ -967,7 +1021,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @brief Update the canvas internal objects but not triggering immediate
          renderization.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function updates the canvas internal objects not triggering
          renderization. To force renderization function evas_render() should
@@ -1024,7 +1080,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          @brief Pop the nochange flag down 1
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This tells evas, that while the nochange flag is greater than 0, do not
          mark objects as "changed" when making changes.
@@ -1040,7 +1098,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @brief Disables or turns off programmatically the lock key with name @p
          keyname.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark The effect will be as if the key was put on its inactive state
          after this call.
@@ -1058,7 +1118,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          @brief Push the nochange flag up 1
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This tells evas, that while the nochange flag is greater than 0, do not
          mark objects as "changed" when making changes.
@@ -1119,7 +1181,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @brief Enables or turns on programmatically the modifier key with name @p
          keyname.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark The effect will be as if the key was pressed for the whole time
          between this call and a matching evas_key_modifier_off().
@@ -1272,7 +1336,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          flag signalling that the object needs to get recalculated to @b all
          smart objects in the canvas.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @see evas_object_smart_need_recalculate_set()
 
@@ -1313,7 +1379,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @brief Removes the @p keyname key from the current list of lock keys on
          canvas @p e.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @see evas_key_lock_get
          @see evas_key_lock_add
@@ -1328,7 +1396,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          @brief Add a damage rectangle.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This is the function by which one tells evas that a part of the
          canvas has to be repainted.
@@ -1365,7 +1435,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          @brief Convert/scale a canvas co-ordinate into output screen co-ordinates
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The output/screen co-ordinate translated to output co-ordinates
          @ingroup Evas_Coord_Mapping_Group
@@ -1409,7 +1481,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          @brief Force immediate renderization of the given Evas canvas.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return A newly allocated list of updated rectangles of the canvas
          (@c Eina.Rectangle structs). Free this list with
@@ -1450,7 +1524,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          @brief Convert/scale an output screen co-ordinate into canvas co-ordinates
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The screen co-ordinate translated to canvas unit co-ordinates
          @ingroup Evas_Coord_Mapping_Group
@@ -1478,7 +1554,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @brief Removes the @p keyname key from the current list of modifier keys
          on canvas @p e.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @see evas_key_modifier_add
          @see evas_key_modifier_get
@@ -1527,7 +1605,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          @brief Inform to the evas that it got the focus.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @ingroup Evas_Canvas */
 
@@ -1536,7 +1616,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          @brief Add an "obscured region" to an Evas canvas.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This is the function by which one tells an Evas canvas that a part
          of it <b>must not</b> be repainted. The region must be
@@ -1597,7 +1679,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @brief Make the canvas discard as much data as possible used by the engine at
          runtime.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function will unload images, delete textures and much more, where
          possible. You may also want to call evas_render_idle_flush() immediately
@@ -1656,7 +1740,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          @brief Force renderization of the given canvas.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @ingroup Evas_Canvas */
 
@@ -1692,7 +1778,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          @brief Remove all "obscured regions" from an Evas canvas.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function removes all the rectangles from the obscured regions
          list of the canvas @p e. It takes obscured areas added with
@@ -1729,7 +1817,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          @brief Convert/scale an output screen co-ordinate into canvas co-ordinates
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The screen co-ordinate translated to canvas unit co-ordinates
          @ingroup Evas_Coord_Mapping_Group
@@ -1756,7 +1846,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          @brief Adds the @p keyname key to the current list of lock keys.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Locks are keys like caps lock, num lock or scroll lock, i.e., keys
          which are meant to be pressed once -- toggling a binary state which
@@ -1789,7 +1881,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          @brief Make the canvas discard internally cached data used for rendering.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function flushes the arrays of delete, active and render objects.
          Other things it may also discard are: shared memory segments,
@@ -1802,7 +1896,9 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          @brief Convert/scale a canvas co-ordinate into output screen co-ordinates
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The output/screen co-ordinate translated to output co-ordinates
          @ingroup Evas_Coord_Mapping_Group

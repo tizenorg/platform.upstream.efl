@@ -75,7 +75,9 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
             /*@
             @brief Store a pointer to user data for a given smart object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This data is stored @b independently of the one set by
             evas_object_data_set(), naturally.
@@ -94,7 +96,9 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
             @brief Retrieves the list of the member objects of a given Evas smart
             object
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return Returns the list of the member objects of @p obj.
 
@@ -138,7 +142,9 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
          /*@
          @brief Set an smart object @b instance's smart callbacks descriptions.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE on success, @c EINA_FALSE on failure.
 
@@ -177,7 +183,9 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
          @brief Retrieve an smart object's know smart callback descriptions (both
          instance and class ones).
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This call searches for registered callback descriptions for both
          instance and class of the given smart object. These arrays will be
@@ -264,7 +272,9 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
          /*@
          @brief Instantiates a new smart object described by @p s.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return a new #Evas_Object handle
 
@@ -281,7 +291,9 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
          /*@
          @brief Set an Evas object as a member of a given smart object.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Members will automatically be stacked and layered together with the
          smart object. The various stacking functions will operate on
@@ -318,7 +330,9 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
          /*@
          @brief Mark smart object as changed, dirty.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This will flag the given object as needing recalculation,
          forcefully. As an effect, on the next rendering cycle its @b
@@ -334,7 +348,9 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
          /*@
          @brief Removes a member object from a given smart object.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This removes a member object from a smart object, if it was added
          to any. The object will still be on the canvas, but no longer

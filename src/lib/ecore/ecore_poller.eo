@@ -18,7 +18,9 @@ class Ecore.Poller (Eo.Base)
             /*@
             @brief Changes the polling interval rate of @p poller.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return Returns true on success, false on failure.
 
@@ -32,7 +34,9 @@ class Ecore.Poller (Eo.Base)
             @brief Gets the polling interval rate of @p poller.
             @return Returns the interval, in ticks, that @p poller polls at.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This returns a poller's polling interval, or 0 on error. */
             legacy: ecore_poller_poller_interval_get;

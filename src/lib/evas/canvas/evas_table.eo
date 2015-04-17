@@ -8,7 +8,9 @@ class Evas.Table (Evas.Smart_Clipped)
             /*@
             @brief Set how this table should layout children.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @todo consider aspect hint and respect it.
 
@@ -53,7 +55,9 @@ class Evas.Table (Evas.Smart_Clipped)
             /*@
             @brief Get the current layout homogeneous mode.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @see evas_object_table_homogeneous_set() */
          }
@@ -66,7 +70,9 @@ class Evas.Table (Evas.Smart_Clipped)
             /*@
             @brief Set the alignment of the whole bounding box of contents.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             */
          }
@@ -74,7 +80,9 @@ class Evas.Table (Evas.Smart_Clipped)
             /*@
             @brief Get alignment of the whole bounding box of contents.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             */
          }
@@ -88,7 +96,9 @@ class Evas.Table (Evas.Smart_Clipped)
             /*@
             @brief Set padding between cells.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             */
          }
@@ -96,7 +106,9 @@ class Evas.Table (Evas.Smart_Clipped)
             /*@
             @brief Get padding between cells.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             */
          }
@@ -112,7 +124,9 @@ class Evas.Table (Evas.Smart_Clipped)
             from right to left instead of left to right. That is, 1,1 is top right, not
             top left.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @since 1.1 */
          }
@@ -120,7 +134,9 @@ class Evas.Table (Evas.Smart_Clipped)
             /*@
             @brief Gets the mirrored mode of the table.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return @c EINA_TRUE if it's a mirrored table, @c EINA_FALSE otherwise.
             @since 1.1
@@ -135,7 +151,9 @@ class Evas.Table (Evas.Smart_Clipped)
             /*@
             @brief Get the number of columns and rows this table takes.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark columns and rows are virtual entities, one can specify a table
             with a single object that takes 4 columns and 5 rows. The only
@@ -152,7 +170,9 @@ class Evas.Table (Evas.Smart_Clipped)
             /*@
             @brief Get the list of children for the table.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This is a duplicate of the list kept by the table internally.
             It's up to the user to destroy it when it no longer needs it.
@@ -166,7 +186,9 @@ class Evas.Table (Evas.Smart_Clipped)
             /*@
             @brief Get the child of the table at the given coordinates
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This does not take into account col/row spanning*/
          }
@@ -184,7 +206,9 @@ class Evas.Table (Evas.Smart_Clipped)
          /*@
          @brief Faster way to remove all child objects from a table object.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          */
 
@@ -196,7 +220,9 @@ class Evas.Table (Evas.Smart_Clipped)
          /*@
          @brief Get an accessor to get random access to the list of children for the table.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @note Do not remove or delete objects while walking the list. */
          return: free(own(accessor<Evas.Object *> *), eina_accessor_free)
@@ -206,7 +232,9 @@ class Evas.Table (Evas.Smart_Clipped)
          /*@
          @brief Get an iterator to walk the list of children for the table.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Do not remove or delete objects while walking the list. */
          return: free(own(iterator<Evas.Object *> *), eina_iterator_free)
@@ -216,7 +244,9 @@ class Evas.Table (Evas.Smart_Clipped)
          /*@
          @brief Create a table that is child of a given element @a parent.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @see evas_object_table_add() */
 
@@ -226,7 +256,9 @@ class Evas.Table (Evas.Smart_Clipped)
          /*@
          @brief Get packing location of a child of table
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return 1 on success, 0 on failure.
          @since 1.1 */
@@ -243,7 +275,9 @@ class Evas.Table (Evas.Smart_Clipped)
          /*@
          @brief Add a new child to a table object or set its current packing.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Note that columns and rows only guarantee 16bit unsigned values at best.
          That means that col + colspan AND row + rowspan must fit inside 16bit
@@ -266,7 +300,9 @@ class Evas.Table (Evas.Smart_Clipped)
          /*@
          @brief Remove child from table.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark removing a child will immediately call a walk over children in order
          to recalculate numbers of columns and rows. If you plan to remove

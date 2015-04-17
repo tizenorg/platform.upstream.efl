@@ -8,7 +8,9 @@ class Evas.Line (Evas.Object)
             /*@
             @brief Sets the coordinates of the end points of the given evas line object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @since 1.8 */
          }
@@ -16,7 +18,9 @@ class Evas.Line (Evas.Object)
             /*@
             @brief Retrieves the coordinates of the end points of the given evas line object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark second end point. */
          }

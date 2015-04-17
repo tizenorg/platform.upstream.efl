@@ -9,7 +9,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Edje will automatically update the size hints on itself.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark By default edje doesn't set size hints on itself. With this function
             call, it will do so if update is true. Be carefully, it cost a lot to
@@ -20,7 +22,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Whether or not Edje will update size hints on itself.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return @c true if does, @c false if it doesn't. */
          }
@@ -33,7 +37,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Set the RTL orientation for this object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @since 1.1.0 */
          }
@@ -41,7 +47,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Get the RTL orientation for this object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark You can RTL orientation explicitly with edje_object_mirrored_set.
 
@@ -57,7 +65,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Set the object's animation state.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This function starts or stops an Edje object's animation. The
             information if it's stopped can be retrieved by
@@ -69,7 +79,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Get the Edje object's animation state.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return @c EINA_FALSE on error or if object is not animated;
             @c EINA_TRUE if animated.
@@ -99,7 +111,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Get the Edje object's state.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return @c EINA_FALSE if the object is not connected, its @c delete_me flag
             is set, or it is at paused state; @c EINA_TRUE if the object is at playing
@@ -120,7 +134,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Set the given perspective object on this Edje object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark Make the given perspective object be the default perspective for this Edje
             object.
@@ -140,7 +156,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Get the current perspective used on this Edje object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return The perspective object being used on this Edje object. Or @c NULL
             if there was none, and on errors.
@@ -156,7 +174,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Set the scaling factor for a given Edje object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This function sets an @b individual scaling factor on the @a obj
             Edje object. This property (or Edje's global scaling factor, when
@@ -177,7 +197,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Get a given Edje object's scaling factor.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This function returns the @c individual scaling factor set on the
             @a obj Edje object.
@@ -209,7 +231,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Set the object text callback.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             This function sets the callback to be called when the text changes. */
          }
@@ -273,7 +297,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Sets the text for an object part, but converts HTML escapes to UTF8
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This converts the given string @p text to UTF8 assuming it contains HTML
             style escapes like "&amp;" and "&copy;" etc. IF the part is of type TEXT,
@@ -318,7 +344,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Set an Edje message handler function for a given Edje object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark For scriptable programs on an Edje object's defining EDC file which
             send messages with the @c send_message() primitive, one can attach
@@ -341,7 +369,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             @brief Get the minimum size specified -- as an EDC property -- for a
             given Edje object
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This function retrieves the @p obj object's minimum size values,
             <b>as declared in its EDC group definition</b>. Minimum size of
@@ -380,7 +410,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Retrieve a list all accessibility part names
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return A list all accessibility part names on @p obj
             @since 1.7.0 */
@@ -392,7 +424,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             /*@
             @brief Gets the (last) file loading error for a given Edje object
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @return The Edje loading error, one of:
             - #EDJE_LOAD_ERROR_NONE
@@ -421,7 +455,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             @brief Get the maximum size specified -- as an EDC property -- for a
             given Edje object
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This function retrieves the @p obj object's maximum size values,
             <b>as declared in its EDC group definition</b>. Maximum size of
@@ -502,7 +538,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Returns the state of the Edje part.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The part state:\n
          "default" for the default state\n
@@ -538,7 +576,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Sets the drag step increment.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Sets the x,y step increments for a dragable object.
 
@@ -559,7 +599,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Gets the drag step increment values.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Gets the x and y step increments for the dragable object.
 
@@ -597,7 +639,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Return the text of the object part.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The text string
 
@@ -613,7 +657,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Remove a signal-triggered callback from an object.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The data pointer
 
@@ -650,7 +696,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Set the style of the
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function sets the style associated with the textblock part.
 
@@ -665,7 +713,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Insert text for an object part.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function inserts the text for an object part at the end; It does not
          move the cursor.
@@ -682,7 +732,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          @brief Retrieve the geometry of a given Edje part, in a given Edje
          object's group definition, <b>relative to the object's area</b>
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function gets the geometry of an Edje part within its
          group. The @p x and @p y coordinates are relative to the top left
@@ -721,7 +773,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Return item geometry.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return 1 if item exists, 0 if not
 
@@ -741,7 +795,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Removes an object from the table.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE object removed, @c EINA_FALSE on failure
 
@@ -784,7 +840,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Delete the top style form the user style stack.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @since 1.2.0 */
 
@@ -823,7 +881,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Insert text for an object part.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function inserts the text for an object part just before the
          cursor position. */
@@ -837,7 +897,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Removes an object from the box.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return Pointer to the object removed, or @c NULL.
 
@@ -868,7 +930,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          @brief Calculate the geometry of the region, relative to a given Edje
          object's area, <b>occupied by all parts in the object</b>
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function gets the geometry of the rectangle equal to the area
          required to group all parts in @p obj's group/collection. The @p x
@@ -899,7 +963,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Set the dragable object location.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Places the dragable object at the given location.
 
@@ -926,7 +992,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Get the dragable object location.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Values for @p dx and @p dy are real numbers that range from 0 to 1,
          representing the relative position to the dragable area on that axis.
@@ -945,7 +1013,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Force a Size/Geometry calculation.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Forces the object @p obj to recalculation layout regardless of
          freeze/thaw. */
@@ -979,7 +1049,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Freezes the Edje object.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The frozen state or 0 on Error
 
@@ -1037,7 +1109,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Packs an object into the table.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE object was added, @c EINA_FALSE on failure
 
@@ -1083,7 +1157,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Gets the number of columns and rows the table has.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE get some data, @c EINA_FALSE on failure
 
@@ -1133,7 +1209,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Preload the images on the Edje Object in the background.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_FASLE if obj was not a valid Edje object
          otherwise @c EINA_TRUE
@@ -1186,7 +1264,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Inserts an object to the box.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE: Successfully added.\n
          @c EINA_FALSE: An error occurred.
@@ -1209,7 +1289,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Return a list of Evas_Textblock_Rectangle anchor rectangles.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The list of anchor rects (const Evas_Textblock_Rectangle
          *), do not modify! Geometry is relative to entry part.
@@ -1236,7 +1318,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Sets the page step increments.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Sets the x,y page step increment values.
 
@@ -1257,7 +1341,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Gets the page step increments.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Gets the x,y page step increments for the dragable object.
 
@@ -1273,7 +1359,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Prepends an object to the box.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE: Successfully added.\n
          @c EINA_FALSE: An error occurred.
@@ -1294,7 +1382,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Send/emit an Edje signal to a given Edje object
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function sends a signal to the object @a obj. An Edje program,
          at @p obj's EDC specification level, can respond to a signal by
@@ -1355,7 +1445,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Send an (Edje) message to a given Edje object
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function sends an Edje message to @p obj and to all of its
          child objects, if it has any (swallowed objects are one kind of
@@ -1391,7 +1483,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          @brief Get a handle to the Evas object implementing a given Edje
          part, in an Edje object.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return A pointer to the Evas object implementing the given part,
          or @c NULL on failure (e.g. the given part doesn't exist)
@@ -1414,7 +1508,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Set the dragable object size.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Values for @p dw and @p dh are real numbers that range from 0 to 1,
          representing the relative size of the dragable area on that axis.
@@ -1434,7 +1530,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Get the dragable object size.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Gets the dragable object size.
 
@@ -1468,7 +1566,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Determine dragable directions.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark The dragable directions are defined in the EDC file, inside the @c dragable
          section, by the attributes @c x and @c y. See the @ref edcref for more
@@ -1487,7 +1587,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Sets the raw (non escaped) text for an object part.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This funciton will not do escape for you if it is a TEXTBLOCK part, that is,
          if text contain tags, these tags will not be interpreted/parsed by TEXTBLOCK.
@@ -1504,7 +1606,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Returns the text of the object part, without escaping.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The @b allocated text string without escaping, or NULL on
          problems.
@@ -1525,7 +1629,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          @brief Add a callback for an arriving Edje signal, emitted by
          a given Edje object.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Edje signals are one of the communication interfaces between
          @b code and a given Edje object's @b theme. With signals, one can
@@ -1641,7 +1747,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Unswallow an object.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Causes the edje to regurgitate a previously swallowed object. :)
 
@@ -1680,7 +1788,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          @brief Retrive an <b>EDC data field's value</b> from a given Edje
          object's group.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The data's value string. Must not be freed.
 
@@ -1754,7 +1864,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Process an object's message queue.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function goes through the object message queue processing the
          pending messages for @b this specific Edje object. Normally they'd
@@ -1765,7 +1877,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Removes an object from the box.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return Pointer to the object removed, or @c NULL.
 
@@ -1784,7 +1898,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Thaws the Edje object.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The frozen state or 0 if the object is not frozen or on error.
 
@@ -1801,7 +1917,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Get the object currently swallowed by a part.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The swallowed object, or NULL if there is none. */
          return: Evas_Object *;
@@ -1850,7 +1968,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Retrieve a child from a table
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The child Evas_Object */
          return: Evas_Object *;
@@ -1864,7 +1984,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Adds an object to the box.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE: Successfully added.\n
          @c EINA_FALSE: An error occurred.
@@ -1949,7 +2071,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Calculate the minimum required size for a given Edje object.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This call works exactly as edje_object_size_min_restricted_calc(),
          with the last two arguments set to 0. Please refer to its
@@ -1966,7 +2090,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Appends an object to the box.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE: Successfully added.\n
          @c EINA_FALSE: An error occurred.
@@ -1987,7 +2113,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Calculate the minimum required size for a given Edje object.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This call will trigger an internal recalculation of all parts of
          the @p obj object, in order to return its minimum required
@@ -2018,7 +2146,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Removes all elements from the box.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return 1: Successfully cleared.\n
          0: An error occurred.
@@ -2039,7 +2169,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Pages x,y steps.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Pages x,y where the increment is defined by
          edje_object_part_drag_page_set.
@@ -2061,7 +2193,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Sets the text for an object part
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE on success, @c EINA_FALSE otherwise */
 
@@ -2075,7 +2209,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Return the text of the object part.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The text string
 
@@ -2163,7 +2299,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Sets Edje text class.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE, on success or @c EINA_FALSE, on error
 
@@ -2179,7 +2317,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Gets font and font size from edje text class.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE, on success or @c EINA_FALSE, on error
 
@@ -2196,7 +2336,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Sets the object color class.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function sets the color values for an object level color
          class. This will cause all edje parts in the specified object that
@@ -2234,7 +2376,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Gets the object color class.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return EINA_TRUE if found or EINA_FALSE if not found and all
          values are zeroed.
@@ -2270,7 +2414,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Steps the dragable x,y steps.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Steps x,y where the step increment is the amount set by
          edje_object_part_drag_step_set.
@@ -2312,7 +2458,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Return a list of char anchor names.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The list of anchors (const char *), do not modify!
 
@@ -2377,7 +2525,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          @brief Check if an Edje part exists in a given Edje object's group
          definition.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE, if the Edje part exists in @p obj's group or
          @c EINA_FALSE, otherwise (and on errors)
@@ -2427,7 +2577,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief This function inserts text as if the user has inserted it.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This means it actually registers as a change and emits signals, triggers
          callbacks as appropriate.
@@ -2453,7 +2605,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          /*@
          @brief Return a list of char item names.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The list of items (const char *), do not modify!
 
@@ -2468,7 +2622,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          @brief "Swallows" an object into one of the Edje object @c SWALLOW
          parts.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark Swallowing an object into an Edje object is, for a given part of
          type @c SWALLOW in the EDC group which gave life to @a obj, to set

@@ -10,7 +10,9 @@ class Evas.Box (Evas.Smart_Clipped)
             @brief Set the alignment of the whole bounding box of contents, for a
             given box object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark This will influence how a box object is to align its bounding box
             of contents within its own area. The values @b must be in the range
@@ -28,7 +30,9 @@ class Evas.Box (Evas.Smart_Clipped)
             @brief Get the alignment of the whole bounding box of contents, for a
             given box object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @see evas_object_box_align_set() for more information */
          }
@@ -42,7 +46,9 @@ class Evas.Box (Evas.Smart_Clipped)
             /*@
             @brief Set the (space) padding between cells set for a given box object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark The default values for both padding components is @c 0.
 
@@ -52,7 +58,9 @@ class Evas.Box (Evas.Smart_Clipped)
             /*@
             @brief Get the (space) padding between cells set for a given box object.
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @see evas_object_box_padding_set() */
          }
@@ -66,7 +74,9 @@ class Evas.Box (Evas.Smart_Clipped)
             /*@
             @brief Set a new layouting function to a given box object
 
-            @since_tizen 2.3
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
 
             @remark A box layout function affects how a box object displays child
             elements within its area. The list of pre-defined box layouts
@@ -98,7 +108,9 @@ class Evas.Box (Evas.Smart_Clipped)
          /*@
          @brief Layout function which sets the box @a o to a (basic) horizontal box
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark In this layout, the box object's overall behavior is controlled by
          its padding/alignment properties, which are set by the
@@ -154,7 +166,9 @@ class Evas.Box (Evas.Smart_Clipped)
          /*@
          @brief Layout function which sets the box @a o to a (basic) vertical box
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function behaves analogously to
          evas_object_box_layout_horizontal(). The description of its
@@ -169,7 +183,9 @@ class Evas.Box (Evas.Smart_Clipped)
          @brief Layout function which sets the box @a o to a <b>maximum size,
          homogeneous</b> horizontal box
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark In a maximum size, homogeneous horizontal box, besides having cells
          of <b>equal size</b> reserved for the child objects, this size will
@@ -226,7 +242,9 @@ class Evas.Box (Evas.Smart_Clipped)
          /*@
          @brief Layout function which sets the box @a o to a @b flow vertical box.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function behaves analogously to
          evas_object_box_layout_flow_horizontal(). The description of its
@@ -248,7 +266,9 @@ class Evas.Box (Evas.Smart_Clipped)
          @brief Insert a new @a child object <b>after another existing one</b>, in
          a given box object @a o.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return A box option bound to the recently added box item or @c
          NULL, on errors
@@ -275,7 +295,9 @@ class Evas.Box (Evas.Smart_Clipped)
          @brief Remove @b all child objects from a box object, unparenting them
          again.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE, on success, @c EINA_FALSE otherwise
 
@@ -292,7 +314,9 @@ class Evas.Box (Evas.Smart_Clipped)
          /*@
          @brief Get an iterator to walk the list of children of a given box object.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return An iterator on @p o's child objects, on success, or @c NULL,
          on errors
@@ -305,7 +329,9 @@ class Evas.Box (Evas.Smart_Clipped)
          /*@
          @brief Add a new box as a @b child of a given smart object.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c NULL on error, a pointer to a new box object on
          success.
@@ -321,7 +347,9 @@ class Evas.Box (Evas.Smart_Clipped)
          /*@
          @brief Append a new @a child object to the given box object @a o.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return A box option bound to the recently added box item or @c
          NULL, on errors
@@ -346,7 +374,9 @@ class Evas.Box (Evas.Smart_Clipped)
          @brief Get the numerical identifier of the property of the child elements
          of the box @a o which have @a name as name string
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The numerical ID of the given property or @c -1, on
          errors.
@@ -367,7 +397,9 @@ class Evas.Box (Evas.Smart_Clipped)
          /*@
          @brief Prepend a new @a child object to the given box object @a o.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return A box option bound to the recently added box item or @c
          NULL, on errors
@@ -392,7 +424,9 @@ class Evas.Box (Evas.Smart_Clipped)
          @brief Get an accessor (a structure providing random items access) to the
          list of children of a given box object.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return An accessor on @p o's child objects, on success, or @c NULL,
          on errors
@@ -414,7 +448,9 @@ class Evas.Box (Evas.Smart_Clipped)
          @brief Set a property value (by its given numerical identifier), on a
          given box child element -- by a variable argument list
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE on success, @c EINA_FALSE on failure.
 
@@ -446,7 +482,9 @@ class Evas.Box (Evas.Smart_Clipped)
          @brief Remove an object, <b>bound to a given position</b> in a box object,
          unparenting it again.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE, on success, @c EINA_FALSE otherwise
 
@@ -472,7 +510,9 @@ class Evas.Box (Evas.Smart_Clipped)
          @brief Get a property's value (by its given numerical identifier), on a
          given box child element -- by a variable argument list
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE on success, @c EINA_FALSE on failure.
 
@@ -504,7 +544,9 @@ class Evas.Box (Evas.Smart_Clipped)
          @brief Insert a new @a child object <b>before another existing one</b>, in
          a given box object @a o.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return A box option bound to the recently added box item or @c
          NULL, on errors
@@ -531,7 +573,9 @@ class Evas.Box (Evas.Smart_Clipped)
          @brief Get the name of the property of the child elements of the box @a o
          which have @a id as identifier
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return The name of the given property or @c NULL, on errors.
 
@@ -561,7 +605,9 @@ class Evas.Box (Evas.Smart_Clipped)
          @brief Layout function which sets the box @a o to a @b homogeneous
          horizontal box
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark In a homogeneous horizontal box, its width is divided @b equally
          between the contained objects. The box's overall behavior is
@@ -609,7 +655,9 @@ class Evas.Box (Evas.Smart_Clipped)
          @brief Layout function which sets the box @a o to a <b>maximum size,
          homogeneous</b> vertical box
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function behaves analogously to
          evas_object_box_layout_homogeneous_max_size_horizontal(). The
@@ -634,7 +682,9 @@ class Evas.Box (Evas.Smart_Clipped)
          @brief Insert a new @a child object <b>at a given position</b>, in a given
          box object @a o.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return A box option bound to the recently added box item or @c
          NULL, on errors
@@ -669,7 +719,9 @@ class Evas.Box (Evas.Smart_Clipped)
          /*@
          @brief Remove a given object from a box object, unparenting it again.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @return @c EINA_TRUE, on success, @c EINA_FALSE otherwise
 
@@ -691,7 +743,9 @@ class Evas.Box (Evas.Smart_Clipped)
          /*@
          @brief Layout function which sets the box @a o to a @b stacking box
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark In a stacking box, all children will be given the same size -- the
          box's own size -- and they will be stacked one above the other, so
@@ -720,7 +774,9 @@ class Evas.Box (Evas.Smart_Clipped)
          @brief Layout function which sets the box @a o to a @b homogeneous
          vertical box
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark This function behaves analogously to
          evas_object_box_layout_homogeneous_horizontal().  The description
@@ -735,7 +791,9 @@ class Evas.Box (Evas.Smart_Clipped)
          @brief Layout function which sets the box @a o to a @b flow horizontal
          box.
 
-         @since_tizen 2.3
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
 
          @remark In a flow horizontal box, the box's child elements are placed in
          @b rows (think of text as an analogy). A row has as much elements as

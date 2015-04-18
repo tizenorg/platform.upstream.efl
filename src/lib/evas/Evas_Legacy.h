@@ -1610,6 +1610,7 @@ EAPI Evas_Object *evas_object_rectangle_add(Evas *e) EINA_WARN_UNUSED_RESULT EIN
  */
 
 /**
+ * @internal
  * @defgroup Evas_Object_Vg
  * @ingroup Evas
  *

@@ -21,12 +21,14 @@
 
 /**
  * @addtogroup Eina_Core_Group Core
+ * @ingroup Eina
  *
  * @{
  */
 
 /**
  * @defgroup Eina_Types_Group Types
+ * @ingroup Eina_Core_Group
  *
  * @{
  */

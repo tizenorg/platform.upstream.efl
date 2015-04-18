@@ -9,6 +9,7 @@
 #endif
 
 /**
+ * @internal
  * @file efreet_private.h
  * @brief Contains methods and defines that are private to the Efreet
  * implementaion

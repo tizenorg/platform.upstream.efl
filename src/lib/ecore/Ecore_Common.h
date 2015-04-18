@@ -5,6 +5,7 @@ extern "C" {
 #include <Efl_Config.h>
 
 /**
+ * @internal
  * @defgroup Ecore_Init_Group Ecore initialization, shutdown functions and reset on fork.
  * @ingroup Ecore
  *
@@ -898,6 +899,7 @@ EAPI void *ecore_event_current_event_get(void);
  */
 
 /**
+ * @internal
  * @defgroup Ecore_System_Events System Events
  *
  * Ecore is aware of some system events that one may be interested, they are described below:
@@ -1021,6 +1023,7 @@ EAPI void ecore_power_state_set(Ecore_Power_State state);
 
 
 /**
+ * @internal
  * @defgroup Ecore_Exe_Group Process Spawning Functions
  *
  * This module is responsible for managing portable processes using Ecore.
@@ -2742,6 +2745,7 @@ EAPI int ecore_pipe_wait(Ecore_Pipe *p, int message_count, double wait);
  */
 
 /**
+ * @internal
  * @defgroup Ecore_Application_Group Ecore Application functions
  * @ingroup Ecore
  *
@@ -2802,6 +2806,7 @@ EAPI void ecore_app_no_system_modules(void);
  */
 
 /**
+ * @internal
  * @defgroup Ecore_Throttle_Group Ecore Throttle functions
  *
  * @ingroup Ecore_Main_Loop_Group

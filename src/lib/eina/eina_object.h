@@ -24,6 +24,7 @@
 #include "eina_types.h"
 
 /**
+ * @internal
  * @addtogroup Eina_Object Object
  * @ingroup Eina
  *

@@ -26,6 +26,7 @@
  */
 
 /**
+ * @internal
  * @defgroup Eina_Safety_Checks_Group Safety Checks
  *
  * @warning @c eina_safety_checks.h should only be included by source
@@ -62,6 +63,7 @@
  */
 
 /**
+ * @internal
  * @addtogroup Eina_Safety_Checks_Group Safety Checks
  *
  * Safety checks are a set of macros to check for parameters or values

@@ -3,6 +3,7 @@
 
 
 /**
+ * @internal
  * @file evil_unistd.h
  * @brief The file that provides functions ported from Unix in unistd.h.
  * @defgroup Evil_Unistd_Group Unistd.h functions

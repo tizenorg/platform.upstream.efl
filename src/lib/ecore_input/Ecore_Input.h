@@ -40,6 +40,7 @@ extern "C" {
 #endif
 
 /**
+ * @internal
  * @defgroup Ecore_Input_Group Ecore Input
  * @ingroup Ecore_Group
  *

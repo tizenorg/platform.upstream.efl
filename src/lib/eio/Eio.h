@@ -571,6 +571,7 @@ EAPI Eio_File *eio_dir_unlink(const char *path,
 
 
 /**
+ * @internal
  * @defgroup Eio_Xattr Eio manipulation of eXtended attribute.
  * @ingroup Eio
  *
@@ -756,6 +757,7 @@ EAPI Eio_File *eio_file_xattr_string_get(const char *path,
  */
 
 /**
+ * @internal
  * @defgroup Eio_Helper Eio Reference helper API
  * @ingroup Eio
  *
@@ -926,6 +928,7 @@ static inline Eina_Bool eio_file_is_lnk(const Eina_Stat *stat);
  */
 
 /**
+ * @internal
  * @defgroup Eio_Map Manipulate an Eina_File asynchronously
  * @ingroup Eio
  *
@@ -1012,6 +1015,7 @@ EAPI Eio_File *eio_file_map_new(Eina_File *f,
  */
 
 /**
+ * @internal
  * @defgroup Eio_Eet Eio asynchronous API for Eet file.
  * @ingroup Eio
  *
@@ -1204,6 +1208,7 @@ EAPI Eio_File *eio_eet_write_cipher(Eet_File *ef,
  */
 
 /**
+ * @internal
  * @defgroup Eio_Monitor Eio file and directory monitoring API
  * @ingroup Eio
  *

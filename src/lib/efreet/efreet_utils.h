@@ -2,6 +2,7 @@
 #define EFREET_UTILS_H
 
 /**
+ * @internal
  * @file efreet_utils.h
  * @brief Contains utility functions to ease usage of Efreet.
  *        FDO desktop entry specificiation.

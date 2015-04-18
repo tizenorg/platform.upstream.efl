@@ -2,6 +2,7 @@
 #define ELDBUS_SIGNAL_HANDLER_H 1
 
 /**
+ * @internal
  * @defgroup Eldbus_Signal_Handler Signal Handler
  * @ingroup Eldbus
  *

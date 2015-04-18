@@ -1,4 +1,5 @@
 /**
+ * @internal
  * @ingroup Eldbus_Message
  * @defgroup Eldbus_Message_Helpers Message Helpers
  *

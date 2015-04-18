@@ -88,6 +88,7 @@ extern "C" {
  * @ref Ector_Tutorial
  *
  *
+ * @internal
  * @addtogroup Ector
  * @{
  */

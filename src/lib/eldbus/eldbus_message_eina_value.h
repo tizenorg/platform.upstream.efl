@@ -1,4 +1,5 @@
 /**
+ * @internal
  * @ingroup Eldbus_Message
  * @defgroup Eina_Value Eina_Value to/from Message
  * @{

@@ -19,6 +19,7 @@
 #include <Ecore.h>
 
 /**
+ * @internal
  * @file Eeze_Disk.h
  * @brief Disk manipulation
  * @since 1.1

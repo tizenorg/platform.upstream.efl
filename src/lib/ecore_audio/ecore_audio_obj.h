@@ -29,6 +29,7 @@ extern "C"
 #endif
 
 /**
+ * @internal
  * @defgroup ecore_audio_obj - Base Ecore_Audio object
  * @ingroup Ecore_Audio_Group
  * @{

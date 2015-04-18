@@ -181,6 +181,7 @@ typedef struct _Eet_Version
 EAPI extern Eet_Version *eet_version;
 
 /**
+ * @internal
  * @defgroup Eet_Group Top level functions
  * @ingroup Eet
  * Functions that affect Eet as a whole.
@@ -220,6 +221,7 @@ typedef enum _Eet_Error
  */
 
 /**
+ * @internal
  * @defgroup Eet_Compression Eet Compression Levels
  * @ingroup Eet
  * Compression modes/levels supported by Eet.
@@ -305,6 +307,7 @@ EAPI void
 eet_clearcache(void);
 
 /**
+ * @internal
  * @defgroup Eet_File_Group Eet File Main Functions
  * @ingroup Eet
  *
@@ -947,6 +950,7 @@ EAPI int
 eet_num_entries(Eet_File *ef);
 
 /**
+ * @internal
  * @defgroup Eet_File_Cipher_Group Eet File Ciphered Main Functions
  *
  * Most of the @ref Eet_File_Group have alternative versions that
@@ -1024,6 +1028,7 @@ eet_write_cipher(Eet_File *ef,
                  const char *cipher_key);
 
 /**
+ * @internal
  * @defgroup Eet_File_Image_Group Image Store and Load
  * @ingroup Eet
  *
@@ -1402,6 +1407,7 @@ eet_data_image_encode(const void *data,
                       Eet_Image_Encoding lossy);
 
 /**
+ * @internal
  * @defgroup Eet_File_Image_Cipher_Group Image Store and Load using a Cipher
  *
  * Most of the @ref Eet_File_Image_Group have alternative versions
@@ -1959,6 +1965,7 @@ eet_data_image_encode_cipher(const void *data,
                              int *size_ret);
 
 /**
+ * @internal
  * @defgroup Eet_Cipher_Group Cipher, Identity and Protection Mechanisms
  * @ingroup Eet
  *
@@ -2147,6 +2154,7 @@ eet_identity_certificate_print(const unsigned char *certificate,
                                FILE *out);
 
 /**
+ * @internal
  * @defgroup Eet_Data_Group Eet Data Serialization
  * @ingroup Eet
  *
@@ -2563,6 +2571,7 @@ eet_identity_certificate_print(const unsigned char *certificate,
  */
 
 /**
+ * @internal
  * @addtogroup Eet_Data_Group
  * @{
  */
@@ -3837,6 +3846,7 @@ eet_data_descriptor_encode(Eet_Data_Descriptor *edd,
                                   NULL,                                       \
                                   NULL)
 /**
+ * @internal
  * @defgroup Eet_Data_Cipher_Group Eet Data Serialization using A Ciphers
  *
  * Most of the @ref Eet_Data_Group have alternative versions that
@@ -4217,6 +4227,7 @@ eet_data_descriptor_encode_cipher(Eet_Data_Descriptor *edd,
                                   int *size_ret);
 
 /**
+ * @internal
  * @defgroup Eet_Node_Group Low-level Serialization Structures.
  * @ingroup Eet
  *
@@ -4682,6 +4693,7 @@ eet_node_walk(void *parent,
 /*******/
 
 /**
+ * @internal
  * @defgroup Eet_Connection_Group Helper function to use eet over a network link
  * @ingroup Eet
  *

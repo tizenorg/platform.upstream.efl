@@ -95,6 +95,7 @@ extern "C" {
 
  *
  *
+ * @internal
  * @addtogroup Eo
  * @{
  */
@@ -156,6 +157,7 @@ enum _Eo_Op_Type
 typedef enum _Eo_Op_Type Eo_Op_Type;
 
 /**
+ * @internal
  * @addtogroup Eo_Debug_Information Eo's Debug information helper.
  * @{
  */
@@ -245,6 +247,7 @@ typedef unsigned int Eo_Op;
 #define EO_NOOP ((Eo_Op) 0)
 
 /**
+ * @internal
  * @addtogroup Eo_Events Eo's Event Handling
  * @{
  */
@@ -294,6 +297,7 @@ typedef struct _Eo_Event_Description Eo_Event_Description;
  */
 
 /**
+ * @internal
  * @addtogroup Eo_Class Eo Class
  * @{
  */
@@ -873,6 +877,7 @@ EAPI Eina_Bool eo_manual_free(Eo *obj);
 EAPI Eina_Bool eo_destructed_is(const Eo *obj);
 
 /**
+ * @internal
  * @addtogroup Eo_Class_Class Eo's Class class.
  * @{
  */
@@ -884,6 +889,7 @@ EAPI Eina_Bool eo_destructed_is(const Eo *obj);
  */
 
 /**
+ * @internal
  * @addtogroup Eo_Class_Base Eo's Base class.
  * @{
  */
@@ -942,6 +948,7 @@ typedef void (*eo_key_data_free_func)(void *);
 #define eo_wref_del_safe(wref) eo_weak_unref(wref)
 
 /**
+ * @internal
  * @addtogroup Eo_Events Eo's Event Handling
  * @{
  */

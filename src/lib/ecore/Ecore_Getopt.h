@@ -31,6 +31,7 @@
 #endif /* ! _WIN32 */
 
 /**
+ * @internal
  * @defgroup Ecore_Getopt_Group Ecore Getopt
  * @ingroup Ecore
  *

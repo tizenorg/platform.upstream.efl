@@ -29,6 +29,7 @@ extern "C"
 #endif
 
 /**
+ * @internal
  * @defgroup ecore_audio_obj_out_pulse - Ecore_Audio pulseaudio output
  * @ingroup Ecore_Audio_Group
  * @{

@@ -2,6 +2,7 @@
 #define ELDBUS_SERVICE_H 1
 
 /**
+ * @internal
  * @defgroup Eldbus_Service Service
  * @ingroup Eldbus
  *

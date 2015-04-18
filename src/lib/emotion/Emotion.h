@@ -289,6 +289,7 @@ extern "C" {
 /* api calls available */
 
 /**
+ * @internal
  * @brief How to create, initialize, manipulate and connect to signals of an
  * Emotion object.
  * @defgroup Emotion_API API available for manipulating Emotion object.
@@ -344,26 +345,32 @@ extern "C" {
  */
 
 /**
+ * @internal
  * @defgroup Emotion_Init Creation and initialization functions
  */
 
 /**
+ * @internal
  * @defgroup Emotion_Audio Audio control functions
  */
 
 /**
+ * @internal
  * @defgroup Emotion_Video Video control functions
  */
 
 /**
+ * @internal
  * @defgroup Emotion_Visualization Visualization control functions
  */
 
 /**
+ * @internal
  * @defgroup Emotion_Info Miscellaneous information retrieval functions
  */
 
 /**
+ * @internal
  * @defgroup Emotion_Ressource Video ressource management
  */
 
@@ -596,6 +603,7 @@ EAPI Eina_Bool    emotion_object_file_set              (Evas_Object *obj, const 
  */
 EAPI const char  *emotion_object_file_get              (const Evas_Object *obj);
 /**
+ * @internal
  * @defgroup Emotion_Play Play control functions
  * @ingroup Emotion
  *
@@ -1297,6 +1305,7 @@ EAPI Eina_Bool    emotion_object_extension_may_play_get(const char *file);
 EAPI Evas_Object *emotion_object_image_get(const Evas_Object *obj);
 
 /**
+ * @internal
  * @defgroup Emotion_Webcam API available for accessing webcam
  * @ingroup Emotion
  */

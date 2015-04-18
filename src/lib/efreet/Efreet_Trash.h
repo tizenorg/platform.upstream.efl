@@ -32,6 +32,7 @@ extern "C" {
 #endif
 
 /**
+ * @internal
  * @file Efreet_Trash.h
  * @brief Contains the methods used to support the FDO trash specification.
  * @addtogroup Efreet_Trash Efreet_Trash: The XDG Trash Specification

@@ -30,6 +30,7 @@
 #endif
 
 /**
+ * @internal
  * @defgroup Ecore_IPC_Group Ecore_IPC - Ecore inter-process communication functions.
  * @ingroup Ecore
  *

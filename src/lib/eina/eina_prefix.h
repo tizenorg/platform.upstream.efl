@@ -2,6 +2,7 @@
 #define EINA_PREFIX_H_
 
 /**
+ * @internal
  * @defgroup Eina_Prefix_Group Prefix
  * @ingroup Eina_Tools_Group
  *

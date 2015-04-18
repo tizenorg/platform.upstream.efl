@@ -457,6 +457,7 @@ extern "C" {
 #endif
 
    /**
+    * @internal
     * @defgroup Embryo_Library_Group Library Maintenance Functions
     * @ingroup Embryo
     *
@@ -481,6 +482,7 @@ EAPI int              embryo_init(void);
 EAPI int              embryo_shutdown(void);
 
    /**
+    * @internal
     * @defgroup Embryo_Program_Creation_Group Program Creation and Destruction Functions
     * @ingroup Embryo
     *
@@ -531,6 +533,7 @@ EAPI void             embryo_program_free(Embryo_Program *ep);
  */
 
 /**
+ * @internal
  * @defgroup Embryo_Func_Group Function Functions
  * @ingroup Embryo
  *
@@ -545,6 +548,7 @@ EAPI void             embryo_program_native_call_add(Embryo_Program *ep, const c
  */
 
 /**
+ * @internal
  * @defgroup Embryo_Program_VM_Group Virtual Machine Functions
  * @ingroup Embryo
  *
@@ -595,6 +599,7 @@ EAPI void             embryo_program_vm_pop(Embryo_Program *ep);
  */
 
 /**
+ * @internal
  * @defgroup Embryo_Swap_Group Byte Swapping Functions
  * @ingroup Embryo
  *
@@ -633,6 +638,7 @@ EAPI Embryo_Function  embryo_program_function_find(Embryo_Program *ep, const cha
  */
 
 /**
+ * @internal
  * @defgroup Embryo_Public_Variable_Group Public Variable Access Functions
  * @ingroup Embryo
  *
@@ -669,6 +675,7 @@ EAPI Embryo_Cell      embryo_program_variable_get(Embryo_Program *ep, int num);
  */
 
 /**
+ * @internal
  * @defgroup Embryo_Error_Group Error Functions
  * @ingroup Embryo
  *
@@ -692,6 +699,7 @@ EAPI Embryo_Error     embryo_program_error_get(Embryo_Program *ep);
  */
 
 /**
+ * @internal
  * @defgroup Embryo_Program_Data_Group Program Data Functions
  * @ingroup Embryo
  *
@@ -725,6 +733,7 @@ EAPI const char      *embryo_error_string_get(Embryo_Error error);
  */
 
 /**
+ * @internal
  * @defgroup Embryo_Data_String_Group Embryo Data String Functions
  * @ingroup Embryo
  *
@@ -772,6 +781,7 @@ EAPI Embryo_Cell     *embryo_data_address_get(Embryo_Program *ep, Embryo_Cell ad
  */
 
 /**
+ * @internal
  * @defgroup Embryo_Heap_Group Heap Functions
  * @ingroup Embryo
  *
@@ -798,6 +808,7 @@ EAPI void             embryo_data_heap_pop(Embryo_Program *ep, Embryo_Cell down_
  */
 
 /**
+ * @internal
  * @defgroup Embryo_Run_Group Program Run Functions
  * @ingroup Embryo
  *
@@ -910,6 +921,7 @@ EAPI int              embryo_program_max_cycle_run_get(Embryo_Program *ep);
  */
 
 /**
+ * @internal
  * @defgroup Embryo_Parameter_Group Function Parameter Functions
  * @ingroup Embryo
  *

@@ -2,6 +2,7 @@
 #define EFREET_MIME_H
 
 /**
+ * @internal
  * @file Efreet_Mime.h
  * @brief The file that must be included by any project wishing to use
  * @addtogroup Efreet_Mime Efreet_Mime: The XDG Shared Mime Info standard

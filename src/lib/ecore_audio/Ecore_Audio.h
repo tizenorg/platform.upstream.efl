@@ -29,6 +29,7 @@ extern "C"
 #endif
 
 /**
+ * @internal
  * @defgroup Ecore_Audio_Group Ecore_Audio - Convenience audio API
  * @ingroup Ecore
 

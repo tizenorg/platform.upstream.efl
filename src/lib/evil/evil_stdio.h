@@ -3,6 +3,7 @@
 
 
 /**
+ * @internal
  * @file evil_stdio.h
  * @brief The file that provides functions ported from Unix in stdio.h.
  * @defgroup Evil_Stdio_Group Stdio.h functions

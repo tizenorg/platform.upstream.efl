@@ -3,6 +3,7 @@
 
 
 /**
+ * @internal
  * @file evil_main.h
  * @brief The file that provides functions to initialize and shut down Evil.
  * @defgroup Evil_Main_Group Main

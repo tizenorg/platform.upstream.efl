@@ -24,6 +24,7 @@
  */
 
 /**
+ * @internal
  * @defgroup Eina_Quad Quadrangles
  * @ingroup Eina_Basic
  * @brief Quadrangles operations

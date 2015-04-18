@@ -22,6 +22,7 @@
 
 
 /**
+ * @internal
  * @file evil_inet.h
  * @brief The file that provides functions ported from Unix in arpa/inet.h.
  * @defgroup Evil_Inet_Group Inet.h functions

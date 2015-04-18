@@ -1,5 +1,20 @@
 /**
- * @mainpage Enlightenment Foundation Libraries (EFL)
+ * @defgroup EFL
+ * @ingroup CAPI_UI_FRAMEWORK
+ *
+ * @brief EFL is a collection of libraries that are independent or may build
+ *       on top of each-other to provide useful features that complement
+ *       an OS's existing environment, rather than wrap and abstract it,
+ *       trying to be their own environment and OS in its entirety.
+ *
+ * This means that it expects you to use other system libraries and API's in
+ * conjunction with EFL libraries, to provide a whole working application or
+ * library, simply using EFL as a set of convenient pre-made libraries to
+ * accomplish a whole host of complex or painful tasks for you.
+ *
+ * See @ref EFL for more details.
+ *
+ * @page EFL
  *
  * The Enlightenment Project covers more than simple window management. It
  * also includes the EFL, or Enlightenment Foundation Libraries: a framework
@@ -8,10 +23,12 @@
  *
  * @li @ref ecore_main operating system abstraction and integration.
  * @li @ref edje_main layout and theme library with super powers.
+ * @li @ref eina_main data types and low-level/basic abstractions.
+ * @li @ref evas_main drawing canvas.
+ * @internal
  * @li @ref eet_main binary data parser and serializer.
  * @li @ref eeze_main hardware device manipulation and notification.
  * @li @ref efreet_main freedesktop.org (xdg) menu and desktop integration.
- * @li @ref eina_main data types and low-level/basic abstractions.
  * @li @ref eio_main asynchronous input/output
  * @li @ref eldbus_main D-Bus integration.
  * @li @ref embryo_main embedded script language.
@@ -20,12 +37,11 @@
  * @li @ref ephysics_main physics simulation integration and visual effects.
  * @li @ref escape_main playstation3 portability layer.
  * @li @ref ethumb_main to generate thumbnail images of files.
- * @li @ref evas_main drawing canvas.
  * @li @ref evil_main microsoft windows portability layer.
  * @li @ref eolian_main an EO file parser and code generator.
  * @li @ref eina_cxx_main Eina C++ bindings.
  * @li @ref Location awareness library.
- *
+ * @endinternal
  */
 
 /**
@@ -153,97 +169,125 @@
  */
 
 /**
+ * @internal
  * @defgroup Eo
+ * @ingroup EFL
  *
  * @brief Generic object system.
  */
 
 /**
  * @defgroup Evas
+ * @ingroup EFL
  *
  * @brief Drawing canvas.
  */
 
 /**
+ * @internal
  * @defgroup Eet
+ * @ingroup EFL
  *
  * @brief Binary data parser and serializer.
  */
 
 /**
  * @defgroup Eina
+ * @ingroup EFL
  *
  * @brief Data types and low-level/basic abstractions.
  */
 
 /**
+ * @internal
  * @defgroup Embryo
+ * @ingroup EFL
  *
  * @brief Embedded script language.
  */
 
 /**
+ * @internal
  * @defgroup Evil
+ * @ingroup EFL
  *
  * @brief Microsoft Windows portability layer.
  */
 
 /**
+ * @internal
  * @defgroup Escape
+ * @ingroup EFL
  *
  * @brief PlayStation3 portability layer.
  */
 
 /**
  * @defgroup Ecore
+ * @ingroup EFL
  *
  * @brief Operating System Abstraction and Integration.
  */
 
 /**
+ * @internal
  * @defgroup Eio
+ * @ingroup EFL
  *
  * @brief Asynchronous input/output and file manipulation.
  */
 
 /**
+ * @internal
  * @defgroup Eldbus
+ * @ingroup EFL
  *
  * @brief D-Bus integration with EFL (Ecore).
  */
 
 /**
+ * @internal
  * @defgroup Efreet
+ * @ingroup EFL
  *
  * @brief FreeDesktop.Org (XDG) menu and desktop integration.
  */
 
 /**
+ * @internal
  * @defgroup Eeze
+ * @ingroup EFL
  *
  * @brief Hardware device manipulation and notification, wraps UDev and similar.
  */
 
 /**
  * @defgroup Edje
+ * @ingroup EFL
  *
  * @brief Layout and theme library with super-powers.
  */
 
 /**
+ * @internal
  * @defgroup Emotion
+ * @ingroup EFL
  *
  * @brief Plays music and videos.
  */
 
 /**
+ * @internal
  * @defgroup Ethumb
+ * @ingroup EFL
  *
  * @brief Generates thumbnail images of files.
  */
 
- /**
+/**
+ * @internal
  * @defgroup EPhysics
+ * @ingroup EFL
  *
  * @brief Physics simulation integration and visual effects.
  */

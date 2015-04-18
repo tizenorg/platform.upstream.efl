@@ -1,6 +1,7 @@
 #ifndef EFREET_BASE_H
 #define EFREET_BASE_H
 /**
+ * @internal
  * @file efreet_base.h
  * @brief Contains the methods used to support the FDO base directory
  * specification.

@@ -32,6 +32,7 @@
  * @{
  */
 /**
+ * @internal
  * @addtogroup Eina_File_Group File
  *
  * @brief Functions to handle files and directories.

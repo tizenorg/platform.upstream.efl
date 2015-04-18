@@ -63,6 +63,7 @@ extern int _ecore_audio_log_dom;
 #define CRI(...) EINA_LOG_DOM_CRIT(_ecore_audio_log_dom, __VA_ARGS__)
 
 /**
+ * @internal
  * @defgroup Ecore_Audio_Module_API_Group Ecore_Audio_Module_API - API for modules
  * @ingroup Ecore_Audio_Group
  *

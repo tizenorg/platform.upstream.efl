@@ -111,6 +111,7 @@ extern "C" {
 #endif
 
 /**
+ * @internal
  * @defgroup Eldbus_Core Core
  * @ingroup Eldbus
  *

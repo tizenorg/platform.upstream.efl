@@ -28,6 +28,7 @@ extern "C" {
 
 
 /**
+ * @internal
  * @file dlfcn.h
  * @brief The file that provides functions to manage dynamic-link libraries
  * @defgroup Evil_Dlfcn Functions that manage dynamic-link libraries.

@@ -2,6 +2,7 @@
 #define EFREET_URI_H
 
 /**
+ * @internal
  * @file efreet_uri.h
  * @brief Contains the methods used to support the FDO URI specification.
  * @addtogroup Efreet_Uri Efreet_Uri: The FDO URI Specification functions

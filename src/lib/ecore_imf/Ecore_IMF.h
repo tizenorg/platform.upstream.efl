@@ -34,6 +34,7 @@ extern "C" {
 #endif
 
 /**
+ * @internal
  * @defgroup Ecore_IMF_Lib_Group Ecore_IMF - Ecore Input Method Library Functions
  * @ingroup Ecore
  *
@@ -42,6 +43,7 @@ extern "C" {
  */
 
 /**
+ * @internal
  * @defgroup Ecore_IMF_Context_Group Ecore Input Method Context Functions
  * @ingroup Ecore_IMF_Lib_Group
  *
@@ -67,6 +69,7 @@ extern "C" {
  */
 
 /**
+ * @internal
  * @addtogroup Ecore_IMF_Context_Group
  *
  * @{
@@ -1213,6 +1216,7 @@ EAPI Eina_Bool                     ecore_imf_context_filter_event(Ecore_IMF_Cont
 /* plugin specific functions */
 
 /**
+ * @internal
  * @defgroup Ecore_IMF_Context_Module_Group Ecore Input Method Context Module Functions
  * @ingroup Ecore_IMF_Lib_Group
  *

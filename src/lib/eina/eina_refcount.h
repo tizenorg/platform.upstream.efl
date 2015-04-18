@@ -20,6 +20,7 @@
 #define EINA_REFCOUNT_H_
 
 /**
+ * @internal
  * @addtogroup Eina_Refcount References counting
  *
  * @brief Small macro that simplify references counting.
@@ -32,12 +33,14 @@
  */
 
 /**
+ * @internaol
  * @addtogroup Eina_Data_Types_Group Data Types
  *
  * @{
  */
 
 /**
+ * @internal
  * @defgroup Eina_Refcount References counting
  *
  * @{

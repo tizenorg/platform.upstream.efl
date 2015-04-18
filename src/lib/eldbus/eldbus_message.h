@@ -2,6 +2,7 @@
 #define ELDBUS_MESSAGE_H 1
 
 /**
+ * @internal
  * @defgroup Eldbus_Message Message
  * @ingroup Eldbus
  *
@@ -187,6 +188,7 @@ EAPI Eina_Bool             eldbus_message_arguments_append(Eldbus_Message *msg, 
 EAPI Eina_Bool             eldbus_message_arguments_vappend(Eldbus_Message *msg, const char *signature, va_list ap) EINA_ARG_NONNULL(1, 2);
 
 /**
+ * @internal
  * @defgroup Eldbus_Message_Iter Iterator
  * @{
  */

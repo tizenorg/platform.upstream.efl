@@ -267,6 +267,7 @@
  */
 
 /**
+ * @internal
  * @defgroup Eina_Model_Group Data Model API
  *
  * Abstracts data access to hierarchical data in an efficient way,
@@ -508,6 +509,7 @@ EAPI void eina_model_xunref(Eina_Model *model,
 
 
 /**
+ * @internal
  * @defgroup Eina_Model_Event_Group Data Model Events
  * Events and their usage with models.
  *
@@ -748,6 +750,7 @@ EAPI Eina_Bool eina_model_unload(Eina_Model *model) EINA_ARG_NONNULL(1);
 
 
 /**
+ * @internal
  * @defgroup Eina_Model_Properties_Group Data Model Properties
  * Properties and their usage with models.
  *
@@ -835,6 +838,7 @@ EAPI void eina_model_properties_names_list_free(Eina_List *list);
  */
 
 /**
+ * @internal
  * @defgroup Eina_Model_Children_Group Data Model Children
  * Children and their usage with models.
  *
@@ -1005,6 +1009,7 @@ EAPI Eina_Bool eina_model_child_sort(Eina_Model *model,
  */
 
 /**
+ * @internal
  * @defgroup Eina_Model_Iterators_Group Data Model Iterators
  * Iterators and their usage with models.
  *
@@ -1273,6 +1278,7 @@ EAPI Eina_Iterator *eina_model_child_slice_filtered_iterator_get(Eina_Model *mod
 EAPI char *eina_model_to_string(const Eina_Model *model) EINA_ARG_NONNULL(1) EINA_WARN_UNUSED_RESULT EINA_MALLOC;
 
 /**
+ * @internal
  * @defgroup Eina_Model_Type_Group Data Model Type management
  *
  * Functions and structures related to implementing new types or
@@ -2819,6 +2825,7 @@ EAPI void eina_model_interface_children_sort(const Eina_Model_Interface *iface,
  */
 
 /**
+ * @internal
  * @defgroup Eina_Model_Utils_Group Data Model Utilities
  *
  * Miscellaneous utilities to help usage or debug of @ref Eina_Model_Group.

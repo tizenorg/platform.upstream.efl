@@ -24,6 +24,7 @@
 #include "eina_types.h"
 
 /**
+ * @internal
  * @addtogroup Eina_Main_Group Main
  *
  * @brief These functions provide general initialisation and shut down
@@ -37,6 +38,7 @@
  */
 
 /**
+ * @internal
  * @defgroup Eina_Main_Group Main
  *
  * @{

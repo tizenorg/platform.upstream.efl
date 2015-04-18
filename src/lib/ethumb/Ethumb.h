@@ -116,11 +116,13 @@ extern "C" {
  */
 
 /**
+ * @internal
  * @defgroup Ethumb Ethumb
  *
  * @{
  */
 /**
+ * @internal
  * @defgroup Ethumb_Basics Ethumb Basics
  *
  * Functions that all users must know of to use Ethumb.
@@ -171,6 +173,7 @@ EAPI void ethumb_free(Ethumb *e);
  */
 
 /**
+ * @internal
  * @defgroup Ethumb_Setup Ethumb Fine Tune Setup
  *
  * How to fine tune thumbnail generation, setting size, aspect,
@@ -492,6 +495,7 @@ EAPI unsigned int ethumb_document_page_get(const Ethumb *e) EINA_WARN_UNUSED_RES
  */
 
 /**
+ * @internal
  * @addtogroup Ethumb_Basics Ethumb Basics
  * @{
  */

@@ -19,6 +19,7 @@
 #include <Ecore.h>
 
 /**
+ * @internal
  * @file Eeze_Net.h
  * @brief Network manipulation
  *

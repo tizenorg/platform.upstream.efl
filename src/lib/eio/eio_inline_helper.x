@@ -23,6 +23,7 @@
 # define EIO_INLINE_HELPER_H__
 
 /**
+ * @internal
  * @addtogroup Eio_Helper
  *
  * @{

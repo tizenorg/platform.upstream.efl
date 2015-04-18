@@ -2,6 +2,7 @@
 #define ELDBUS_PENDING_H 1
 
 /**
+ * @internal
  * @defgroup Eldbus_Pending Pending
  * @ingroup Eldbus
  *

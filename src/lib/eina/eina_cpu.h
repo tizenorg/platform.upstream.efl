@@ -20,6 +20,7 @@
 #define EINA_CPU_H_
 
 /**
+ * @internal
  * @addtogroup Eina_Cpu_Group Cpu
  *
  * @brief Cpu and architecture related helpers
@@ -32,6 +33,7 @@
  */
 
 /**
+ * @internal
  * @defgroup Eina_Cpu_Group Cpu
  *
  * @{

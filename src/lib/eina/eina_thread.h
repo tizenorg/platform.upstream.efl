@@ -32,6 +32,7 @@
  */
 
 /**
+ * @internal
  * @defgroup Eina_Thread_Group Thread
  *
  * Abstracts platform threads, providing an uniform API. It's modeled

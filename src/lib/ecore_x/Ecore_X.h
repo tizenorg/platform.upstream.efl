@@ -48,6 +48,7 @@ EAPI extern Ecore_X_Version *ecore_x_version;
 #include <sys/types.h>
 
 /**
+ * @internal
  * @file
  * @brief Ecore functions for dealing with the X Windows System
  *

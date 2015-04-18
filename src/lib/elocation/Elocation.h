@@ -1,4 +1,5 @@
 /**
+ * @internal
  * @file Elocation.h
  * @brief Elocation Library
  *

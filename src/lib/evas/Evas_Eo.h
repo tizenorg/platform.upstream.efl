@@ -160,6 +160,7 @@ EAPI extern const Eo_Event_Description _EVAS_CANVAS_EVENT_AXIS_UPDATE;
 
 
  /**
+ * @internal
  * @defgroup Evas_3D Evas 3D Extensions
  *
  * Evas extension to support 3D rendering.
@@ -214,6 +215,7 @@ EAPI extern const Eo_Event_Description _EVAS_CANVAS_EVENT_AXIS_UPDATE;
  */
 
 /**
+ * @internal
  * @defgroup Evas_3D_Types Types & Enums
  * @ingroup Evas_3D
  *
@@ -221,6 +223,7 @@ EAPI extern const Eo_Event_Description _EVAS_CANVAS_EVENT_AXIS_UPDATE;
  */
 
 /**
+ * @internal
  * @defgroup Evas_3D_Object Generic 3D Object Descriptions
  * @ingroup Evas_3D
  *
@@ -239,6 +242,7 @@ EAPI extern const Eo_Event_Description _EVAS_CANVAS_EVENT_AXIS_UPDATE;
  */
 
 /**
+ * @internal
  * @defgroup Evas_3D_Scene Scene Object
  * @ingroup Evas_3D
  *
@@ -248,6 +252,7 @@ EAPI extern const Eo_Event_Description _EVAS_CANVAS_EVENT_AXIS_UPDATE;
  */
 
 /**
+ * @internal
  * @defgroup Evas_3D_Node Node Object
  * @ingroup Evas_3D
  *
@@ -258,6 +263,7 @@ EAPI extern const Eo_Event_Description _EVAS_CANVAS_EVENT_AXIS_UPDATE;
  */
 
 /**
+ * @internal
  * @defgroup Evas_3D_Camera Camera Object
  * @ingroup Evas_3D
  *
@@ -275,6 +281,7 @@ EAPI extern const Eo_Event_Description _EVAS_CANVAS_EVENT_AXIS_UPDATE;
  */
 
 /**
+ * @internal
  * @defgroup Evas_3D_Light Light Object
  * @ingroup Evas_3D
  *
@@ -286,6 +293,7 @@ EAPI extern const Eo_Event_Description _EVAS_CANVAS_EVENT_AXIS_UPDATE;
  */
 
 /**
+ * @internal
  * @defgroup Evas_3D_Mesh Mesh Object
  * @ingroup Evas_3D
  *
@@ -302,6 +310,7 @@ EAPI extern const Eo_Event_Description _EVAS_CANVAS_EVENT_AXIS_UPDATE;
  */
 
 /**
+ * @internal
  * @defgroup Evas_3D_Texture Texture Object
  * @ingroup Evas_3D
  *
@@ -312,6 +321,7 @@ EAPI extern const Eo_Event_Description _EVAS_CANVAS_EVENT_AXIS_UPDATE;
  */
 
 /**
+ * @internal
  * @defgroup Evas_3D_Material Material Object
  * @ingroup Evas_3D
  *

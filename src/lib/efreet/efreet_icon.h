@@ -2,6 +2,7 @@
 #define EFREET_ICON_H
 
 /**
+ * @internal
  * @file efreet_icon.h
  * @brief Contains the structures and methods used to support the FDO icon
  * theme specificiation.

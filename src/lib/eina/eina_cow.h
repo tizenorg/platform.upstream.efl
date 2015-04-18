@@ -27,6 +27,7 @@
  */
 
 /**
+ * @internal
  * @defgroup Eina_Cow_Group Copy On Write
  *
  * @brief These functions provide some helper for a pseudo Copy On Write mechanism.

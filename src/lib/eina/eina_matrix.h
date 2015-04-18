@@ -28,6 +28,7 @@
  */
 
 /**
+ * @internal
  * @defgroup Eina_Matrix_Type Matrices type
  * @ingroup Eina_Basic
  * @brief Matrix3 types
@@ -43,6 +44,7 @@ typedef enum _Eina_Matrix_Type
 
 /**
  * @}
+ * @internal
  * @defgroup Eina_Matrix3_F16p16 Matrices in fixed point
  * @ingroup Eina_Basic
  * @brief Fixed point matrices operations
@@ -96,6 +98,7 @@ EAPI Eina_Matrix_Type eina_matrix3_f16p16_type_get(const Eina_Matrix3_F16p16 *m)
 
 /**
  * @}
+ * @internal
  * @defgroup Eina_Matrix3 Matrices in floating point
  * @ingroup Eina_Basic
  * @brief Matrix definition and operations

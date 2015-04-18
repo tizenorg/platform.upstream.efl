@@ -23,6 +23,7 @@
 #include "eina_value.h"
 
 /**
+ * @internal
  * @addtogroup Eina_Value
  *
  * @{

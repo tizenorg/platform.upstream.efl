@@ -25,6 +25,7 @@
 #include "eina_main.h"
 
 /**
+ * @internal
  * @defgroup Eina_Lock_Group Lock
  * @ingroup Eina_Tools_Group
  * @brief This group provides thread locking and synchronization capabilities.

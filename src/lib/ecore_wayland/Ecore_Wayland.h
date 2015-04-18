@@ -242,6 +242,7 @@ struct _Ecore_Wl_Event_Interfaces_Bound
 };
 
 /**
+ * @internal
  * @file
  * @brief Ecore functions for dealing with the Wayland window system
  *
@@ -281,6 +282,7 @@ EAPI extern int ECORE_WL_EVENT_SELECTION_DATA_READY; /** @since 1.7 */
 EAPI extern int ECORE_WL_EVENT_INTERFACES_BOUND;
 
 /**
+ * @internal
  * @defgroup Ecore_Wl_Init_Group Wayland Library Init and Shutdown Functions
  * @ingroup Ecore_Wl_Group
  *
@@ -313,6 +315,7 @@ EAPI int ecore_wl_init(const char *name);
 EAPI int ecore_wl_shutdown(void);
 
 /**
+ * @internal
  * @defgroup Ecore_Wl_Flush_Group Wayland Synchronization Functions
  * @ingroup Ecore_Wl_Group
  *
@@ -338,6 +341,7 @@ EAPI void ecore_wl_flush(void);
 EAPI void ecore_wl_sync(void);
 
 /**
+ * @internal
  * @defgroup Ecore_Wl_Display_Group Wayland Display Functions
  * @ingroup Ecore_Wl_Group
  *
@@ -417,6 +421,7 @@ EAPI Eina_Bool ecore_wl_animator_source_set(Ecore_Animator_Source source);
 EAPI struct wl_cursor *ecore_wl_cursor_get(const char *cursor_name);
 
 /**
+ * @internal
  * @defgroup Ecore_Wl_Input_Group Functions dealing with Wayland Input
  * @ingroup Ecore_Wl_Group
  *
@@ -474,6 +479,7 @@ EAPI Eina_Inlist *ecore_wl_globals_get(void);
 EAPI struct wl_registry *ecore_wl_registry_get(void);
 
 /**
+ * @internal
  * @defgroup Ecore_Wl_Window_Group Wayland Window functions.
  * @ingroup Ecore_Wl_Group
  *
@@ -693,6 +699,7 @@ EAPI void ecore_wl_window_rotation_set(Ecore_Wl_Window *win, int rotation);
 EAPI int ecore_wl_window_rotation_get(Ecore_Wl_Window *win);
 
 /**
+ * @internal
  * @defgroup Ecore_Wl_Dnd_Group Functions dealing with Wayland Drag-n-Drop
  * @ingroup Ecore_Wl_Group
  *
@@ -792,6 +799,7 @@ EAPI struct wl_array *ecore_wl_dnd_drag_types_get(Ecore_Wl_Input *input);
 EAPI void ecore_wl_server_mode_set(Eina_Bool on);
 
 /**
+ * @internal
  * @defgroup Ecore_Wl_Subsurf Functions to manipulate subsurfaces.
  * @ingroup Ecore_Wl_Group
  *

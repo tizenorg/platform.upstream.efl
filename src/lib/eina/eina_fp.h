@@ -21,6 +21,7 @@
 # define EINA_FP_H_
 
 /**
+ * @internal
  * @addtogroup Eina_Fp_Group Fp
  *
  * @brief Floating point numbers data type management.
@@ -33,6 +34,7 @@
  */
 
 /**
+ * @internal
  * @defgroup Eina_Fp_Group Fp
  *
  * @{

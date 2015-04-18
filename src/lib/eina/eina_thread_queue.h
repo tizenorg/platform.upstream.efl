@@ -2,6 +2,7 @@
 #define EINA_THREAD_QUEUE_H_
 
 /**
+ * @internal
  * @addtogroup Eina_Thread_Queue_Group Thread Queue Group
  * @ingroup Eina
  *

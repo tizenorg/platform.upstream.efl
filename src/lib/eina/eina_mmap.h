@@ -2,6 +2,7 @@
 #define EINA_MMAP_H_
 
 /**
+ * @internal
  * @addtogroup Eina_Mmap_Group Mmap Group
  * @ingroup Eina
  *

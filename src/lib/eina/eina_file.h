@@ -64,6 +64,7 @@
  */
 
 /**
+ * @internal
  * @defgroup Eina_File_Group File
  * @ingroup Eina_Tools_Group
  *

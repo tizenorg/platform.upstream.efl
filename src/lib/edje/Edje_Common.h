@@ -58,6 +58,7 @@ EAPI void *       edje_object_signal_callback_extra_data_get(void);
  */
 
 /**
+ * @internal
  * @defgroup Edje_General_Group Edje General
  * @ingroup Edje
  *
@@ -290,6 +291,7 @@ EAPI void         edje_collection_cache_flush     (void);
  */
 
 /**
+ * @internal
  * @defgroup Edje_External_Group Edje External
  * @ingroup Edje
  *
@@ -577,6 +579,7 @@ typedef struct _Edje_External_Type_Info Edje_External_Type_Info;
  */
 
 /**
+ * @internal
  * @defgroup Edje_External_Plugin_Development_Group Edje Development of External Plugins
  *
  * @brief Functions to register, unregister EXTERNAL types and develop the plugins.
@@ -2307,6 +2310,7 @@ EAPI const Edje_Perspective *edje_evas_global_perspective_get(const Evas *e);
  */
 
 /**
+ * @internal
  * @defgroup Edje_Audio Edje Audio
  *
  * @brief Functions to manipulate audio abilities in edje.

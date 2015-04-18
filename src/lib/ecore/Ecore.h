@@ -13,9 +13,11 @@
    @section toc Table of Contents
 
    @li @ref ecore_main_intro
-   @li @ref ecore_main_compiling
    @li @ref ecore_main_next_steps
+   @internal
+   @li @ref ecore_main_compiling
    @li @ref ecore_main_intro_example
+   @endinternal
 
    @section ecore_main_intro Introduction
 
@@ -23,16 +25,18 @@
    it can be found in @ref Ecore_Main_Loop_Page.
 
    The Ecore library provides the following modules:
-   @li @ref Ecore_Init_Group
-   @li @ref Ecore_Getopt_Group
    @li @ref Ecore_Main_Loop_Group
-   @li @ref Ecore_System_Events
    @li @ref Ecore_Time_Group
    @li @ref Ecore_Thread_Group
    @li @ref Ecore_Pipe_Group
+   @li @ref Ecore_Job_Group
+
+   @internal
+   @li @ref Ecore_Init_Group
+   @li @ref Ecore_Getopt_Group
+   @li @ref Ecore_System_Events
    @li @ref Ecore_Application_Group
    @li @ref Ecore_Throttle_Group
-   @li @ref Ecore_Job_Group
    @li @ref Ecore_File_Group
    @li @ref Ecore_Con_Group
    @li @ref Ecore_Evas_Group
@@ -46,8 +50,32 @@
    @li @ref Ecore_Avahi_Group
    @li @ref Ecore_Drm_Group
    @li @ref Ecore_Wl_Group
+   @endinternal
 
 
+
+   @section ecore_main_next_steps Next Steps
+
+   After you understood what Ecore is and installed it in your system
+   you should proceed understanding the programming interface. We'd
+   recommend you to take a while to learn @ref Eina as it is very
+   convenient and optimized, and Ecore uses it extensively.
+
+   Recommended reading:
+
+   @li @ref Ecore_Timer_Group
+   @li @ref Ecore_Idle_Group
+   @li @ref Ecore_FD_Handler_Group
+   @li @ref Ecore_Event_Group
+   @li @ref Ecore_Animator_Group
+   @li @ref Ecore_Poller_Group
+   @internal
+   @li @ref Ecore_Exe_Group
+   @endinternal
+
+ */
+
+/*
 
    For more info on Ecore usage, there are these @ref ecore_examples.
 
@@ -72,23 +100,6 @@
    @endverbatim
 
    See @ref pkgconfig
-
-   @section ecore_main_next_steps Next Steps
-
-   After you understood what Ecore is and installed it in your system
-   you should proceed understanding the programming interface. We'd
-   recommend you to take a while to learn @ref Eina as it is very
-   convenient and optimized, and Ecore uses it extensively.
-
-   Recommended reading:
-
-   @li @ref Ecore_Timer_Group
-   @li @ref Ecore_Idle_Group
-   @li @ref Ecore_FD_Handler_Group
-   @li @ref Ecore_Event_Group
-   @li @ref Ecore_Exe_Group
-   @li @ref Ecore_Animator_Group
-   @li @ref Ecore_Poller_Group
 
 
    @section ecore_main_intro_example Introductory Examples

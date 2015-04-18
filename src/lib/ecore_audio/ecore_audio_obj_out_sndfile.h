@@ -29,6 +29,7 @@ extern "C"
 #endif
 
 /**
+ * @internal
  * @defgroup ecore_audio_obj_out_sndfile - Ecore_Audio sndfile output
  * @ingroup Ecore_Audio_Group
  * @{

@@ -143,6 +143,7 @@ typedef struct _Ecore_Drm_Event_Activate Ecore_Drm_Event_Activate;
 EAPI extern int ECORE_DRM_EVENT_ACTIVATE;
 
 /**
+ * @internal
  * @file
  * @brief Ecore functions for dealing with drm, virtual terminals
  *

@@ -111,6 +111,7 @@
  */
 
 /**
+ * @internal
  * @defgroup Eeze_Main main
  * @ingroup Eeze
  *
@@ -118,6 +119,7 @@
  */
 
 /**
+ * @internal
  * @defgroup Eeze_Udev udev
  * @ingroup Eeze_Main
  *
@@ -125,6 +127,7 @@
  */
 
 /**
+ * @internal
  * @addtogroup Eeze_Udev
  *
  * These are the device subsystems of udev:
@@ -191,6 +194,7 @@ extern "C" {
 #endif
 
 /**
+ * @internal
  * @addtogroup Eeze_Udev
  * @typedef Eeze_Udev_Event
  * @enum Eeze_Udev_Event
@@ -218,6 +222,7 @@ typedef enum
 /** @} */
 
 /**
+ * @internal
  * @addtogroup Eeze_Udev udev
  * @typedef Eeze_Udev_Type Eeze_Udev_Type
  * @enum Eeze_Udev_Type
@@ -281,6 +286,7 @@ typedef enum
 struct Eeze_Udev_Watch;
 
 /**
+ * @internal
  * @addtogroup Eeze_Watch
  * @typedef Eeze_Udev_Watch Eeze_Udev_Watch
  * @brief Opaque structure to hold data for a udev watch
@@ -304,6 +310,7 @@ typedef struct Eeze_Udev_Watch Eeze_Udev_Watch;
    EAPI extern Eeze_Version *eeze_version;
 
 /**
+ * @internal
  * @addtogroup Eeze_Watch
  * @typedef Eeze_Udev_Watch_Cb Eeze_Udev_Watch_Cb
  * @brief Callback type for use with #Eeze_Udev_Watch
@@ -344,6 +351,7 @@ EAPI void           *eeze_udev_get(void);
 
 
    /**
+    * @internal
     * @addtogroup Eeze_Find Find
     *
     * These are functions which find/supplement lists of devices.
@@ -432,6 +440,7 @@ EAPI Eina_List       *eeze_udev_find_by_subsystem_sysname(const char *subsystem,
     */
 
    /**
+    * @internal
     * @addtogroup Eeze_Syspath Syspath
     *
     * These are functions which interact with the syspath (/sys/$PATH) of
@@ -622,6 +631,7 @@ EAPI int              eeze_udev_syspath_get_sysnum(const char *syspath);
     */
 
    /**
+    * @internal
     * @addtogroup Eeze_Walks Walks
     *
     * These are functions which walk up the device chain.
@@ -658,6 +668,7 @@ EAPI const char      *eeze_udev_walk_get_sysattr(const char *syspath, const char
     */
 
    /**
+    * @internal
     * @addtogroup Eeze_Watch Watch
     *
     * @brief These are functions which monitor udev for events.

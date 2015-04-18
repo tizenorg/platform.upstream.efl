@@ -954,6 +954,7 @@ typedef void      (*Evas_Object_Event_Cb)(void *data, Evas *e, Evas_Object *obj,
 typedef void      (*Evas_Async_Events_Put_Cb)(void *target, Evas_Callback_Type type, void *event_info); /**< Evas async callback function signature */
 
 /**
+ * @internal
  * @defgroup Evas_Main_Group Top Level Functions
  * @ingroup Evas
  *
@@ -1417,6 +1418,7 @@ EAPI void              evas_render_updates_free(Eina_List *updates);
  */
 
 /**
+ * @internal
  * @defgroup Evas_Event_Feeding_Group Input Events Feeding Functions
  *
  * Functions to tell Evas that input events happened and should be
@@ -1440,6 +1442,7 @@ EAPI void              evas_render_updates_free(Eina_List *updates);
  */
 
 /**
+ * @internal
  * @addtogroup Evas_Event_Feeding_Group
  * @{
  */
@@ -1710,6 +1713,7 @@ EAPI const Evas_Device *evas_device_emulation_source_get(const Evas_Device *dev)
  */
 
 /**
+ * @internal
  * @defgroup Evas_Image_Group Image Functions
  *
  * Functions that deals with images at canvas level.
@@ -1718,6 +1722,7 @@ EAPI const Evas_Device *evas_device_emulation_source_get(const Evas_Device *dev)
  */
 
 /**
+ * @internal
  * @defgroup Evas_Font_Group Font Functions
  *
  * Functions that deals with fonts.
@@ -2769,6 +2774,7 @@ EAPI void            evas_map_point_color_get(const Evas_Map *m, int idx, int *r
  */
 
 /**
+ * @internal
  * @defgroup Evas_Object_Group_Find Finding Objects
  *
  * Functions that allows finding objects by their position, name or
@@ -2778,6 +2784,7 @@ EAPI void            evas_map_point_color_get(const Evas_Map *m, int idx, int *r
  */
 
 /**
+ * @internal
  * @defgroup Evas_Object_Group_Interceptors Object Method Interceptors
  *
  * Evas provides a way to intercept method calls. The interceptor
@@ -2790,6 +2797,7 @@ EAPI void            evas_map_point_color_get(const Evas_Map *m, int idx, int *r
  */
 
 /**
+ * @internal
  * @addtogroup Evas_Object_Group_Interceptors
  * @{
  */
@@ -4479,6 +4487,7 @@ EAPI Eina_Bool                                evas_textblock_cursor_eol_get(cons
  */
 
 /**
+ * @internal
  * @defgroup Evas_Object_Textgrid Textgrid Object Functions
  *
  * @todo put here some usage examples
@@ -4581,6 +4590,7 @@ struct _Evas_Textgrid_Cell
  */
 
 /**
+ * @internal
  * @defgroup Evas_Smart_Group Smart Functions
  * @ingroup Evas
  *
@@ -5224,6 +5234,7 @@ EAPI void evas_smart_legacy_type_register(const char *type, const Eo_Class *klas
  */
 
 /**
+ * @internal
  * @defgroup Evas_Smart_Object_Clipped Clipped Smart Object
  *
  * Clipped smart object is a base to construct other smart objects
@@ -5608,6 +5619,7 @@ EAPI const Evas_Object_Box_Api *evas_object_box_smart_class_get(void) EINA_CONST
  */
 
 /**
+ * @internal
  * @defgroup Evas_Cserve Shared Image Cache Server
  * @ingroup Evas
  *
@@ -6080,6 +6092,7 @@ EAPI Eina_Bool            evas_key_lock_is_set(const Evas_Lock *l, const char *k
  */
 
 /**
+ * @internal
  * @defgroup Evas_Touch_Point_List Touch Point List Functions
  *
  * Functions to get information of touched points in the Evas.
@@ -6092,6 +6105,15 @@ EAPI Eina_Bool            evas_key_lock_is_set(const Evas_Lock *l, const char *k
  * @ingroup Evas_Canvas
  */
 
+/**
+ * @defgroup Evas_Pointer_Group Pointer (Mouse) Functions
+ * @ingroup Evas_Canvas
+ *
+ * @brief   This group provides functions that deal with the status of the pointer (mouse cursor).
+ *
+ */
+
+
 typedef Eo Evas_Out;
 
 #define _EVAS_OUT_EO_CLASS_TYPE
@@ -6103,6 +6125,7 @@ typedef Eo Evas_Out;
  */
 
 /**
+ * @internal
  * @defgroup Evas_Font_Path_Group Font Path Functions
  *
  * Functions that edit the paths being used to load fonts.

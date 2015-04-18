@@ -2,6 +2,7 @@
 #define __ESCAPE_LIBGEN_H__
 
 /**
+ * @internal
  * @file escape_libgen.h
  * @brief The file that provides functions ported from Unix in libgen.h.
  * @defgroup Escape_Libgen_Group Libgen.h functions.

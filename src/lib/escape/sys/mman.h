@@ -59,6 +59,7 @@ extern "C" {
 #define MAP_FAILED  ((void *)-1)
 
 /**
+ * @internal
  * @file mman.h
  * @brief The file that provides the memory map functions
  * @defgroup Escape_Mman Functions that manage memory mappping.

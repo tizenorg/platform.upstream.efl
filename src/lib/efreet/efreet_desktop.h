@@ -2,6 +2,7 @@
 #define EFREET_DESKTOP_H
 
 /**
+ * @internal
  * @file efreet_desktop.h
  * @brief Contains the structures and methods used to support the
  *        FDO desktop entry specificiation.

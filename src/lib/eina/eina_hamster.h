@@ -20,6 +20,7 @@
 #define EINA_HAMSTER_H_
 
 /**
+ * @internal
  * @addtogroup Eina_Hamster_Group Hamster
  *
  * @brief These functions provide hamster calls.
@@ -28,12 +29,14 @@
  */
 
 /**
+ * @internal
  * @addtogroup Eina_Core_Group Core
  *
  * @{
  */
 
 /**
+ * @internal
  * @defgroup Eina_Hamster_Group Hamster
  */
 

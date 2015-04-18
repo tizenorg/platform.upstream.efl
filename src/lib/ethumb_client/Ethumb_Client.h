@@ -34,6 +34,7 @@ extern "C" {
 #endif
 
 /**
+ * @internal
  * @defgroup Ethumb_Client Ethumb Client
  * @ingroup Ethumb
  *
@@ -41,6 +42,7 @@ extern "C" {
  */
 
 /**
+ * @internal
  * @defgroup Ethumb_Client_Basics Ethumb Client Basics
  *
  * Functions that all users must know of to use Ethumb_Client.
@@ -137,6 +139,7 @@ EAPI void ethumb_client_on_server_die_callback_set(Ethumb_Client *client, Ethumb
  */
 
 /**
+ * @internal
  * @defgroup Ethumb_Client_Setup Ethumb Client Fine Tune Setup
  *
  * How to fine tune thumbnail generation, setting size, aspect, orientation,
@@ -181,6 +184,7 @@ EAPI void ethumb_client_thumb_path_get(Ethumb_Client *client, const char **path,
  */
 
 /**
+ * @internal
  * @addtogroup Ethumb_Client_Basics Ethumb Client Basics
  * @{
  */

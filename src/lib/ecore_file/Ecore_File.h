@@ -44,6 +44,7 @@ extern "C" {
 #endif
 
 /**
+ * @internal
  * @defgroup Ecore_File_Group Ecore_File - Files and directories convenience functions
  * @ingroup Ecore
  *

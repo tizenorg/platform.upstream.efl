@@ -60,6 +60,7 @@ extern "C" {
 #endif
 
 /**
+ * @internal
  * @defgroup Ecore_Evas_Group Ecore_Evas wrapper/helper set of functions
  * @ingroup Ecore
  *
@@ -2279,6 +2280,7 @@ EAPI void           ecore_evas_x11_shape_input_reset(Ecore_Evas *ee);
 EAPI void           ecore_evas_x11_shape_input_apply(Ecore_Evas *ee);
 
 /**
+ * @internal
  * @defgroup Ecore_Evas_Ews Ecore_Evas Single Process Windowing System.
  * @ingroup Ecore_Evas_Group
  *
@@ -2407,6 +2409,7 @@ EAPI extern int ECORE_EVAS_EWS_EVENT_CONFIG_CHANGE; /**< some other window prope
  */
 
 /**
+ * @internal
  * @defgroup Ecore_Evas_Extn External plug/socket infrastructure to remote canvases
  * @ingroup Ecore_Evas_Group
  *

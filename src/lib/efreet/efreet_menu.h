@@ -2,6 +2,7 @@
 #define EFREET_MENU_H
 
 /**
+ * @internal
  * @file efreet_menu.h
  * @brief Contains the structures and methods to support the Desktop
  * Menu Specification.

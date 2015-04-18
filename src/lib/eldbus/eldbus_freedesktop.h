@@ -2,6 +2,7 @@
 #define ELDBUS_FREEDESKTOP_H 1
 
 /**
+ * @internal
  * @defgroup Eldbus_Basic Basic FreeDesktop.Org Methods
  * @ingroup Eldbus
  *
@@ -147,6 +148,7 @@ EAPI void                  eldbus_name_owner_changed_callback_add(Eldbus_Connect
 EAPI void                  eldbus_name_owner_changed_callback_del(Eldbus_Connection *conn, const char *bus, Eldbus_Name_Owner_Changed_Cb cb, const void *cb_data) EINA_ARG_NONNULL(1, 2, 3);
 
 /**
+ * @internal
  * @defgroup Eldbus_FDO_Peer org.freedesktop.DBus.Peer
  *
  * @{
@@ -177,6 +179,7 @@ EAPI Eldbus_Pending        *eldbus_object_peer_machine_id_get(Eldbus_Object *obj
  */
 
 /**
+ * @internal
  * @defgroup Eldbus_FDO_Introspectable org.freedesktop.DBus.Introspectable
  *
  * @{
@@ -196,6 +199,7 @@ EAPI Eldbus_Pending        *eldbus_object_introspect(Eldbus_Object *obj, Eldbus_
  */
 
 /**
+ * @internal
  * @defgroup Eldbus_FDO_Properties org.freedesktop.DBus.Properties
  * @{
  */
@@ -289,6 +293,7 @@ EAPI const Eina_Hash      *eldbus_proxy_property_local_get_all(Eldbus_Proxy *pro
  */
 
 /**
+ * @internal
  * @defgroup Eldbus_FDO_ObjectManager org.freedesktop.DBus.ObjectManager *
  * @{
  */

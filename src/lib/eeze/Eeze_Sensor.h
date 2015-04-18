@@ -43,6 +43,7 @@
  *
  * @since 1.8
  *
+ * @internal
  * @addtogroup Eeze_Sensor Sensor
  * Gather sensor information from different sources. Works based on plugins,
  * with a Tizen plugin being available.
@@ -90,6 +91,7 @@ typedef enum
 }  Eeze_Sensor_Type;
 
 /**
+ * @internal
  * @defgroup Eeze_Sensor_Events Available eeze sensor events
  * @brief Sensor events that are emitted from the library as ecore events
  * @ingroup Eeze

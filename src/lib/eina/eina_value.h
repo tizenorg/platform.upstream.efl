@@ -273,6 +273,7 @@
  */
 
 /**
+ * @internal
  * @defgroup Eina_Value_Group Generic Value Storage
  *
  * Abstracts generic data storage and access to it in an extensible
@@ -590,6 +591,7 @@ EAPI extern const Eina_Value_Type *EINA_VALUE_TYPE_STRUCT;
 EAPI extern Eina_Error EINA_ERROR_VALUE_FAILED;
 
 /**
+ * @internal
  * @defgroup Eina_Value_Value_Group Generic Value management
  *
  * @{
@@ -1059,6 +1061,7 @@ static inline const Eina_Value_Type *eina_value_type_get(const Eina_Value *value
 
 
 /**
+ * @internal
  * @defgroup Eina_Value_Array_Group Generic Value Array management
  *
  * @{
@@ -1709,6 +1712,7 @@ static inline Eina_Bool eina_value_array_value_get(const Eina_Value *src,
 
 
 /**
+ * @internal
  * @defgroup Eina_Value_List_Group Generic Value List management
  *
  * @{
@@ -2331,6 +2335,7 @@ static inline Eina_Bool eina_value_list_pappend(Eina_Value *value,
  */
 
 /**
+ * @internal
  * @defgroup Eina_Value_Hash_Group Generic Value Hash management
  *
  * @{
@@ -2672,6 +2677,7 @@ static inline Eina_Bool eina_value_hash_pget(const Eina_Value *value,
  */
 
 /**
+ * @internal
  * @defgroup Eina_Value_Blob_Group Generic Value Blob management
  *
  * @{
@@ -2742,6 +2748,7 @@ struct _Eina_Value_Blob
  */
 
 /**
+ * @internal
  * @defgroup Eina_Value_Struct_Group Generic Value Struct management
  *
  * @{
@@ -3335,6 +3342,7 @@ static inline Eina_Bool eina_value_struct_member_value_set(Eina_Value *dst,
 
 
 /**
+ * @internal
  * @defgroup Eina_Value_Type_Group Generic Value Type management
  *
  * @{

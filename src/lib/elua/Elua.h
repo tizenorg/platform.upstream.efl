@@ -1,4 +1,5 @@
 /**
+ * @internal
  * @file Elua.h
  * @brief Elua Library
  *

@@ -64,6 +64,7 @@ extern "C" {
 
 
 /**
+ * @internal
  * @file mman.h
  * @brief The file that provides the memory map functions
  * @defgroup Evil_Mman Functions that manage memory mappping.

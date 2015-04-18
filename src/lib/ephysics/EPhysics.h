@@ -106,6 +106,7 @@ extern "C" {
  */
 
 /**
+ * @internal
  * @brief Physics simulation integration and visual effects.
  * @defgroup EPhysics EPhysics
  *
@@ -145,6 +146,7 @@ EAPI int ephysics_shutdown(void);
  */
 
 /**
+ * @internal
  * @defgroup EPhysics_Quaternion EPhysics Quaternion
  * @ingroup EPhysics
  *
@@ -468,6 +470,7 @@ EAPI double ephysics_quaternion_length2_get(const EPhysics_Quaternion *quat);
  */
 
 /**
+ * @internal
  * @defgroup EPhysics_Shape EPhysics Shape
  * @ingroup EPhysics
  *
@@ -655,6 +658,7 @@ EAPI Eina_Bool ephysics_shape_save(const EPhysics_Shape *shape, const char *file
 typedef struct _EPhysics_Body EPhysics_Body;
 
 /**
+ * @internal
  * @defgroup EPhysics_Camera EPhysics Camera
  * @ingroup EPhysics
  *
@@ -875,6 +879,7 @@ EAPI Eina_Bool ephysics_camera_perspective_enabled_get(const EPhysics_Camera *ca
  */
 
 /**
+ * @internal
  * @defgroup EPhysics_World EPhysics World
  * @ingroup EPhysics
  *
@@ -1968,6 +1973,7 @@ EAPI Eina_Bool ephysics_world_stack_enable_get(const EPhysics_World *world);
  */
 
 /**
+ * @internal
  * @defgroup EPhysics_Body EPhysics Body
  * @ingroup EPhysics
  *
@@ -4513,6 +4519,7 @@ EAPI Eina_Bool ephysics_body_clockwise_get(const EPhysics_Body *body);
  */
 
 /**
+ * @internal
  * @defgroup EPhysics_Constraint EPhysics Constraint
  * @ingroup EPhysics
  *

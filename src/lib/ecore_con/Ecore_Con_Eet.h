@@ -32,6 +32,7 @@
 #endif
 
 /**
+ * @internal
  * @defgroup Ecore_Con_Eet_Group Eet connection functions
  * @ingroup Ecore_Con_Group
  *

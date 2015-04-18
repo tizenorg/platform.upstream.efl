@@ -2,6 +2,7 @@
 #define ELDBUS_OBJECT_H 1
 
 /**
+ * @internal
  * @defgroup Eldbus_Object_Mapper Object Mapper
  * @ingroup Eldbus
  *

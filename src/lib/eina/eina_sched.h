@@ -17,6 +17,7 @@
  */
 
 /**
+ * @internal
  * @defgroup Schedule Schedule
  * @ingroup Eina_Tools_Group
  *

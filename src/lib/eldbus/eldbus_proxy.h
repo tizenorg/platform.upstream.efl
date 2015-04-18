@@ -2,6 +2,7 @@
 #define ELDBUS_PROXY_H 1
 
 /**
+ * @internal
  * @defgroup Eldbus_Proxy Proxy
  * @ingroup Eldbus
  *

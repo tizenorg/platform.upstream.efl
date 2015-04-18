@@ -155,6 +155,7 @@
  */
 
 /**
+ * @internal
  * @addtogroup Eina_Log_Group Log
  *
  * @brief Full-featured logging system.
@@ -221,6 +222,7 @@
  */
 
 /**
+ * @internal
  * @defgroup Eina_Log_Group Log
  *
  * @{

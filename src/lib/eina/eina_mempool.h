@@ -25,6 +25,7 @@
 
 
 /**
+ * @internal
  * @defgroup Eina_Memory_Pool_Group Memory Pool
  * @ingroup Eina_Tools_Group
  * @brief This group discusses the functions that provide memory pool management.

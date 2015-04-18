@@ -101,6 +101,7 @@
  */
 
 /**
+ * @internal
  * @defgroup Eina_Magic_Group Magic
  * @ingroup Eina_Tools_Group
  *

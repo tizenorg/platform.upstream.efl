@@ -38,6 +38,7 @@
 #endif
 
 /**
+ * @internal
  * @defgroup Ecore_Con_Group Ecore_Con - Connection functions
  * @ingroup Ecore
  *
@@ -70,6 +71,7 @@
 
 
 /**
+ * @internal
  * @defgroup Ecore_Con_Events_Group Ecore Connection Events Functions
  * @ingroup Ecore_Con_Group
  *
@@ -109,6 +111,7 @@
  */
 
 /**
+ * @internal
  * @defgroup Ecore_Con_Buffer Ecore Connection Buffering
  * @ingroup Ecore_Con_Group
  *
@@ -233,6 +236,7 @@ typedef Eo Ecore_Con;
 typedef struct Ecore_Con_Socks Ecore_Con_Socks;
 
 /**
+ * @internal
  * @defgroup Ecore_Con_Lib_Group Ecore Connection Library Functions
  * @ingroup Ecore_Con_Group
  *
@@ -320,6 +324,7 @@ typedef enum _Ecore_Con_Type
 #endif
 
 /**
+ * @internal
  * @addtogroup Ecore_Con_Events_Group
  * @{
  */
@@ -656,6 +661,7 @@ EAPI extern int ECORE_CON_EVENT_URL_PROGRESS;
  */
 
 /**
+ * @internal
  * @addtogroup Ecore_Con_Events_Group Ecore_Con_Lib_Group
  * @ingroup Ecore_Con_Group
  *
@@ -686,6 +692,7 @@ EAPI int               ecore_con_shutdown(void);
  */
 
 /**
+ * @internal
  * @defgroup Ecore_Con_SSL_Group Ecore Connection SSL Functions
  * @ingroup Ecore_Con_Group
  *
@@ -723,6 +730,7 @@ EAPI void             ecore_con_socks_apply_once(Ecore_Con_Socks *ecs);
 EAPI void             ecore_con_socks_apply_always(Ecore_Con_Socks *ecs);
 
 /**
+ * @internal
  * @defgroup Ecore_Con_Server_Group Ecore Connection Server Functions
  * @ingroup Ecore_Con_Group
  *
@@ -1056,6 +1064,7 @@ EAPI int               ecore_con_client_fd_get(const Ecore_Con_Client *cl);
  */
 
 /**
+ * @internal
  * @defgroup Ecore_Con_Client_Group Ecore Connection Client Functions
  * @ingroup Ecore_Con_Group
  *
@@ -1206,6 +1215,7 @@ EAPI int               ecore_con_client_port_get(const Ecore_Con_Client *cl);
  */
 
 /**
+ * @internal
  * @defgroup Ecore_Con_Url_Group Ecore URL Connection Functions
  * @ingroup Ecore_Con_Group
  *

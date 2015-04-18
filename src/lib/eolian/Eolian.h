@@ -82,6 +82,7 @@ extern "C" {
 
  *
  *
+ * @internal
  * @addtogroup Eolian
  * @{
  */

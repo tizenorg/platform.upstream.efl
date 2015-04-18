@@ -31,6 +31,7 @@
 #endif /* ! _WIN32 */
 
 /**
+ * @internal
  * @defgroup Ecore_IMF_Evas_Group Ecore Input Method Context Evas Helper Functions
  * @ingroup Ecore_IMF_Lib_Group
  *

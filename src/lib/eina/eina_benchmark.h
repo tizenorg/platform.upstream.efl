@@ -295,6 +295,7 @@
 
 
 /**
+ * @internal
  * @addtogroup Eina_Benchmark_Group Benchmark
  *
  * These functions allow you to add benchmark framework in a project
@@ -326,6 +327,7 @@
  */
 
 /**
+ * @internal
  * @defgroup Eina_Benchmark_Group Benchmark
  *
  * @{

@@ -34,7 +34,6 @@ extern "C" {
 #endif
 
 /**
- * @internal
  * @defgroup Ecore_IMF_Lib_Group Ecore_IMF - Ecore Input Method Library Functions
  * @ingroup Ecore
  *
@@ -43,7 +42,6 @@ extern "C" {
  */
 
 /**
- * @internal
  * @defgroup Ecore_IMF_Context_Group Ecore Input Method Context Functions
  * @ingroup Ecore_IMF_Lib_Group
  *
@@ -69,7 +67,6 @@ extern "C" {
  */
 
 /**
- * @internal
  * @addtogroup Ecore_IMF_Context_Group
  *
  * @{
@@ -722,6 +719,9 @@ struct _Ecore_IMF_Context_Info
 
 /**
  * Initialises the Ecore_IMF library.
+ *
+ * @since_tizen 2.4
+ *
  * @return  Number of times the library has been initialised without being
  *          shut down.
  * @ingroup Ecore_IMF_Lib_Group
@@ -730,6 +730,9 @@ EAPI int                           ecore_imf_init(void);
 
 /**
  * Shuts down the Ecore_IMF library.
+ *
+ * @since_tizen 2.4
+ *
  * @return  Number of times the library has been initialised without being
  *          shut down.
  * @ingroup Ecore_IMF_Lib_Group
@@ -738,6 +741,8 @@ EAPI int                           ecore_imf_shutdown(void);
 
 /**
  * Register an Ecore_IMF module.
+ *
+ * @since_tizen 2.4
  *
  * @param info              An Ecore_IMF_Context_Info structure
  * @param imf_module_create A function to call at the creation
@@ -749,6 +754,9 @@ EAPI void                          ecore_imf_module_register(const Ecore_IMF_Con
 
 /**
  * Hide the input panel.
+ *
+ * @since_tizen 2.4
+ *
  * @return  EINA_TRUE if the input panel will be hidden
             EINA_FALSE if the input panel is already in hidden state
  * @ingroup Ecore_IMF_Lib_Group
@@ -758,6 +766,8 @@ EAPI Eina_Bool                     ecore_imf_input_panel_hide(void);
 
 /**
  * Get the list of the available Input Method Context ids.
+ *
+ * @since_tizen 2.4
  *
  * Note that the caller is responsible for freeing the Eina_List
  * when finished with it. There is no need to finish the list strings.
@@ -771,6 +781,8 @@ EAPI Eina_List                    *ecore_imf_context_available_ids_get(void);
 /**
  * Get the list of the available Input Method Context ids by canvas type.
  *
+ * @since_tizen 2.4
+ *
  * Note that the caller is responsible for freeing the Eina_List
  * when finished with it. There is no need to finish the list strings.
  *
@@ -783,6 +795,9 @@ EAPI Eina_List                    *ecore_imf_context_available_ids_by_canvas_typ
 
 /**
  * Get the id of the default Input Method Context.
+ *
+ * @since_tizen 2.4
+ *
  * The id may to used to create a new instance of an Input Method
  * Context object.
  *
@@ -795,6 +810,9 @@ EAPI const char                   *ecore_imf_context_default_id_get(void);
 /**
  * Get the id of the default Input Method Context corresponding to a canvas
  * type.
+ *
+ * @since_tizen 2.4
+ *
  * The id may be used to create a new instance of an Input Method
  * Context object.
  *
@@ -807,6 +825,8 @@ EAPI const char                   *ecore_imf_context_default_id_by_canvas_type_g
 
 /**
  * Retrieve the info for the Input Method Context with @p id.
+ *
+ * @since_tizen 2.4
  *
  * @param id The Input Method Context id to query for.
  * @return Return a #Ecore_IMF_Context_Info for the Input Method Context with @p id;
@@ -844,6 +864,8 @@ EAPI const Ecore_IMF_Context_Info *ecore_imf_context_info_by_id_get(const char *
 /**
  * Create a new Input Method Context defined by the given id.
  *
+ * @since_tizen 2.4
+ *
  * @param id The Input Method Context id.
  * @return A newly allocated Input Method Context;
  *         on failure it returns NULL.
@@ -854,6 +876,8 @@ EAPI Ecore_IMF_Context            *ecore_imf_context_add(const char *id);
 /**
  * Retrieve the info for the given Input Method Context.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @return Return a #Ecore_IMF_Context_Info for the given Input Method Context;
  *         on failure it returns NULL.
@@ -863,6 +887,8 @@ EAPI const Ecore_IMF_Context_Info *ecore_imf_context_info_get(Ecore_IMF_Context 
 
 /**
  * Delete the given Input Method Context and free its memory.
+ *
+ * @since_tizen 2.4
  *
  * @param ctx An #Ecore_IMF_Context.
  * @ingroup Ecore_IMF_Context_Group
@@ -875,6 +901,8 @@ EAPI void                          ecore_imf_context_del(Ecore_IMF_Context *ctx)
  * This window is used in order to correctly position status windows, and may
  * also be used for purposes internal to the Input Method Context.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @param window The client window. This may be @c NULL to indicate
  *               that the previous client window no longer exists.
@@ -884,6 +912,8 @@ EAPI void                          ecore_imf_context_client_window_set(Ecore_IMF
 
 /**
  * Get the client window of the Input Method Context
+ *
+ * @since_tizen 2.4
  *
  * See @ref ecore_imf_context_client_window_set for more details.
  *
@@ -897,6 +927,9 @@ EAPI void                         *ecore_imf_context_client_window_get(Ecore_IMF
 /**
  * Set the client canvas for the Input Method Context; this is the
  * canvas in which the input appears.
+ *
+ * @since_tizen 2.4
+ *
  * The canvas type can be determined by using the context canvas type.
  * Actually only canvas with type "evas" (Evas *) is supported.
  * This canvas may be used in order to correctly position status windows, and may
@@ -912,6 +945,8 @@ EAPI void                          ecore_imf_context_client_canvas_set(Ecore_IMF
 /**
  * Get the client canvas of the Input Method Context.
  *
+ * @since_tizen 2.4
+ *
  * See @ref ecore_imf_context_client_canvas_set for more details.
  *
  * @param ctx An #Ecore_IMF_Context.
@@ -924,6 +959,8 @@ EAPI void                         *ecore_imf_context_client_canvas_get(Ecore_IMF
 /**
  * Ask the Input Method Context to show itself.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @ingroup Ecore_IMF_Context_Group
  */
@@ -931,6 +968,8 @@ EAPI void                          ecore_imf_context_show(Ecore_IMF_Context *ctx
 
 /**
  * Ask the Input Method Context to hide itself.
+ *
+ * @since_tizen 2.4
  *
  * @param ctx An #Ecore_IMF_Context.
  * @ingroup Ecore_IMF_Context_Group
@@ -940,6 +979,8 @@ EAPI void                          ecore_imf_context_hide(Ecore_IMF_Context *ctx
 /**
  * Retrieve the current preedit string and cursor position
  * for the Input Method Context.
+ *
+ * @since_tizen 2.4
  *
  * @param ctx An #Ecore_IMF_Context.
  * @param str Location to store the retrieved string. The
@@ -953,6 +994,8 @@ EAPI void                          ecore_imf_context_preedit_string_get(Ecore_IM
 /**
  * Retrieve the current preedit string, attributes and
  * cursor position for the Input Method Context.
+ *
+ * @since_tizen 2.4
  *
  * @param ctx An #Ecore_IMF_Context.
  * @param str Location to store the retrieved string. The
@@ -1009,6 +1052,8 @@ EAPI void                          ecore_imf_context_preedit_string_with_attribu
  * Notify the Input Method Context that the widget to which its
  * correspond has gained focus.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @ingroup Ecore_IMF_Context_Group
  *
@@ -1029,6 +1074,8 @@ EAPI void                          ecore_imf_context_focus_in(Ecore_IMF_Context 
 /**
  * Notify the Input Method Context that the widget to which its
  * correspond has lost focus.
+ *
+ * @since_tizen 2.4
  *
  * @param ctx An #Ecore_IMF_Context.
  * @ingroup Ecore_IMF_Context_Group
@@ -1052,6 +1099,8 @@ EAPI void                          ecore_imf_context_focus_out(Ecore_IMF_Context
  * Notify the Input Method Context that a change such as a
  * change in cursor position has been made. This will typically
  * cause the Input Method Context to clear the preedit state or commit the preedit string.
+ *
+ * @since_tizen 2.4
  *
  * The operation of ecore_imf_context_reset() depends on the specific characteristics of
  * each language. For example, the preedit string is cleared in the Chinese and Japanese Input Method Engine.
@@ -1082,6 +1131,8 @@ EAPI void                          ecore_imf_context_reset(Ecore_IMF_Context *ct
  * Notify the Input Method Context that a change in the cursor
  * position has been made.
  *
+ * @since_tizen 2.4
+ *
  * This function should be called when cursor position is changed or mouse up event is generated.
  * Some input methods that do a heavy job using this event can give a critical performance latency problem.
  * For better typing performance, we suggest that the cursor position change events need to be occurred
@@ -1099,6 +1150,8 @@ EAPI void                          ecore_imf_context_cursor_position_set(Ecore_I
  * The cursor location can be used to determine the position of
  * candidate word window in the immodule.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @param x cursor x position.
  * @param y cursor y position.
@@ -1115,6 +1168,8 @@ EAPI void                          ecore_imf_context_cursor_location_set(Ecore_I
  * is @c EINA_TRUE), then the IM context may use some other method to display
  * feedback, such as displaying it in a child of the root window.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @param use_preedit Whether the IM context should use the preedit string.
  * @ingroup Ecore_IMF_Context_Group
@@ -1123,6 +1178,8 @@ EAPI void                          ecore_imf_context_use_preedit_set(Ecore_IMF_C
 
 /**
  * Set the callback to be used on surrounding_get request.
+ *
+ * @since_tizen 2.4
  *
  * This callback will be called when the Input Method Context
  * module requests the surrounding context.
@@ -1139,6 +1196,8 @@ EAPI void                          ecore_imf_context_retrieve_surrounding_callba
 /**
  * Set the callback to be used on selection_get request.
  *
+ * @since_tizen 2.4
+ *
  * This callback will be called when the Input Method Context
  * module requests the selection context.
  *
@@ -1153,6 +1212,8 @@ EAPI void                          ecore_imf_context_retrieve_selection_callback
 /**
  * Set the input mode used by the Ecore Input Context.
  *
+ * @since_tizen 2.4
+ *
  * The input mode can be one of the input modes defined in
  * Ecore_IMF_Input_Mode. The default input mode is
  * ECORE_IMF_INPUT_MODE_FULL.
@@ -1166,6 +1227,8 @@ EAPI void                          ecore_imf_context_input_mode_set(Ecore_IMF_Co
 /**
  * Get the input mode being used by the Ecore Input Context.
  *
+ * @since_tizen 2.4
+ *
  * See @ref ecore_imf_context_input_mode_set for more details.
  *
  * @param ctx An #Ecore_IMF_Context.
@@ -1178,6 +1241,8 @@ EAPI Ecore_IMF_Input_Mode          ecore_imf_context_input_mode_get(Ecore_IMF_Co
  * Allow an Ecore Input Context to internally handle an event.
  * If this function returns @c EINA_TRUE, then no further processing
  * should be done for this event.
+ *
+ * @since_tizen 2.4
  *
  * Input methods must be able to accept all types of events (simply
  * returning @c EINA_FALSE if the event was not handled), but there is no
@@ -1216,7 +1281,6 @@ EAPI Eina_Bool                     ecore_imf_context_filter_event(Ecore_IMF_Cont
 /* plugin specific functions */
 
 /**
- * @internal
  * @defgroup Ecore_IMF_Context_Module_Group Ecore Input Method Context Module Functions
  * @ingroup Ecore_IMF_Lib_Group
  *
@@ -1225,6 +1289,8 @@ EAPI Eina_Bool                     ecore_imf_context_filter_event(Ecore_IMF_Cont
 
 /**
  * Creates a new Input Method Context with klass specified by @p ctxc.
+ *
+ * @since_tizen 2.4
  *
  * This method should be used by modules implementing the Input
  * Method Context interface.
@@ -1237,6 +1303,8 @@ EAPI Ecore_IMF_Context            *ecore_imf_context_new(const Ecore_IMF_Context
 
 /**
  * Set the Input Method Context specific data.
+ *
+ * @since_tizen 2.4
  *
  * Note that this method should be used by modules to set
  * the Input Method Context specific data and it's not meant to
@@ -1252,6 +1320,8 @@ EAPI void                          ecore_imf_context_data_set(Ecore_IMF_Context 
 /**
  * Get the Input Method Context specific data.
  *
+ * @since_tizen 2.4
+ *
  * See @ref ecore_imf_context_data_set for more details.
  *
  * @param ctx An #Ecore_IMF_Context.
@@ -1262,6 +1332,9 @@ EAPI void                         *ecore_imf_context_data_get(Ecore_IMF_Context 
 
 /**
  * Retrieve context around insertion point.
+ *
+ * @since_tizen 2.4
+ *
  * Input methods typically want context in order to constrain input text based on existing text;
  * this is important for languages such as Thai where only some sequences of characters are allowed.
  * In addition, the text around the insertion point can be used for supporting autocapital feature.
@@ -1290,6 +1363,8 @@ EAPI Eina_Bool                     ecore_imf_context_surrounding_get(Ecore_IMF_C
 /**
  * Retrieve the selected text.
  *
+ * @since_tizen 2.4
+ *
  * This function is implemented by calling the
  * Ecore_IMF_Context::retrieve_selection_func (
  * set using #ecore_imf_context_retrieve_selection_callback_set).
@@ -1312,6 +1387,8 @@ EAPI Eina_Bool                     ecore_imf_context_selection_get(Ecore_IMF_Con
 /**
  * Adds ECORE_IMF_EVENT_PREEDIT_START to the event queue.
  *
+ * @since_tizen 2.4
+ *
  * ECORE_IMF_EVENT_PREEDIT_START should be added when a new preedit sequence starts.
  * It's asynchronous method to put event to the event queue.
  * ecore_imf_context_event_callback_call() can be used as synchronous method.
@@ -1323,6 +1400,8 @@ EAPI void                          ecore_imf_context_preedit_start_event_add(Eco
 
 /**
  * Adds ECORE_IMF_EVENT_PREEDIT_END to the event queue.
+ *
+ * @since_tizen 2.4
  *
  * ECORE_IMF_EVENT_PREEDIT_END should be added when a new preedit sequence has been completed or canceled.
  * It's asynchronous method to put event to the event queue.
@@ -1336,6 +1415,8 @@ EAPI void                          ecore_imf_context_preedit_end_event_add(Ecore
 /**
  * Adds ECORE_IMF_EVENT_PREEDIT_CHANGED to the event queue.
  *
+ * @since_tizen 2.4
+ *
  * It's asynchronous method to put event to the event queue.
  * ecore_imf_context_event_callback_call() can be used as synchronous method.
  *
@@ -1346,6 +1427,8 @@ EAPI void                          ecore_imf_context_preedit_changed_event_add(E
 
 /**
  * Adds ECORE_IMF_EVENT_COMMIT to the event queue.
+ *
+ * @since_tizen 2.4
  *
  * It's asynchronous method to put event to the event queue.
  * ecore_imf_context_event_callback_call() can be used as synchronous method.
@@ -1358,6 +1441,8 @@ EAPI void                          ecore_imf_context_commit_event_add(Ecore_IMF_
 
 /**
  * Adds ECORE_IMF_EVENT_DELETE_SURROUNDING to the event queue.
+ *
+ * @since_tizen 2.4
  *
  * Asks the widget that the input context is attached to to delete characters around the cursor position
  * by adding the ECORE_IMF_EVENT_DELETE_SURROUNDING to the event queue.
@@ -1375,6 +1460,8 @@ EAPI void                          ecore_imf_context_delete_surrounding_event_ad
 
 /**
  * Add (register) a callback function to a given context event.
+ *
+ * @since_tizen 2.4
  *
  * This function adds a function callback to the context @p ctx when the
  * event of type @p type occurs on it. The function pointer is @p
@@ -1411,6 +1498,8 @@ EAPI void                          ecore_imf_context_event_callback_add(Ecore_IM
  * Delete (unregister) a callback function registered to a given
  * context event.
  *
+ * @since_tizen 2.4
+ *
  * This function removes a function callback from the context @p ctx when the
  * event of type @p type occurs on it. The function pointer is @p
  * func.
@@ -1428,6 +1517,8 @@ EAPI void                         *ecore_imf_context_event_callback_del(Ecore_IM
 
 /**
  * Call a given callback on the context @p ctx.
+ *
+ * @since_tizen 2.4
  *
  * ecore_imf_context_preedit_start_event_add(), ecore_imf_context_preedit_end_event_add(),
  * ecore_imf_context_preedit_changed_event_add(), ecore_imf_context_commit_event_add() and
@@ -1447,6 +1538,9 @@ EAPI void                          ecore_imf_context_event_callback_call(Ecore_I
 
 /**
  * Set whether the IM context should allow to use the text prediction.
+ *
+ * @since_tizen 2.4
+ *
  * If @p prediction is @c EINA_FALSE (default is @c EINA_TRUE), then the IM
  * context will not display the text prediction window.
  *
@@ -1461,6 +1555,8 @@ EAPI void                          ecore_imf_context_prediction_allow_set(Ecore_
 /**
  * Get whether the IM context should allow to use the text prediction.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @return @c EINA_TRUE if it allows to use the text prediction, otherwise
  * @c EINA_FALSE.
@@ -1471,6 +1567,8 @@ EAPI Eina_Bool                     ecore_imf_context_prediction_allow_get(Ecore_
 
 /**
  * Set the autocapitalization type on the immodule.
+ *
+ * @since_tizen 2.4
  *
  * @param ctx An #Ecore_IMF_Context.
  * @param autocapital_type the autocapitalization type.
@@ -1483,6 +1581,8 @@ EAPI void                          ecore_imf_context_autocapital_type_set(Ecore_
 /**
  * Get the autocapitalization type.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @return The autocapital type being used by @p ctx.
  * @ingroup Ecore_IMF_Context_Group
@@ -1492,6 +1592,8 @@ EAPI Ecore_IMF_Autocapital_Type    ecore_imf_context_autocapital_type_get(Ecore_
 
 /**
  * @brief Sets the input hint which allows input methods to fine-tune their behavior.
+ *
+ * @since_tizen 2.4
  *
  * @param ctx An #Ecore_IMF_Context
  * @param hints input hint
@@ -1504,6 +1606,8 @@ EAPI void                          ecore_imf_context_input_hint_set(Ecore_IMF_Co
 /**
  * @brief Gets the value of input hint.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context
  * @return The value of input hint
  * @ingroup Ecore_IMF_Context_Group
@@ -1514,6 +1618,8 @@ EAPI Ecore_IMF_Input_Hints         ecore_imf_context_input_hint_get(Ecore_IMF_Co
 /**
  * Ask the Input Method Context to show the control panel of using Input Method.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @ingroup Ecore_IMF_Context_Group
  * @since 1.1.0
@@ -1522,6 +1628,8 @@ EAPI void                          ecore_imf_context_control_panel_show(Ecore_IM
 
 /**
  * Ask the Input Method Context to hide the control panel of using Input Method.
+ *
+ * @since_tizen 2.4
  *
  * @param ctx An #Ecore_IMF_Context.
  * @ingroup Ecore_IMF_Context_Group
@@ -1532,6 +1640,8 @@ EAPI void                          ecore_imf_context_control_panel_hide(Ecore_IM
 /**
  * Ask the Input Method Context to show the input panel (virtual keyboard).
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @ingroup Ecore_IMF_Context_Group
  * @since 1.1.0
@@ -1541,6 +1651,8 @@ EAPI void                          ecore_imf_context_input_panel_show(Ecore_IMF_
 /**
  * Ask the Input Method Context to hide the input panel.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @ingroup Ecore_IMF_Context_Group
  * @since 1.1.0
@@ -1549,6 +1661,8 @@ EAPI void                          ecore_imf_context_input_panel_hide(Ecore_IMF_
 
 /**
  * Set the layout of the input panel.
+ *
+ * @since_tizen 2.4
  *
  * @param ctx An #Ecore_IMF_Context.
  * @param layout see #Ecore_IMF_Input_Panel_Layout
@@ -1561,6 +1675,8 @@ EAPI void                          ecore_imf_context_input_panel_layout_set(Ecor
 /**
  * Get the layout of the current active input panel.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @return layout see #Ecore_IMF_Input_Panel_Layout
  * @ingroup Ecore_IMF_Context_Group
@@ -1570,6 +1686,8 @@ EAPI Ecore_IMF_Input_Panel_Layout  ecore_imf_context_input_panel_layout_get(Ecor
 
 /**
  * Set the layout variation of the current active input panel.
+ *
+ * @since_tizen 2.4
  *
  * @param ctx An #Ecore_IMF_Context.
  * @param variation the layout variation
@@ -1582,6 +1700,8 @@ EAPI void                          ecore_imf_context_input_panel_layout_variatio
 /**
  * Get the layout variation of the current active input panel.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @return the layout variation
  * @ingroup Ecore_IMF_Context_Group
@@ -1593,6 +1713,8 @@ EAPI int                           ecore_imf_context_input_panel_layout_variatio
  * Set the language of the input panel.
  * This API can be used when you want to show the English keyboard.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @param lang the language to be set to the input panel.
  * @ingroup Ecore_IMF_Context_Group
@@ -1602,6 +1724,8 @@ EAPI void                          ecore_imf_context_input_panel_language_set(Ec
 
 /**
  * Get the language of the input panel.
+ *
+ * @since_tizen 2.4
  *
  * See @ref ecore_imf_context_input_panel_language_set for more details.
  *
@@ -1615,6 +1739,8 @@ EAPI Ecore_IMF_Input_Panel_Lang    ecore_imf_context_input_panel_language_get(Ec
 /**
  * Set whether the Input Method Context should request to show the input panel automatically
  * when the widget has focus.
+ *
+ * @since_tizen 2.4
  *
  * @param ctx An #Ecore_IMF_Context.
  * @param enabled If true, the input panel will be shown when the widget is clicked or has focus.
@@ -1635,6 +1761,9 @@ EAPI Eina_Bool                     ecore_imf_context_input_panel_enabled_get(Eco
 
 /**
  * Set the input panel-specific data to deliver to the input panel.
+ *
+ * @since_tizen 2.4
+ *
  * This API is used by applications to deliver specific data to the input panel.
  * The data format MUST be negotiated by both application and the input panel.
  * The size and format of data are defined by the input panel.
@@ -1650,6 +1779,8 @@ EAPI void                          ecore_imf_context_input_panel_imdata_set(Ecor
 /**
  * Get the specific data of the current active input panel.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @param data The specific data to be got from the input panel
  * @param len The length of data
@@ -1660,6 +1791,8 @@ EAPI void                          ecore_imf_context_input_panel_imdata_get(Ecor
 
 /**
  * Set the "return" key type. This type is used to set string or icon on the "return" key of the input panel.
+ *
+ * @since_tizen 2.4
  *
  * An input panel displays the string or icon associated with this type
  *
@@ -1674,6 +1807,8 @@ EAPI void                          ecore_imf_context_input_panel_return_key_type
 /**
  * Get the "return" key type.
  *
+ * @since_tizen 2.4
+ *
  * @see ecore_imf_context_input_panel_return_key_type_set() for more details
  *
  * @param ctx An #Ecore_IMF_Context.
@@ -1686,6 +1821,8 @@ EAPI Ecore_IMF_Input_Panel_Return_Key_Type ecore_imf_context_input_panel_return_
 /**
  * Set the return key on the input panel to be disabled.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @param disabled The state
  * @ingroup Ecore_IMF_Context_Group
@@ -1695,6 +1832,8 @@ EAPI void                          ecore_imf_context_input_panel_return_key_disa
 
 /**
  * Get whether the return key on the input panel should be disabled or not.
+ *
+ * @since_tizen 2.4
  *
  * @param ctx An #Ecore_IMF_Context.
  * @return @c EINA_TRUE if it should be disabled.
@@ -1706,6 +1845,8 @@ EAPI Eina_Bool                     ecore_imf_context_input_panel_return_key_disa
 /**
  * Set the caps lock mode on the input panel.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @param mode Turn on caps lock on the input panel if @c EINA_TRUE.
  * @ingroup Ecore_IMF_Context_Group
@@ -1716,6 +1857,8 @@ EAPI void                          ecore_imf_context_input_panel_caps_lock_mode_
 /**
  * Get the caps lock mode on the input panel.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @return @c EINA_TRUE if the caps lock is turned on.
  * @ingroup Ecore_IMF_Context_Group
@@ -1725,6 +1868,8 @@ EAPI Eina_Bool                     ecore_imf_context_input_panel_caps_lock_mode_
 
 /**
  * Get the position of the current active input panel.
+ *
+ * @since_tizen 2.4
  *
  * @param ctx An #Ecore_IMF_Context.
  * @param x top-left x co-ordinate of the input panel
@@ -1739,6 +1884,8 @@ EAPI void                          ecore_imf_context_input_panel_geometry_get(Ec
 /**
  * Get state of current active input panel.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @return The state of input panel.
  * @ingroup Ecore_IMF_Context_Group
@@ -1748,6 +1895,9 @@ EAPI Ecore_IMF_Input_Panel_State   ecore_imf_context_input_panel_state_get(Ecore
 
 /**
  * Register a callback function which will be called if there is change in input panel state,language,mode etc.
+ *
+ * @since_tizen 2.4
+ *
  * In order to deregister the callback function
  * Use @ref ecore_imf_context_input_panel_event_callback_del.
  *
@@ -1763,6 +1913,8 @@ EAPI void                          ecore_imf_context_input_panel_event_callback_
 /**
  * Unregister a callback function which will be called if there is change in input panel state, language, mode etc.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @param type An #Ecore_IMF_Input_Panel_Event.
  * @param func the callback function
@@ -1773,6 +1925,8 @@ EAPI void                          ecore_imf_context_input_panel_event_callback_
 
 /**
  * Call a given input panel callback on the context @p ctx.
+ *
+ * @since_tizen 2.4
  *
  * @param ctx Ecore_IMF_Context.
  * @param type The type of event that will trigger the callback
@@ -1785,6 +1939,8 @@ EAPI void                          ecore_imf_context_input_panel_event_callback_
 /**
  * Delete all input panel callback on the context @p ctx.
  *
+ * @since_tizen 2.4
+ *
  * Delete all input panel callback to be registered by ecore_imf_context_input_panel_event_callback_add()
  *
  * @param ctx Ecore_IMF_Context.
@@ -1795,6 +1951,8 @@ EAPI void                          ecore_imf_context_input_panel_event_callback_
 
 /**
  * Get the current language locale of the input panel.
+ *
+ * @since_tizen 2.4
  *
  * ex) fr_FR
  *
@@ -1808,6 +1966,8 @@ EAPI void                          ecore_imf_context_input_panel_language_locale
 
 /**
  * Get the geometry information of the candidate panel.
+ *
+ * @since_tizen 2.4
  *
  * @param ctx An #Ecore_IMF_Context.
  * @param x top-left x co-ordinate of the candidate panel
@@ -1823,6 +1983,8 @@ EAPI void                          ecore_imf_context_candidate_panel_geometry_ge
  * Set whether the Input Method Context should request to show the input panel in case of only an user's explicit Mouse Up event.
  * It doesn't request to show the input panel even though the Input Method Context has focus.
  *
+ * @since_tizen 2.4
+ *
  * @param ctx An #Ecore_IMF_Context.
  * @param ondemand If true, the input panel will be shown in case of only Mouse up event. (Focus event will be ignored.)
  * @ingroup Ecore_IMF_Context_Group
@@ -1832,6 +1994,8 @@ EAPI void                          ecore_imf_context_input_panel_show_on_demand_
 
 /**
  * Get whether the Input Method Context should request to show the input panel in case of only an user's explicit Mouse Up event.
+ *
+ * @since_tizen 2.4
  *
  * @param ctx An #Ecore_IMF_Context.
  * @return @c EINA_TRUE if the input panel will be shown in case of only Mouse up event.
@@ -1843,6 +2007,8 @@ EAPI Eina_Bool                     ecore_imf_context_input_panel_show_on_demand_
 /**
  * @brief Sets the bidirectionality at the current cursor position.
  *
+ * @since_tizen 2.4
+ *
  * @ingroup Ecore_IMF_Context_Group
  * @since 1.12.0
  *
@@ -1853,6 +2019,8 @@ EAPI void                          ecore_imf_context_bidi_direction_set(Ecore_IM
 
 /**
  * @brief Gets the bidirectionality at the current cursor position.
+ *
+ * @since_tizen 2.4
  *
  * @ingroup Ecore_IMF_Context_Group
  * @since 1.12.0

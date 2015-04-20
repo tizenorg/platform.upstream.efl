@@ -245,7 +245,7 @@ struct _Eina_Array
  * @brief Create a new array.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] step The count of pointers to add when increasing the array size.
@@ -264,7 +264,7 @@ EAPI Eina_Array *eina_array_new(unsigned int step) EINA_WARN_UNUSED_RESULT EINA_
  * @brief Free an array.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array to free.
@@ -281,7 +281,7 @@ EAPI void        eina_array_free(Eina_Array *array) EINA_ARG_NONNULL(1);
  * @brief Set the step of an array.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array.
@@ -301,7 +301,7 @@ EAPI void        eina_array_step_set(Eina_Array  *array,
  * @brief Clean an array.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array to clean.
@@ -317,7 +317,7 @@ static inline void eina_array_clean(Eina_Array *array) EINA_ARG_NONNULL(1);
  * @brief Flush an array.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array to flush.
@@ -333,7 +333,7 @@ EAPI void eina_array_flush(Eina_Array *array) EINA_ARG_NONNULL(1);
  * @brief Rebuild an array by specifying the data to keep.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array.
@@ -357,7 +357,7 @@ EAPI Eina_Bool eina_array_remove(Eina_Array * array,
  * @brief Append a data to an array.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array.
@@ -377,7 +377,7 @@ static inline Eina_Bool eina_array_push(Eina_Array *array,
  * @brief Remove the last data of an array.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array.
@@ -395,7 +395,7 @@ static inline void     *eina_array_pop(Eina_Array *array) EINA_ARG_NONNULL(1);
  * @brief Return the data at a given position in an array.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array.
@@ -412,7 +412,7 @@ static inline void     *eina_array_data_get(const Eina_Array *array,
  * @brief Set the data at a given position in an array.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array.
@@ -432,7 +432,7 @@ static inline void      eina_array_data_set(const Eina_Array *array,
  * @brief Return the number of elements in an array.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array.
@@ -450,7 +450,7 @@ static inline unsigned int eina_array_count_get(const Eina_Array *array) EINA_AR
  * @brief Return the number of elements in an array.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array.
@@ -466,7 +466,7 @@ static inline unsigned int eina_array_count(const Eina_Array *array) EINA_ARG_NO
  * @brief Get a new iterator associated to an array.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array.
@@ -483,7 +483,7 @@ EAPI Eina_Iterator        *eina_array_iterator_new(const Eina_Array *array) EINA
  * @brief Get a new accessor associated to an array.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array.
@@ -500,7 +500,7 @@ EAPI Eina_Accessor        *eina_array_accessor_new(const Eina_Array *array) EINA
  * @brief Provide a safe way to iterate over an array
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array to iterate over.

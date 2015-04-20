@@ -152,7 +152,7 @@ typedef void (*Eina_Rbtree_Free_Cb)(Eina_Rbtree *node, void *data);
  * @brief Insert a new node inside an existing red black tree.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] root The root of an exisiting valid red black tree.
@@ -171,7 +171,7 @@ EAPI Eina_Rbtree          *eina_rbtree_inline_insert(Eina_Rbtree *root, Eina_Rbt
  * @brief Remove a node from an existing red black tree.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] root The root of a valid red black tree.
@@ -190,7 +190,7 @@ EAPI Eina_Rbtree          *eina_rbtree_inline_remove(Eina_Rbtree *root, Eina_Rbt
  * @brief Delete all nodes from a valid red black tree.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] root The root of a valid red black tree.
@@ -207,7 +207,7 @@ static inline Eina_Rbtree *eina_rbtree_inline_lookup(const Eina_Rbtree *root, co
  * @brief Returned a new prefix iterator associated to a rbtree.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] root The root of rbtree.
@@ -231,7 +231,7 @@ EAPI Eina_Iterator        *eina_rbtree_iterator_prefix(const Eina_Rbtree *root) 
  * @brief Returned a new prefix iterator associated to a rbtree.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] root The root of rbtree.
@@ -255,7 +255,7 @@ EAPI Eina_Iterator        *eina_rbtree_iterator_infix(const Eina_Rbtree *root) E
  * @brief Returned a new prefix iterator associated to a rbtree.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] root The root of rbtree.

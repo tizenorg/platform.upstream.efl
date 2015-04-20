@@ -23,7 +23,7 @@
  * @brief Initialize a trash before using it.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[out] trash The trash.
@@ -44,7 +44,7 @@ eina_trash_init(Eina_Trash **trash)
  * @brief Push an unused pointer in the trash instead of freeing it.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[out] trash A pointer to an Eina_Trash.
@@ -74,7 +74,7 @@ eina_trash_push(Eina_Trash **trash, void *data)
  * @brief Pop an available pointer from the trash if possible.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[out] trash A pointer to an Eina_Trash.

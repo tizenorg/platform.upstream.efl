@@ -203,7 +203,7 @@ struct _Eina_Accessor
  * @brief Frees an accessor.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] accessor The accessor to free
@@ -216,7 +216,7 @@ EAPI void      eina_accessor_free(Eina_Accessor *accessor);
  * @brief Gets the data of an accessor at the given position.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] accessor The accessor
@@ -238,7 +238,7 @@ EAPI Eina_Bool eina_accessor_data_get(Eina_Accessor *accessor,
  * @brief Gets the container of an accessor.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] accessor The accessor
@@ -253,7 +253,7 @@ EAPI void *eina_accessor_container_get(Eina_Accessor *accessor) EINA_ARG_NONNULL
  * @brief Iterates over the container and executes a callback on the chosen elements.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] accessor The accessor
@@ -279,7 +279,7 @@ EAPI void  eina_accessor_over(Eina_Accessor *accessor,
  * @brief Locks the container of the accessor.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] accessor The accessor
@@ -308,7 +308,7 @@ EAPI Eina_Accessor* eina_accessor_clone(Eina_Accessor *accessor) EINA_ARG_NONNUL
  * @brief Unlock the container of the accessor.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] accessor The accessor

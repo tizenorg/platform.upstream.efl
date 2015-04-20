@@ -44,7 +44,7 @@ EAPI size_t        eina_unicode_strlen(const Eina_Unicode *ustr) EINA_ARG_NONNUL
  * @brief Returns the length of a Eina_Unicode string, up to a limit.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark This function returns the number of characters in string, up to a maximum
@@ -68,7 +68,7 @@ EAPI Eina_Unicode *eina_unicode_strdup(const Eina_Unicode *text) EINA_WARN_UNUSE
  * @brief Same as strdup but cuts on the given size. Assumes n < len
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] text The text to duplicate.
@@ -112,7 +112,7 @@ EAPI Eina_Unicode *eina_unicode_strncpy(Eina_Unicode *dest, const Eina_Unicode *
  * @brief @see eina_str_escape()
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] str The string to escape.
@@ -132,7 +132,7 @@ EAPI Eina_Unicode *eina_unicode_escape(const Eina_Unicode *str) EINA_ARG_NONNULL
  *   are the byte's value.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf the string
@@ -151,7 +151,7 @@ static inline Eina_Unicode eina_unicode_utf8_next_get(const char *buf, int *iind
  *   are the byte's value.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf the string
@@ -171,7 +171,7 @@ EAPI Eina_Unicode eina_unicode_utf8_get_next(const char *buf, int *iindex) EINA_
  *   are the byte's value.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf the string
@@ -187,7 +187,7 @@ EAPI Eina_Unicode eina_unicode_utf8_get_prev(const char *buf, int *iindex) EINA_
  * an Eina_Unicode string.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf the string
@@ -200,7 +200,7 @@ EAPI int eina_unicode_utf8_get_len(const char *buf) EINA_ARG_NONNULL(1);
  * @brief Converts a utf-8 string to a newly allocated Eina_Unicode string.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] utf the string in utf-8
@@ -214,7 +214,7 @@ EAPI Eina_Unicode *eina_unicode_utf8_to_unicode(const char *utf, int *_len) EINA
  * @brief Converts an Eina_Unicode string to a newly allocated utf-8 string.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] uni the Eina_Unicode string

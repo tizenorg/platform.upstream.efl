@@ -200,7 +200,7 @@ struct _Eina_Iterator
  * @brief Free an iterator.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] iterator The iterator to free.
@@ -214,7 +214,7 @@ EAPI void      eina_iterator_free(Eina_Iterator *iterator);
  * @brief Return the container of an iterator.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] iterator The iterator.
@@ -229,7 +229,7 @@ EAPI void     *eina_iterator_container_get(Eina_Iterator *iterator) EINA_ARG_NON
  * @brief Return the value of the current element and go to the next one.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] iterator The iterator.
@@ -249,7 +249,7 @@ EAPI Eina_Bool eina_iterator_next(Eina_Iterator *iterator,
  * @brief Iterate over the container and execute a callback on each element.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] iterator The iterator.

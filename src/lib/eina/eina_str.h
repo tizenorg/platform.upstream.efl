@@ -86,7 +86,7 @@
  * @brief Copy a c-string to another.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[out] dst The destination string.
@@ -110,7 +110,7 @@ EAPI size_t          eina_strlcpy(char *dst, const char *src, size_t siz) EINA_A
  * @brief Append a c-string.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] dst The destination string.
@@ -132,7 +132,7 @@ EAPI size_t          eina_strlcat(char *dst, const char *src, size_t siz) EINA_A
  * @brief Check if the given string has the given prefix.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] str The string to work with.
@@ -149,7 +149,7 @@ EAPI Eina_Bool       eina_str_has_prefix(const char *str, const char *prefix) EI
  * @brief Check if the given string has the given suffix.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] str The string to work with.
@@ -166,7 +166,7 @@ EAPI Eina_Bool       eina_str_has_suffix(const char *str, const char *suffix) EI
  * @brief Check if the given string has the given extension.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] str The string to work with.
@@ -182,7 +182,7 @@ EAPI Eina_Bool       eina_str_has_extension(const char *str, const char *ext) EI
  * @brief Split a string using a delimiter.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] string The string to split.
@@ -212,7 +212,7 @@ EAPI char          **eina_str_split(const char *string, const char *delimiter, i
  * @brief Split a string using a delimiter and returns number of elements.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] string The string to split.
@@ -250,7 +250,7 @@ EAPI char          **eina_str_split_full(const char *string, const char *delimit
  * @brief Join two strings of known length.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[out] dst The buffer to store the result.
@@ -283,7 +283,7 @@ EAPI size_t          eina_str_join_len(char *dst, size_t size, char sep, const c
  * @brief Use Iconv to convert a text string from one encoding to another.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] enc_from Encoding to convert from.
@@ -327,7 +327,7 @@ EAPI char           *eina_str_convert_len(const char *enc_from, const char *enc_
  * @brief Escape slashes, spaces and apostrophes in strings.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] str The string to escape.
@@ -345,7 +345,7 @@ EAPI char           *eina_str_escape(const char *str) EINA_WARN_UNUSED_RESULT EI
  * @brief Lowercase all the characters in range [A-Z] in the given string.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[out] str The string to lowercase.
@@ -360,7 +360,7 @@ EAPI void            eina_str_tolower(char **str);
  * @brief Uppercase all the characters in range [a-z] in the given string.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[out] str The string to uppercase.

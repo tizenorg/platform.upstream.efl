@@ -178,7 +178,7 @@ typedef const char Eina_Stringshare;
  * program.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in]   str The string to retrieve an instance of.
@@ -203,7 +203,7 @@ EAPI Eina_Stringshare  *eina_stringshare_add_length(const char *str, unsigned in
  * @brief Retrieve an instance of a string for use in a program.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in]   str The NULL-terminated string to retrieve an instance of.
@@ -228,7 +228,7 @@ EAPI Eina_Stringshare  *eina_stringshare_add(const char *str) EINA_WARN_UNUSED_R
  * from a format string.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in]   fmt The NULL-terminated format string to retrieve an instance of.
@@ -253,7 +253,7 @@ EAPI Eina_Stringshare  *eina_stringshare_printf(const char *fmt, ...) EINA_WARN_
  * from a format string.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in]   fmt The NULL-terminated format string to retrieve an instance of.
@@ -279,7 +279,7 @@ EAPI Eina_Stringshare  *eina_stringshare_vprintf(const char *fmt, va_list args) 
  * from a format string with size limitation.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in]   len The length of the format string to use
@@ -303,7 +303,7 @@ EAPI Eina_Stringshare  *eina_stringshare_nprintf(unsigned int len, const char *f
  * @brief Increment references of the given shared string.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] str The shared string.
@@ -323,7 +323,7 @@ EAPI Eina_Stringshare  *eina_stringshare_ref(Eina_Stringshare *str);
  * @brief Note that the given string has lost an instance.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] str string The given string.
@@ -342,7 +342,7 @@ EAPI void               eina_stringshare_del(Eina_Stringshare *str);
  * @brief Note that the given string @b must be shared.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] str the shared string to know the length. It is safe to
@@ -361,7 +361,7 @@ EAPI int                eina_stringshare_strlen(Eina_Stringshare *str) EINA_PURE
  * @brief Dump the contents of the share_common.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark This function dumps all strings in the share_common to stdout with a

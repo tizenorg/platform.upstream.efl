@@ -2,7 +2,7 @@
  * @brief Instantiate a new Edje object
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] evas A valid Evas handle, the canvas to place the new object
@@ -59,7 +59,7 @@ EAPI Evas_Object *edje_object_add                 (Evas *evas);
  * @brief Remove a signal-triggered callback from an object.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj A valid Evas_Object handle.
@@ -85,7 +85,7 @@ EAPI void        *edje_object_signal_callback_del (Evas_Object *obj, const char 
  * signal, emitted by a given Edje object.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj A handle to an Edje object
@@ -113,7 +113,7 @@ EAPI void        *edje_object_signal_callback_del_full(Evas_Object *obj, const c
  * @brief Delete the object color class.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj The edje object's reference.
@@ -147,7 +147,7 @@ EINA_DEPRECATED EAPI void         edje_extern_object_min_size_set (Evas_Object *
  * @brief Set the object maximum size.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj A valid Evas_Object handle
@@ -182,7 +182,7 @@ EAPI void         edje_extern_object_aspect_set   (Evas_Object *obj, Edje_Aspect
  * object's contents from
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @return @c EINA_TRUE, on success or @c EINA_FALSE, on errors (check
@@ -218,7 +218,7 @@ EAPI Eina_Bool edje_object_file_set(Eo *obj, const char *file, const char *group
  * @brief Get the file and group name that a given Edje object is bound to
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark This gets the EDJ file's path, with the respective group set for

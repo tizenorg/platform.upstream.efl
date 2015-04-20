@@ -93,7 +93,7 @@
  * @brief Retrieve an instance of a string for use in a program.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in]   str The string to retrieve an instance of.
@@ -119,7 +119,7 @@ EAPI const Eina_Unicode *eina_ustringshare_add_length(const Eina_Unicode *str, u
  * @brief Retrieve an instance of a string for use in a program.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in]   str The NULL-terminated string to retrieve an instance of.
@@ -144,7 +144,7 @@ EAPI const Eina_Unicode *eina_ustringshare_add(const Eina_Unicode *str) EINA_WAR
  * @brief Increment references of the given shared string.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] str The shared string.
@@ -164,7 +164,7 @@ EAPI const Eina_Unicode *eina_ustringshare_ref(const Eina_Unicode *str);
  * @brief Note that the given string has lost an instance.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] str string The given string.
@@ -183,7 +183,7 @@ EAPI void                eina_ustringshare_del(const Eina_Unicode *str);
  * @brief Note that the given string @b must be shared.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] str the shared string to know the length. It is safe to
@@ -201,7 +201,7 @@ EAPI int                 eina_ustringshare_strlen(const Eina_Unicode *str) EINA_
  * @brief Dump the contents of the share_common.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark This function dumps all strings in the share_common to stdout with a

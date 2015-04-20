@@ -166,7 +166,7 @@ EAPI extern Eina_Error EINA_ERROR_CONVERT_OUTRUN_STRING_LENGTH; /**< Not used, p
  * @brief Convert an integer number to a string in decimal base.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] n The integer to convert.
@@ -187,7 +187,7 @@ EAPI int       eina_convert_itoa(int n, char *s)  EINA_ARG_NONNULL(2);
  * @brief Convert an integer number to a string in hexadecimal base.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] n The integer to convert.
@@ -210,7 +210,7 @@ EAPI int       eina_convert_xtoa(unsigned int n, char *s) EINA_ARG_NONNULL(2);
  * @brief Convert a double to a string.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] d The double to convert.
@@ -238,7 +238,7 @@ EAPI int       eina_convert_dtoa(double d, char *des) EINA_ARG_NONNULL(2);
  * @brief Convert a string to a double.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] src The string to convert.
@@ -283,7 +283,7 @@ EAPI Eina_Bool eina_convert_atod(const char *src,
  * @brief Convert a 32.32 fixed point number to a string.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] fp The fixed point number to convert.
@@ -317,7 +317,7 @@ EAPI int       eina_convert_fptoa(Eina_F32p32 fp,
  * @brief Convert a string to a 32.32 fixed point number.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] src The string to convert.

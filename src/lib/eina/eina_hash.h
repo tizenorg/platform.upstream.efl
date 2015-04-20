@@ -349,7 +349,7 @@ typedef Eina_Bool    (*Eina_Hash_Foreach)(const Eina_Hash *hash, const void *key
  * @brief Create a new hash table.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] key_length_cb The function called when getting the size of the key.
@@ -388,7 +388,7 @@ EAPI Eina_Hash *eina_hash_new(Eina_Key_Length key_length_cb,
  * @brief Redefine the callback that clean the data of a hash
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The given hash table
@@ -408,7 +408,7 @@ EAPI void eina_hash_free_cb_set(Eina_Hash *hash, Eina_Free_Cb data_free_cb) EINA
  * @brief Create a new hash table using the djb2 algorithm.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] data_free_cb The function called on each value when the hash table
@@ -427,7 +427,7 @@ EAPI Eina_Hash *eina_hash_string_djb2_new(Eina_Free_Cb data_free_cb);
  * @brief Create a new hash table for use with strings.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] data_free_cb The function called on each value when the hash table
@@ -450,7 +450,7 @@ EAPI Eina_Hash *eina_hash_string_superfast_new(Eina_Free_Cb data_free_cb);
  * @brief Create a new hash table for use with strings with small bucket size.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] data_free_cb  The function called on each value when the hash table
@@ -472,7 +472,7 @@ EAPI Eina_Hash *eina_hash_string_small_new(Eina_Free_Cb data_free_cb);
  * @brief Create a new hash table for use with 32bit integers.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] data_free_cb  The function called on each value when the hash table
@@ -495,7 +495,7 @@ EAPI Eina_Hash *eina_hash_int32_new(Eina_Free_Cb data_free_cb);
  * @brief Create a new hash table for use with 64bit integers.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] data_free_cb  The function called on each value when the hash table
@@ -517,7 +517,7 @@ EAPI Eina_Hash *eina_hash_int64_new(Eina_Free_Cb data_free_cb);
  * @brief Create a new hash table for use with pointers.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] data_free_cb  The function called on each value when the hash table
@@ -547,7 +547,7 @@ EAPI Eina_Hash *eina_hash_pointer_new(Eina_Free_Cb data_free_cb);
  * @brief Create a new hash table optimized for stringshared values.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] data_free_cb  The function called on each value when the hash table
@@ -577,7 +577,7 @@ EAPI Eina_Hash *eina_hash_stringshared_new(Eina_Free_Cb data_free_cb);
  * @brief Add an entry to the given hash table.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The given hash table. Cannot be @c NULL.
@@ -607,7 +607,7 @@ EAPI Eina_Bool  eina_hash_add(Eina_Hash  *hash,
  * key.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The given hash table. Cannot be @c NULL.
@@ -639,7 +639,7 @@ EAPI Eina_Bool eina_hash_direct_add(Eina_Hash  *hash,
  * hash table.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The given hash table.
@@ -669,7 +669,7 @@ EAPI Eina_Bool eina_hash_del(Eina_Hash  *hash,
  * @brief Retrieve a specific entry in the given hash table.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The given hash table.
@@ -690,7 +690,7 @@ EAPI void *eina_hash_find(const Eina_Hash *hash,
  * entry.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The given hash table.
@@ -712,7 +712,7 @@ EAPI void *eina_hash_modify(Eina_Hash  *hash,
  * old entry or add the entry if not found.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The given hash table.
@@ -735,7 +735,7 @@ EAPI void *eina_hash_set(Eina_Hash  *hash,
  * free callback.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash    The given hash table.
@@ -755,7 +755,7 @@ EAPI Eina_Bool eina_hash_move(Eina_Hash  *hash,
  * @brief Free the given hash table resources.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The hash table to be freed.
@@ -783,7 +783,7 @@ EAPI void      eina_hash_free(Eina_Hash *hash) EINA_ARG_NONNULL(1);
  * @brief Free the given hash table buckets resources.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The hash table whose buckets have to be freed.
@@ -801,7 +801,7 @@ EAPI void      eina_hash_free_buckets(Eina_Hash *hash) EINA_ARG_NONNULL(1);
  * @brief Returns the number of entries in the given hash table.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The given hash table.
@@ -816,7 +816,7 @@ EAPI int       eina_hash_population(const Eina_Hash *hash) EINA_ARG_NONNULL(1);
  * @brief Add an entry to the given hash table.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The given hash table. Cannot be @c NULL.
@@ -851,7 +851,7 @@ EAPI Eina_Bool eina_hash_add_by_hash(Eina_Hash  *hash,
  * key.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The given hash table. Cannot be @c NULL.
@@ -889,7 +889,7 @@ EAPI Eina_Bool eina_hash_direct_add_by_hash(Eina_Hash  *hash,
  * hash table.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The given hash table. Cannot be @c NULL.
@@ -918,7 +918,7 @@ EAPI Eina_Bool eina_hash_del_by_key_hash(Eina_Hash  *hash,
  * @brief Remove the entry identified by a key from the given hash table.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark This version will calculate key length and hash by using functions
@@ -947,7 +947,7 @@ EAPI Eina_Bool eina_hash_del_by_key(Eina_Hash  *hash,
  * @brief Remove the entry identified by a data from the given hash table.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark This version is slow since there is no quick access to nodes based on data.
@@ -975,7 +975,7 @@ EAPI Eina_Bool eina_hash_del_by_data(Eina_Hash  *hash,
  * data from the given hash table.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark If @p key is @c NULL, then @p data is used to find a match to
@@ -1013,7 +1013,7 @@ EAPI Eina_Bool eina_hash_del_by_hash(Eina_Hash  *hash,
  * @brief Retrieve a specific entry in the given hash table.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The given hash table. Cannot be @c NULL.
@@ -1040,7 +1040,7 @@ EAPI void *eina_hash_find_by_hash(const Eina_Hash *hash,
  * the old entry.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The given hash table.
@@ -1064,7 +1064,7 @@ EAPI void *eina_hash_modify_by_hash(Eina_Hash  *hash,
  * @brief Returned a new iterator associated to hash keys.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The hash.
@@ -1088,7 +1088,7 @@ EAPI Eina_Iterator *eina_hash_iterator_key_new(const Eina_Hash *hash) EINA_MALLO
  * @brief Returned a new iterator associated to hash data.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The hash.
@@ -1112,7 +1112,7 @@ EAPI Eina_Iterator *eina_hash_iterator_data_new(const Eina_Hash *hash) EINA_MALL
  * @brief Returned a new iterator associated to hash keys and data.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The hash.
@@ -1139,7 +1139,7 @@ EAPI Eina_Iterator *eina_hash_iterator_tuple_new(const Eina_Hash *hash) EINA_MAL
  * @brief Call a function on every member stored in the hash table
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] hash The hash table whose members will be walked
@@ -1183,7 +1183,7 @@ EAPI void           eina_hash_foreach(const Eina_Hash  *hash,
  * @brief Append data to an #Eina_List inside a hash
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark This function is identical to the sequence of calling
@@ -1199,7 +1199,7 @@ EAPI void eina_hash_list_append(Eina_Hash *hash, const void *key, const void *da
  * @brief Append data to an #Eina_List inside a hash
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark This function is identical to the sequence of calling
@@ -1215,7 +1215,7 @@ EAPI void eina_hash_list_prepend(Eina_Hash *hash, const void *key, const void *d
  * @brief Append data to an #Eina_List inside a hash
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark This function is identical to the sequence of calling
@@ -1233,7 +1233,7 @@ EAPI void eina_hash_list_remove(Eina_Hash *hash, const void *key, const void *da
  * Paul Hsieh (http://www.azillionmonkeys.com/qed/hash.html) hash function used by WebCore (http://webkit.org/blog/8/hashtables-part-2/)
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] key The key to hash
@@ -1248,7 +1248,7 @@ EAPI int eina_hash_superfast(const char *key,
  * Hash function first reported by Dan Bernstein many years ago in comp.lang.c
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] key The key to hash
@@ -1262,7 +1262,7 @@ static inline int eina_hash_djb2(const char *key,
  * Hash function first reported by Dan Bernstein many years ago in comp.lang.c
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] key The key to hash
@@ -1277,7 +1277,7 @@ static inline int eina_hash_djb2_len(const char *key,
  * Hash function from http://www.concentric.net/~Ttwang/tech/inthash.htm
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] pkey The key to hash
@@ -1291,7 +1291,7 @@ static inline int eina_hash_int32(const unsigned int *pkey,
  * Hash function from http://www.concentric.net/~Ttwang/tech/inthash.htm
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] pkey The key to hash
@@ -1306,7 +1306,7 @@ static inline int eina_hash_int64(const unsigned long long int *pkey,
  * Hash function from http://sites.google.com/site/murmurhash/
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] key The key to hash

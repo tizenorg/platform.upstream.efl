@@ -124,7 +124,7 @@ typedef const char Eina_Tmpstr;
  * @brief Add a new temporary string based on the input string.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] str This is the input stringthat is copied into the temp string.
@@ -172,7 +172,7 @@ EAPI Eina_Tmpstr *eina_tmpstr_add(const char *str) EINA_WARN_UNUSED_RESULT;
  * @brief Add a new temporary string based on the input string and length.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] str This is the input string that is copied into the temp string.
@@ -209,7 +209,7 @@ EAPI Eina_Tmpstr *eina_tmpstr_add_length(const char *str, size_t length);
  * @brief Return the length of a temporary string including the '\0'.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] tmpstr This is any C string pointer, but if it is a tmp string
@@ -224,7 +224,7 @@ EAPI size_t eina_tmpstr_strlen(Eina_Tmpstr *tmpstr);
  * @brief Delete the temporary string if it is one, or ignore it if it is not.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] tmpstr This is any C string pointer, but if it is a tmp string

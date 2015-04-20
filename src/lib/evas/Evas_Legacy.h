@@ -17,7 +17,7 @@ EAPI void                    evas_font_reinit(void);
  * @brief Creates a new empty evas.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark Note that before you can use the evas, you will to at a minimum:
@@ -46,7 +46,7 @@ EAPI Evas             *evas_new(void) EINA_WARN_UNUSED_RESULT EINA_MALLOC;
  * @brief Frees the given evas and any objects created on it.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark Any objects with 'free' callbacks will have those callbacks called
@@ -75,7 +75,7 @@ EAPI void              evas_free(Evas *e)  EINA_ARG_NONNULL(1);
  * @brief Add (register) a callback function to a given canvas event.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] e Canvas to attach a callback to
@@ -145,7 +145,7 @@ EAPI void  evas_event_callback_add(Evas *e, Evas_Callback_Type type, Evas_Event_
  * same as @ref evas_event_callback_add
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] e Canvas to attach a callback to
@@ -164,7 +164,7 @@ EAPI void  evas_event_callback_priority_add(Evas *e, Evas_Callback_Type type, Ev
  * @brief Delete a callback function from the canvas.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] e Canvas to remove a callback from
@@ -195,7 +195,7 @@ EAPI void *evas_event_callback_del(Evas *e, Evas_Callback_Type type, Evas_Event_
  * canvas event.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] e Canvas to remove an event callback from
@@ -230,7 +230,7 @@ EAPI void *evas_event_callback_del_full(Evas *e, Evas_Callback_Type type, Evas_E
  * @brief Push a callback on the post-event callback stack
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] e Canvas to push the callback on
@@ -259,7 +259,7 @@ EAPI void  evas_post_event_callback_push(Evas *e, Evas_Object_Event_Post_Cb func
  * @brief Remove a callback from the post-event callback stack
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] e Canvas to push the callback on
@@ -276,7 +276,7 @@ EAPI void  evas_post_event_callback_remove(Evas *e, Evas_Object_Event_Post_Cb fu
  * @brief Remove a callback from the post-event callback stack
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] e Canvas to push the callback on
@@ -304,7 +304,7 @@ EAPI void  evas_post_event_callback_remove_full(Evas *e, Evas_Object_Event_Post_
  * @brief Freeze all input events processing.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] e The canvas to freeze input events processing on.
@@ -339,7 +339,7 @@ EAPI void             evas_event_freeze(Evas *e) EINA_ARG_NONNULL(1);
  * @brief Thaw a canvas out after freezing (for input events).
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] e The canvas to thaw out.
@@ -358,7 +358,7 @@ EAPI void             evas_event_thaw(Evas *e) EINA_ARG_NONNULL(1);
  * @brief Return the freeze count on input events of a given canvas.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] e The canvas to fetch the freeze count from.
@@ -384,7 +384,7 @@ EAPI int              evas_event_freeze_get(const Evas *e) EINA_WARN_UNUSED_RESU
  * @brief After thaw of a canvas, re-evaluate the state of objects and call callbacks
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] e The canvas to evaluate after a thaw
@@ -424,7 +424,7 @@ EAPI void                    evas_font_available_list_free(Evas *e, Eina_List *a
  * @brief Increments object reference count to defer its deletion.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj The given Evas object to reference
@@ -468,7 +468,7 @@ EAPI void             evas_object_ref(Evas_Object *obj);
  * @brief Decrements object reference count.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj The given Evas object to unreference
@@ -490,7 +490,7 @@ EAPI void             evas_object_unref(Evas_Object *obj);
  * @brief Get the object reference count.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj The given Evas object to query
@@ -514,7 +514,7 @@ EAPI int              evas_object_ref_get(const Evas_Object *obj);
  * memory).
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj The given Evas object.
@@ -540,7 +540,7 @@ EAPI void             evas_object_del(Evas_Object *obj) EINA_ARG_NONNULL(1);
  * object.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj The given Evas object.
@@ -602,7 +602,7 @@ EAPI void             evas_object_geometry_set(Evas_Object *obj, Evas_Coord x, E
  * @brief Makes the given Evas object visible.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj The given Evas object.
@@ -621,7 +621,7 @@ EAPI void             evas_object_show(Evas_Object *obj) EINA_ARG_NONNULL(1);
  * @brief Makes the given Evas object invisible.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj The given Evas object.
@@ -659,7 +659,7 @@ EAPI void             evas_object_hide(Evas_Object *obj) EINA_ARG_NONNULL(1);
  * one.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @see evas_object_color_get() (for an example)
@@ -679,7 +679,7 @@ EAPI void evas_object_color_set(Evas_Object *obj, int r, int g, int b, int a);
  * @brief Retrieves the general/main color of the given Evas object.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark Retrieves the “main” color's RGB component (and alpha channel)
@@ -720,7 +720,7 @@ EAPI void evas_object_color_get(const Evas_Object *obj, int *r, int *g, int *b, 
  * @brief Move the given Evas object to the given location inside its canvas' viewport.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj The given Evas object.
@@ -733,7 +733,7 @@ EAPI void evas_object_move(Evas_Object *obj, Evas_Coord x, Evas_Coord y);
  * @brief Changes the size of the given Evas object.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj The given Evas object.
@@ -746,7 +746,7 @@ EAPI void evas_object_resize(Evas_Object *obj, Evas_Coord w, Evas_Coord h);
  * @brief Retrieves whether or not the given Evas object is visible.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  */
@@ -770,7 +770,7 @@ EAPI Eina_Bool evas_object_visible_get(const Evas_Object *obj);
  * @brief Add (register) a callback function to a given Evas object event.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj Object to attach a callback to
@@ -967,7 +967,7 @@ EAPI void      evas_object_event_callback_add(Evas_Object *obj, Evas_Callback_Ty
  * same as @ref evas_object_event_callback_add
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj Object to attach a callback to
@@ -985,7 +985,7 @@ EAPI void      evas_object_event_callback_priority_add(Evas_Object *obj, Evas_Ca
  * @brief Delete a callback function from an object
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj Object to remove a callback from
@@ -1016,7 +1016,7 @@ EAPI void     *evas_object_event_callback_del(Evas_Object *obj, Evas_Callback_Ty
  * Evas object event.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj Object to remove a callback from
@@ -1063,7 +1063,7 @@ EAPI void     *evas_object_event_callback_del_full(Evas_Object *obj, Evas_Callba
  * @brief Set an attached data pointer to an object with a given string key.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj The object to attach the data pointer to
@@ -1108,7 +1108,7 @@ EAPI void                     evas_object_data_set(Evas_Object *obj, const char 
  * string key.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj The object to which the data was attached
@@ -1142,7 +1142,7 @@ EAPI void                    *evas_object_data_get(const Evas_Object *obj, const
  * @brief Delete an attached data pointer from an object.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj The object to delete the data pointer from
@@ -1594,7 +1594,7 @@ EAPI void *evas_object_intercept_focus_set_callback_del(Evas_Object *obj, Evas_O
  * @param[in]   e The given evas.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @return  The new rectangle object.
@@ -2443,7 +2443,7 @@ EAPI void evas_vg_gradient_radial_focal_get(Eo *obj, double *x, double *y);
  * @brief Creates a new image object on the given Evas @p e canvas.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] e The given canvas.
@@ -2472,7 +2472,7 @@ EAPI Evas_Object                  *evas_object_image_add(Evas *e) EINA_WARN_UNUS
  * image to the object's area, on both axis.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] e The given canvas.
@@ -2495,7 +2495,7 @@ EAPI Evas_Object                  *evas_object_image_filled_add(Evas *e) EINA_WA
  * @brief Sets the data for an image from memory to be loaded
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark This is the same as evas_object_image_file_set() but the file to be loaded
@@ -2524,7 +2524,7 @@ EAPI void                          evas_object_image_memfile_set(Evas_Object *ob
  * @brief Set the native surface of a given image of the canvas
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj The given canvas pointer.
@@ -2539,7 +2539,7 @@ EAPI void                          evas_object_image_native_surface_set(Evas_Obj
  * @brief Preload an image object's image data in the background
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj The given image object.
@@ -2570,7 +2570,7 @@ EAPI void                          evas_object_image_preload(Evas_Object *obj, E
  * @brief Clear the source object on a proxy image object.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj Image object to clear source of.
@@ -2585,7 +2585,7 @@ EAPI Eina_Bool                     evas_object_image_source_unset(Evas_Object *o
  * @brief Enable an image to be used as an alpha mask.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark This will set any flags, and discard any excess image data not used as an
@@ -2605,7 +2605,7 @@ EAPI void                          evas_object_image_alpha_mask_set(Evas_Object 
  * image data (it may be an Eet file, besides pure image ones).
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark If the file supports multiple data stored in it (as Eet files do),
@@ -2641,7 +2641,7 @@ EAPI void evas_object_image_file_set(Eo *obj, const char *file, const char *key)
  * real image data (it may be an Eet file, besides pure image ones).
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark You must @b not modify the strings on the returned pointers.
@@ -2694,7 +2694,7 @@ EAPI void evas_object_image_mmap_get(const Eo *obj, const Eina_File **f, const c
  * Save the given image object's contents to an (image) file.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark The extension suffix on @p file will determine which <b>saver
@@ -2719,7 +2719,7 @@ EAPI Eina_Bool evas_object_image_save(const Eo *obj, const char *file, const cha
  * @brief Check if an image object can be animated (have multiple frames)
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @return whether obj support animation
@@ -2776,7 +2776,7 @@ EAPI Eina_Bool evas_object_image_animated_get(const Eo *obj);
  * @brief Set the load size of a given image object's source image.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark This function sets a new geometry size for the given canvas image.
@@ -2797,7 +2797,7 @@ EAPI void evas_object_image_load_size_set(Eo *obj, int w, int h);
  * @brief Get the load size of a given image object's source image.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark This function gets the geometry size set manually for the given canvas image.
@@ -2820,7 +2820,7 @@ EAPI void evas_object_image_load_size_get(const Eo *obj, int *w, int *h);
  * given image object.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark When enabled, a higher quality image scaling algorithm is used when
@@ -2842,7 +2842,7 @@ EAPI void evas_object_image_smooth_scale_set(Eo *obj, Eina_Bool smooth_scale);
  * image scaling algorithm.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @return Whether smooth scale is being used.
@@ -2868,7 +2868,7 @@ EAPI Eina_Bool evas_object_image_smooth_scale_get(const Eo *obj);
  * @brief Creates a new text object on the provided canvas.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] e The canvas to create the text object on.
@@ -2888,7 +2888,7 @@ EAPI Evas_Object         *evas_object_text_add(Evas *e) EINA_WARN_UNUSED_RESULT 
  * @brief Sets the text string to be displayed by the given text object.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @see evas_object_text_text_get()
@@ -2902,7 +2902,7 @@ EAPI void evas_object_text_text_set(Eo *obj, const char *text);
  * text object.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @return The text string currently being displayed on it.
@@ -2920,7 +2920,7 @@ EAPI const char *evas_object_text_text_get(const Eo *obj);
  * @brief Set the font (source) file to be used on a given text object.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark This function allows the font file to be explicitly set for a given
@@ -2938,7 +2938,7 @@ EAPI void evas_object_text_font_source_set(Eo *obj, const char *font_source);
  * object.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @return The font file's path.
@@ -2952,7 +2952,7 @@ EAPI const char *evas_object_text_font_source_get(const Eo *obj);
  * @brief Set the font family or filename, and size on a given text object.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark This function allows the font name and size of a text object to be
@@ -2973,7 +2973,7 @@ EAPI void evas_object_text_font_set(Eo *obj, const char *font, Evas_Font_Size si
  * @brief Retrieve the font family and size in use on a given text object.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark This function allows the font name and size of a text object to be
@@ -3004,7 +3004,7 @@ EAPI void evas_object_text_font_get(const Eo *obj, const char **font, Evas_Font_
  * @param[in]   e The given evas.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @return  The new textblock object.
@@ -3015,7 +3015,7 @@ EAPI Evas_Object                             *evas_object_textblock_add(Evas *e)
  * @brief Return the plain version of the markup.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark Works as if you set the markup to a textblock and then retrieve the plain
@@ -3034,7 +3034,7 @@ EAPI char                                    *evas_textblock_text_markup_to_utf8
  * @brief Return the markup version of the plain text.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @remark Replaces \\n -\> \<br/\> \\t -\> \<tab/\> and etc. Generally needed before you pass
@@ -3053,7 +3053,7 @@ EAPI char                                    *evas_textblock_text_utf8_to_markup
  * @remark Does *NOT* free the Evas object itself.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj the object to clear.
@@ -3186,7 +3186,7 @@ EAPI void evas_object_textgrid_font_get(const Eo *obj, const char **font_name, E
  * @param[in]   e The given evas.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @return  The new evas line object.
@@ -3209,7 +3209,7 @@ EAPI Evas_Object *evas_object_line_add(Evas *e) EINA_WARN_UNUSED_RESULT EINA_ARG
  * @param[in]   e The given evas.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @return  A new evas polygon object.
@@ -3236,7 +3236,7 @@ EAPI Evas_Object *evas_object_polygon_add(Evas *e) EINA_WARN_UNUSED_RESULT EINA_
  * @brief Instantiates a new smart object described by @p s.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] e the canvas on which to add the object
@@ -3257,7 +3257,7 @@ EAPI Evas_Object *evas_object_smart_add(Evas *e, Evas_Smart *s) EINA_WARN_UNUSED
  * @brief Set an Evas object as a member of a given smart object.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj The member object
@@ -3283,7 +3283,7 @@ EAPI void         evas_object_smart_member_add(Evas_Object *obj, Evas_Object *sm
  * @brief Removes a member object from a given smart object.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj the member object
@@ -3303,7 +3303,7 @@ EAPI void         evas_object_smart_member_del(Evas_Object *obj) EINA_ARG_NONNUL
  * @p event on the smart object @p obj.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj a smart object
@@ -3364,7 +3364,7 @@ EAPI void         evas_object_smart_callback_priority_add(Evas_Object *obj, cons
  * specified by @p event on the smart object @p obj.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj a smart object
@@ -3391,7 +3391,7 @@ EAPI void        *evas_object_smart_callback_del(Evas_Object *obj, const char *e
  * specified by @p event on the smart object @p obj.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj a smart object
@@ -3422,7 +3422,7 @@ EAPI void        *evas_object_smart_callback_del_full(Evas_Object *obj, const ch
  * @brief Call a given smart callback on the smart object @p obj.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] obj the smart object
@@ -3477,7 +3477,7 @@ EAPI void             *evas_object_smart_interface_data_get(const Evas_Object *o
  * @brief This gets the internal counter that counts the number of smart calculations
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] e The canvas to get the calculate counter from
@@ -3536,7 +3536,7 @@ EAPI Evas_Object            *evas_object_smart_clipped_clipper_get(const Evas_Ob
  * @brief Add a new box object on the provided canvas.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] evas The canvas to create the box object on.
@@ -3556,7 +3556,7 @@ EAPI Evas_Object               *evas_object_box_add(Evas *evas) EINA_WARN_UNUSED
  * given box child element -- by a variable argument list
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] o The box parenting the child element
@@ -3579,7 +3579,7 @@ EAPI Eina_Bool                  evas_object_box_option_property_vget(const Evas_
  * given box child element -- by a variable argument list
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] o The box parenting the child element
@@ -3602,7 +3602,7 @@ EAPI Eina_Bool                  evas_object_box_option_property_vset(Evas_Object
  * given box child element
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] o The box parenting the child element
@@ -3633,7 +3633,7 @@ EAPI Eina_Bool                  evas_object_box_option_property_set(Evas_Object 
  * given box child element
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] o The box parenting the child element
@@ -3663,7 +3663,7 @@ EAPI Eina_Bool                  evas_object_box_option_property_get(const Evas_O
  * @brief Get the list of children objects in a given box object.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] o The box to retrieve an items list from
@@ -3695,7 +3695,7 @@ EAPI Eina_List                 *evas_object_box_children_get(const Evas_Object *
  * @brief Create a new table.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] evas Canvas in which table will be added.
@@ -3706,7 +3706,7 @@ EAPI Evas_Object                       *evas_object_table_add(Evas *evas) EINA_W
  * @brief Get the child of the table at the given coordinates
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] o The given Evas object.
@@ -3732,7 +3732,7 @@ EAPI Evas_Object                       *evas_object_table_child_get(const Evas_O
  * @brief Create a new grid.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] evas Canvas in which grid will be added.

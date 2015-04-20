@@ -46,7 +46,7 @@ struct _Eina_Trash
  * @brief Initializes a trash before using it.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] trash The trash
@@ -63,7 +63,7 @@ static inline void  eina_trash_init(Eina_Trash **trash) EINA_ARG_NONNULL(1);
  * @brief Pushes an unused pointer in the trash instead of freeing it.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] trash A pointer to an Eina_Trash
@@ -85,7 +85,7 @@ static inline void  eina_trash_push(Eina_Trash **trash, void *data) EINA_ARG_NON
  * @brief Pops an available pointer from the trash if possible.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] trash A #Eina_Trash handle

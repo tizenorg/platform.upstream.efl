@@ -112,7 +112,7 @@ extern EAPI Eina_Error EINA_ERROR_MODULE_INIT_FAILED;
  * @brief Return a new module.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] file The name of the file module to load.
@@ -133,7 +133,7 @@ EAPI Eina_Module *
  * @brief Delete a module.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] module The module to delete.
@@ -151,7 +151,7 @@ EAPI Eina_Bool
  * @brief Load a module.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] module The module to load.
@@ -176,7 +176,7 @@ EAPI Eina_Bool
  * @brief Unload a module.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] module The module to load.
@@ -197,7 +197,7 @@ EAPI Eina_Bool
  * @brief Retrieve the data associated to a symbol.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] module The module.
@@ -216,7 +216,7 @@ EAPI void *
  * @brief Return the file name associated to the module.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] module The module.
@@ -233,7 +233,7 @@ EAPI const char *
  * @brief Define if on module load we should expose all symbol
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] module The module to turn off/on symbol to be exposed
@@ -247,7 +247,7 @@ EAPI void eina_module_symbol_global_set(Eina_Module *module, Eina_Bool global) E
  * given sub directory.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] symbol The symbol to search for.
@@ -268,7 +268,7 @@ EAPI char *
  * given sub directory.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] env The environment variable to expand.
@@ -289,7 +289,7 @@ EAPI char *
  * @brief Get an array of modules found on the directory path matching an arch type.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array that stores the list of the modules.
@@ -309,7 +309,7 @@ EAPI Eina_Array *
  * @brief Get a list of modules found on the directory path.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array that stores the list of the modules.
@@ -335,7 +335,7 @@ EAPI Eina_Array *
  * @brief Load every module on the list of modules.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array of modules to load.
@@ -350,7 +350,7 @@ EAPI void
  * @brief Unload every module on the list of modules.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array of modules to unload.
@@ -365,7 +365,7 @@ EAPI void
  * @brief @p Free every module on the list of modules.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array of modules to free.
@@ -380,7 +380,7 @@ EAPI void
  * @brief Find an module in array.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] array The array to find the module.

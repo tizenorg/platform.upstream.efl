@@ -12,7 +12,7 @@ extern "C" {
  * @brief Creates a poller to call the given function at a particular tick interval.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] type The ticker type to attach the poller to. Must be ECORE_POLLER_CORE.
@@ -44,7 +44,7 @@ EAPI Ecore_Poller *ecore_poller_add(Ecore_Poller_Type type, int interval, Ecore_
  * @brief Delete the specified poller from the timer list.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] poller The poller to delete.
@@ -73,7 +73,7 @@ EAPI void *ecore_poller_del(Ecore_Poller *poller);
  * loop execution.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] func The function to call when it ticks off
@@ -101,7 +101,7 @@ EAPI Ecore_Animator *ecore_animator_add(Ecore_Task_Cb func, const void *data);
  * @brief Add an animator that runs for a limited time
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] runtime The time to run in seconds
@@ -134,7 +134,7 @@ EAPI Ecore_Animator *ecore_animator_timeline_add(double runtime, Ecore_Timeline_
  * @brief Delete the specified animator from the animator list.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] animator The animator to delete
@@ -153,7 +153,7 @@ EAPI void *ecore_animator_del(Ecore_Animator *animator);
  * @brief Suspend the specified animator.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] animator The animator to freeze
@@ -173,7 +173,7 @@ EAPI void ecore_animator_freeze(Ecore_Animator *animator);
  * @brief Restore execution of the specified animator.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] animator The animator to thaw (restore)
@@ -201,7 +201,7 @@ EAPI Ecore_Timer *ecore_timer_add(double in, Ecore_Task_Cb func, const void *dat
  * @brief Creates a timer to call the given function in the given period of time.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in]   in   The interval in seconds from current loop time.
@@ -220,7 +220,7 @@ EAPI Ecore_Timer *ecore_timer_loop_add(double in, Ecore_Task_Cb func, const void
  * @brief Delete the specified timer from the timer list.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in]   timer The timer to delete.
@@ -253,7 +253,7 @@ EAPI void ecore_timer_thaw(Ecore_Timer *timer);
  * @brief Add an idler handler.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in]  func The function to call when idling.
@@ -274,7 +274,7 @@ EAPI Ecore_Idler *ecore_idler_add(Ecore_Task_Cb func, const void *data);
  * @brief Delete an idler callback from the list to be executed.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in]  idler The handle of the idler callback to delete
@@ -287,7 +287,7 @@ EAPI void *ecore_idler_del(Ecore_Idler *idler);
  * @brief Add an idle enterer handler.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in]   func The function to call when entering an idle state.
@@ -304,7 +304,7 @@ EAPI Ecore_Idle_Enterer *ecore_idle_enterer_add(Ecore_Task_Cb func, const void *
  * @brief Add an idle enterer handler at the start of the list so it gets called earlier than others.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in]   func The function to call when entering an idle state.
@@ -321,7 +321,7 @@ EAPI Ecore_Idle_Enterer *ecore_idle_enterer_before_add(Ecore_Task_Cb func, const
  * @brief Delete an idle enterer callback.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in]   idle_enterer The idle enterer to delete
@@ -334,7 +334,7 @@ EAPI void *ecore_idle_enterer_del(Ecore_Idle_Enterer *idle_enterer);
  * @brief Add an idle exiter handler.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] func The function to call when exiting an idle state.
@@ -350,7 +350,7 @@ EAPI Ecore_Idle_Exiter *ecore_idle_exiter_add(Ecore_Task_Cb func, const void *da
  * @brief Delete an idle exiter handler from the list to be run on exiting idle state.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] idle_exiter The idle exiter to delete
@@ -386,7 +386,7 @@ EAPI void *ecore_idle_exiter_del(Ecore_Idle_Exiter *idle_exiter);
  * @brief Add a job to the event queue.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in]   func The function to call when the job gets handled.
@@ -402,7 +402,7 @@ EAPI Ecore_Job *ecore_job_add(Ecore_Cb func, const void *data);
  * @brief Delete a queued job that has not yet been executed.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in]   obj  Handle of the job to delete.

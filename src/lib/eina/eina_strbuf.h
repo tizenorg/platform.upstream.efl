@@ -68,7 +68,7 @@ typedef struct _Eina_Strbuf Eina_Strbuf;
  * @brief Create a new string buffer.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @return Newly allocated string buffer instance.
@@ -87,7 +87,7 @@ EAPI Eina_Strbuf *eina_strbuf_new(void) EINA_MALLOC EINA_WARN_UNUSED_RESULT;
  * string is used directly as the buffer, it's somehow the opposite function of
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @ref eina_strbuf_string_steal . The passed string must be malloced.
@@ -110,7 +110,7 @@ EAPI Eina_Strbuf *eina_strbuf_manage_new(char *str) EINA_MALLOC EINA_WARN_UNUSED
  * string is used directly as the buffer, it's somehow the opposite function of
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @ref eina_strbuf_string_steal . The passed string must be malloced.
@@ -148,7 +148,7 @@ EAPI Eina_Strbuf *eina_strbuf_manage_read_only_new_length(const char *str, size_
  * @brief Free a string buffer.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to free.
@@ -162,7 +162,7 @@ EAPI void eina_strbuf_free(Eina_Strbuf *buf) EINA_ARG_NONNULL(1);
  * @brief Reset a string buffer.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to reset.
@@ -176,7 +176,7 @@ EAPI void eina_strbuf_reset(Eina_Strbuf *buf) EINA_ARG_NONNULL(1);
  * @brief Append a string to a buffer, reallocating as necessary.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to append to.
@@ -198,7 +198,7 @@ EAPI Eina_Bool eina_strbuf_append(Eina_Strbuf *buf, const char *str) EINA_ARG_NO
  * @brief Append an escaped string to a buffer, reallocating as necessary.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to append to.
@@ -216,7 +216,7 @@ EAPI Eina_Bool eina_strbuf_append_escaped(Eina_Strbuf *buf, const char *str) EIN
  * limited by the given length.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to append to.
@@ -242,7 +242,7 @@ EAPI Eina_Bool eina_strbuf_append_n(Eina_Strbuf *buf, const char *str, size_t ma
  * @brief Append a string of exact length to a buffer, reallocating as necessary.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to append to.
@@ -287,7 +287,7 @@ EAPI Eina_Bool eina_strbuf_append_buffer(Eina_Strbuf *buf, const Eina_Strbuf *da
  * necessary.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to append to.
@@ -303,7 +303,7 @@ EAPI Eina_Bool eina_strbuf_append_char(Eina_Strbuf *buf, char c) EINA_ARG_NONNUL
  * @brief Append a string to a buffer, reallocating as necessary.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to append to.
@@ -322,7 +322,7 @@ EAPI Eina_Bool eina_strbuf_append_printf(Eina_Strbuf *buf, const char *fmt, ...)
  * @brief Append a string to a buffer, reallocating as necessary.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to append to.
@@ -338,7 +338,7 @@ EAPI Eina_Bool eina_strbuf_append_vprintf(Eina_Strbuf *buf, const char *fmt, va_
  * @brief Insert a string to a buffer, reallocating as necessary.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to insert.
@@ -359,7 +359,7 @@ EAPI Eina_Bool eina_strbuf_insert(Eina_Strbuf *buf, const char *str, size_t pos)
  * necessary.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to insert to.
@@ -377,7 +377,7 @@ EAPI Eina_Bool eina_strbuf_insert_escaped(Eina_Strbuf *buf, const char *str, siz
  * @brief Insert a string to a buffer, reallocating as necessary. Limited by maxlen.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to insert to.
@@ -401,7 +401,7 @@ EAPI Eina_Bool eina_strbuf_insert_n(Eina_Strbuf *buf, const char *str, size_t ma
  * @brief Insert a string of exact length to a buffer, reallocating as necessary.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to insert to.
@@ -428,7 +428,7 @@ EAPI Eina_Bool eina_strbuf_insert_length(Eina_Strbuf *buf, const char *str, size
  * necessary.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to insert to.
@@ -446,7 +446,7 @@ EAPI Eina_Bool eina_strbuf_insert_char(Eina_Strbuf *buf, char c, size_t pos) EIN
  * @brief Insert a string to a buffer, reallocating as necessary.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to insert.
@@ -465,7 +465,7 @@ EAPI Eina_Bool eina_strbuf_insert_printf(Eina_Strbuf *buf, const char *fmt, size
  * @brief Insert a string to a buffer, reallocating as necessary.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to insert.
@@ -583,7 +583,7 @@ EAPI Eina_Bool eina_strbuf_insert_vprintf(Eina_Strbuf *buf, const char *fmt, siz
  * @brief Remove a slice of the given string buffer.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to remove a slice.
@@ -604,7 +604,7 @@ EAPI Eina_Bool eina_strbuf_remove(Eina_Strbuf *buf, size_t start, size_t end) EI
  * @brief Retrieve a pointer to the contents of a string buffer
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer.
@@ -624,7 +624,7 @@ EAPI const char *eina_strbuf_string_get(const Eina_Strbuf *buf) EINA_ARG_NONNULL
  * @brief Steal the contents of a string buffer.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to steal.
@@ -643,7 +643,7 @@ EAPI char *eina_strbuf_string_steal(Eina_Strbuf *buf) EINA_MALLOC EINA_WARN_UNUS
  * @brief Free the contents of a string buffer but not the buffer.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to free the string of.
@@ -657,7 +657,7 @@ EAPI void eina_strbuf_string_free(Eina_Strbuf *buf) EINA_ARG_NONNULL(1);
  * @brief Retrieve the length of the string buffer content.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer.
@@ -672,7 +672,7 @@ EAPI size_t    eina_strbuf_length_get(const Eina_Strbuf *buf) EINA_ARG_NONNULL(1
  * @brief Replace the n-th string with an other string.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf The string buffer to work with.
@@ -706,7 +706,7 @@ EAPI Eina_Bool eina_strbuf_replace(Eina_Strbuf *buf, const char *str, const char
  * @brief Replace all strings with an other string.
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf the string buffer to work with.
@@ -724,7 +724,7 @@ EAPI int eina_strbuf_replace_all(Eina_Strbuf *buf, const char *str, const char *
  * @brief Trim the string buffer
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf the string buffer to work with.
@@ -737,7 +737,7 @@ EAPI void eina_strbuf_trim(Eina_Strbuf *buf) EINA_ARG_NONNULL(1);
  * @brief Left trim the string buffer
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf the string buffer to work with.
@@ -750,7 +750,7 @@ EAPI void eina_strbuf_ltrim(Eina_Strbuf *buf) EINA_ARG_NONNULL(1);
  * @brief Right trim the string buffer
  *
  * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE since_tizen 2.3.1
+ * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
  * @param[in] buf the string buffer to work with.

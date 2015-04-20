@@ -40,9 +40,8 @@ extern "C" {
 #endif
 
 /**
- * @internal
  * @defgroup Ecore_Input_Group Ecore Input
- * @ingroup Ecore_Group
+ * @ingroup Ecore
  *
  *@{
  */
@@ -394,16 +393,22 @@ extern "C" {
    
    /**
     * Initialises the Ecore Event system.
+    *
+    * @since_tizen 2.4
     */
    EAPI int                  ecore_event_init(void);
    /**
     * Shutdowns the Ecore Event system.
+    *
+    * @since_tizen 2.4
     */
    EAPI int                  ecore_event_shutdown(void);
 
    /**
     * Return the Ecore modifier event integer associated to a
     * Ecore_Event_Modifier modifier event.
+    *
+    * @since_tizen 2.4
     *
     * @param modifier A Ecore_Event_Modifier event.
     * @return A event_modifier integer that matches with the provided modifier
@@ -413,6 +418,8 @@ extern "C" {
 
    /**
     * Update a Ecore_Event_Modifiers array with "key" modifier.
+    *
+    * @since_tizen 2.4
     *
     * @param key A string describing a modifier key.
     * @param modifiers A Ecore_Event_Modifiers structure.
@@ -426,6 +433,8 @@ extern "C" {
    /**
     * Handle a sequence of key symbols to make a final compose string.
     *
+    * @since_tizen 2.4
+    *
     * The final compose string seqstr_ret is allocated in this function and
     * thus shall be freed when not needed anymore.
     *
@@ -438,11 +447,15 @@ extern "C" {
    /**
     * Initialises the Ecore Input Joystick system.
     * @since 1.15
+    *
+    * @since_tizen 2.4
     */
    EAPI int                  ecore_input_joystick_init(void);
    /**
     * Shutdowns the Ecore Input Joystick system.
     * @since 1.15
+    *
+    * @since_tizen 2.4
     */
    EAPI int                  ecore_input_joystick_shutdown(void);
 #ifdef __cplusplus

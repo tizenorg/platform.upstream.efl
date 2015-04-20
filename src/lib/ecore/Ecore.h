@@ -30,6 +30,8 @@
    @li @ref Ecore_Thread_Group
    @li @ref Ecore_Pipe_Group
    @li @ref Ecore_Job_Group
+   @li @ref Ecore_Input_Group
+   @li @ref Ecore_IMF_Lib_Group
 
    @internal
    @li @ref Ecore_Init_Group
@@ -41,8 +43,6 @@
    @li @ref Ecore_Con_Group
    @li @ref Ecore_Evas_Group
    @li @ref Ecore_FB_Group
-   @li @ref Ecore_Input_Group
-   @li @ref Ecore_IMF_Lib_Group
    @li @ref Ecore_IPC_Group
    @li @link Ecore_X.h      Ecore_X - X Windows System wrapper. @endlink
    @li @ref Ecore_Win32_Group

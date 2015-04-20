@@ -59,6 +59,7 @@ extern "C" {
    EAPI extern int ECORE_EVENT_DEVICE_ADD;
    EAPI extern int ECORE_EVENT_DEVICE_DEL;
    EAPI extern int ECORE_EVENT_DETENT_ROTATE; //TIZEN ONLY
+   EAPI extern int ECORE_EVENT_JOYSTICK; /**< @since 1.15 */
 
 #define ECORE_EVENT_MODIFIER_SHIFT      0x0001
 #define ECORE_EVENT_MODIFIER_CTRL       0x0002
@@ -88,6 +89,7 @@ extern "C" {
    typedef struct _Ecore_Axis               Ecore_Axis; /**< @since 1.13 */
    typedef struct _Ecore_Event_Device_Info  Ecore_Event_Device_Info;
    typedef struct _Ecore_Event_Detent_Rotate Ecore_Event_Detent_Rotate; //TIZEN ONLY
+   typedef struct _Ecore_Event_Joystick     Ecore_Event_Joystick; /**< @since 1.15 */
 
    /**
     * @typedef Ecore_Event_Modifier
@@ -153,6 +155,58 @@ extern "C" {
         const char *seatname;
         Ecore_Device_Class clas;
      };
+
+   /**
+    * @struct _Ecore_Event_Joystic_Button
+    * Contains information about a joystick button event.
+    */
+   typedef enum _Ecore_Event_Joystick_Button
+     {
+        ECORE_EVENT_JOYSTICK_BUTTON_NONE,
+        ECORE_EVENT_JOYSTICK_BUTTON_FACE_0,
+        ECORE_EVENT_JOYSTICK_BUTTON_FACE_1,
+        ECORE_EVENT_JOYSTICK_BUTTON_FACE_2,
+        ECORE_EVENT_JOYSTICK_BUTTON_FACE_3,
+        ECORE_EVENT_JOYSTICK_BUTTON_LEFT_SHOULDER,
+        ECORE_EVENT_JOYSTICK_BUTTON_RIGHT_SHOULDER,
+        ECORE_EVENT_JOYSTICK_BUTTON_SELECT,
+        ECORE_EVENT_JOYSTICK_BUTTON_START,
+        ECORE_EVENT_JOYSTICK_BUTTON_LEFT_ANALOG_STICK,
+        ECORE_EVENT_JOYSTICK_BUTTON_RIGHT_ANALOG_STICK,
+        ECORE_EVENT_JOYSTICK_BUTTON_LAST
+     } Ecore_Event_Joystick_Button; /**< @since 1.15 */
+
+   /**
+    * @struct _Ecore_Event_Joystic_Axis
+    * Contains information about a joystick axis event.
+    */
+   typedef enum _Ecore_Event_Joystick_Axis
+     {
+        ECORE_EVENT_JOYSTICK_AXIS_NONE,
+        ECORE_EVENT_JOYSTICK_AXIS_HAT_X,
+        ECORE_EVENT_JOYSTICK_AXIS_HAT_Y,
+        ECORE_EVENT_JOYSTICK_AXIS_LEFT_SHOULDER,
+        ECORE_EVENT_JOYSTICK_AXIS_RIGHT_SHOULDER,
+        ECORE_EVENT_JOYSTICK_AXIS_LEFT_ANALOG_HOR,
+        ECORE_EVENT_JOYSTICK_AXIS_LEFT_ANALOG_VER,
+        ECORE_EVENT_JOYSTICK_AXIS_RIGHT_ANALOG_HOR,
+        ECORE_EVENT_JOYSTICK_AXIS_RIGHT_ANALOG_VER,
+        ECORE_EVENT_JOYSTICK_AXIS_LAST
+     } Ecore_Event_Joystick_Axis; /**< @since 1.15 */
+
+   /**
+    * @struct _Ecore_Event_Joystic_Event_Type
+    * Contains information about a joystick event type.
+    */
+   typedef enum _Ecore_Event_Joystick_Event
+     {
+        ECORE_EVENT_JOYSTICK_EVENT_TYPE_NONE,
+        ECORE_EVENT_JOYSTICK_EVENT_TYPE_CONNECTED,
+        ECORE_EVENT_JOYSTICK_EVENT_TYPE_DISCONNECTED,
+        ECORE_EVENT_JOYSTICK_EVENT_TYPE_BUTTON,
+        ECORE_EVENT_JOYSTICK_EVENT_TYPE_AXIS,
+        ECORE_EVENT_JOYSTICK_EVENT_TYPE_LAST
+     } Ecore_Event_Joystick_Event_Type; /**< @since 1.15 */
 
    /**
     * @struct _Ecore_Event_Key
@@ -353,6 +407,32 @@ extern "C" {
      };
 
    /**
+    * @struct _Ecore_Event_Joystick
+    * Contains information about a joystick event.
+    */
+   struct _Ecore_Event_Joystick
+     {
+        Ecore_Event_Joystick_Event_Type type;
+        unsigned int                   index;
+        unsigned int               timestamp;
+
+        union
+          {
+             struct
+               {
+                  Ecore_Event_Joystick_Axis index;
+                  double                    value;  /* [-1.0 .. 1.0] -1.0 == up or left, 1.0 == down or right */
+               } axis;
+
+             struct
+               {
+                  Ecore_Event_Joystick_Button index;
+                  double                      value; /* [0.0 .. 1.0] 0.0 == fully unpressed, 1.0 == fully pressed */
+               } button;
+          };
+     };
+
+   /**
     * Initialises the Ecore Event system.
     */
    EAPI int                  ecore_event_init(void);
@@ -394,7 +474,18 @@ extern "C" {
     * @return The status of the composition.
     */
    EAPI Ecore_Compose_State  ecore_compose_get(const Eina_List *seq, char **seqstr_ret);
-
+//TIZEN_ONLY(20160627) - Initial version of ecore joystick event
+   /**
+    * Initialises the Ecore Input Joystick system.
+    * @since 1.15
+    */
+   EAPI int                  ecore_input_joystick_init(void);
+   /**
+    * Shutdowns the Ecore Input Joystick system.
+    * @since 1.15
+    */
+   EAPI int                  ecore_input_joystick_shutdown(void);
+//
 #ifdef __cplusplus
 }
 #endif

@@ -31,7 +31,33 @@ START_TEST(ecore_test_ecore_input_init)
 }
 END_TEST
 
+START_TEST(ecore_test_ecore_input_joystick_init)
+{
+   int ret, i, j;
+
+   ecore_event_init();
+
+   for (i = 1; i <= MAX_ITER; i++)
+     {
+        ret = ecore_input_joystick_init();
+        fprintf(stderr, "Created %d ecore input joystick instance.\n", i);
+        fail_if(ret != i);
+     }
+
+   for (j = MAX_ITER - 1; j >= 0; j--)
+     {
+        ret = ecore_input_joystick_shutdown();
+        fprintf(stderr, "Deleted %d ecore input joystick instance.\n",
+                                                        MAX_ITER - j);
+        fail_if(ret != j);
+     }
+
+   ecore_shutdown();
+}
+END_TEST
+
 void ecore_test_ecore_input(TCase *tc)
 {
    tcase_add_test(tc, ecore_test_ecore_input_init);
+   tcase_add_test(tc, ecore_test_ecore_input_joystick_init);
 }

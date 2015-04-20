@@ -844,6 +844,18 @@ EAPI Eina_Bool        ecore_evas_aux_hint_del(Ecore_Evas *ee, const int id);
  */
 EAPI Eina_Bool        ecore_evas_aux_hint_val_set(Ecore_Evas *ee, const int id, const char *val);
 /**
+ * @brief Change a value of the auxiliary hint by using hit string.
+ *
+ * @param ee The Ecore_Evas
+ * @param hint The auxiliary hint string.
+ * @param val The value string to be set.
+ * @return EINA_TRUE if no error occurred, EINA_FALSE otherwise.
+ * @warning Support for this depends on the underlying windowing system.
+ *
+ * @since 1.15.0
+ */
+EAPI Eina_Bool        ecore_evas_aux_hint_string_val_set(Ecore_Evas *ee, const char *hint, const char *val);
+/**
  * @brief Send message to parent ecore
  *
  * @param ee The Ecore_Evas to set

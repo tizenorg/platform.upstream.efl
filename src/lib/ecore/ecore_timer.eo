@@ -43,7 +43,7 @@ class Ecore.Timer (Eo.Base)
             */
          }
          values {
-            double in; /*@ The new interval in seconds */
+            double in(-1); /*@ The new interval in seconds */
          }
       }
       pending {

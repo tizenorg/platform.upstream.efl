@@ -437,7 +437,7 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
          @ingroup Evas_Object_Text
 
          */
-         return: int;
+         return: int(-1);
          params {
             @in Evas_Coord x; /*@ in */
             @in Evas_Coord y; /*@ in */

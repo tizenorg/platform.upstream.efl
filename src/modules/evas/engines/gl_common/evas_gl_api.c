@@ -612,6 +612,7 @@ _evgl_glGetIntegerv(GLenum pname, GLint* params)
                        return;
                     }
                }
+              /* TIZEN_ONLY : Temporary Fixes to avoid Webkit issue
              else if (pname == GL_VIEWPORT)
                {
                   if (ctx->viewport_updated)
@@ -620,9 +621,10 @@ _evgl_glGetIntegerv(GLenum pname, GLint* params)
                        return;
                     }
                }
+              */
 
              // If it hasn't been initialized yet, return img object size
-             if ((pname == GL_SCISSOR_BOX) || (pname == GL_VIEWPORT))
+             if ((pname == GL_SCISSOR_BOX) )//|| (pname == GL_VIEWPORT))
                {
                   params[0] = 0;
                   params[1] = 0;

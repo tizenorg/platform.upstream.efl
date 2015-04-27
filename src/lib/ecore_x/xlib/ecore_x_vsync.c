@@ -435,7 +435,9 @@ _drm_init(int *flags)
 
                   if (sscanf(buf, "%i.%i.%*s", &vmaj, &vmin) == 2)
                     {
-                       if ((vmaj >= 3) && (vmin >= 14)) ok = EINA_TRUE;
+                       //TIZEN ONLY: Tizen supports exynos drm driver unofficially.
+                       //if ((vmaj >= 3) && (vmin >= 14)) ok = EINA_TRUE;
+                       if ((vmaj >= 3) && (vmin >= 0)) ok = EINA_TRUE;
                     }
                }
              fclose(fp);

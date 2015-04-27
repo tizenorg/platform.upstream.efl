@@ -64,6 +64,7 @@ typedef struct _dri3_buffer {
    int                  fd;
    tbm_bo               bo;
    Pixmap               pixmap;
+   Eina_Bool            own_pixmap;
 
    struct xshmfence     *shm_fence;
    int                  fence_fd;
@@ -103,6 +104,7 @@ typedef struct _dri3_drawable {
    dri3_buffer          *back_buffer;
    int                  cur_back_id;
    int                  num_back;
+   int                  buffer_age;
 
    uint32_t             *stamp;
 

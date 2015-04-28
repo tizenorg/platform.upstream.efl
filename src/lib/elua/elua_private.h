@@ -27,6 +27,8 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
+#include "Elua.h"
+
 extern int _elua_log_dom;
 
 #define DBG(...) EINA_LOG_DOM_DBG(_elua_log_dom, __VA_ARGS__)

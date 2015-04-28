@@ -49,9 +49,6 @@
 extern "C" {
 #endif
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
 
 #ifdef EFL_BETA_API_SUPPORT
 
@@ -75,5 +72,8 @@ EAPI void elua_io_register(lua_State *L);
 #ifdef __cplusplus
 } // extern "C" {
 #endif
+
+#undef EAPI
+#define EAPI
 
 #endif

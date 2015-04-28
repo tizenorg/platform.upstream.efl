@@ -129,6 +129,21 @@ static void _transparent_do(Ecore_Evas *, int);
 static void _avoid_damage_do(Ecore_Evas *, int);
 static void _rotation_do(Ecore_Evas *, int, int);
 
+//Tizen Only: Need to contribute.
+static void
+_vsync_animator_tick_source_set(Ecore_Evas *ee, Eina_Bool on)
+{
+   Ecore_X_Window win;
+
+   if (on) win = ee->prop.window;
+   else win = 0;
+
+   if (!strcmp(ee->driver, "opengl_x11"))
+     ecore_x_vsync_animator_tick_source_set(win);
+   else if (!strcmp(ee->driver, "software_x11"))
+     if (!ee->alpha) ecore_x_vsync_animator_tick_source_set(win);
+}
+
 static void
 _ecore_evas_x_hints_update(Ecore_Evas *ee)
 {
@@ -506,7 +521,9 @@ _ecore_evas_x_gl_window_new(Ecore_Evas *ee, Ecore_X_Window parent, int x, int y,
                                       einfo->info.depth,
                                       override);
         ecore_x_window_pixel_gravity_set(win, ECORE_X_GRAVITY_FORGET);
-        ecore_x_vsync_animator_tick_source_set(win);
+
+       if (ee->visible || ee->should_be_visible)
+          _vsync_animator_tick_source_set(ee, EINA_TRUE);
 
         /* attr.backing_store = NotUseful; */
         /* attr.override_redirect = override; */
@@ -2531,7 +2548,9 @@ _alpha_do(Ecore_Evas *ee, int alpha)
         if (edata->mask) ecore_x_pixmap_free(edata->mask);
         edata->mask = 0;
         ecore_x_window_shape_input_mask_set(ee->prop.window, 0);
-        ecore_x_vsync_animator_tick_source_set(ee->prop.window);
+
+        if (ee->visible || ee->should_be_visible)
+          _vsync_animator_tick_source_set(ee, EINA_TRUE);
      }
 
    einfo->info.destination_alpha = alpha;
@@ -2880,6 +2899,7 @@ _ecore_evas_x_show(Ecore_Evas *ee)
      _ecore_evas_x_render(ee);
    _ecore_evas_x_sync_set(ee);
    _ecore_evas_x_window_profile_set(ee);
+   _vsync_animator_tick_source_set(ee, EINA_TRUE);
    ecore_x_window_show(ee->prop.window);
    if (ee->prop.fullscreen)
      ecore_x_window_focus(ee->prop.window);
@@ -2889,6 +2909,7 @@ static void
 _ecore_evas_x_hide(Ecore_Evas *ee)
 {
    ecore_x_window_hide(ee->prop.window);
+   _vsync_animator_tick_source_set(ee, EINA_FALSE);
    ee->should_be_visible = 0;
    _ecore_evas_x_sync_set(ee);
 }
@@ -2896,6 +2917,7 @@ _ecore_evas_x_hide(Ecore_Evas *ee)
 static void
 _ecore_evas_x_raise(Ecore_Evas *ee)
 {
+   _vsync_animator_tick_source_set(ee, EINA_TRUE);
    ecore_x_window_raise(ee->prop.window);
 }
 
@@ -2903,6 +2925,7 @@ static void
 _ecore_evas_x_lower(Ecore_Evas *ee)
 {
    ecore_x_window_lower(ee->prop.window);
+   _vsync_animator_tick_source_set(ee, EINA_FALSE);
 }
 
 static void
@@ -3920,7 +3943,7 @@ ecore_evas_software_x11_new_internal(const char *disp_name, Ecore_X_Window paren
      }
    else
      ee->prop.window = ecore_x_window_new(parent, x, y, w, h);
-   ecore_x_vsync_animator_tick_source_set(ee->prop.window);
+
    if ((id = getenv("DESKTOP_STARTUP_ID")))
      {
         ecore_x_netwm_startup_id_set(ee->prop.window, id);

@@ -827,11 +827,31 @@ _vsync_init(void)
    done = 1;
 }
 
+//Tizen Only: Need to contribute.
+Eina_Bool
+_vsync_tick_source_timer_set(void)
+{
+   vsync_root = 0;
+#ifdef ECORE_X_VSYNC_DRM
+   if (mode == 1) return _drm_animator_tick_source_set();
+# ifdef ECORE_X_VSYNC_GL
+   else
+# endif
+#endif
+#ifdef ECORE_X_VSYNC_GL
+   if (mode == 2) return _glvsync_animator_tick_source_set();
+#endif
+   return EINA_FALSE;
+}
+
 EAPI Eina_Bool
 ecore_x_vsync_animator_tick_source_set(Ecore_X_Window win)
 {
    Ecore_X_Window root;
    static int vsync_veto = -1;
+
+   //Tizen Only: set vsync tick source timer if input window id is 0
+   if (win == 0) return _vsync_tick_source_timer_set();
 
    if (vsync_veto == -1)
      {

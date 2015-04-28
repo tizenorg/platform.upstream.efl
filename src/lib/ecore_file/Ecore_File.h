@@ -188,4 +188,7 @@ EAPI Eina_Bool ecore_file_download_protocol_available(const char *protocol);
 }
 #endif
 
+#undef EAPI
+#define EAPI
+
 #endif

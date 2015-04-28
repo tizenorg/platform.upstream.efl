@@ -1,6 +1,12 @@
 #ifndef _ECORE_DRM_H
 # define _ECORE_DRM_H
 
+# include <xf86drm.h>
+# include <xf86drmMode.h>
+# include <drm_fourcc.h>
+# include <Ecore.h>
+# include <Eeze.h>
+
 # ifdef EAPI
 #  undef EAPI
 # endif
@@ -22,6 +28,10 @@
 #  define EAPI
 # endif // ifdef __GNUC__
 #endif // ifdef _MSC_VER
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <Ecore.h>
 
@@ -210,4 +220,147 @@ EAPI void ecore_drm_fb_destroy(Ecore_Drm_Fb *fb);
 
 EAPI Eina_Bool ecore_drm_launcher_connect(Ecore_Drm_Device *dev);
 EAPI void ecore_drm_launcher_disconnect(Ecore_Drm_Device *dev);
+
+/**
+ * Get the output position of Ecore_Drm_Output
+ *
+ * This function will give the output position of Ecore_Drm_Output
+ *
+ * @param output The Ecore_Drm_Output to get position for
+ * @param *x The parameter in which output x co-ordinate is stored
+ * @param *y The parameter in which output y co-ordinate is stored
+ *
+ * @ingroup Ecore_Drm_Output_Group
+ * @since 1.14
+ */
+EAPI void ecore_drm_output_position_get(Ecore_Drm_Output *output, int *x, int *y);
+
+/**
+ * Get the current resolution of Ecore_Drm_Output
+ *
+ * This function will give the current resolution of Ecore_Drm_Output
+ *
+ * @param output The Ecore_Drm_Output to get resolution for
+ * @param *w The parameter in which output width is stored
+ * @param *h The parameter in which output height is stored
+ * @param *refresh The parameter in which output refresh rate is stored
+ *
+ * @ingroup Ecore_Drm_Output_Group
+ * @since 1.14
+ */
+EAPI void ecore_drm_output_current_resolution_get(Ecore_Drm_Output *output, int *w, int *h, unsigned int *refresh);
+
+/**
+ * Get the physical size of Ecore_Drm_Output
+ *
+ * This function will give the physical size (in mm) of Ecore_Drm_Output
+ *
+ * @param output The Ecore_Drm_Output to get physical size for
+ * @param *w The parameter in which output physical width is stored
+ * @param *h The parameter in which output physical height is stored
+ *
+ * @ingroup Ecore_Drm_Output_Group
+ * @since 1.14
+ */
+EAPI void ecore_drm_output_physical_size_get(Ecore_Drm_Output *output, int *w, int *h);
+
+/**
+ * Get the subpixel order of Ecore_Drm_Output
+ *
+ * This function will give the subpixel order of Ecore_Drm_Output
+ *
+ * @param output The Ecore_Drm_Output to get subpixel order for
+ * @return The output subpixel order
+ *
+ * @ingroup Ecore_Drm_Output_Group
+ * @since 1.14
+ */
+EAPI unsigned int ecore_drm_output_subpixel_order_get(Ecore_Drm_Output *output);
+
+/**
+ * Get the model of Ecore_Drm_Output
+ *
+ * This function will give the model of Ecore_Drm_Output
+ *
+ * @param output The Ecore_Drm_Output to get model for
+ * @return The model (do NOT eina_stringshare_del this return!)
+ *
+ * @ingroup Ecore_Drm_Output_Group
+ * @since 1.14
+ */
+EAPI Eina_Stringshare *ecore_drm_output_model_get(Ecore_Drm_Output *output);
+
+/**
+ * Get the make of Ecore_Drm_Output
+ *
+ * This function will give the make of Ecore_Drm_Output
+ *
+ * @param output The Ecore_Drm_Output to get model for
+ * @return The make (do NOT eina_stringshare_del this return!)
+ *
+ * @ingroup Ecore_Drm_Output_Group
+ * @since 1.14
+ */
+EAPI Eina_Stringshare *ecore_drm_output_make_get(Ecore_Drm_Output *output);
+
+/**
+ * Set the dpms level of an Ecore_Drm_Output
+ *
+ * This function will set the DPMS level of an Ecore_Drm_Output
+ *
+ * @param output The Ecore_Drm_Output to set the dpms level on
+ * @param level The level to set
+ * 
+ * @ingroup Ecore_Drm_Output_Group
+ * @since 1.14
+ */
+EAPI void ecore_drm_output_dpms_set(Ecore_Drm_Output *output, int level);
+
+/**
+ * Set the gamma level of an Ecore_Drm_Output
+ *
+ * This function will set the gamma of an Ecore_Drm_Output
+ *
+ * @param output The Ecore_Drm_Output to set the gamma level on
+ * @param size The gamma table size to set
+ * @param r The amount to scale the red channel
+ * @param g The amount to scale the green channel
+ * @param b The amount to scale the blue channel
+ * 
+ * @ingroup Ecore_Drm_Output_Group
+ * @since 1.14
+ */
+EAPI void ecore_drm_output_gamma_set(Ecore_Drm_Output *output, uint16_t size, uint16_t *r, uint16_t *g, uint16_t *b);
+
+/**
+ * Get the pointer position of Ecore_Drm_Device
+ *
+ * This function will give the pointer position of Ecore_Drm_Device
+ *
+ * @param dev The Ecore_Drm_Device to get pointer position for
+ * @param *x The parameter in which output x co-ordinate is stored
+ * @param *y The parameter in which output y co-ordinate is stored
+ *
+ * @ingroup Ecore_Drm_Device_Group
+ * @since 1.14
+ */
+EAPI void ecore_drm_device_pointer_xy_get(Ecore_Drm_Device *dev, int *x, int *y);
+
+/**
+ * Get the list of drm devices which are allocated.
+ *
+ * @return Eina_List of drm devices, NULL otherwise
+ *
+ * @ingroup Ecore_Drm_Device_Group
+ * @since 1.14
+ */
+EAPI const Eina_List *ecore_drm_devices_get(void);
+
+#ifdef __cplusplus
+}
+#endif
+
+#undef EAPI
+#define EAPI
+
 #endif

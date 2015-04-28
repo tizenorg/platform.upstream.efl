@@ -2097,4 +2097,7 @@ EAPI Ecore_IMF_BiDi_Direction      ecore_imf_context_bidi_direction_get(Ecore_IM
 }
 #endif
 
+#undef EAPI
+#define EAPI
+
 #endif

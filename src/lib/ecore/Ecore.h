@@ -317,4 +317,8 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+
+#undef EAPI
+#define EAPI
+
 #endif

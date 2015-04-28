@@ -1891,4 +1891,7 @@ EAPI int ecore_con_url_status_code_get(Ecore_Con_Url *url_con);
 }
 #endif
 
+#undef EAPI
+#define EAPI
+
 #endif

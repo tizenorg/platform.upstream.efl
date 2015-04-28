@@ -365,6 +365,9 @@ EAPI int               ecore_ipc_ssl_available_get(void);
 }
 #endif
 
+#undef EAPI
+#define EAPI
+
 /**
  * @}
  */

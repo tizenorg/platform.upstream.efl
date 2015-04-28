@@ -1980,4 +1980,7 @@ EAPI Eina_Bool eolian_variable_is_extern(const Eolian_Variable *var);
 } // extern "C" {
 #endif
 
+#undef EAPI
+#define EAPI
+
 #endif

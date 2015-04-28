@@ -242,4 +242,7 @@ typedef void (*Eldbus_Signal_Cb)(void *data, const Eldbus_Message *msg);
 }
 #endif
 
+#undef EAPI
+#define EAPI
+
 #endif

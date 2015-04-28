@@ -896,7 +896,7 @@ EAPI Embryo_Cell      embryo_program_return_value_get(Embryo_Program *ep);
  * @ingroup Embryo_Run_Group
  */
 EAPI void             embryo_program_max_cycle_run_set(Embryo_Program *ep, int max);
-   
+
 /**
  * Retreives the maximum number of abstract machine cycles a program is allowed
  * to run.
@@ -910,7 +910,7 @@ EAPI void             embryo_program_max_cycle_run_set(Embryo_Program *ep, int m
  * @ingroup Embryo_Run_Group
  */
 EAPI int              embryo_program_max_cycle_run_get(Embryo_Program *ep);
-   
+
 /**
  * Pushes an Embryo_Cell onto the function stack to use as a parameter for
  * the next function that is called in the given program.
@@ -928,7 +928,7 @@ EAPI int              embryo_program_max_cycle_run_get(Embryo_Program *ep);
  * Functions that set parameters for the next function that is called.
  */
 EAPI int              embryo_parameter_cell_push(Embryo_Program *ep, Embryo_Cell cell);
-   
+
 /**
  * Pushes a string onto the function stack to use as a parameter for the
  * next function that is called in the given program.
@@ -938,7 +938,7 @@ EAPI int              embryo_parameter_cell_push(Embryo_Program *ep, Embryo_Cell
  * @ingroup Embryo_Parameter_Group
  */
 EAPI int              embryo_parameter_string_push(Embryo_Program *ep, const char *str);
-   
+
 /**
  * Pushes an array of Embryo_Cells onto the function stack to be used as
  * parameters for the next function that is called in the given program.
@@ -953,5 +953,8 @@ EAPI int              embryo_parameter_cell_array_push(Embryo_Program *ep, Embry
 #ifdef  __cplusplus
 }
 #endif
+
+#undef EAPI
+#define EAPI
 
 #endif

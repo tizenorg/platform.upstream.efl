@@ -716,4 +716,7 @@ EAPI void            *eeze_udev_watch_del(Eeze_Udev_Watch *watch);
 }
 #endif
 
+#undef EAPI
+#define EAPI
+
 #endif

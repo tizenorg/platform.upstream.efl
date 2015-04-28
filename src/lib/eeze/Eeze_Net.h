@@ -1,6 +1,9 @@
 #ifndef EEZE_NET_H
 #define EEZE_NET_H
 
+#include <Eina.h>
+#include <Ecore.h>
+
 #ifdef EAPI
 # undef EAPI
 #endif
@@ -14,9 +17,6 @@
 #else
 # define EAPI
 #endif
-
-#include <Eina.h>
-#include <Ecore.h>
 
 /**
  * @internal
@@ -62,5 +62,8 @@ EAPI Eina_List  *eeze_net_list(void);
 }
 #endif
 /** @} */
+
+#undef EAPI
+#define EAPI
 
 #endif

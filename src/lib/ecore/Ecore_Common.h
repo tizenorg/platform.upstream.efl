@@ -587,7 +587,7 @@ EAPI int ecore_thread_main_loop_end(void);
 #define ECORE_EVENT_SYSTEM_TIMEDATE_CHANGED 10 /**< Time or Date changed */
 #define ECORE_EVENT_COUNT                   11 /**< Number of events */
 
-typedef struct _Ecore_Win32_Handler         Ecore_Win32_Handler;    /**< A handle for HANDLE handlers on Windows */
+typedef struct _Ecore_Win32_Handler         Ecore_Win32_Handler;    /**< @internal A handle for HANDLE handlers on Windows */
 typedef struct _Ecore_Event_Handler         Ecore_Event_Handler;    /**< A handle for an event handler */
 typedef struct _Ecore_Event_Filter          Ecore_Event_Filter;    /**< A handle for an event filter */
 typedef struct _Ecore_Event                 Ecore_Event;    /**< A handle for an event */
@@ -1487,6 +1487,8 @@ typedef Eina_Bool (*Ecore_Fd_Cb)(void *data, Ecore_Fd_Handler *fd_handler);
 typedef void (*Ecore_Fd_Prep_Cb)(void *data, Ecore_Fd_Handler *fd_handler);
 
 /**
+ * @internal
+ *
  * @typedef Ecore_Win32_Handle_Cb Ecore_Win32_Handle_Cb
  * A callback used by an @ref Ecore_Win32_Handler.
  */
@@ -1640,6 +1642,8 @@ EAPI Eina_Bool ecore_main_fd_handler_active_get(Ecore_Fd_Handler *fd_handler, Ec
 EAPI void ecore_main_fd_handler_active_set(Ecore_Fd_Handler *fd_handler, Ecore_Fd_Handler_Flags flags);
 
 /**
+ * @internal
+ *
  * @brief Create a Ecore_Win32_Handler object and add it to the win32_handlers list.
  * @param h    The win32 handler.
  * @param func The function to add as a callback.
@@ -1647,6 +1651,8 @@ EAPI void ecore_main_fd_handler_active_set(Ecore_Fd_Handler *fd_handler, Ecore_F
  */
 EAPI Ecore_Win32_Handler *ecore_main_win32_handler_add(void *h, Ecore_Win32_Handle_Cb func, const void *data);
 /**
+ * @internal
+ *
  * @brief Set Ecore_Win32_Handler object to delete state.
  * The handler will be deleted in the _ecore_main_win32_handlers_cleanup function.
  *
@@ -1732,6 +1738,8 @@ EAPI double ecore_time_unix_get(void);
 EAPI double ecore_loop_time_get(void);
 
 /**
+ * @internal
+ *
  * Set the loop time
  * 
  * @param t The new loop time
@@ -2016,6 +2024,8 @@ EAPI Ecore_Thread *ecore_thread_feedback_run(Ecore_Thread_Cb func_heavy, Ecore_T
 EAPI Eina_Bool ecore_thread_cancel(Ecore_Thread *thread);
 
 /**
+ * @internal
+ *
  * @brief Block the main loop until the thread execution is over.
  * @since 1.13.0
  *
@@ -2623,6 +2633,8 @@ typedef void (*Ecore_Pipe_Cb)(void *data, void *buffer, unsigned int nbyte);
 EAPI Ecore_Pipe *ecore_pipe_add(Ecore_Pipe_Cb handler, const void *data);
 
 /**
+ * @internal
+ *
  * Create a pipe with more parameters
  * 
  * @param handler Same as ecore_pipe_add()
@@ -2692,6 +2704,8 @@ EAPI void ecore_pipe_write_close(Ecore_Pipe *p);
 EAPI void ecore_pipe_read_close(Ecore_Pipe *p);
 
 /**
+ * @internal
+ *
  * Get the pipe read file descriptor
  *
  * @param p The Ecore_Pipe object query.
@@ -2700,6 +2714,8 @@ EAPI void ecore_pipe_read_close(Ecore_Pipe *p);
 EAPI int ecore_pipe_read_fd(Ecore_Pipe *p);
 
 /**
+ * @internal
+ *
  * Get the pipe write file descriptor
  *
  * @param p The Ecore_Pipe object query.
@@ -3158,6 +3174,8 @@ EAPI double ecore_animator_pos_map(double pos, Ecore_Pos_Map map, double v1, dou
 /**
  * @brief Maps an input position from 0.0 to 1.0 along a timeline to a
  * position in a different curve.
+ *
+ * @since_tizen 2.4
  *
  * @param pos The input position to map
  * @param map The mapping to use

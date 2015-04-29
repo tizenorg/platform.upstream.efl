@@ -1,38 +1,46 @@
 class Ecore.Timer (Eo.Base)
 {
-   /*@ @brief Timers are objects that will call a given callback at some point
-    *  in the future. They may also optionall repeat themselves if the
-    *  timer callback returns true. If it does not they will be
-    *  automatically deleted and never called again. Timers require the
-    *  ecore mainloop to be running and functioning properly. They do not
-    *  guarantee exact timing, but try to work on a "best effort basis.
-    *
-    * @if MOBILE @since_tizen 2.3
-    * @elseif WEARABLE @since_tizen 2.3.1
-    * @endif
-    *
+
+    /*@
+    @brief Timers are objects that will call a given callback at some point
+    in the future. They may also optionall repeat themselves if the
+    timer callback returns true. If it does not they will be
+    automatically deleted and never called again. Timers require the
+    ecore mainloop to be running and functioning properly. They do not
+    guarantee exact timing, but try to work on a "best effort basis.
+
+    @if MOBILE @since_tizen 2.3
+    @elseif WEARABLE @since_tizen 2.3.1
+    @endif
+
     */
    eo_prefix: ecore_obj_timer;
    properties {
       interval {
          set {
-            /*@ @brief Change the interval the timer ticks off. If set during
-             * a timer call, this will affect the next interval.
-             *
-             * @if MOBILE @since_tizen 2.3
-             * @elseif WEARABLE @since_tizen 2.3.1
-             * @endif
-             *
-             */
+            /*@ 
+            @brief Change the interval the timer ticks off. If set during
+            a timer call, this will affect the next interval.
+
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
+
+            @ingroup Ecore_Timer_Group
+
+            */
          }
          get {
-            /*@ @brief Get the interval the timer ticks on.
-             *
-             * @if MOBILE @since_tizen 2.3
-             * @elseif WEARABLE @since_tizen 2.3.1
-             * @endif
-             *
-             */
+            /*@ 
+            @brief Get the interval the timer ticks on.
+
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
+
+            @ingroup Ecore_Timer_Group
+
+            */
          }
          values {
             double in; /*@ The new interval in seconds */
@@ -40,13 +48,16 @@ class Ecore.Timer (Eo.Base)
       }
       pending {
          get {
-            /*@ @brief Get the pending time regarding a timer.
-             *
-             * @if MOBILE @since_tizen 2.3
-             * @elseif WEARABLE @since_tizen 2.3.1
-             * @endif
-             *
-             */
+            /*@
+            @brief Get the pending time regarding a timer.
+
+            @if MOBILE @since_tizen 2.3
+            @elseif WEARABLE @since_tizen 2.3.1
+            @endif
+
+            @ingroup Ecore_Timer_Group
+
+            */
             return: double;
          }
       }
@@ -71,29 +82,36 @@ class Ecore.Timer (Eo.Base)
          }
       }
       reset {
-         /*@ @brief Reset a timer to its full interval. This effectively makes
-          *  the timer start ticking off from zero now.
-          *
-          * @if MOBILE @since_tizen 2.3
-          * @elseif WEARABLE @since_tizen 2.3.1
-          * @endif
-          *
-          * @remark This is equivalent to (but faster than)
-          * @code
-          * ecore_timer_delay(timer, ecore_timer_interval_get(timer) - ecore_timer_pending_get(timer));
-          * @endcode
-          * @since 1.2
-          */
+         /*@
+         @brief Reset a timer to its full interval. This effectively makes
+         the timer start ticking off from zero now.
+
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
+
+         @ingroup Ecore_Timer_Group
+
+         @remark This is equivalent to (but faster than)
+         @code
+         ecore_timer_delay(timer, ecore_timer_interval_get(timer) - ecore_timer_pending_get(timer));
+         @endcode
+         @since 1.2
+         */
       }
       delay {
-         /*@ @brief Add some delay for the next occurrence of a timer.
-          *
-          * @if MOBILE @since_tizen 2.3
-          * @elseif WEARABLE @since_tizen 2.3.1
-          * @endif
-          *
-          * @remark This doesn't affect the interval of a timer.
-          */
+
+         /*@
+         @brief Add some delay for the next occurrence of a timer.
+
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
+
+         @ingroup Ecore_Timer_Group
+
+         @remark This doesn't affect the interval of a timer.
+         */
          params {
             @in double add; /*@ The amount of time to delay the timer by in seconds */
          }

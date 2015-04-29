@@ -3,7 +3,7 @@ extern "C" {
 #endif
 
 /**
- * @ingroup Ecore_Poller_Group
+ * @addtogroup Ecore_Poller_Group
  *
  * @{
  */
@@ -63,7 +63,7 @@ EAPI void *ecore_poller_del(Ecore_Poller *poller);
  */
 
 /**
- * @ingroup Ecore_Animator_Group
+ * @addtogroup Ecore_Animator_Group
  *
  * @{
  */
@@ -190,11 +190,34 @@ EAPI void ecore_animator_thaw(Ecore_Animator *animator);
  */
 
 /**
- * @ingroup Ecore_Timer_Group
+ * @addtogroup Ecore_Timer_Group
  *
  * @{
  */
 
+/**
+ * @brief Creates a timer to call the given function in the given period of time.
+ *
+ * @details This function adds a timer and returns its handle on success and NULL on
+ *          failure. The function @p func will be called every @p in seconds. The
+ *          function will be passed the @p data pointer as its parameter.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
+ * @remarks When the timer @p func is called, it must return a value of either 1
+ *          (or ECORE_CALLBACK_RENEW) or 0 (or ECORE_CALLBACK_CANCEL).
+ *          If it returns 1, it will be called again at the next tick, or if it returns
+ *          0 it will be deleted automatically making any references/handles for it
+ *          invalid.
+ *
+ * @param[in]   in   The interval in seconds.
+ * @param[in]   func The given function.  If @p func returns 1, the timer is
+ *               rescheduled for the next interval @p in.
+ * @param[in]   data Data to pass to @p func when it is called.
+ * @return  A timer object on success.  @c NULL on failure.
+ */
 EAPI Ecore_Timer *ecore_timer_add(double in, Ecore_Task_Cb func, const void *data);
 
 /**
@@ -232,10 +255,45 @@ EAPI Ecore_Timer *ecore_timer_loop_add(double in, Ecore_Task_Cb func, const void
  */
 EAPI void *ecore_timer_del(Ecore_Timer *timer);
 
+/**
+ * @brief Pauses a running timer.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
+ * @remarks The timer callback won't be called while the timer is paused. The remaining
+ *          time until the timer expires will be saved, so the timer can be resumed with
+ *          that same remaining time to expire, instead of expiring instantly.  Use
+ *          ecore_timer_thaw() to resume it.
+ *
+ * @remarks Nothing happens if the timer was already paused.
+ *
+ * @param[in] timer The timer to be paused.
+ *
+ * @see ecore_timer_thaw()
+ */
 EAPI void ecore_timer_freeze(Ecore_Timer *timer);
 
 EAPI Eina_Bool ecore_timer_freeze_get(Ecore_Timer *timer);
 
+/**
+ * @brief Resumes a frozen (paused) timer.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
+ * @remarks The timer will be resumed from its previous relative position in time. That
+ *          means, if it had X seconds remaining until expire when it was paused, it will
+ *          be started now with those same X seconds remaining to expire again. But
+ *          notice that the interval time won't be touched by this call or by
+ *          ecore_timer_freeze().
+ *
+ * @param[in] timer The timer to be resumed.
+ *
+ * @see ecore_timer_freeze()
+ */
 EAPI void ecore_timer_thaw(Ecore_Timer *timer);
 
 #include "ecore_timer.eo.legacy.h"
@@ -245,7 +303,7 @@ EAPI void ecore_timer_thaw(Ecore_Timer *timer);
  */
 
 /**
- * @ingroup Ecore_Idle_Group
+ * @addtogroup Ecore_Idle_Group
  *
  * @{
  */
@@ -378,7 +436,7 @@ EAPI void *ecore_idle_exiter_del(Ecore_Idle_Exiter *idle_exiter);
  */
 
 /**
- * @ingroup Ecore_Job_Group
+ * @addtogroup Ecore_Job_Group
  *
  * @{
  */

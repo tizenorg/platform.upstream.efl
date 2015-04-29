@@ -369,7 +369,45 @@ EAPI int                eina_stringshare_strlen(Eina_Stringshare *str) EINA_PURE
  */
 EAPI void               eina_stringshare_dump(void);
 
+/**
+ * @brief Replace the previously stringshared pointer with new content.
+ *
+ * @details The string pointed by @a p_str must be previously stringshared or
+ *          @c NULL and it will be eina_stringshare_del(). The new string will
+ *          be passed to eina_stringshare_add() and then assigned to @c *p_str.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
+ * @param[in] p_str pointer to the stringhare to be replaced. Must not be
+ *            @c NULL, but @c *p_str may be @c NULL as it is a valid
+ *            stringshare handle.
+ * @param[in] news new string to be stringshared, may be @c NULL.
+ * @return @c EINA_TRUE if the strings were different and thus replaced,
+ *         @c EINA_FALSE if the strings were the same after shared.
+ */
 static inline Eina_Bool eina_stringshare_replace(Eina_Stringshare **p_str, const char *news) EINA_ARG_NONNULL(1);
+
+/**
+ * @brief Replace the previously stringshared pointer with a new content.
+ *
+ * @details The string pointed by @a p_str must be previously stringshared or
+ *          @c NULL and it will be eina_stringshare_del(). The new string will
+ *          be passed to eina_stringshare_add_length() and then assigned to @c *p_str.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
+ * @param[in] p_str pointer to the stringhare to be replaced. Must not be
+ *            @c NULL, but @c *p_str may be @c NULL as it is a valid
+ *            stringshare handle.
+ * @param[in] news new string to be stringshared, may be @c NULL.
+ * @param[in] slen The string size (<= strlen(str)).
+ * @return @c EINA_TRUE if the strings were different and thus replaced,
+ *         @c EINA_FALSE if the strings were the same after shared.
+ */
 static inline Eina_Bool eina_stringshare_replace_length(Eina_Stringshare **p_str, const char *news, unsigned int slen) EINA_ARG_NONNULL(1);
 
 #include "eina_inline_stringshare.x"

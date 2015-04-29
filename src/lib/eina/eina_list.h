@@ -1517,6 +1517,10 @@ EAPI Eina_Accessor        *eina_list_accessor_new(const Eina_List *list) EINA_MA
  * @param l A list that is used as an iterator and points to the current node.
  * @param data Current item's data.
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * This macro iterates over @p list from the first element to
  * the last. @p data is the data related to the current element.
  * @p l is an #Eina_List used as the list iterator.
@@ -1573,6 +1577,10 @@ EAPI Eina_Accessor        *eina_list_accessor_new(const Eina_List *list) EINA_MA
  * @param list The list to iterate over.
  * @param l A list that is used as an iterator and points to the current node.
  * @param data Current item's data.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  *
  * This macro works like EINA_LIST_FOREACH, but iterates from the
  * last element of a list to the first.
@@ -1633,6 +1641,10 @@ EAPI Eina_Accessor        *eina_list_accessor_new(const Eina_List *list) EINA_MA
  * @param l_next A list that is used as an iterator and points to the next node.
  * @param data Current item's data.
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * This macro iterates over @p list from the first element to
  * the last. @p data is the data related to the current element.
  * @p l is an #Eina_List used as the list iterator.
@@ -1689,6 +1701,10 @@ EAPI Eina_Accessor        *eina_list_accessor_new(const Eina_List *list) EINA_MA
  * @param l_prev A list that is used as an iterator and points to the previous node.
  * @param data Current item's data.
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * This macro works like EINA_LIST_FOREACH_SAFE, but iterates from the
  * last element of a list to the first.
  * @p data is the data related to the current element, while @p l
@@ -1742,6 +1758,10 @@ EAPI Eina_Accessor        *eina_list_accessor_new(const Eina_List *list) EINA_MA
  *
  * @param list The list that will be cleared.
  * @param data Current node's data.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  *
  * This macro will call #eina_list_remove_list for each list node, and store
  * the data contained in the current node in @p data.

@@ -610,10 +610,30 @@ typedef enum _Evas_Video_Surface_Caps
 
 #define EVAS_HINT_EXPAND                 1.0 /**< Use with evas_object_size_hint_weight_set(), evas_object_size_hint_weight_get(), evas_object_size_hint_expand_set(), evas_object_size_hint_expand_get() */
 #define EVAS_HINT_FILL                   -1.0 /**< Use with evas_object_size_hint_align_set(), evas_object_size_hint_align_get(), evas_object_size_hint_fill_set(), evas_object_size_hint_fill_get() */
-#define evas_object_size_hint_fill_set   evas_object_size_hint_align_set /**< Convenience macro to make it easier to understand that align is also used for fill properties (as fill is mutually exclusive to align) */
-#define evas_object_size_hint_fill_get   evas_object_size_hint_align_get /**< Convenience macro to make it easier to understand that align is also used for fill properties (as fill is mutually exclusive to align) */
-#define evas_object_size_hint_expand_set evas_object_size_hint_weight_set /**< Convenience macro to make it easier to understand that weight is also used for expand properties */
-#define evas_object_size_hint_expand_get evas_object_size_hint_weight_get /**< Convenience macro to make it easier to understand that weight is also used for expand properties */
+
+/**
+ * @brief Convenience macro to make it easier to understand that align is also used for fill properties (as fill is mutually exclusive to align)
+ * @ingroup Evas_Object_Group_Size_Hints
+ */
+#define evas_object_size_hint_fill_set   evas_object_size_hint_align_set
+
+/**
+ * @brief Convenience macro to make it easier to understand that align is also used for fill properties (as fill is mutually exclusive to align)
+ * @ingroup Evas_Object_Group_Size_Hints
+ */
+#define evas_object_size_hint_fill_get   evas_object_size_hint_align_get
+
+/**
+ * @brief Convenience macro to make it easier to understand that weight is also used for expand properties
+ * @ingroup Evas_Object_Group_Size_Hints
+ */
+#define evas_object_size_hint_expand_set evas_object_size_hint_weight_set
+
+/**
+ * @brief Convenience macro to make it easier to understand that weight is also used for expand properties
+ * @ingroup Evas_Object_Group_Size_Hints
+ */
+#define evas_object_size_hint_expand_get evas_object_size_hint_weight_get
 
 /**
  * How the object should be rendered to output.
@@ -947,11 +967,50 @@ typedef enum _Evas_Object_Pointer_Mode
    EVAS_OBJECT_POINTER_MODE_NOGRAB_NO_REPEAT_UPDOWN /**< useful on object with "repeat events" enabled, where mouse/touch up and down events WONT be repeated to objects and these objects wont be auto-grabbed. @since 1.2 */
 } Evas_Object_Pointer_Mode; /**< How the mouse pointer should be handled by Evas. */
 
-typedef void      (*Evas_Smart_Cb)(void *data, Evas_Object *obj, void *event_info);  /**< Evas smart objects' "smart callback" function signature */
-typedef void      (*Evas_Event_Cb)(void *data, Evas *e, void *event_info);  /**< Evas event callback function signature */
-typedef Eina_Bool (*Evas_Object_Event_Post_Cb)(void *data, Evas *e);  /**< Evas object event (post) callback function signature */
-typedef void      (*Evas_Object_Event_Cb)(void *data, Evas *e, Evas_Object *obj, void *event_info);  /**< Evas object event callback function signature */
-typedef void      (*Evas_Async_Events_Put_Cb)(void *target, Evas_Callback_Type type, void *event_info); /**< Evas async callback function signature */
+/**
+ * @brief Evas smart objects' "smart callback" function signature
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ * @ingroup Evas_Smart_Object_Group
+ */
+typedef void      (*Evas_Smart_Cb)(void *data, Evas_Object *obj, void *event_info); 
+
+/**
+ * @brief Evas event callback function signature
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ * @ingroup Evas_Canvas_Events
+ */
+typedef void      (*Evas_Event_Cb)(void *data, Evas *e, void *event_info);
+
+/**
+ * @brief Evas event callback Post function signature
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ * @ingroup Evas_Canvas_Events
+ */
+typedef Eina_Bool (*Evas_Object_Event_Post_Cb)(void *data, Evas *e);
+
+/**
+ * @brief Evas object event callback function signature
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ * @ingroup Evas_Object_Group_Events
+ */
+typedef void      (*Evas_Object_Event_Cb)(void *data, Evas *e, Evas_Object *obj, void *event_info);
+
+/**
+ * @brief Evas Async events put function signature
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ * @ingroup Evas_Top_Group
+ */
+typedef void      (*Evas_Async_Events_Put_Cb)(void *target, Evas_Callback_Type type, void *event_info);
 
 /**
  * @internal
@@ -982,6 +1041,10 @@ EAPI const char *evas_cserve_path_get(void);
  *
  * This function initializes Evas and increments a counter of the
  * number of calls to it. It returns the new counter's value.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  *
  * @see evas_shutdown().
  *
@@ -1019,6 +1082,10 @@ EAPI int               evas_init(void);
  * number of calls to the function evas_init(). This new value for the
  * counter is returned.
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * @see evas_init().
  *
  * If you were the sole user of Evas, by means of evas_init(), you can
@@ -1044,6 +1111,10 @@ EAPI int               evas_shutdown(void);
 /**
  * Return if any allocation errors have occurred during the prior function
  * @return The allocation error flag
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  *
  * This function will return if any memory allocation errors occurred during,
  * and what kind they were. The return value will be one of
@@ -1097,6 +1168,10 @@ EAPI Evas_Alloc_Error  evas_alloc_error(void);
 /**
  * @brief Get evas' internal asynchronous events read file descriptor.
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * @return The canvas' asynchronous events read file descriptor.
  *
  * Evas' asynchronous events are meant to be dealt with internally,
@@ -1123,6 +1198,10 @@ EAPI int               evas_async_events_fd_get(void) EINA_WARN_UNUSED_RESULT;
  * @brief Trigger the processing of all events waiting on the file
  * descriptor returned by evas_async_events_fd_get().
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * @return The number of events processed.
  *
  * All asynchronous events queued up by evas_async_events_put() are
@@ -1136,6 +1215,10 @@ EAPI int               evas_async_events_process(void);
 
 /**
  * Insert asynchronous events on the canvas.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  *
  * @param target The target to be affected by the events.
  * @param type The type of callback function.

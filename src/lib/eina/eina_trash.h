@@ -109,6 +109,10 @@ static inline void *eina_trash_pop(Eina_Trash **trash) EINA_ARG_NONNULL(1) EINA_
  * @details This macro allows the cleaning of @a trash in an easy way. It
  *          removes all the pointers from @a trash until it's empty.
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * @note This macro can be used for freeing the data in the trash, like in
  *       the following example:
  *

@@ -68,10 +68,11 @@ EAPI int ecore_shutdown(void);
  * @{
  */
 
-#define ECORE_VERSION_MAJOR EFL_VERSION_MAJOR /**< Ecore version major number */
-#define ECORE_VERSION_MINOR EFL_VERSION_MINOR /**< Ecore version minor number */
+#define ECORE_VERSION_MAJOR EFL_VERSION_MAJOR /**< @internal Ecore version major number */
+#define ECORE_VERSION_MINOR EFL_VERSION_MINOR /**< @internal Ecore version minor number */
 
 /**
+ * @internal
  * @typedef Ecore_Version
  *
  * This is the Ecore version information structure that can be used at
@@ -140,6 +141,8 @@ typedef int (*Ecore_Select_Function)(int nfds, fd_set *readfds, fd_set *writefds
 EAPI void ecore_main_loop_iterate(void);
 
 /**
+ * @internal
+ *
  * Runs a single iteration of the main loop to process everything on the
  * queue with block/non-blocking status.
  *
@@ -299,6 +302,8 @@ EAPI void ecore_main_loop_begin(void);
 EAPI void ecore_main_loop_quit(void);
 
 /**
+ * @internal
+ *
  * Returns if an animator has ticked off during this loop iteration
  *
  * @return EINA_TRUE if an animator has been called, EINA_FALSE otherwise.
@@ -310,6 +315,8 @@ EAPI void ecore_main_loop_quit(void);
 EAPI Eina_Bool ecore_main_loop_animator_ticked_get(void);
 
 /**
+ * @internal
+ *
  * Returns if the ecore_main_loop is running
  *
  * @return an integer specifying if the ecore_main_loop is running,
@@ -437,6 +444,8 @@ EAPI void ecore_main_loop_thread_safe_call_async(Ecore_Cb callback, void *data);
 EAPI void *ecore_main_loop_thread_safe_call_sync(Ecore_Data_Cb callback, void *data);
 
 /**
+ * @internal
+ *
  * @brief Wait for the next thread call in the main loop.
  * @since 1.13.0
  *
@@ -1069,6 +1078,7 @@ enum _Ecore_Exe_Flags    /* flags for executing a child with its stdin and/or st
 typedef enum _Ecore_Exe_Flags Ecore_Exe_Flags;
 
 /**
+ * @internal
  * @enum _Ecore_Exe_Win32_Priority
  * Defines the priority of the proccess.
  */
@@ -1100,6 +1110,7 @@ typedef struct _Ecore_Exe_Event_Data_Line Ecore_Exe_Event_Data_Line; /**< Lines 
 typedef struct _Ecore_Exe_Event_Data      Ecore_Exe_Event_Data; /**< Data from a child process */
 
 /**
+ * @internal
  * @struct _Ecore_Exe_Event_Add
  * @brief A structure that stores information of a Process add event.
  */
@@ -3405,6 +3416,11 @@ EAPI void ecore_timer_precision_set(double precision);
 
 /**
  * Creates a timer to call the given function in the given period of time.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * @param   in   The interval in seconds.
  * @param   func The given function.  If @p func returns 1, the timer is
  *               rescheduled for the next interval @p in.

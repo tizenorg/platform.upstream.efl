@@ -153,6 +153,10 @@ EAPI Eina_Bool eina_ustrbuf_append(Eina_UStrbuf *buf, const Eina_Unicode *str) E
  * @param str The string to append.
  * @return #EINA_TRUE on success, #EINA_FALSE on failure.
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * This function appends the escaped string @p str to @p buf. If @p
  * str can not be appended, #EINA_FALSE is returned, otherwise, #EINA_TRUE is
  * returned.
@@ -257,6 +261,10 @@ EAPI Eina_Bool eina_ustrbuf_insert(Eina_UStrbuf *buf, const Eina_Unicode *str, s
  * @param pos The position to insert the string.
  * @return #EINA_TRUE on success, #EINA_FALSE on failure.
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * This function inserts the escaped string @p str to @p buf at
  * position @p pos. If @p buf can't insert @p str, #EINA_FALSE is
  * returned, otherwise #EINA_TRUE is returned.
@@ -340,6 +348,10 @@ EAPI Eina_Bool eina_ustrbuf_insert_char(Eina_UStrbuf *buf, Eina_Unicode c, size_
  * @param str The string to prepend.
  * @return #EINA_TRUE on success, #EINA_FALSE on failure.
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * This macro is calling eina_ustrbuf_insert() at position 0.If @p buf
  * can't prepend it, #EINA_FALSE is returned, otherwise #EINA_TRUE is
  * returned.
@@ -353,6 +365,10 @@ EAPI Eina_Bool eina_ustrbuf_insert_char(Eina_UStrbuf *buf, Eina_Unicode c, size_
  * @param buf The string buffer to prepend to.
  * @param str The string to prepend.
  * @return #EINA_TRUE on success, #EINA_FALSE on failure.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  *
  * This macro is calling eina_ustrbuf_insert_escaped() at position 0. If
  * @p buf can't prepend it, #EINA_FALSE is returned, otherwise #EINA_TRUE is
@@ -369,6 +385,10 @@ EAPI Eina_Bool eina_ustrbuf_insert_char(Eina_UStrbuf *buf, Eina_Unicode c, size_
  * @param maxlen The maximum number of Eina_Unicode *s to prepend.
  * @return #EINA_TRUE on success, #EINA_FALSE on failure.
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * This macro is calling eina_ustrbuf_insert_n() at position 0. If
  * @p buf can't prepend it, #EINA_FALSE is returned, otherwise #EINA_TRUE is
  * returned.
@@ -384,6 +404,10 @@ EAPI Eina_Bool eina_ustrbuf_insert_char(Eina_UStrbuf *buf, Eina_Unicode c, size_
  * @param length The exact length to use.
  * @return #EINA_TRUE on success, #EINA_FALSE on failure.
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * This macro is calling eina_ustrbuf_insert_length() at position 0. If
  * @p buf can't prepend it, #EINA_FALSE is returned, otherwise #EINA_TRUE is
  * returned.
@@ -397,6 +421,10 @@ EAPI Eina_Bool eina_ustrbuf_insert_char(Eina_UStrbuf *buf, Eina_Unicode c, size_
  * @param buf The string buffer to prepend to.
  * @param c The Eina_Unicode character to prepend.
  * @return #EINA_TRUE on success, #EINA_FALSE on failure.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  *
  * This macro is calling eina_ustrbuf_insert_Eina_Unicode *() at position 0. If
  * @p buf can't prepend it, #EINA_FALSE is returned, otherwise #EINA_TRUE is

@@ -377,6 +377,10 @@ static inline size_t eina_str_join(char *dst, size_t size, char sep, const char 
  * @def eina_str_join_static(dst, sep, a, b)
  * @brief Join two static strings and store the result in a static buffer.
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * @param dst The buffer to store the result.
  * @param sep The separator character to use.
  * @param a First string to use, before @p sep.
@@ -391,6 +395,23 @@ static inline size_t eina_str_join(char *dst, size_t size, char sep, const char 
  */
 #define eina_str_join_static(dst, sep, a, b) eina_str_join_len(dst, sizeof(dst), sep, a, (sizeof(a) > 0) ? sizeof(a) - 1 : 0, b, (sizeof(b) > 0) ? sizeof(b) - 1 : 0)
 
+/**
+ * @brief Count up to a given amount of bytes of the given string.
+ *
+ * @details This function returns the size of @p str, up to @p maxlen
+ *          characters. It avoid needless iterations after that size. @p str
+ *          must be a valid pointer and MUST not be @c NULL, otherwise this
+ *          function will crash. This function returns the string size, or
+ *          (size_t)-1 if the size is greater than @a maxlen.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
+ * @param[in] str The string pointer.
+ * @param[in] maxlen The maximum length to allow.
+ * @return the string size or (size_t)-1 if greater than @a maxlen.
+ */
 static inline size_t eina_strlen_bounded(const char *str, size_t maxlen) EINA_PURE EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1);
 
 /**

@@ -43,6 +43,8 @@ typedef void         (*Edje_Signal_Cb)          (void *data, Evas_Object *obj, c
  * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
+ * @ingroup Edje_Object_Communication_Interface_Signal
+ *
  * @return the extra data for that callback.
  *
  * @remark Some callbacks pass extra information. This function gives access to that
@@ -148,6 +150,8 @@ EAPI char             *edje_mmap_data_get(const Eina_File *f, const char *key);
  * @if MOBILE @since_tizen 2.3
  * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
+ *
+ * @ingroup Edje_Object_File
  *
  * @param[in] file The path to the .edj file
  * @param[in] key The data key
@@ -937,6 +941,8 @@ EAPI double       edje_scale_get                  (void);
  */
 
 /**
+ * @internal
+ *
  * @defgroup Edje_Text_Entry Edje Text Entry
  *
  * @brief Functions that deal with text entries
@@ -1407,6 +1413,8 @@ typedef void         (*Edje_Text_Change_Cb)     (void *data, Evas_Object *obj, c
  */
 
 /**
+ * @internal
+ *
  * @defgroup Edje_Text_Selection Edje Text Selection
  *
  * @brief Functions that deal with selection in text parts
@@ -1426,6 +1434,8 @@ typedef void         (*Edje_Text_Change_Cb)     (void *data, Evas_Object *obj, c
  */
 
 /**
+ * @internal
+ *
  * @defgroup Edje_Text_Cursor Edje Text Cursor
  *
  * @brief Functions that deal with cursor in text parts
@@ -1805,6 +1815,8 @@ EAPI Eina_Bool         edje_mmap_group_exists(Eina_File *f, const char *glob);
  * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
+ * @ingroup Edje_Object_File
+ *
  * @param[in] file The path to the edje file
  *
  * @return The Eina_List of group names (char *)
@@ -1823,6 +1835,8 @@ EAPI Eina_List        *edje_file_collection_list  (const char *file);
  * @if MOBILE @since_tizen 2.3
  * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
+ *
+ * @ingroup Edje_Object_File
  *
  * @param[in] lst The Eina_List of groups
  *

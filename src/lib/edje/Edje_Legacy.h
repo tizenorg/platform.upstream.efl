@@ -5,6 +5,8 @@
  * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
+ * @ingroup Edje_Object_Group
+ *
  * @param[in] evas A valid Evas handle, the canvas to place the new object
  * in
  * @return A handle to the new object created or @c NULL, on errors.
@@ -62,6 +64,8 @@ EAPI Evas_Object *edje_object_add                 (Evas *evas);
  * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
+ * @ingroup Edje_Object_Communication_Interface_Signal
+ *
  * @param[in] obj A valid Evas_Object handle.
  * @param[in] emission The emission string.
  * @param[in] source The source string.
@@ -87,6 +91,8 @@ EAPI void        *edje_object_signal_callback_del (Evas_Object *obj, const char 
  * @if MOBILE @since_tizen 2.3
  * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
+ *
+ * @ingroup Edje_Object_Communication_Interface_Signal
  *
  * @param[in] obj A handle to an Edje object
  * @param[in] emission The signal's "emission" string
@@ -116,6 +122,8 @@ EAPI void        *edje_object_signal_callback_del_full(Evas_Object *obj, const c
  * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
+ * @ingroup Edje_Object_Color_Class
+ *
  * @param[in] obj The edje object's reference.
  * @param[in] color_class The color class to be deleted.
  *
@@ -133,6 +141,8 @@ EAPI void        *edje_object_signal_callback_del_full(Evas_Object *obj, const c
  /**
  * @brief Set the object minimum size.
  *
+ * @ingroup Edje_Part_Swallow
+ *
  * @param obj A valid Evas_Object handle
  * @param minw The minimum width
  * @param minh The minimum height
@@ -145,6 +155,8 @@ EINA_DEPRECATED EAPI void         edje_extern_object_min_size_set (Evas_Object *
 
 /**
  * @brief Set the object maximum size.
+ *
+ * @ingroup Edje_Part_Swallow
  *
  * @if MOBILE @since_tizen 2.3
  * @elseif WEARABLE @since_tizen 2.3.1
@@ -162,6 +174,8 @@ EAPI void         edje_extern_object_max_size_set (Evas_Object *obj, Evas_Coord 
 
 /**
  * @brief Set the object aspect size.
+ *
+ * @ingroup Edje_Part_Swallow
  *
  * @param obj A valid Evas_Object handle
  * @param aspect The aspect control axes
@@ -184,6 +198,8 @@ EAPI void         edje_extern_object_aspect_set   (Evas_Object *obj, Edje_Aspect
  * @if MOBILE @since_tizen 2.3
  * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
+ *
+ * @ingroup Edje_Object_File
  *
  * @return @c EINA_TRUE, on success or @c EINA_FALSE, on errors (check
  * edje_object_load_error_get() after this call to get errors causes)
@@ -220,6 +236,8 @@ EAPI Eina_Bool edje_object_file_set(Eo *obj, const char *file, const char *group
  * @if MOBILE @since_tizen 2.3
  * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
+ *
+ * @ingroup Edje_Object_File
  *
  * @remark This gets the EDJ file's path, with the respective group set for
  * the given Edje object. If @a obj is either not an Edje file, or has

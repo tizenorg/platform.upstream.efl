@@ -258,4 +258,8 @@ EAPI void                      ecore_buffer_provider_consumer_del_cb_set(Ecore_B
  */
 EAPI void                      ecore_buffer_provider_buffer_released_cb_set(Ecore_Buffer_Provider *provider, Ecore_Buffer_Provider_Enqueue_Cb func, void *data);
 
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* _ECORE_BUFFER_QUEUE_H_ */

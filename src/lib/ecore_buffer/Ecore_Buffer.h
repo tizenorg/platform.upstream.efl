@@ -524,4 +524,8 @@ EAPI Ecore_Buffer_Format ecore_buffer_format_get(Ecore_Buffer *buf);
  */
 EAPI unsigned int  ecore_buffer_flags_get(Ecore_Buffer *buf);
 
+#ifdef __cplusplus
+}
+#endif
+
 #endif

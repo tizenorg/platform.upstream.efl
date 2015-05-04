@@ -42,13 +42,6 @@ evas_xcb_image_dri3_init(DRI3_Info *info, Pixmap pixmap, Display *dpy)
          if(!dri3_query_present()) return EINA_FALSE;
       }
    inits++;
-
-   info->buffer = dri3_get_pixmap_buffer (pixmap);
-   if (!info->buffer)
-      {
-         evas_xcb_image_dri_free(info);
-         return EINA_FALSE;
-      }
    return EINA_TRUE;
 }
 
@@ -69,6 +62,8 @@ evas_xcb_image_get_buffers(RGBA_Image *im)
 
    XGrabServer(d);
 
+   dri3_destroy_buffer(info->buffer);
+   info->buffer = dri3_get_pixmap_buffer(n->pixmap);
    dri3_get_data(info->buffer, im);
 
    XUngrabServer(d);
@@ -80,7 +75,8 @@ evas_xcb_image_get_buffers(RGBA_Image *im)
 }
 
 static void
-_native_bind_cb(void *data EINA_UNUSED, void *image, int x, int y, int w, int h)
+_native_bind_cb(void *data EINA_UNUSED, void *image,
+                int x EINA_UNUSED, int y EINA_UNUSED, int w EINA_UNUSED, int h EINA_UNUSED)
 {
    RGBA_Image *im = image;
    DRI3_Native *n = im->native.data;

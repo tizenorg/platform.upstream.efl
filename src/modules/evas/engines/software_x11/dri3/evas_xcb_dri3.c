@@ -420,10 +420,11 @@ void dri3_destroy_buffer(dri3_buffer *buffer)
 {
    if(!buffer) return;
 
-   if (buffer->pixmap) dri3_destroy_pixmap (buffer->pixmap);
+   if (buffer->own_pixmap) dri3_destroy_pixmap (buffer->pixmap);
    if (buffer->sync_fence > 0 && info.conn) sym_xcb_sync_destroy_fence(info.conn, buffer->sync_fence);
    if (buffer->shm_fence) sym_xshmfence_unmap_shm(buffer->shm_fence);
-   if (buffer->bo) sym_tbm_bo_unref (buffer->bo);
+   if (buffer->bo) sym_tbm_bo_unref(buffer->bo);
+   if (buffer->fd) close(buffer->fd);
    free(buffer);
 }
 
@@ -479,7 +480,6 @@ _dri3_handle_present_event(dri3_drawable *drawable, xcb_present_generic_event_t 
 
             drawable->width = ce->width;
             drawable->height = ce->height;
-            DBG("Get configure notify width : %d, height : %d\n", drawable->width, drawable->height);
             break;
          }
       case XCB_PRESENT_COMPLETE_NOTIFY:
@@ -505,16 +505,14 @@ _dri3_handle_present_event(dri3_drawable *drawable, xcb_present_generic_event_t 
                         break;
                   }
                   _dri3_update_num_back(drawable);
-                  DBG ("Get complete notify PXIMAP mode : %d\n", ce->mode);
                }
             else
                {
                   drawable->recv_msc_serial = ce->serial;
-                  DBG ("Get complete notify MSC\n");
+                  DBG("Get complete notify MSC");
                }
             drawable->ust = ce->ust;
             drawable->msc = ce->msc;
-            DBG ("Get ust : %lld , msc : %lld\n", drawable->ust, drawable->msc);
             break;
          }
       case XCB_PRESENT_EVENT_IDLE_NOTIFY:
@@ -541,7 +539,7 @@ _dri3_handle_present_event(dri3_drawable *drawable, xcb_present_generic_event_t 
          }
       default :
          {
-            DBG ("Get unkown notify\n");
+            DBG ("Get unkown notify");
             break;
          }
    }
@@ -682,13 +680,15 @@ dri3_copy_area (xcb_drawable_t    src_drawable  /**< */,
 static
 void *dri3_error_free(dri3_buffer *buffer)
 {
-   if(!buffer) return NULL;
+   if (!buffer) return NULL;
    if (buffer->shm_fence)
       sym_xshmfence_unmap_shm(buffer->shm_fence);
    if (buffer->fence_fd >=0)
-      close (buffer->fence_fd);
+      close(buffer->fence_fd);
    if (buffer->bo)
-      sym_tbm_bo_unref (buffer->bo);
+      sym_tbm_bo_unref(buffer->bo);
+   if (buffer->fd)
+      close(buffer->fd);
    if (buffer)
       free(buffer);
    return NULL;
@@ -745,6 +745,7 @@ dri3_buffer *dri3_alloc_render_buffer(Drawable draw, int w, int h, int depth, in
       }
 
    buffer->pixmap = pixmap;
+   buffer->own_pixmap = EINA_TRUE;
 
    if (!buffer->sync_fence)
       {
@@ -791,7 +792,7 @@ _dri3_flush_present_events (dri3_drawable *drawable)
          while ((ev = xcb_poll_for_special_event(info.conn, drawable->special_event)) != NULL)
             {
                xcb_present_generic_event_t *ge = (void *) ev;
-               _dri3_handle_present_event (drawable, ge);
+               _dri3_handle_present_event(drawable, ge);
             }
       }
 }
@@ -900,6 +901,7 @@ dri3_buffer *dri3_get_pixmap_buffer(Pixmap pixmap)
    if(!buffer->bo) return NULL;
 
    buffer->pixmap = pixmap;
+   buffer->own_pixmap = EINA_FALSE;
 
    return buffer;
 }
@@ -966,7 +968,7 @@ dri3_get_backbuffers (dri3_drawable *drawable, uint32_t *stamp)
          dri3_buffer *new_buffer = NULL;
 
          /* Allocate the new buffers */
-         new_buffer = dri3_alloc_render_buffer (drawable->window, drawable->width, drawable->height, drawable->depth, 32);
+         new_buffer = dri3_alloc_render_buffer(drawable->window, drawable->width, drawable->height, drawable->depth, 32);
          if (!new_buffer)
             return 0;
          /* When resizing, copy the contents of the old buffer, waiting for that
@@ -976,11 +978,11 @@ dri3_get_backbuffers (dri3_drawable *drawable, uint32_t *stamp)
             {
                dri3_fence_reset(new_buffer);
                dri3_fence_await(back_buffer);
-               dri3_copy_area (back_buffer->pixmap, new_buffer->pixmap,
+               dri3_copy_area(back_buffer->pixmap, new_buffer->pixmap,
                                _dri3_drawable_gc(drawable),
                                0, 0, 0, 0, drawable->width, drawable->height);
                dri3_fence_trigger(new_buffer);
-               dri3_destroy_buffer (back_buffer);
+               dri3_destroy_buffer(back_buffer);
             }
          back_buffer = new_buffer;
          drawable->buffers[buf_id] = back_buffer;
@@ -989,6 +991,8 @@ dri3_get_backbuffers (dri3_drawable *drawable, uint32_t *stamp)
    drawable->stamp = stamp;
 
    dri3_fence_await(back_buffer);
+
+   dri3_set_buffer_age(drawable);
 
    return back_buffer;
 }
@@ -1001,14 +1005,14 @@ dri3_swap_buffers (dri3_drawable *drawable, int64_t target_msc, int64_t divisor,
 
    dri3_buffer *back;
    int64_t ret = 0;
-   int buf_id = DRI3_BACK_ID (drawable->cur_back_id);
+   int buf_id = DRI3_BACK_ID(drawable->cur_back_id);
    back = drawable->buffers[buf_id];
 
-   _dri3_flush_present_events (drawable);
+   _dri3_flush_present_events(drawable);
 
    if (back)
       {
-         dri3_fence_reset (back);
+         dri3_fence_reset(back);
 
 
          /* Compute when we want the frame shown by taking the last known successful
@@ -1056,17 +1060,38 @@ dri3_swap_buffers (dri3_drawable *drawable, int64_t target_msc, int64_t divisor,
    return ret;
 }
 
+void
+dri3_set_buffer_age(dri3_drawable *drawable)
+{
+   if (!drawable) return;
+   drawable->buffer_age = 0;
+
+   int back_id = DRI3_BACK_ID(drawable->cur_back_id);
+   if (back_id < 0 || !drawable->buffers[back_id]) return;
+
+   if (drawable->buffers[back_id]->last_swap != 0)
+      {
+         int age = drawable->send_sbc - drawable->buffers[back_id]->last_swap + 1;
+         if ( (age < drawable->num_back + 1) && drawable->flipping )
+            drawable->buffer_age = age;
+      }
+}
+
 int
 dri3_get_buffer_age(dri3_drawable *drawable)
 {
-   if(!drawable) return 0;
+   if (!drawable) return 0;
    int back_id = DRI3_BACK_ID(_dri3_find_back(drawable));
 
    if (back_id < 0 || !drawable->buffers[back_id])
       return 0;
 
    if (drawable->buffers[back_id]->last_swap != 0)
-      return drawable->send_sbc - drawable->buffers[back_id]->last_swap + 1;
+      {
+         int age = drawable->send_sbc - drawable->buffers[back_id]->last_swap + 1;
+         if ( (age > drawable->num_back + 1) || !drawable->flipping ) return 0;
+         else return age;
+      }
    else
       return 0;
 }
@@ -1087,7 +1112,7 @@ int dri3_init_dri3(Display *dpy)
    Window root = RootWindow(dpy, DefaultScreen(dpy));
    if (xcb_connection_has_error(info.conn))
       {
-         ERR("Xcb Connection has failed.\n");
+         ERR("Xcb Connection has failed.");
          return 0;
       }
 
@@ -1195,9 +1220,10 @@ dri3_get_data (dri3_buffer *buffer, RGBA_Image *im)
    if(!buffer || buffer->w < 0 || buffer->h <0 || !buffer->bo) return;
 
    tbm_bo_handle bo_handle;
+   im->image.data = NULL;
 
    bo_handle = sym_tbm_bo_map (buffer->bo, TBM_DEVICE_CPU, TBM_OPTION_READ|TBM_OPTION_WRITE);
-   if(!bo_handle.ptr) return;
+   if (!bo_handle.ptr) return;
 
    im->image.data = bo_handle.ptr;
    im->cache_entry.w = buffer->stride/4;

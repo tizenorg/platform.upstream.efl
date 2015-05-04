@@ -24,7 +24,7 @@ struct _X_DRI3_Swapper
 };
 
 static int inits = 0;
-static int swap_debug = 1;
+static int swap_debug = 0;
 
 X_DRI3_Swapper *
 evas_xcb_swapper_new(Display *disp, Drawable draw, Visual *vis,
@@ -63,14 +63,14 @@ evas_xcb_swapper_new(Display *disp, Drawable draw, Visual *vis,
          return NULL;
       }
 
-   if (swap_debug) DBG("Swapper allocated OK\n");
+   if (swap_debug) DBG("Swapper allocated OK");
    return swp;
 }
 
 void
 evas_xcb_swapper_free(X_DRI3_Swapper *swp)
 {
-   if (swap_debug) DBG("Swapper free\n");
+   if (swap_debug) DBG("Swapper free");
    if (swp->mapped) evas_xcb_swapper_buffer_unmap(swp);
    dri3_destroy_drawable(swp->dri3_draw);
    free(swp);
@@ -131,7 +131,7 @@ evas_xcb_swapper_swap(X_DRI3_Swapper *swp, Eina_Rectangle *rects, int nrects)
    XRectangle *xrects = alloca(nrects * sizeof(XRectangle));
    XID region = 0;
    int i;
-   if (swap_debug) DBG("Swap buffers\n");
+   if (swap_debug) DBG("Swap buffers");
    for (i = 0; i < nrects; i++)
       {
          xrects[i].x = rects[i].x; xrects[i].y = rects[i].y;
@@ -147,7 +147,28 @@ evas_xcb_swapper_buffer_state_get(X_DRI3_Swapper *swp)
 {
    if (!swp->mapped) evas_xcb_swapper_buffer_map(swp, NULL, NULL, NULL);
    if (!swp->mapped) return MODE_FULL;
-   // to-do
+   int buffer_age = dri3_get_buffer_age(swp->dri3_draw);
+   if (buffer_age != swp->last_count)
+      {
+         swp->last_count = buffer_age;
+         if (swap_debug) DBG("Reuse changed - force FULL");
+         return MODE_FULL;
+      }
+   if (swap_debug) DBG("Swap state buffer_age = %i (0=FULL, 1=COPY, 2=DOUBLE, 3=TRIPLE, 4=QUAD)", buffer_age);
+   switch (buffer_age)
+   {
+      case 0:
+      case 1:
+         return MODE_FULL;
+      case 2:
+         return MODE_DOUBLE;
+      case 3:
+         return MODE_TRIPLE;
+      case 4:
+         return MODE_QUADRUPLE;
+      default :
+         return MODE_FULL;
+   }
 
    return MODE_FULL;
 }

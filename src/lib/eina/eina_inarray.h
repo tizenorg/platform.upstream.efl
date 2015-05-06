@@ -727,6 +727,8 @@ EAPI int eina_inarray_foreach_remove(Eina_Inarray *array,
                                      const void *user_data) EINA_ARG_NONNULL(1, 2);
 
 /**
+ * @internal
+ *
  * @brief Resizes array to new size
  *
  * @param[in] array The array object

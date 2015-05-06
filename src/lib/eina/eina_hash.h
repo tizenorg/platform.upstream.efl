@@ -1180,11 +1180,9 @@ EAPI void           eina_hash_foreach(const Eina_Hash  *hash,
 
 
 /**
- * @brief Append data to an #Eina_List inside a hash
+ * @internal
  *
- * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE @since_tizen 2.3.1
- * @endif
+ * @brief Append data to an #Eina_List inside a hash
  *
  * @remark This function is identical to the sequence of calling
  * eina_hash_find(), eina_list_append(), eina_hash_set(),
@@ -1196,11 +1194,9 @@ EAPI void           eina_hash_foreach(const Eina_Hash  *hash,
  */
 EAPI void eina_hash_list_append(Eina_Hash *hash, const void *key, const void *data) EINA_ARG_NONNULL(1, 2, 3);
 /**
- * @brief Append data to an #Eina_List inside a hash
+ * @internal
  *
- * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE @since_tizen 2.3.1
- * @endif
+ * @brief Append data to an #Eina_List inside a hash
  *
  * @remark This function is identical to the sequence of calling
  * eina_hash_find(), eina_list_append(), eina_hash_set(),
@@ -1212,11 +1208,9 @@ EAPI void eina_hash_list_append(Eina_Hash *hash, const void *key, const void *da
  */
 EAPI void eina_hash_list_prepend(Eina_Hash *hash, const void *key, const void *data) EINA_ARG_NONNULL(1, 2, 3);
 /**
- * @brief Append data to an #Eina_List inside a hash
+ * @internal
  *
- * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE @since_tizen 2.3.1
- * @endif
+ * @brief Append data to an #Eina_List inside a hash
  *
  * @remark This function is identical to the sequence of calling
  * eina_hash_find(), eina_list_append(), eina_hash_set(),
@@ -1231,10 +1225,6 @@ EAPI void eina_hash_list_remove(Eina_Hash *hash, const void *key, const void *da
 /**
  * @brief
  * Paul Hsieh (http://www.azillionmonkeys.com/qed/hash.html) hash function used by WebCore (http://webkit.org/blog/8/hashtables-part-2/)
- *
- * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE @since_tizen 2.3.1
- * @endif
  *
  * @param[in] key The key to hash
  * @param[in] len The length of the key

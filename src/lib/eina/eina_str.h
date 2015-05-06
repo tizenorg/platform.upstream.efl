@@ -303,6 +303,7 @@ EAPI size_t          eina_str_join_len(char *dst, size_t size, char sep, const c
 EAPI char           *eina_str_convert(const char *enc_from, const char *enc_to, const char *text) EINA_WARN_UNUSED_RESULT EINA_MALLOC EINA_ARG_NONNULL(1, 2, 3);
 
 /**
+ * @internal
  * @brief Use Iconv to convert a text string from one encoding to another.
  *
  * @param enc_from Encoding to convert from.
@@ -415,6 +416,7 @@ static inline size_t eina_str_join(char *dst, size_t size, char sep, const char 
 static inline size_t eina_strlen_bounded(const char *str, size_t maxlen) EINA_PURE EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1);
 
 /**
+ * @internal
  * @brief memory duplication function with optional termination for strings
  * @param mem The memory to copy
  * @param size The size of @p mem

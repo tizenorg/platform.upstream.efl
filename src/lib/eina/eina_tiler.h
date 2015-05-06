@@ -219,6 +219,7 @@ EAPI void               eina_tiler_free(Eina_Tiler *t);
 EAPI void               eina_tiler_tile_size_set(Eina_Tiler *t, int w, int h);
 
 /**
+ * @internal
  * @brief Change the size of the area covered by the tiler.
  *
  * @param t The tiler whose area size will be set.
@@ -232,6 +233,7 @@ EAPI void               eina_tiler_tile_size_set(Eina_Tiler *t, int w, int h);
 EAPI void               eina_tiler_area_size_set(Eina_Tiler *t, int w, int h);
 
 /**
+ * @internal
  * @brief Get the size of the area covered by the tiler.
  *
  * @param t The tiler whose area size will be fetched.
@@ -243,6 +245,7 @@ EAPI void               eina_tiler_area_size_set(Eina_Tiler *t, int w, int h);
 EAPI void               eina_tiler_area_size_get(const Eina_Tiler *t, int *w, int *h);
 
 /**
+ * @internal
  * @brief Define if we need to follow a strict grid of tile or a loosy one
  *
  * @param t The tiler to apply the strict rules to.
@@ -255,6 +258,7 @@ EAPI void               eina_tiler_area_size_get(const Eina_Tiler *t, int *w, in
 EAPI void               eina_tiler_strict_set(Eina_Tiler *t, Eina_Bool strict);
 
 /**
+ * @internal
  * @brief Tell if a tiler is empty or not
  *
  * @param t The tiler to apply the strict rules to.
@@ -280,6 +284,10 @@ EAPI Eina_Bool          eina_tiler_empty(Eina_Tiler *t);
 EAPI Eina_Bool          eina_tiler_rect_add(Eina_Tiler *t, const Eina_Rectangle *r);
 /**
  * @brief Removes a rectangle from a tiler.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  *
  * @param t The tiler in which to add a container.
  * @param r The rectangle to be removed.
@@ -338,6 +346,7 @@ EAPI Eina_Iterator     *eina_tiler_iterator_new(const Eina_Tiler *t);
 EAPI Eina_Iterator     *eina_tile_grid_slicer_iterator_new(int x, int y, int w, int h, int tile_w, int tile_h);
 
 /**
+ * @internal
  * @brief Gets the union of two tilers.
  *
  * @param   dst The first tiler, will store the result.
@@ -351,6 +360,7 @@ EAPI Eina_Iterator     *eina_tile_grid_slicer_iterator_new(int x, int y, int w, 
 EAPI Eina_Bool          eina_tiler_union(Eina_Tiler *dst, Eina_Tiler *src);
 
 /**
+ * @internal
  * @brief Subtracts two tilers.
  *
  * @param   dst The first tiler, will store the result.
@@ -364,6 +374,7 @@ EAPI Eina_Bool          eina_tiler_union(Eina_Tiler *dst, Eina_Tiler *src);
 EAPI Eina_Bool          eina_tiler_subtract(Eina_Tiler *dst, Eina_Tiler *src);
 
 /**
+ * @internal
  * @brief Gets the intersection of two tilers.
  *
  * @param   t1 The first tile.
@@ -377,6 +388,7 @@ EAPI Eina_Bool          eina_tiler_subtract(Eina_Tiler *dst, Eina_Tiler *src);
 EAPI Eina_Tiler        *eina_tiler_intersection(Eina_Tiler *t1, Eina_Tiler *t2);
 
 /**
+ * @internal
  * @brief Gets whether two tilers are equal in rects or not.
  *
  * @param   t1 The first tiler.

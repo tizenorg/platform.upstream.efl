@@ -103,7 +103,8 @@
  */
 
 /**
- * @defgroup Eina_Stringshare_Group Stringshare
+ * @defgroup Eina_Tmpstr_Group Tmpstr
+ * @ingroup Eina_Data_Types_Group
  *
  * @{
  */

@@ -321,6 +321,7 @@
  */
 
 /**
+ * @internal
  * @addtogroup Eina_Tools_Group Tools
  *
  * @{

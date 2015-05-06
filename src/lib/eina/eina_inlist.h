@@ -612,6 +612,7 @@ EAPI Eina_Inlist   *eina_inlist_demote(Eina_Inlist *list,
                                        Eina_Inlist *item) EINA_ARG_NONNULL(1, 2) EINA_WARN_UNUSED_RESULT;
 
 /**
+ * @internal
  * @brief Get the first list node in the list.
  *
  * @param list The list to get the first list node from.
@@ -628,6 +629,7 @@ EAPI Eina_Inlist   *eina_inlist_demote(Eina_Inlist *list,
 static inline Eina_Inlist *eina_inlist_first(const Eina_Inlist *list) EINA_PURE EINA_WARN_UNUSED_RESULT;
 
 /**
+ * @internal
  * @brief Get the last list node in the list.
  *
  * @param list The list to get the last list node from.

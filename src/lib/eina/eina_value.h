@@ -259,6 +259,7 @@
  */
 
 /**
+ * @internal
  * @addtogroup Eina_Data_Types_Group Data Types
  *
  * @since 1.2
@@ -267,6 +268,7 @@
  */
 
 /**
+ * @internal
  * @addtogroup Eina_Containers_Group Containers
  *
  * @{

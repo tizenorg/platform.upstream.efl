@@ -26,6 +26,7 @@
 #include <stdint.h>
 
 /**
+ * @internal
  * @addtogroup Eina_Tools_Group Tools
  *
  * @{

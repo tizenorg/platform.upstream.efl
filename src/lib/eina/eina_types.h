@@ -341,6 +341,7 @@ typedef int (*Eina_Compare_Cb)(const void *data1, const void *data2);
 #define EINA_COMPARE_CB(function) ((Eina_Compare_Cb)function)
 
 /**
+ * @internal
  * @typedef Eina_Random_Cb
  * Function used in shuffling functions. An integer betwen min and max
  * inclusive must be returned.
@@ -350,6 +351,7 @@ typedef int (*Eina_Compare_Cb)(const void *data1, const void *data2);
 typedef int (*Eina_Random_Cb)(const int min, const int max);
 
 /**
+ * @internal
  * @def EINA_RANDOM_CB
  * Macro to cast to Eina_Random_Cb.
  */

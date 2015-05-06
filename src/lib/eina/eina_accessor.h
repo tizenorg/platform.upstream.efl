@@ -137,6 +137,7 @@ typedef void (*Eina_Accessor_Free_Callback)(Eina_Accessor *it);
 typedef Eina_Bool (*Eina_Accessor_Lock_Callback)(Eina_Accessor *it);
 
 /**
+ * @internal
  * @typedef Eina_Accessor_Clone_Callback
  * @brief Type for a callback to return a clone for the accessor
  * @since 1.10
@@ -164,7 +165,7 @@ struct _Eina_Accessor
 #define EINA_MAGIC_ACCESSOR 0x98761232
    EINA_MAGIC
 
-   Eina_Accessor_Clone_Callback         clone         EINA_WARN_UNUSED_RESULT; /**< Callback called when the container is to be cloned. @since 1.10 */
+   Eina_Accessor_Clone_Callback         clone         EINA_WARN_UNUSED_RESULT; /**< @internal Callback called when the container is to be cloned. @since 1.10 */
 };
 
 /**
@@ -192,6 +193,7 @@ struct _Eina_Accessor
 #define FUNC_ACCESSOR_LOCK(Function)          ((Eina_Accessor_Lock_Callback)Function)
 
 /**
+ * @internal
  * @def FUNC_ACCESSOR_CLONE(Function)
  * @brief Helper macro to cast @p Function to a Eina_Iterator_Clone_Callback.
  * @since 1.10
@@ -296,6 +298,7 @@ EAPI void  eina_accessor_over(Eina_Accessor *accessor,
 EAPI Eina_Bool eina_accessor_lock(Eina_Accessor *accessor) EINA_ARG_NONNULL(1);
 
 /**
+ * @internal
  * @brief Clones the container of the accessor.
  *
  * @param[in] accessor The accessor.

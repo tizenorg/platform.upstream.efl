@@ -980,11 +980,9 @@ EAPI Eina_List            *eina_list_sort(Eina_List *list, unsigned int limit, E
 
 
 /**
- * @brief Shuffle list.
+ * @internal
  *
- * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE @since_tizen 2.3.1
- * @endif
+ * @brief Shuffle list.
  *
  * @param[in] list The list handle to shuffle.
  * @param[in] func A function pointer that can return an int between 2 inclusives values
@@ -1417,11 +1415,9 @@ static inline void        *eina_list_data_set(Eina_List *list, const void *data)
 static inline unsigned int eina_list_count(const Eina_List *list) EINA_PURE;
 
 /**
- * @brief Returns the last list node's data
+ * @internal
  *
- * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE @since_tizen 2.3.1
- * @endif
+ * @brief Returns the last list node's data
  *
  * @param[in] list The list
  * @return The node's data, or @c NULL on being passed a @c NULL pointer

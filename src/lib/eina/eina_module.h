@@ -230,11 +230,8 @@ EAPI const char *
  eina_module_file_get(const Eina_Module *module) EINA_PURE EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1);
 
 /**
+ * @internal
  * @brief Define if on module load we should expose all symbol
- *
- * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE @since_tizen 2.3.1
- * @endif
  *
  * @param[in] module The module to turn off/on symbol to be exposed
  * @param[in] global The flag on module load we should expose all symbol

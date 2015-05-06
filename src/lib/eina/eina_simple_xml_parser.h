@@ -290,6 +290,7 @@ EAPI Eina_Bool eina_simple_xml_attributes_parse(const char *buf, unsigned buflen
 						Eina_Simple_XML_Attribute_Cb func, const void *data);
 
 /**
+ * @internal
  * Given a buffer with the xml value of an attributes, parse them to key:value pairs.
  *
  * @param buf the input string. Need to contain \0 terminator.

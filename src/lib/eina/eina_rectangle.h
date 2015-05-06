@@ -259,6 +259,7 @@ static inline void        eina_rectangle_rescale_in(const Eina_Rectangle *out, c
 static inline void        eina_rectangle_rescale_out(const Eina_Rectangle *out, const Eina_Rectangle *in, Eina_Rectangle *res) EINA_ARG_NONNULL(1, 2, 3);
 
 /**
+ * @internal
  *
  * @brief Tells whether a rectangle is valid or not.
  *
@@ -272,6 +273,7 @@ static inline void        eina_rectangle_rescale_out(const Eina_Rectangle *out, 
 static inline Eina_Bool   eina_rectangle_is_valid(const Eina_Rectangle *r) EINA_ARG_NONNULL(1);
 
 /**
+ * @internal
  *
  * @brief Gives the rectangle maximum x coordinate.
  *
@@ -284,6 +286,7 @@ static inline Eina_Bool   eina_rectangle_is_valid(const Eina_Rectangle *r) EINA_
 static inline int         eina_rectangle_max_x(Eina_Rectangle *thiz) EINA_ARG_NONNULL(1);
 
 /**
+ * @internal
  *
  * @brief Gives the rectangle maximum y coordinate.
  *
@@ -296,6 +299,7 @@ static inline int         eina_rectangle_max_x(Eina_Rectangle *thiz) EINA_ARG_NO
 static inline int         eina_rectangle_max_y(Eina_Rectangle *thiz) EINA_ARG_NONNULL(1);
 
 /**
+ * @internal
  *
  * @brief Slices a rectangle vertically into two subrectangles starting from left edge
  *
@@ -315,6 +319,7 @@ static inline int         eina_rectangle_max_y(Eina_Rectangle *thiz) EINA_ARG_NO
 static inline Eina_Bool   eina_rectangle_x_cut(Eina_Rectangle *thiz, Eina_Rectangle *slice, Eina_Rectangle *remainder, int amount) EINA_ARG_NONNULL(1);
 
 /**
+ * @internal
  *
  * @brief Slices a rectangle horizontally into two subrectangles starting from bottom edge
  *
@@ -334,6 +339,7 @@ static inline Eina_Bool   eina_rectangle_x_cut(Eina_Rectangle *thiz, Eina_Rectan
 static inline Eina_Bool   eina_rectangle_y_cut(Eina_Rectangle *thiz, Eina_Rectangle *slice, Eina_Rectangle *remainder, int amount) EINA_ARG_NONNULL(1);
 
 /**
+ * @internal
  *
  * @brief Slices a rectangle vertically starting from right edge
  *
@@ -353,6 +359,7 @@ static inline Eina_Bool   eina_rectangle_y_cut(Eina_Rectangle *thiz, Eina_Rectan
 static inline Eina_Bool   eina_rectangle_width_cut(Eina_Rectangle *thiz, Eina_Rectangle *slice, Eina_Rectangle *remainder, int amount) EINA_ARG_NONNULL(1);
 
 /**
+ * @internal
  *
  * @brief Slices a rectangle horizontally starting from top edge
  *
@@ -371,6 +378,7 @@ static inline Eina_Bool   eina_rectangle_width_cut(Eina_Rectangle *thiz, Eina_Re
 static inline Eina_Bool   eina_rectangle_height_cut(Eina_Rectangle *thiz, Eina_Rectangle *slice, Eina_Rectangle *remainder, int amount) EINA_ARG_NONNULL(1);
 
 /**
+ * @internal
  * @brief Subtract two rectangles.
  *
  * @param thiz The minuend rectangle

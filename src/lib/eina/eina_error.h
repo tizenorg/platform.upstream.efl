@@ -75,12 +75,14 @@
 typedef int Eina_Error;
 
 /**
+ * @internal
  * @var EINA_ERROR_OUT_OF_MEMORY
  * @brief The error identifier corresponding to lack of memory.
  */
 EAPI extern Eina_Error EINA_ERROR_OUT_OF_MEMORY;
 
 /**
+ * @internal
  * @brief Registers a new error type.
  *
  * @param[in] msg The description of the error \n
@@ -97,6 +99,7 @@ EAPI extern Eina_Error EINA_ERROR_OUT_OF_MEMORY;
 EAPI Eina_Error  eina_error_msg_register(const char *msg) EINA_ARG_NONNULL(1) EINA_WARN_UNUSED_RESULT;
 
 /**
+ * @internal
  * @brief Registers a new error type, statically allocated message.
  *
  * @param[in] msg The description of the error \n
@@ -114,6 +117,7 @@ EAPI Eina_Error  eina_error_msg_register(const char *msg) EINA_ARG_NONNULL(1) EI
 EAPI Eina_Error  eina_error_msg_static_register(const char *msg) EINA_ARG_NONNULL(1) EINA_WARN_UNUSED_RESULT;
 
 /**
+ * @internal
  * @brief Changes the message of an already registered message.
  *
  * @param[in] error The Eina_Error to change the message of
@@ -133,6 +137,7 @@ EAPI Eina_Bool   eina_error_msg_modify(Eina_Error  error,
                                        const char *msg) EINA_ARG_NONNULL(2);
 
 /**
+ * @internal
  * @brief Returns the last set error.
  *
  * @return The last error
@@ -145,6 +150,7 @@ EAPI Eina_Bool   eina_error_msg_modify(Eina_Error  error,
 EAPI Eina_Error  eina_error_get(void);
 
 /**
+ * @internal
  * @brief Sets the last error.
  *
  * @param[in] err The error identifier
@@ -160,6 +166,7 @@ EAPI Eina_Error  eina_error_get(void);
 EAPI void        eina_error_set(Eina_Error err);
 
 /**
+ * @internal
  * @brief Returns the description of the given error number.
  *
  * @param[in] error The error number
@@ -172,6 +179,7 @@ EAPI void        eina_error_set(Eina_Error err);
 EAPI const char *eina_error_msg_get(Eina_Error error) EINA_PURE;
 
 /**
+ * @internal
  * @brief Finds the #Eina_Error corresponding to a message string.
  *
  * @param[in] msg The error message string to match (NOT @c NULL)

@@ -209,7 +209,47 @@ EAPI int                 eina_ustringshare_strlen(const Eina_Unicode *str) EINA_
  */
 EAPI void                eina_ustringshare_dump(void);
 
+/**
+ * @brief Replace the previously stringshared pointer with new content.
+ *
+ * @details The string pointed by @a p_str should be previously stringshared or
+ *          @c NULL and it will be eina_ustringshare_del(). The new string will
+ *          be passed to eina_ustringshare_add() and then assigned to @c *p_str.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
+ * @param[in] p_str pointer to the stringhare to be replaced. Must not be
+ *        @c NULL, but @c *p_str may be @c NULL as it is a valid
+ *        stringshare handle.
+ * @param[in] news new string to be stringshared, may be @c NULL.
+ *
+ * @return @c EINA_TRUE if the strings were different and thus replaced, 
+ *         @c EINA_FALSE if the strings were the same after shared.
+ */
 static inline Eina_Bool  eina_ustringshare_replace(const Eina_Unicode **p_str, const Eina_Unicode *news) EINA_ARG_NONNULL(1);
+
+/**
+ * @brief Replace the previously stringshared pointer with a new content.
+ *
+ * @details The string pointed by @a p_str should be previously stringshared or
+ *          @c NULL and it will be eina_ustringshare_del(). The new string will
+ *          be passed to eina_ustringshare_add_length() and then assigned to @c *p_str.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
+ * @param[in] p_str pointer to the stringhare to be replaced. Must not be
+ *        @c NULL, but @c *p_str may be @c NULL as it is a valid
+ *        stringshare handle.
+ * @param[in] news new string to be stringshared, may be @c NULL.
+ * @param[in] slen The string size (<= strlen(str)).
+ *
+ * @return @c EINA_TRUE if the strings were different and thus replaced,
+ *         @c EINA_FALSE if the strings were the same after shared.
+ */
 static inline Eina_Bool  eina_ustringshare_replace_length(const Eina_Unicode **p_str, const Eina_Unicode *news, unsigned int slen) EINA_ARG_NONNULL(1);
 
 #include "eina_inline_ustringshare.x"

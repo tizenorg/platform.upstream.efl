@@ -32,6 +32,7 @@
  */
 
 /**
+ * @internal
  * @addtogroup Eina_Core_Group Core
  *
  * @{

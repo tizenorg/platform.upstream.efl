@@ -28,6 +28,7 @@
  */
 
 /**
+ * @internal
  * @addtogroup Eina_Data_Types_Group Data Types
  *
  * @{

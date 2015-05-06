@@ -128,6 +128,7 @@ EAPI Eina_Strbuf *eina_strbuf_manage_new(char *str) EINA_MALLOC EINA_WARN_UNUSED
 EAPI Eina_Strbuf *eina_strbuf_manage_new_length(char *str, size_t length) EINA_MALLOC EINA_WARN_UNUSED_RESULT;
 
 /**
+ * @internal
  * @brief Create a new string buffer using the passed string. The passed
  * string is used directly as the buffer, it's somehow the opposite function of
  * @ref eina_strbuf_string_steal . The passed string must be malloced.
@@ -264,6 +265,7 @@ EAPI Eina_Bool eina_strbuf_append_n(Eina_Strbuf *buf, const char *str, size_t ma
 EAPI Eina_Bool eina_strbuf_append_length(Eina_Strbuf *buf, const char *str, size_t length) EINA_ARG_NONNULL(1, 2);
 
 /**
+ * @internal
  * @brief Append an Eina_Strbuf to a buffer, reallocating as necessary.
  *
  * @param buf The string buffer to append to.

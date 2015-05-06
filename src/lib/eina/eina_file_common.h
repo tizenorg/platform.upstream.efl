@@ -27,6 +27,7 @@
 #define EINA_FILE_MAGIC 0xFEEDBEEF
 
 /**
+ * @internal
  * @addtogroup Eina_Tools_Group Tools
  *
  * @{

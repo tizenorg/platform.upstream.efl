@@ -47,25 +47,26 @@
  */
 
 /**
+ * @internal
  * @typedef Eina_Refcount
  * Inlined references counting type.
  */
 typedef int Eina_Refcount;
 
-/** Used for declaring a reference counting member in a struct */
+/** @internal Used for declaring a reference counting member in a struct */
 #define EINA_REFCOUNT Eina_Refcount __refcount
 
-/** Used just after allocating a object */
+/** @internal Used just after allocating a object */
 #define EINA_REFCOUNT_INIT(Variable) (Variable)->__refcount = 1
 
-/** Used when using referring to an object one more time */
+/** @internal Used when using referring to an object one more time */
 #define EINA_REFCOUNT_REF(Variable) (Variable)->__refcount++
 
-/** Used when removing a reference to an object. The code just after will automatically be called when necessary */
+/** @internal Used when removing a reference to an object. The code just after will automatically be called when necessary */
 #define EINA_REFCOUNT_UNREF(Variable)		     \
   if (--((Variable)->__refcount) == 0)
 
-/** Get refcounting value */
+/** @internal Get refcounting value */
 #define EINA_REFCOUNT_GET(Variable) (Variable)->__refcount
 
 /**

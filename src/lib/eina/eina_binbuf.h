@@ -74,6 +74,7 @@ EAPI Eina_Binbuf *eina_binbuf_new(void) EINA_MALLOC EINA_WARN_UNUSED_RESULT;
 EAPI Eina_Binbuf *eina_binbuf_manage_new_length(unsigned char *str, size_t length) EINA_MALLOC EINA_WARN_UNUSED_RESULT;
 
 /**
+ * @internal
  * @brief Create a new string buffer using the passed string. The passed
  * string is used directly as the buffer, it's somehow the opposite function of
  * @ref eina_binbuf_string_steal . The passed string will not be touched.
@@ -147,6 +148,7 @@ EAPI void eina_binbuf_reset(Eina_Binbuf *buf) EINA_ARG_NONNULL(1);
 EAPI Eina_Bool eina_binbuf_append_length(Eina_Binbuf *buf, const unsigned char *str, size_t length) EINA_ARG_NONNULL(1, 2);
 
 /**
+ * @internal
  * @brief Append an Eina_Binbuf to a buffer, reallocating as necessary.
  *
  * @param buf The string buffer to append to.

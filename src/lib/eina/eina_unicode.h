@@ -35,9 +35,29 @@ typedef uint32_t Eina_Unicode;
 
 /**
  * @brief Same as the standard strlen just with Eina_Unicode instead of char.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  */
 EAPI extern const Eina_Unicode *EINA_UNICODE_EMPTY_STRING;
 
+
+/**
+ * @brief Returns the length of a Eina_Unicode string.
+ *
+ * @details This function returns the number of characters in a string.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
+ * @remarks If the terminating character is not found in the string, it can
+ *          go infinite loop
+ *
+ * @param[in] ustr The string to search
+ * @return The number of characters
+ */
 EAPI size_t        eina_unicode_strlen(const Eina_Unicode *ustr) EINA_ARG_NONNULL(1) EINA_WARN_UNUSED_RESULT EINA_PURE;
 
 /**
@@ -60,6 +80,13 @@ EAPI size_t        eina_unicode_strnlen(const Eina_Unicode *ustr, int n) EINA_AR
 
 /**
  * @brief Same as the standard strdup just with Eina_Unicode instead of char.
+ *
+ * @param[in] text The string to be duplicated
+ * @return A new string
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  */
 EAPI Eina_Unicode *eina_unicode_strdup(const Eina_Unicode *text) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1) EINA_MALLOC;
 
@@ -86,24 +113,58 @@ EAPI Eina_Unicode *eina_unicode_strndup(const Eina_Unicode *text, size_t n) EINA
 
 /**
  * @brief Same as the standard strcmp just with Eina_Unicode instead of char.
+ *
+ * @param[in] a A string to be compared
+ * @param[in] b A string to be compared
+ * @return an integer less than, equal to, or greater than zero if a is found,
+ *         respectively, to be less than, to match, or be greater than b.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  */
 EAPI int           eina_unicode_strcmp(const Eina_Unicode *a, const Eina_Unicode *b) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1, 2) EINA_PURE;
 
 
 /**
  * @brief Same as the standard strcpy just with Eina_Unicode instead of char.
+ *
+ * @param[in] dest The destination string
+ * @param[in] source The source string
+ * @return The copied string pointer
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  */
 EAPI Eina_Unicode *eina_unicode_strcpy(Eina_Unicode *dest, const Eina_Unicode *source) EINA_ARG_NONNULL(1, 2);
 
 
 /**
  * @brief Same as the standard strstr just with Eina_Unicode instead of char.
+ *
+ * @param[in] haystack The string
+ * @param[in] needle The substring to be found
+ * @return haystack is returned
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  */
 EAPI Eina_Unicode *eina_unicode_strstr(const Eina_Unicode *haystack, const Eina_Unicode *needle) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1, 2) EINA_PURE;
 
 
 /**
  * @brief Same as the standard strncpy just with Eina_Unicode instead of char.
+ *
+ * @param[in] dest The destination string
+ * @param[in] source The source string
+ * @param[in] n Bytes to be copied
+ * @return The copied string pointer
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  */
 EAPI Eina_Unicode *eina_unicode_strncpy(Eina_Unicode *dest, const Eina_Unicode *source, size_t n) EINA_ARG_NONNULL(1, 2);
 
@@ -124,16 +185,13 @@ EAPI Eina_Unicode *eina_unicode_escape(const Eina_Unicode *str) EINA_ARG_NONNULL
 
 
 /**
+ * @internal
  * @brief Reads UTF8 bytes from @p buf, starting at @p iindex and returns
  * the decoded code point at @p iindex offset, and advances @p iindex
  * to the next code point after this. @p iindex is always advanced,
  * unless if the advancement is after the @c NULL.
  * On error: return a codepoint between DC80 to DCFF where the low 8 bits
  *   are the byte's value.
- *
- * @if MOBILE @since_tizen 2.3
- * @elseif WEARABLE @since_tizen 2.3.1
- * @endif
  *
  * @param[in] buf the string
  * @param[out] iindex the index to look at and return by.

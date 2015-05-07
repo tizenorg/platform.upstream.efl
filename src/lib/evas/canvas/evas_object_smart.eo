@@ -6,6 +6,8 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
       need_recalculate {
          set {
             /*@
+            @internal
+
             Set or unset the flag signalling that a given smart object needs to
             get recalculated.
 
@@ -30,6 +32,8 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
          }
          get {
             /*@
+            @internal
+
             Get the value of the flag signalling that a given smart object needs to
             get recalculated.
 
@@ -79,6 +83,8 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Smart_Object_Group
+
             @remark This data is stored @b independently of the one set by
             evas_object_data_set(), naturally.
 
@@ -100,6 +106,8 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Smart_Object_Group
+
             @return Returns the list of the member objects of @p obj.
 
             @remark The returned list should be freed with @c eina_list_free() when you
@@ -116,6 +124,8 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
       smart {
          get {
             /*@
+            @internal
+
             Get the #Evas_Smart from which @p obj smart object was created.
 
             @return the #Evas_Smart handle or @c NULL, on errors
@@ -145,6 +155,8 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
          @if MOBILE @since_tizen 2.3
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
+
+         @ingroup Evas_Smart_Object_Group
 
          @return @c EINA_TRUE on success, @c EINA_FALSE on failure.
 
@@ -186,6 +198,8 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
          @if MOBILE @since_tizen 2.3
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
+
+         @ingroup Evas_Smart_Object_Group
 
          @remark This call searches for registered callback descriptions for both
          instance and class of the given smart object. These arrays will be
@@ -255,6 +269,8 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
       }
       calculate {
          /*@
+         @internal
+
          Call the @b calculate() smart function immediately on a given smart
          object.
 
@@ -276,6 +292,8 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
 
+         @ingroup Evas_Smart_Object_Group
+
          @return a new #Evas_Object handle
 
          @remark This is the function one should use when defining the public
@@ -294,6 +312,8 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
          @if MOBILE @since_tizen 2.3
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
+
+         @ingroup Evas_Smart_Object_Group
 
          @remark Members will automatically be stacked and layered together with the
          smart object. The various stacking functions will operate on
@@ -334,6 +354,8 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
 
+         @ingroup Evas_Smart_Object_Group
+
          @remark This will flag the given object as needing recalculation,
          forcefully. As an effect, on the next rendering cycle its @b
          calculate() (see #Evas_Smart_Class) smart function will be called.
@@ -351,6 +373,8 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
          @if MOBILE @since_tizen 2.3
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
+
+         @ingroup Evas_Smart_Object_Group
 
          @remark This removes a member object from a smart object, if it was added
          to any. The object will still be on the canvas, but no longer

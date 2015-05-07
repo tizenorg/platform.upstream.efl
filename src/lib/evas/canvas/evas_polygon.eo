@@ -11,6 +11,8 @@ class Evas.Polygon (Evas.Object)
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
 
+         @ingroup Evas_Object_Polygon
+
          @ingroup Evas_Polygon_Group */
          params {
             @in Evas_Coord x; /*@ The X coordinate of the given point. */
@@ -24,6 +26,8 @@ class Evas.Polygon (Evas.Object)
          @if MOBILE @since_tizen 2.3
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
+
+         @ingroup Evas_Object_Polygon
 
          */
       }

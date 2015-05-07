@@ -12,6 +12,8 @@ class Evas.Line (Evas.Object)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Line_Group
+
             @since 1.8 */
          }
          get {
@@ -21,6 +23,8 @@ class Evas.Line (Evas.Object)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Line_Group
 
             @remark second end point. */
          }

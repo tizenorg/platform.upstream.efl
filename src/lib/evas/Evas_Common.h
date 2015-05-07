@@ -3,6 +3,12 @@
 #endif
 
 /**
+ * @addtogroup Evas
+ *
+ * @{
+ */
+
+/**
  * @def EVAS_VERSION_MAJOR
  * The major number of evas version
  */
@@ -1013,11 +1019,17 @@ typedef void      (*Evas_Object_Event_Cb)(void *data, Evas *e, Evas_Object *obj,
 typedef void      (*Evas_Async_Events_Put_Cb)(void *target, Evas_Callback_Type type, void *event_info);
 
 /**
+ * @}
+ */
+
+/**
  * @internal
  * @defgroup Evas_Main_Group Top Level Functions
  * @ingroup Evas
  *
  * Functions that affect Evas as a whole.
+ *
+ * @{
  */
 
 /**
@@ -1295,6 +1307,8 @@ EAPI Eina_Bool         evas_async_events_put(const void *target, Evas_Callback_T
  * @endcode
  *
  * @ingroup Evas_Canvas
+ *
+ * @{
  */
 
 /**
@@ -1451,6 +1465,8 @@ EAPI void              evas_render_method_list_free(Eina_List *list);
  * Example_Evas_Events "here".
  *
  * @ingroup Evas_Canvas
+ *
+ * @{
  */
 
 /**
@@ -1471,6 +1487,9 @@ EAPI void              evas_render_method_list_free(Eina_List *list);
  */
 EAPI void              evas_render_updates_free(Eina_List *updates);
 
+/**
+ * @}
+ */
 
 /**
  * @defgroup Evas_Event_Freezing_Group Input Events Freezing Functions
@@ -2612,6 +2631,8 @@ EAPI void            evas_map_alpha_set(Evas_Map *m, Eina_Bool enabled);
 EAPI Eina_Bool       evas_map_alpha_get(const Evas_Map *m);
 
 /**
+ * @internal
+ *
  * Set the flag of the object move synchronization for map rendering
  *
  * This sets the flag of the object move synchronization for map rendering.
@@ -2627,6 +2648,8 @@ EAPI Eina_Bool       evas_map_alpha_get(const Evas_Map *m);
 EAPI void            evas_map_util_object_move_sync_set(Evas_Map *m, Eina_Bool enabled);
 
 /**
+ * @internal
+ *
  * Get the flag of the object move synchronization for map rendering
  *
  * This gets the flag of the object move synchronization for map rendering.
@@ -4534,6 +4557,8 @@ EAPI int                                      evas_textblock_cursor_line_coord_s
 EAPI Eina_List                               *evas_textblock_cursor_range_geometry_get(const Evas_Textblock_Cursor *cur1, const Evas_Textblock_Cursor *cur2) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1, 2);
 
 /**
+ * @internal
+ *
  * Get the simple geometry of a range.
  * The simple geometry is the geomtry in which rectangles in middle
  * lines of range are merged into one big rectangle.
@@ -4546,6 +4571,8 @@ EAPI Eina_List                               *evas_textblock_cursor_range_geomet
 EAPI Eina_Iterator                               *evas_textblock_cursor_range_simple_geometry_get(const Evas_Textblock_Cursor *cur1, const Evas_Textblock_Cursor *cur2) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1, 2);
 
 /**
+ * @internal
+ *
  * Get the geometry of ?
  *
  * @param cur one side of the range.
@@ -5293,6 +5320,8 @@ EAPI int                               evas_smart_usage_get(const Evas_Smart *s)
  * @{
  */
 /**
+ * @internal
+ *
  * Registers an object type and its associated class. LEGACY MECHANISM SUPPORT.
  *
  * This function is invoked in the class constructor of smart classes. It will
@@ -5712,6 +5741,8 @@ EAPI const Evas_Object_Box_Api *evas_object_box_smart_class_get(void) EINA_CONST
  *
  * Be warned that it @b doesn't work when <b>threaded image
  * preloading</b> is enabled for Evas, though.
+I*
+ * @{
  */
 typedef struct _Evas_Cserve_Stats       Evas_Cserve_Stats;
 typedef struct _Evas_Cserve_Image_Cache Evas_Cserve_Image_Cache;
@@ -5855,11 +5886,17 @@ EAPI Eina_Bool   evas_cserve_config_set(const Evas_Cserve_Config *config) EINA_W
 EAPI void        evas_cserve_disconnect(void);
 
 /**
+ * @}
+ */
+
+/**
  * @defgroup Evas_Utils General Utilities
  * @ingroup Evas
  *
  * Some functions that are handy but are not specific of canvas or
  * objects.
+ *
+ * @{
  */
 
 /**
@@ -6083,6 +6120,10 @@ EAPI int  evas_string_char_prev_get(const char *str, int pos, int *decoded) EINA
  * @ingroup Evas_Utils
  */
 EAPI int  evas_string_char_len_get(const char *str) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1);
+
+/**
+ * @}
+ */
 
 /**
  * @defgroup Evas_Keys Key Input Functions

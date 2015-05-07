@@ -9,7 +9,7 @@ EAPI void                    evas_font_reinit(void);
 /////////////////////////////////////////////////////////////////
 
 /**
- * @ingroup Evas_Canvas
+ * @addtogroup Evas_Canvas
  *
  * @{
  */
@@ -38,7 +38,6 @@ EAPI void                    evas_font_reinit(void);
  *       creating new canvas.
  *
  * @return A new uninitialised Evas canvas on success. Otherwise, @c NULL.
- * @ingroup Evas_Canvas
  */
 EAPI Evas             *evas_new(void) EINA_WARN_UNUSED_RESULT EINA_MALLOC;
 
@@ -54,7 +53,6 @@ EAPI Evas             *evas_new(void) EINA_WARN_UNUSED_RESULT EINA_MALLOC;
  *
  * @param[in]   e The given evas.
  *
- * @ingroup Evas_Canvas
  */
 EAPI void              evas_free(Evas *e)  EINA_ARG_NONNULL(1);
 
@@ -66,7 +64,7 @@ EAPI void              evas_free(Evas *e)  EINA_ARG_NONNULL(1);
 
 
 /**
- * @ingroup Evas_Canvas_Events
+ * @addtogroup Evas_Canvas_Events
  *
  * @{
  */
@@ -295,7 +293,7 @@ EAPI void  evas_post_event_callback_remove_full(Evas *e, Evas_Object_Event_Post_
  */
 
 /**
- * @ingroup Evas_Event_Feeding_Group
+ * @addtogroup Evas_Event_Freezing_Group
  *
  * @{
  */
@@ -415,7 +413,11 @@ EAPI void             evas_event_thaw_eval(Evas *e) EINA_ARG_NONNULL(1);
 EAPI void                    evas_font_available_list_free(Evas *e, Eina_List *available) EINA_ARG_NONNULL(1);
 
 /**
- * @ingroup Evas_Object_Group_Basic
+ * @}
+ */
+
+/**
+ * @addtogroup Evas_Object_Group_Basic
  *
  * @{
  */
@@ -459,7 +461,6 @@ EAPI void                    evas_font_available_list_free(Evas *e, Eina_List *a
  *  evas_object_unref(obj);
  * @endcode
  *
- * @ingroup Evas_Object_Group_Basic
  * @since 1.1
  */
 EAPI void             evas_object_ref(Evas_Object *obj);
@@ -481,7 +482,6 @@ EAPI void             evas_object_ref(Evas_Object *obj);
  * @see evas_object_ref() (for an example)
  * @see evas_object_del()
  *
- * @ingroup Evas_Object_Group_Basic
  * @since 1.1
  */
 EAPI void             evas_object_unref(Evas_Object *obj);
@@ -504,7 +504,6 @@ EAPI void             evas_object_unref(Evas_Object *obj);
  * @see evas_object_unref()
  * @see evas_object_del()
  *
- * @ingroup Evas_Object_Group_Basic
  * @since 1.2
  */
 EAPI int              evas_object_ref_get(const Evas_Object *obj);
@@ -531,7 +530,6 @@ EAPI int              evas_object_ref_get(const Evas_Object *obj);
  * @see evas_object_ref()
  * @see evas_object_unref()
  *
- * @ingroup Evas_Object_Group_Basic
  */
 EAPI void             evas_object_del(Evas_Object *obj) EINA_ARG_NONNULL(1);
 
@@ -566,11 +564,11 @@ EAPI void             evas_object_del(Evas_Object *obj) EINA_ARG_NONNULL(1);
  *
  * @remark See the full @ref Example_Evas_Events "example".
  *
- * @ingroup Evas_Object_Group_Basic
  */
 EAPI void             evas_object_geometry_get(const Evas_Object *obj, Evas_Coord *x, Evas_Coord *y, Evas_Coord *w, Evas_Coord *h) EINA_ARG_NONNULL(1);
 
 /**
+ * @internal
  * Set the position and (rectangular) size of the given Evas object.
  *
  * @param obj The given Evas object.
@@ -593,7 +591,6 @@ EAPI void             evas_object_geometry_get(const Evas_Object *obj, Evas_Coor
  * @see evas_object_geometry_get
  *
  * @since 1.8
- * @ingroup Evas_Object_Group_Basic
  */
 EAPI void             evas_object_geometry_set(Evas_Object *obj, Evas_Coord x, Evas_Coord y, Evas_Coord w, Evas_Coord h) EINA_ARG_NONNULL(1);
 
@@ -613,7 +610,6 @@ EAPI void             evas_object_geometry_set(Evas_Object *obj, Evas_Coord x, E
  * @see evas_object_hide() for more on object visibility.
  * @see evas_object_visible_get()
  *
- * @ingroup Evas_Object_Group_Basic
  */
 EAPI void             evas_object_show(Evas_Object *obj) EINA_ARG_NONNULL(1);
 
@@ -649,7 +645,6 @@ EAPI void             evas_object_show(Evas_Object *obj) EINA_ARG_NONNULL(1);
  *
  * @remark See the full @ref Example_Evas_Object_Manipulation "example".
  *
- * @ingroup Evas_Object_Group_Basic
  */
 EAPI void             evas_object_hide(Evas_Object *obj) EINA_ARG_NONNULL(1);
 
@@ -664,8 +659,6 @@ EAPI void             evas_object_hide(Evas_Object *obj) EINA_ARG_NONNULL(1);
  *
  * @see evas_object_color_get() (for an example)
  * @remark These color values are expected to be premultiplied by @p a.
- *
- * @ingroup Evas_Object_Group_Basic
  *
  * @param[in] obj The given Evas object.
  * @param[in] r The red component of the given color.
@@ -705,8 +698,6 @@ EAPI void evas_object_color_set(Evas_Object *obj, int r, int g, int b, int a);
  * @until return
  *
  * @remark See the full @ref Example_Evas_Object_Manipulation "example".
- *
- * @ingroup Evas_Object_Group_Basic
  *
  * @param[in] obj The given Evas object.
  * @param[out] r The red component of the given color.
@@ -761,7 +752,7 @@ EAPI Eina_Bool evas_object_visible_get(const Evas_Object *obj);
  */
 
 /**
- * @ingroup Evas_Object_Group_Events
+ * @addtogroup Evas_Object_Group_Events
  *
  * @{
  */
@@ -1054,7 +1045,7 @@ EAPI void     *evas_object_event_callback_del_full(Evas_Object *obj, Evas_Callba
  */
 
 /**
- * @ingroup Evas_Object_Group_Extras
+ * @addtogroup Evas_Object_Group_Extras
  *
  * @{
  */
@@ -1169,6 +1160,7 @@ EAPI void                    *evas_object_data_del(Evas_Object *obj, const char 
  */
 
 /**
+ * @internal
  * @ingroup Evas_Object_Group_Find
  *
  * @{
@@ -1197,6 +1189,7 @@ EAPI Evas_Object *evas_object_top_at_pointer_get(const Evas *e) EINA_WARN_UNUSED
  */
 
 /**
+ * @internal
  * @ingroup Evas_Object_Group_Interceptors
  *
  * @{
@@ -1584,7 +1577,7 @@ EAPI void *evas_object_intercept_focus_set_callback_del(Evas_Object *obj, Evas_O
  */
 
 /**
- * @ingroup Evas_Object_Rectangle
+ * @addtogroup Evas_Object_Rectangle
  *
  * @{
  */
@@ -1677,6 +1670,8 @@ EAPI Evas_Object *evas_object_rectangle_add(Evas *e) EINA_WARN_UNUSED_RESULT EIN
  * @endcode
  *
  * @since 1.14
+ *
+ * @{
  */
 
 #ifdef EFL_BETA_API_SUPPORT
@@ -1765,8 +1760,6 @@ EAPI void evas_vg_node_color_get(Eo *obj, int *r, int *g, int *b, int *a);
  *
  * @see evas_vg_node_color_get() (for an example)
  * @note These color values are expected to be premultiplied by @p a.
- *
- * @ingroup Evas_Object_Group_Basic
  *
  * @param[in] r The red component of the given color.
  * @param[in] g The green component of the given color.
@@ -2656,6 +2649,7 @@ NULL, otherwise.
 EAPI void evas_object_image_file_get(const Eo *obj, const char **file, const char **key);
 
 /**
+ * @internal
  *
  * Set the source mmaped file from where an image object must fetch the real
  * image data (it must be an Eina_File).
@@ -2673,6 +2667,7 @@ NULL, otherwise.
 EAPI void evas_object_image_mmap_set(Eo *obj, const Eina_File *f, const char *key);
 
 /**
+ * @internal
  *
  * Get the source mmaped file from where an image object must fetch the real
  * image data (it must be an Eina_File).
@@ -2859,7 +2854,7 @@ EAPI Eina_Bool evas_object_image_smooth_scale_get(const Eo *obj);
  */
 
 /**
- * @ingroup Evas_Object_Text
+ * @addtogroup Evas_Object_Text
  *
  * @{
  */
@@ -2994,7 +2989,7 @@ EAPI void evas_object_text_font_get(const Eo *obj, const char **font, Evas_Font_
  */
 
 /**
- * @ingroup Evas_Object_Textblock
+ * @addtogroup Evas_Object_Textblock
  *
  * @{
  */
@@ -3068,6 +3063,8 @@ EAPI void                                     evas_object_textblock_clear(Evas_O
  */
 
 /**
+ * @internal
+ *
  * @ingroup Evas_Object_Grid
  *
  * @{
@@ -3177,7 +3174,7 @@ EAPI void evas_object_textgrid_font_get(const Eo *obj, const char **font_name, E
  */
 
 /**
- * @ingroup Evas_Object_Line
+ * @addtogroup Evas_Line_Group
  *
  * @{
  */
@@ -3200,7 +3197,7 @@ EAPI Evas_Object *evas_object_line_add(Evas *e) EINA_WARN_UNUSED_RESULT EINA_ARG
  */
 
 /**
- * @ingroup Evas_Object_Polygon
+ * @addtogroup Evas_Object_Polygon
  *
  * @{
  */
@@ -3223,12 +3220,7 @@ EAPI Evas_Object *evas_object_polygon_add(Evas *e) EINA_WARN_UNUSED_RESULT EINA_
 
 
 /**
- * @}
- */
-
-
-/**
- * @ingroup Evas_Smart_Object_Group
+ * @addtogroup Evas_Smart_Object_Group
  *
  * @{
  */
@@ -3249,7 +3241,6 @@ EAPI Evas_Object *evas_object_polygon_add(Evas *e) EINA_WARN_UNUSED_RESULT EINA_
  * as they should, if the user set things properly, as seem on the
  * #EVAS_SMART_SUBCLASS_NEW, for example.
  *
- * @ingroup Evas_Smart_Object_Group
  */
 EAPI Evas_Object *evas_object_smart_add(Evas *e, Evas_Smart *s) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1, 2) EINA_MALLOC;
 
@@ -3275,7 +3266,6 @@ EAPI Evas_Object *evas_object_smart_add(Evas *e, Evas_Smart *s) EINA_WARN_UNUSED
  * @see evas_object_smart_member_del()
  * @see evas_object_smart_members_get()
  *
- * @ingroup Evas_Smart_Object_Group
  */
 EAPI void         evas_object_smart_member_add(Evas_Object *obj, Evas_Object *smart_obj) EINA_ARG_NONNULL(1, 2);
 
@@ -3287,7 +3277,6 @@ EAPI void         evas_object_smart_member_add(Evas_Object *obj, Evas_Object *sm
  * @endif
  *
  * @param[in] obj the member object
- * @ingroup Evas_Smart_Object_Group
  *
  * @remark This removes a member object from a smart object, if it was added
  * to any. The object will still be on the canvas, but no longer
@@ -3338,11 +3327,12 @@ EAPI void         evas_object_smart_member_del(Evas_Object *obj) EINA_ARG_NONNUL
  * @see @ref Evas_Smart_Object_Group_Callbacks for more details.
  *
  * @see evas_object_smart_callback_del()
- * @ingroup Evas_Smart_Object_Group
  */
 EAPI void         evas_object_smart_callback_add(Evas_Object *obj, const char *event, Evas_Smart_Cb func, const void *data) EINA_ARG_NONNULL(1, 2, 3);
 
 /**
+ * @internal
+ *
  * Add (register) a callback function to the smart event specified by
  * @p event on the smart object @p obj. Except for the priority field,
  * it's exactly the same as @ref evas_object_smart_callback_add
@@ -3355,7 +3345,6 @@ EAPI void         evas_object_smart_callback_add(Evas_Object *obj, const char *e
  *
  * @see evas_object_smart_callback_add
  * @since 1.1
- * @ingroup Evas_Smart_Object_Group
  */
 EAPI void         evas_object_smart_callback_priority_add(Evas_Object *obj, const char *event, Evas_Callback_Priority priority, Evas_Smart_Cb func, const void *data);
 
@@ -3382,7 +3371,6 @@ EAPI void         evas_object_smart_callback_priority_add(Evas_Object *obj, cons
  *
  * @see evas_object_smart_callback_add() for more details.
  *
- * @ingroup Evas_Smart_Object_Group
  */
 EAPI void        *evas_object_smart_callback_del(Evas_Object *obj, const char *event, Evas_Smart_Cb func) EINA_ARG_NONNULL(1, 2, 3);
 
@@ -3411,7 +3399,6 @@ EAPI void        *evas_object_smart_callback_del(Evas_Object *obj, const char *e
  *
  * @see evas_object_smart_callback_add() for more details.
  * @since 1.2
- * @ingroup Evas_Smart_Object_Group
  *
  * @remark To delete all smart event callbacks which match @p type and @p func,
  * use evas_object_smart_callback_del().
@@ -3441,11 +3428,12 @@ EAPI void        *evas_object_smart_callback_del_full(Evas_Object *obj, const ch
  * callbacks description array, so that the users of the smart object
  * can have introspection on its events API <b>at run time</b>.
  *
- * @ingroup Evas_Smart_Object_Group
  */
 EAPI void         evas_object_smart_callback_call(Evas_Object *obj, const char *event, void *event_info) EINA_ARG_NONNULL(1, 2);
 
 /**
+ * @internal
+ *
  * Retrieve an Evas smart object's interface, by name string pointer.
  *
  * @param obj An Evas smart object.
@@ -3461,6 +3449,8 @@ EAPI void         evas_object_smart_callback_call(Evas_Object *obj, const char *
 EAPI const void       *evas_object_smart_interface_get(const Evas_Object *obj, const char *name);
 
 /**
+ * @internal
+ *
  * Retrieve an Evas smart object interface's <b>private data</b>.
  *
  * @param obj An Evas smart object.
@@ -3490,7 +3480,6 @@ EAPI void             *evas_object_smart_interface_data_get(const Evas_Object *o
  * you don't re-do calculations withint the same calculation generation/run
  * if the calculations maybe cause self-feeding effects.
  *
- * @ingroup Evas_Smart_Object_Group
  * @since 1.1
  */
 EAPI int          evas_smart_objects_calculate_count_get(const Evas *e);
@@ -3527,7 +3516,7 @@ EAPI Evas_Object            *evas_object_smart_clipped_clipper_get(const Evas_Ob
  */
 
 /**
- * @ingroup Evas_Object_Box
+ * @addtogroup Evas_Object_Box
  *
  * @{
  */
@@ -3724,7 +3713,7 @@ EAPI Evas_Object                       *evas_object_table_child_get(const Evas_O
  */
 
 /**
- * @ingroup Evas_Object_Grid
+ * @addtogroup Evas_Object_Grid
  *
  * @{
  */

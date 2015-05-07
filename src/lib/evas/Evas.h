@@ -1,4 +1,6 @@
 /**
+   @addtogroup Evas
+
    @page evas_main Evas
 
    @date 2000 (created)

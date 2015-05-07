@@ -48,6 +48,8 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Output_Size
+
             @remark The output viewport is the area of the evas that will be visible to
             the viewer.  The viewport will be stretched to fit the output
             target of the evas when rendering is performed.
@@ -65,6 +67,8 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Output_Size
 
             @remark Calling this function writes the current canvas output viewport
             size and location values into the variables pointed to by @p x, @p
@@ -114,6 +118,8 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Event_Freezing_Group
+
             @remark Events in evas can have an event_flags member. This starts out with
             and initial value (no flags). This lets you set the default flags that
             an event begins with to be @p flags
@@ -127,6 +133,8 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Event_Freezing_Group
 
             @return The default event flags for that canvas
 
@@ -396,6 +404,8 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Keys
+
             @p e. This is required to check for which locks are set at a given
             @remark time with the evas_key_lock_is_set() function.
 
@@ -490,6 +500,8 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
       changed {
          get {
             /*@
+            @internal
+
             Get the changed marker for the canvas
 
             @return @c EINA_TRUE if something has been marked as changed, @c EINA_FALSE otherwise.
@@ -615,6 +627,8 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Keys
+
             @see evas_key_modifier_add
             @see evas_key_modifier_del
             @see evas_key_modifier_on
@@ -714,6 +728,8 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
 
+         @ingroup Evas_Keys
+
          @remark The effect will be as if the key was put on its active state after
          this call.
 
@@ -753,6 +769,8 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
 
+         @ingroup Evas_Keys
+
          @returns the bit mask or 0 if the @p keyname key wasn't registered as a
          modifier for canvas @p e.
 
@@ -779,6 +797,8 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @if MOBILE @since_tizen 2.3
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
+
+         @ingroup Evas_Keys
 
          @remark Modifiers are keys like shift, alt and ctrl, i.e., keys which are
          meant to be pressed together with others, altering the behavior of
@@ -814,6 +834,8 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @if MOBILE @since_tizen 2.3
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
+
+         @ingroup Evas_Keys
 
          @remark @p keyname.
 
@@ -964,6 +986,8 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
       }
       render_async {
          /*@
+         @internal
+
          Render the given Evas canvas asynchronously.
 
          @return EINA_TRUE if the canvas will render, EINA_FALSE otherwise.
@@ -1102,6 +1126,8 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
 
+         @ingroup Evas_Keys
+
          @remark The effect will be as if the key was put on its inactive state
          after this call.
 
@@ -1184,6 +1210,8 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @if MOBILE @since_tizen 2.3
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
+
+         @ingroup Evas_Keys
 
          @remark The effect will be as if the key was pressed for the whole time
          between this call and a matching evas_key_modifier_off().
@@ -1383,6 +1411,8 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
 
+         @ingroup Evas_Keys
+
          @see evas_key_lock_get
          @see evas_key_lock_add
          @see evas_key_lock_on
@@ -1557,6 +1587,8 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @if MOBILE @since_tizen 2.3
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
+
+         @ingroup Evas_Keys
 
          @see evas_key_modifier_add
          @see evas_key_modifier_get
@@ -1849,6 +1881,8 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @if MOBILE @since_tizen 2.3
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
+
+         @ingroup Evas_Keys
 
          @remark Locks are keys like caps lock, num lock or scroll lock, i.e., keys
          which are meant to be pressed once -- toggling a binary state which

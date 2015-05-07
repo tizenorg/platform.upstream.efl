@@ -14,6 +14,8 @@ class Evas.Grid (Evas.Smart_Clipped)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Grid
+
             @since 1.1 */
          }
          get {
@@ -23,6 +25,8 @@ class Evas.Grid (Evas.Smart_Clipped)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Grid
 
             @return @c EINA_TRUE if it's a mirrored grid, @c EINA_FALSE otherwise.
             @see evas_object_grid_mirrored_set()
@@ -41,6 +45,8 @@ class Evas.Grid (Evas.Smart_Clipped)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Grid
+
             @since 1.1 */
          }
          get {
@@ -50,6 +56,8 @@ class Evas.Grid (Evas.Smart_Clipped)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Grid
 
             @see evas_object_grid_size_set()
             @since 1.1 */
@@ -67,6 +75,8 @@ class Evas.Grid (Evas.Smart_Clipped)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Grid
 
             @remark This is a duplicate of the list kept by the grid internally.
             It's up to the user to destroy it when it no longer needs it.
@@ -86,6 +96,8 @@ class Evas.Grid (Evas.Smart_Clipped)
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
 
+         @ingroup Evas_Object_Grid
+
          @remark Do not remove or delete objects while walking the list.
          @since 1.1 */
          return: free(own(accessor<Evas.Object *> *), eina_accessor_free)
@@ -98,6 +110,8 @@ class Evas.Grid (Evas.Smart_Clipped)
          @if MOBILE @since_tizen 2.3
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
+
+         @ingroup Evas_Object_Grid
 
          @since 1.1 */
 
@@ -113,6 +127,8 @@ class Evas.Grid (Evas.Smart_Clipped)
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
 
+         @ingroup Evas_Object_Grid
+
          @remark Do not remove or delete objects while walking the list.
          @since 1.1 */
          return: free(own(iterator<Evas.Object *> *), eina_iterator_free)
@@ -126,6 +142,8 @@ class Evas.Grid (Evas.Smart_Clipped)
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
 
+         @ingroup Evas_Object_Grid
+
          @see evas_object_grid_add()
          @since 1.1 */
 
@@ -138,6 +156,8 @@ class Evas.Grid (Evas.Smart_Clipped)
          @if MOBILE @since_tizen 2.3
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
+
+         @ingroup Evas_Object_Grid
 
          @remark removing a child will immediately call a walk over children in order
          to recalculate numbers of columns and rows. If you plan to remove
@@ -159,6 +179,8 @@ class Evas.Grid (Evas.Smart_Clipped)
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
 
+         @ingroup Evas_Object_Grid
+
          @remark Get the pack x, y, width and height in virtual coordinates set by
          evas_object_grid_pack()
          @return 1 on success, 0 on failure.
@@ -179,6 +201,8 @@ class Evas.Grid (Evas.Smart_Clipped)
          @if MOBILE @since_tizen 2.3
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
+
+         @ingroup Evas_Object_Grid
 
          @return 1 on success, 0 on failure.
          @since 1.1 */

@@ -12,6 +12,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @remark This function sets the DPI resolution of a given loaded canvas
             image. Most useful for the SVG image loader.
 
@@ -24,6 +26,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @return The DPI resolution of the given canvas image.
 
@@ -45,6 +49,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @see evas_object_clip_set()
             @see evas_object_image_source_set()
             @since 1.8 */
@@ -56,6 +62,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @return @c EINA_TRUE if source clip is enabled, @c EINA_FALSE otherwise.
 
@@ -77,6 +85,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @return @c EINA_TRUE on success, @c EINA_FALSE on error.
 
@@ -106,6 +116,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @return Source object (if any), or @c NULL, if not in "proxy mode"
             (or on errors).
 
@@ -125,6 +137,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @remark If @p setting is @c EINA_TRUE, then every evas_object_resize() will
             @b automatically trigger a call to evas_object_image_fill_set()
             with the that new size (and @c 0, @c 0 as source image's origin),
@@ -141,6 +155,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @return @c EINA_TRUE if it is tracking, @c EINA_FALSE, if not (and
             evas_object_fill_set() must be called manually).
@@ -161,6 +177,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @remark This function sets the content hint value of the given image of the
             canvas. For example, if you're on the GL engine and your driver
             implementation supports it, setting this hint to
@@ -176,6 +194,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @return hint The content hint value set on it, one of the
             #Evas_Image_Content_Hint ones (#EVAS_IMAGE_CONTENT_HINT_NONE means
@@ -201,6 +221,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @remark This function is useful when one is not showing all of an image's
             area on its image object.
 
@@ -218,6 +240,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @remark Use @c NULL pointers on the coordinates you're not interested
             in: they'll be ignored by the function.
@@ -240,6 +264,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @remark This function sets a flag on an image object indicating whether or
             not to use alpha channel data. A value of @c EINA_TRUE makes it use
             alpha channel data, and @c EINA_FALSE makes it ignore that
@@ -256,6 +282,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @return Whether the alpha channel data is being used (@c EINA_TRUE)
             or not (@c EINA_FALSE).
@@ -279,6 +307,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @remark When Evas is rendering, an image source may be scaled to fit the
             size of its image object. This function sets an area from the
@@ -321,6 +351,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @remark Use @c NULL pointers on the border components you're not
             interested in: they'll be ignored by the function.
 
@@ -343,6 +375,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @see evas_object_image_border_set()
             @see evas_object_image_border_scale_get() */
          }
@@ -354,6 +388,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @return The scale factor set for its borders
 
@@ -373,6 +409,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @remark This function will only properly work if a pixels get callback has been set.
 
             @warning use this function if you really know what you are doing.
@@ -386,6 +424,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @return Whether the image is dirty. */
          }
@@ -402,6 +442,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             This function links a video surface to a given canvas image. */
          }
          get {
@@ -411,6 +453,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @return The video surface of the given canvas image.
             @since 1.1
@@ -442,6 +486,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @since 1.1 */
          }
          get {
@@ -451,6 +497,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @since 1.1 */
          }
@@ -467,6 +515,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             EVAS_TEXTURE_RESTRICT, or EVAS_TEXTURE_PAD. */
          }
          get {
@@ -477,6 +527,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @return  The current spread mode of the image object. */
          }
@@ -493,6 +545,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @remark This function sets how the center part of the image object's source
             image is to be drawn, which must be one of the values in
@@ -513,6 +567,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @return fill Fill mode of the center region of @p obj (a value in
             #Evas_Border_Fill_Mode).
 
@@ -532,6 +588,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @remark This function will scale down or crop the image so that it is
             treated as if it were at the given size. If the size given is
             smaller than the image, it will be cropped. If the size given is
@@ -545,6 +603,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             See @ref evas_object_image_size_set() for more details. */
          }
@@ -561,6 +621,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @remark If the @p visible set to @c EINA_FALSE, the source object of the proxy(@p obj
             ) will be invisible.
@@ -590,6 +652,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @return @c EINA_TRUE if source object is visible, @c EINA_FALSE otherwise.
 
             @see evas_object_image_source_visible_set()
@@ -612,6 +676,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @remark Note that if @p w or @p h are smaller than the dimensions of
             @p obj, the displayed image will be @b tiled around the object's
@@ -647,6 +713,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @remark Use @c NULL pointers on the fill components you're not
             interested in: they'll be ignored by the function.
 
@@ -670,6 +738,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             This function sets a native surface of a given canvas image. */
 
             legacy: null;
@@ -681,6 +751,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @return The native surface of the given canvas image.
 
@@ -700,6 +772,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @remark This function sets the scale down factor of a given canvas
             image. Most useful for the SVG image loader.
 
@@ -713,6 +787,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @see evas_object_image_load_scale_down_set() for more details */
          }
@@ -729,6 +805,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @remark This function sets the scale hint value of the given image object
             in the canvas, which will affect how Evas is to cache scaled
             versions of its original source image.
@@ -742,6 +820,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @return The scale hint value set on @p obj, a value in
             #Evas_Image_Scale_Hint.
@@ -801,6 +881,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             This function sets the colorspace of given canvas image. */
          }
          get {
@@ -810,6 +892,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @return The colorspace of the image.
 
@@ -828,6 +912,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @remark This functions sets a function to be the callback function that get
             pixels from a image of the canvas. */
          }
@@ -844,6 +930,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @remark This function lets the application replace an image object's
             internal pixel buffer with an user-allocated one. For best results,
@@ -874,6 +962,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @remark This set image object's current frame to frame_num with 1 being the first
             frame.
 
@@ -898,6 +988,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @return The region support state
             @since 1.2
 
@@ -915,6 +1007,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @return A value giving the last error that occurred. It should be
             one of the #Evas_Load_Error values. #EVAS_LOAD_ERROR_NONE
             is returned if there was no error. */
@@ -929,6 +1023,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @return The number of frames
 
@@ -953,6 +1049,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Image
+
             @return The stride of the image (<b>in bytes</b>).
 
             @remark The row stride is the number of bytes between the start of a row
@@ -968,6 +1066,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @return Loop type of the image object
 
@@ -998,6 +1098,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Image
 
             @return The number of loop of an animated image object
 
@@ -1115,6 +1217,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
 
+         @ingroup Evas_Object_Image
+
          @remark This function schedules a particular rectangular region of an image
          object to be updated (redrawn) at the next rendering cycle. */
 
@@ -1132,6 +1236,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
          @if MOBILE @since_tizen 2.3
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
+
+         @ingroup Evas_Object_Image
 
          @remark This returns total duration that the specified sequence of frames should
          take in seconds.
@@ -1161,6 +1267,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
 
+         @ingroup Evas_Object_Image
+
          @remark Note that the raw data must be of the same size (see
          evas_object_image_size_set(), which has to be called @b before this
          one) and colorspace (see evas_object_image_colorspace_set()) of the
@@ -1181,6 +1289,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
          @if MOBILE @since_tizen 2.3
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
+
+         @ingroup Evas_Object_Image
 
          @return The raw image data.
 
@@ -1216,16 +1326,22 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
       }
       data_convert {
          /*@
-         Converts the raw image data of the given image object to the
+         @brief Converts the raw image data of the given image object to the
          specified colorspace.
 
-         Note that this function does not modify the raw image data.  If the
+         @if MOBILE @since_tizen 2.3
+         @elseif WEARABLE @since_tizen 2.3.1
+         @endif
+
+         @ingroup Evas_Object_Image
+
+         @remark Note that this function does not modify the raw image data.  If the
          requested colorspace is the same as the image colorspace nothing is
          done and @c NULL is returned. You should use
          evas_object_image_colorspace_get() to check the current image
          colorspace.
 
-         See @ref evas_object_image_colorspace_get.
+         @remark See @ref evas_object_image_colorspace_get.
 
          @return data A newly allocated data in the format specified by to_cspace. */
 
@@ -1242,6 +1358,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
 
+         @ingroup Evas_Object_Image
+
          This function imports pixels from a given source to a given canvas image. */
 
          return: bool;
@@ -1256,6 +1374,8 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image)
          @if MOBILE @since_tizen 2.3
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
+
+         @ingroup Evas_Object_Image
 
          This function reloads the image data bound to image object @p obj. */
       }

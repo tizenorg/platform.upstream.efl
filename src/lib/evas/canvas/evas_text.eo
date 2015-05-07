@@ -12,6 +12,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Text
+
             @remark Shadow effects, which are fading colors decorating the text
             underneath it, will just be shown if the object is set to one of
             the following styles:
@@ -36,6 +38,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Text
+
             @remark Use @c NULL pointers on the color components you're not
             interested in: they'll be ignored by the function.
 
@@ -57,6 +61,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Text
+
             @remark This is a value between 0.0 and 1.0 indicating the position of the text
             to be shown. 0.0 means the start will be shown and the end trimmed, 1.0
             means the beginning will be trimmed and the end will be shown, and any value
@@ -73,6 +79,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Text
 
             @return The ellipsis set on the text object.
             @see evas_object_text_ellipsis_set.
@@ -91,6 +99,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Text
+
             @remark BiDi delimiters are use for in-paragraph separation of bidi segments. This
             is useful for example in recipients fields of e-mail clients where bidi
             oddities can occur when mixing RTL and LTR.
@@ -104,6 +114,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Text
 
             @remark BiDi delimiters are use for in-paragraph separation of bidi segments. This
             is useful for example in recipients fields of e-mail clients where bidi
@@ -125,6 +137,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Text
+
             @remark Outline effects (colored lines around text glyphs) will just be
             shown if the object is set to one of the following styles:
             - #EVAS_TEXT_STYLE_OUTLINE
@@ -141,6 +155,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Text
 
             @remark Use @c NULL pointers on the color components you're not
             interested in: they'll be ignored by the function.
@@ -163,6 +179,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Text
+
             @remark 'Glow 2' effects, which are glowing colors decorating the text's
             (immediate) surroundings, will just be shown if the object is set
             to the #EVAS_TEXT_STYLE_GLOW style. See also
@@ -177,6 +195,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Text
 
             @remark Use @c NULL pointers on the color components you're not
             interested in: they'll be ignored by the function.
@@ -198,6 +218,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Text
 
             @remark Text object styles are one of the values in
             #Evas_Text_Style_Type. Some of those values are combinations of
@@ -227,6 +249,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Text
+
             @return the style type in use.
 
             @see evas_object_text_style_set() for more details. */
@@ -243,6 +267,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Text
 
             @remark Glow effects, which are glowing colors decorating the text's
             surroundings, will just be shown if the object is set to the
@@ -262,6 +288,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Text
 
             @remark Use @c NULL pointers on the color components you're not
             interested in: they'll be ignored by the function.
@@ -283,6 +311,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Text
+
             @remark If the program fails to compile (syntax error, invalid
             buffer name, etc...), the standard text effects will be
             applied instead (SHADOW, etc...). switch back to the
@@ -293,7 +323,6 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             please use only for testing purposes.
             @see @ref evasfiltersref "Evas filters reference"
             */
-            legacy: null;
          }
          values {
             const(char)* program; /*@ The program code, as defined
@@ -310,6 +339,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Text
+
             @remark This will create automatically a new RGBA buffer containing
             the source object's pixels (as it is rendered).
 
@@ -317,7 +348,6 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @remark EXPERIMENTAL FEATURE. This is an unstable API,
             please use only for testing purposes.
             @see @ref evasfiltersref "Evas filters reference" */
-            legacy: null;
          }
          values {
             const(char)* name; /*@ Object name as used in the program code */
@@ -338,6 +368,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
 
+            @ingroup Evas_Object_Text
+
             */
          }
          values {
@@ -356,6 +388,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
             @endif
+
+            @ingroup Evas_Object_Text
 
             @return the direction of the text */
             return: Evas_BiDi_Direction;
@@ -400,6 +434,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
 
+         @ingroup Evas_Object_Text
+
          */
          return: int;
          params {
@@ -425,6 +461,8 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
          @if MOBILE @since_tizen 2.3
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
+
+         @ingroup Evas_Object_Text
 
          @remark This function is used to obtain the X, Y, width and height of the character
          located at @p pos within the @c Evas_Object @p obj. @p obj must be a text object

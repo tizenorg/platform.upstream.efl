@@ -113,7 +113,7 @@ _joystick_event_add(struct input_event *event, int index)
         break;
 
       case 0x13f:
-        /* TODO: button "PLAY" */
+        e->button.index = ECORE_EVENT_JOYSTICK_BUTTON_PLAY;
         break;
 
       case ABS_X:

@@ -83,7 +83,7 @@ struct _Render_Engine_GL_Surface
    int     depth_bits;
    int     stencil_bits;
 
-   // Data 
+   // Data
    void   *buffer;
 
    Render_Engine_GL_Context   *current_ctx;
@@ -1052,13 +1052,13 @@ eng_image_native_set(void *data EINA_UNUSED, void *image, void *native)
 
    if ((ns->type == EVAS_NATIVE_SURFACE_OPENGL) &&
        (ns->version == EVAS_NATIVE_SURFACE_VERSION))
-     im2 = evas_cache_image_data(evas_common_image_cache_get(), 
-                                 im->w, im->h, 
+     im2 = evas_cache_image_data(evas_common_image_cache_get(),
+                                 im->w, im->h,
                                  ns->data.x11.visual, 1,
                                  EVAS_COLORSPACE_ARGB8888);
    else
-     im2 = evas_cache_image_data(evas_common_image_cache_get(), 
-                                 im->w, im->h, 
+     im2 = evas_cache_image_data(evas_common_image_cache_get(),
+                                 im->w, im->h,
                                  NULL, 1,
                                  EVAS_COLORSPACE_ARGB8888);
    if (im->references > 1)
@@ -1825,6 +1825,12 @@ eng_image_map_draw(void *data, void *context, void *surface, void *image, RGBA_M
 
    if (do_async)
      {
+         // TIZEN_ONLY [[
+         // FIXME : There is no chance when an image will be updated. so I add the bind callback function like eng_image_draw()
+         if (im->native.func.bind)
+            im->native.func.bind(data, image, 0, 0, im->cache_entry.w, im->cache_entry.h);
+         // TIZEN_ONLY ]]
+
         /* Since the thread that'll draw the map won't call eng_image_draw()
          * (which sends the load request of source image to Cserve2) - we need
          * to send the load request here before enqueueing thread command.
@@ -1841,9 +1847,15 @@ eng_image_map_draw(void *data, void *context, void *surface, void *image, RGBA_M
              if (!im->cache_entry.flags.loaded) return EINA_FALSE;
           }
 
-        return evas_common_map_thread_rgba_cb(im, surface, context,
-                                              m, smooth, level, 0,
-                                              _map_draw_thread_cmd);
+        Eina_Bool ret = evas_common_map_thread_rgba_cb(im, surface, context,
+                                                       m, smooth, level, 0,
+                                                       _map_draw_thread_cmd);
+        // TIZEN_ONLY [[
+        if (im->native.func.unbind)
+           im->native.func.unbind(data, image);
+        // TIZEN_ONLY ]]
+
+        return ret;
      }
    else
      evas_software_image_map_draw(data, context, surface, im, m,
@@ -1872,8 +1884,8 @@ eng_image_map_surface_new(void *data EINA_UNUSED, int w, int h, int alpha)
         return surface;
      }
 #endif
-   surface = evas_cache_image_copied_data(evas_common_image_cache_get(), 
-                                          w, h, NULL, alpha, 
+   surface = evas_cache_image_copied_data(evas_common_image_cache_get(),
+                                          w, h, NULL, alpha,
                                           EVAS_COLORSPACE_ARGB8888);
    evas_cache_image_pixels(surface);
    return surface;
@@ -2420,7 +2432,7 @@ static int
 eng_image_load_error_get(void *data EINA_UNUSED, void *image)
 {
    RGBA_Image *im;
-   
+
    if (!image) return EVAS_LOAD_ERROR_NONE;
    im = image;
    return im->cache_entry.load_error;
@@ -2504,7 +2516,7 @@ eng_gl_surface_create(void *data EINA_UNUSED, void *config, int w, int h)
          sfc->depth_bits = 0;
          break;
      }
-   
+
    // Stencil Bits
    switch (cfg->stencil_bits)
      {
@@ -2677,7 +2689,7 @@ eng_gl_make_current(void *data EINA_UNUSED, void *surface, void *context)
         else
            share_ctx = NULL;
 
-        ctx->context =  _sym_OSMesaCreateContextExt(sfc->internal_fmt, 
+        ctx->context =  _sym_OSMesaCreateContextExt(sfc->internal_fmt,
                                                     sfc->depth_bits,
                                                     sfc->stencil_bits,
                                                     0,
@@ -2695,7 +2707,7 @@ eng_gl_make_current(void *data EINA_UNUSED, void *surface, void *context)
 
 
    // Call MakeCurrent
-   ret = _sym_OSMesaMakeCurrent(ctx->context, sfc->buffer, GL_UNSIGNED_BYTE, 
+   ret = _sym_OSMesaMakeCurrent(ctx->context, sfc->buffer, GL_UNSIGNED_BYTE,
                                 sfc->w, sfc->h);
 
    if (ret == GL_FALSE)
@@ -2756,7 +2768,7 @@ eng_gl_native_surface_get(void *data EINA_UNUSED, void *surface, void *native_su
    ns->type = EVAS_NATIVE_SURFACE_OPENGL;
    ns->version = EVAS_NATIVE_SURFACE_VERSION;
    ns->data.x11.visual = sfc->buffer;
-   
+
    return 1;
 #else
    (void) surface;
@@ -4132,7 +4144,7 @@ gl_sym_init(void)
 // Wrapped GL APIs to handle desktop compatibility
 
 // Stripping precision code from GLES shader for desktop compatibility
-// Code adopted from Meego GL code. Temporary Fix.  
+// Code adopted from Meego GL code. Temporary Fix.
 static const char *
 opengl_strtok(const char *s, int *n, char **saveptr, char *prevbuf)
 {
@@ -4144,33 +4156,33 @@ opengl_strtok(const char *s, int *n, char **saveptr, char *prevbuf)
 
    if (prevbuf) free(prevbuf);
 
-   if (s) 
+   if (s)
       *saveptr = (char *)s;
-   else 
+   else
      {
         if (!(*saveptr) || !(*n))
            return NULL;
         s = *saveptr;
      }
 
-   for (; *n && strchr(delim, *s); s++, (*n)--) 
+   for (; *n && strchr(delim, *s); s++, (*n)--)
      {
-        if (*s == '/' && *n > 1) 
+        if (*s == '/' && *n > 1)
           {
-             if (s[1] == '/') 
+             if (s[1] == '/')
                {
-                  do 
+                  do
                     {
                        s++, (*n)--;
-                    } 
+                    }
                   while (*n > 1 && s[1] != '\n' && s[1] != '\r');
-               } 
-             else if (s[1] == '*') 
+               }
+             else if (s[1] == '*')
                {
-                  do 
+                  do
                     {
                        s++, (*n)--;
-                    } 
+                    }
                   while (*n > 2 && (s[1] != '*' || s[2] != '/'));
                   s++, (*n)--;
                }
@@ -4187,26 +4199,26 @@ opengl_strtok(const char *s, int *n, char **saveptr, char *prevbuf)
    ret = malloc(retlen + 1);
    p = ret;
 
-   while (retlen > 0) 
+   while (retlen > 0)
      {
-        if (*start == '/' && retlen > 1) 
+        if (*start == '/' && retlen > 1)
           {
-             if (start[1] == '/') 
+             if (start[1] == '/')
                {
-                  do 
+                  do
                     {
                        start++, retlen--;
-                    } 
+                    }
                   while (retlen > 1 && start[1] != '\n' && start[1] != '\r');
                   start++, retlen--;
                   continue;
-               } 
-             else if (start[1] == '*') 
+               }
+             else if (start[1] == '*')
                {
-                  do 
+                  do
                     {
                        start++, retlen--;
-                    } 
+                    }
                   while (retlen > 2 && (start[1] != '*' || start[2] != '/'));
                   start += 3, retlen -= 3;
                   continue;
@@ -4217,7 +4229,7 @@ opengl_strtok(const char *s, int *n, char **saveptr, char *prevbuf)
 
    *p = 0;
    return ret;
-}	
+}
 
 static char *
 patch_gles_shader(const char *source, int length, int *patched_len)
@@ -4235,36 +4247,36 @@ patch_gles_shader(const char *source, int length, int *patched_len)
    if (!patched) return NULL;
 
    p = (char *)opengl_strtok(source, &length, &saveptr, NULL);
-   for (; p; p = (char *)opengl_strtok(0, &length, &saveptr, p)) 
+   for (; p; p = (char *)opengl_strtok(0, &length, &saveptr, p))
      {
-        if (!strncmp(p, "lowp", 4) || !strncmp(p, "mediump", 7) || !strncmp(p, "highp", 5)) 
+        if (!strncmp(p, "lowp", 4) || !strncmp(p, "mediump", 7) || !strncmp(p, "highp", 5))
           {
              continue;
-          } 
-        else if (!strncmp(p, "precision", 9)) 
+          }
+        else if (!strncmp(p, "precision", 9))
           {
              while ((p = (char *)opengl_strtok(0, &length, &saveptr, p)) && !strchr(p, ';'));
-          } 
-        else 
+          }
+        else
           {
-             if (!strncmp(p, "gl_MaxVertexUniformVectors", 26)) 
+             if (!strncmp(p, "gl_MaxVertexUniformVectors", 26))
                {
-                  free(p); 
+                  free(p);
                   p = strdup("(gl_MaxVertexUniformComponents / 4)");
-               } 
-             else if (!strncmp(p, "gl_MaxFragmentUniformVectors", 28)) 
+               }
+             else if (!strncmp(p, "gl_MaxFragmentUniformVectors", 28))
                {
                   free(p);
                   p = strdup("(gl_MaxFragmentUniformComponents / 4)");
-               } 
-             else if (!strncmp(p, "gl_MaxVaryingVectors", 20)) 
+               }
+             else if (!strncmp(p, "gl_MaxVaryingVectors", 20))
                {
                   free(p);
                   p = strdup("(gl_MaxVaryingFloats / 4)");
                }
 
              int new_len = strlen(p);
-             if (*patched_len + new_len > patched_size) 
+             if (*patched_len + new_len > patched_size)
                {
                   char *tmp;
 
@@ -4281,18 +4293,18 @@ patch_gles_shader(const char *source, int length, int *patched_len)
 
              memcpy(patched + *patched_len, p, new_len);
              *patched_len += new_len;
-          }     
+          }
      }
 
    patched[*patched_len] = 0;
    /* check that we don't leave dummy preprocessor lines */
-   for (sp = patched; *sp;) 
+   for (sp = patched; *sp;)
      {
         for (; *sp == ' ' || *sp == '\t'; sp++);
-        if (!strncmp(sp, "#define", 7)) 
+        if (!strncmp(sp, "#define", 7))
           {
              for (p = sp + 7; *p == ' ' || *p == '\t'; p++);
-             if (*p == '\n' || *p == '\r' || *p == '/') 
+             if (*p == '\n' || *p == '\r' || *p == '/')
                {
                   memset(sp, 0x20, 7);
                }
@@ -4314,21 +4326,21 @@ evgl_glShaderSource(GLuint shader, GLsizei count, const char* const* string, con
    memset(s, 0, count * sizeof(char*));
    memset(l, 0, count * sizeof(GLint));
 
-   for (i = 0; i < count; ++i) 
+   for (i = 0; i < count; ++i)
      {
-        if (length) 
+        if (length)
           {
              len = length[i];
-             if (len < 0) 
+             if (len < 0)
                 len = string[i] ? strlen(string[i]) : 0;
           }
         else
            len = string[i] ? strlen(string[i]) : 0;
 
-        if (string[i]) 
+        if (string[i])
           {
              s[i] = patch_gles_shader(string[i], len, &l[i]);
-             if (!s[i]) 
+             if (!s[i])
                {
                   while(i)
                      free(s[--i]);
@@ -4338,8 +4350,8 @@ evgl_glShaderSource(GLuint shader, GLsizei count, const char* const* string, con
                   DBG("Patching Shader Failed.");
                   return;
                }
-          } 
-        else 
+          }
+        else
           {
              s[i] = NULL;
              l[i] = 0;
@@ -4416,7 +4428,7 @@ override_gl_apis(Evas_GL_API *api)
    ORD(glCheckFramebufferStatus);
    ORD(glClear);
    ORD(glClearColor);
-   ORD(glClearDepthf);     
+   ORD(glClearDepthf);
    ORD(glClearStencil);
    ORD(glColorMask);
    ORD(glCompileShader);
@@ -4435,7 +4447,7 @@ override_gl_apis(Evas_GL_API *api)
    ORD(glDeleteTextures);
    ORD(glDepthFunc);
    ORD(glDepthMask);
-   ORD(glDepthRangef);     
+   ORD(glDepthRangef);
    ORD(glDetachShader);
    ORD(glDisable);
    ORD(glDisableVertexAttribArray);
@@ -4468,7 +4480,7 @@ override_gl_apis(Evas_GL_API *api)
    ORD(glGetRenderbufferParameteriv);
    ORD(glGetShaderiv);
    ORD(glGetShaderInfoLog);
-   ORD(glGetShaderPrecisionFormat);  
+   ORD(glGetShaderPrecisionFormat);
    ORD(glGetShaderSource);
    ORD(glGetString);             // FIXME
    ORD(glGetTexParameterfv);
@@ -4492,11 +4504,11 @@ override_gl_apis(Evas_GL_API *api)
    ORD(glPixelStorei);
    ORD(glPolygonOffset);
    ORD(glReadPixels);
-   ORD(glReleaseShaderCompiler); 
+   ORD(glReleaseShaderCompiler);
    ORD(glRenderbufferStorage);
    ORD(glSampleCoverage);
    ORD(glScissor);
-   ORD(glShaderBinary); 
+   ORD(glShaderBinary);
    ORD(glShaderSource);
    ORD(glStencilFunc);
    ORD(glStencilFuncSeparate);
@@ -4567,7 +4579,7 @@ gl_lib_init(void)
    // Current ctx & sfc stuff
    if (!_tls_check()) return 0;
 
-   // dlopen OSMesa 
+   // dlopen OSMesa
    gl_lib_handle = dlopen("libOSMesa.so.9", RTLD_NOW);
    if (!gl_lib_handle) gl_lib_handle = dlopen("libOSMesa.so.8", RTLD_NOW);
    if (!gl_lib_handle) gl_lib_handle = dlopen("libOSMesa.so.7", RTLD_NOW);

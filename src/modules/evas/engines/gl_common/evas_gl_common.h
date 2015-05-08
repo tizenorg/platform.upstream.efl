@@ -604,6 +604,8 @@ struct _Evas_GL_Image
       int           target;
       int           mipmap;
       unsigned char loose : 1;
+      //Tizen Only
+      unsigned char    offbuffer : 1;
    } native;
 
    int scale_hint, content_hint;

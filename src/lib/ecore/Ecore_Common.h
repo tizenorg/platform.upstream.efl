@@ -1472,6 +1472,10 @@ enum _Ecore_Fd_Handler_Flags
    ECORE_FD_WRITE = 2, /**< Fd Write mask */
    ECORE_FD_ERROR = 4 /**< Fd Error mask */
 };
+
+/**
+ * @brief typedef to enum _Ecore_Fd_Handler_Flags
+ */
 typedef enum _Ecore_Fd_Handler_Flags Ecore_Fd_Handler_Flags;
 
 /**
@@ -1666,7 +1670,7 @@ EAPI void *ecore_main_win32_handler_del(Ecore_Win32_Handler *win32_handler);
 
 /**
  * @defgroup Ecore_Time_Group Ecore time functions
- * @ingroup Ecore
+ * @ingroup Ecore_Main_Loop_Group
  *
  * These are function to retrieve time in a given format.
  *
@@ -2947,6 +2951,10 @@ enum _Ecore_Poller_Type    /* Poller types */
 {
    ECORE_POLLER_CORE = 0 /**< The core poller interval */
 };
+
+/**
+ * @brief typedef to enum _Ecore_Poller_Type
+ */
 typedef enum _Ecore_Poller_Type Ecore_Poller_Type;
 
 /*
@@ -3056,6 +3064,10 @@ enum _Ecore_Animator_Source    /* Timing sources for animators */
    ECORE_ANIMATOR_SOURCE_TIMER, /**< The default system clock/timer based animator that ticks every "frametime" seconds */
    ECORE_ANIMATOR_SOURCE_CUSTOM /**< A custom animator trigger that you need to call ecore_animator_custom_tick() to make it tick */
 };
+
+/**
+ * @brief typedef to enum _Ecore_Animator_Source
+ */
 typedef enum _Ecore_Animator_Source Ecore_Animator_Source;
 
 /**

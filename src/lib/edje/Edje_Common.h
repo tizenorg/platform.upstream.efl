@@ -1365,6 +1365,8 @@ typedef enum _Edje_Part_Type
    do { x = ((x) & ~EDJE_TEXT_EFFECT_MASK_SHADOW_DIRECTION) | (s); } while (0)
 
 /**
+ * @internal
+ *
  * @typedef Edje_Text_Effect
  *
  * All possible text effects in Edje
@@ -1559,10 +1561,10 @@ typedef enum _Edje_Aspect_Control
  */
 typedef enum _Edje_Drag_Dir
 {
-   EDJE_DRAG_DIR_NONE = 0,  /*< Not dragable value     */
-   EDJE_DRAG_DIR_X = 1,     /*< X dragable value       */
-   EDJE_DRAG_DIR_Y = 2,     /*< Y dragable value       */
-   EDJE_DRAG_DIR_XY = 3     /*< X and Y dragable value */
+   EDJE_DRAG_DIR_NONE = 0,  /**< Not dragable value     */
+   EDJE_DRAG_DIR_X = 1,     /**< X dragable value       */
+   EDJE_DRAG_DIR_Y = 2,     /**< Y dragable value       */
+   EDJE_DRAG_DIR_XY = 3     /**< X and Y dragable value */
 } Edje_Drag_Dir;
 
 /**
@@ -1628,6 +1630,8 @@ EAPI void         edje_box_layout_register        (const char *name, Evas_Object
  */
 
 /**
+ * @internal
+ *
  * @typedef Edje_Object_Table_Homogeneous_Mode
  *
  * Table homogeneous modes
@@ -1635,9 +1639,9 @@ EAPI void         edje_box_layout_register        (const char *name, Evas_Object
  */
 typedef enum _Edje_Object_Table_Homogeneous_Mode
 {
-   EDJE_OBJECT_TABLE_HOMOGENEOUS_NONE = 0,  /*< None homogeneous mode  */
-   EDJE_OBJECT_TABLE_HOMOGENEOUS_TABLE = 1, /*< Table homogeneous mode */
-   EDJE_OBJECT_TABLE_HOMOGENEOUS_ITEM = 2   /*< Item homogeneous mode  */
+   EDJE_OBJECT_TABLE_HOMOGENEOUS_NONE = 0,  /**< None homogeneous mode  */
+   EDJE_OBJECT_TABLE_HOMOGENEOUS_TABLE = 1, /**< Table homogeneous mode */
+   EDJE_OBJECT_TABLE_HOMOGENEOUS_ITEM = 2   /**< Item homogeneous mode  */
 } Edje_Object_Table_Homogeneous_Mode;
 
 /**
@@ -2088,15 +2092,54 @@ typedef enum _Edje_Message_Type
    EDJE_MESSAGE_STRING_FLOAT_SET = 11 /**< A message with a struct containing a string and list of floating point numbers as value. Use #Edje_Message_String_Float_Set structs as message body, for this type. */
 } Edje_Message_Type;
 
+/**
+ * @brief typedef of struct _Edje_Message_String
+ */
 typedef struct _Edje_Message_String           Edje_Message_String;
+
+/**
+ * @brief typedef of struct _Edje_Message_Int
+ */
 typedef struct _Edje_Message_Int              Edje_Message_Int;
+
+/**
+ * @brief typedef of struct _Edje_Message_Float
+ */
 typedef struct _Edje_Message_Float            Edje_Message_Float;
+
+/**
+ * @brief typedef of struct _Edje_Message_String_Set
+ */
 typedef struct _Edje_Message_String_Set       Edje_Message_String_Set;
+
+/**
+ * @brief typedef of struct _Edje_Message_Int_Set
+ */
 typedef struct _Edje_Message_Int_Set          Edje_Message_Int_Set;
+
+/**
+ * @brief typedef of struct _Edje_Message_Float_Set
+ */
 typedef struct _Edje_Message_Float_Set        Edje_Message_Float_Set;
+
+/**
+ * @brief typedef of struct _Edje_Message_String_Int
+ */
 typedef struct _Edje_Message_String_Int       Edje_Message_String_Int;
+
+/**
+ * @brief typedef of struct _Edje_Message_String_Float
+ */
 typedef struct _Edje_Message_String_Float     Edje_Message_String_Float;
+
+/**
+ * @brief typedef of struct _Edje_Message_String_Int_Set
+ */
 typedef struct _Edje_Message_String_Int_Set   Edje_Message_String_Int_Set;
+
+/**
+ * @brief typedef of struct _Edje_Message_String_Float_Set
+ */
 typedef struct _Edje_Message_String_Float_Set Edje_Message_String_Float_Set;
 
 struct _Edje_Message_String
@@ -2196,7 +2239,9 @@ EAPI void         edje_message_signal_process             (void);
  * @{
  */
 
-/* perspective info for maps inside edje objects */
+/**
+ * @brief perspective info for maps inside edje objects
+ */
 typedef struct _Edje_Perspective Edje_Perspective;
 
 /**

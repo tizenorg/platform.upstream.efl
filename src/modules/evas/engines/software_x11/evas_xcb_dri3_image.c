@@ -33,7 +33,7 @@ evas_xcb_image_dri_free(DRI3_Info *info)
 }
 
 Eina_Bool
-evas_xcb_image_dri3_init(DRI3_Info *info, Pixmap pixmap, Display *dpy)
+evas_xcb_image_dri3_init(Display *dpy)
 {
    if (inits <= 0)
       {
@@ -148,7 +148,7 @@ evas_xcb_image_dri3_native_set(void *data, void *image, void *native)
    im->native.func.bind = _native_bind_cb;
    im->native.func.free = _native_free_cb;
 
-   if (evas_xcb_image_dri3_init(dri_info, pm, d)) evas_xcb_image_get_buffers(im);
+   if (evas_xcb_image_dri3_init(d)) evas_xcb_image_get_buffers(im);
    else
       {
          ERR("evas_xcb_image_dri3_init failed. return false");

@@ -34,28 +34,148 @@
 extern "C" {
 #endif
 
+/**
+ * @defgroup Ecore_Buffer_Queue_Group Ecore Buffer Queue functions
+ * @ingroup Ecore_Buffer_Group
+ *
+ * Ecore Buffer Queue is a queue which conntects different processes for sharing
+ * Ecore_Buffer.
+ * one process (related object is Ecore_Buffer_Provider) has rear terminal
+ * position of Ecore_Buffer Queue which can enqueue the Ecore_Buffer,
+ * and the other process (related object is Ecore_Buffer_Consumer) has front
+ * terminal position of Ecore_Buffer_Queue which can dequeue the Ecore_Buffer.
+ */
+
+/**
+ * @defgroup Ecore_Buffer_Provider_Group Ecore Buffer Provider functions
+ * @ingroup Ecore_Buffer_Queue_Group
+ *
+ * This group of functions is applied to an Ecore_Buffer_Provider object.
+ * Ecore_Buffer_Provider provides Ecore_Buffer to Ecore_Buffer_Consumer(usally
+ * different process or thread from Ecore_Buffer_Provider).
+ * Ecore_Buffer_Provider should creates Ecore_Buffer as a provider.
+ */
+
+/**
+ * @defgroup Ecore_Buffer_Consumer_Group Ecore Buffer Consumer functions
+ * @ingroup Ecore_Buffer_Queue_Group
+ *
+ * This group of functions is applied to an Ecore_Buffer_Consumer object.
+ * Ecore_Buffer_Consumer receives Ecore_Buffer enqueued by Ecore_Buffer_Provider.
+ * Consumer must release Ecore_Buffer when it's no longer used.
+ * Thus, the Ecore_Buffer_Provider is now free to re-use or destroy Ecore_Buffer.
+ */
+
+/**
+ * @typedef Ecore_Buffer_Return
+ * @enum _Ecore_Buffer_Return
+ * types for an buffer queue state on provider side.
+ * @ingroup Ecore_Buffer_Provider_Group
+ * @see ecore_buffer_provider_buffer_acquire()
+ * @see ecore_buffer_provider_buffer_acquirable_check()
+ */
 typedef enum _Ecore_Buffer_Return
 {
-   ECORE_BUFFER_RETURN_ERROR,
-   ECORE_BUFFER_RETURN_SUCCESS,
-   ECORE_BUFFER_RETURN_EMPTY,
-   ECORE_BUFFER_RETURN_NOT_EMPTY,
-   ECORE_BUFFER_RETURN_NEED_ALLOC,
+   ECORE_BUFFER_RETURN_ERROR,       /**< on error @since_tizen 2.4 */
+   ECORE_BUFFER_RETURN_SUCCESS,     /**< success to dequeue a buffer @since_tizen 2.4 */
+   ECORE_BUFFER_RETURN_EMPTY,       /**< Empty queue @since_tizen 2.4 */
+   ECORE_BUFFER_RETURN_NOT_EMPTY,   /**< Not empty queue @since_tizen 2.4 */
+   ECORE_BUFFER_RETURN_NEED_ALLOC,  /**< need to create Ecore_Buffer @since_tizen 2.4 */
 } Ecore_Buffer_Return;
-
+/**
+ * @typedef Ecore_Buffer_Consumer
+ * An object representing a consumer of Ecore_Buffer.
+ *
+ * @since_tizen 2.4
+ *
+ * @ingroup Ecore_Buffer_Consumer_Group
+ */
 typedef struct _Ecore_Buffer_Consumer Ecore_Buffer_Consumer;
+/**
+ * @typedef Ecore_Buffer_Provider
+ * An object representing a provider of Ecore_Buffer.
+ *
+ * @since_tizen 2.4
+ *
+ * @ingroup Ecore_Buffer_Provider_Group
+ */
 typedef struct _Ecore_Buffer_Provider Ecore_Buffer_Provider;
-
+/**
+ * @typedef Ecore_Buffer_Consumer_Provider_Add_Cb
+ *
+ * @brief Called whenever a Ecore_Buffer_Provider connected.
+ *
+ * @since_tizen 2.4
+ *
+ * @see ecore_buffer_consumer_provider_add_cb_set()
+ * @ingroup Ecore_Buffer_Consumer_Group
+ */
 typedef void (*Ecore_Buffer_Consumer_Provider_Add_Cb) (Ecore_Buffer_Consumer *consumer, void *data);
+/**
+ * @typedef Ecore_Buffer_Consumer_Provider_Del_Cb
+ *
+ * @brief Called whenever a Ecore_Buffer_Provider disonnected.
+ *
+ * @since_tizen 2.4
+ *
+ * @see ecore_buffer_consumer_provider_del_cb_set()
+ * @ingroup Ecore_Buffer_Consumer_Group
+ */
 typedef void (*Ecore_Buffer_Consumer_Provider_Del_Cb) (Ecore_Buffer_Consumer *consumer, void *data);
+/**
+ * @typedef Ecore_Buffer_Consumer_Enqueue_Cb
+ *
+ * @brief Called whenever a Ecore_Buffer enqueued in buffer queue.
+ *
+ * @since_tizen 2.4
+ *
+ * @see ecore_buffer_consumer_buffer_enqueued_cb_set()
+ * @ingroup Ecore_Buffer_Consumer_Group
+ */
 typedef void (*Ecore_Buffer_Consumer_Enqueue_Cb) (Ecore_Buffer_Consumer *consumer, void *data);
-
+/**
+ * @typedef Ecore_Buffer_Provider_Consumer_Add_Cb
+ *
+ * @brief Called whenever a Ecore_Buffer_Consumer connected.
+ *
+ * @since_tizen 2.4
+ *
+ * @see ecore_buffer_provider_consumer_add_cb_set()
+ * @ingroup Ecore_Buffer_Provider_Group
+ */
 typedef void (*Ecore_Buffer_Provider_Consumer_Add_Cb) (Ecore_Buffer_Provider *provider, int queue_size, int w, int h, void *data);
+/**
+ * @typedef Ecore_Buffer_Provider_Consumer_Del_Cb
+ *
+ * @brief Called whenever a Ecore_Buffer_Consumer disconnected.
+ *
+ * @since_tizen 2.4
+ *
+ * @see ecore_buffer_provider_consumer_del_cb_set()
+ * @ingroup Ecore_Buffer_Provider_Group
+ */
 typedef void (*Ecore_Buffer_Provider_Consumer_Del_Cb) (Ecore_Buffer_Provider *provider, void *data);
+/**
+ * @typedef Ecore_Buffer_Provider_Enqueue_Cb
+ *
+ * @brief Called whenever a Ecore_Buffer is released.
+ *
+ * @since_tizen 2.4
+ *
+ * @see ecore_buffer_provider_buffer_released_cb_set()
+ * @ingroup Ecore_Buffer_Provider_Group
+ */
 typedef void (*Ecore_Buffer_Provider_Enqueue_Cb) (Ecore_Buffer_Provider *provider, void *data);
 
 /**
+ * @addtogroup Ecore_Buffer_Queue_Group
+ * @{
+ */
+
+/**
  * @brief Init the Ecore_Buffer_Queue system.
+ *
+ * @since_tizen 2.4
  *
  * @return How many times the lib has been initialized, 0 indicates failure.
  *
@@ -67,13 +187,27 @@ EAPI int   ecore_buffer_queue_init(void);
 /**
  * @brief Shut down the Ecore_Buffer_Queue system.
  *
+ * @since_tizen 2.4
+ *
  * this closes the connection of Buffer Queue deamon, and Shut down Ecore_Buffer_Queue libraries.
  *
  * @see ecore_buffer_queue_init()
  */
 EAPI void  ecore_buffer_queue_shutdown(void);
+
+/**
+ * @}
+ */
+
+/**
+ * @addtogroup Ecore_Buffer_Consumer_Group
+ * @{
+ */
+
 /**
  * @brief Creates a new Buffer Consumer based on name and common parameters.
+ *
+ * @since_tizen 2.4
  *
  * @param[in] name the name of Buffer_Queue, this is needed by Consumer and Provider to connect each other.
  * @param[in] queue_size size of Queue (If you pass this 0, then default size two(2) is appied)
@@ -86,6 +220,8 @@ EAPI Ecore_Buffer_Consumer    *ecore_buffer_consumer_new(const char *name, int32
 /**
  * @brief Free an Ecore_Buffer_Consumer
  *
+ * @since_tizen 2.4
+ *
  * @param[in] consumer The Ecore_Buffer_Consumer to free
  *
  * This frees up any memory used by the Ecore_Buffer_Consumer.
@@ -93,6 +229,8 @@ EAPI Ecore_Buffer_Consumer    *ecore_buffer_consumer_new(const char *name, int32
 EAPI void                      ecore_buffer_consumer_free(Ecore_Buffer_Consumer *consumer);
 /**
  * @brief Return the latest Ecore_Buffer submitted by provider.
+ *
+ * @since_tizen 2.4
  *
  * @param[in] consumer The Ecore_Buffer_Consumer to request for buffer
  *
@@ -106,6 +244,8 @@ EAPI void                      ecore_buffer_consumer_free(Ecore_Buffer_Consumer 
 EAPI Ecore_Buffer             *ecore_buffer_consumer_buffer_dequeue(Ecore_Buffer_Consumer *consumer);
 /**
  * @brief Release the acquired Ecore_Buffer.
+ *
+ * @since_tizen 2.4
  *
  * @param[in] consumer The Ecore_Buffer_Consumer to request release buffer
  * @param[in] buffer The Ecore_Buffer to release
@@ -123,6 +263,8 @@ EAPI Eina_Bool                 ecore_buffer_consumer_buffer_release(Ecore_Buffer
 /**
  * @brief Check if Queue of Ecore_Buffer is empty.
  *
+ * @since_tizen 2.4
+ *
  * @param[in] consumer The Ecore_Buffer_Consumer to query
  *
  * @return @c EINA_TRUE means queue is empty, @c EINA_FALSE otherwise.
@@ -130,6 +272,9 @@ EAPI Eina_Bool                 ecore_buffer_consumer_buffer_release(Ecore_Buffer
 EAPI Eina_Bool                 ecore_buffer_consumer_queue_is_empty(Ecore_Buffer_Consumer *consumer);
 /**
  * @brief Set a callback for provider connection events.
+ *
+ * @since_tizen 2.4
+ *
  * @param[in] consumer The Ecore_Buffer_Consumer to set callbacks on
  * @param[in] func The function to call
  * @param[in] data A pointer to the user data to store.
@@ -140,6 +285,9 @@ EAPI Eina_Bool                 ecore_buffer_consumer_queue_is_empty(Ecore_Buffer
 EAPI void                      ecore_buffer_consumer_provider_add_cb_set(Ecore_Buffer_Consumer *consumer, Ecore_Buffer_Consumer_Provider_Add_Cb func, void *data);
 /**
  * @brief Set a callback for provider disconnection events.
+ *
+ * @since_tizen 2.4
+ *
  * @param[in] consumer The Ecore_Buffer_Consumer to set callbacks on
  * @param[in] func The function to call
  * @param[in] data A pointer to the user data to store.
@@ -150,6 +298,9 @@ EAPI void                      ecore_buffer_consumer_provider_add_cb_set(Ecore_B
 EAPI void                      ecore_buffer_consumer_provider_del_cb_set(Ecore_Buffer_Consumer *consumer, Ecore_Buffer_Consumer_Provider_Del_Cb func, void *data);
 /**
  * @brief Set a callback for enqueued buffer events.
+ *
+ * @since_tizen 2.4
+ *
  * @param[in] consumer The Ecore_Buffer_Consumer to set callbacks on
  * @param[in] func The function to call
  * @param[in] data A pointer to the user data to store.
@@ -160,8 +311,20 @@ EAPI void                      ecore_buffer_consumer_provider_del_cb_set(Ecore_B
  * You may success acuiqre Ecore_Buffer after this callback called.
  */
 EAPI void                      ecore_buffer_consumer_buffer_enqueued_cb_set(Ecore_Buffer_Consumer *consumer, Ecore_Buffer_Consumer_Enqueue_Cb func, void *data);
+
+/**
+ * @}
+ */
+
+/**
+ * @addtogroup Ecore_Buffer_Provider_Group
+ * @{
+ */
+
 /**
  * @brief Creates a new Buffer Provider based on name.
+ *
+ * @since_tizen 2.4
  *
  * @param[in] name the name of Buffer_Queue.
  *
@@ -171,6 +334,8 @@ EAPI Ecore_Buffer_Provider    *ecore_buffer_provider_new(const char *name);
 /**
  * @brief Free an Ecore_Buffer_Provider
  *
+ * @since_tizen 2.4
+ *
  * @param[in] provider The Ecore_Buffer_Provider to free
  *
  * This frees up any memory used by the Ecore_Buffer_Provider.
@@ -179,6 +344,8 @@ EAPI void                      ecore_buffer_provider_free(Ecore_Buffer_Provider 
 /**
  * @brief Return the Ecore_Buffer released by consumer or State of Queue.
  *
+ * @since_tizen 2.4
+ *
  * @param[in] provider The Ecore_Buffer_Provider to request for buffer
  * @param[out] ret_buf A Pointer to the Ecore_Buffer
  *
@@ -186,11 +353,11 @@ EAPI void                      ecore_buffer_provider_free(Ecore_Buffer_Provider 
  *
  * This function gives you drawable buffer and inform you the state of Queue.
  * Each return value of enumeration has meaning as below.
- * @ECORE_BUFFER_RETURN_ERROR means error occured.
- * @ECORE_BUFFER_RETURN_SUCCESS means success to dequeue, therefore ret_buf is valid.
- * @ECORE_BUFFER_RETURN_EMPTY means queue is empty, not available slot in Queue.
+ * @li ECORE_BUFFER_RETURN_ERROR, means error occured.
+ * @li ECORE_BUFFER_RETURN_SUCCESS, means success to dequeue, therefore ret_buf is valid.
+ * @li ECORE_BUFFER_RETURN_EMPTY, means queue is empty, not available slot in Queue.
  *  in other words, there is no free drawable buffer in Queue.
- * @ECORE_BUFFER_RETURN_NEED_ALLOC means that there is available slot, but not allocated.
+ * @lib @c ECORE_BUFFER_RETURN_NEED_ALLOC, means that there is available slot, but not allocated.
  *  so, You may create new Ecore_Buffer, and then just submit the Ecore_Buffer.
  *
  * @see ecore_buffer_new(), ecore_buffer_provider_buffer_enqueue()
@@ -198,6 +365,8 @@ EAPI void                      ecore_buffer_provider_free(Ecore_Buffer_Provider 
 EAPI Ecore_Buffer_Return       ecore_buffer_provider_buffer_acquire(Ecore_Buffer_Provider *provider, Ecore_Buffer **ret_buf);
 /**
  * @brief Submit the Ecore_Buffer to Consumer to request compositing.
+ *
+ * @since_tizen 2.4
  *
  * @param[in] provider The Ecore_Buffer_Provider connected with consumer.
  * @param[in] buffer The Ecore_Buffer to submit
@@ -214,12 +383,14 @@ EAPI Eina_Bool                 ecore_buffer_provider_buffer_enqueue(Ecore_Buffer
 /**
  * @brief Check if state of queue.
  *
+ * @since_tizen 2.4
+ *
  * @param[in] provider The Ecore_Buffer_Provider to query
  *
- * @ECORE_BUFFER_RETURN_NOT_EMPTY: means there is a dequeueable Ecore_Buffer at least one.
- * @ECORE_BUFFER_RETURN_EMPTY means queue is empty, not available slot in Queue.
+ * @li ECORE_BUFFER_RETURN_NOT_EMPTY, means there is a dequeueable Ecore_Buffer at least one.
+ * @li ECORE_BUFFER_RETURN_EMPTY, means queue is empty, not available slot in Queue.
  *  in other words, there is no free drawable buffer in Queue.
- * @ECORE_BUFFER_RETURN_NEED_ALLOC means that there is available slot, but not allocated.
+ * @li ECORE_BUFFER_RETURN_NEED_ALLOC, means that there is available slot, but not allocated.
  *  so, You may create new Ecore_Buffer, and then just submit the Ecore_Buffer.
  *
  * @return @c EINA_TRUE means queue is empty, @c EINA_FALSE otherwise.
@@ -227,7 +398,10 @@ EAPI Eina_Bool                 ecore_buffer_provider_buffer_enqueue(Ecore_Buffer
 EAPI Ecore_Buffer_Return       ecore_buffer_provider_buffer_acquirable_check(Ecore_Buffer_Provider *provider);
 /**
  * @brief Set a callback for consumer connection events.
- * @param[in] consumer The Ecore_Buffer_Provider to set callbacks on
+ *
+ * @since_tizen 2.4
+ *
+ * @param[in] provider The Ecore_Buffer_Provider to set callbacks on
  * @param[in] func The function to call
  * @param[in] data A pointer to the user data to store.
  *
@@ -237,7 +411,10 @@ EAPI Ecore_Buffer_Return       ecore_buffer_provider_buffer_acquirable_check(Eco
 EAPI void                      ecore_buffer_provider_consumer_add_cb_set(Ecore_Buffer_Provider *provider, Ecore_Buffer_Provider_Consumer_Add_Cb func, void *data);
 /**
  * @brief Set a callback for consumer disconnection events.
- * @param[in] consumer The Ecore_Buffer_Provider to set callbacks on
+ *
+ * @since_tizen 2.4
+ *
+ * @param[in] provider The Ecore_Buffer_Provider to set callbacks on
  * @param[in] func The function to call
  * @param[in] data A pointer to the user data to store.
  *
@@ -247,7 +424,10 @@ EAPI void                      ecore_buffer_provider_consumer_add_cb_set(Ecore_B
 EAPI void                      ecore_buffer_provider_consumer_del_cb_set(Ecore_Buffer_Provider *provider, Ecore_Buffer_Provider_Consumer_Del_Cb func, void *data);
 /**
  * @brief Set a callback for released buffer events.
- * @param[in] consumer The Ecore_Buffer_Provider to set callbacks on
+ *
+ * @since_tizen 2.4
+ *
+ * @param[in] provider The Ecore_Buffer_Provider to set callbacks on
  * @param[in] func The function to call
  * @param[in] data A pointer to the user data to store.
  *
@@ -257,6 +437,10 @@ EAPI void                      ecore_buffer_provider_consumer_del_cb_set(Ecore_B
  * You may success dequeue the Ecore_Buffer after this callback called.
  */
 EAPI void                      ecore_buffer_provider_buffer_released_cb_set(Ecore_Buffer_Provider *provider, Ecore_Buffer_Provider_Enqueue_Cb func, void *data);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

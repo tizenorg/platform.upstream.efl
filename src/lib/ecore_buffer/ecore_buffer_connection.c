@@ -114,12 +114,24 @@ ecore_buffer_queue_shutdown(void)
      }
 
    DBG("Ecore_Buffer_Connection Shutdown");
-   ecore_main_fd_handler_del(_ecore_buffer_connection->fd_hdl);
-   ecore_idle_enterer_del(_ecore_buffer_connection->idle_enterer);
-   es_buffer_queue_manager_destroy(_ecore_buffer_connection->bq_mgr);
-   wl_display_disconnect(_ecore_buffer_connection->display);
-   eina_log_domain_unregister(_ecore_buffer_queue_log_dom);
-   _ecore_buffer_queue_log_dom = -1;
+
+   if (!_ecore_buffer_connection)
+     return _ecore_buffer_queue_init_count;
+
+   if (_ecore_buffer_connection->fd_hdl)
+     ecore_main_fd_handler_del(_ecore_buffer_connection->fd_hdl);
+   if (_ecore_buffer_connection->idle_enterer)
+     ecore_idle_enterer_del(_ecore_buffer_connection->idle_enterer);
+   if (_ecore_buffer_connection->bq_mgr)
+     es_buffer_queue_manager_destroy(_ecore_buffer_connection->bq_mgr);
+   if (_ecore_buffer_connection->display)
+     wl_display_disconnect(_ecore_buffer_connection->display);
+   if (_ecore_buffer_queue_log_dom > 0)
+     {
+        eina_log_domain_unregister(_ecore_buffer_queue_log_dom);
+        _ecore_buffer_queue_log_dom = -1;
+     }
+
    free(_ecore_buffer_connection);
    _ecore_buffer_connection = NULL;
 }

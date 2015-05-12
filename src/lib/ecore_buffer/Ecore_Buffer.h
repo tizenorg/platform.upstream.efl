@@ -27,6 +27,20 @@
 # endif
 #endif /* ! _WIN32 */
 
+/**
+ * @defgroup Ecore_Buffer_Group Ecore_Buffer - Graphics buffer functions
+ * @ingroup Ecore
+ *
+ * The Ecore Buffer is an abstraction of graphic buffer. This library allows to
+ * programmer using graphic buffer without having to worry about buffer's back-
+ * ends.
+ *
+ * This library also provides simple mechanisms for sharing graphic buffer bet-
+ * ween processes using reliable sockets. Ecore Buffer Queue is for this
+ * function, and it consists of two main object,
+ * The Ecore_Buffer_Consumer and the Ecore_Buffer_Provider.
+ */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -346,15 +360,70 @@ extern "C" {
  */
 #define ECORE_BUFFER_FORMAT_YVU444   __ecore_buffer_fourcc_code('Y', 'V', '2', '4')
 
+/**
+ * @defgroup Ecore_Buffer_Lib_Group Ecore Buffer Library Functions
+ * @ingroup Ecore_Buffer_Group
+ *
+ * Utility functions that set up and shut down the Ecore Buffer library.
+ * This group of functions is applied to an Ecore_Buffer object.
+ *
+ * @{
+ */
+
+/**
+ * @typedef Ecore_Buffer
+ * An object representing a graphic buffer.
+ * @since_tizen 2.4
+ */
 typedef struct _Ecore_Buffer Ecore_Buffer;
+/**
+ * @typedef Ecore_Buffer_Backend
+ * The interfaces for backend of buffer.
+ * @since_tizen 2.4
+ */
 typedef struct _Ecore_Buffer_Backend Ecore_Buffer_Backend;
+/**
+ * @typedef Ecore_Export_Type
+ * Types for export buffer.
+ * @since_tizen 2.4
+ */
 typedef enum _Ecore_Export_Type Ecore_Export_Type;
+/**
+ * @typedef Ecore_Buffer_Format
+ * The format of Ecore_Buffer.
+ * @since_tizen 2.4
+ */
 typedef unsigned int Ecore_Buffer_Format;
+/**
+ * @typedef Ecore_Buffer_Pixmap
+ * An Id of Pixmap.
+ * @since_tizen 2.4
+ */
 typedef unsigned long Ecore_Pixmap;
+/**
+ * @typedef Ecore_Buffer_Module_Data
+ * The data of module.
+ * @since_tizen 2.4
+ */
 typedef void* Ecore_Buffer_Module_Data;
+/**
+ * @typedef Ecore_Buffer_Data
+ * The data of Ecore_Buffer.
+ * @since_tizen 2.4
+ */
 typedef void* Ecore_Buffer_Data;
+/**
+ * @typedef Ecore_Buffer_Cb
+ * Called whenever Ecore_Buffer is freed.
+ * @since_tizen 2.4
+ */
 typedef void (*Ecore_Buffer_Cb)(Ecore_Buffer* buf, void* data);
 
+/**
+ * @enum _Ecore_Export_Type
+ * Types for export buffer.
+ * @since_tizen 2.4
+ */
 enum _Ecore_Export_Type
 {
    EXPORT_TYPE_INVALID,
@@ -362,39 +431,47 @@ enum _Ecore_Export_Type
    EXPORT_TYPE_FD
 };
 
+/**
+ * @struct _Ecore_Buffer_Backend
+ * @brief Structure used when initializing Ecore Buffer Backend. This structure
+ * is mainly used by modules implementing the Ecore Buffer Backend interface.
+ * @since_tizen 2.4
+ */
 struct _Ecore_Buffer_Backend
 {
-   const char *name;
+   const char *name; /**< The name of backend */
 
-   Ecore_Buffer_Module_Data    (*init)(const char *context, const char *options);
-   void                        (*shutdown)(Ecore_Buffer_Module_Data bmPriv);
+   Ecore_Buffer_Module_Data    (*init)(const char *context, const char *options); /**< Initialize the backend */
+   void                        (*shutdown)(Ecore_Buffer_Module_Data bmPriv); /**< Shut down the backend */
    Ecore_Buffer_Data           (*buffer_alloc)(Ecore_Buffer_Module_Data bmPriv,
                                                int width, int height,
                                                Ecore_Buffer_Format format,
-                                               unsigned int flags);
+                                               unsigned int flags); /**< Newly allocate memory for buffer */
    Ecore_Buffer_Data           (*buffer_alloc_with_tbm_surface)(Ecore_Buffer_Module_Data bmPriv,
                                                                 void *tbm_surface,
                                                                 int *ret_w, int *ret_h,
                                                                 Ecore_Buffer_Format *ret_format,
-                                                                unsigned int flags);
+                                                                unsigned int flags); /**< Create Ecore_Buffer from existed tbm_surface handle. */
    void                        (*buffer_free)(Ecore_Buffer_Module_Data bmPriv,
-                                              Ecore_Buffer_Data priv);
+                                              Ecore_Buffer_Data priv); /**< Free allocated memory */
    Ecore_Export_Type           (*buffer_export)(Ecore_Buffer_Module_Data bmPriv,
-                                                Ecore_Buffer_Data priv, int *id);
+                                                Ecore_Buffer_Data priv, int *id); /**< Get the id or fd of Ecore_Buffer for exporting it */
    Ecore_Buffer_Data           (*buffer_import)(Ecore_Buffer_Module_Data bmPriv,
                                                 int w, int h,
                                                 Ecore_Buffer_Format format,
                                                 Ecore_Export_Type type,
                                                 int export_id,
-                                                unsigned int flags);
+                                                unsigned int flags); /**< Import and create Ecore_Buffer from id or fd */
    Ecore_Pixmap                (*pixmap_get)(Ecore_Buffer_Module_Data bmPriv,
-                                             Ecore_Buffer_Data priv);
+                                             Ecore_Buffer_Data priv); /**< Get the pixmap handle */
    void                       *(*tbm_surface_get)(Ecore_Buffer_Module_Data bmPriv,
-                                                  Ecore_Buffer_Data priv);
+                                                  Ecore_Buffer_Data priv); /**< Get the tbm_surface_h handle */
 };
 
 /**
- * @brief Init the Ecore_Buffer system.
+ * @brief Initialize the Ecore_Buffer system.
+ *
+ * @since_tizen 2.4
  *
  * @return @c EINA_TRUE on success, @c EINA_FALSE otherwise.
  *
@@ -404,6 +481,8 @@ EAPI Eina_Bool     ecore_buffer_init(void);
 /**
  * @brief Shut down the Ecore_Buffer system.
  *
+ * @since_tizen 2.4
+ *
  * @return @c EINA_TRUE on success, @c EINA_FALSE otherwise.
  *
  * @see ecore_buffer_init()
@@ -411,6 +490,8 @@ EAPI Eina_Bool     ecore_buffer_init(void);
 EAPI Eina_Bool     ecore_buffer_shutdown(void);
 /**
  * @brief Registers the given buffer backend.
+ *
+ * @since_tizen 2.4
  *
  * @param[in] be The backend
  *
@@ -420,17 +501,21 @@ EAPI Eina_Bool     ecore_buffer_register(Ecore_Buffer_Backend *be);
 /**
  * @brief Unregisters the given buffer backend.
  *
+ * @since_tizen 2.4
+ *
  * @param[in] be The backend
  */
 EAPI void          ecore_buffer_unregister(Ecore_Buffer_Backend *be);
 /**
  * @brief Creates a new Ecore_Buffer given type
  *
- * @param[in] engine
- * @param[in] width
- * @param[in] height
- * @param[in] format
- * @param[in] flags
+ * @since_tizen 2.4
+ *
+ * @param[in] engine the name of backend
+ * @param[in] width width for Ecore_Buffer
+ * @param[in] height height for Ecore_Buffer
+ * @param[in] format format for Ecore_Buffer
+ * @param[in] flags flags for Ecore_Buffer
  *
  * @return Newly allocated Ecore_Buffer instance, NULL otherwise.
  */
@@ -438,9 +523,11 @@ EAPI Ecore_Buffer *ecore_buffer_new(const char* engine, unsigned int width, unsi
 /**
  * @brief Creates a new Ecore_Buffer based on given tbm surface.
  *
- * @param[in] engine
- * @param[in] tbm_surface
- * @param[in] flags
+ * @since_tizen 2.4
+ *
+ * @param[in] engine the name of backend
+ * @param[in] tbm_surface the handle of tbm_surface_h
+ * @param[in] flags the flags for Ecore_Buffer
  *
  * @return Newly allocated Ecore_Buffer instance based on tbm surface, NULL otherwise.
  */
@@ -448,11 +535,15 @@ EAPI Ecore_Buffer *ecore_buffer_new_with_tbm_surface(const char *engine, void *t
 /**
  * @brief Free the given Ecore_Buffer.
  *
+ * @since_tizen 2.4
+ *
  * @param[in] buf The Ecore_Buffer to free
  */
 EAPI void          ecore_buffer_free(Ecore_Buffer* buf);
 /**
  * @brief Set a callback for Ecore_Buffer free events.
+ *
+ * @since_tizen 2.4
  *
  * @param[in] buf The Ecore_Buffer to set callbacks on
  * @param[in] func The function to call
@@ -467,6 +558,8 @@ EAPI void          ecore_buffer_free_callback_add(Ecore_Buffer* buf, Ecore_Buffe
 /**
  * @brief Remove a callback for Ecore_Buffer free events.
  *
+ * @since_tizen 2.4
+ *
  * @param[in] buf The Ecore_Buffer to remove callbacks on
  * @param[in] func The function to remove
  * @param[in] data A pointer to the user data to remove
@@ -477,6 +570,8 @@ EAPI void          ecore_buffer_free_callback_remove(Ecore_Buffer* buf, Ecore_Bu
 /**
  * @brief Return the Pixmap of given Ecore_Buffer.
  *
+ * @since_tizen 2.4
+ *
  * @param[in] buf The Ecore_Buffer
  *
  * @return The Pixmap instance, 0 otherwise.
@@ -484,6 +579,8 @@ EAPI void          ecore_buffer_free_callback_remove(Ecore_Buffer* buf, Ecore_Bu
 EAPI Ecore_Pixmap  ecore_buffer_pixmap_get(Ecore_Buffer *buf);
 /**
  * @brief Return the tbm surface handle of given Ecore_Buffer.
+ *
+ * @since_tizen 2.4
  *
  * @param[in] buf The Ecore_Buffer
  *
@@ -496,6 +593,8 @@ EAPI void         *ecore_buffer_tbm_surface_get(Ecore_Buffer *buf);
 /**
  * @brief Return size of given Ecore_Buffer.
  *
+ * @since_tizen 2.4
+ *
  * @param[in] buf The Ecore_Buffer
  * @param[out] width where to return the width value. May be @c NULL.
  * @param[out] height  where to return the height value. May be @c NULL.
@@ -505,6 +604,8 @@ EAPI void         *ecore_buffer_tbm_surface_get(Ecore_Buffer *buf);
 EAPI Eina_Bool     ecore_buffer_size_get(Ecore_Buffer *buf, unsigned int *width, unsigned int *height);
 /**
  * @brief Return format of given Ecore_Buffer.
+ *
+ * @since_tizen 2.4
  *
  * @param[in] buf The Ecore_Buffer
  *
@@ -516,6 +617,8 @@ EAPI Ecore_Buffer_Format ecore_buffer_format_get(Ecore_Buffer *buf);
 /**
  * @brief Return flags of given Ecore_Buffer.
  *
+ * @since_tizen 2.4
+ *
  * @param[in] buf The Ecore_Buffer
  *
  * @return The flags of given Ecore_Buffer.
@@ -523,6 +626,10 @@ EAPI Ecore_Buffer_Format ecore_buffer_format_get(Ecore_Buffer *buf);
  * NOTE: Not Defined yet.
  */
 EAPI unsigned int  ecore_buffer_flags_get(Ecore_Buffer *buf);
+
+/**
+ * @}
+ */
 
 #ifdef __cplusplus
 }

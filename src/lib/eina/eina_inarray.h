@@ -342,6 +342,8 @@ EAPI int eina_inarray_push(Eina_Inarray *array,
 /**
  * @brief Allocate new item at the end of the array.
  *
+ * @since_tizen 2.4
+ *
  * @param[in] array The array object
  * @param[in] size  The number of new item to allocate
  *

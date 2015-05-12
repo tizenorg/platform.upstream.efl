@@ -1,7 +1,5 @@
 #include "ecore_buffer_connection.h"
 
-#define DEBUG  1
-
 struct _Ecore_Buffer_Connection
 {
    struct wl_display *display;
@@ -64,11 +62,6 @@ ecore_buffer_queue_init(void)
         EINA_LOG_ERR("Could not register log domain: ecore_buffer_queue");
         return 0;
      }
-
-#ifdef DEBUG
-   eina_log_abort_on_critical_level_set(EINA_LOG_LEVEL_ERR);
-   eina_log_abort_on_critical_set(EINA_TRUE);
-#endif
 
    DBG("Ecore_Buffer_Connection Init - name %s", name);
 

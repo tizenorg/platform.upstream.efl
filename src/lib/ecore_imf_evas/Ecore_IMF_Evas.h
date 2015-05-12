@@ -31,7 +31,6 @@
 #endif /* ! _WIN32 */
 
 /**
- * @internal
  * @defgroup Ecore_IMF_Evas_Group Ecore Input Method Context Evas Helper Functions
  * @ingroup Ecore_IMF_Lib_Group
  *
@@ -49,6 +48,8 @@ extern "C" {
 /**
  * Converts a "mouse_in" event from Evas to the corresponding event of Ecore_IMF.
  *
+ * @since_tizen 2.4
+ *
  * @param evas_event The received Evas event.
  * @param imf_event The location to store the converted Ecore_IMF event.
  * @ingroup Ecore_IMF_Evas_Group
@@ -57,6 +58,8 @@ EAPI void ecore_imf_evas_event_mouse_in_wrap(Evas_Event_Mouse_In *evas_event, Ec
 
 /**
  * Converts a "mouse_out" event from Evas to the corresponding event of Ecore_IMF.
+ *
+ * @since_tizen 2.4
  *
  * @param evas_event The received Evas event.
  * @param imf_event The location to store the converted Ecore_IMF event.
@@ -67,6 +70,8 @@ EAPI void ecore_imf_evas_event_mouse_out_wrap(Evas_Event_Mouse_Out *evas_event, 
 /**
  * Converts a "mouse_move" event from Evas to the corresponding event of Ecore_IMF.
  *
+ * @since_tizen 2.4
+ *
  * @param evas_event The received Evas event.
  * @param imf_event The location to store the converted Ecore_IMF event.
  * @ingroup Ecore_IMF_Evas_Group
@@ -75,6 +80,8 @@ EAPI void ecore_imf_evas_event_mouse_move_wrap(Evas_Event_Mouse_Move *evas_event
 
 /**
  * Converts a "mouse_down" event from Evas to the corresponding event of Ecore_IMF.
+ *
+ * @since_tizen 2.4
  *
  * @param evas_event The received Evas event.
  * @param imf_event The location to store the converted Ecore_IMF event.
@@ -85,6 +92,8 @@ EAPI void ecore_imf_evas_event_mouse_down_wrap(Evas_Event_Mouse_Down *evas_event
 /**
  * Converts a "mouse_up" event from Evas to the corresponding event of Ecore_IMF.
  *
+ * @since_tizen 2.4
+ *
  * @param evas_event The received Evas event.
  * @param imf_event The location to store the converted Ecore_IMF event.
  * @ingroup Ecore_IMF_Evas_Group
@@ -94,6 +103,8 @@ EAPI void ecore_imf_evas_event_mouse_up_wrap(Evas_Event_Mouse_Up *evas_event, Ec
 /**
  * Converts a "mouse_wheel" event from Evas to the corresponding event of Ecore_IMF.
  *
+ * @since_tizen 2.4
+ *
  * @param evas_event The received Evas event.
  * @param imf_event The location to store the converted Ecore_IMF event.
  * @ingroup Ecore_IMF_Evas_Group
@@ -102,6 +113,8 @@ EAPI void ecore_imf_evas_event_mouse_wheel_wrap(Evas_Event_Mouse_Wheel *evas_eve
 
 /**
  * Converts a "key_down" event from Evas to the corresponding event of Ecore_IMF.
+ *
+ * @since_tizen 2.4
  *
  * @param evas_event The received Evas event.
  * @param imf_event The location to store the converted Ecore_IMF event.
@@ -133,6 +146,8 @@ EAPI void ecore_imf_evas_event_key_down_wrap(Evas_Event_Key_Down *evas_event, Ec
 
 /**
  * Converts a "key_up" event from Evas to the corresponding event of Ecore_IMF.
+ *
+ * @since_tizen 2.4
  *
  * @param evas_event The received Evas event.
  * @param imf_event The location to store the converted Ecore_IMF event.

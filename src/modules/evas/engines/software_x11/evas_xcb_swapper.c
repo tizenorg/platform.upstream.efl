@@ -75,6 +75,7 @@ evas_xcb_swapper_free(X_DRI3_Swapper *swp)
    dri3_destroy_drawable(swp->dri3_draw);
    free(swp);
    inits--;
+   if (inits == 0) dri3_deinit_dri3();
 }
 
 void *

@@ -296,7 +296,7 @@ _lib_init()
 
 
 void
-dri3_fence_reset (dri3_buffer *buffer)
+dri3_fence_reset(dri3_buffer *buffer)
 {
    if (!buffer) return;
    if (!buffer->shm_fence) return;
@@ -305,7 +305,7 @@ dri3_fence_reset (dri3_buffer *buffer)
 }
 
 void
-dri3_fence_set (dri3_buffer *buffer)
+dri3_fence_set(dri3_buffer *buffer)
 {
    if (!buffer) return;
    if (!buffer->shm_fence) return;
@@ -314,7 +314,7 @@ dri3_fence_set (dri3_buffer *buffer)
 }
 
 void
-dri3_fence_trigger (dri3_buffer *buffer)
+dri3_fence_trigger(dri3_buffer *buffer)
 {
    if (!buffer) return;
    if (!buffer->shm_fence) return;
@@ -324,7 +324,7 @@ dri3_fence_trigger (dri3_buffer *buffer)
 }
 
 void
-dri3_fence_await (dri3_buffer *buffer)
+dri3_fence_await(dri3_buffer *buffer)
 {
    if (!buffer) return;
    if (!buffer->shm_fence) return;
@@ -334,7 +334,7 @@ dri3_fence_await (dri3_buffer *buffer)
 }
 
 int
-dri3_fence_triggered (dri3_buffer *buffer)
+dri3_fence_triggered(dri3_buffer *buffer)
 {
    if (!buffer) return 0;
    if (!buffer->shm_fence) return 0;
@@ -344,7 +344,7 @@ dri3_fence_triggered (dri3_buffer *buffer)
 
 
 void
-dri3_wait_fence_set (dri3_buffer *buffer)
+dri3_wait_fence_set(dri3_buffer *buffer)
 {
    if (!buffer) return;
    if (!buffer->shm_fence) return;
@@ -353,7 +353,7 @@ dri3_wait_fence_set (dri3_buffer *buffer)
 }
 
 void
-dri3_wait_fence_reset (dri3_buffer *buffer)
+dri3_wait_fence_reset(dri3_buffer *buffer)
 {
    if (!buffer) return;
    if (!buffer->shm_fence) return;
@@ -362,7 +362,7 @@ dri3_wait_fence_reset (dri3_buffer *buffer)
 }
 
 void
-dri3_wait_fence_trigger (dri3_buffer *buffer)
+dri3_wait_fence_trigger(dri3_buffer *buffer)
 {
    if (!buffer) return;
    if (!buffer->shm_fence) return;
@@ -372,7 +372,7 @@ dri3_wait_fence_trigger (dri3_buffer *buffer)
 }
 
 int
-dri3_wait_fence_triggered (dri3_buffer *buffer)
+dri3_wait_fence_triggered(dri3_buffer *buffer)
 {
    if (!buffer) return 0;
    if (!buffer->shm_fence) return 0;
@@ -381,7 +381,7 @@ dri3_wait_fence_triggered (dri3_buffer *buffer)
 }
 
 void
-dri3_wait_fence_await (dri3_buffer *buffer)
+dri3_wait_fence_await(dri3_buffer *buffer)
 {
    if (!buffer) return;
    if (!buffer->shm_fence) return;
@@ -410,8 +410,8 @@ void dri3_destroy_pixmap(xcb_pixmap_t pixmap)
    xcb_generic_error_t *error = NULL;
 
 
-   cookie = xcb_free_pixmap_checked (info.conn, pixmap);
-   error = xcb_request_check (info.conn, cookie);
+   cookie = xcb_free_pixmap_checked(info.conn, pixmap);
+   error = xcb_request_check(info.conn, cookie);
    if (error)
       ERR("xcb_free_pixmap_checked() has failed.");
 }
@@ -430,7 +430,7 @@ void dri3_destroy_buffer(dri3_buffer *buffer)
 
 
 void
-dri3_destroy_drawable (dri3_drawable *drawable)
+dri3_destroy_drawable(dri3_drawable *drawable)
 {
    if (!drawable) return;
 
@@ -449,18 +449,18 @@ dri3_destroy_drawable (dri3_drawable *drawable)
 
 
 dri3_drawable *
-dri3_create_drawable (XID window, int w, int h, int depth)
+dri3_create_drawable(XID window, int w EINA_UNUSED, int h EINA_UNUSED, int depth)
 {
    dri3_drawable *drawable = NULL;
 
-   drawable = calloc (1, sizeof(dri3_drawable));
+   drawable = calloc(1, sizeof(dri3_drawable));
    if (!drawable) return NULL;
 
    drawable->window = window;
    drawable->depth = depth;
    drawable->swap_interval = 0; /* default interval is 1 */
 
-   _dri3_update_num_back (drawable);
+   _dri3_update_num_back(drawable);
 
    return drawable;
 }
@@ -518,9 +518,9 @@ _dri3_handle_present_event(dri3_drawable *drawable, xcb_present_generic_event_t 
       case XCB_PRESENT_EVENT_IDLE_NOTIFY:
          {
             xcb_present_idle_notify_event_t *ie = (void *) ge;
-            int b;
+            unsigned int b;
 
-            for (b = 0; b < sizeof (drawable->buffers) / sizeof (drawable->buffers[0]); b++)
+            for (b = 0; b < sizeof(drawable->buffers) / sizeof(drawable->buffers[0]); b++)
                {
                   dri3_buffer *buffer = drawable->buffers[b];
 
@@ -529,7 +529,7 @@ _dri3_handle_present_event(dri3_drawable *drawable, xcb_present_generic_event_t 
                         buffer->busy = 0;
                         if (drawable->num_back <= b && b < DRI3_MAX_BACK)
                            {
-                              dri3_destroy_buffer (buffer);
+                              dri3_destroy_buffer(buffer);
                               drawable->buffers[b] = NULL;
                            }
                         break;
@@ -549,7 +549,7 @@ _dri3_handle_present_event(dri3_drawable *drawable, xcb_present_generic_event_t 
 
 
 static int
-_dri3_wait_for_event (dri3_drawable *drawable)
+_dri3_wait_for_event(dri3_drawable *drawable)
 {
    xcb_generic_event_t *ev;
    xcb_present_generic_event_t *ge;
@@ -571,7 +571,8 @@ _dri3_wait_for_event (dri3_drawable *drawable)
  * reached.
  */
 int
-dri3_wait_for_msc (dri3_drawable *drawable, int64_t target_msc, int64_t divisor, int64_t remainder, int64_t *ust, int64_t *msc, int64_t *sbc)
+dri3_wait_for_msc(dri3_drawable *drawable, int64_t target_msc, int64_t divisor,
+                  int64_t remainder, int64_t *ust, int64_t *msc, int64_t *sbc)
 {
    if (!drawable) return 0;
 
@@ -579,14 +580,14 @@ dri3_wait_for_msc (dri3_drawable *drawable, int64_t target_msc, int64_t divisor,
 
    /* Ask for the an event for the target MSC */
    msc_serial = ++drawable->send_msc_serial;
-   sym_xcb_present_notify_msc (info.conn,
-                               drawable->window,
-                               msc_serial,
-                               target_msc,
-                               divisor,
-                               remainder);
+   sym_xcb_present_notify_msc(info.conn,
+                              drawable->window,
+                              msc_serial,
+                              target_msc,
+                              divisor,
+                              remainder);
 
-   xcb_flush (info.conn);
+   xcb_flush(info.conn);
 
    /* Wait for the event */
    if (drawable->special_event)
@@ -607,7 +608,7 @@ dri3_wait_for_msc (dri3_drawable *drawable, int64_t target_msc, int64_t divisor,
 
 
 int
-dri3_drawable_get_msc (dri3_drawable *drawable, int64_t *ust, int64_t *msc, int64_t *sbc)
+dri3_drawable_get_msc(dri3_drawable *drawable, int64_t *ust, int64_t *msc, int64_t *sbc)
 {
    if (!drawable) return 0;
 
@@ -615,7 +616,7 @@ dri3_drawable_get_msc (dri3_drawable *drawable, int64_t *ust, int64_t *msc, int6
 }
 
 int
-dri3_wait_for_sbc (dri3_drawable *drawable, int64_t target_sbc, int64_t *ust, int64_t *msc, int64_t *sbc)
+dri3_wait_for_sbc(dri3_drawable *drawable, int64_t target_sbc, int64_t *ust, int64_t *msc, int64_t *sbc)
 {
    if (!drawable) return 0;
 
@@ -634,7 +635,7 @@ dri3_wait_for_sbc (dri3_drawable *drawable, int64_t target_sbc, int64_t *ust, in
 
 
 static xcb_gcontext_t
-_dri3_drawable_gc (dri3_drawable *drawable)
+_dri3_drawable_gc(dri3_drawable *drawable)
 {
    if (!drawable->gc)
       {
@@ -681,16 +682,11 @@ static
 void *dri3_error_free(dri3_buffer *buffer)
 {
    if (!buffer) return NULL;
-   if (buffer->shm_fence)
-      sym_xshmfence_unmap_shm(buffer->shm_fence);
-   if (buffer->fence_fd >=0)
-      close(buffer->fence_fd);
-   if (buffer->bo)
-      sym_tbm_bo_unref(buffer->bo);
-   if (buffer->fd)
-      close(buffer->fd);
-   if (buffer)
-      free(buffer);
+   if (buffer->shm_fence) sym_xshmfence_unmap_shm(buffer->shm_fence);
+   if (buffer->fence_fd >=0) close(buffer->fence_fd);
+   if (buffer->bo) sym_tbm_bo_unref(buffer->bo);
+   if (buffer->fd) close(buffer->fd);
+   if (buffer) free(buffer);
    return NULL;
 }
 
@@ -753,12 +749,12 @@ dri3_buffer *dri3_alloc_render_buffer(Drawable draw, int w, int h, int depth, in
          xcb_sync_fence_t sync_fence;
          xcb_void_cookie_t fence_cookie;
 
-         sync_fence = xcb_generate_id (info.conn);
-         fence_cookie = sym_xcb_dri3_fence_from_fd_checked (info.conn,
-                                                            pixmap,
-                                                            sync_fence,
-                                                            0,
-                                                            buffer->fence_fd);
+         sync_fence = xcb_generate_id(info.conn);
+         fence_cookie = sym_xcb_dri3_fence_from_fd_checked(info.conn,
+                                                           pixmap,
+                                                           sync_fence,
+                                                           0,
+                                                           buffer->fence_fd);
          error = xcb_request_check(info.conn, fence_cookie);
          if (error)
             {
@@ -780,14 +776,14 @@ dri3_buffer *dri3_alloc_render_buffer(Drawable draw, int w, int h, int depth, in
  * Process any present events that have been received from the X server
  */
 static void
-_dri3_flush_present_events (dri3_drawable *drawable)
+_dri3_flush_present_events(dri3_drawable *drawable)
 {
    /* Check to see if any configuration changes have occurred
     * since we were last invoked
     */
    if (drawable->special_event)
       {
-         xcb_generic_event_t    *ev;
+         xcb_generic_event_t *ev;
 
          while ((ev = xcb_poll_for_special_event(info.conn, drawable->special_event)) != NULL)
             {
@@ -805,7 +801,7 @@ _dri3_flush_present_events (dri3_drawable *drawable)
  * track the geometry of the drawable
  */
 static int
-_dri3_update_drawable (dri3_drawable *drawable)
+_dri3_update_drawable(dri3_drawable *drawable)
 {
    /* First time through, go get the current drawable geometry
     */
@@ -913,7 +909,7 @@ dri3_buffer *dri3_get_pixmap_buffer(Pixmap pixmap)
  * wait for a present idle notify event from the X server
  */
 static int
-_dri3_find_back (dri3_drawable *drawable)
+_dri3_find_back(dri3_drawable *drawable)
 {
    int  b;
    xcb_generic_event_t *ev;
@@ -946,15 +942,15 @@ _dri3_find_back (dri3_drawable *drawable)
 
 
 dri3_buffer *
-dri3_get_backbuffers (dri3_drawable *drawable, uint32_t *stamp)
+dri3_get_backbuffers(dri3_drawable *drawable, uint32_t *stamp)
 {
    dri3_buffer *back_buffer = NULL;
    int buf_id;
 
-   if (!_dri3_update_drawable (drawable))
+   if (!_dri3_update_drawable(drawable))
       return 0;
 
-   buf_id = _dri3_find_back (drawable);
+   buf_id = _dri3_find_back(drawable);
    if (buf_id < 0) return 0;
 
 
@@ -991,8 +987,6 @@ dri3_get_backbuffers (dri3_drawable *drawable, uint32_t *stamp)
    drawable->stamp = stamp;
 
    dri3_fence_await(back_buffer);
-
-   dri3_set_buffer_age(drawable);
 
    return back_buffer;
 }
@@ -1096,6 +1090,15 @@ dri3_get_buffer_age(dri3_drawable *drawable)
       return 0;
 }
 
+void dri3_deinit_dri3()
+{
+   if (info.bufmgr)
+     {
+       sym_tbm_bufmgr_deinit(info.bufmgr);
+       info.bufmgr = NULL;
+     }
+}
+
 int dri3_init_dri3(Display *dpy)
 {
    xcb_dri3_open_cookie_t cookie;
@@ -1139,20 +1142,6 @@ int dri3_init_dri3(Display *dpy)
       }
 
    return 1;
-}
-
-void dri3_deinit_dri3()
-{
-   if(!info.conn) return;
-
-   if (info.bufmgr)
-      {
-         sym_tbm_bufmgr_deinit(info.bufmgr);
-         info.bufmgr = NULL;
-      }
-
-   xcb_disconnect(info.conn);
-   info.conn = NULL;
 }
 
 int dri3_query_dri3()
@@ -1215,7 +1204,7 @@ int dri3_XFixes_query(Display *disp)
 
 
 void
-dri3_get_data (dri3_buffer *buffer, RGBA_Image *im)
+dri3_get_data(dri3_buffer *buffer, RGBA_Image *im)
 {
    if(!buffer || buffer->w < 0 || buffer->h <0 || !buffer->bo) return;
 

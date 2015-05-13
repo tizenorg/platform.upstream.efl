@@ -601,6 +601,7 @@ cp %{SOURCE1001} .
 %if ! %{with x}
 CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
 %endif
+CFLAGS+=" -DBUILD_NEON_INTRINSICS "
 
 %reconfigure \
     --with-glib=always \

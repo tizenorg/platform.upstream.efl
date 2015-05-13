@@ -686,7 +686,7 @@ void *dri3_error_free(dri3_buffer *buffer)
    if (buffer->fence_fd >=0) close(buffer->fence_fd);
    if (buffer->bo) sym_tbm_bo_unref(buffer->bo);
    if (buffer->fd) close(buffer->fd);
-   if (buffer) free(buffer);
+   free(buffer);
    return NULL;
 }
 
@@ -713,9 +713,9 @@ dri3_buffer *dri3_alloc_render_buffer(Drawable draw, int w, int h, int depth, in
    buffer->depth = depth;
    buffer->bpp = bpp;
    buffer->bo = sym_tbm_bo_alloc (info.bufmgr, buffer->size, TBM_BO_DEFAULT);
-   if(!buffer->bo) return dri3_error_free(buffer);
+   if (!buffer->bo) return dri3_error_free(buffer);
    buffer->fd = sym_tbm_bo_export_fd (buffer->bo);
-   if(buffer->fd < 0) return dri3_error_free(buffer);
+   if (buffer->fd < 0) return dri3_error_free(buffer);
 
    xcb_void_cookie_t cookie;
    xcb_generic_error_t *error = NULL;
@@ -737,7 +737,7 @@ dri3_buffer *dri3_alloc_render_buffer(Drawable draw, int w, int h, int depth, in
    if (error)
       {
          ERR("xcb_dri3_pixmap_from_buffer_checked() has failed.");
-         return 0;
+         return dri3_error_free(buffer);
       }
 
    buffer->pixmap = pixmap;
@@ -745,7 +745,6 @@ dri3_buffer *dri3_alloc_render_buffer(Drawable draw, int w, int h, int depth, in
 
    if (!buffer->sync_fence)
       {
-         if (!buffer->shm_fence) return 0;
          xcb_sync_fence_t sync_fence;
          xcb_void_cookie_t fence_cookie;
 
@@ -760,7 +759,7 @@ dri3_buffer *dri3_alloc_render_buffer(Drawable draw, int w, int h, int depth, in
             {
                ERR("xcb_dri3_fence_from_fd_checked() has failed.");
                if (sync_fence > 0) sym_xcb_sync_destroy_fence(info.conn, sync_fence);
-               return 0;
+               return dri3_error_free(buffer);
             }
          buffer->sync_fence = sync_fence;
       }
@@ -872,8 +871,7 @@ dri3_buffer *dri3_get_pixmap_buffer(Pixmap pixmap)
    xcb_dri3_buffer_from_pixmap_cookie_t cookie;
    xcb_dri3_buffer_from_pixmap_reply_t *reply = NULL;
 
-   buffer = calloc(1, sizeof(dri3_buffer));
-   if(!buffer || !info.conn) return NULL;
+   if (!info.conn) return NULL;
 
    cookie = sym_xcb_dri3_buffer_from_pixmap (info.conn,
                                              pixmap);
@@ -885,6 +883,10 @@ dri3_buffer *dri3_get_pixmap_buffer(Pixmap pixmap)
          ERR("xcb_dri3_buffer_from_pixmap_reply() has failed.");
          return NULL;
       }
+
+   buffer = calloc(1, sizeof(dri3_buffer));
+   if (!buffer) return NULL;
+
    buffer->size = reply->size;
    buffer->w = reply->width;
    buffer->h = reply->height;
@@ -894,7 +896,7 @@ dri3_buffer *dri3_get_pixmap_buffer(Pixmap pixmap)
    buffer->fd = sym_xcb_dri3_buffer_from_pixmap_reply_fds (info.conn, reply)[0];
    buffer->bo = sym_tbm_bo_import_fd (info.bufmgr, buffer->fd);
    free(reply);
-   if(!buffer->bo) return NULL;
+   if (!buffer->bo) return dri3_error_free(buffer);
 
    buffer->pixmap = pixmap;
    buffer->own_pixmap = EINA_FALSE;

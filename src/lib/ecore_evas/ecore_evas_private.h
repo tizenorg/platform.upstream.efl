@@ -127,6 +127,7 @@ struct _Ecore_Evas_Engine_Func
    void (*fn_wm_rot_manual_rotation_done) (Ecore_Evas *ee);
 
    void (*fn_aux_hints_set) (Ecore_Evas *ee, const char *hints);
+   void (*fn_aux_hints_supported_update) (Ecore_Evas *ee);
 };
 
 struct _Ecore_Evas_Interface
@@ -217,6 +218,7 @@ struct _Ecore_Evas
          Eina_List      *supported_list;
          Eina_List      *hints;
          int             id;
+         Eina_Bool    supported_changed;
       } aux_hint;
       int             layer;
       Ecore_Window    window;

@@ -19,6 +19,9 @@ _shared_buffer_new(struct es_buffer *proxy, int w, int h, int format, unsigned i
    Shared_Buffer *sb;
 
    sb = ZALLOC(Shared_Buffer, 1);
+   if (!sb)
+     return NULL;
+
    sb->proxy = proxy;
    sb->w = w;
    sb->h = h;

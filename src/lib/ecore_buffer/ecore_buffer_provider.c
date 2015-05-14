@@ -60,9 +60,15 @@ ecore_buffer_provider_new(const char *name)
 
    DBG("Provider New - name %s", name);
    pvdr = ZALLOC(Ecore_Buffer_Provider, 1);
-   pvdr->provider = _ecore_buffer_connection_provider_create(name);
+   if (!pvdr)
+     return NULL;
 
-   EINA_SAFETY_ON_NULL_RETURN_VAL(pvdr->provider, NULL);
+   pvdr->provider = _ecore_buffer_connection_provider_create(name);
+   if (!pvdr->provider)
+     {
+        free(pvdr);
+        return NULL;
+     }
 
    es_provider_add_listener(pvdr->provider, &_ecore_buffer_provider_listener, pvdr);
 
@@ -82,12 +88,11 @@ ecore_buffer_provider_free(Ecore_Buffer_Provider *pvdr)
    DBG("Provider Free");
    if (pvdr->ebq)
      {
-        _ecore_buffer_queue_free(pvdr->ebq);
-
         shared_buffers = _ecore_buffer_queue_shared_buffer_list_get(pvdr->ebq);
         EINA_LIST_FREE(shared_buffers, sb)
            _ecore_buffer_provider_shared_buffer_free(pvdr, sb);
 
+        _ecore_buffer_queue_free(pvdr->ebq);
         pvdr->ebq = NULL;
      }
 

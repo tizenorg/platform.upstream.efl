@@ -236,6 +236,9 @@ ecore_buffer_new(const char* engine, unsigned int width, unsigned int height, Ec
      return NULL;
 
    bo = calloc(1, sizeof(Ecore_Buffer));
+   if (!bo)
+     return NULL;
+
    bo->bm = bm;
    bo->width = width;
    bo->height = height;
@@ -378,6 +381,9 @@ ecore_buffer_free_callback_add(Ecore_Buffer* buf, Ecore_Buffer_Cb func, void* da
    Ecore_Buffer_Cb_Data* free_cb;
 
    free_cb = calloc(1, sizeof(Ecore_Buffer_Cb_Data));
+   if (!free_cb)
+     return;
+
    free_cb->cb = func;
    free_cb->data = data;
    buf->free_callbacks = eina_inlist_append(buf->free_callbacks, EINA_INLIST_GET(free_cb));
@@ -456,6 +462,9 @@ _ecore_buffer_import(const char* engine, int width, int height,
      return NULL;
 
    bo = calloc(1, sizeof(Ecore_Buffer));
+   if (!bo)
+     return NULL;
+
    bo->bm = bm;
    bo->width = width;
    bo->height = height;

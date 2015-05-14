@@ -30,6 +30,9 @@ _ecore_buffer_queue_new(int w, int h, int queue_size)
    Ecore_Buffer_Queue *ebq;
 
    ebq = ZALLOC(Ecore_Buffer_Queue, 1);
+   if (!ebq)
+     return NULL;
+
    ebq->w = w;
    ebq->h = h;
    ebq->queue = _queue_new(queue_size);
@@ -133,6 +136,9 @@ _queue_new(int capacity)
    EINA_SAFETY_ON_FALSE_RETURN_VAL((capacity > 0), NULL);
 
    queue = (Queue *)calloc(sizeof(Queue), 1);
+   if (!queue)
+     return NULL;
+
    queue->capacity = capacity;
 
    return queue;
@@ -143,8 +149,10 @@ _queue_free(Queue *queue)
 {
    EINA_SAFETY_ON_NULL_RETURN(queue);
 
-   if (queue->data_list) eina_list_free(queue->data_list);
-   if (queue) free(queue);
+   if (queue->data_list)
+     eina_list_free(queue->data_list);
+
+   free(queue);
 }
 
 int

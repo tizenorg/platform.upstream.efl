@@ -79,10 +79,23 @@ ecore_buffer_consumer_new(const char *name, int32_t queue_size, int32_t w, int32
 
    DBG("Consumer New - name %s, queue size %d, size (%dx%d)", name, queue_size, w, h);
    csmr = ZALLOC(Ecore_Buffer_Consumer, 1);
-   csmr->ebq = _ecore_buffer_queue_new(w, h, queue_size);
-   csmr->consumer = _ecore_buffer_connection_consumer_create(name, queue_size, w, h);
+   if (!csmr)
+     return NULL;
 
-   EINA_SAFETY_ON_NULL_RETURN_VAL(csmr->consumer, NULL);
+   csmr->ebq = _ecore_buffer_queue_new(w, h, queue_size);
+   if (!csmr->ebq)
+     {
+        free(csmr);
+        return NULL;
+     }
+
+   csmr->consumer = _ecore_buffer_connection_consumer_create(name, queue_size, w, h);
+   if (!csmr->consumer)
+     {
+        _ecore_buffer_queue_free(csmr->ebq);
+        free(csmr);
+        return NULL;
+     }
 
    es_consumer_add_listener(csmr->consumer, &_ecore_buffer_consumer_listener, csmr);
 
@@ -96,12 +109,9 @@ ecore_buffer_consumer_free(Ecore_Buffer_Consumer *csmr)
 
    DBG("Consumer Free");
 
-   if (csmr->ebq)
-     {
-        _ecore_buffer_queue_free(csmr->ebq);
-        csmr->ebq = NULL;
-     }
-   es_consumer_destroy(csmr->consumer);
+   if (csmr->ebq) _ecore_buffer_queue_free(csmr->ebq);
+   if (csmr->consumer) es_consumer_destroy(csmr->consumer);
+
    free(csmr);
 }
 
@@ -246,6 +256,7 @@ _ecore_buffer_consumer_cb_provider_disconnected(void *data,
 
    // maybe, we should free buffer queue before callback call.
    _ecore_buffer_queue_free(csmr->ebq);
+   csmr->ebq = NULL;
 
    CALLBACK_CALL(csmr, provider_del);
 }

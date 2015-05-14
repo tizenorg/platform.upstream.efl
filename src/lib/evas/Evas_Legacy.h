@@ -2199,9 +2199,9 @@ EAPI void evas_vg_shape_shape_append_scubic_to(Eo *obj, double x, double y, doub
  * x-direction (rx) and radius in y direction (ry) .
  *
  * @note Use this api if you know the end point's of the arc otherwise
- * use more convenient function efl_gfx_path_append_arc_to()
+ * use more convenient function efl_gfx_path_append_arc()
  *
- * @see efl_gfx_path_append_arc_to()
+ * @see efl_gfx_path_append_arc()
  * @since 1.14
  *
  *
@@ -2215,6 +2215,23 @@ EAPI void evas_vg_shape_shape_append_scubic_to(Eo *obj, double x, double y, doub
  *
  */
 EAPI void evas_vg_shape_shape_append_arc_to(Eo *obj, double x, double y, double rx, double ry, double angle, Eina_Bool large_arc, Eina_Bool sweep);
+
+/**
+ *
+ * Append an arc that enclosed in the given rectangle (x, y, w, h).
+ * The angle is defined in counter clock wise , use -ve angle for clockwise arc.
+ *
+ * @since 1.15
+ *
+ * @param[in] x X co-ordinate of the rect.
+ * @param[in] y Y co-ordinate of the rect.
+ * @param[in] w width of the rect.
+ * @param[in] h height of the rect.
+ * @param[in] start_angle Angle at which the arc will start.
+ * @param[in] sweep_length Length of the arc.
+ *
+ */
+EAPI void evas_vg_shape_shape_append_arc(Eo *obj, double x, double y, double w, double h, double start_angle, double sweep_length);
 
 /**
  *

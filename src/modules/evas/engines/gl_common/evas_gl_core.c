@@ -2681,7 +2681,7 @@ evgl_native_surface_get(EVGL_Surface *sfc, Evas_Native_Surface *ns)
    return 1;
 }
 
-int
+EAPI int
 evgl_direct_rendered()
 {
    EVGL_Resource *rsc;

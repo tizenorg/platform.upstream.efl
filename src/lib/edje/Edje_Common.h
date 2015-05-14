@@ -1923,10 +1923,6 @@ typedef enum _Edje_Tween_Mode
    EDJE_TWEEN_MODE_OPT_FROM_CURRENT  = (1 << 31) /**< Options from current tween mode value */
 } Edje_Tween_Mode;
 
-// TIZEN_ONLY(20150110): Add plugin keyword.
-#define PLUGIN
-//
-
 /**
  * @typedef Edje_Action_Type
  *

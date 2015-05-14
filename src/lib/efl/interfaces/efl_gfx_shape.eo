@@ -306,9 +306,9 @@ mixin Efl.Gfx.Shape
           x-direction (rx) and radius in y direction (ry) .
 
           @note Use this api if you know the end point's of the arc otherwise
-                use more convenient function efl_gfx_path_append_arc_to()
+                use more convenient function efl_gfx_path_append_arc()
 
-          @see efl_gfx_path_append_arc_to()
+          @see efl_gfx_path_append_arc()
           @since 1.14
         */
         params {
@@ -321,6 +321,23 @@ mixin Efl.Gfx.Shape
           @in bool sweep; /*@ Defines whether the arc will be drawn counter-clockwise or clockwise from current point to the end point taking into account the large_arc property.*/
         }
       }
+      append_arc {
+        /*@
+          Append an arc that enclosed in the given rectangle (x, y, w, h).
+          The angle is defined in counter clock wise , use -ve angle for clockwise arc.
+
+          @since 1.14
+        */
+        params {
+          @in double x; /*@ X co-ordinate of the rect.*/
+          @in double y; /*@ Y co-ordinate of the rect.*/
+          @in double w; /*@ width of the rect.*/
+          @in double h; /*@ height of the rect.*/
+          @in double start_angle; /*@ Angle at which the arc will start*/
+          @in double sweep_length; /*@ Length of the arc.*/
+        }
+      }
+
       append_close {
         /*@
           Closes the current subpath by drawing a line to the beginning of the subpath,

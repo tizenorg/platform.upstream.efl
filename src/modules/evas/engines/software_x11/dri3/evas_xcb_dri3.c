@@ -29,7 +29,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-
+#define SIZE_ALIGN( value, base ) (((value) + ((base) - 1)) & ~((base) - 1))
+#define ALIGNMENT_PITCH_ARGB 64
 
 ////////////////////////////////////
 // libtbm.so.1
@@ -153,6 +154,7 @@ static int xfixes_major = 0, xfixes_minor = 0;
 static Eina_Bool
 _lib_init()
 {
+   if (xfixes_lib) return EINA_TRUE;
    lib_tbm = dlopen("libtbm.so.1", RTLD_NOW | RTLD_LOCAL);
    if (!lib_tbm)
       {
@@ -401,10 +403,10 @@ _dri3_update_num_back(dri3_drawable *drawable)
       drawable->num_back++;
 }
 
-static
-void dri3_destroy_pixmap(xcb_pixmap_t pixmap)
+static void
+dri3_destroy_pixmap(xcb_pixmap_t pixmap)
 {
-   if(!pixmap) return;
+   if (!pixmap) return;
 
    xcb_void_cookie_t cookie;
    xcb_generic_error_t *error = NULL;
@@ -413,21 +415,29 @@ void dri3_destroy_pixmap(xcb_pixmap_t pixmap)
    cookie = xcb_free_pixmap_checked(info.conn, pixmap);
    error = xcb_request_check(info.conn, cookie);
    if (error)
-      ERR("xcb_free_pixmap_checked() has failed.");
+      {
+         ERR("xcb_free_pixmap_checked() has failed.");
+         free(error);
+      }
 }
 
-void dri3_destroy_buffer(dri3_buffer *buffer)
+/** dri3_destroy_buffer
+ *
+ * Free everything associated with one render buffer including pixmap, fence
+ * stuff and the tbm
+ */
+void
+dri3_destroy_buffer(dri3_buffer *buffer)
 {
-   if(!buffer) return;
+   if (!buffer) return;
 
-   if (buffer->own_pixmap) dri3_destroy_pixmap (buffer->pixmap);
+   if (buffer->own_pixmap) dri3_destroy_pixmap(buffer->pixmap);
    if (buffer->sync_fence > 0 && info.conn) sym_xcb_sync_destroy_fence(info.conn, buffer->sync_fence);
    if (buffer->shm_fence) sym_xshmfence_unmap_shm(buffer->shm_fence);
    if (buffer->bo) sym_tbm_bo_unref(buffer->bo);
-   if (buffer->fd) close(buffer->fd);
+   if (buffer->buffer_fd > 0) close(buffer->buffer_fd);
    free(buffer);
 }
-
 
 void
 dri3_destroy_drawable(dri3_drawable *drawable)
@@ -444,7 +454,7 @@ dri3_destroy_drawable(dri3_drawable *drawable)
    if (drawable->special_event)
       xcb_unregister_for_special_event(info.conn, drawable->special_event);
 
-   free (drawable);
+   free(drawable);
 }
 
 
@@ -527,7 +537,7 @@ _dri3_handle_present_event(dri3_drawable *drawable, xcb_present_generic_event_t 
                   if (buffer && buffer->pixmap == ie->pixmap)
                      {
                         buffer->busy = 0;
-                        if (drawable->num_back <= b && b < DRI3_MAX_BACK)
+                        if ((unsigned int)drawable->num_back <= b && b < DRI3_MAX_BACK)
                            {
                               dri3_destroy_buffer(buffer);
                               drawable->buffers[b] = NULL;
@@ -539,7 +549,7 @@ _dri3_handle_present_event(dri3_drawable *drawable, xcb_present_generic_event_t 
          }
       default :
          {
-            DBG ("Get unkown notify");
+            DBG ("Get unknown notify");
             break;
          }
    }
@@ -606,7 +616,11 @@ dri3_wait_for_msc(dri3_drawable *drawable, int64_t target_msc, int64_t divisor,
    return 1;
 }
 
-
+/** dri3_drawable_get_msc
+ *
+ * Return the current UST/MSC/SBC triplet by asking the server
+ * for an event
+ */
 int
 dri3_drawable_get_msc(dri3_drawable *drawable, int64_t *ust, int64_t *msc, int64_t *sbc)
 {
@@ -615,8 +629,14 @@ dri3_drawable_get_msc(dri3_drawable *drawable, int64_t *ust, int64_t *msc, int64
    return dri3_wait_for_msc(drawable, 0, 0, 0, ust, msc,sbc);
 }
 
+/** dri3_wait_for_sbc
+ *
+ * Wait for the completed swap buffer count to reach the specified
+ * target. Presumably the application knows that this will be reached with
+ * outstanding complete events, or we're going to be here awhile.
+ */
 int
-dri3_wait_for_sbc(dri3_drawable *drawable, int64_t target_sbc, int64_t *ust, int64_t *msc, int64_t *sbc)
+dri3_wait_for_sbc(dri3_drawable *drawable, uint64_t target_sbc, uint64_t *ust, uint64_t *msc, uint64_t *sbc)
 {
    if (!drawable) return 0;
 
@@ -652,15 +672,15 @@ _dri3_drawable_gc(dri3_drawable *drawable)
 
 
 static void
-dri3_copy_area (xcb_drawable_t    src_drawable  /**< */,
-                xcb_drawable_t    dst_drawable  /**< */,
-                xcb_gcontext_t    gc  /**< */,
-                int16_t           src_x  /**< */,
-                int16_t           src_y  /**< */,
-                int16_t           dst_x  /**< */,
-                int16_t           dst_y  /**< */,
-                uint16_t          width  /**< */,
-                uint16_t          height  /**< */)
+dri3_copy_area(xcb_drawable_t    src_drawable,
+               xcb_drawable_t    dst_drawable,
+               xcb_gcontext_t    gc,
+               int16_t           src_x,
+               int16_t           src_y,
+               int16_t           dst_x,
+               int16_t           dst_y,
+               uint16_t          width,
+               uint16_t          height)
 {
    xcb_void_cookie_t cookie;
 
@@ -678,20 +698,25 @@ dri3_copy_area (xcb_drawable_t    src_drawable  /**< */,
 }
 
 
-static
-void *dri3_error_free(dri3_buffer *buffer)
+/** dri3_error_free
+ *
+ * Free the back buffer.
+ */
+static void *
+dri3_error_free(dri3_buffer *buffer)
 {
    if (!buffer) return NULL;
+
    if (buffer->shm_fence) sym_xshmfence_unmap_shm(buffer->shm_fence);
-   if (buffer->fence_fd >=0) close(buffer->fence_fd);
+   else if (buffer->fence_fd > 0) close(buffer->fence_fd);
    if (buffer->bo) sym_tbm_bo_unref(buffer->bo);
-   if (buffer->fd) close(buffer->fd);
+   if (buffer->buffer_fd > 0) close(buffer->buffer_fd);
    free(buffer);
    return NULL;
 }
 
-static
-dri3_buffer *dri3_alloc_render_buffer(Drawable draw, int w, int h, int depth, int bpp)
+static dri3_buffer *
+dri3_alloc_render_buffer(Drawable draw, int w, int h, int depth, int bpp)
 {
    dri3_buffer *buffer = NULL;
 
@@ -699,29 +724,30 @@ dri3_buffer *dri3_alloc_render_buffer(Drawable draw, int w, int h, int depth, in
    if (!buffer) return NULL;
 
 
-   /* create xshmfence */
+   /* Create an xshmfence object and
+    * prepare to send that to the X server
+    */
    buffer->fence_fd = sym_xshmfence_alloc_shm();
    if (buffer->fence_fd < 0) return dri3_error_free(buffer);
    buffer->shm_fence = sym_xshmfence_map_shm(buffer->fence_fd);
    if (!buffer->shm_fence) return dri3_error_free(buffer);
    buffer->sync_fence = 0; /* sync_fence is set at create_pixmap_from_buffer */
 
-   buffer->size = w * h * bpp/8;
+   buffer->stride = SIZE_ALIGN((w * bpp)>>3, ALIGNMENT_PITCH_ARGB);
+   buffer->size = h * buffer->stride;
    buffer->w = w;
    buffer->h = h;
-   buffer->stride = w * bpp/8;
    buffer->depth = depth;
    buffer->bpp = bpp;
-   buffer->bo = sym_tbm_bo_alloc (info.bufmgr, buffer->size, TBM_BO_DEFAULT);
+   buffer->bo = sym_tbm_bo_alloc(info.bufmgr, buffer->size, TBM_BO_DEFAULT);
    if (!buffer->bo) return dri3_error_free(buffer);
-   buffer->fd = sym_tbm_bo_export_fd (buffer->bo);
-   if (buffer->fd < 0) return dri3_error_free(buffer);
+   buffer->tbm_fd = sym_tbm_bo_export_fd(buffer->bo);
+   if (buffer->tbm_fd < 0) return dri3_error_free(buffer);
 
    xcb_void_cookie_t cookie;
    xcb_generic_error_t *error = NULL;
 
    Pixmap pixmap = xcb_generate_id(info.conn);
-
 
    cookie = sym_xcb_dri3_pixmap_from_buffer_checked(info.conn,
                                                     pixmap,
@@ -732,11 +758,12 @@ dri3_buffer *dri3_alloc_render_buffer(Drawable draw, int w, int h, int depth, in
                                                     buffer->stride,
                                                     buffer->depth,
                                                     buffer->bpp,
-                                                    buffer->fd);
+                                                    buffer->tbm_fd);
    error = xcb_request_check(info.conn, cookie);
    if (error)
       {
          ERR("xcb_dri3_pixmap_from_buffer_checked() has failed.");
+         free(error);
          return dri3_error_free(buffer);
       }
 
@@ -759,6 +786,7 @@ dri3_buffer *dri3_alloc_render_buffer(Drawable draw, int w, int h, int depth, in
             {
                ERR("xcb_dri3_fence_from_fd_checked() has failed.");
                if (sync_fence > 0) sym_xcb_sync_destroy_fence(info.conn, sync_fence);
+               free(error);
                return dri3_error_free(buffer);
             }
          buffer->sync_fence = sync_fence;
@@ -810,7 +838,7 @@ _dri3_update_drawable(dri3_drawable *drawable)
          xcb_get_geometry_cookie_t geom_cookie;
          xcb_get_geometry_reply_t *geom_reply;
          xcb_void_cookie_t cookie;
-         xcb_generic_error_t *error;
+         xcb_generic_error_t *error = NULL;
 
          /* Try to select for input on the window.
           *
@@ -856,7 +884,7 @@ _dri3_update_drawable(dri3_drawable *drawable)
                ERR("xcb_get_geometry_reply() has failed.");
                xcb_unregister_for_special_event(info.conn, drawable->special_event);
                drawable->special_event = NULL;
-               free (error);
+               free(error);
                return 0;
             }
       }
@@ -865,25 +893,30 @@ _dri3_update_drawable(dri3_drawable *drawable)
    return 1;
 }
 
-dri3_buffer *dri3_get_pixmap_buffer(Pixmap pixmap)
+/** dri3_get_pixmap_buffer
+ *
+ * Get the DRM object for a pixmap from the X server
+ */
+dri3_buffer *
+dri3_get_pixmap_buffer(Pixmap pixmap)
 {
-   dri3_buffer *buffer = NULL;
    xcb_dri3_buffer_from_pixmap_cookie_t cookie;
    xcb_dri3_buffer_from_pixmap_reply_t *reply = NULL;
 
    if (!info.conn) return NULL;
 
-   cookie = sym_xcb_dri3_buffer_from_pixmap (info.conn,
-                                             pixmap);
-   reply = sym_xcb_dri3_buffer_from_pixmap_reply (info.conn,
-                                                  cookie,
-                                                  NULL);
+   cookie = sym_xcb_dri3_buffer_from_pixmap(info.conn,
+                                            pixmap);
+   reply = sym_xcb_dri3_buffer_from_pixmap_reply(info.conn,
+                                                 cookie,
+                                                 NULL);
    if (!reply)
       {
          ERR("xcb_dri3_buffer_from_pixmap_reply() has failed.");
          return NULL;
       }
 
+   dri3_buffer *buffer = NULL;
    buffer = calloc(1, sizeof(dri3_buffer));
    if (!buffer) return NULL;
 
@@ -893,8 +926,8 @@ dri3_buffer *dri3_get_pixmap_buffer(Pixmap pixmap)
    buffer->stride = reply->stride;
    buffer->depth = reply->depth;
    buffer->bpp = reply->bpp;
-   buffer->fd = sym_xcb_dri3_buffer_from_pixmap_reply_fds (info.conn, reply)[0];
-   buffer->bo = sym_tbm_bo_import_fd (info.bufmgr, buffer->fd);
+   buffer->buffer_fd = sym_xcb_dri3_buffer_from_pixmap_reply_fds(info.conn, reply)[0];
+   buffer->bo = sym_tbm_bo_import_fd(info.bufmgr, buffer->buffer_fd);
    free(reply);
    if (!buffer->bo) return dri3_error_free(buffer);
 
@@ -942,12 +975,15 @@ _dri3_find_back(dri3_drawable *drawable)
 }
 
 
-
+/** dri3_get_backbuffers
+ *
+ * Find a back buffer, allocating new ones as necessary
+ */
 dri3_buffer *
 dri3_get_backbuffers(dri3_drawable *drawable, uint32_t *stamp)
 {
    dri3_buffer *back_buffer = NULL;
-   int buf_id;
+   int buf_id = -1;
 
    if (!_dri3_update_drawable(drawable))
       return 0;
@@ -990,17 +1026,22 @@ dri3_get_backbuffers(dri3_drawable *drawable, uint32_t *stamp)
 
    dri3_fence_await(back_buffer);
 
+   /* Return the requested buffer */
    return back_buffer;
 }
 
-
+/** dri3_swap_buffers
+ *
+ * Make the current back buffer visible using the present extension
+ */
 int64_t
-dri3_swap_buffers (dri3_drawable *drawable, int64_t target_msc, int64_t divisor, int64_t remainder, XID region)
+dri3_swap_buffers(dri3_drawable *drawable, int64_t target_msc, int64_t divisor, int64_t remainder, XID region)
 {
    if (!drawable) return 0;
 
    dri3_buffer *back;
    int64_t ret = 0;
+   uint32_t options = XCB_PRESENT_OPTION_NONE;
    int buf_id = DRI3_BACK_ID(drawable->cur_back_id);
    back = drawable->buffers[buf_id];
 
@@ -1010,7 +1051,6 @@ dri3_swap_buffers (dri3_drawable *drawable, int64_t target_msc, int64_t divisor,
       {
          dri3_fence_reset(back);
 
-
          /* Compute when we want the frame shown by taking the last known successful
           * MSC and adding in a swap interval for each outstanding swap request
           */
@@ -1018,6 +1058,8 @@ dri3_swap_buffers (dri3_drawable *drawable, int64_t target_msc, int64_t divisor,
          if (target_msc == 0)
             target_msc = drawable->msc + drawable->swap_interval * (drawable->send_sbc - drawable->recv_sbc);
 
+         if (drawable->swap_interval == 0)
+            options |= XCB_PRESENT_OPTION_ASYNC;
 
          back->busy = 1;
          back->last_swap = drawable->send_sbc;
@@ -1034,7 +1076,7 @@ dri3_swap_buffers (dri3_drawable *drawable, int64_t target_msc, int64_t divisor,
                                                  0,                                    /* target_crtc */
                                                  0,                                    /* wait fence */
                                                  back->sync_fence,                     /* idle fence */
-                                                 XCB_PRESENT_OPTION_NONE,
+                                                 options,                              /* XCB_PRESENT_OPTION_NONE,*/
                                                  target_msc,
                                                  divisor,
                                                  remainder, 0, NULL);
@@ -1042,7 +1084,11 @@ dri3_swap_buffers (dri3_drawable *drawable, int64_t target_msc, int64_t divisor,
          xcb_generic_error_t *error = NULL;
          error = xcb_request_check(info.conn, cookie);
          if (error)
-            ERR("xcb_present_pixmap_checked() has failed");
+            {
+               ERR("xcb_present_pixmap_checked() has failed");
+               free(error);
+            }
+
 
          ret = (int64_t) drawable->send_sbc;
 
@@ -1052,7 +1098,6 @@ dri3_swap_buffers (dri3_drawable *drawable, int64_t target_msc, int64_t divisor,
             ++(*drawable->stamp);
 
       }
-
    return ret;
 }
 
@@ -1092,77 +1137,76 @@ dri3_get_buffer_age(dri3_drawable *drawable)
       return 0;
 }
 
-void dri3_deinit_dri3()
+void
+dri3_deinit_dri3()
 {
    if (info.bufmgr)
      {
        sym_tbm_bufmgr_deinit(info.bufmgr);
+       if (info.drm_fd > 0)
+          {
+             close(info.drm_fd);
+             info.drm_fd = 0;
+          }
        info.bufmgr = NULL;
      }
 }
 
-int dri3_init_dri3(Display *dpy)
+int
+dri3_init_dri3(Display *dpy)
 {
    xcb_dri3_open_cookie_t cookie;
-   xcb_generic_error_t *e = NULL;
    xcb_dri3_open_reply_t* reply = NULL;
 
-   if(!_lib_init()) return 0;
+   if (!_lib_init()) return 0;
 
    memset (&info, 0x0, sizeof(dri3_info));
    /* Open the connection to the X server */
    info.disp = dpy;
-   info.conn =  sym_XGetXCBConnection(dpy);
+   info.conn = sym_XGetXCBConnection(dpy);
 
    Window root = RootWindow(dpy, DefaultScreen(dpy));
    if (xcb_connection_has_error(info.conn))
       {
-         ERR("Xcb Connection has failed.");
+         ERR("xcb Connection has failed.");
          return 0;
       }
 
    cookie = sym_xcb_dri3_open(info.conn, root, 0);
-   reply = sym_xcb_dri3_open_reply(info.conn, cookie, &e);
+   reply = sym_xcb_dri3_open_reply(info.conn, cookie, NULL);
 
    if (reply && reply->nfd == 1)
       {
          info.drm_fd = sym_xcb_dri3_open_reply_fds(info.conn, reply)[0];
-
          info.bufmgr = sym_tbm_bufmgr_init(info.drm_fd);
-         if(!info.bufmgr)
-            {
-               dri3_deinit_dri3();
-               return 0;
-            }
-         free(reply);
       }
-   else
+   if (reply) free(reply);
+   if (!info.bufmgr)
       {
-         ERR ("xcb_dri3_open_reply failed.");
-         dri3_deinit_dri3();
+         ERR("dri3 initialization failed.");
          return 0;
       }
 
    return 1;
 }
 
-int dri3_query_dri3()
+int
+dri3_query_dri3()
 {
    xcb_dri3_query_version_cookie_t cookie;
    xcb_dri3_query_version_reply_t *reply = NULL;
-   xcb_generic_error_t *error = NULL;
 
    cookie = sym_xcb_dri3_query_version(info.conn,
                                        XCB_DRI3_MAJOR_VERSION,
                                        XCB_DRI3_MINOR_VERSION);
    reply = sym_xcb_dri3_query_version_reply(info.conn,
                                             cookie,
-                                            &error);
+                                            NULL);
    if (reply)
       free(reply);
    else
       {
-         ERR ("xcb_dri3_query_version_reply() has failed.");
+         ERR("xcb_dri3_query_version_reply() has failed.");
          return 0;
       }
 
@@ -1170,7 +1214,8 @@ int dri3_query_dri3()
 }
 
 
-int dri3_query_present()
+int
+dri3_query_present()
 {
    xcb_present_query_version_cookie_t cookie;
    xcb_present_query_version_reply_t *reply = NULL;
@@ -1193,7 +1238,8 @@ int dri3_query_present()
    return 1;
 }
 
-int dri3_XFixes_query(Display *disp)
+int
+dri3_XFixes_query(Display *disp)
 {
    if (!sym_XFixesQueryExtension(disp, &xfixes_ev_base, &xfixes_err_base))
       {
@@ -1240,7 +1286,7 @@ dri3_tbm_import(dri3_buffer *buffer)
 {
    if(!buffer || !buffer->bo) return;
 
-   buffer->bo = sym_tbm_bo_import_fd (info.bufmgr, buffer->fd);
+   buffer->bo = sym_tbm_bo_import_fd (info.bufmgr, buffer->buffer_fd);
 }
 
 void
@@ -1259,7 +1305,7 @@ dri3_tbm_bo_handle_unref(dri3_buffer *buffer)
 
 
 void
-dri3_set_swap_interval (dri3_drawable *drawable, int interval)
+dri3_set_swap_interval(dri3_drawable *drawable, int interval)
 {
    if (!drawable) return;
 
@@ -1268,19 +1314,21 @@ dri3_set_swap_interval (dri3_drawable *drawable, int interval)
 }
 
 int
-dri3_get_swap_interval (dri3_drawable *drawable)
+dri3_get_swap_interval(dri3_drawable *drawable)
 {
    if (!drawable) return 0;
 
    return drawable->swap_interval;
 }
 
-XID dri3_XFixes_create_region(Display *disp, XRectangle *xrects, int nrects)
+XID
+dri3_XFixes_create_region(Display *disp, XRectangle *xrects, int nrects)
 {
    return sym_XFixesCreateRegion(disp, xrects, nrects);;
 }
 
-void dri3_XFixes_destory_region(Display *disp, XID region)
+void
+dri3_XFixes_destory_region(Display *disp, XID region)
 {
    sym_XFixesDestroyRegion(disp, region);
 }

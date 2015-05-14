@@ -23,12 +23,10 @@ evas_xcb_image_dri_new()
 void
 evas_xcb_image_dri_free(DRI3_Info *info)
 {
+   if (!info) return;
    inits--;
-   if (inits == 0)
-      {
-         dri3_destroy_buffer(info->buffer);
-         dri3_deinit_dri3();
-      }
+   dri3_destroy_buffer(info->buffer);
+   if (inits == 0) dri3_deinit_dri3();
    free(info);
 }
 

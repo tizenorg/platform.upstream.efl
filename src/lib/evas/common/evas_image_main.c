@@ -320,7 +320,7 @@ _evas_common_rgba_image_delete(Image_Entry *ie)
    if (ie->animated.frames)
      {
         Image_Entry_Frame *frame;
-        
+
         EINA_LIST_FREE(ie->animated.frames, frame)
           {
              if (frame->data) free(frame->data);
@@ -351,12 +351,12 @@ surf_debug(void)
    Image_Entry *ie;
    RGBA_Image *im;
    int i = 0;
-   
+
    printf("----SURFS----\n");
    EINA_LIST_FOREACH(surfs, l, ie)
      {
         im = ie;
-        printf("%i - %p - %ix%i  [%s][%s]\n", 
+        printf("%i - %p - %ix%i  [%s][%s]\n",
                i, im->image.data, ie->allocated.w, ie->allocated.h,
                ie->file, ie->key
               );
@@ -412,7 +412,7 @@ evas_common_rgba_image_unload(Image_Entry *ie)
                                                ie->space);
 #ifdef SURFDBG
         surfs = eina_list_remove(surfs, ie);
-#endif        
+#endif
      }
    im->image.data = NULL;
    ie->allocated.w = 0;
@@ -421,14 +421,14 @@ evas_common_rgba_image_unload(Image_Entry *ie)
    ie->flags.preload_done = 0;
 #ifdef SURFDBG
    surf_debug();
-#endif   
+#endif
 }
 
 void
 _evas_common_rgba_image_post_surface(Image_Entry *ie)
 {
 #ifdef HAVE_PIXMAN
-# ifdef PIXMAN_IMAGE   
+# ifdef PIXMAN_IMAGE
    RGBA_Image *im = (RGBA_Image *)ie;
    int w, h;
 
@@ -538,6 +538,11 @@ _evas_common_rgba_image_surface_delete(Image_Entry *ie)
 #endif
    if (ie->file)
      DBG("unload: [%p] %s %s", ie, ie->file, ie->key);
+   if (im->native.data)
+     {
+        if (im->native.func.free)
+          im->native.func.free(im->native.func.data, im);
+     }
    if ((im->cs.data) && (im->image.data))
      {
 	if (im->cs.data != im->image.data)
@@ -808,7 +813,7 @@ evas_common_image_colorspace_normalize(RGBA_Image *im)
                                                          im->cache_entry.space);
 #ifdef SURFDBG
                   surfs = eina_list_remove(surfs, im);
-#endif                  
+#endif
                   ((Image_Entry *)im)->allocated.w = 0;
                   ((Image_Entry *)im)->allocated.h = 0;
                }
@@ -842,7 +847,7 @@ evas_common_image_colorspace_normalize(RGBA_Image *im)
    im->cs.dirty = 0;
 #ifdef SURFDBG
    surf_debug();
-#endif   
+#endif
 }
 
 EAPI void
@@ -851,14 +856,14 @@ evas_common_image_colorspace_dirty(RGBA_Image *im)
    im->cs.dirty = 1;
    evas_common_rgba_image_scalecache_dirty(&im->cache_entry);
 #ifdef HAVE_PIXMAN
-# ifdef PIXMAN_IMAGE   
+# ifdef PIXMAN_IMAGE
    if (im->pixman.im)
      {
         pixman_image_unref(im->pixman.im);
         im->pixman.im = NULL;
      }
    _evas_common_rgba_image_post_surface((Image_Entry *)im);
-# endif   
+# endif
 #endif
 }
 

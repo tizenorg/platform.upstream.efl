@@ -4197,6 +4197,8 @@ AC_DEFINE_IF([BUILD_EDJE_FP], [test "${want_fixed_point}" = "yes"],
 AM_CONDITIONAL([ENABLE_MULTISENSE], [test "${want_multisense}" = "yes"])
 AC_DEFINE_IF([ENABLE_MULTISENSE], [test "${want_multisense}" = "yes"],
    [1], [Use Multisense])
+# TIZEN_ONLY(20150511): Add plugin keyword.
+AC_DEFINE([PLUGIN], [1], [Edje plugin module enabled])
 
 AC_SUBST([want_multisense])
 AC_SUBST([want_physics])

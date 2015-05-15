@@ -1624,6 +1624,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
            }
          break;
       case OP_EV_MOUSE_IN:
+         if (ee->events_block) break;
          if (e->size >= (int)sizeof(Ipc_Data_Ev_Mouse_In))
            {
               Ipc_Data_Ev_Mouse_In *ipc = e->data;
@@ -1637,6 +1638,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
            }
          break;
       case OP_EV_MOUSE_OUT:
+         if (ee->events_block) break;
          if (e->size >= (int)sizeof(Ipc_Data_Ev_Mouse_Out))
            {
               Ipc_Data_Ev_Mouse_Out *ipc = e->data;
@@ -1650,6 +1652,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
            }
          break;
       case OP_EV_MOUSE_UP:
+         if (ee->events_block) break;
          if (e->size >= (int)sizeof(Ipc_Data_Ev_Mouse_Up))
            {
               Ipc_Data_Ev_Mouse_Up *ipc = e->data;
@@ -1663,6 +1666,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
            }
          break;
       case OP_EV_MOUSE_DOWN:
+         if (ee->events_block) break;
          if (e->size >= (int)sizeof(Ipc_Data_Ev_Mouse_Down))
            {
               Ipc_Data_Ev_Mouse_Up *ipc = e->data;
@@ -1676,6 +1680,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
            }
          break;
       case OP_EV_MOUSE_MOVE:
+         if (ee->events_block) break;
          if (e->size >= (int)sizeof(Ipc_Data_Ev_Mouse_Move))
            {
               Ipc_Data_Ev_Mouse_Move *ipc = e->data;
@@ -1689,6 +1694,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
            }
          break;
       case OP_EV_MOUSE_WHEEL:
+         if (ee->events_block) break;
          if (e->size >= (int)sizeof(Ipc_Data_Ev_Mouse_Wheel))
            {
               Ipc_Data_Ev_Mouse_Wheel *ipc = e->data;
@@ -1702,6 +1708,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
            }
          break;
       case OP_EV_MULTI_UP:
+         if (ee->events_block) break;
          if (e->size >= (int)sizeof(Ipc_Data_Ev_Multi_Up))
            {
               Ipc_Data_Ev_Multi_Up *ipc = e->data;
@@ -1715,6 +1722,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
            }
          break;
       case OP_EV_MULTI_DOWN:
+         if (ee->events_block) break;
          if (e->size >= (int)sizeof(Ipc_Data_Ev_Multi_Down))
            {
               Ipc_Data_Ev_Multi_Down *ipc = e->data;
@@ -1728,6 +1736,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
            }
          break;
       case OP_EV_MULTI_MOVE:
+         if (ee->events_block) break;
          if (e->size >= (int)sizeof(Ipc_Data_Ev_Multi_Move))
            {
               Ipc_Data_Ev_Multi_Move *ipc = e->data;
@@ -2221,6 +2230,18 @@ _ecore_evas_extn_interface_new(void)
    iface->listen = _ecore_evas_extn_socket_listen;
 
    return iface;
+}
+
+EAPI void
+ecore_evas_extn_socket_events_block_set_internal(Ecore_Evas *ee, Eina_Bool events_block)
+{
+   ee->events_block = events_block;
+}
+
+EAPI Eina_Bool
+ecore_evas_extn_socket_events_block_get_internal(Ecore_Evas *ee)
+{
+   return ee->events_block;
 }
 
 EINA_MODULE_INIT(_ecore_evas_extn_module_init);

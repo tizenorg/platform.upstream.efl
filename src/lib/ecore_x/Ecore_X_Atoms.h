@@ -348,6 +348,7 @@ EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_WINDOW_AUX_HINT_SUPPORTED_LIST; /**< @si
 EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_WINDOW_AUX_HINT_SUPPORT; /**< @since 1.10 */
 EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_WINDOW_AUX_HINT; /**< @since 1.10 */
 EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_WINDOW_AUX_HINT_ALLOWED; /**< @since 1.10 */
+EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_WINDOW_AUX_HINT_RESET_REQUEST;
 
 /* E virtual keyboard extension */
 EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_VIRTUAL_KEYBOARD_CONTROL_WINDOW;

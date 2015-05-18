@@ -797,6 +797,26 @@ EAPI void        ecore_evas_wm_rotation_manual_rotation_done(Ecore_Evas *ee);
  */
 EAPI const Eina_List *ecore_evas_aux_hints_supported_get(const Ecore_Evas *ee);
 /**
+ * @brief Get changed state of aux hints supported list.
+ *
+ * @param ee The Ecore_Evas
+ * @return EINA_TRUE if there is change, EINA_FALSE there is no change.
+ * @warning Support for this depends on the underlying windowing system.
+ *
+ * need to merge on upstream
+ */
+EAPI Eina_Bool ecore_evas_aux_hints_supported_changed_get(const Ecore_Evas *ee);
+/**
+ * @brief Set changed state of aux hints supported list after process it.
+ *
+ * @param ee The Ecore_Evas
+ * @param set changed state
+ * @warning Support for this depends on the underlying windowing system.
+ *
+ * need to merge on upstream
+ */
+EAPI void ecore_evas_aux_hints_supported_changed_set(Ecore_Evas *ee, Eina_Bool set);
+/**
  * @brief Get the list of allowed auxiliary hint ID.
  *
  * @param ee The Ecore_Evas

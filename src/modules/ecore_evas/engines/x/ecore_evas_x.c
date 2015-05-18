@@ -365,7 +365,7 @@ _ecore_evas_x_wm_rot_manual_rotation_done_job(void *data)
 }
 
 static void
-_ecore_evas_x_aux_hints_supprted_update(Ecore_Evas *ee)
+_ecore_evas_x_aux_hints_supported_update(Ecore_Evas *ee)
 {
    Ecore_X_Window root = ecore_x_window_root_first_get();
    unsigned char *data = NULL;
@@ -1228,6 +1228,17 @@ _ecore_evas_x_event_client_message(void *data EINA_UNUSED, int type EINA_UNUSED,
                   break;
                }
           }
+     }
+   else if (e->message_type == ECORE_X_ATOM_E_WINDOW_AUX_HINT_RESET_REQUEST)
+     {
+        ee = ecore_event_window_match(e->win);
+        if (!ee) return ECORE_CALLBACK_PASS_ON;
+
+        if (!ee->prop.aux_hint.supported_changed)
+          ee->prop.aux_hint.supported_changed = EINA_TRUE;
+
+        _ecore_evas_x_aux_hints_supported_update(ee);
+        if (ee->func.fn_state_change) ee->func.fn_state_change(ee);
      }
    return ECORE_CALLBACK_PASS_ON;
 }
@@ -2595,7 +2606,7 @@ _alpha_do(Ecore_Evas *ee, int alpha)
    _ecore_evas_x_protocols_set(ee);
    _ecore_evas_x_window_profile_protocol_set(ee);
    _ecore_evas_x_wm_rotation_protocol_set(ee);
-   _ecore_evas_x_aux_hints_supprted_update(ee);
+   _ecore_evas_x_aux_hints_supported_update(ee);
    _ecore_evas_x_aux_hints_update(ee);
    _ecore_evas_x_sync_set(ee);
    _ecore_evas_x_size_pos_hints_update(ee);
@@ -2749,7 +2760,7 @@ _ecore_evas_x_alpha_set(Ecore_Evas *ee, int alpha)
         _ecore_evas_x_protocols_set(ee);
         _ecore_evas_x_window_profile_protocol_set(ee);
         _ecore_evas_x_wm_rotation_protocol_set(ee);
-        _ecore_evas_x_aux_hints_supprted_update(ee);
+        _ecore_evas_x_aux_hints_supported_update(ee);
         _ecore_evas_x_aux_hints_update(ee);
         _ecore_evas_x_sync_set(ee);
         _ecore_evas_x_size_pos_hints_update(ee);
@@ -3639,7 +3650,8 @@ static Ecore_Evas_Engine_Func _ecore_x_engine_func =
    _ecore_evas_x_wm_rot_manual_rotation_done_set,
    _ecore_evas_x_wm_rot_manual_rotation_done,
 
-   _ecore_evas_x_aux_hints_set
+   _ecore_evas_x_aux_hints_set,
+   _ecore_evas_x_aux_hints_supported_update
 };
 
 /*
@@ -4041,7 +4053,7 @@ ecore_evas_software_x11_new_internal(const char *disp_name, Ecore_X_Window paren
    _ecore_evas_x_protocols_set(ee);
    _ecore_evas_x_window_profile_protocol_set(ee);
    _ecore_evas_x_wm_rotation_protocol_set(ee);
-   _ecore_evas_x_aux_hints_supprted_update(ee);
+   _ecore_evas_x_aux_hints_supported_update(ee);
    _ecore_evas_x_aux_hints_update(ee);
    _ecore_evas_x_sync_set(ee);
 
@@ -4492,7 +4504,7 @@ ecore_evas_gl_x11_options_new_internal(const char *disp_name, Ecore_X_Window par
    _ecore_evas_x_protocols_set(ee);
    _ecore_evas_x_window_profile_protocol_set(ee);
    _ecore_evas_x_wm_rotation_protocol_set(ee);
-   _ecore_evas_x_aux_hints_supprted_update(ee);
+   _ecore_evas_x_aux_hints_supported_update(ee);
    _ecore_evas_x_aux_hints_update(ee);
    _ecore_evas_x_sync_set(ee);
 

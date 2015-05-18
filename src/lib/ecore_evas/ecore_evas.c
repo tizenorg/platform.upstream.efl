@@ -2172,7 +2172,38 @@ ecore_evas_aux_hints_supported_get(const Ecore_Evas *ee)
                          "ecore_evas_aux_hints_supported_get");
         return NULL;
      }
+
+   /* update once before providing supported list */
+   if (ee->engine.func->fn_aux_hints_supported_update)
+     ee->engine.func->fn_aux_hints_supported_update(ee);
+
    return ee->prop.aux_hint.supported_list;
+}
+
+EAPI Eina_Bool
+ecore_evas_aux_hints_supported_changed_get(const Ecore_Evas *ee)
+{
+   if (!ECORE_MAGIC_CHECK(ee, ECORE_MAGIC_EVAS))
+     {
+        ECORE_MAGIC_FAIL(ee, ECORE_MAGIC_EVAS,
+                         "ecore_evas_aux_hints_supported_get");
+        return EINA_FALSE;
+     }
+
+   return ee->prop.aux_hint.supported_changed;
+}
+
+EAPI void
+ecore_evas_aux_hints_supported_changed_set(Ecore_Evas *ee, Eina_Bool set)
+{
+   if (!ECORE_MAGIC_CHECK(ee, ECORE_MAGIC_EVAS))
+     {
+        ECORE_MAGIC_FAIL(ee, ECORE_MAGIC_EVAS,
+                         "ecore_evas_aux_hints_supported_get");
+        return;
+     }
+
+   ee->prop.aux_hint.supported_changed = set;
 }
 
 EAPI Eina_List *

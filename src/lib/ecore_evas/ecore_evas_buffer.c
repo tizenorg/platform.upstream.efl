@@ -599,7 +599,8 @@ static Ecore_Evas_Engine_Func _ecore_buffer_engine_func =
      NULL, // wm_rot_manual_rotation_done_set
      NULL, // wm_rot_manual_rotation_done
 
-     NULL  // aux_hints_set
+     NULL, // aux_hints_set
+     NULL  // aux_hints_supported_update
 };
 
 static void *

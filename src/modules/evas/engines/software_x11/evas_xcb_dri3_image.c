@@ -135,7 +135,10 @@ evas_xcb_image_dri3_native_set(void *data, void *image, void *native)
 
    n = calloc(1, sizeof(DRI3_Native));
    if (!n)
-      return EINA_FALSE;
+      {
+         free(dri_info);
+         return EINA_FALSE;
+      }
 
    memcpy(&(n->ns), ns, sizeof(Evas_Native_Surface));
    n->pixmap = pm;

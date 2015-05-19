@@ -1001,6 +1001,8 @@ typedef khronos_uint64_t   EvasGLuint64;
 #if !defined(__gl2_h_)
 # define __gl2_h_
 
+#define GL_ES_VERSION_2_0 1
+
 /*
  * This document is licensed under the SGI Free Software B License Version
  * 2.0. For details, see http://oss.sgi.com/projects/FreeB/ .
@@ -1025,6 +1027,10 @@ typedef unsigned int     GLuint;
 typedef float            GLfloat;      // Changed khronos_float_t
 typedef float            GLclampf;     // Changed khronos_float_t
 typedef signed int       GLfixed;      // Changed khronos_int32_t
+
+/* GL types for handling large vertex buffer objects */
+typedef signed long int  GLintptr;     // Changed khronos_intptr_t
+typedef signed long int  GLsizeiptr;   // Changed khronos_ssize_t
 
 /* OpenGL ES core versions */
 //#define GL_ES_VERSION_2_0                 1

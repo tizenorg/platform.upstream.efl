@@ -6,7 +6,7 @@
 #endif
 
 #ifdef _WIN32
-# ifdef EFL_ECORE_EVAS_BUILD
+# ifdef EFL_ECORE_BUFFER_BUILD
 #  ifdef DLL_EXPORT
 #   define EAPI __declspec(dllexport)
 #  else
@@ -14,7 +14,7 @@
 #  endif /* ! DLL_EXPORT */
 # else
 #  define EAPI __declspec(dllimport)
-# endif /* ! EFL_ECORE_EVAS_BUILD */
+# endif /* ! EFL_ECORE_BUFFER_BUILD */
 #else
 # ifdef __GNUC__
 #  if __GNUC__ >= 4
@@ -36,7 +36,7 @@
  * ends.
  *
  * This library also provides simple mechanisms for sharing graphic buffer bet-
- * ween processes using reliable sockets. Ecore Buffer Queue is for this
+ * ween processes using wayland socket. Ecore Buffer Queue is for this
  * function, and it consists of two main object,
  * The Ecore_Buffer_Consumer and the Ecore_Buffer_Provider.
  */
@@ -405,13 +405,13 @@ typedef unsigned long Ecore_Pixmap;
  * The data of module.
  * @since_tizen 2.4
  */
-typedef void* Ecore_Buffer_Module_Data;
+typedef void *Ecore_Buffer_Module_Data;
 /**
  * @typedef Ecore_Buffer_Data
  * The data of Ecore_Buffer.
  * @since_tizen 2.4
  */
-typedef void* Ecore_Buffer_Data;
+typedef void *Ecore_Buffer_Data;
 /**
  * @typedef Ecore_Buffer_Cb
  * Called whenever Ecore_Buffer is freed.
@@ -442,30 +442,30 @@ struct _Ecore_Buffer_Backend
    const char *name; /**< The name of backend */
 
    Ecore_Buffer_Module_Data    (*init)(const char *context, const char *options); /**< Initialize the backend */
-   void                        (*shutdown)(Ecore_Buffer_Module_Data bmPriv); /**< Shut down the backend */
-   Ecore_Buffer_Data           (*buffer_alloc)(Ecore_Buffer_Module_Data bmPriv,
+   void                        (*shutdown)(Ecore_Buffer_Module_Data bmdata); /**< Shut down the backend */
+   Ecore_Buffer_Data           (*buffer_alloc)(Ecore_Buffer_Module_Data bmdata,
                                                int width, int height,
                                                Ecore_Buffer_Format format,
                                                unsigned int flags); /**< Newly allocate memory for buffer */
-   Ecore_Buffer_Data           (*buffer_alloc_with_tbm_surface)(Ecore_Buffer_Module_Data bmPriv,
+   Ecore_Buffer_Data           (*buffer_alloc_with_tbm_surface)(Ecore_Buffer_Module_Data bmdata,
                                                                 void *tbm_surface,
                                                                 int *ret_w, int *ret_h,
                                                                 Ecore_Buffer_Format *ret_format,
                                                                 unsigned int flags); /**< Create Ecore_Buffer from existed tbm_surface handle. */
-   void                        (*buffer_free)(Ecore_Buffer_Module_Data bmPriv,
-                                              Ecore_Buffer_Data priv); /**< Free allocated memory */
-   Ecore_Export_Type           (*buffer_export)(Ecore_Buffer_Module_Data bmPriv,
-                                                Ecore_Buffer_Data priv, int *id); /**< Get the id or fd of Ecore_Buffer for exporting it */
-   Ecore_Buffer_Data           (*buffer_import)(Ecore_Buffer_Module_Data bmPriv,
+   void                        (*buffer_free)(Ecore_Buffer_Module_Data bmdata,
+                                              Ecore_Buffer_Data bdata); /**< Free allocated memory */
+   Ecore_Export_Type           (*buffer_export)(Ecore_Buffer_Module_Data bmdata,
+                                                Ecore_Buffer_Data bdata, int *id); /**< Get the id or fd of Ecore_Buffer for exporting it */
+   Ecore_Buffer_Data           (*buffer_import)(Ecore_Buffer_Module_Data bmdata,
                                                 int w, int h,
                                                 Ecore_Buffer_Format format,
                                                 Ecore_Export_Type type,
                                                 int export_id,
                                                 unsigned int flags); /**< Import and create Ecore_Buffer from id or fd */
-   Ecore_Pixmap                (*pixmap_get)(Ecore_Buffer_Module_Data bmPriv,
-                                             Ecore_Buffer_Data priv); /**< Get the pixmap handle */
-   void                       *(*tbm_surface_get)(Ecore_Buffer_Module_Data bmPriv,
-                                                  Ecore_Buffer_Data priv); /**< Get the tbm_surface_h handle */
+   Ecore_Pixmap                (*pixmap_get)(Ecore_Buffer_Module_Data bmdata,
+                                             Ecore_Buffer_Data bdata); /**< Get the pixmap handle */
+   void                       *(*tbm_surface_get)(Ecore_Buffer_Module_Data bmdata,
+                                                  Ecore_Buffer_Data bdata); /**< Get the tbm_surface_h handle */
 };
 
 /**

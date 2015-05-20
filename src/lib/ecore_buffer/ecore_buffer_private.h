@@ -15,27 +15,6 @@
 #define DBG(...)  EINA_LOG_DOM_DBG(_ecore_buffer_queue_log_dom, __VA_ARGS__)
 #define WARN(...) EINA_LOG_DOM_WARN(_ecore_buffer_queue_log_dom, __VA_ARGS__)
 
-#define EINA_LIST_HANDLER_APPEND(list, type, callback, data)                     \
-do                                                                               \
-{                                                                                \
-   Ecore_Event_Handler *_eh;                                                     \
-   _eh = ecore_event_handler_add(type, (Ecore_Event_Handler_Cb)callback, data);  \
-   assert(_eh);                                                                  \
-   list = eina_list_append(list, _eh);                                           \
-}                                                                                \
-while (0)
-
-#define ZALLOC(_type_, _count_)  (_type_ *)calloc(sizeof(_type_), _count_)
-#define NFREE(_func_, _data_)                   \
-do                                              \
-{                                               \
-   if (_data_)                                  \
-     {                                          \
-        _func_(_data_);                         \
-        _data_ = NULL;                          \
-     }                                          \
-} while(0)
-
 #define CALLBACK_CALL(obj, cbname)           \
 do {                                         \
      if (obj->cb.cbname)                     \
@@ -45,13 +24,8 @@ do {                                         \
 extern int _ecore_buffer_queue_log_dom;
 
 const char        *_ecore_buffer_engine_name_get(Ecore_Buffer* buf);
+/* NOTE: if Ecore_Export_Type as a return value is EXPORT_TYPE_FD,
+ * then caller should close the fd after using it. */
 Ecore_Export_Type  _ecore_buffer_export(Ecore_Buffer *buf, int *id);
-Ecore_Buffer      *_ecore_buffer_import(const char* engine, int width, int height,
-                                        Ecore_Buffer_Format format,
-                                        Ecore_Export_Type type,
-                                        int export_id,
-                                        unsigned int flags);
-void   _ecore_buffer_user_data_set(Ecore_Buffer *buf, const void *key, const void *data);
-void  *_ecore_buffer_user_data_get(Ecore_Buffer *buf, const void *key);
-
+Ecore_Buffer      *_ecore_buffer_import(const char* engine, int width, int height, Ecore_Buffer_Format format, Ecore_Export_Type type, int export_id, unsigned int flags);
 #endif /* _ECORE_BUFFER_PRIVATE_H_ */

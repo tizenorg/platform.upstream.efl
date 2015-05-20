@@ -2,7 +2,6 @@
 # include "config.h"
 #endif
 
-#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -44,6 +43,7 @@ struct _Ecore_Buffer_Cb_Data
 
 static Eina_Hash *_backends;
 static Eina_Array *_modules;
+static int _ecore_buffer_init_count = 0;
 static int _ecore_buffer_log_dom = -1;
 
 #ifdef ERR
@@ -66,39 +66,43 @@ static int _ecore_buffer_log_dom = -1;
 static Ecore_Buffer_Module *
 _ecore_buffer_get_backend(const char *name)
 {
-   Ecore_Buffer_Module *bm;
-   static const char *default_engine = "x11_dri2";
+   Ecore_Buffer_Module *bm = NULL;
+   Eina_Iterator *backend_name_itr;
+   const char *backend_name = NULL;
 
-   if (name == NULL)
+   backend_name = name;
+
+   if (backend_name == NULL)
      {
-        name = (const char*)getenv("ECORE_BUFFER_ENGINE");
-        if (!name)
+        backend_name = (const char*)getenv("ECORE_BUFFER_ENGINE");
+        if (!backend_name)
           {
-             name = (char*)default_engine;
+             backend_name_itr = eina_hash_iterator_data_new(_backends);
+             while((!bm) &&
+                   (eina_iterator_next(backend_name_itr, (void **)&bm)));
+             eina_iterator_free(backend_name_itr);
           }
      }
+   else
+     bm = eina_hash_find(_backends, backend_name);
 
-   bm = eina_hash_find(_backends, name);
-   if ((!bm) || (!bm->be->init)) goto on_error;
+   if ((!bm) || (!bm->be))
+     return NULL;
 
-   if (!bm->data)
+   if ((!bm->data) && (bm->be->init))
      bm->data = bm->be->init(NULL, NULL);
 
    return bm;
-
-on_error:
-   return NULL;
 }
 
 static Eina_Bool
-_ecore_buffer_backends_free(const Eina_Hash *hash EINA_UNUSED,
-                            const void *key EINA_UNUSED,
-                            void *data,
-                            void *fdata EINA_UNUSED)
+_ecore_buffer_backends_free(const Eina_Hash *hash EINA_UNUSED, const void *key EINA_UNUSED, void *data, void *fdata EINA_UNUSED)
 {
-   Ecore_Buffer_Module *bm;
+   Ecore_Buffer_Module *bm = data;
 
-   bm = (Ecore_Buffer_Module *)data;
+   if (!bm)
+     return EINA_FALSE;
+
    if (bm->data)
      bm->be->shutdown(bm->data);
 
@@ -130,9 +134,10 @@ ecore_buffer_unregister(Ecore_Buffer_Backend *be)
    EINA_SAFETY_ON_NULL_RETURN(be);
 
    bm = eina_hash_find(_backends, be->name);
-   if (bm)
-     eina_hash_del(_backends, be->name, bm);
+   if (!bm)
+     return;
 
+   eina_hash_del(_backends, be->name, bm);
    free(bm);
 }
 
@@ -141,12 +146,14 @@ ecore_buffer_init(void)
 {
    char *path;
 
-   _ecore_buffer_log_dom = eina_log_domain_register("ecore_buffer",
-                                                    EINA_COLOR_BLUE);
+   if (++_ecore_buffer_init_count > 1)
+     return EINA_TRUE;
+
+   _ecore_buffer_log_dom = eina_log_domain_register("ecore_buffer", EINA_COLOR_BLUE);
    if (_ecore_buffer_log_dom < 0)
      {
         EINA_LOG_ERR("Could not register log domain: ecore_buffer");
-        return 0;
+        goto err;
      }
 
    _backends = eina_hash_string_superfast_new(NULL);
@@ -181,7 +188,9 @@ ecore_buffer_init(void)
      {
         ERR("no ecore_buffer modules able to be loaded.");
         eina_hash_free(_backends);
-        goto ecore_buffer_init_error;
+        eina_log_domain_unregister(_ecore_buffer_log_dom);
+        _ecore_buffer_log_dom = -1;
+        goto err;
      }
 
    // XXX: MODFIX: do not list ALL modules and load them ALL! this is
@@ -191,16 +200,23 @@ ecore_buffer_init(void)
 
    return EINA_TRUE;
 
-ecore_buffer_init_error:
-   eina_log_domain_unregister(_ecore_buffer_log_dom);
-   _ecore_buffer_log_dom = -1;
-
+err:
+   _ecore_buffer_init_count--;
    return EINA_FALSE;
 }
 
 EAPI Eina_Bool
 ecore_buffer_shutdown(void)
 {
+   if (_ecore_buffer_init_count < 1)
+     {
+        WARN("Ecore_Buffer shut down called without init");
+        return EINA_FALSE;
+     }
+
+   if (--_ecore_buffer_init_count != 0)
+     return EINA_FALSE;
+
    /* dynamic backends */
    eina_hash_foreach(_backends, _ecore_buffer_backends_free, NULL);
 
@@ -227,7 +243,15 @@ ecore_buffer_new(const char* engine, unsigned int width, unsigned int height, Ec
    bm = _ecore_buffer_get_backend(engine);
    if (!bm)
      {
-        ERR("Filed to get Backend: %s", engine);
+        ERR("Failed to get backend: %s", engine);
+        return NULL;
+     }
+
+   EINA_SAFETY_ON_NULL_RETURN_VAL(bm->be, NULL);
+
+   if (!bm->be->buffer_alloc)
+     {
+        ERR("Not supported create buffer");
         return NULL;
      }
 
@@ -265,13 +289,23 @@ ecore_buffer_new_with_tbm_surface(const char *engine, void *tbm_surface, unsigne
         return NULL;
      }
 
+   EINA_SAFETY_ON_NULL_RETURN_VAL(bm->be, NULL);
+
+   if (!bm->be->buffer_alloc_with_tbm_surface)
+     {
+        ERR("Not supported create buffer with tbm_surface");
+        return NULL;
+     }
+
+
    bo_data = bm->be->buffer_alloc_with_tbm_surface(bm->data, tbm_surface,
                                                    &w, &h, &format, flags);
    if (!bo_data)
      return NULL;
 
    bo = calloc(1, sizeof(Ecore_Buffer));
-   if (!bo) return NULL;
+   if (!bo)
+     return NULL;
 
    bo->bm = bm;
    bo->flags = flags;
@@ -286,12 +320,9 @@ ecore_buffer_new_with_tbm_surface(const char *engine, void *tbm_surface, unsigne
 EAPI void
 ecore_buffer_free(Ecore_Buffer* buf)
 {
-   Ecore_Buffer_Module* bm;
    Ecore_Buffer_Cb_Data* free_cb;
 
    EINA_SAFETY_ON_NULL_RETURN(buf);
-   EINA_SAFETY_ON_NULL_RETURN(buf->bm);
-   EINA_SAFETY_ON_NULL_RETURN(buf->bm->be->buffer_free);
 
    //Call free_cb
    while (buf->free_callbacks)
@@ -303,8 +334,11 @@ ecore_buffer_free(Ecore_Buffer* buf)
         free(free_cb);
      }
 
-   bm = buf->bm;
-   bm->be->buffer_free(bm->data, buf->buffer_data);
+   EINA_SAFETY_ON_NULL_RETURN(buf->bm);
+   EINA_SAFETY_ON_NULL_RETURN(buf->bm->be);
+   EINA_SAFETY_ON_NULL_RETURN(buf->bm->be->buffer_free);
+
+   buf->bm->be->buffer_free(buf->bm->data, buf->buffer_data);
 
    //Free User Data
    if (buf->data)
@@ -316,33 +350,30 @@ ecore_buffer_free(Ecore_Buffer* buf)
 EAPI Ecore_Pixmap
 ecore_buffer_pixmap_get(Ecore_Buffer *buf)
 {
-   Ecore_Buffer_Module* bm;
-
    EINA_SAFETY_ON_NULL_RETURN_VAL(buf, 0);
    EINA_SAFETY_ON_NULL_RETURN_VAL(buf->bm, 0);
-   EINA_SAFETY_ON_NULL_RETURN_VAL(buf->bm->be->pixmap_get, 0);
+   EINA_SAFETY_ON_NULL_RETURN_VAL(buf->bm->be, 0);
 
-   bm = buf->bm;
+   if (!buf->bm->be->pixmap_get)
+     return 0;
 
-   return bm->be->pixmap_get(bm->data, buf->buffer_data);
+   return buf->bm->be->pixmap_get(buf->bm->data, buf->buffer_data);
 }
 
 EAPI void *
 ecore_buffer_tbm_surface_get(Ecore_Buffer *buf)
 {
-   Ecore_Buffer_Module* bm;
-
-   EINA_SAFETY_ON_NULL_RETURN_VAL(buf, 0);
+   EINA_SAFETY_ON_NULL_RETURN_VAL(buf, NULL);
    EINA_SAFETY_ON_NULL_RETURN_VAL(buf->bm, 0);
+   EINA_SAFETY_ON_NULL_RETURN_VAL(buf->bm->be, 0);
+
    if (!buf->bm->be->tbm_surface_get)
      {
         ERR("TBM is not supported\n");
         return NULL;
      }
 
-   bm = buf->bm;
-
-   return bm->be->tbm_surface_get(bm->data, buf->buffer_data);
+   return buf->bm->be->tbm_surface_get(buf->bm->data, buf->buffer_data);
 }
 
 EAPI Eina_Bool
@@ -380,7 +411,7 @@ ecore_buffer_free_callback_add(Ecore_Buffer* buf, Ecore_Buffer_Cb func, void* da
 
    Ecore_Buffer_Cb_Data* free_cb;
 
-   free_cb = calloc(1, sizeof(Ecore_Buffer_Cb_Data));
+   free_cb = calloc(sizeof(Ecore_Buffer_Cb_Data), 1);
    if (!free_cb)
      return;
 
@@ -392,10 +423,10 @@ ecore_buffer_free_callback_add(Ecore_Buffer* buf, Ecore_Buffer_Cb func, void* da
 EAPI void
 ecore_buffer_free_callback_remove(Ecore_Buffer* buf, Ecore_Buffer_Cb func, void* data)
 {
+   Ecore_Buffer_Cb_Data* free_cb;
+
    EINA_SAFETY_ON_NULL_RETURN(buf);
    EINA_SAFETY_ON_NULL_RETURN(func);
-
-   Ecore_Buffer_Cb_Data* free_cb;
 
    if (buf->free_callbacks)
      {
@@ -404,37 +435,39 @@ ecore_buffer_free_callback_remove(Ecore_Buffer* buf, Ecore_Buffer_Cb func, void*
           {
              if (free_cb->cb == func && free_cb->data == data)
                {
-                  buf->free_callbacks = eina_inlist_remove(buf->free_callbacks, EINA_INLIST_GET(free_cb));
+                  buf->free_callbacks =
+                     eina_inlist_remove(buf->free_callbacks,
+                                        EINA_INLIST_GET(free_cb));
                   free(free_cb);
                }
           }
      }
 }
 
-const char*
+const char *
 _ecore_buffer_engine_name_get(Ecore_Buffer* buf)
 {
-   Ecore_Buffer_Module* bm;
+   EINA_SAFETY_ON_NULL_RETURN_VAL(buf, 0);
+   EINA_SAFETY_ON_NULL_RETURN_VAL(buf->bm, 0);
+   EINA_SAFETY_ON_NULL_RETURN_VAL(buf->bm->be, 0);
 
-   EINA_SAFETY_ON_NULL_RETURN_VAL(buf, NULL);
-   bm = buf->bm;
-   return bm->be->name;
+   return buf->bm->be->name;
 }
 
 Ecore_Export_Type
 _ecore_buffer_export(Ecore_Buffer *buf, int *id)
 {
-   Ecore_Buffer_Module* bm;
-   Ecore_Export_Type type;
+   Ecore_Export_Type type = EXPORT_TYPE_INVALID;
    int ret_id;
 
-   EINA_SAFETY_ON_NULL_RETURN_VAL(buf, EXPORT_TYPE_INVALID);
-   EINA_SAFETY_ON_NULL_RETURN_VAL(buf->bm, EXPORT_TYPE_INVALID);
-   EINA_SAFETY_ON_NULL_RETURN_VAL(buf->bm->be->buffer_export, EXPORT_TYPE_INVALID);
+   EINA_SAFETY_ON_NULL_RETURN_VAL(buf, type);
+   EINA_SAFETY_ON_NULL_RETURN_VAL(buf->bm, type);
+   EINA_SAFETY_ON_NULL_RETURN_VAL(buf->bm->be, type);
 
-   bm = buf->bm;
+   if (!buf->bm->be->buffer_export)
+     return type;
 
-   type = bm->be->buffer_export(bm->data, buf->buffer_data, &ret_id);
+   type = buf->bm->be->buffer_export(buf->bm->data, buf->buffer_data, &ret_id);
 
    if (id) *id = ret_id;
 
@@ -442,9 +475,7 @@ _ecore_buffer_export(Ecore_Buffer *buf, int *id)
 }
 
 Ecore_Buffer *
-_ecore_buffer_import(const char* engine, int width, int height,
-                     Ecore_Buffer_Format format, Ecore_Export_Type type,
-                     int export_id, unsigned int flags)
+_ecore_buffer_import(const char* engine, int width, int height, Ecore_Buffer_Format format, Ecore_Export_Type type, int export_id, unsigned int flags)
 {
    Ecore_Buffer_Module* bm;
    Ecore_Buffer* bo;
@@ -454,6 +485,14 @@ _ecore_buffer_import(const char* engine, int width, int height,
    if (!bm)
      {
         ERR("Filed to get Backend: %s", engine);
+        return NULL;
+     }
+
+   EINA_SAFETY_ON_NULL_RETURN_VAL(bm->be, NULL);
+
+   if (!bm->be->buffer_import)
+     {
+        ERR("Not supported import buffer");
         return NULL;
      }
 
@@ -473,33 +512,4 @@ _ecore_buffer_import(const char* engine, int width, int height,
    bo->buffer_data = bo_data;
 
    return bo;
-}
-
-void
-_ecore_buffer_user_data_set(Ecore_Buffer *buffer, const void *key, const void *data)
-{
-   EINA_SAFETY_ON_NULL_RETURN(buffer);
-   EINA_SAFETY_ON_NULL_RETURN(key);
-
-   if (buffer->data)
-     eina_hash_del(buffer->data, key, NULL);
-
-   if (data)
-     {
-        if (!buffer->data)
-          buffer->data = eina_hash_string_superfast_new(NULL);
-
-        eina_hash_add(buffer->data, key, data);
-     }
-}
-
-void *
-_ecore_buffer_user_data_get(Ecore_Buffer *buffer, const void *key)
-{
-   EINA_SAFETY_ON_NULL_RETURN_VAL(buffer, NULL);
-   EINA_SAFETY_ON_NULL_RETURN_VAL(key, NULL);
-
-   if (!buffer->data) return NULL;
-
-   return eina_hash_find(buffer->data, key);
 }

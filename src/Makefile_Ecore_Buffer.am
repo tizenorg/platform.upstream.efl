@@ -10,11 +10,12 @@ lib/ecore_buffer/Ecore_Buffer.h \
 lib/ecore_buffer/Ecore_Buffer_Queue.h
 
 lib_ecore_buffer_libecore_buffer_la_SOURCES = \
-lib/ecore_buffer/es-share-protocol.c \
+lib/ecore_buffer/bq_mgr_protocol.c \
 lib/ecore_buffer/buffer_queue.c \
 lib/ecore_buffer/shared_buffer.c \
 lib/ecore_buffer/ecore_buffer.c \
-lib/ecore_buffer/ecore_buffer_connection.c \
+lib/ecore_buffer/ecore_buffer_queue_main.c \
+lib/ecore_buffer/ecore_buffer_con.c \
 lib/ecore_buffer/ecore_buffer_provider.c \
 lib/ecore_buffer/ecore_buffer_consumer.c
 

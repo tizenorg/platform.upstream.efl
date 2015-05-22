@@ -61,6 +61,7 @@ ecore_buffer_provider_new(const char *name)
    if (!provider->resource)
      {
         ERR("Failed to get provider connection");
+        free(provider);
         return NULL;
      }
 

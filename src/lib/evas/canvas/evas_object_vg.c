@@ -22,6 +22,9 @@ struct _Evas_VG_Data
    Eina_Rectangle fill;
 
    unsigned int width, height;
+
+   //TIZE ONLY: backingstore. temporary solution for supporting gl drawing.
+   void *backing_store;
 };
 
 static void evas_object_vg_render(Evas_Object *eo_obj,
@@ -95,6 +98,15 @@ void
 _evas_vg_eo_base_destructor(Eo *eo_obj, Evas_VG_Data *pd)
 {
    eo_unref(pd->root);
+
+   //TIZE ONLY: backingstore. temporary solution for supporting gl drawing.
+   if (pd->backing_store)
+     {
+        Evas_Object_Protected_Data *obj = eo_data_scope_get(eo_obj, EVAS_OBJECT_CLASS);
+        obj->layer->evas->engine.func->image_free(obj->layer->evas->engine.data.output, pd->backing_store);
+        pd->backing_store = NULL;
+     }
+
    eo_do_super(eo_obj, MY_CLASS, eo_destructor());
 }
 
@@ -184,7 +196,18 @@ evas_object_vg_render(Evas_Object *eo_obj EINA_UNUSED,
                                               do_async);
    _evas_vg_render(obj, output, context, surface, vd->root, NULL,
                    do_async);
+#if 0
    obj->layer->evas->engine.func->ector_end(output, context, surface, do_async);
+#else
+   //TIZE ONLY: backingstore. temporary solution for supporting gl drawing.
+
+   if (vd->backing_store)
+     {
+        obj->layer->evas->engine.func->image_free(output, vd->backing_store);
+        vd->backing_store = NULL;
+     }
+   vd->backing_store = obj->layer->evas->engine.func->ector_end(output, context, surface, do_async);
+#endif
 }
 
 static void

@@ -3428,7 +3428,7 @@ eng_ector_begin(void *data EINA_UNUSED, void *context EINA_UNUSED, void *surface
      }
 }
 
-static void
+static void *
 eng_ector_end(void *data EINA_UNUSED, void *context EINA_UNUSED, void *surface EINA_UNUSED, Eina_Bool do_async)
 {
    if (do_async)
@@ -3436,7 +3436,7 @@ eng_ector_end(void *data EINA_UNUSED, void *context EINA_UNUSED, void *surface E
         Evas_Thread_Command_Ector_Surface *nes;
 
         nes = eina_mempool_malloc(_mp_command_ector_surface, sizeof (Evas_Thread_Command_Ector_Surface));
-        if (!nes) return ;
+        if (!nes) return NULL;
 
         nes->surface = NULL;
 
@@ -3448,6 +3448,7 @@ eng_ector_end(void *data EINA_UNUSED, void *context EINA_UNUSED, void *surface E
 
         evas_common_cpu_end_opt();
      }
+   return NULL;
 }
 
 //------------------------------------------------//

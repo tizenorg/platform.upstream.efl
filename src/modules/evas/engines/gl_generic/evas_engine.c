@@ -2063,7 +2063,7 @@ eng_ector_begin(void *data EINA_UNUSED, void *context EINA_UNUSED, void *surface
      }
 }
 
-static void
+static void *
 eng_ector_end(void *data, void *context EINA_UNUSED, void *surface EINA_UNUSED, Eina_Bool do_async EINA_UNUSED)
 {
    Evas_Engine_GL_Context *gl_context;
@@ -2093,8 +2093,13 @@ eng_ector_end(void *data, void *context EINA_UNUSED, void *surface EINA_UNUSED, 
    // using GL backend, you just need to turn on Evas_Map on
    // the Evas_Object_VG.
    evas_gl_common_image_draw(gl_context, im, 0, 0, w, h, 0, 0, w, h, 0);
-
+#if 0
    evas_gl_common_image_free(im);
+#else
+   return im;
+#endif
+
+   return NULL;
 }
 
 static Evas_Func func, pfunc;

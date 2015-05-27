@@ -417,7 +417,7 @@ typedef void *Ecore_Buffer_Data;
  * Called whenever Ecore_Buffer is freed.
  * @since_tizen 2.4
  */
-typedef void (*Ecore_Buffer_Cb)(Ecore_Buffer* buf, void* data);
+typedef void (*Ecore_Buffer_Cb)(Ecore_Buffer *buf, void *data);
 
 /**
  * @enum _Ecore_Export_Type
@@ -519,7 +519,7 @@ EAPI void          ecore_buffer_unregister(Ecore_Buffer_Backend *be);
  *
  * @return Newly allocated Ecore_Buffer instance, NULL otherwise.
  */
-EAPI Ecore_Buffer *ecore_buffer_new(const char* engine, unsigned int width, unsigned int height, Ecore_Buffer_Format format, unsigned int flags);
+EAPI Ecore_Buffer *ecore_buffer_new(const char *engine, unsigned int width, unsigned int height, Ecore_Buffer_Format format, unsigned int flags);
 /**
  * @brief Creates a new Ecore_Buffer based on given tbm surface.
  *
@@ -539,7 +539,7 @@ EAPI Ecore_Buffer *ecore_buffer_new_with_tbm_surface(const char *engine, void *t
  *
  * @param[in] buf The Ecore_Buffer to free
  */
-EAPI void          ecore_buffer_free(Ecore_Buffer* buf);
+EAPI void          ecore_buffer_free(Ecore_Buffer *buf);
 /**
  * @brief Set a callback for Ecore_Buffer free events.
  *
@@ -554,7 +554,7 @@ EAPI void          ecore_buffer_free(Ecore_Buffer* buf);
  *
  * @see ecore_buffer_free_callback_remove()
  */
-EAPI void          ecore_buffer_free_callback_add(Ecore_Buffer* buf, Ecore_Buffer_Cb  func, void* data);
+EAPI void          ecore_buffer_free_callback_add(Ecore_Buffer *buf, Ecore_Buffer_Cb  func, void *data);
 /**
  * @brief Remove a callback for Ecore_Buffer free events.
  *
@@ -566,7 +566,7 @@ EAPI void          ecore_buffer_free_callback_add(Ecore_Buffer* buf, Ecore_Buffe
  *
  * @see ecore_buffer_free_callback_add()
  */
-EAPI void          ecore_buffer_free_callback_remove(Ecore_Buffer* buf, Ecore_Buffer_Cb func, void* data);
+EAPI void          ecore_buffer_free_callback_remove(Ecore_Buffer *buf, Ecore_Buffer_Cb func, void *data);
 /**
  * @brief Return the Pixmap of given Ecore_Buffer.
  *

@@ -141,6 +141,10 @@ _ecore_buffer_con_init_callback(void *data, struct wl_callback *callback, uint32
    Ecore_Buffer_Con *conn = data;
 
    DBG("Queue Server Connected");
+
+   if (!conn)
+     return;
+
    wl_callback_destroy(callback);
    conn->init_done = EINA_TRUE;
 }

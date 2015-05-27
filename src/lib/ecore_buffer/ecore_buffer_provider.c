@@ -372,8 +372,15 @@ _ecore_buffer_provider_shared_buffer_free(Ecore_Buffer_Provider *provider, Share
 {
    struct bq_buffer *buf_resource = _shared_buffer_resource_get(sb);
 
-   if (!provider->ebq) return;
-   if (!buf_resource) return;
+   EINA_SAFETY_ON_NULL_RETURN(provider);
+   EINA_SAFETY_ON_NULL_RETURN(sb);
+
+   if (!provider->ebq)
+     return;
+
+   buf_resource = _shared_buffer_resource_get(sb);
+   if (!buf_resource)
+     return;
 
    DBG("Free Shared Buffer");
 

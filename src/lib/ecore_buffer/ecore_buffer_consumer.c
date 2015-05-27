@@ -274,11 +274,14 @@ static void
 _ecore_buffer_consumer_cb_buffer_free(Ecore_Buffer *buf, void *data)
 {
    Ecore_Buffer_Consumer *consumer = data;
-   Shared_Buffer *sb = _ecore_buffer_queue_shared_buffer_find(consumer->ebq, buf);
+   Shared_Buffer *sb;
 
+   EINA_SAFETY_ON_NULL_RETURN(buf);
    EINA_SAFETY_ON_NULL_RETURN(consumer);
 
-   if (!sb) return;
+   sb = _ecore_buffer_queue_shared_buffer_find(consumer->ebq, buf);
+   if (!sb)
+     return;
 
    _ecore_buffer_queue_shared_buffer_remove(consumer->ebq, sb);
    bq_buffer_destroy(_shared_buffer_resource_get(sb));

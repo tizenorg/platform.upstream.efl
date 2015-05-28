@@ -2053,6 +2053,11 @@ eng_ector_renderer_draw(void *data, void *context EINA_UNUSED, void *surface, Ec
 static void *
 eng_ector_surface_create(void *data, void *surface, int width, int height)
 {
+   Evas_GL_Image *glim;
+   //@TODO hack to force the texture not to created in a texture atlas
+   if (width < 256) width = 256;
+   if (height < 256) height = 256;
+
    if (!surface)
      {
         surface = eng_image_new_from_copied_data(data, width, height, NULL, EINA_TRUE, EVAS_COLORSPACE_ARGB8888);
@@ -2060,7 +2065,7 @@ eng_ector_surface_create(void *data, void *surface, int width, int height)
    else
      {
         int cur_w , cur_h;
-        Evas_GL_Image *glim = surface;
+        glim = surface;
         cur_w = glim->im->cache_entry.w;
         cur_h = glim->im->cache_entry.h;
         if (width != cur_w || height != cur_h)
@@ -2068,13 +2073,11 @@ eng_ector_surface_create(void *data, void *surface, int width, int height)
              eng_image_free(data, surface);
              surface =  eng_image_new_from_copied_data(data, width, height, NULL, EINA_TRUE, EVAS_COLORSPACE_ARGB8888);
           }
-        else
-          {
-             // clear the buffer.
-             void *pixels = evas_cache_image_pixels(&glim->im->cache_entry);
-             memset(pixels, 0, width * height *4);
-          }
       }
+   // clear the buffer
+   glim = surface;
+   void *pixels = evas_cache_image_pixels(&glim->im->cache_entry);
+   memset(pixels, 0, width * height *4);
    return surface;
 }
 

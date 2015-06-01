@@ -61,10 +61,10 @@ typedef struct _dri3_buffer {
    int                  stride;
    int                  depth;
    int                  bpp;
-   int                  fd;
+   int                  tbm_fd;
+   int                  buffer_fd;
    tbm_bo               bo;
    Pixmap               pixmap;
-   Eina_Bool            own_pixmap;
 
    struct xshmfence     *shm_fence;
    int                  fence_fd;
@@ -76,6 +76,7 @@ typedef struct _dri3_buffer {
 
    int                  busy;
    uint64_t             last_swap;
+   Eina_Bool            own_pixmap;
 } dri3_buffer;
 
 typedef struct _dri3_drawable {
@@ -84,8 +85,6 @@ typedef struct _dri3_drawable {
    int                  height;
    int                  depth;
    int                  swap_interval; /* swap interval */
-
-   uint8_t              flipping;
 
    /* SBC numbers are tracked by using the serial numbers
     * in the present request and complete events
@@ -111,6 +110,9 @@ typedef struct _dri3_drawable {
    xcb_present_event_t  eid;
    xcb_gcontext_t       gc;
    xcb_special_event_t  *special_event;
+
+   uint8_t              flipping;
+
 } dri3_drawable;
 
 typedef struct _dri3_fence {
@@ -167,7 +169,7 @@ int   dri3_get_buffer_age(dri3_drawable *drawable);
 
 int   dri3_drawable_get_msc (dri3_drawable *drawable, int64_t *ust, int64_t *msc, int64_t *sbc);
 int   dri3_wait_for_msc (dri3_drawable *drawable, int64_t target_msc, int64_t divisor, int64_t remainder, int64_t *ust, int64_t *msc, int64_t *sbc);
-int   dri3_wait_for_sbc (dri3_drawable *drawable, int64_t target_sbc, int64_t *ust, int64_t *msc, int64_t *sbc);
+int   dri3_wait_for_sbc (dri3_drawable *drawable, uint64_t target_sbc, uint64_t *ust, uint64_t *msc, uint64_t *sbc);
 void  dri3_set_swap_interval (dri3_drawable *drawable, int interval);
 int   dri3_get_swap_interval (dri3_drawable *drawable);
 

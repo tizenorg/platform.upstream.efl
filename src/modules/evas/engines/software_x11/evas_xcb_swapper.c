@@ -17,9 +17,9 @@ struct _X_DRI3_Swapper
    Drawable       draw;
    Visual         *vis;
    int            w, h, depth;
+   int            last_count;
    dri3_buffer    *dri3_buf;
    void           *dri3_buf_data;
-   int            last_count;
    Eina_Bool      mapped: 1;
 };
 
@@ -34,10 +34,10 @@ evas_xcb_swapper_new(Display *disp, Drawable draw, Visual *vis,
 
    if (inits <= 0)
       {
-         if(!dri3_init_dri3(disp)) return NULL;
-         if(!dri3_query_dri3()) return NULL;
-         if(!dri3_query_present()) return NULL;
-         if(!dri3_XFixes_query(disp)) return NULL;
+         if (!dri3_init_dri3(disp)) return NULL;
+         if (!dri3_query_dri3()) return NULL;
+         if (!dri3_query_present()) return NULL;
+         if (!dri3_XFixes_query(disp)) return NULL;
       }
    inits++;
 
@@ -50,16 +50,14 @@ evas_xcb_swapper_new(Display *disp, Drawable draw, Visual *vis,
    swp->w = w;
    swp->h = h;
    swp->last_count = -1;
-   if (swp->depth == 24)
-      {
-         swp->depth = 32;
-      }
+   if (swp->depth == 24) swp->depth = 32;
 
-   swp->dri3_draw = dri3_create_drawable (draw, w, h, swp->depth);
+   swp->dri3_draw = dri3_create_drawable(draw, w, h, swp->depth);
    if (!swp->dri3_draw)
       {
          inits--;
          free(swp);
+         if (inits == 0) dri3_deinit_dri3();
          return NULL;
       }
 

@@ -1165,6 +1165,13 @@ eng_image_new_from_copied_data(void *data EINA_UNUSED, int w, int h, DATA32 *ima
 static void
 eng_image_free(void *data EINA_UNUSED, void *image)
 {
+   RGBA_Image *im = image;
+   if (im && im->native.data)
+     {
+        if (im->native.func.free)
+           im->native.func.free(im->native.func.data, im);
+     }
+
 #ifdef EVAS_CSERVE2
    if (evas_cserve2_use_get() && evas_cache2_image_cached(image))
      {

@@ -237,8 +237,7 @@ bin/edje/edje_convert_main.c \
 lib/edje/edje_convert.c \
 tests/edje/edje_tests_helpers.h \
 tests/edje/data/complex_layout.edc \
-tests/edje/data/test_layout.edc \
-tests/edje/data/test_parens.edc
+tests/edje/data/test_layout.edc
 
 ### TIZEN_ONLY(20150404): Apply ASLR to executable files.
 bin_edje_edje_cc_LDFLAGS = -pie
@@ -298,16 +297,13 @@ tests/edje/data/%.edj: tests/edje/data/%.edc bin/edje/edje_cc${EXEEXT}
 	$(AM_V_EDJ)$(EDJE_CC) $(EDJE_CC_FLAGS) -id $(srcdir)/tests/edje/data $< $@
 
 EDJE_DATA_FILES = tests/edje/data/test_layout.edc \
-                  tests/edje/data/complex_layout.edc \
-                  tests/edje/data/test_parens.edc
+                  tests/edje/data/complex_layout.edc
 
 edjedatafilesdir = $(datadir)/edje/data
 edjedatafiles_DATA = tests/edje/data/test_layout.edj \
-                     tests/edje/data/complex_layout.edj \
-                     tests/edje/data/test_parens.edj
+                     tests/edje/data/complex_layout.edj
 CLEANFILES += tests/edje/data/test_layout.edj \
-              tests/edje/data/complex_layout.edj \
-              tests/edje/data/test_parens.edj
+              tests/edje/data/complex_layout.edj
 
 endif
 

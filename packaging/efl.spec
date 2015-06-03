@@ -955,6 +955,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/libedje.so.*
 %{_libdir}/edje/utils/*/*
 %{_datadir}/edje/include/edje.inc
+%{_datadir}/edje/images/*
 %{_datadir}/mime/packages/edje.xml
 
 %files -n edje-tools

@@ -1301,6 +1301,10 @@ struct _Edje_Part_Description_Spec_Text
    int            id_text_source; /* -1 if none */
    char          *id_text_source_part;
 
+   // TIZEN_ONLY(20150306): Add fade_ellipsis feature to TEXTBLOCK, TEXT part.
+   double         fade_ellipsis;
+   //
+
    unsigned char  fit_x; /* resize font size down to fit in x dir */
    unsigned char  fit_y; /* resize font size down to fit in y dir */
    unsigned char  min_x; /* if text size should be part min size */
@@ -1759,6 +1763,12 @@ struct _Edje_Real_Part_Text
    Eina_List             *filter_sources; // 4
    Edje_Position          offset; // 8
    short                  size; // 2
+   // TIZEN_ONLY(20150306): Add fade_ellipsis feature to TEXTBLOCK, TEXT part.
+   struct {
+      Evas_Object *object; // 4
+      float align;         // 4
+   } fade;
+   //
    struct {
       unsigned char       fit_x, fit_y; // 2
       short               in_size; // 2

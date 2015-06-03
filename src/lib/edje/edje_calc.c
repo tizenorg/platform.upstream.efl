@@ -3112,6 +3112,280 @@ _edje_map_prop_set(Evas_Map *map, const  Edje_Calc_Params *pf,
    else evas_map_alpha_set(map, EINA_FALSE);
 }
 
+////////////////////////////////////////////////////////////////////////////
+// TIZEN_ONLY(20150306): Add fade_ellipsis feature to TEXTBLOCK, TEXT part.
+////////////////////////////////////////////////////////////////////////////
+#define EDJE_DEFAULT_LEFT_FADE_IMAGE "edje_default_left_fade_image.png"
+#define EDJE_DEFAULT_RIGHT_FADE_IMAGE "edje_default_right_fade_image.png"
+
+static void
+_edje_real_part_text_fade_image_set(Edje *ed EINA_UNUSED, Edje_Real_Part *ep, double align)
+{
+   Evas_Object *fade_obj = fade_obj = ep->typedata.text->fade.object;
+   char buf[1024];
+
+   if (align == 1.0)
+     snprintf(buf, sizeof(buf), "/usr/share/%s%s", "edje/images/", EDJE_DEFAULT_RIGHT_FADE_IMAGE);
+   else
+     snprintf(buf, sizeof(buf), "/usr/share/%s%s", "edje/images/", EDJE_DEFAULT_LEFT_FADE_IMAGE);
+
+   evas_object_image_file_set(fade_obj, buf, NULL);
+
+   if (evas_object_image_load_error_get(fade_obj) != EVAS_LOAD_ERROR_NONE)
+     {
+        ERR("Error loading fade image from file \"%s\".", buf);
+
+        switch (evas_object_image_load_error_get(fade_obj))
+          {
+           case EVAS_LOAD_ERROR_GENERIC:
+              ERR("Error type: EVAS_LOAD_ERROR_GENERIC");
+              break;
+           case EVAS_LOAD_ERROR_DOES_NOT_EXIST:
+              ERR("Error type: EVAS_LOAD_ERROR_DOES_NOT_EXIST");
+              break;
+           case EVAS_LOAD_ERROR_PERMISSION_DENIED:
+              ERR("Error type: EVAS_LOAD_ERROR_PERMISSION_DENIED");
+              break;
+           case EVAS_LOAD_ERROR_RESOURCE_ALLOCATION_FAILED:
+              ERR("Error type: EVAS_LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
+              break;
+           case EVAS_LOAD_ERROR_CORRUPT_FILE:
+              ERR("Error type: EVAS_LOAD_ERROR_CORRUPT_FILE");
+              break;
+           case EVAS_LOAD_ERROR_UNKNOWN_FORMAT:
+              ERR("Error type: EVAS_LOAD_ERROR_UNKNOWN_FORMAT");
+              break;
+           default:
+              ERR("Error type: ???");
+              break;
+          }
+     }
+}
+
+static void
+_real_part_object_del_cb_for_fade_object(void *data,
+                                         Evas *e EINA_UNUSED,
+                                         Evas_Object *obj EINA_UNUSED,
+                                         void *event_info EINA_UNUSED)
+{
+   Edje_Real_Part *ep = (Edje_Real_Part *)data;
+
+   if (ep->typedata.text->fade.object)
+     evas_object_del(ep->typedata.text->fade.object);
+   ep->typedata.text->fade.object = NULL;
+}
+
+static void
+_real_part_object_move_cb_for_fade_object(void *data,
+                                         Evas *e EINA_UNUSED,
+                                         Evas_Object *obj EINA_UNUSED,
+                                         void *event_info EINA_UNUSED)
+{
+   Edje_Real_Part *ep = (Edje_Real_Part *)data;
+
+   if (ep->typedata.text->fade.object)
+     {
+        Evas_Coord x, y;
+
+        evas_object_geometry_get(ep->object, &x, &y, NULL, NULL);
+        evas_object_move(ep->typedata.text->fade.object, x, y);
+     }
+}
+
+static void
+_edje_fade_ellipsis_apply(Edje *ed, Edje_Real_Part *ep,
+                          Edje_Calc_Params *pf,
+                          Edje_Part_Description_Text *chosen_desc)
+{
+   // DEBUGGING FLAG
+#define FADE_CLIP 1
+#define FADE_IMAGE 1
+#define FADE_IMAGE_BORDER 1
+   //
+   Evas_Coord tw, th;
+   Evas_Coord lx, ly, lw, lh;
+   Evas_Coord iw;
+   Evas_Coord clipper_h;
+   Evas_BiDi_Direction dir;
+   Evas_Object *clipper;
+   Evas_Object *fade_obj;
+   double align;
+   Eina_Bool ellipsis_status;
+
+   if ((ep->part->type != EDJE_PART_TYPE_TEXTBLOCK) &&
+       (ep->part->type != EDJE_PART_TYPE_TEXT))
+     return;
+
+   if (ep->part->type == EDJE_PART_TYPE_TEXTBLOCK)
+     ellipsis_status = evas_object_textblock_ellipsis_status_get(ep->object);
+   else
+     ellipsis_status = evas_object_text_ellipsis_status_get(ep->object);
+
+   // Hide fade image if fade_ellipsis option is off or object size is zero.
+   if ((chosen_desc->text.fade_ellipsis == 0.0) ||
+       !((chosen_desc->text.fade_ellipsis > 0.0) && ellipsis_status) ||
+       (pf->final.w == 0) || (pf->final.h == 0))
+     {
+        if (ep->typedata.text->fade.object)
+          {
+#if FADE_CLIP
+             clipper = evas_object_clip_get(ep->typedata.text->fade.object);
+
+             if (clipper) evas_object_clip_set(ep->object, clipper);
+#endif
+             evas_object_hide(ep->typedata.text->fade.object);
+          }
+
+        return;
+     }
+
+   if (ep->part->type == EDJE_PART_TYPE_TEXTBLOCK)
+     {
+        Evas_Coord fw, fh;
+
+        evas_object_textblock_size_native_get(ep->object, &tw, &th);
+        evas_object_textblock_size_formatted_get(ep->object, &fw, &fh);
+
+        // FIXME: Sometimes, formatted_get returns 0 as width in single-line textblock.
+        if (fh > th)
+          {
+             tw = fw;
+             th = fh;
+          }
+     }
+   else
+     {
+        tw = evas_object_text_horiz_advance_get(ep->object),
+        th = evas_object_text_vert_advance_get(ep->object);
+     }
+
+   // Hide fade image if text is not exceed the given area.
+   if ((tw <= pf->final.w) && (th <= pf->final.h) && !ellipsis_status)
+     {
+        if (ep->typedata.text->fade.object)
+          {
+#if FADE_CLIP
+             clipper = evas_object_clip_get(ep->typedata.text->fade.object);
+
+             if (clipper) evas_object_clip_set(ep->object, clipper);
+#endif
+             evas_object_hide(ep->typedata.text->fade.object);
+          }
+
+        return;
+     }
+
+   // Make and show fade image.
+   if (!ep->typedata.text->fade.object)
+     {
+#if FADE_IMAGE
+        ep->typedata.text->fade.object = evas_object_image_add(evas_object_evas_get(ep->object));
+#else
+        ep->typedata.text->fade.object = evas_object_rectangle_add(evas_object_evas_get(ep->object));
+        evas_object_color_set(ep->typedata.text->fade.object, 200, 0, 0, 200);
+#endif
+        evas_object_pass_events_set(ep->typedata.text->fade.object, 1);
+        evas_object_pointer_mode_set(ep->typedata.text->fade.object, EVAS_OBJECT_POINTER_MODE_NOGRAB);
+        evas_object_smart_member_add(ep->typedata.text->fade.object, ed->obj);
+        evas_object_event_callback_add(ep->object, EVAS_CALLBACK_DEL, _real_part_object_del_cb_for_fade_object, ep);
+        evas_object_event_callback_add(ep->object, EVAS_CALLBACK_MOVE, _real_part_object_move_cb_for_fade_object, ep);
+
+        ep->typedata.text->fade.align = -1;
+     }
+
+   fade_obj = ep->typedata.text->fade.object;
+
+   if (ep->part->type == EDJE_PART_TYPE_TEXTBLOCK)
+     {
+        Evas_Textblock_Cursor *cur;
+
+        cur = evas_object_textblock_cursor_new(ep->object);
+        evas_textblock_cursor_line_coord_set(cur, pf->final.h);
+        evas_textblock_cursor_line_geometry_get(cur, &lx, &ly, &lw, &lh);
+        evas_textblock_cursor_geometry_get(cur,
+                                           NULL, NULL, NULL, NULL, &dir,
+                                           EVAS_TEXTBLOCK_CURSOR_BEFORE);
+
+        if (ly + lh > pf->final.h)
+          {
+             evas_textblock_cursor_line_coord_set(cur, pf->final.h - lh);
+             evas_textblock_cursor_line_geometry_get(cur, &lx, &ly, &lw, &lh);
+             evas_textblock_cursor_geometry_get(cur,
+                                                NULL, NULL, NULL, NULL, &dir,
+                                                EVAS_TEXTBLOCK_CURSOR_BEFORE);
+          }
+
+        evas_textblock_cursor_free(cur);
+     }
+   else
+     {
+        // FIXME: I don't know how should I handle this in evas text.
+        lx = ly = 0;
+        dir = evas_object_text_direction_get(ep->object);
+        evas_object_geometry_get(ep->object, NULL, NULL, &lw, &lh);
+     }
+
+   if (dir != EVAS_BIDI_DIRECTION_RTL)
+     align = chosen_desc->text.fade_ellipsis - 1.0;
+   else
+     align = 1.0 - (chosen_desc->text.fade_ellipsis - 1.0);
+
+#if FADE_IMAGE
+   if (ep->typedata.text->fade.align != align)
+     {
+        // Load image from edje.
+        _edje_real_part_text_fade_image_set(ed, ep, align);
+
+        // Default fade image is for LTR.
+        // Assume 10% of fadeout image's left side is opaque. (alpha = 255)
+        if (align == 1.0)
+          {
+#if FADE_IMAGE_BORDER
+             evas_object_image_size_get(fade_obj, &iw, NULL);
+             evas_object_image_border_set(fade_obj, 0, iw - (iw * 0.1), 0, 0);
+             evas_object_image_border_scale_set(fade_obj, 1.0);
+             evas_object_image_border_center_fill_set(fade_obj, EVAS_BORDER_FILL_DEFAULT);
+#endif
+          }
+        else
+          {
+#if FADE_IMAGE_BORDER
+             evas_object_image_size_get(fade_obj, &iw, NULL);
+             evas_object_image_border_set(fade_obj, iw - (iw * 0.1), 0, 0, 0);
+             evas_object_image_border_scale_set(fade_obj, 1.0);
+             evas_object_image_border_center_fill_set(fade_obj, EVAS_BORDER_FILL_DEFAULT);
+#endif
+          }
+
+        ep->typedata.text->fade.align = (float)align;
+     }
+#endif
+
+   // This will prevent to show horizontally cut off text in multiline textblock.
+   if (ly != 0)
+     clipper_h = ly + lh;
+   else
+     clipper_h = pf->final.h;
+
+#if FADE_IMAGE
+   evas_object_image_fill_set(fade_obj, 0, 0, pf->final.w, clipper_h);
+#endif
+   evas_object_resize(fade_obj, pf->final.w, clipper_h);
+   evas_object_move(fade_obj, ed->x + pf->final.x, ed->y + pf->final.y);
+
+#if FADE_CLIP
+   clipper = evas_object_clip_get(ep->object);
+
+   if (clipper != fade_obj)
+     {
+        evas_object_clip_set(fade_obj, clipper);
+        evas_object_clip_set(ep->object, fade_obj);
+        evas_object_show(fade_obj);
+     }
+#endif
+}
+/////////////////////////////////////////////////////////////////////////
+
 #define Rel1X 0
 #define Rel1Y 1
 #define Rel2X 2
@@ -4021,6 +4295,12 @@ _edje_part_recalc(Edje *ed, Edje_Real_Part *ep, int flags, Edje_Calc_Params *sta
 #endif
                }
           }
+
+        // TIZEN_ONLY(20150306): Add fade_ellipsis feature to TEXTBLOCK, TEXT part.
+        if (ep->part->type == EDJE_PART_TYPE_TEXTBLOCK ||
+            ep->part->type == EDJE_PART_TYPE_TEXT)
+          _edje_fade_ellipsis_apply(ed, ep, pf, (Edje_Part_Description_Text*) chosen_desc);
+        //
      }
 
    if (map_colors_free) _map_colors_free(pf);

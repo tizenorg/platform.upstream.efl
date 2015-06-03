@@ -2573,4 +2573,19 @@ evas_object_text_text_get(const Eo *obj)
    return eo_do((Eo *) obj, efl_text_get());
 }
 
+// TIZEN_ONLY(20150513): Add evas_object_text/textblock_ellipsis_status_get internal API.
+EAPI Eina_Bool
+evas_object_text_ellipsis_status_get(const Evas_Object *eo_obj)
+{
+   Evas_Text_Data *o;
+
+   MAGIC_CHECK(eo_obj, Evas_Object, MAGIC_OBJ);
+   return EINA_FALSE;
+   MAGIC_CHECK_END();
+
+   o = eo_data_scope_get(eo_obj, MY_CLASS);
+   return o->last_computed.ellipsis;
+}
+//
+
 #include "canvas/evas_text.eo.c"

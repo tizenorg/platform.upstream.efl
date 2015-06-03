@@ -531,6 +531,9 @@ struct _Evas_Object_Textblock
    Eina_Bool                           format_changed : 1;
    Eina_Bool                           have_ellipsis : 1;
    Eina_Bool                           legacy_newline : 1;
+   // TIZEN_ONLY(20150513): Add evas_object_text/textblock_ellipsis_status_get internal API.
+   Eina_Bool                           last_computed_ellipsis : 1;
+   //
 };
 
 struct _Evas_Textblock_Selection_Iterator
@@ -4670,6 +4673,10 @@ _layout_par_ellipsis_items(Ctxt *c, double ellip)
    if (exceed <= 0)
       return;
 
+   // TIZEN_ONLY(20150513): Add evas_object_text/textblock_ellipsis_status_get internal API.
+   c->o->last_computed_ellipsis = EINA_TRUE;
+   //
+
      {
         Evas_Object_Textblock_Item *first_it =
            _ITEM(eina_list_data_get(c->par->logical_items));
@@ -4893,6 +4900,9 @@ _layout_par(Ctxt *c)
                     (!it->format->wrap_word && !it->format->wrap_char &&
                      !it->format->wrap_mixed)))
                {
+                  // TIZEN_ONLY(20150513): Add evas_object_text/textblock_ellipsis_status_get internal API.
+                  c->o->last_computed_ellipsis = EINA_TRUE;
+                  //
                   _layout_handle_ellipsis(c, it, i);
                   ret = 1;
                   goto end;
@@ -5662,6 +5672,9 @@ _relayout(const Evas_Object *eo_obj)
 {
    Evas_Object_Protected_Data *obj = eo_data_scope_get(eo_obj, EVAS_OBJECT_CLASS);
    Evas_Textblock_Data *o = eo_data_scope_get(eo_obj, MY_CLASS);
+   // TIZEN_ONLY(20150513): Add evas_object_text/textblock_ellipsis_status_get internal API.
+   o->last_computed_ellipsis = EINA_FALSE;
+   //
    _layout(eo_obj, obj->cur->geometry.w, obj->cur->geometry.h,
          &o->formatted.w, &o->formatted.h);
    o->formatted.valid = 1;
@@ -12508,6 +12521,17 @@ _evas_object_textblock_rehint(Evas_Object *eo_obj)
      }
    _evas_textblock_invalidate_all(o);
    _evas_textblock_changed(o, eo_obj);
+}
+
+// TIZEN_ONLY(20150513): Add evas_object_text/textblock_ellipsis_status_get internal API.
+EAPI Eina_Bool
+evas_object_textblock_ellipsis_status_get(const Evas_Object *eo_obj)
+{
+   Evas_Textblock_Data *o;
+   TB_HEAD_RETURN(EINA_FALSE);
+
+   o = eo_data_scope_get(eo_obj, MY_CLASS);
+   return o->last_computed_ellipsis;
 }
 
 /**

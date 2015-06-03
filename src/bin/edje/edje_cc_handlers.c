@@ -350,6 +350,9 @@ static void st_collections_group_parts_part_description_text_source(void);
 static void st_collections_group_parts_part_description_text_text_source(void);
 static void st_collections_group_parts_part_description_text_ellipsis(void);
 static void st_collections_group_parts_part_description_text_filter(void);
+// TIZEN_ONLY(20150306): Add fade_ellipsis feature to TEXTBLOCK, TEXT part.
+static void st_collections_group_parts_part_description_text_fade_ellipsis(void);
+//
 static void st_collections_group_parts_part_description_box_layout(void);
 static void st_collections_group_parts_part_description_box_align(void);
 static void st_collections_group_parts_part_description_box_padding(void);
@@ -716,6 +719,9 @@ New_Statement_Handler statement_handlers[] =
      {"collections.group.parts.part.description.text.elipsis", st_collections_group_parts_part_description_text_ellipsis},
      {"collections.group.parts.part.description.text.ellipsis", st_collections_group_parts_part_description_text_ellipsis},
      {"collections.group.parts.part.description.text.filter", st_collections_group_parts_part_description_text_filter},
+     // TIZEN_ONLY(20150306): Add fade_ellipsis feature to TEXTBLOCK, TEXT part.
+     {"collections.group.parts.part.description.text.fade_ellipsis", st_collections_group_parts_part_description_text_fade_ellipsis},
+     //
      {"collections.group.parts.part.description.box.layout", st_collections_group_parts_part_description_box_layout},
      {"collections.group.parts.part.description.box.align", st_collections_group_parts_part_description_box_align},
      {"collections.group.parts.part.description.box.padding", st_collections_group_parts_part_description_box_padding},
@@ -8672,6 +8678,29 @@ st_collections_group_parts_part_description_text_filter(void)
    if (valid) ed->text.filter_sources = sources;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// TIZEN_ONLY(20150306): Add fade_ellipsis feature to TEXTBLOCK, TEXT part. //
+//////////////////////////////////////////////////////////////////////////////
+static void
+st_collections_group_parts_part_description_text_fade_ellipsis(void)
+{
+   Edje_Part_Description_Text *ed;
+
+   check_arg_count(1);
+
+   if ((current_part->type != EDJE_PART_TYPE_TEXT) &&
+       (current_part->type != EDJE_PART_TYPE_TEXTBLOCK))
+     {
+        ERR("parse error %s:%i. text attributes in non-TEXT part.",
+            file_in, line - 1);
+        exit(-1);
+     }
+
+   ed = (Edje_Part_Description_Text*) current_desc;
+
+   ed->text.fade_ellipsis = parse_float_range(0, -1.0, 1.0) + 1.0;
+}
+/////////////////////////////////////////////////////////////////////////////////
 
 /** @edcsubsection{collections_group_parts_description_box,
  *                 Group.Parts.Part.Description.Box} */

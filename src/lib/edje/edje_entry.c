@@ -1492,11 +1492,14 @@ _edje_key_down_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
                }
              else
                {
-                  if (evas_textblock_cursor_compare(en->sel_start, en->sel_end) < 0)
-                    evas_textblock_cursor_copy(en->sel_start, en->cursor);
-                  else
-                    evas_textblock_cursor_copy(en->sel_end, en->cursor);
-                  _sel_clear(ed, en->cursor, rp->object, en);
+                  if (en->have_selection)
+                    {
+                       if (evas_textblock_cursor_compare(en->sel_start, en->sel_end) < 0)
+                         evas_textblock_cursor_copy(en->sel_start, en->cursor);
+                       else
+                         evas_textblock_cursor_copy(en->sel_end, en->cursor);
+                       _sel_clear(ed, en->cursor, rp->object, en);
+                    }
                }
           }
         // TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs.
@@ -1529,11 +1532,14 @@ _edje_key_down_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED,
                }
              else
                {
-                  if (evas_textblock_cursor_compare(en->sel_start, en->sel_end) < 0)
-                    evas_textblock_cursor_copy(en->sel_end, en->cursor);
-                  else
-                    evas_textblock_cursor_copy(en->sel_start, en->cursor);
-                  _sel_clear(ed, en->cursor, rp->object, en);
+                  if (en->have_selection)
+                    {
+                       if (evas_textblock_cursor_compare(en->sel_start, en->sel_end) < 0)
+                         evas_textblock_cursor_copy(en->sel_end, en->cursor);
+                       else
+                         evas_textblock_cursor_copy(en->sel_start, en->cursor);
+                       _sel_clear(ed, en->cursor, rp->object, en);
+                    }
                }
           }
         /* If control is pressed, go to the end of the word */

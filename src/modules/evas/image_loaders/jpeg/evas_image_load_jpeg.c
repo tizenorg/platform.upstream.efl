@@ -375,7 +375,7 @@ _rotate_region(unsigned int *r_x, unsigned int *r_y, unsigned int *r_w, unsigned
         else
           {
              *r_x = y;
-             *r_y = output_h - (x + y);
+             *r_y = output_h - (x + w);
              *r_w = h;
              *r_h = w;
           }
@@ -1203,32 +1203,32 @@ done:
         DATA32 *to;
         int hw;
 
-        hw = w * h;
+        hw = ie_w * ie_h;
         to = pixels;
 
         switch (degree)
           {
            case 90:
              if (prop->flipped)
-               _rotate_change_wh(to + hw - 1, ptr_rotate, w, h, hw - 1, -h);
+               _rotate_change_wh(to + hw - 1, ptr_rotate, ie_w, ie_h, hw - 1, -ie_h);
              else
-               _rotate_change_wh(to + h - 1, ptr_rotate, w, h, -hw - 1, h);
+               _rotate_change_wh(to + ie_h - 1, ptr_rotate, ie_w, ie_h, -hw - 1, ie_h);
              break;
            case 180:
              if (prop->flipped)
-               _flip_vertical(to, w, h);
+               _flip_vertical(to, ie_w, ie_h);
              else
-               _rotate_180(to, w, h);
+               _rotate_180(to, ie_w, ie_h);
              break;
            case 270:
              if (prop->flipped)
-               _rotate_change_wh(to, ptr_rotate, w, h, -hw + 1, h);
+               _rotate_change_wh(to, ptr_rotate, ie_w, ie_h, -hw + 1, ie_h);
              else
-               _rotate_change_wh(to + hw - h, ptr_rotate, w, h, hw + 1, -h);
+               _rotate_change_wh(to + hw - ie_h, ptr_rotate, ie_w, ie_h, hw + 1, -ie_h);
              break;
            default:
              if (prop->flipped)
-               _flip_horizontal(to, w, h);
+               _flip_horizontal(to, ie_w, ie_h);
              break;
           }
         if (ptr_rotate)

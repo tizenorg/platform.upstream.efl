@@ -10,6 +10,7 @@
 #define GLPIPES 1
 
 static int sym_done = 0;
+static int tbm_sym_done = 0;
 int _evas_engine_GL_common_log_dom = -1;
 Cutout_Rects *_evas_gl_common_cutout_rects = NULL;
 
@@ -41,6 +42,7 @@ void       (*glsym_glEndTiling)            (GLuint a) = NULL;
 typedef void (*_eng_fn) (void);
 
 typedef _eng_fn (*glsym_func_eng_fn) ();
+typedef int  (*secsym_func_int) ();
 typedef unsigned int  (*secsym_func_uint) ();
 typedef void         *(*secsym_func_void_ptr) ();
 
@@ -50,6 +52,17 @@ void           (*secsym_glEGLImageTargetTexture2DOES) (int a, void *b) = NULL;
 void          *(*secsym_eglMapImageSEC)               (void *a, void *b, int c, int d) = NULL;
 unsigned int   (*secsym_eglUnmapImageSEC)             (void *a, void *b, int c) = NULL;
 unsigned int   (*secsym_eglGetImageAttribSEC)         (void *a, void *b, int c, int *d) = NULL;
+
+////////////////////////////////////
+//libtbm.so.1
+static void *tbm_lib_handle;
+
+void *(*secsym_tbm_surface_create) (int width, int height, unsigned int format) = NULL;
+int  (*secsym_tbm_surface_destroy) (void *surface) = NULL;
+int  (*secsym_tbm_surface_map) (void *surface, int opt, void *info) = NULL;
+int  (*secsym_tbm_surface_unmap) (void *surface) = NULL;
+int  (*secsym_tbm_surface_get_info) (void *surface, void *info) = NULL;
+////////////////////////////////////
 #else
 typedef void (*_eng_fn) (void);
 
@@ -145,7 +158,7 @@ evas_gl_symbols(void *(*GetProcAddress)(const char *name))
 
    FINDSYM(glsym_glEndTiling, "glEndTilingQCOM", glsym_func_void);
    FINDSYM(glsym_glEndTiling, "glEndTiling", glsym_func_void);
-   
+
    if (!getenv("EVAS_GL_MAPBUFFER_DISABLE"))
      {
         FINDSYM(glsym_glMapBuffer, "glMapBufferOES", glsym_func_void_ptr);
@@ -155,7 +168,7 @@ evas_gl_symbols(void *(*GetProcAddress)(const char *name))
         FINDSYM(glsym_glMapBuffer, "glMapBuffer", glsym_func_void_ptr);
 
         FINDSYM(glsym_glUnmapBuffer, "glUnmapBufferOES", glsym_func_boolean);
-        FINDSYM(glsym_glUnmapBuffer, "glUnmapBufferEXT", glsym_func_boolean); 
+        FINDSYM(glsym_glUnmapBuffer, "glUnmapBufferEXT", glsym_func_boolean);
         FINDSYM(glsym_glUnmapBuffer, "glUnmapBufferARB", glsym_func_boolean);
         FINDSYM(glsym_glUnmapBuffer, "glUnmapBufferKHR", glsym_func_boolean);
         FINDSYM(glsym_glUnmapBuffer, "glUnmapBuffer", glsym_func_boolean);
@@ -193,6 +206,42 @@ evas_gl_symbols(void *(*GetProcAddress)(const char *name))
    FINDSYM(secsym_eglUnmapImageSEC, "eglUnmapImageSEC", secsym_func_uint);
 
    FINDSYM(secsym_eglGetImageAttribSEC, "eglGetImageAttribSEC", secsym_func_uint);
+#endif
+
+#undef FINDSYM
+#undef FINDSYM2
+#undef FALLBAK
+}
+
+static void
+tbm_symbols(void)
+{
+   if (tbm_sym_done) return;
+   tbm_sym_done = 1;
+
+#ifdef GL_GLES
+   tbm_lib_handle = dlopen("libtbm.so.1", RTLD_NOW);
+   if (!tbm_lib_handle)
+     {
+        DBG("Unable to open libtbm:  %s", dlerror());
+        return;
+     }
+
+#define FINDSYM(dst, sym, typ) \
+   if (!dst) dst = (typ)dlsym(tbm_lib_handle, sym); \
+   if (!dst)  \
+     { \
+        ERR("Symbol not found %s\n", sym); \
+        return; \
+     }
+
+   FINDSYM(secsym_tbm_surface_create, "tbm_surface_create", secsym_func_void_ptr);
+   FINDSYM(secsym_tbm_surface_destroy, "tbm_surface_destroy", secsym_func_int);
+   FINDSYM(secsym_tbm_surface_map, "tbm_surface_map", secsym_func_int);
+   FINDSYM(secsym_tbm_surface_unmap, "tbm_surface_unmap", secsym_func_int);
+   FINDSYM(secsym_tbm_surface_get_info, "tbm_surface_get_info", secsym_func_int);
+
+#undef FINDSYM
 #endif
 }
 
@@ -424,7 +473,7 @@ _evas_gl_common_viewport_set(Evas_Engine_GL_Context *gc, int force_update)
 
 #ifdef GL_GLES
    if ((gc->shared->eglctxt == gc->eglctxt) && (!force_update ))
-#endif     
+#endif
      {
         if ((!gc->change.size) ||
             (
@@ -438,7 +487,7 @@ _evas_gl_common_viewport_set(Evas_Engine_GL_Context *gc, int force_update)
 #ifdef GL_GLES
    gc->shared->eglctxt = gc->eglctxt;
 #endif
-   
+
    gc->shared->w = w;
    gc->shared->h = h;
    gc->shared->rot = rot;
@@ -569,6 +618,8 @@ evas_gl_common_context_new(void)
    if (!gc) return NULL;
    gc->gles_version = gles_version;
 
+   tbm_symbols();
+
    gc->references = 1;
 
    _evas_gl_common_context = gc;
@@ -648,6 +699,14 @@ evas_gl_common_context_new(void)
                       (secsym_eglGetImageAttribSEC))
                      shared->info.sec_image_map = 1;
                }
+             i = 0;
+
+             if ((secsym_tbm_surface_create) &&
+                  (secsym_tbm_surface_destroy) &&
+                  (secsym_tbm_surface_map) &&
+                  (secsym_tbm_surface_unmap) &&
+                  (secsym_tbm_surface_get_info))
+                  shared->info.sec_tbm_surface = 1;
 #endif
              if (!strstr(ext, "GL_QCOM_tiled_rendering"))
                {
@@ -928,6 +987,7 @@ evas_gl_common_context_new(void)
         shared->native_pm_hash  = eina_hash_int32_new(NULL);
         shared->native_tex_hash = eina_hash_int32_new(NULL);
         shared->native_wl_hash = eina_hash_pointer_new(NULL);
+        shared->native_tbm_hash = eina_hash_pointer_new(NULL);
         shared->native_evasgl_hash = eina_hash_pointer_new(NULL);
      }
    gc->shared = shared;
@@ -1003,6 +1063,7 @@ evas_gl_common_context_free(Evas_Engine_GL_Context *gc)
         eina_hash_free(gc->shared->native_pm_hash);
         eina_hash_free(gc->shared->native_tex_hash);
         eina_hash_free(gc->shared->native_wl_hash);
+        eina_hash_free(gc->shared->native_tbm_hash);
         eina_hash_free(gc->shared->native_evasgl_hash);
         free(gc->shared);
         shared = NULL;
@@ -1348,7 +1409,7 @@ pipe_region_intersects(Evas_Engine_GL_Context *gc, int n,
 {
    int rx, ry, rw, rh, ii, end;
    const GLshort *v;
-   
+
    rx = gc->pipe[n].region.x;
    ry = gc->pipe[n].region.y;
    rw = gc->pipe[n].region.w;
@@ -1773,6 +1834,7 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
 {
    Evas_GL_Texture_Pool *pt;
    GLfloat tx1, tx2, ty1, ty2;
+   GLfloat tx3, tx4, ty3, ty4;
    GLfloat offsetx, offsety;
    Eina_Bool blend = EINA_FALSE;
    Evas_GL_Shader shader = SHADER_IMG;
@@ -1814,6 +1876,19 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
                                                         SHADER_IMG_MASK_BGRA_NOMUL, SHADER_IMG_MASK_BGRA);
                }
           }
+#ifdef GL_GLES
+        else if (tex->im && tex->im->native.target == GL_TEXTURE_EXTERNAL_OES)
+          {
+             if ((!tex->alpha) && (tex->pt->native))
+               shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
+                                                     SHADER_TEX_EXTERNAL_NOMUL_AFILL, SHADER_TEX_EXTERNAL_AFILL,
+                                                     SHADER_IMG_MASK_NOMUL, SHADER_IMG_MASK);
+             else
+               shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
+                                                     SHADER_TEX_EXTERNAL_NOMUL, SHADER_TEX_EXTERNAL,
+                                                     SHADER_IMG_MASK_NOMUL, SHADER_IMG_MASK);
+          }
+#endif
         else
           {
              if ((smooth) && ((sw >= (w * 2)) && (sh >= (h * 2))))
@@ -1985,26 +2060,131 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
    PIPE_GROW(gc, pn, 6);
 
    if ((tex->im) && (tex->im->native.data))
-     {
-        if (tex->im->native.func.yinvert)
-          yinvert = tex->im->native.func.yinvert(tex->im->native.func.data, tex->im);
-        else
-          yinvert = tex->im->native.yinvert;
-     }
+      {
+         if (tex->im->native.func.yinvert)
+           yinvert = tex->im->native.func.yinvert(tex->im->native.func.data, tex->im);
+         else
+           yinvert = tex->im->native.yinvert;
+      }
 
    if ((tex->im) && (tex->im->native.data) && (!yinvert))
-     {
-        tx1 = ((double)(offsetx) + sx) / (double)pt->w;
-        ty1 = 1.0 - ((double)(offsety) + sy) / (double)pt->h;
-        tx2 = ((double)(offsetx) + sx + sw) / (double)pt->w;
-        ty2 = 1.0 - ((double)(offsety) + sy + sh) / (double)pt->h;
-     }
+      {
+         tx3 = tx1 = ((double)(offsetx) + sx) / (double)pt->w;
+         ty4 = ty1 = 1.0 - ((double)(offsety) + sy) / (double)pt->h;
+         tx4 = tx2 = ((double)(offsetx) + sx + sw) / (double)pt->w;
+         ty3 = ty2 = 1.0 - ((double)(offsety) + sy + sh) / (double)pt->h;
+      }
+   else if ((tex->im) && (tex->im->native.data) && (yinvert))
+      {
+         double tmp;
+         switch (tex->im->native.rot)
+         {
+            case 90:
+               tmp = sx; sx = (tex->h - sy - sh) * tex->w / (double)tex->h;
+               sy = tmp * tex->h / (double)tex->w;
+               tmp = sw; sw = sh * tex->w / (double)tex->h;
+               sh = tmp * tex->h / (double)tex->w;
+               if (tex->im->native.flip == 2 || tex->im->native.flip == 3)
+                  {
+                     tx2 = tx3 = ((double)(offsetx) + sx + sw) / (double)pt->w;
+                     tx1 = tx4 = ((double)(offsetx) + sx) / (double)pt->w;
+                  }
+               else
+                  {
+                     tx1 = tx4 = ((double)(offsetx) + sx + sw) / (double)pt->w;
+                     tx2 = tx3 = ((double)(offsetx) + sx) / (double)pt->w;
+                  }
+               if (tex->im->native.flip == 1 || tex->im->native.flip == 3)
+                  {
+                     ty1 = ty3 = ((double)(offsety) + sy + sh) / (double)pt->h;
+                     ty2 = ty4 = ((double)(offsety) + sy) / (double)pt->h;
+                  }
+               else
+                  {
+                     ty2 = ty4 = ((double)(offsety) + sy + sh) / (double)pt->h;
+                     ty1 = ty3 = ((double)(offsety) + sy) / (double)pt->h;
+                  }
+               break;
+            case 180:
+               sx = tex->w - sx - sw; sy = tex->h - sy - sh;
+               if (tex->im->native.flip == 2 || tex->im->native.flip == 3)
+                  {
+                     tx4 = tx2 = ((double)(offsetx) + sx + sw) / (double)pt->w;
+                     tx3 = tx1 = ((double)(offsetx) + sx) / (double)pt->w;
+                  }
+               else
+                  {
+                     tx3 = tx1 = ((double)(offsetx) + sx + sw) / (double)pt->w;
+                     tx4 = tx2 = ((double)(offsetx) + sx) / (double)pt->w;
+                  }
+               if (tex->im->native.flip == 1 || tex->im->native.flip == 3)
+                  {
+                     ty3 = ty2 = ((double)(offsety) + sy + sh) / (double)pt->h;
+                     ty4 = ty1 = ((double)(offsety) + sy) / (double)pt->h;
+                  }
+               else
+                  {
+                     ty4 = ty1 = ((double)(offsety) + sy + sh) / (double)pt->h;
+                     ty3 = ty2 = ((double)(offsety) + sy) / (double)pt->h;
+                  }
+               break;
+            case 270:
+               tmp = sy; sy = (tex->w - sx - sw) * tex->h / (double)tex->w;
+               sx = tmp * tex->w / (double)tex->h;
+               tmp = sw; sw = sh * tex->w / (double)tex->h;
+               sh = tmp * tex->h / (double)tex->w;
+               if (tex->im->native.flip == 2 || tex->im->native.flip == 3)
+                  {
+                     tx1 = tx4 = ((double)(offsetx) + sx + sw) / (double)pt->w;
+                     tx2 = tx3 = ((double)(offsetx) + sx) / (double)pt->w;
+                  }
+               else
+                  {
+                     tx2 = tx3 = ((double)(offsetx) + sx + sw) / (double)pt->w;
+                     tx1 = tx4 = ((double)(offsetx) + sx) / (double)pt->w;
+                  }
+               if (tex->im->native.flip == 1 || tex->im->native.flip == 3)
+                  {
+                     ty2 = ty4 = ((double)(offsety) + sy + sh) / (double)pt->h;
+                     ty1 = ty3 = ((double)(offsety) + sy) / (double)pt->h;
+                  }
+               else
+                  {
+                     ty1 = ty3 = ((double)(offsety) + sy + sh) / (double)pt->h;
+                     ty2 = ty4 = ((double)(offsety) + sy) / (double)pt->h;
+                  }
+               break;
+            case 0:
+            default:
+               if (tex->im->native.flip == 2 || tex->im->native.flip == 3)
+                  {
+                     tx4 = tx2 = ((double)(offsetx) + sx) / (double)pt->w;
+                     tx3 = tx1 = ((double)(offsetx) + sx + sw) / (double)pt->w;
+                  }
+               else
+                  {
+                     tx3 = tx1 = ((double)(offsetx) + sx) / (double)pt->w;
+                     tx4 = tx2 = ((double)(offsetx) + sx + sw) / (double)pt->w;
+                  }
+               if (tex->im->native.flip == 1 || tex->im->native.flip == 3)
+                  {
+                     ty3 = ty2 = ((double)(offsety) + sy) / (double)pt->h;
+                     ty4 = ty1 = ((double)(offsety) + sy + sh) / (double)pt->h;
+                  }
+               else
+                  {
+                     ty4 = ty1 = ((double)(offsety) + sy) / (double)pt->h;
+                     ty3 = ty2 = ((double)(offsety) + sy + sh) / (double)pt->h;
+                  }
+               break;
+         }
+      }
    else
      {
-        tx1 = ((double)(offsetx) + sx) / (double)pt->w;
-        ty1 = ((double)(offsety) + sy) / (double)pt->h;
-        tx2 = ((double)(offsetx) + sx + sw) / (double)pt->w;
-        ty2 = ((double)(offsety) + sy + sh) / (double)pt->h;
+        tx3 = tx1 = ((double)(offsetx) + sx) / (double)pt->w;
+        ty4 = ty1 = ((double)(offsety) + sy) / (double)pt->h;
+        tx4 = tx2 = ((double)(offsetx) + sx + sw) / (double)pt->w;
+        ty3 = ty2 = ((double)(offsety) + sy + sh) / (double)pt->h;
      }
 
    PUSH_VERTEX(pn, x    , y    , 0);
@@ -2012,22 +2192,22 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
    PUSH_VERTEX(pn, x    , y + h, 0);
 
    PUSH_TEXUV(pn, tx1, ty1);
-   PUSH_TEXUV(pn, tx2, ty1);
-   PUSH_TEXUV(pn, tx1, ty2);
+   PUSH_TEXUV(pn, tx4, ty4);
+   PUSH_TEXUV(pn, tx3, ty3);
 
    PUSH_VERTEX(pn, x + w, y    , 0);
    PUSH_VERTEX(pn, x + w, y + h, 0);
    PUSH_VERTEX(pn, x    , y + h, 0);
 
-   PUSH_TEXUV(pn, tx2, ty1);
+   PUSH_TEXUV(pn, tx4, ty4);
    PUSH_TEXUV(pn, tx2, ty2);
-   PUSH_TEXUV(pn, tx1, ty2);
+   PUSH_TEXUV(pn, tx3, ty3);
 
    if (sam)
      {
         double samx = (double)(sw) / (double)(tex->pt->w * w * 4);
         double samy = (double)(sh) / (double)(tex->pt->h * h * 4);
-        
+
         PUSH_TEXSAM(pn, samx, samy);
         PUSH_TEXSAM(pn, samx, samy);
         PUSH_TEXSAM(pn, samx, samy);
@@ -2038,7 +2218,7 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
      }
 
    PUSH_MASK(pn, mtex, mx, my, mw, mh);
-   
+
    // if nomul... dont need this
    PUSH_6_COLORS(pn, r, g, b, a);
 }
@@ -3098,7 +3278,7 @@ shader_array_flush(Evas_Engine_GL_Context *gc)
         if (gc->pipe[i].shader.clip != gc->state.current.clip)
           {
              int cx, cy, cw, ch;
-             
+
              cx = gc->pipe[i].shader.cx;
              cy = gc->pipe[i].shader.cy;
              cw = gc->pipe[i].shader.cw;
@@ -3119,8 +3299,8 @@ shader_array_flush(Evas_Engine_GL_Context *gc)
                        ch = gc->master_clip.h;
                     }
                }
-             if ((glsym_glStartTiling) && (glsym_glEndTiling) && 
-                 (gc->master_clip.enabled) && 
+             if ((glsym_glStartTiling) && (glsym_glEndTiling) &&
+                 (gc->master_clip.enabled) &&
                  (gc->master_clip.w > 0) && (gc->master_clip.h > 0))
                {
                   if (!gc->master_clip.used)
@@ -3137,13 +3317,13 @@ shader_array_flush(Evas_Engine_GL_Context *gc)
                                gc->preserve_bit = GL_COLOR_BUFFER_BIT0_QCOM;
                          }
                        else
-                         start_tiling(gc, 0, gw, gh, 
+                         start_tiling(gc, 0, gw, gh,
                                       gc->master_clip.x, gc->master_clip.y,
                                       gc->master_clip.w, gc->master_clip.h, 0);
                        gc->master_clip.used = EINA_TRUE;
                     }
                }
-             if ((gc->pipe[i].shader.clip) || 
+             if ((gc->pipe[i].shader.clip) ||
                  ((gc->master_clip.enabled) && (!fbo)))
                {
                   glEnable(GL_SCISSOR_TEST);
@@ -3171,7 +3351,7 @@ shader_array_flush(Evas_Engine_GL_Context *gc)
             ((gc->master_clip.enabled) && (!fbo)))
           {
              int cx, cy, cw, ch;
-             
+
              cx = gc->pipe[i].shader.cx;
              cy = gc->pipe[i].shader.cy;
              cw = gc->pipe[i].shader.cw;
@@ -3263,7 +3443,7 @@ shader_array_flush(Evas_Engine_GL_Context *gc)
                     memcpy(x + (unsigned long)texsam_ptr, gc->pipe[i].array.texsam, TEX_SIZE);
                   if (gc->pipe[i].array.use_texm)
                     memcpy(x + (unsigned long)texm_ptr, gc->pipe[i].array.texm, TEX_SIZE);
-/*                  
+/*
                   fprintf(stderr, "copy %i bytes [%i/%i slots] [%i + %i + %i + %i + %i + %i + %i] <%i %i %i %i %i %i %i>\n",
                           (int)((unsigned char *)END_POINTER),
                           gc->pipe[i].array.num,
@@ -3620,7 +3800,7 @@ shader_array_flush(Evas_Engine_GL_Context *gc)
         gc->pipe[i].array.use_texa = 0;
         gc->pipe[i].array.use_texsam = 0;
         gc->pipe[i].array.use_texm = 0;
-        
+
         gc->pipe[i].array.vertex = NULL;
         gc->pipe[i].array.color = NULL;
         gc->pipe[i].array.texuv = NULL;

@@ -3,7 +3,6 @@
 #ifdef EVAS_CSERVE2
 #include "evas_cs2_private.h"
 #endif
-
 #include "Evas_Engine_Software_X11.h"
 #include "evas_engine.h"
 
@@ -528,12 +527,12 @@ eng_setup(Evas *eo_e, void *in)
               char *v;
               if (try_dri3_swapbuf == -1)
                  {
-                    if ((v = getenv("EVAS_DRI3_SWAPBUF")) != NULL)
+                    if ((v = getenv("EVAS_NO_DRI3_SWAPBUF")) != NULL)
                        {
-                          if (atoi(v) == 1) try_dri3_swapbuf = 1;
-                          else try_dri3_swapbuf = 0;
+                          if (atoi(v) == 1) try_dri3_swapbuf = 0;
+                          else try_dri3_swapbuf = 1;
                        }
-                    else try_dri3_swapbuf = 0;
+                    else try_dri3_swapbuf = 1;
                  }
               if (try_dri3_swapbuf)
                  {
@@ -823,7 +822,8 @@ eng_image_native_set(void *data, void *image, void *native)
       {
          // TIZEN_ONLY [[
          RGBA_Image *dri_im = NULL;
-         if (getenv("EVAS_DRI3_GETBUF")) dri_im = evas_xcb_image_dri3_native_set(re->generic.ob, im, ns);
+         if (!getenv("EVAS_NO_DRI3_GETBUF"))
+            dri_im = evas_xcb_image_dri3_native_set(re->generic.ob, im, ns);
          if (!dri_im) dri_im = evas_xlib_image_dri_native_set(re->generic.ob, im, ns);
          if (dri_im) return dri_im;
          else // TIZEN_ONLY ]]

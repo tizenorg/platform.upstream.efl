@@ -31,6 +31,10 @@ static Eina_Hash *_evas_gl_visuals = NULL;
 static int win_count = 0;
 static Eina_Bool initted = EINA_FALSE;
 
+// Tizen Only :: Add log for check rendering info
+#define RINF(...) \
+   if(evas_render_info == 1) INF(__VA_ARGS__);
+
 Eina_Bool
 eng_init(void)
 {
@@ -1391,6 +1395,14 @@ eng_outbuf_new_region_for_update(Outbuf *ob,
         ob->gl_context->master_clip.w = w;
         ob->gl_context->master_clip.h = h;
      }
+    // Tizen Only :: Add log for debug rendering area and period.
+   if(evas_render_info == 1)
+     {
+        Evas_Public_Data *e;
+        e = eo_data_scope_get(ob->evas, EVAS_CANVAS_CLASS);
+        RINF("[ evas_dbg ]:[ --- Render Info (%ix%i) \n", e->viewport.w, e->viewport.h);
+        RINF("[ evas_dbg ]:Outbuf Region Update   Surf: %p, Area = ( x:%i, y:%i , size: (%ix%i))",ob->gl_context->def_surface,x,y,w,h);
+     }
    return ob->gl_context->def_surface;
 }
 
@@ -1504,13 +1516,21 @@ eng_outbuf_flush(Outbuf *ob, Tilebuf_Rect *rects, Evas_Render_Mode render_mode)
                     }
                   i += 4;
                }
+             // Tizen Only :: Add log for check that eglswapbuffer is called
+             RINF("[ evas_dbg ]: glsym_eglSwapBuffersWithDamage ( disp: %p, surf: %p)\n",ob->egl_disp, ob->egl_surface[0]);
              glsym_eglSwapBuffersWithDamage(ob->egl_disp,
                                             ob->egl_surface[0],
                                             result, num);
           }
      }
    else
-     eglSwapBuffers(ob->egl_disp, ob->egl_surface[0]);
+     {
+        // Tizen Only :: Add log for check that eglswapbuffer is called
+        RINF("[ evas_dbg ]: eglSwapBuffer (disp: %p, surf: %p)\n",ob->egl_disp, ob->egl_surface[0]);
+        eglSwapBuffers(ob->egl_disp, ob->egl_surface[0]);
+     }
+   // Tizen Only :: Add log for check rendering period.
+   RINF("[ evas_dbg ]: --- END --]");
 
 //xx   if (!safe_native) eglWaitGL();
    if (ob->info->callback.post_swap)

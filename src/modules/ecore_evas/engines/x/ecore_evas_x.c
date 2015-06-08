@@ -1577,6 +1577,9 @@ _ecore_evas_x_event_window_configure(void *data EINA_UNUSED, int type EINA_UNUSE
    if ((ee->w != e->w) || (ee->h != e->h) ||
        (ee->req.w != e->w) || (ee->req.h != e->h))
      {
+        // Tizen Only :: Add log for checking window configure notify
+        INF("[ evas_dbg]: Window configure Notify  (%ix%i) -> (%ix%i) \n", ee->w,ee->h,e->w,e->h);
+
         ee->w = e->w;
         ee->h = e->h;
         ee->req.w = ee->w;

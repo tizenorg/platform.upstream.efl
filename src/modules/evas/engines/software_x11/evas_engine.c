@@ -504,6 +504,9 @@ eng_setup(Evas *eo_e, void *in)
    Render_Engine *re = NULL;
 
    info = (Evas_Engine_Info_Software_X11 *)in;
+    // Tizen Only :: Add log for check rendering engine
+   INF("[ evas_dbg ]: Evas_Engine Info -> Software_X11");
+
    if (!e->engine.data.output)
      {
         /* if we haven't initialized - init (automatic abort if already done) */

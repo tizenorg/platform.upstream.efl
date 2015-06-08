@@ -129,6 +129,9 @@ extern int swap_buffer_debug_mode;
 extern int swap_buffer_debug;
 extern const char *debug_dir;
 
+// Tizen Only :: Add log for check rendering info
+extern int evas_render_info;
+
 extern Evas_GL_Common_Context_New glsym_evas_gl_common_context_new;
 extern Evas_GL_Common_Context_Call glsym_evas_gl_common_context_flush;
 extern Evas_GL_Common_Context_Call glsym_evas_gl_common_context_free;

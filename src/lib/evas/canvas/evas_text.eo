@@ -305,7 +305,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
       }
       filter_program {
          set {
-            /*@ @brief Set an Evas filter program on this Text Object.
+            /*@
+            @deprecated Deprecated since 2.4
+            @brief Set an Evas filter program on this Text Object.
 
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
@@ -323,7 +325,6 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             please use only for testing purposes.
             @see @ref evasfiltersref "Evas filters reference"
             */
-            legacy: null;
          }
          values {
             const(char)* program; /*@ The program code, as defined
@@ -334,7 +335,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
       }
       filter_source {
          set {
-            /*@ @brief Bind an object to use as a mask or texture with Evas Filters.
+            /*@
+            @deprecated Deprecated since 2.4
+            @brief Bind an object to use as a mask or texture with Evas Filters.
 
             @if MOBILE @since_tizen 2.3
             @elseif WEARABLE @since_tizen 2.3.1
@@ -349,7 +352,6 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @remark EXPERIMENTAL FEATURE. This is an unstable API,
             please use only for testing purposes.
             @see @ref evasfiltersref "Evas filters reference" */
-            legacy: null;
          }
          values {
             const(char)* name; /*@ Object name as used in the program code */

@@ -433,7 +433,6 @@ _ecore_x_input_multi_handler(XEvent *xevent)
               0.0,   // angle
               evd->event_x, evd->event_y,
               evd->root_x, evd->root_y);
-#endif /* #ifdef ECORE_XI2_2 */
              INF("Handling XI_TouchBegin");
              _ecore_mouse_button(ECORE_EVENT_MOUSE_BUTTON_DOWN,
                                  evd->time,

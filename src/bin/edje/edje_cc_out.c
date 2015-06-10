@@ -2699,6 +2699,7 @@ _data_image_sets_size_set()
      {
         set = edje_file->image_dir->sets + i;
 
+        if (!set->entries) continue;
         EINA_LIST_FOREACH(set->entries, l, simg)
           {
              Evas_Object *im;

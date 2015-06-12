@@ -656,10 +656,14 @@ _ecore_x_input_handler(XEvent *xevent)
              if ((dev->use == XISlavePointer) &&
                  !(evd->flags & XIPointerEmulated))
                {
-                  if (evd->flags & XITouchEmulatingPointer)
-                    _ecore_x_input_mouse_handler(xevent);
-                  else
-                    _ecore_x_input_multi_handler(xevent);
+                  /*I'm not sure, this situation have to call mouse handler.
+                    because of this code , multi touch test of elementary_test doesn't work.
+                    please fix this code according to your opinion
+                  */
+                  //if (evd->flags & XITouchEmulatingPointer)
+                  //  _ecore_x_input_mouse_handler(xevent);
+                  //else
+                  _ecore_x_input_multi_handler(xevent);
                }
              else if (dev->use == XIFloatingSlave)
                _ecore_x_input_mouse_handler(xevent);

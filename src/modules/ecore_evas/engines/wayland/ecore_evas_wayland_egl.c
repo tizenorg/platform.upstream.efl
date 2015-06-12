@@ -42,7 +42,7 @@ static Ecore_Evas_Engine_Func _ecore_wl_engine_func =
    _ecore_evas_wl_show,
    _ecore_evas_wl_hide,
    _ecore_evas_wl_common_raise,
-   NULL, // lower
+   _ecore_evas_wl_common_lower,
    _ecore_evas_wl_common_activate,
    _ecore_evas_wl_common_title_set,
    _ecore_evas_wl_common_name_class_set,

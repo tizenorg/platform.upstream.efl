@@ -520,6 +520,17 @@ ecore_wl_window_raise(Ecore_Wl_Window *win)
 }
 
 EAPI void 
+ecore_wl_window_lower(Ecore_Wl_Window *win)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!win) return;
+   /* FIXME: This should lower the xdg surface also */
+   if (_ecore_wl_disp->wl.tz_policy)
+     tizen_policy_lower(_ecore_wl_disp->wl.tz_policy, win->surface);
+}
+
+EAPI void 
 ecore_wl_window_activate(Ecore_Wl_Window *win)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);

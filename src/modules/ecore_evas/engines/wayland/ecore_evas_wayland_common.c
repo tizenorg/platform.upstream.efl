@@ -1092,6 +1092,18 @@ _ecore_evas_wl_common_raise(Ecore_Evas *ee)
 }
 
 void
+_ecore_evas_wl_common_lower(Ecore_Evas *ee)
+{
+   Ecore_Evas_Engine_Wl_Data *wdata;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if ((!ee) || (!ee->visible)) return;
+   wdata = ee->engine.data;
+   ecore_wl_window_lower(wdata->win);
+}
+
+void
 _ecore_evas_wl_common_activate(Ecore_Evas *ee)
 {
    Ecore_Evas_Engine_Wl_Data *wdata;

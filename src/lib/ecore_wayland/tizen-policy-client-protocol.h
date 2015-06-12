@@ -22,9 +22,10 @@ extern const struct wl_interface wl_surface_interface;
 
 #define TIZEN_POLICY_GET_VISIBILITY	0
 #define TIZEN_POLICY_ACTIVATE	1
-#define TIZEN_POLICY_POSITION_SET	2
-#define TIZEN_POLICY_FOCUS_SKIP_SET	3
-#define TIZEN_POLICY_FOCUS_SKIP_UNSET	4
+#define TIZEN_POLICY_LOWER	2
+#define TIZEN_POLICY_POSITION_SET	3
+#define TIZEN_POLICY_FOCUS_SKIP_SET	4
+#define TIZEN_POLICY_FOCUS_SKIP_UNSET	5
 
 static inline void
 tizen_policy_set_user_data(struct tizen_policy *tizen_policy, void *user_data)
@@ -60,6 +61,13 @@ tizen_policy_activate(struct tizen_policy *tizen_policy, struct wl_surface *surf
 {
 	wl_proxy_marshal((struct wl_proxy *) tizen_policy,
 			 TIZEN_POLICY_ACTIVATE, surface);
+}
+
+static inline void
+tizen_policy_lower(struct tizen_policy *tizen_policy, struct wl_surface *surface)
+{
+	wl_proxy_marshal((struct wl_proxy *) tizen_policy,
+			 TIZEN_POLICY_LOWER, surface);
 }
 
 static inline void

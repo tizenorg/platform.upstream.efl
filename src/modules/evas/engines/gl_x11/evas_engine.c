@@ -485,9 +485,29 @@ evgl_eng_context_create(void *data, void *share_ctx, Evas_GL_Context_Version ver
    if ((version == EVAS_GL_GLES_3_X) &&
        ((!eng_get_ob(re)->gl_context) || (eng_get_ob(re)->gl_context->gles_version != EVAS_GL_GLES_3_X)))
      {
-        ERR("GLES 3 version not supported!");
-        glsym_evas_gl_common_error_set(data, EVAS_GL_BAD_ATTRIBUTE);
-        return NULL;
+        EGLint num_config=0;
+        EGLint version_config_attrs[3];
+        version_config_attrs[0] = EGL_RENDERABLE_TYPE;
+        version_config_attrs[1] = EGL_OPENGL_ES3_BIT;
+        version_config_attrs[2] = EGL_NONE;
+
+        if ((!eglChooseConfig(eng_get_ob(re)->egl_disp, version_config_attrs, NULL, 0, &num_config))
+           || (num_config < 1))
+          {
+             ERR("GLES 3 version not supported!");
+             glsym_evas_gl_common_error_set(data, EVAS_GL_BAD_ATTRIBUTE);
+             return NULL;
+          }
+        else if (eng_get_ob(re)->gl_context)
+          {
+             eng_get_ob(re)->gl_context->gles_version = EVAS_GL_GLES_3_X;
+          }
+        else
+          {
+             ERR("Evas GL Context not initialised!");
+             glsym_evas_gl_common_error_set(data, EVAS_GL_NOT_INITIALIZED);
+             return NULL;
+          }
      }
    EGLContext context = EGL_NO_CONTEXT;
    int context_attrs[3];

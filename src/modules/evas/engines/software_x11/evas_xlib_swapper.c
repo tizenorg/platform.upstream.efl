@@ -797,7 +797,7 @@ evas_xlib_swapper_buffer_map(X_Swapper *swp, int *bpl, int *w, int *h)
    if (swap_debug) printf("Mapped bufer name %i OK\n", swp->buf->name);
    if ((swp->w != swp->buf_w) || (swp->h != swp->buf_h))
      {
-        ERR("Evas software DRI swapper buffer size mismatch");
+        DBG("Evas software DRI swapper buffer size mismatch");
      }
    swp->w = swp->buf_w;
    swp->h = swp->buf_h;

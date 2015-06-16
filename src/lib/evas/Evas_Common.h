@@ -542,6 +542,9 @@ struct _Evas_Native_Surface
       } wl; /**< Set this struct fields if surface data is Wayland based. */
 
       // TIZEN ONLY (20150113) : NOT FIXED
+      /**
+       * @deprecated use tbm struct
+       */
       struct
       {
          void *buffer; /**< tbm surface */
@@ -980,7 +983,7 @@ typedef enum _Evas_Object_Pointer_Mode
  * @endif
  * @ingroup Evas_Smart_Object_Group
  */
-typedef void      (*Evas_Smart_Cb)(void *data, Evas_Object *obj, void *event_info); 
+typedef void      (*Evas_Smart_Cb)(void *data, Evas_Object *obj, void *event_info);
 
 /**
  * @brief Evas event callback function signature

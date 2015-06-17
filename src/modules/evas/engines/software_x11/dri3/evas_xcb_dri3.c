@@ -158,49 +158,49 @@ _lib_init()
    lib_tbm = dlopen("libtbm.so.1", RTLD_NOW | RTLD_LOCAL);
    if (!lib_tbm)
       {
-         ERR("Can't load libtbm.so.1");
+         WRN("Can't load libtbm.so.1");
          goto err;
       }
    lib_dri3 = dlopen("libxcb-dri3.so", RTLD_NOW | RTLD_LOCAL);
    if (!lib_dri3)
       {
-         ERR("Can't load libxcb-dri3.so");
+         WRN("Can't load libxcb-dri3.so");
          goto err;
       }
    lib_present = dlopen("libxcb-present.so", RTLD_NOW | RTLD_LOCAL);
    if (!lib_present)
       {
-         ERR("Can't load libxcb-present.so");
+         WRN("Can't load libxcb-present.so");
          goto err;
       }
    lib_xshmfence = dlopen("libxshmfence.so.1", RTLD_NOW | RTLD_LOCAL);
    if (!lib_xshmfence)
       {
-         ERR("Can't load libxshmfence.so.1");
+         WRN("Can't load libxshmfence.so.1");
          goto err;
       }
    lib_sync = dlopen("libxcb-sync.so", RTLD_NOW | RTLD_LOCAL);
    if (!lib_sync)
       {
-         ERR("Can't load libxcb-sync.so");
+         WRN("Can't load libxcb-sync.so");
          goto err;
       }
    lib_xcb = dlopen("libX11-xcb.so", RTLD_NOW | RTLD_LOCAL);
    if (!lib_xcb)
       {
-         ERR("Can't load libX11-xcb.so");
+         WRN("Can't load libX11-xcb.so");
          goto err;
       }
    xfixes_lib = dlopen("libXfixes.so.3", RTLD_NOW | RTLD_LOCAL);
    if (!xfixes_lib)
       {
-         ERR("Can't load libXfixes.so.3");
+         WRN("Can't load libXfixes.so.3");
          goto err;
       }
 #define SYM(l, x) \
       do { sym_ ## x = dlsym(l, #x); \
       if (!sym_ ## x) { \
-            ERR("Can't load symbol "#x); \
+            WRN("Can't load symbol "#x); \
             goto err; \
       } \
       } while (0)
@@ -415,7 +415,7 @@ dri3_destroy_pixmap(xcb_pixmap_t pixmap)
    error = xcb_request_check(info.conn, cookie);
    if (error)
       {
-         ERR("xcb_free_pixmap_checked() has failed. (error_code : %d)", error->error_code);
+         WRN("xcb_free_pixmap_checked() has failed. (error_code : %d)", error->error_code);
          free(error);
       }
 }
@@ -1154,7 +1154,7 @@ dri3_init_dri3(Display *dpy)
 {
    if (!_lib_init())
       {
-         ERR("dri3 lib initialization failed.");
+         WRN("dri3 lib initialization failed. we are going to try dri2");
          return 0;
       }
 
@@ -1169,7 +1169,7 @@ dri3_init_dri3(Display *dpy)
    Window root = RootWindow(dpy, DefaultScreen(dpy));
    if (xcb_connection_has_error(info.conn))
       {
-         ERR("xcb Connection has failed.");
+         WRN("xcb Connection has failed. we are going to try dri2");
          return 0;
       }
 
@@ -1184,7 +1184,7 @@ dri3_init_dri3(Display *dpy)
    if (reply) free(reply);
    if (!info.bufmgr)
       {
-         ERR("dri3 initialization failed.");
+         WRN("dri3 initialization failed. we are going to try dri2");
          return 0;
       }
 
@@ -1207,7 +1207,7 @@ dri3_query_dri3()
       free(reply);
    else
       {
-         ERR("xcb_dri3_query_version_reply() has failed.");
+         WRN("xcb_dri3_query_version_reply() has failed. we are going to try dri2");
          return 0;
       }
 
@@ -1230,7 +1230,7 @@ dri3_query_present()
                                                NULL);
    if (!reply)
       {
-         ERR("xcb_present_query_version_reply() has failed.");
+         WRN("xcb_present_query_version_reply() has failed. we are going to try dri2");
          return 0;
       }
 
@@ -1244,7 +1244,7 @@ dri3_XFixes_query(Display *disp)
 {
    if (!sym_XFixesQueryExtension(disp, &xfixes_ev_base, &xfixes_err_base))
       {
-         ERR("XFixes extension not in xserver");
+         WRN("XFixes extension not in xserver");
          return 0;
       }
    sym_XFixesQueryVersion(disp, &xfixes_major, &xfixes_minor);

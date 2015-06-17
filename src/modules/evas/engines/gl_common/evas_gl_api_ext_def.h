@@ -169,11 +169,16 @@ _EVASGL_EXT_END()
 _EVASGL_EXT_BEGIN(discard_framebuffer)
 	_EVASGL_EXT_DRVNAME(GL_EXT_discard_framebuffer)
 
-	_EVASGL_EXT_FUNCTION_BEGIN(void, glDiscardFramebufferEXT, (GLenum target, GLsizei numAttachments, const GLenum* attachments), (target, numAttachments, attachments))
+	_EVASGL_EXT_FUNCTION_PRIVATE_BEGIN(void, glDiscardFramebuffer, (GLenum target, GLsizei numAttachments, const GLenum* attachments), (target, numAttachments, attachments))
                 _EVASGL_EXT_FUNCTION_DRVFUNC_PROCADDR("glDiscardFramebuffer")
                 _EVASGL_EXT_FUNCTION_DRVFUNC_PROCADDR("glDiscardFramebufferEXT")
+	_EVASGL_EXT_FUNCTION_PRIVATE_END()
+
+    _EVASGL_EXT_FUNCTION_BEGIN(void, glDiscardFramebufferEXT, (GLenum target, GLsizei numAttachments, const GLenum* attachments), (target, numAttachments, attachments))
+                _EVASGL_EXT_FUNCTION_DRVFUNC(_evgl_glDiscardFramebufferEXT)
 	_EVASGL_EXT_FUNCTION_END()
 _EVASGL_EXT_END()
+
 
 
 _EVASGL_EXT_BEGIN(multi_draw_arrays)

@@ -1154,7 +1154,7 @@ dri3_init_dri3(Display *dpy)
 {
    if (!_lib_init())
       {
-         WRN("dri3 lib initialization failed. we are going to try dri2");
+         INF("dri3 lib initialization failed. we are going to try dri2");
          return 0;
       }
 
@@ -1169,7 +1169,7 @@ dri3_init_dri3(Display *dpy)
    Window root = RootWindow(dpy, DefaultScreen(dpy));
    if (xcb_connection_has_error(info.conn))
       {
-         WRN("xcb Connection has failed. we are going to try dri2");
+         INF("xcb Connection has failed. we are going to try dri2");
          return 0;
       }
 
@@ -1184,7 +1184,7 @@ dri3_init_dri3(Display *dpy)
    if (reply) free(reply);
    if (!info.bufmgr)
       {
-         WRN("dri3 initialization failed. we are going to try dri2");
+         INF("dri3 initialization failed. we are going to try dri2");
          return 0;
       }
 
@@ -1207,7 +1207,7 @@ dri3_query_dri3()
       free(reply);
    else
       {
-         WRN("xcb_dri3_query_version_reply() has failed. we are going to try dri2");
+         INF("xcb_dri3_query_version_reply() has failed. we are going to try dri2");
          return 0;
       }
 
@@ -1230,7 +1230,7 @@ dri3_query_present()
                                                NULL);
    if (!reply)
       {
-         WRN("xcb_present_query_version_reply() has failed. we are going to try dri2");
+         INF("xcb_present_query_version_reply() has failed. we are going to try dri2");
          return 0;
       }
 
@@ -1244,7 +1244,7 @@ dri3_XFixes_query(Display *disp)
 {
    if (!sym_XFixesQueryExtension(disp, &xfixes_ev_base, &xfixes_err_base))
       {
-         WRN("XFixes extension not in xserver");
+         INF("XFixes extension not in xserver");
          return 0;
       }
    sym_XFixesQueryVersion(disp, &xfixes_major, &xfixes_minor);

@@ -493,7 +493,7 @@ _ecore_buffer_x11_dri3_buffer_import(Ecore_Buffer_Module_Data bmdata, int w, int
    Ecore_Buffer_X11_Dri3_Data *buf;
    tbm_bo bo;
    tbm_surface_info_s info;
-   int i, num_plane;
+   int i;
 
    if (!bm)
      return NULL;
@@ -522,13 +522,13 @@ _ecore_buffer_x11_dri3_buffer_import(Ecore_Buffer_Module_Data bmdata, int w, int
         return NULL;
      }
 
-   num_plane = _buf_get_num_planes(format);
    info.width = w;
    info.height = h;
    info.format = format;
    info.bpp = _buf_get_bpp(format);
    info.size = w * h * info.bpp;
-   for ( i = 0 ; i < num_plane ; i++)
+   info.num_planes = _buf_get_num_planes(format);
+   for ( i = 0 ; i < info.num_planes ; i++)
    {
       info.planes[i].size = w * h * info.bpp;
       info.planes[i].stride = w * info.bpp;

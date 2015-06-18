@@ -349,6 +349,7 @@ _ecore_buffer_x11_dri2_buffer_alloc(Ecore_Buffer_Module_Data bmdata, int width, 
    info.format = format;
    info.bpp = bpp;
    info.size = width * bufs->pitch;
+   info.num_planes = num_plane;
    for ( i = 0 ; i < num_plane ; i++)
    {
       info.planes[i].size = width * bufs->pitch;
@@ -446,7 +447,7 @@ _ecore_buffer_x11_dri2_buffer_import(Ecore_Buffer_Module_Data bmdata EINA_UNUSED
    int rcount;
    unsigned int attachment = DRI2BufferFrontLeft;
    tbm_surface_info_s info;
-   int num_plane,i;
+   int i;
 
    if (type != EXPORT_TYPE_ID)
      return NULL;
@@ -481,13 +482,13 @@ _ecore_buffer_x11_dri2_buffer_import(Ecore_Buffer_Module_Data bmdata EINA_UNUSED
    if (!bo)
      goto on_error;
 
-   num_plane = _buf_get_num_planes(format);
    info.width = w;
    info.height = h;
    info.format = format;
    info.bpp = _buf_get_bpp(format);
    info.size = w * bufs->pitch;
-   for ( i = 0 ; i < num_plane ; i++)
+   info.num_planes = _buf_get_num_planes(format);
+   for ( i = 0 ; i < info.num_planes ; i++)
    {
       info.planes[i].size = w * bufs->pitch;
       info.planes[i].stride = bufs->pitch;

@@ -329,9 +329,22 @@ evas_common_convert_rgba_to_32bpp_rgb_8888_rot_90 (DATA32 *src, DATA8 *dst, int 
 #  ifdef TILE_ROTATE
    blt_rotated_90_8888((DATA8 *)dst,  dst_jump+w, (const DATA8 *)src, src_jump+h, w, h) ;
 #  else
+   DATA32 *src_ptr;
+   DATA32 *dst_ptr;
+   int x, y;
+
+   dst_ptr = (DATA32 *)dst;
+   CONVERT_LOOP_START_ROT_90();
+
+   *dst_ptr = *src_ptr;
+   CONVERT_LOOP_END_ROT_90();
+
+   /* Below neon codes have a critical issue.
+      If the rotated image has updates(resize,move...), screen image is broken.
+      So take a way to rotate by C code until it's fixed
+
    if ((w & 1) || (h & 1))
      {
-        /* Rarely (if ever) if ever: so slow path is fine */
         DATA32 *src_ptr;
         DATA32 *dst_ptr;
         int x, y;
@@ -418,6 +431,7 @@ evas_common_convert_rgba_to_32bpp_rgb_8888_rot_90 (DATA32 *src, DATA8 *dst, int 
         );
      }
 #   undef AP
+*/
 #  endif
 # endif
    return;

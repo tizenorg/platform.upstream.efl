@@ -58,4 +58,8 @@ void         evgl_direct_partial_info_set(int pres);
 void         evgl_direct_partial_info_clear();
 void         evgl_direct_partial_render_start();
 void         evgl_direct_partial_render_end();
+
+//TIZEN ONLY
+Eina_Bool is_app_internal(EVGL_Surface *sfc);
+
 #endif //_EVAS_GL_CORE_H

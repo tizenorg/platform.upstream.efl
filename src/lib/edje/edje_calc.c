@@ -3223,7 +3223,6 @@ _edje_fade_ellipsis_apply(Edje *ed, Edje_Real_Part *ep,
 
    // Hide fade image if fade_ellipsis option is off or object size is zero.
    if ((chosen_desc->text.fade_ellipsis == 0.0) ||
-       !((chosen_desc->text.fade_ellipsis > 0.0) && ellipsis_status) ||
        (pf->final.w == 0) || (pf->final.h == 0))
      {
         if (ep->typedata.text->fade.object)

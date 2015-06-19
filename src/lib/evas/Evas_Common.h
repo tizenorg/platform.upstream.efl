@@ -137,6 +137,7 @@ typedef enum _Evas_Callback_Type
    EVAS_CALLBACK_DEVICE_CHANGED, /**< Devices added, removed or changed on canvas @since 1.8 */
 
    EVAS_CALLBACK_AXIS_UPDATE, /**< Input device changed value on some axis @since 1.13 */
+   EVAS_CALLBACK_CANVAS_VIEWPORT_RESIZE, /**< Canvas viewport resized @since 1.15 */
    EVAS_CALLBACK_LAST /**< kept as last element/sentinel -- not really an event */
 } Evas_Callback_Type; /**< The types of events triggering a callback */
 

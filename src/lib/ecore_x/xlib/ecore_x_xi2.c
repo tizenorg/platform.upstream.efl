@@ -150,6 +150,21 @@ _ecore_x_input_shutdown(void)
 
 #ifdef ECORE_XI2
 #ifdef ECORE_XI2_2
+static Eina_Bool
+_ecore_x_input_touch_device_check(int devid)
+{
+   int i;
+   Eina_Inlist *l = _ecore_x_xi2_touch_info_list;
+   Ecore_X_Touch_Device_Info *info = NULL;
+
+   if ((!_ecore_x_xi2_devs) || (!_ecore_x_xi2_touch_info_list))
+     return EINA_FALSE;
+
+   EINA_INLIST_FOREACH(l, info)
+     if (info->devid == devid) return EINA_TRUE;
+   return EINA_FALSE;
+}
+
 static int
 _ecore_x_input_touch_index_get(int devid, int detail, int event_type)
 {
@@ -672,6 +687,38 @@ _ecore_x_input_handler(XEvent *xevent)
                _ecore_x_input_axis_handler(xevent, dev);
           }
         break;
+#ifdef XI_TouchCancel
+      case XI_TouchCancel:
+          {
+             XITouchCancelEvent *evd = (XITouchCancelEvent *)(xevent->xcookie.data);
+             int devid = evd->deviceid;
+
+             if(!_ecore_x_input_touch_device_check(devid)) return;
+
+             INF("Handling XI_TouchCancel device(%d)", devid);
+
+             /* Currently X sends only one cancel event according to the touch device.
+                But in the future, it maybe need several cancel events according to the touch.
+                So it is better use button structure instead of creating new cancel structure.
+              */
+             _ecore_mouse_button(ECORE_EVENT_MOUSE_BUTTON_CANCEL,
+                                 evd->time,
+                                 0,   // state
+                                 0,   // button
+                                 0, 0,
+                                 0, 0,
+                                 evd->event,
+                                (evd->child ? evd->child : evd->event),
+                                 evd->root,
+                                 1,   // same_screen
+                                 0, 1, 1,
+                                 0.0,   // pressure
+                                 0.0,   // angle
+                                 0, 0,
+                                 0, 0);
+          }
+        break;
+#endif
       default:
         break;
      }
@@ -716,6 +763,9 @@ ecore_x_input_multi_select(Ecore_X_Window win)
                   XISetMask(mask, XI_TouchUpdate);
                   XISetMask(mask, XI_TouchBegin);
                   XISetMask(mask, XI_TouchEnd);
+#ifdef XI_TouchCancel
+                  XISetMask(mask, XI_TouchCancel);
+#endif
                   update = 1;
 
                   l = eina_inlist_append(l, (Eina_Inlist *)info);
@@ -807,6 +857,9 @@ _ecore_x_input_touch_devices_grab(Ecore_X_Window grab_win, Eina_Bool grab)
                   XISetMask(mask, XI_TouchUpdate);
                   XISetMask(mask, XI_TouchBegin);
                   XISetMask(mask, XI_TouchEnd);
+#ifdef XI_TouchCancel
+                  XISetMask(mask, XI_TouchCancel);
+#endif
                   update = 1;
                   free(info);
                }

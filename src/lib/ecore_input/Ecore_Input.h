@@ -55,6 +55,7 @@ extern "C" {
    EAPI extern int ECORE_EVENT_MOUSE_OUT;
    EAPI extern int ECORE_EVENT_AXIS_UPDATE; /**< @since 1.13 */
    EAPI extern int ECORE_EVENT_JOYSTICK; /**< @since 1.15 */
+   EAPI extern int ECORE_EVENT_MOUSE_BUTTON_CANCEL; /**< @since 1.19 */
 
 #define ECORE_EVENT_MODIFIER_SHIFT      0x0001
 #define ECORE_EVENT_MODIFIER_CTRL       0x0002
@@ -108,7 +109,8 @@ extern "C" {
    typedef enum _Ecore_Event_Press
      {
         ECORE_DOWN,
-        ECORE_UP
+        ECORE_UP,
+        ECORE_CANCEL
      } Ecore_Event_Press;
 
    /**

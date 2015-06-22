@@ -437,6 +437,9 @@ evas_common_font_int_load_complete(RGBA_Font_Int *fi)
 	FT_Activate_Size(fi->ft.size);
      }
    fi->real_size = fi->size * 64;
+   // TIZEN_ONLY(20150622): Add scale feature for embedded bitmap fonts.
+   fi->scale_factor = 1.0;
+   //
    error = FT_Set_Char_Size(fi->src->ft.face, 0, fi->real_size, font_dpi, font_dpi);
    if (error)
      error = FT_Set_Pixel_Sizes(fi->src->ft.face, 0, fi->real_size);
@@ -468,9 +471,18 @@ evas_common_font_int_load_complete(RGBA_Font_Int *fi)
         FTLOCK();
 
         if (FT_HAS_FIXED_SIZES(fi->src->ft.face))
-          error = FT_Select_Size(fi->src->ft.face, strike_index);
+          {
+             error = FT_Select_Size(fi->src->ft.face, strike_index);
+
+             // TIZEN_ONLY(20150622): Add scale feature for embedded bitmap fonts.
+             if (!error)
+               fi->scale_factor = (float)fi->size * 64.0 / (float)fi->real_size;
+             //
+          }
         else
-          error = FT_Set_Pixel_Sizes(fi->src->ft.face, 0, fi->real_size);
+          {
+             error = FT_Set_Pixel_Sizes(fi->src->ft.face, 0, fi->real_size);
+          }
 
         FTUNLOCK();
 	if (error)

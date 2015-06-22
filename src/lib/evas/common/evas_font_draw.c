@@ -165,22 +165,29 @@ evas_common_font_rgba_draw(RGBA_Image *dst, RGBA_Draw_Context *dc, int x, int y,
                     }
                   else if ((fg->ext_dat) && FT_HAS_COLOR(fg->fi->src->ft.face))
                     {
+                       // TIZEN_ONLY(20150622): Add scale feature for embedded bitmap fonts.
+                       /*
                        if (dc->font_ext.func.gl_image_draw)
-                         {
-                            dc->font_ext.func.gl_image_draw(dc->font_ext.data,
-                                                            fg->ext_dat,
-                                                            0, 0, w, h,
-                                                            chr_x, y - (chr_y - y), w, h,
-                                                            EINA_TRUE);
-                         }
+                         dc->font_ext.func.gl_image_draw
+                           (dc->font_ext.data, fg->ext_dat, 0, 0, w, h,
+                            chr_x, y - (chr_y - y), draw_w, draw_h, EINA_TRUE);
                        else
-                         {
-                            _evas_font_image_draw(dc, dst,
-                                                         fg->ext_dat,
-                                                         0, 0, w, h,
-                                                         chr_x, y - (chr_y - y), w, h,
-                                                         EINA_TRUE);
-                         }
+                         _evas_font_image_draw
+                           (dc, dst, fg->ext_dat, 0, 0, w, h,
+                            chr_x, y - (chr_y - y), draw_w, draw_h, EINA_TRUE);
+                       */
+                       int draw_w = w * fg->fi->scale_factor;
+                       int draw_h = h * fg->fi->scale_factor;
+
+                       if (dc->font_ext.func.gl_image_draw)
+                         dc->font_ext.func.gl_image_draw
+                           (dc->font_ext.data, fg->ext_dat, 0, 0, w, h,
+                            chr_x, y - (chr_y - y), draw_w, draw_h, EINA_TRUE);
+                       else
+                         _evas_font_image_draw
+                           (dc, dst, fg->ext_dat, 0, 0, w, h,
+                            chr_x, y - (chr_y - y), draw_w, draw_h, EINA_TRUE);
+                       //
                     }
                }
           }

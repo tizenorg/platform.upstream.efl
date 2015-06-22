@@ -952,6 +952,9 @@ struct _RGBA_Font_Int
    Eina_Hash        *kerning;
    Fash_Glyph       *fash;
    unsigned int      size;
+   // TIZEN_ONLY(20150622): Add scale feature for embedded bitmap fonts.
+   float             scale_factor;
+   //
    int               real_size;
    int               max_h;
    int               references;

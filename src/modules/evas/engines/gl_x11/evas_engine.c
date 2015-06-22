@@ -1839,7 +1839,8 @@ eng_output_free(void *data)
         _destroy_internal_context(re, context);
 #endif
 
-        if (gl_wins == 1) glsym_evgl_engine_shutdown(re);
+        if ((gl_wins == 1) &&(re->generic.evgl_initted))
+          glsym_evgl_engine_shutdown(re);
 
         evas_render_engine_software_generic_clean(&re->generic.software);
 

@@ -1402,7 +1402,7 @@ gl_extn_veto(Render_Engine *re)
         if (getenv("EVAS_GL_INFO"))
           printf("EGL EXTN:\n%s\n", str);
         //Tizen Only(20150317): Disable Partial Rendering default
-        if (!getenv("EVAS_GL_PARTIAL_ENABLE"))
+        if (getenv("EVAS_GL_PARTIAL_DISABLE"))
           {
              extn_have_buffer_age = 0;
              glsym_eglSwapBuffersWithDamage = NULL;
@@ -1781,7 +1781,7 @@ eng_setup(Evas *eo_e, void *in)
                   re->generic.software.tb = evas_common_tilebuf_new(e->output.w, e->output.h);
                   if (re->generic.software.tb)
                     evas_common_tilebuf_set_tile_size(re->generic.software.tb,
-                                                      TILESIZE, TILESIZE);
+                                                      EVAS_GL_UPDATE_TILE_SIZE, EVAS_GL_UPDATE_TILE_SIZE);
                }
           }
      }

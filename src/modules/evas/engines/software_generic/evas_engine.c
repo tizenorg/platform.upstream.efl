@@ -35,37 +35,39 @@
  * Values for the format parameter of OSMesaCreateContext()
  * New in version 2.0.
  */
-#define OSMESA_COLOR_INDEX	GL_COLOR_INDEX
-#define OSMESA_RGBA		GL_RGBA
-#define OSMESA_BGRA		0x1
-#define OSMESA_ARGB		0x2
-#define OSMESA_RGB		GL_RGB
-#define OSMESA_BGR		0x4
-#define OSMESA_RGB_565		0x5
+#define OSMESA_COLOR_INDEX    GL_COLOR_INDEX
+#define OSMESA_RGBA           GL_RGBA
+#define OSMESA_BGRA           0x1
+#define OSMESA_ARGB           0x2
+#define OSMESA_RGB            GL_RGB
+#define OSMESA_BGR            0x4
+#define OSMESA_RGB_565        0x5
 
 
 /*
  * OSMesaPixelStore() parameters:
  * New in version 2.0.
  */
-#define OSMESA_ROW_LENGTH	0x10
-#define OSMESA_Y_UP		0x11
+#define OSMESA_ROW_LENGTH     0x10
+#define OSMESA_Y_UP           0x11
 
 
 /*
  * Accepted by OSMesaGetIntegerv:
  */
-#define OSMESA_WIDTH		0x20
-#define OSMESA_HEIGHT		0x21
-#define OSMESA_FORMAT		0x22
-#define OSMESA_TYPE		0x23
-#define OSMESA_MAX_WIDTH	0x24  /* new in 4.0 */
-#define OSMESA_MAX_HEIGHT	0x25  /* new in 4.0 */
+#define OSMESA_WIDTH          0x20
+#define OSMESA_HEIGHT         0x21
+#define OSMESA_FORMAT         0x22
+#define OSMESA_TYPE           0x23
+#define OSMESA_MAX_WIDTH      0x24  /* new in 4.0 */
+#define OSMESA_MAX_HEIGHT     0x25  /* new in 4.0 */
 
 
 typedef void (*OSMESAproc)();
 typedef struct osmesa_context *OSMesaContext;
 #endif
+
+#define EVAS_SW_UPDATE_TILE_SIZE 16
 
 typedef struct _Render_Engine_GL_Surface    Render_Engine_GL_Surface;
 typedef struct _Render_Engine_GL_Context    Render_Engine_GL_Context;
@@ -753,8 +755,8 @@ _line_draw_thread_cmd(RGBA_Image *dst, RGBA_Draw_Context *dc, int x1, int y1, in
 
    if (dc->clip.use)
      {
-	RECTS_CLIP_TO_RECT(clx, cly, clw, clh, cx, cy, cw, ch);
-	if ((clw < 1) || (clh < 1))
+      RECTS_CLIP_TO_RECT(clx, cly, clw, clh, cx, cy, cw, ch);
+      if ((clw < 1) || (clh < 1))
           {
              eina_mempool_free(_mp_command_line, cl);
              return;
@@ -888,22 +890,22 @@ _polygon_draw_thread_cmd(RGBA_Image *dst, RGBA_Draw_Context *dc, RGBA_Polygon_Po
 
    if (dc->clip.use)
      {
-	if (dc->clip.x > ext_x)
-	  {
-	     ext_w += ext_x - dc->clip.x;
-	     ext_x = dc->clip.x;
-	  }
+      if (dc->clip.x > ext_x)
+        {
+           ext_w += ext_x - dc->clip.x;
+           ext_x = dc->clip.x;
+        }
 
-	if ((ext_x + ext_w) > (dc->clip.x + dc->clip.w))
+      if ((ext_x + ext_w) > (dc->clip.x + dc->clip.w))
           ext_w = (dc->clip.x + dc->clip.w) - ext_x;
 
-	if (dc->clip.y > ext_y)
-	  {
-	     ext_h += ext_y - dc->clip.y;
-	     ext_y = dc->clip.y;
-	  }
+      if (dc->clip.y > ext_y)
+        {
+           ext_h += ext_y - dc->clip.y;
+           ext_y = dc->clip.y;
+        }
 
-	if ((ext_y + ext_h) > (dc->clip.y + dc->clip.h))
+      if ((ext_y + ext_h) > (dc->clip.y + dc->clip.h))
           ext_h = (dc->clip.y + dc->clip.h) - ext_y;
      }
 
@@ -937,8 +939,8 @@ eng_polygon_draw(void *data EINA_UNUSED, void *context, void *surface, void *pol
 #endif
    else
      {
-	evas_common_polygon_draw(surface, context, polygon, x, y);
-	evas_common_cpu_end_opt();
+      evas_common_polygon_draw(surface, context, polygon, x, y);
+      evas_common_cpu_end_opt();
      }
 }
 
@@ -952,9 +954,9 @@ eng_image_alpha_get(void *data EINA_UNUSED, void *image)
    switch (im->space)
      {
       case EVAS_COLORSPACE_ARGB8888:
-	if (im->flags.alpha) return 1;
+      if (im->flags.alpha) return 1;
       default:
-	break;
+      break;
      }
    return 0;
 }
@@ -991,8 +993,8 @@ eng_image_alpha_set(void *data EINA_UNUSED, void *image, int has_alpha)
    im = image;
    if (im->cache_entry.space != EVAS_COLORSPACE_ARGB8888)
      {
-	im->cache_entry.flags.alpha = 0;
-	return im;
+      im->cache_entry.flags.alpha = 0;
+      return im;
      }
    if (!im->image.data) evas_cache_image_load_data(&im->cache_entry);
    im = (RGBA_Image *) evas_cache_image_alone(&im->cache_entry);
@@ -1224,8 +1226,8 @@ eng_image_data_get(void *data EINA_UNUSED, void *image, int to_write, DATA32 **i
 
    if (!image)
      {
-	*image_data = NULL;
-	return NULL;
+      *image_data = NULL;
+      return NULL;
      }
    im = image;
 
@@ -1252,20 +1254,20 @@ eng_image_data_get(void *data EINA_UNUSED, void *image, int to_write, DATA32 **i
    switch (im->cache_entry.space)
      {
       case EVAS_COLORSPACE_ARGB8888:
-	if (to_write)
+      if (to_write)
           im = (RGBA_Image *)evas_cache_image_alone(&im->cache_entry);
-	*image_data = im->image.data;
-	break;
+      *image_data = im->image.data;
+      break;
       case EVAS_COLORSPACE_YCBCR422P601_PL:
       case EVAS_COLORSPACE_YCBCR422P709_PL:
       case EVAS_COLORSPACE_YCBCR422601_PL:
       case EVAS_COLORSPACE_YCBCR420NV12601_PL:
       case EVAS_COLORSPACE_YCBCR420TM12601_PL:
-	*image_data = im->cs.data;
+      *image_data = im->cs.data;
         break;
       default:
-	abort();
-	break;
+      abort();
+      break;
      }
    if (err) *err = error;
    return im;
@@ -1281,15 +1283,15 @@ eng_image_data_put(void *data, void *image, DATA32 *image_data)
    switch (im->cache_entry.space)
      {
       case EVAS_COLORSPACE_ARGB8888:
-	if (image_data != im->image.data)
-	  {
-	     int w, h;
+      if (image_data != im->image.data)
+        {
+           int w, h;
 
-	     w = im->cache_entry.w;
-	     h = im->cache_entry.h;
-	     im2 = eng_image_new_from_data(data, w, h, image_data,
-					   eng_image_alpha_get(data, image),
-					   eng_image_colorspace_get(data, image));
+           w = im->cache_entry.w;
+           h = im->cache_entry.h;
+           im2 = eng_image_new_from_data(data, w, h, image_data,
+                                 eng_image_alpha_get(data, image),
+                                 eng_image_colorspace_get(data, image));
 #ifdef EVAS_CSERVE2
              if (evas_cserve2_use_get())
                {
@@ -1299,27 +1301,27 @@ eng_image_data_put(void *data, void *image, DATA32 *image_data)
                }
 #endif
              evas_cache_image_drop(&im->cache_entry);
-	     im = im2;
-	  }
-	break;
+           im = im2;
+        }
+      break;
       case EVAS_COLORSPACE_YCBCR422P601_PL:
       case EVAS_COLORSPACE_YCBCR422P709_PL:
       case EVAS_COLORSPACE_YCBCR422601_PL:
       case EVAS_COLORSPACE_YCBCR420NV12601_PL:
       case EVAS_COLORSPACE_YCBCR420TM12601_PL:
-	if (image_data != im->cs.data)
+      if (image_data != im->cs.data)
           {
-	     if (im->cs.data)
-	       {
-		  if (!im->cs.no_free) free(im->cs.data);
-	       }
-	     im->cs.data = image_data;
-	  }
+           if (im->cs.data)
+             {
+              if (!im->cs.no_free) free(im->cs.data);
+             }
+           im->cs.data = image_data;
+        }
         evas_common_image_colorspace_dirty(im);
         break;
       default:
-	abort();
-	break;
+      abort();
+      break;
      }
    return im;
 }
@@ -1403,17 +1405,17 @@ _image_draw_thread_cmd(RGBA_Image *src, RGBA_Image *dst, RGBA_Draw_Context *dc, 
 
    if (dc->clip.use)
      {
-	clip_x = dc->clip.x;
-	clip_y = dc->clip.y;
-	clip_w = dc->clip.w;
-	clip_h = dc->clip.h;
+      clip_x = dc->clip.x;
+      clip_y = dc->clip.y;
+      clip_w = dc->clip.w;
+      clip_h = dc->clip.h;
      }
    else
      {
-	clip_x = 0;
-	clip_y = 0;
-	clip_w = dst->cache_entry.w;
-	clip_h = dst->cache_entry.h;
+      clip_x = 0;
+      clip_y = 0;
+      clip_w = dst->cache_entry.w;
+      clip_h = dst->cache_entry.h;
      }
 
    /* Set image mask, if any */
@@ -1558,16 +1560,16 @@ _map_image_draw(RGBA_Image *src, RGBA_Image *dst, RGBA_Draw_Context *dc, int src
 
    if (dc->clip.use)
      {
-	clip_x = dc->clip.x;
-	clip_y = dc->clip.y;
-	clip_w = dc->clip.w;
-	clip_h = dc->clip.h;
+      clip_x = dc->clip.x;
+      clip_y = dc->clip.y;
+      clip_w = dc->clip.w;
+      clip_h = dc->clip.h;
      }
    else
      {
-	clip_x = clip_y = 0;
-	clip_w = dst->cache_entry.w;
-	clip_h = dst->cache_entry.h;
+      clip_x = clip_y = 0;
+      clip_w = dst->cache_entry.w;
+      clip_h = dst->cache_entry.h;
      }
 
    mul_col = dc->mul.use ? dc->mul.col : 0xffffffff;
@@ -1711,16 +1713,16 @@ _map_draw_thread_cmd(RGBA_Image *src, RGBA_Image *dst, RGBA_Draw_Context *dc, RG
 
    if (dc->clip.use)
      {
-	clip_x = dc->clip.x;
-	clip_y = dc->clip.y;
-	clip_w = dc->clip.w;
-	clip_h = dc->clip.h;
+      clip_x = dc->clip.x;
+      clip_y = dc->clip.y;
+      clip_w = dc->clip.w;
+      clip_h = dc->clip.h;
      }
    else
      {
-	clip_x = clip_y = 0;
-	clip_w = dst->cache_entry.w;
-	clip_h = dst->cache_entry.h;
+      clip_x = clip_y = 0;
+      clip_w = dst->cache_entry.w;
+      clip_h = dst->cache_entry.h;
      }
 
    EINA_RECTANGLE_SET(&cm->clip, clip_x, clip_y, clip_w, clip_h);
@@ -1804,7 +1806,7 @@ evas_software_image_map_draw(void *data, void *context, RGBA_Image *surface, RGB
      {
 #ifdef BUILD_PIPE_RENDER
         if ((cpunum > 1))
-	  {
+        {
              evas_common_pipe_map_draw(im, surface, context, m, smooth, level);
              return;
           }
@@ -2852,7 +2854,7 @@ eng_output_resize(void *data, int w, int h)
    re->tb = evas_common_tilebuf_new(w, h);
    if (re->tb)
      {
-        evas_common_tilebuf_set_tile_size(re->tb, TILESIZE, TILESIZE);
+        evas_common_tilebuf_set_tile_size(re->tb, EVAS_SW_UPDATE_TILE_SIZE, EVAS_SW_UPDATE_TILE_SIZE);
         evas_common_tilebuf_tile_strict_set(re->tb, re->tile_strict);
      }
    re->w = w;

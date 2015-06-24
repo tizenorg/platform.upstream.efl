@@ -1172,7 +1172,8 @@ static void
 _efl_gfx_shape_append_circle(Eo *obj, Efl_Gfx_Shape_Data *pd,
                              double xc, double yc, double radius)
 {
-   _efl_gfx_shape_append_arc(obj, pd, xc - radius, yc - radius, 2*radius, 2*radius, 0, 360);
+   // round off the center, so that circle will be centrally aligned to the enclosed rectangle.
+   _efl_gfx_shape_append_arc(obj, pd, xc - radius + 0.5, yc - radius + 0.5, 2*radius, 2*radius, 0, 360);
 }
 
 static void

@@ -1003,19 +1003,9 @@ dri3_get_backbuffers(dri3_drawable *drawable, uint32_t *stamp)
          new_buffer = dri3_alloc_render_buffer(drawable->window, drawable->width, drawable->height, drawable->depth, 32);
          if (!new_buffer)
             return 0;
-         /* When resizing, copy the contents of the old buffer, waiting for that
-          * copy to complete using our fences before proceeding
-          */
-         if (back_buffer)
-            {
-               dri3_fence_reset(new_buffer);
-               dri3_fence_await(back_buffer);
-               dri3_copy_area(back_buffer->pixmap, new_buffer->pixmap,
-                               _dri3_drawable_gc(drawable),
-                               0, 0, 0, 0, drawable->width, drawable->height);
-               dri3_fence_trigger(new_buffer);
-               dri3_destroy_buffer(back_buffer);
-            }
+
+         if (back_buffer) dri3_destroy_buffer(back_buffer);
+
          back_buffer = new_buffer;
          drawable->buffers[buf_id] = back_buffer;
       }

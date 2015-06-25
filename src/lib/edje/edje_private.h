@@ -2826,6 +2826,11 @@ void _animation_get(Eo *obj, void *_pd, va_list *list);
 void edje_signal_init(void);
 void edje_signal_shutdown(void);
 
+Eina_Bool _edje_part_mouse_events_get(Edje *ed, Edje_Real_Part *rp);
+void _edje_part_mouse_events_set(Edje *ed, Edje_Real_Part *rp, Eina_Bool mouse_events);
+Eina_Bool _edje_part_repeat_events_get(Edje *ed, Edje_Real_Part *rp);
+void _edje_part_repeat_events_set(Edje *ed, Edje_Real_Part *rp, Eina_Bool repeat_events);
+
 // TIZEN_ONLY(20150110): Add plugin keyword.
 #ifdef PLUGIN
 typedef Eina_Bool (*Edje_Module_Plugin_Run) (const Evas_Object *obj, const char *name, const char *param);

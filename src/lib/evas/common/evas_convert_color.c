@@ -31,6 +31,7 @@ evas_common_convert_argb_premul(DATA32 *data, unsigned int len)
 {
    DATA32 *de = data + len;
    DATA32 nas = 0;
+   uint8x8_t cmp;
 
 #ifdef BUILD_NEON
    if (evas_common_cpu_has_feature(CPU_FEATURE_NEON))

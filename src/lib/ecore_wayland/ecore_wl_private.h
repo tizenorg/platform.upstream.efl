@@ -125,6 +125,7 @@ struct _Ecore_Wl_Window
    int ivi_surface_id;
 # endif
    struct tizen_visibility *tz_visibility;
+   struct tizen_position *tz_position;
    struct tizen_resource *tz_resource;
    unsigned int resource_id;
 

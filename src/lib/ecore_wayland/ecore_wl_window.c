@@ -13,7 +13,7 @@ static void _ecore_wl_window_cb_configure(void *data, struct wl_shell_surface *s
 static void _ecore_wl_window_cb_popup_done(void *data, struct wl_shell_surface *shell_surface EINA_UNUSED);
 static void _ecore_wl_window_cb_surface_enter(void *data, struct wl_surface *surface, struct wl_output *output EINA_UNUSED);
 static void _ecore_wl_window_cb_surface_leave(void *data, struct wl_surface *surface, struct wl_output *output EINA_UNUSED);
-static void _ecore_wl_window_configure_send(Ecore_Wl_Window *win, int w, int h, int edges);
+static void _ecore_wl_window_configure_send(Ecore_Wl_Window *win, int x, int y, int w, int h, int edges);
 static void _ecore_wl_window_show_send(Ecore_Wl_Window *win);
 static void _ecore_wl_window_hide_send(Ecore_Wl_Window *win);
 static char *_ecore_wl_window_id_str_get(unsigned int win_id);
@@ -21,6 +21,7 @@ static void _ecore_xdg_handle_surface_configure(void *data, struct xdg_surface *
 static void _ecore_xdg_handle_surface_delete(void *data, struct xdg_surface *xdg_surface);
 static void _ecore_xdg_handle_popup_done(void *data, struct xdg_popup *xdg_popup, unsigned int serial);
 static void _ecore_wl_window_cb_visibility_change(void *data, struct tizen_visibility *tizen_visibility, uint32_t visibility);
+static void _ecore_wl_window_cb_position_change(void *data, struct tizen_position *tizen_position, int32_t x, int32_t y);
 static void _ecore_wl_window_cb_resource_id(void *data, struct tizen_resource *tizen_resource, uint32_t id);
 
 /* local variables */
@@ -54,6 +55,11 @@ static const struct xdg_popup_listener _ecore_xdg_popup_listener =
 static const struct tizen_visibility_listener _ecore_tizen_visibility_listener =
 {
    _ecore_wl_window_cb_visibility_change,
+};
+
+static const struct tizen_position_listener _ecore_tizen_position_listener =
+{
+   _ecore_wl_window_cb_position_change,
 };
 
 static const struct tizen_resource_listener _ecore_tizen_resource_listener =
@@ -170,6 +176,9 @@ ecore_wl_window_free(Ecore_Wl_Window *win)
 #endif
    if (win->tz_visibility) tizen_visibility_destroy(win->tz_visibility);
    win->tz_visibility = NULL;
+
+   if (win->tz_position) tizen_position_destroy(win->tz_position);
+   win->tz_position = NULL;
 
    if (win->xdg_surface) xdg_surface_destroy(win->xdg_surface);
    win->xdg_surface = NULL;
@@ -399,6 +408,18 @@ ecore_wl_window_show(Ecore_Wl_Window *win)
              tizen_visibility_add_listener(win->tz_visibility,
                                            &_ecore_tizen_visibility_listener, win);
           }
+        if ((!win->tz_position) && (_ecore_wl_disp->wl.tz_policy))
+          {
+             win->tz_position =
+                tizen_policy_get_position(_ecore_wl_disp->wl.tz_policy,
+                                          win->surface);
+
+             if (!win->tz_position) return;
+             tizen_position_add_listener(win->tz_position,
+                                         &_ecore_tizen_position_listener, win);
+             if (win->surface)
+                tizen_position_set(win->tz_position, win->allocation.x, win->allocation.y);
+          }
         if ((!win->tz_resource) && (_ecore_wl_disp->wl.tz_surf_ext))
           {
              win->tz_resource =
@@ -407,10 +428,6 @@ ecore_wl_window_show(Ecore_Wl_Window *win)
              if (!win->tz_resource) return;
              tizen_resource_add_listener(win->tz_resource,
                                          &_ecore_tizen_resource_listener, win);
-          }
-        if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
-          {
-             tizen_policy_position_set(_ecore_wl_disp->wl.tz_policy, win->surface, win->allocation.x, win->allocation.y);
           }
      }
 
@@ -572,13 +589,23 @@ ecore_wl_window_maximized_set(Ecore_Wl_Window *win, Eina_Bool maximized)
           {
              xdg_surface_unset_maximized(win->xdg_surface);
              win->type = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
-             _ecore_wl_window_configure_send(win, win->saved.w, win->saved.h, 0);
+             _ecore_wl_window_configure_send(win,
+                                             win->allocation.x,
+                                             win->allocation.y,
+                                             win->saved.w,
+                                             win->saved.h,
+                                             0);
           }
         else if (win->shell_surface)
           {
              wl_shell_surface_set_toplevel(win->shell_surface);
              win->type = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
-             _ecore_wl_window_configure_send(win, win->saved.w, win->saved.h, 0);
+             _ecore_wl_window_configure_send(win,
+                                             win->allocation.x,
+                                             win->allocation.y,
+                                             win->saved.w,
+                                             win->saved.h,
+                                             0);
           }
      }
 }
@@ -625,7 +652,9 @@ ecore_wl_window_fullscreen_set(Ecore_Wl_Window *win, Eina_Bool fullscreen)
           wl_shell_surface_set_toplevel(win->shell_surface);
 
         win->type = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
-        _ecore_wl_window_configure_send(win, win->saved.w, win->saved.h, 0);
+        _ecore_wl_window_configure_send(win,
+                                        win->allocation.x, win->allocation.y,
+                                        win->saved.w, win->saved.h, 0);
      }
 }
 
@@ -827,9 +856,9 @@ ecore_wl_window_parent_set(Ecore_Wl_Window *win, Ecore_Wl_Window *parent)
 EAPI void
 ecore_wl_window_position_set(Ecore_Wl_Window *win, int x, int y)
 {
-   if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
+   if ((win->surface) && (win->tz_position))
      {
-        tizen_policy_position_set(_ecore_wl_disp->wl.tz_policy, win->surface, win->allocation.x, win->allocation.y);
+        tizen_position_set(win->tz_position, win->allocation.x, win->allocation.y);
      }
 }
 
@@ -889,7 +918,9 @@ ecore_wl_window_iconified_set(Ecore_Wl_Window *win, Eina_Bool iconified)
           {
              wl_shell_surface_set_toplevel(win->shell_surface);
              win->type = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
-             _ecore_wl_window_configure_send(win, win->saved.w, win->saved.h, 0);
+             _ecore_wl_window_configure_send(win,
+                                             win->allocation.x, win->allocation.y,
+                                             win->saved.w, win->saved.h, 0);
           }
      }
 }
@@ -1103,7 +1134,11 @@ _ecore_wl_window_cb_configure(void *data, struct wl_shell_surface *shell_surface
    if ((w <= 0) || (h <= 0)) return;
 
    if ((win->allocation.w != w) || (win->allocation.h != h))
-     _ecore_wl_window_configure_send(win, w, h, edges);
+     {
+        _ecore_wl_window_configure_send(win,
+                                        win->allocation.x, win->allocation.y,
+                                        w, h, edges);
+     }
 }
 
 static void
@@ -1144,11 +1179,17 @@ _ecore_xdg_handle_surface_configure(void *data, struct xdg_surface *xdg_surface 
           }
      }
    if ((width > 0) && (height > 0))
-     _ecore_wl_window_configure_send(win, width, height, 0);
+     {
+        _ecore_wl_window_configure_send(win,
+                                        win->allocation.x, win->allocation.y,
+                                        width, height, 0);
+     }
    else
      {
         if ((win->saved.w != 1) || (win->saved.h != 1))
-          _ecore_wl_window_configure_send(win, win->saved.w, win->saved.h, 0);
+          _ecore_wl_window_configure_send(win,
+                                          win->allocation.x, win->allocation.y,
+                                          win->saved.w, win->saved.h, 0);
      }
 
    if (win->xdg_surface)
@@ -1197,6 +1238,29 @@ _ecore_wl_window_cb_xdg_surface_deactivate(void *data, struct xdg_surface *xdg_s
    ev->event_win = win->id;
    ev->fobscured = EINA_FALSE;
    ecore_event_add(ECORE_WL_EVENT_WINDOW_DEACTIVATE, ev, NULL, NULL);
+}
+
+static void
+_ecore_wl_window_cb_position_change(void *data,
+                                    struct tizen_position *tizen_position,
+                                    int32_t x, int32_t y)
+{
+   Ecore_Wl_Window *win;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!(win = data)) return;
+
+   if ((x != win->allocation.x) || (y != win->allocation.y))
+     {
+        ecore_wl_window_update_location(win, x, y);
+        _ecore_wl_window_configure_send(win,
+                                        x,
+                                        y,
+                                        win->allocation.w,
+                                        win->allocation.h,
+                                        0);
+     }
 }
 
 static void
@@ -1307,7 +1371,7 @@ _ecore_wl_window_cb_surface_leave(void *data, struct wl_surface *surface, struct
 }
 
 static void 
-_ecore_wl_window_configure_send(Ecore_Wl_Window *win, int w, int h, int edges)
+_ecore_wl_window_configure_send(Ecore_Wl_Window *win, int x, int y, int w, int h, int edges)
 {
    Ecore_Wl_Event_Window_Configure *ev;
 
@@ -1316,8 +1380,8 @@ _ecore_wl_window_configure_send(Ecore_Wl_Window *win, int w, int h, int edges)
    if (!(ev = calloc(1, sizeof(Ecore_Wl_Event_Window_Configure)))) return;
    ev->win = win->id;
    ev->event_win = win->id;
-   ev->x = win->allocation.x;
-   ev->y = win->allocation.y;
+   ev->x = x;
+   ev->y = y;
    ev->w = w;
    ev->h = h;
    ev->edges = edges;

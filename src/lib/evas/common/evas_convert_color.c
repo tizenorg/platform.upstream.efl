@@ -31,7 +31,6 @@ evas_common_convert_argb_premul(DATA32 *data, unsigned int len)
 {
    DATA32 *de = data + len;
    DATA32 nas = 0;
-   uint8x8_t cmp;
 
 #ifdef BUILD_NEON
    if (evas_common_cpu_has_feature(CPU_FEATURE_NEON))
@@ -39,7 +38,7 @@ evas_common_convert_argb_premul(DATA32 *data, unsigned int len)
         uint8x8_t mask_0x00 = vdup_n_u8(0);
         uint8x8_t mask_0x01 = vdup_n_u8(1);
         uint8x8_t mask_0xff = vdup_n_u8(255);
-
+        uint8x8_t cmp;
         while (data <= de - 8)
           {
              uint8x8x4_t rgba = vld4_u8(data);

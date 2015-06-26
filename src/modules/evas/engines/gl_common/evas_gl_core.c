@@ -1862,6 +1862,9 @@ evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
 
    if (dbg) DBG("Created surface sfc %p (eng %p)", sfc, eng_data);
 
+   //TIZEN ONLY
+   if (evgl_engine->funcs->partial_rendering_disable)
+     evgl_engine->funcs->partial_rendering_disable(eng_data);
    return sfc;
 
 error:
@@ -1977,6 +1980,7 @@ evgl_surface_destroy(void *eng_data, EVGL_Surface *sfc)
    EVGL_Resource *rsc;
    Eina_Bool need_reconfigure = EINA_FALSE;
    Eina_Bool dbg;
+   int ret_val = 0;
 
    // FIXME: This does some make_current(0,0) which may have side effects
 
@@ -1984,14 +1988,14 @@ evgl_surface_destroy(void *eng_data, EVGL_Surface *sfc)
    if ((!evgl_engine) || (!sfc))
      {
         ERR("Invalid input data.  Engine: %p  Surface:%p", evgl_engine, sfc);
-        return 0;
+        goto ret_fail;
      }
 
    // Retrieve the resource object
    if (!(rsc = _evgl_tls_resource_get()))
      {
         ERR("Error retrieving resource from TLS");
-        return 0;
+        goto ret_fail;
      }
 
    if ((dbg = evgl_engine->api_debug_mode))
@@ -2001,14 +2005,14 @@ evgl_surface_destroy(void *eng_data, EVGL_Surface *sfc)
    if (!_internal_resource_make_current(eng_data, rsc->current_ctx))
      {
         ERR("Error doing an internal resource make current");
-        return 0;
+        goto ret_fail;
      }
 
    // Destroy created buffers
    if (!_surface_buffers_destroy(sfc))
      {
         ERR("Error deleting surface resources.");
-        return 0;
+        goto ret_fail;
      }
 
    // Destroy indirect surface
@@ -2020,7 +2024,7 @@ evgl_surface_destroy(void *eng_data, EVGL_Surface *sfc)
         if (!evgl_engine->funcs->indirect_surface_destroy)
           {
              ERR("Error destroying indirect surface");
-             return 0;
+             goto ret_fail;
           }
 
         DBG("Destroying special surface used for indirect rendering");
@@ -2029,7 +2033,7 @@ evgl_surface_destroy(void *eng_data, EVGL_Surface *sfc)
         if (!ret)
           {
              ERR("Engine failed to destroy indirect surface.");
-             return ret;
+             goto ret_fail;
           }
      }
 
@@ -2045,8 +2049,12 @@ evgl_surface_destroy(void *eng_data, EVGL_Surface *sfc)
         LKU(evgl_engine->resource_lock);
         free(sfc);
 
-        if (!ret) ERR("Engine failed to destroy a PBuffer.");
-        return ret;
+        if (!ret) 
+          {
+             ERR("Engine failed to destroy a PBuffer.");
+             goto ret_fail;
+          }
+        goto ret_success;
      }
 
    if (dbg) DBG("Calling make_current(NULL, NULL)");
@@ -2069,7 +2077,7 @@ evgl_surface_destroy(void *eng_data, EVGL_Surface *sfc)
         if (!evgl_engine->funcs->make_current(eng_data, NULL, NULL, 0))
           {
              ERR("Error doing make_current(NULL, NULL).");
-             return 0;
+             goto ret_fail;
           }
      }
 
@@ -2097,8 +2105,16 @@ evgl_surface_destroy(void *eng_data, EVGL_Surface *sfc)
    free(sfc);
    sfc = NULL;
 
-   return 1;
+//TIZEN ONLY
+ret_fail:
+   ret_val = 0;
+ret_success:
+   ret_val = 1;
 
+   if (evgl_engine->funcs->partial_rendering_enable)
+     evgl_engine->funcs->partial_rendering_enable(eng_data);
+
+   return ret_val;
 }
 
 void *

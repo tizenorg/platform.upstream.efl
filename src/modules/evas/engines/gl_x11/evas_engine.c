@@ -34,6 +34,8 @@ int swap_buffer_debug_mode = -1;
 int swap_buffer_debug = 0;
 int partial_render_debug = -1;
 int extn_have_buffer_age = 1;
+//TIZEN ONLY
+int prev_extn_have_buffer_age = 1;
 
 static int initted = 0;
 static int gl_wins = 0;
@@ -1242,6 +1244,22 @@ evgl_eng_native_win_surface_config_check(void *data,
    return 0;
 }
 
+ // TIZEN_ONLY
+static int
+evgl_eng_partial_rendering_enable(void *data)
+{
+   extn_have_buffer_age = prev_extn_have_buffer_age;
+   prev_extn_have_buffer_age = 0;
+}
+
+// TIZEN_ONLY
+static int
+evgl_eng_partial_rendering_disable(void *data)
+{
+   prev_extn_have_buffer_age = extn_have_buffer_age;
+   extn_have_buffer_age = 0;
+}
+
 static const EVGL_Interface evgl_funcs =
 {
    evgl_eng_display_get,
@@ -1262,6 +1280,8 @@ static const EVGL_Interface evgl_funcs =
    evgl_eng_indirect_surface_destroy,
    evgl_eng_gles_context_create,
    evgl_eng_native_win_surface_config_check,
+   evgl_eng_partial_rendering_enable,    // TIZEN_ONLY
+   evgl_eng_partial_rendering_disable,     // TIZEN_ONLY
 };
 
 //----------------------------------------------------------//

@@ -3126,7 +3126,7 @@ _ecore_evas_x_iconified_set(Ecore_Evas *ee, Eina_Bool on)
    if (on)
      ecore_x_icccm_iconic_request_send(ee->prop.window, edata->win_root);
    else
-     ecore_evas_show(ee);
+     ecore_evas_activate(ee);
 }
 
 static void

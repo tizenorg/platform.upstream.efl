@@ -10766,7 +10766,20 @@ evas_textblock_cursor_line_coord_set(Evas_Textblock_Cursor *cur, Evas_Coord y)
         _layout_paragraph_render(o, found_par);
         EINA_INLIST_FOREACH(found_par->lines, ln)
           {
-             if (ln->par->y + ln->y > y) break;
+             // TIZEN_ONLY(20150626): fix cursor_line_coord_set fail when y is 0.
+             // if (ln->par->y + ln->y > y) break;
+             if (ln->par->y + ln->y > y)
+               {
+                  if (ln->par->line_no + ln->line_no == 0)
+                    {
+                       evas_textblock_cursor_line_set(cur,
+                                                      ln->par->line_no + ln->line_no);
+
+                       return ln->par->line_no + ln->line_no;
+                     }
+                  break;
+               }
+             //
              if ((ln->par->y + ln->y <= y) && ((ln->par->y + ln->y + ln->h) > y))
                {
                   evas_textblock_cursor_line_set(cur, ln->par->line_no +

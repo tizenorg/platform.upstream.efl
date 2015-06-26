@@ -81,6 +81,12 @@ struct _EVGL_Interface
    // Check native window surface config for Evas GL Direct Rendering
    int        (*native_win_surface_config_check)(void *data, int evgl_depth, int evgl_stencil, int evgl_msaa);
 
+   // TIZEN_ONLY
+   // partial rendering enable
+   void        (*partial_rendering_enable)(void *data);
+
+   // partial rendering disable
+   void        (*partial_rendering_disable)(void *data);
 };
 
 struct _EVGL_Surface

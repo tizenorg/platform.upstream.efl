@@ -21,17 +21,10 @@
     <filesystem path="/usr/bin/eeze_scanner" exec_label="none"/>
     <filesystem path="/usr/bin/eeze_umount" exec_label="none"/>
     <filesystem path="/usr/bin/diffeet" exec_label="none"/>
-    <filesystem path="/usr/bin/efreetd" exec_label="none"/>
-    <filesystem path="/usr/lib/efreet/v-1.13/efreet_desktop_cache_create" exec_label="none"/>
-    <filesystem path="/usr/lib/efreet/v-1.13/efreet_icon_cache_create" exec_label="none"/>
     <filesystem path="/usr/bin/eina-bench-cmp" exec_label="none"/>
     <filesystem path="/usr/bin/eldbus-codegen" exec_label="none"/>
     <filesystem path="/usr/bin/embryo_cc" exec_label="none"/>
     <filesystem path="/usr/bin/emotion_test" exec_label="none"/>
-    <filesystem path="/usr/bin/ethumb" exec_label="none"/>
-    <filesystem path="/usr/bin/ethumbd" exec_label="none"/>
-    <filesystem path="/usr/bin/ethumbd_client" exec_label="none"/>
-    <filesystem path="/usr/lib/ethumb_client/utils/v-1.13/ethumbd_slave" exec_label="none"/>
     <filesystem path="/usr/bin/ecore_evas_convert" exec_label="none"/>
     <filesystem path="/usr/bin/ecore_evas_svg" exec_label="none"/>
     <filesystem path="/usr/bin/evas_cserve2_client" exec_label="none"/>

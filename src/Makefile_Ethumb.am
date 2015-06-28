@@ -63,8 +63,8 @@ endif
 
 ### Binary
 
-# bin_PROGRAMS += \
-# bin/ethumb/ethumb
+bin_PROGRAMS += \
+bin/ethumb/ethumb
 
 bin_ethumb_ethumb_SOURCES = bin/ethumb/ethumb.c
 bin_ethumb_ethumb_CPPFLAGS = -I$(top_builddir)/src/lib/efl @ETHUMB_CFLAGS@

@@ -23,13 +23,13 @@ else
 USE_ETHUMB_CLIENT_BIN_LIBS = @USE_ETHUMB_CLIENT_LIBS@
 endif
 
-# bin_PROGRAMS += \
-# bin/ethumb_client/ethumbd \
-# bin/ethumb_client/ethumbd_client
+bin_PROGRAMS += \
+bin/ethumb_client/ethumbd \
+bin/ethumb_client/ethumbd_client
 
 ethumbclientinternal_bindir=$(libdir)/ethumb_client/utils/$(MODULE_ARCH)
-# ethumbclientinternal_bin_PROGRAMS = \
-# bin/ethumb_client/ethumbd_slave
+ethumbclientinternal_bin_PROGRAMS = \
+bin/ethumb_client/ethumbd_slave
 
 bin_ethumb_client_ethumbd_SOURCES = \
 bin/ethumb_client/ethumbd_private.h \

@@ -1015,11 +1015,15 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
 %license COPYING
-%{_datadir}/dbus-1/services/org.enlightenment.Efreet.service
-%{_userunitdir}/efreet.service
-%{_bindir}/efreetd
-%{_libdir}/efreet/*/efreet_desktop_cache_create
-%{_libdir}/efreet/*/efreet_icon_cache_create
+%exclude %{_datadir}/dbus-1/services/org.enlightenment.Efreet.service
+%exclude %{_userunitdir}/efreet.service
+%exclude %{_bindir}/efreetd
+%exclude %{_libdir}/debug/usr/bin/efreetd.debug
+%exclude %{_libdir}/efreet/*/efreet_desktop_cache_create
+%exclude %{_libdir}/efreet/*/efreet_icon_cache_create
+%exclude %{_libdir}/debug/usr/lib/efreet/*/efreet_desktop_cache_create.debug
+%exclude %{_libdir}/debug/usr/lib/efreet/*/efreet_icon_cache_create.debug
+%exclude %{_libdir}/debug/.build-id/*/*
 %{_libdir}/libefreet.so.*
 %{_libdir}/libefreet_mime.so.*
 %{_libdir}/libefreet_trash.so.*
@@ -1065,17 +1069,22 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %license COPYING
 %{_libdir}/libethumb.so.*
 %{_libdir}/libethumb_client.so.*
-%{_datadir}/dbus-1/services/org.enlightenment.Ethumb.service
-%{_userunitdir}/ethumb.service
+%exclude %{_datadir}/dbus-1/services/org.enlightenment.Ethumb.service
+%exclude %{_userunitdir}/ethumb.service
 %{_datadir}/ethumb/*
 %{_datadir}/ethumb_client/*
 #%{_datadir}/ethumb_client/*/*
 %{_libdir}/ethumb/modules/*/*/module.so
 %{_libdir}/ethumb/modules/*/*/template.edj
-%{_libdir}/ethumb_client/utils/*/ethumbd_slave
-%{_bindir}/ethumb
-%{_bindir}/ethumbd
-%{_bindir}/ethumbd_client
+%exclude %{_libdir}/ethumb_client/utils/*/ethumbd_slave
+%exclude %{_libdir}/debug/usr/lib/ethumb_client/utils/*/ethumbd_slave.debug
+%exclude %{_bindir}/ethumb
+%exclude %{_bindir}/ethumbd
+%exclude %{_bindir}/ethumbd_client
+%exclude %{_libdir}/debug/usr/bin/ethumb.debug
+%exclude %{_libdir}/debug/usr/bin/ethumbd.debug
+%exclude %{_libdir}/debug/usr/bin/ethumbd_client.debug
+%exclude %{_libdir}/debug/.build-id/*/*
 
 #%files -n ethumb-examples
 #%manifest %{name}.manifest

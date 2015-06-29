@@ -150,21 +150,6 @@ _ecore_x_input_shutdown(void)
 
 #ifdef ECORE_XI2
 #ifdef ECORE_XI2_2
-static Eina_Bool
-_ecore_x_input_touch_device_check(int devid)
-{
-   int i;
-   Eina_Inlist *l = _ecore_x_xi2_touch_info_list;
-   Ecore_X_Touch_Device_Info *info = NULL;
-
-   if ((!_ecore_x_xi2_devs) || (!_ecore_x_xi2_touch_info_list))
-     return EINA_FALSE;
-
-   EINA_INLIST_FOREACH(l, info)
-     if (info->devid == devid) return EINA_TRUE;
-   return EINA_FALSE;
-}
-
 static int
 _ecore_x_input_touch_index_get(int devid, int detail, int event_type)
 {
@@ -291,10 +276,10 @@ _ecore_x_input_raw_handler(XEvent *xevent)
 #endif /* ifdef ECORE_XI2 */
 }
 
+#ifdef ECORE_XI2_2
 static Eina_Bool
 _ecore_x_input_grabbed_is(int deviceId)
 {
-#ifdef ECORE_XI2
    void *id;
    Eina_List *l;
 
@@ -303,10 +288,10 @@ _ecore_x_input_grabbed_is(int deviceId)
         if (deviceId == (intptr_t)id)
           return EINA_TRUE;
      }
-#endif /* ifdef ECORE_XI2 */
 
    return EINA_FALSE;
 }
+#endif /* ifdef ECORE_XI2_2 */
 
 void
 _ecore_x_input_mouse_handler(XEvent *xevent)
@@ -343,7 +328,7 @@ _ecore_x_input_mouse_handler(XEvent *xevent)
           (ECORE_EVENT_MOUSE_BUTTON_DOWN,
           evd->time,
           0,   // state
-          1,   // button
+          0,   // button
           evd->event_x, evd->event_y,
           evd->root_x, evd->root_y,
           evd->event,
@@ -363,7 +348,7 @@ _ecore_x_input_mouse_handler(XEvent *xevent)
           (ECORE_EVENT_MOUSE_BUTTON_UP,
           evd->time,
           0,   // state
-          1,   // button
+          0,   // button
           evd->event_x, evd->event_y,
           evd->root_x, evd->root_y,
           evd->event,
@@ -387,14 +372,14 @@ _ecore_x_input_multi_handler(XEvent *xevent)
 {
 #ifdef ECORE_XI2
    if (xevent->type != GenericEvent) return;
-   XIDeviceEvent *evd = (XIDeviceEvent *)(xevent->xcookie.data);
-   int devid = evd->deviceid;
 
    switch (xevent->xcookie.evtype)
      {
 #ifdef ECORE_XI2_2
       case XI_TouchUpdate:
           {
+             XIDeviceEvent *evd = (XIDeviceEvent *)(xevent->xcookie.data);
+             int devid = evd->deviceid;
              int i = _ecore_x_input_touch_index_get(devid, evd->detail, XI_TouchUpdate);
              if ((i == 0) && (evd->flags & XITouchEmulatingPointer) && !_ecore_x_input_grabbed_is(devid)) return;
              INF("Handling XI_TouchUpdate");
@@ -416,28 +401,15 @@ _ecore_x_input_multi_handler(XEvent *xevent)
 
       case XI_TouchBegin:
           {
+             XIDeviceEvent *evd = (XIDeviceEvent *)(xevent->xcookie.data);
+             int devid = evd->deviceid;
              int i = _ecore_x_input_touch_index_get(devid, evd->detail, XI_TouchBegin);
              if ((i == 0) && (evd->flags & XITouchEmulatingPointer) && !_ecore_x_input_grabbed_is(devid)) return;
-             if (i == 0)
-             _ecore_mouse_move
-             (evd->time,
-              0,   // state
-              evd->event_x, evd->event_y,
-              evd->root_x, evd->root_y,
-              evd->event,
-              (evd->child ? evd->child : evd->event),
-              evd->root,
-              1,   // same_screen
-              i, 1, 1,
-              1.0,   // pressure
-              0.0,   // angle
-              evd->event_x, evd->event_y,
-              evd->root_x, evd->root_y);
              INF("Handling XI_TouchBegin");
              _ecore_mouse_button(ECORE_EVENT_MOUSE_BUTTON_DOWN,
                                  evd->time,
                                  0,   // state
-                                 1,   // button
+                                 0,   // button
                                  evd->event_x, evd->event_y,
                                  evd->root_x, evd->root_y,
                                  evd->event,
@@ -454,6 +426,8 @@ _ecore_x_input_multi_handler(XEvent *xevent)
 
       case XI_TouchEnd:
           {
+             XIDeviceEvent *evd = (XIDeviceEvent *)(xevent->xcookie.data);
+             int devid = evd->deviceid;
              int i = _ecore_x_input_touch_index_get(devid, evd->detail, XI_TouchEnd);
              if ((i == 0) && (evd->flags & XITouchEmulatingPointer) && !_ecore_x_input_grabbed_is(devid))
                {
@@ -464,7 +438,7 @@ _ecore_x_input_multi_handler(XEvent *xevent)
              _ecore_mouse_button(ECORE_EVENT_MOUSE_BUTTON_UP,
                                  evd->time,
                                  0,   // state
-                                 1,   // button
+                                 0,   // button
                                  evd->event_x, evd->event_y,
                                  evd->root_x, evd->root_y,
                                  evd->event,
@@ -828,7 +802,6 @@ _ecore_x_input_touch_devices_grab(Ecore_X_Window grab_win, Eina_Bool grab)
         if (dev->use == XISlavePointer)
           {
 #ifdef ECORE_XI2_2
-             Eina_Inlist *l = _ecore_x_xi2_touch_info_list;
              Ecore_X_Touch_Device_Info *info;
              info = _ecore_x_input_touch_info_get(dev);
 

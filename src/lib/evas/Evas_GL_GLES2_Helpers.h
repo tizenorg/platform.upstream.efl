@@ -1,5 +1,4 @@
 /**
- * @internal
  * @file Evas_GL_GLES2_Helpers.h
  * @defgroup Evas_GL_GLES2_Helpers Evas GL GLES2 helpers
  * @ingroup Evas_GL
@@ -44,7 +43,6 @@ if (glExtensionFunction)
 // local convenience macros
 
 /**
- * @internal
  * @addtogroup Evas_GL_GLES2_Helpers
  * @{
  */

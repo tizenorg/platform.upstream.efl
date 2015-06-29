@@ -399,36 +399,37 @@ ecore_wl_window_show(Ecore_Wl_Window *win)
 #ifdef USE_IVI_SHELL
           }
 #endif
-        if ((!win->tz_visibility) && (_ecore_wl_disp->wl.tz_policy))
-          {
-             win->tz_visibility =
-               tizen_policy_get_visibility(_ecore_wl_disp->wl.tz_policy,
-                                           win->surface);
-             if (!win->tz_visibility) return;
-             tizen_visibility_add_listener(win->tz_visibility,
-                                           &_ecore_tizen_visibility_listener, win);
-          }
-        if ((!win->tz_position) && (_ecore_wl_disp->wl.tz_policy))
-          {
-             win->tz_position =
-                tizen_policy_get_position(_ecore_wl_disp->wl.tz_policy,
-                                          win->surface);
+     }
 
-             if (!win->tz_position) return;
-             tizen_position_add_listener(win->tz_position,
-                                         &_ecore_tizen_position_listener, win);
-             if (win->surface)
-                tizen_position_set(win->tz_position, win->allocation.x, win->allocation.y);
-          }
-        if ((!win->tz_resource) && (_ecore_wl_disp->wl.tz_surf_ext))
-          {
-             win->tz_resource =
-               tizen_surface_extension_get_tizen_resource(_ecore_wl_disp->wl.tz_surf_ext,
-                                                          win->surface);
-             if (!win->tz_resource) return;
-             tizen_resource_add_listener(win->tz_resource,
-                                         &_ecore_tizen_resource_listener, win);
-          }
+   if ((!win->tz_visibility) && (_ecore_wl_disp->wl.tz_policy))
+     {
+        win->tz_visibility =
+           tizen_policy_get_visibility(_ecore_wl_disp->wl.tz_policy,
+                                       win->surface);
+        if (!win->tz_visibility) return;
+        tizen_visibility_add_listener(win->tz_visibility,
+                                      &_ecore_tizen_visibility_listener, win);
+     }
+   if ((!win->tz_position) && (_ecore_wl_disp->wl.tz_policy))
+     {
+        win->tz_position =
+           tizen_policy_get_position(_ecore_wl_disp->wl.tz_policy,
+                                     win->surface);
+
+        if (!win->tz_position) return;
+        tizen_position_add_listener(win->tz_position,
+                                    &_ecore_tizen_position_listener, win);
+        if (win->surface)
+          tizen_position_set(win->tz_position, win->allocation.x, win->allocation.y);
+     }
+   if ((!win->tz_resource) && (_ecore_wl_disp->wl.tz_surf_ext))
+     {
+        win->tz_resource =
+           tizen_surface_extension_get_tizen_resource(_ecore_wl_disp->wl.tz_surf_ext,
+                                                      win->surface);
+        if (!win->tz_resource) return;
+        tizen_resource_add_listener(win->tz_resource,
+                                    &_ecore_tizen_resource_listener, win);
      }
 
    /* trap for valid shell surface */

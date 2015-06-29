@@ -20,7 +20,7 @@
 
 #define RENDER_METHOD_INVALID            0x00000000
 
-/* #define REND_DBG 1 */
+#define REND_DBG 1
 
 typedef struct _Evas_Layer                  Evas_Layer;
 typedef struct _Evas_Size                   Evas_Size;

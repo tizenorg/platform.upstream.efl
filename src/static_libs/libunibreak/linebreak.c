@@ -530,12 +530,46 @@ static int get_lb_result_simple(
 static int get_lb_result_lookup(
         struct LineBreakContext* lbpCtx)
 {
+    // TIZEN_ONLY(20150629): For Hangul word wrap
+    enum LineBreakClass lbcCur, lbcNew;
+    //
     /* TODO: Rule LB21a, as introduced by Revision 28 of UAX#14, is not
      * yet implemented below. */
     int brk = LINEBREAK_UNDEFINED;
     assert(lbpCtx->lbcCur <= LBP_JT);
     assert(lbpCtx->lbcNew <= LBP_JT);
-    switch (baTable[lbpCtx->lbcCur - 1][lbpCtx->lbcNew - 1])
+    // TIZEN_ONLY(20150629): For Hangul word wrap
+    //switch (baTable[lbpCtx->lbcCur - 1][lbpCtx->lbcNew - 1])
+    switch (lbpCtx->lbcCur)
+    {
+    case LBP_H2:        /**< Hangul LV */
+    case LBP_H3:        /**< Hangul LVT */
+    case LBP_JL:        /**< Hangul L Jamo */
+    case LBP_JV:        /**< Hangul V Jamo */
+    case LBP_JT:        /**< Hangul T Jamo */
+        lbcCur = LBP_AL;
+        break;
+    default:
+        lbcCur = lbpCtx->lbcCur;
+        break;
+    }
+
+    switch (lbpCtx->lbcNew)
+    {
+    case LBP_H2:        /**< Hangul LV */
+    case LBP_H3:        /**< Hangul LVT */
+    case LBP_JL:        /**< Hangul L Jamo */
+    case LBP_JV:        /**< Hangul V Jamo */
+    case LBP_JT:        /**< Hangul T Jamo */
+        lbcNew = LBP_AL;
+        break;
+    default:
+        lbcNew = lbpCtx->lbcNew;
+        break;
+    }
+
+    switch (baTable[lbcCur - 1][lbcNew - 1])
+    //
     {
     case DIR_BRK:
         brk = LINEBREAK_ALLOWBREAK;

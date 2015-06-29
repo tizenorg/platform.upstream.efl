@@ -15,6 +15,9 @@
 
 #include "evas_common_private.h"
 #include "evas_private.h"
+// TIZEN_ONLY(20150629): get the locale string for language information.
+#include "locale.h"
+//
 
 /* font dir cache */
 static Eina_Hash *font_dirs = NULL;
@@ -559,6 +562,16 @@ evas_font_load(Evas *eo_evas, Evas_Font_Description *fdesc, const char *source, 
       wanted_rend |= FONT_REND_SLANT;
    if (fdesc->weight == EVAS_FONT_WEIGHT_BOLD)
       wanted_rend |= FONT_REND_WEIGHT;
+
+   // TIZEN_ONLY(20150629): get the locale string for language information.
+   if (!fdesc->lang)
+     {
+        char *locale = (char *)setlocale(LC_MESSAGES, NULL);
+
+        if (locale)
+          fdesc->lang = eina_stringshare_add(locale);
+     }
+   //
 
    evas_font_init();
 

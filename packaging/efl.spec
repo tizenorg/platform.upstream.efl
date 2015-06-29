@@ -1,7 +1,7 @@
 %bcond_with wayland
 
 Name:           efl
-Version:        1.13.10
+Version:        1.13.11
 Release:        0
 #License:        LGPL-2.1
 License:        %{_builddir}/%{buildsubdir}/COPYING

@@ -284,6 +284,8 @@ ecore_buffer_new_with_tbm_surface(const char *engine, void *tbm_surface, unsigne
    Ecore_Buffer_Format format = 0;
    void *bo_data;
 
+   EINA_SAFETY_ON_NULL_RETURN_VAL(tbm_surface, NULL);
+
    bm = _ecore_buffer_get_backend(engine);
    if (!bm)
      {

@@ -108,6 +108,98 @@ _buf_get_num_planes(Ecore_Buffer_Format format)
    return num_planes;
 }
 
+static int
+_buf_get_bpp(Ecore_Buffer_Format format)
+{
+   int bpp = 0;
+
+   switch (format)
+     {
+      case ECORE_BUFFER_FORMAT_C8:
+      case ECORE_BUFFER_FORMAT_RGB332:
+      case ECORE_BUFFER_FORMAT_BGR233:
+         bpp = 8;
+         break;
+      case ECORE_BUFFER_FORMAT_XRGB4444:
+      case ECORE_BUFFER_FORMAT_XBGR4444:
+      case ECORE_BUFFER_FORMAT_RGBX4444:
+      case ECORE_BUFFER_FORMAT_BGRX4444:
+      case ECORE_BUFFER_FORMAT_ARGB4444:
+      case ECORE_BUFFER_FORMAT_ABGR4444:
+      case ECORE_BUFFER_FORMAT_RGBA4444:
+      case ECORE_BUFFER_FORMAT_BGRA4444:
+      case ECORE_BUFFER_FORMAT_XRGB1555:
+      case ECORE_BUFFER_FORMAT_XBGR1555:
+      case ECORE_BUFFER_FORMAT_RGBX5551:
+      case ECORE_BUFFER_FORMAT_BGRX5551:
+      case ECORE_BUFFER_FORMAT_ARGB1555:
+      case ECORE_BUFFER_FORMAT_ABGR1555:
+      case ECORE_BUFFER_FORMAT_RGBA5551:
+      case ECORE_BUFFER_FORMAT_BGRA5551:
+      case ECORE_BUFFER_FORMAT_RGB565:
+      case ECORE_BUFFER_FORMAT_BGR565:
+         bpp = 16;
+         break;
+      case ECORE_BUFFER_FORMAT_RGB888:
+      case ECORE_BUFFER_FORMAT_BGR888:
+         bpp = 24;
+         break;
+      case ECORE_BUFFER_FORMAT_XRGB8888:
+      case ECORE_BUFFER_FORMAT_XBGR8888:
+      case ECORE_BUFFER_FORMAT_RGBX8888:
+      case ECORE_BUFFER_FORMAT_BGRX8888:
+      case ECORE_BUFFER_FORMAT_ARGB8888:
+      case ECORE_BUFFER_FORMAT_ABGR8888:
+      case ECORE_BUFFER_FORMAT_RGBA8888:
+      case ECORE_BUFFER_FORMAT_BGRA8888:
+      case ECORE_BUFFER_FORMAT_XRGB2101010:
+      case ECORE_BUFFER_FORMAT_XBGR2101010:
+      case ECORE_BUFFER_FORMAT_RGBX1010102:
+      case ECORE_BUFFER_FORMAT_BGRX1010102:
+      case ECORE_BUFFER_FORMAT_ARGB2101010:
+      case ECORE_BUFFER_FORMAT_ABGR2101010:
+      case ECORE_BUFFER_FORMAT_RGBA1010102:
+      case ECORE_BUFFER_FORMAT_BGRA1010102:
+      case ECORE_BUFFER_FORMAT_YUYV:
+      case ECORE_BUFFER_FORMAT_YVYU:
+      case ECORE_BUFFER_FORMAT_UYVY:
+      case ECORE_BUFFER_FORMAT_VYUY:
+      case ECORE_BUFFER_FORMAT_AYUV:
+         bpp = 32;
+         break;
+      case ECORE_BUFFER_FORMAT_NV12:
+      case ECORE_BUFFER_FORMAT_NV21:
+         bpp = 12;
+         break;
+      case ECORE_BUFFER_FORMAT_NV16:
+      case ECORE_BUFFER_FORMAT_NV61:
+         bpp = 16;
+         break;
+      case ECORE_BUFFER_FORMAT_YUV410:
+      case ECORE_BUFFER_FORMAT_YVU410:
+         bpp = 9;
+         break;
+      case ECORE_BUFFER_FORMAT_YUV411:
+      case ECORE_BUFFER_FORMAT_YVU411:
+      case ECORE_BUFFER_FORMAT_YUV420:
+      case ECORE_BUFFER_FORMAT_YVU420:
+         bpp = 12;
+         break;
+      case ECORE_BUFFER_FORMAT_YUV422:
+      case ECORE_BUFFER_FORMAT_YVU422:
+         bpp = 16;
+         break;
+      case ECORE_BUFFER_FORMAT_YUV444:
+      case ECORE_BUFFER_FORMAT_YVU444:
+         bpp = 24;
+         break;
+      default :
+         break;
+     }
+
+   return bpp;
+}
+
 static Ecore_Buffer_Module_Data
 _ecore_buffer_tbm_init(const char *context EINA_UNUSED, const char *options EINA_UNUSED)
 {

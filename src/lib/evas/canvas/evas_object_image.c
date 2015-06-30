@@ -428,8 +428,8 @@ _image_init_set(const Eina_File *f, const char *file, const char *key,
           {
              if (!state_write->mmaped_source)
                eina_stringshare_del(state_write->u.file);
-	     else if (state_write->u.f)
-	       eina_file_close(state_write->u.f);
+             else if (state_write->u.f)
+               eina_file_close(state_write->u.f);
              state_write->u.f = eina_file_dup(f);
           }
         else
@@ -437,13 +437,14 @@ _image_init_set(const Eina_File *f, const char *file, const char *key,
              if (!state_write->mmaped_source)
                eina_stringshare_replace(&state_write->u.file, file);
              else
-	       {
+               {
                   if (state_write->u.f) eina_file_close(state_write->u.f);
-                  state_write->u.file = eina_stringshare_add(file);
-	       }
+                    state_write->u.file = eina_stringshare_add(file);
+               }
           }
         state_write->mmaped_source = !!f;
         eina_stringshare_replace(&state_write->key, key);
+        state_write->opaque_valid = 0;
      }
    EINA_COW_IMAGE_STATE_WRITE_END(o, state_write);
 

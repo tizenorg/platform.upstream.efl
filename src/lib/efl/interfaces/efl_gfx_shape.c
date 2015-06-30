@@ -1140,6 +1140,12 @@ _efl_gfx_shape_append_arc(Eo *obj, Efl_Gfx_Shape_Data *pd,
 {
    int point_count;
    Point pts[15];
+   // FIXME: make the radius even, as the default
+   // renderer unable to generate a perfect arc in case of odd radius.
+   // remove the below line once the rle generation is fixed for the same.
+   if (((int)w & 1)) w = w-1;
+   if (((int)h & 1)) h = h-1;
+
    Point curve_start = _curves_for_arc(x, y, w, h, start_angle, sweep_length, pts, &point_count);
    int i;
    if (pd->commands_count)
@@ -1172,8 +1178,7 @@ static void
 _efl_gfx_shape_append_circle(Eo *obj, Efl_Gfx_Shape_Data *pd,
                              double xc, double yc, double radius)
 {
-   // round off the center, so that circle will be centrally aligned to the enclosed rectangle.
-   _efl_gfx_shape_append_arc(obj, pd, xc - radius + 0.5, yc - radius + 0.5, 2*radius, 2*radius, 0, 360);
+   _efl_gfx_shape_append_arc(obj, pd, xc - radius, yc - radius, 2*radius, 2*radius, 0, 360);
 }
 
 static void

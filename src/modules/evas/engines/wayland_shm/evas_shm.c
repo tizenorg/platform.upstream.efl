@@ -308,7 +308,7 @@ _shm_leaf_release(Shm_Leaf *leaf)
 }
 
 Shm_Surface *
-_evas_shm_surface_create(struct wl_shm *shm, struct wl_surface *surface, struct wl_display *display, int w, int h, int num_buff, Eina_Bool alpha)
+_evas_shm_surface_create(struct wl_shm *shm, struct wl_surface *surface, int w, int h, int num_buff, Eina_Bool alpha)
 {
    Shm_Surface *surf;
    int i = 0;
@@ -323,7 +323,6 @@ _evas_shm_surface_create(struct wl_shm *shm, struct wl_surface *surface, struct 
    surf->h = h;
    surf->shm = shm;
    surf->surface = surface;
-   surf->display = display;
    surf->num_buff = num_buff;
    surf->alpha = alpha;
    surf->flags = 0;
@@ -478,27 +477,8 @@ _evas_shm_surface_data_get(Shm_Surface *surface, int *w, int *h)
 
    if (!leaf)
      {
-        if (surface->display)
-          {
-             if (wl_display_roundtrip(surface->display) != -1)
-               {
-                  for (i = 0; i < surface->num_buff; i++)
-                    {
-                       if (surface->leaf[i].busy) continue;
-                       if ((!leaf) || (leaf->valid))
-                         {
-                            leaf = &surface->leaf[i];
-                            break;
-                         }
-                    }
-               }
-
-          }
-        if (!leaf)
-          {
-             /* WRN("All buffers held by server"); */
+        /* WRN("All buffers held by server"); */
              return NULL;
-          }
      }
 
    /* DBG("Leaf Data Get %d", (int)(leaf - &surface->leaf[0])); */

@@ -154,6 +154,7 @@ struct _Ecore_Wl_Window
 
    const char *title;
    const char *class_name;
+   const char *role;
 
    Eina_Rectangle allocation;
 

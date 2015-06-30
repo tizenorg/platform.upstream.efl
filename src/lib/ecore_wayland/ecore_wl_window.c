@@ -131,6 +131,7 @@ ecore_wl_window_new(Ecore_Wl_Window *parent, int x, int y, int w, int h, int buf
 
    win->title = NULL;
    win->class_name = NULL;
+   win->role = NULL;
 
    eina_hash_add(_windows, _ecore_wl_window_id_str_get(win->id), win);
    return win;
@@ -192,6 +193,7 @@ ecore_wl_window_free(Ecore_Wl_Window *win)
 
    if (win->title) eina_stringshare_del(win->title);
    if (win->class_name) eina_stringshare_del(win->class_name);
+   if (win->role) eina_stringshare_del(win->role);
 
    /* HMMM, why was this disabled ? */
    free(win);
@@ -401,27 +403,41 @@ ecore_wl_window_show(Ecore_Wl_Window *win)
 #endif
      }
 
-   if ((!win->tz_visibility) && (_ecore_wl_disp->wl.tz_policy))
+   if (_ecore_wl_disp->wl.tz_policy)
      {
-        win->tz_visibility =
-           tizen_policy_get_visibility(_ecore_wl_disp->wl.tz_policy,
-                                       win->surface);
-        if (!win->tz_visibility) return;
-        tizen_visibility_add_listener(win->tz_visibility,
-                                      &_ecore_tizen_visibility_listener, win);
-     }
-   if ((!win->tz_position) && (_ecore_wl_disp->wl.tz_policy))
-     {
-        win->tz_position =
-           tizen_policy_get_position(_ecore_wl_disp->wl.tz_policy,
-                                     win->surface);
+        if (!win->tz_visibility)
+          {
+             win->tz_visibility =
+                tizen_policy_get_visibility(_ecore_wl_disp->wl.tz_policy,
+                                            win->surface);
+             if (!win->tz_visibility) return;
+             tizen_visibility_add_listener(win->tz_visibility,
+                                           &_ecore_tizen_visibility_listener,
+                                           win);
+          }
+        if (!win->tz_position)
+          {
 
-        if (!win->tz_position) return;
-        tizen_position_add_listener(win->tz_position,
-                                    &_ecore_tizen_position_listener, win);
-        if (win->surface)
-          tizen_position_set(win->tz_position, win->allocation.x, win->allocation.y);
+             win->tz_position =
+                tizen_policy_get_position(_ecore_wl_disp->wl.tz_policy,
+                                          win->surface);
+
+             if (!win->tz_position) return;
+             tizen_position_add_listener(win->tz_position,
+                                         &_ecore_tizen_position_listener, win);
+             if (win->surface)
+               tizen_position_set(win->tz_position,
+                                  win->allocation.x, win->allocation.y);
+          }
+        if (win->role)
+          {
+             if (win->surface)
+               tizen_policy_role_set(_ecore_wl_disp->wl.tz_policy,
+                                     win->surface,
+                                     win->role);
+          }
      }
+
    if ((!win->tz_resource) && (_ecore_wl_disp->wl.tz_surf_ext))
      {
         win->tz_resource =
@@ -881,6 +897,18 @@ ecore_wl_window_focus_skip_set(Ecore_Wl_Window *win, Eina_Bool focus_skip)
      }
  }
 
+EAPI void
+ecore_wl_window_role_set(Ecore_Wl_Window *win, const char *role)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!win) return;
+   eina_stringshare_replace(&win->role, role);
+
+   if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
+     tizen_policy_role_set(_ecore_wl_disp->wl.tz_policy, win->surface, win->role);
+}
+
 /* @since 1.12 */
 EAPI void 
 ecore_wl_window_iconified_set(Ecore_Wl_Window *win, Eina_Bool iconified)
@@ -1113,7 +1141,6 @@ ecore_wl_window_keyboard_get(Ecore_Wl_Window *win)
    if (!win) return 0;
    return win->keyboard_device;
 }
-
 
 /* local functions */
 static void 

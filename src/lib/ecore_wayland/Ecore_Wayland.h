@@ -639,6 +639,7 @@ EAPI void ecore_wl_window_cursor_default_restore(Ecore_Wl_Window *win);
 EAPI void ecore_wl_window_parent_set(Ecore_Wl_Window *win, Ecore_Wl_Window *parent);
 EAPI void ecore_wl_window_position_set(Ecore_Wl_Window *win, int x, int y);
 EAPI void ecore_wl_window_focus_skip_set(Ecore_Wl_Window *win, Eina_Bool focus_skip);
+EAPI void ecore_wl_window_role_set(Ecore_Wl_Window *win, const char *role);
 
 /**
  * Iconify a window

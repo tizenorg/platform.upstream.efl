@@ -27,6 +27,7 @@ extern const struct wl_interface tizen_position_interface;
 #define TIZEN_POLICY_LOWER	3
 #define TIZEN_POLICY_FOCUS_SKIP_SET	4
 #define TIZEN_POLICY_FOCUS_SKIP_UNSET	5
+#define TIZEN_POLICY_ROLE_SET	6
 
 static inline void
 tizen_policy_set_user_data(struct tizen_policy *tizen_policy, void *user_data)
@@ -94,6 +95,13 @@ tizen_policy_focus_skip_unset(struct tizen_policy *tizen_policy, struct wl_surfa
 {
 	wl_proxy_marshal((struct wl_proxy *) tizen_policy,
 			 TIZEN_POLICY_FOCUS_SKIP_UNSET, surface);
+}
+
+static inline void
+tizen_policy_role_set(struct tizen_policy *tizen_policy, struct wl_surface *surface, const char *role)
+{
+	wl_proxy_marshal((struct wl_proxy *) tizen_policy,
+			 TIZEN_POLICY_ROLE_SET, surface, role);
 }
 
 #ifndef TIZEN_VISIBILITY_VISIBILITY_ENUM

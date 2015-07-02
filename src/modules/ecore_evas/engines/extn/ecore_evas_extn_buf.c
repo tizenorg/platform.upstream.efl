@@ -63,7 +63,10 @@ _extnbuf_new(const char *base, int id, Eina_Bool sys, int num,
         if (b->lockfd < 0) goto err;
         b->lock = eina_stringshare_add(file);
         if (!b->lock) goto err;
-        b->fd = shm_open(b->file, O_RDWR | O_CREAT | O_EXCL, mode);
+        //TIZEN ONLY (150702): support indicator_shm in efl-extension
+        //b->fd = shm_open(b->file, O_RDWR | O_CREAT | O_EXCL, mode);
+        b->fd = shm_open(b->file, O_RDWR | O_CREAT, mode);
+        //
         if (b->fd < 0) goto err;
         if (ftruncate(b->fd, b->size) < 0) goto err;
      }
@@ -87,7 +90,9 @@ _extnbuf_free(Extnbuf *b)
 
    if (b->am_owner)
      {
-        if (b->file) shm_unlink(b->file);
+        //TIZEN ONLY (150702): support indicator_shm in efl-extension
+        //if (b->file) shm_unlink(b->file);
+        //
         if (b->lock) unlink(b->lock);
      }
    

@@ -141,6 +141,10 @@ EAPI void        *edje_object_signal_callback_del_full(Evas_Object *obj, const c
  /**
  * @brief Set the object minimum size.
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * @ingroup Edje_Part_Swallow
  *
  * @param obj A valid Evas_Object handle
@@ -150,6 +154,7 @@ EAPI void        *edje_object_signal_callback_del_full(Evas_Object *obj, const c
  * This sets the minimum size restriction for the object.
  *
  * @deprecated use evas_object_size_hint_min_set() instead.
+ *             Deprecated sinze Tizen 2.4
  */
 EINA_DEPRECATED EAPI void         edje_extern_object_min_size_set (Evas_Object *obj, Evas_Coord minw, Evas_Coord minh);
 
@@ -169,11 +174,16 @@ EINA_DEPRECATED EAPI void         edje_extern_object_min_size_set (Evas_Object *
  * @remark This sets the maximum size restriction for the object.
  *
  * @deprecated use evas_object_size_hint_max_set() instead.
+ *             Deprecated since Tizen 2.4
  */
 EAPI void         edje_extern_object_max_size_set (Evas_Object *obj, Evas_Coord maxw, Evas_Coord maxh);
 
 /**
  * @brief Set the object aspect size.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  *
  * @ingroup Edje_Part_Swallow
  *
@@ -188,6 +198,7 @@ EAPI void         edje_extern_object_max_size_set (Evas_Object *obj, Evas_Coord 
  * retaining the relative scale of both aspect width and height.
  *
  * @deprecated use evas_object_size_hint_aspect_set() instead.
+ *             Deprecated since Tizen 2.4
  */
 EAPI void         edje_extern_object_aspect_set   (Evas_Object *obj, Edje_Aspect_Control aspect, Evas_Coord aw, Evas_Coord ah);
 

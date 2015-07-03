@@ -443,6 +443,7 @@ static inline void      eina_array_data_set(const Eina_Array *array,
  * @c NULL or invalid, the program may crash.
  *
  * @deprecated use eina_array_count()
+ *             Deprecated since Tizen 2.4
  */
 static inline unsigned int eina_array_count_get(const Eina_Array *array) EINA_ARG_NONNULL(1) EINA_WARN_UNUSED_RESULT;
 

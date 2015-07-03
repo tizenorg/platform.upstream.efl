@@ -3925,7 +3925,8 @@ EAPI const Evas_Object_Textblock_Node_Format *evas_textblock_node_format_prev_ge
  *
  * @param[in] cur the cursor to update.
  * @param[in] n the format node to update according.
- * @deprecated duplicate of evas_textblock_cursor_at_format_set
+ * @deprecated Use evas_textblock_cursor_at_format_set instead
+ *             Deprecated since Tizen 2.4
  */
 EAPI void                                     evas_textblock_cursor_set_at_format(Evas_Textblock_Cursor *cur, const Evas_Object_Textblock_Node_Format *n) EINA_ARG_NONNULL(1, 2);
 

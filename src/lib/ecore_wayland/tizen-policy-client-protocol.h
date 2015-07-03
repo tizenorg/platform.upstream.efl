@@ -18,8 +18,57 @@ struct tizen_visibility;
 struct wl_surface;
 
 extern const struct wl_interface tizen_policy_interface;
-extern const struct wl_interface tizen_visibility_interface;
 extern const struct wl_interface tizen_position_interface;
+extern const struct wl_interface tizen_visibility_interface;
+extern const struct wl_interface wl_surface_interface;
+
+#ifndef TIZEN_POLICY_CONFORMANT_PART_ENUM
+#define TIZEN_POLICY_CONFORMANT_PART_ENUM
+enum tizen_policy_conformant_part {
+	TIZEN_POLICY_CONFORMANT_PART_INDICATOR = 0,
+	TIZEN_POLICY_CONFORMANT_PART_KEYBOARD = 1,
+	TIZEN_POLICY_CONFORMANT_PART_CLIPBOARD = 2,
+};
+#endif /* TIZEN_POLICY_CONFORMANT_PART_ENUM */
+
+struct tizen_policy_listener {
+	/**
+	 * conformant - (none)
+	 * @surface: surface object
+	 * @is_conformant: (none)
+	 */
+	void (*conformant)(void *data,
+			   struct tizen_policy *tizen_policy,
+			   struct wl_surface *surface,
+			   uint32_t is_conformant);
+	/**
+	 * conformant_area - (none)
+	 * @surface: surface object
+	 * @conformant_part: (none)
+	 * @state: (none)
+	 * @x: (none)
+	 * @y: (none)
+	 * @w: (none)
+	 * @h: (none)
+	 */
+	void (*conformant_area)(void *data,
+				struct tizen_policy *tizen_policy,
+				struct wl_surface *surface,
+				uint32_t conformant_part,
+				uint32_t state,
+				int32_t x,
+				int32_t y,
+				int32_t w,
+				int32_t h);
+};
+
+static inline int
+tizen_policy_add_listener(struct tizen_policy *tizen_policy,
+			  const struct tizen_policy_listener *listener, void *data)
+{
+	return wl_proxy_add_listener((struct wl_proxy *) tizen_policy,
+				     (void (**)(void)) listener, data);
+}
 
 #define TIZEN_POLICY_GET_VISIBILITY	0
 #define TIZEN_POLICY_GET_POSITION	1
@@ -28,6 +77,9 @@ extern const struct wl_interface tizen_position_interface;
 #define TIZEN_POLICY_FOCUS_SKIP_SET	4
 #define TIZEN_POLICY_FOCUS_SKIP_UNSET	5
 #define TIZEN_POLICY_ROLE_SET	6
+#define TIZEN_POLICY_CONFORMANT_SET	7
+#define TIZEN_POLICY_CONFORMANT_UNSET	8
+#define TIZEN_POLICY_CONFORMANT_GET	9
 
 static inline void
 tizen_policy_set_user_data(struct tizen_policy *tizen_policy, void *user_data)
@@ -102,6 +154,27 @@ tizen_policy_role_set(struct tizen_policy *tizen_policy, struct wl_surface *surf
 {
 	wl_proxy_marshal((struct wl_proxy *) tizen_policy,
 			 TIZEN_POLICY_ROLE_SET, surface, role);
+}
+
+static inline void
+tizen_policy_conformant_set(struct tizen_policy *tizen_policy, struct wl_surface *surface)
+{
+	wl_proxy_marshal((struct wl_proxy *) tizen_policy,
+			 TIZEN_POLICY_CONFORMANT_SET, surface);
+}
+
+static inline void
+tizen_policy_conformant_unset(struct tizen_policy *tizen_policy, struct wl_surface *surface)
+{
+	wl_proxy_marshal((struct wl_proxy *) tizen_policy,
+			 TIZEN_POLICY_CONFORMANT_UNSET, surface);
+}
+
+static inline void
+tizen_policy_conformant_get(struct tizen_policy *tizen_policy, struct wl_surface *surface)
+{
+	wl_proxy_marshal((struct wl_proxy *) tizen_policy,
+			 TIZEN_POLICY_CONFORMANT_GET, surface);
 }
 
 #ifndef TIZEN_VISIBILITY_VISIBILITY_ENUM

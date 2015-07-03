@@ -308,6 +308,10 @@ struct _Ecore_Evas
    unsigned char profile_supported : 1;
    unsigned char in_async_render : 1;
    unsigned char can_async_render : 1;
+
+   Eina_Bool indicator_state : 1;
+   Eina_Bool keyboard_state : 1;
+   Eina_Bool clipboard_state : 1;
 };
 
 struct _Ecore_Evas_Aux_Hint

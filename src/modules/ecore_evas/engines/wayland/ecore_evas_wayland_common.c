@@ -34,7 +34,7 @@ EVAS_SMART_SUBCLASS_NEW(_smart_frame_type, _ecore_evas_wl_frame,
 
 /* local variables */
 static int _ecore_evas_wl_init_count = 0;
-static Ecore_Event_Handler *_ecore_evas_wl_event_hdls[5];
+static Ecore_Event_Handler *_ecore_evas_wl_event_hdls[6];
 
 static void _ecore_evas_wayland_resize(Ecore_Evas *ee, int location);
 
@@ -353,6 +353,29 @@ _ecore_evas_wl_common_cb_window_configure(void *data EINA_UNUSED, int type EINA_
    return ECORE_CALLBACK_PASS_ON;
 }
 
+static Eina_Bool
+_ecore_evas_wl_common_cb_conformant_change(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
+{
+   Ecore_Evas *ee;
+   Ecore_Wl_Event_Conformant_Change *ev;
+
+   ev = event;
+   ee = ecore_event_window_match(ev->win);
+   if (!ee) return ECORE_CALLBACK_PASS_ON;
+   if (ev->win != ee->prop.window) return ECORE_CALLBACK_PASS_ON;
+
+   if ((ev->part_type == ECORE_WL_INDICATOR_PART) && (ee->indicator_state != ev->state))
+        ee->indicator_state = ev->state;
+   else if ((ev->part_type == ECORE_WL_KEYBOARD_PART) && (ee->keyboard_state != ev->state))
+     ee->keyboard_state = ev->state;
+   else if ((ev->part_type == ECORE_WL_CLIPBOARD_PART) && (ee->clipboard_state != ev->state))
+     ee->clipboard_state = ev->state;
+
+   _ecore_evas_wl_common_state_update(ee);
+
+   return ECORE_CALLBACK_PASS_ON;
+}
+
 static void
 _rotation_do(Ecore_Evas *ee, int rotation, int resize)
 {
@@ -539,6 +562,9 @@ _ecore_evas_wl_common_init(void)
    _ecore_evas_wl_event_hdls[4] =
      ecore_event_handler_add(ECORE_WL_EVENT_WINDOW_CONFIGURE,
                              _ecore_evas_wl_common_cb_window_configure, NULL);
+   _ecore_evas_wl_event_hdls[5] =
+     ecore_event_handler_add(ECORE_WL_EVENT_CONFORMANT_CHANGE,
+                             _ecore_evas_wl_common_cb_conformant_change, NULL);
 
    ecore_event_evas_init();
 

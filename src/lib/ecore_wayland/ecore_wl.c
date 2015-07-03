@@ -38,6 +38,9 @@ static void _ecore_wl_signal_exit(void);
 static void _ecore_wl_signal_exit_free(void *data EINA_UNUSED, void *event);
 static void _ecore_wl_init_callback(void *data, struct wl_callback *callback, uint32_t serial EINA_UNUSED);
 static void _ecore_wl_cb_keygrab_notify(void *data, struct wl_keyrouter *wl_keyrouter, struct wl_surface *surface, uint32_t key, uint32_t mode, uint32_t error);
+static void _ecore_wl_cb_conformant(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface_resource, uint32_t is_conformant);
+static void _ecore_wl_cb_conformant_area(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface_resource, uint32_t conformant_part, uint32_t state, int32_t x, int32_t y, int32_t w, int32_t h);
+static void _ecore_wl_window_conformant_area_send(Ecore_Wl_Window *win, uint32_t conformant_part, uint32_t state);
 
 /* local variables */
 static int _ecore_wl_init_count = 0;
@@ -72,6 +75,11 @@ static const struct wl_keyrouter_listener _ecore_wl_keyrouter_listener =
    _ecore_wl_cb_keygrab_notify
 };
 
+static const struct tizen_policy_listener _ecore_tizen_policy_listener =
+{
+   _ecore_wl_cb_conformant,
+   _ecore_wl_cb_conformant_area,
+};
 static void 
 xdg_shell_ping(void *data EINA_UNUSED, struct xdg_shell *shell, uint32_t serial)
 {
@@ -108,6 +116,7 @@ EAPI int ECORE_WL_EVENT_DATA_SOURCE_SEND = 0;
 EAPI int ECORE_WL_EVENT_SELECTION_DATA_READY = 0;
 EAPI int ECORE_WL_EVENT_DATA_SOURCE_CANCELLED = 0;
 EAPI int ECORE_WL_EVENT_INTERFACES_BOUND = 0;
+EAPI int ECORE_WL_EVENT_CONFORMANT_CHANGE = 0;
 
 static void
 _ecore_wl_init_callback(void *data, struct wl_callback *callback, uint32_t serial EINA_UNUSED)
@@ -178,6 +187,7 @@ ecore_wl_init(const char *name)
         ECORE_WL_EVENT_SELECTION_DATA_READY = ecore_event_type_new();
         ECORE_WL_EVENT_DATA_SOURCE_CANCELLED = ecore_event_type_new();
         ECORE_WL_EVENT_INTERFACES_BOUND = ecore_event_type_new();
+        ECORE_WL_EVENT_CONFORMANT_CHANGE = ecore_event_type_new();
      }
 
    if (!(_ecore_wl_disp = malloc(sizeof(Ecore_Wl_Display))))
@@ -712,6 +722,8 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
      {
         ewd->wl.tz_policy =
           wl_registry_bind(registry, id, &tizen_policy_interface, 1);
+        if (ewd->wl.tz_policy)
+          tizen_policy_add_listener(_ecore_wl_disp->wl.tz_policy, &_ecore_tizen_policy_listener, ewd->wl.display);
      }
    else if (!strcmp(interface, "tizen_surface_extension"))
      {
@@ -1009,3 +1021,87 @@ ecore_wl_window_keygrab_unset(Ecore_Wl_Window *win, const char *key, int mod EIN
    return ret;
 }
 
+static void
+_ecore_wl_window_conformant_area_send(Ecore_Wl_Window *win, uint32_t conformant_part, uint32_t state)
+{
+   Ecore_Wl_Event_Conformant_Change *ev;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!(ev = calloc(1, sizeof(Ecore_Wl_Event_Conformant_Change)))) return;
+   ev->win = win->id;
+   ev->part_type = conformant_part;
+   ev->state = state;
+   ecore_event_add(ECORE_WL_EVENT_CONFORMANT_CHANGE, ev, NULL, NULL);
+}
+
+static void
+_ecore_wl_cb_conformant(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface_resource, uint32_t is_conformant)
+{
+   struct wl_surface *surface = surface_resource;
+   Ecore_Wl_Window *win = NULL;
+
+   if (!surface) return;
+   win = ecore_wl_window_surface_find(surface);
+   if (win)
+     win->conformant = is_conformant;
+}
+
+static void
+_ecore_wl_cb_conformant_area(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface_resource, uint32_t conformant_part, uint32_t state, int32_t x, int32_t y, int32_t w, int32_t h)
+{
+   struct wl_surface *surface = surface_resource;
+   Ecore_Wl_Window *win = NULL;
+   int org_x, org_y, org_w, org_h;
+   Eina_Bool changed;
+
+   if (!surface) return;
+   win = ecore_wl_window_surface_find(surface);
+   if (!win) return;
+
+   if (conformant_part == TIZEN_POLICY_CONFORMANT_PART_INDICATOR)
+     {
+        ecore_wl_window_indicator_geometry_get(win, &org_x, &org_y, &org_w, &org_h);
+        if ((org_x != x) || (org_y != y) || (org_w != w) || (org_h != h))
+          {
+             ecore_wl_window_indicator_geometry_set(win, x, y, w, h);
+             changed = EINA_TRUE;
+          }
+        if (state != ecore_wl_window_indicator_state_get(win))
+          {
+             ecore_wl_window_indicator_state_set(win, state);
+             changed = EINA_TRUE;
+          }
+     }
+   else if (conformant_part == TIZEN_POLICY_CONFORMANT_PART_KEYBOARD)
+     {
+        ecore_wl_window_keyboard_geometry_get(win, &org_x, &org_y, &org_w, &org_h);
+        if ((org_x != x) || (org_y != y) || (org_w != w) || (org_h != h))
+          {
+             ecore_wl_window_keyboard_geometry_set(win, x, y, w, h);
+             changed = EINA_TRUE;
+          }
+        if (state != ecore_wl_window_keyboard_state_get(win))
+          {
+             ecore_wl_window_keyboard_state_set(win, state);
+             changed = EINA_TRUE;
+          }
+     }
+   else if (conformant_part == TIZEN_POLICY_CONFORMANT_PART_CLIPBOARD)
+     {
+        ecore_wl_window_clipboard_geometry_get(win, &org_x, &org_y, &org_w, &org_h);
+        if ((org_x != x) || (org_y != y) || (org_w != w) || (org_h != h))
+          {
+             ecore_wl_window_clipboard_geometry_set(win, x, y, w, h);
+             changed = EINA_TRUE;
+          }
+        if (state != ecore_wl_window_clipboard_state_get(win))
+          {
+             ecore_wl_window_clipboard_state_set(win, state);
+             changed = EINA_TRUE;
+          }
+     }
+
+   if (changed)
+     _ecore_wl_window_conformant_area_send(win, conformant_part, state);
+}

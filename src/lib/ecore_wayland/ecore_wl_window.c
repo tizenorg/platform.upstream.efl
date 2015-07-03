@@ -1470,3 +1470,180 @@ _ecore_wl_window_id_str_get(unsigned int win_id)
 
    return id;
 }
+
+void
+ecore_wl_window_indicator_geometry_set(Ecore_Wl_Window *win, int x, int y, int w, int h)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if(!win) return;
+
+   win->indicator.x = x;
+   win->indicator.y = y;
+   win->indicator.w = w;
+   win->indicator.h = h;
+}
+
+Eina_Bool
+ecore_wl_window_indicator_geometry_get(Ecore_Wl_Window *win, int *x, int *y, int *w, int *h)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if(!win) return EINA_FALSE;
+
+   if (x)
+     *x = win->indicator.x;
+   if (y)
+     *y = win->indicator.y;
+   if (w)
+     *w = win->indicator.w;
+   if (h)
+     *h = win->indicator.h;
+
+   return EINA_TRUE;
+}
+
+EAPI void
+ecore_wl_window_indicator_state_set(Ecore_Wl_Window *win, Eina_Bool on)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return;
+
+   if (on) win->indicator.state = ECORE_WL_INDICATOR_STATE_ON;
+   else if (!on) win->indicator.state = ECORE_WL_INDICATOR_STATE_OFF;
+}
+
+EAPI Ecore_Wl_Indicator_State
+ecore_wl_window_indicator_state_get(Ecore_Wl_Window *win)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return EINA_FALSE;
+
+   return win->indicator.state;
+}
+
+void
+ecore_wl_window_clipboard_geometry_set(Ecore_Wl_Window *win, int x, int y, int w, int h)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if(!win) return;
+
+   win->clipboard.x = x;
+   win->clipboard.y = y;
+   win->clipboard.w = w;
+   win->clipboard.h = h;
+}
+
+Eina_Bool
+ecore_wl_window_clipboard_geometry_get(Ecore_Wl_Window *win, int *x, int *y, int *w, int *h)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return EINA_FALSE;
+
+   if (x)
+     *x = win->clipboard.x;
+   if (y)
+     *y = win->clipboard.y;
+   if (w)
+     *w = win->clipboard.w;
+   if (h)
+     *h = win->clipboard.h;
+
+   return EINA_TRUE;
+}
+
+EAPI void
+ecore_wl_window_clipboard_state_set(Ecore_Wl_Window *win, Eina_Bool on)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return;
+
+   if (on) win->clipboard.state = ECORE_WL_CLIPBOARD_STATE_ON;
+   else if(!on) win->clipboard.state = ECORE_WL_CLIPBOARD_STATE_OFF;
+
+}
+
+EAPI Ecore_Wl_Clipboard_State
+ecore_wl_window_clipboard_state_get(Ecore_Wl_Window *win)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return EINA_FALSE;
+
+   return win->clipboard.state;
+}
+
+void
+ecore_wl_window_keyboard_geometry_set(Ecore_Wl_Window *win, int x, int y, int w, int h)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if(!win) return;
+
+   win->keyboard.x= x;
+   win->keyboard.y = y;
+   win->keyboard.w = w;
+   win->keyboard.h = h;
+}
+
+Eina_Bool
+ecore_wl_window_keyboard_geometry_get(Ecore_Wl_Window *win, int *x, int *y, int *w, int *h)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return EINA_FALSE;
+
+   if (x)
+     *x = win->keyboard.x;
+   if (y)
+     *y = win->keyboard.y;
+   if (w)
+     *w = win->keyboard.w;
+   if (h)
+     *h = win->keyboard.h;
+
+   return EINA_TRUE;
+}
+
+EAPI void
+ecore_wl_window_keyboard_state_set(Ecore_Wl_Window *win, Eina_Bool on)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return;
+
+   if (on) win->keyboard.state = ECORE_WL_VIRTUAL_KEYBOARD_STATE_ON;
+   else if (!on) win->keyboard.state = ECORE_WL_VIRTUAL_KEYBOARD_STATE_OFF;
+}
+
+EAPI Ecore_Wl_Virtual_Keyboard_State
+ecore_wl_window_keyboard_state_get(Ecore_Wl_Window *win)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return EINA_FALSE;
+
+   return win->keyboard.state;
+}
+
+EAPI void
+ecore_wl_window_conformant_set(Ecore_Wl_Window *win, unsigned int is_conformant)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return;
+   if (!win->surface) return;
+   if (!_ecore_wl_disp->wl.tz_policy) return;
+
+   if (is_conformant)
+     tizen_policy_conformant_set(_ecore_wl_disp->wl.tz_policy, win->surface);
+   else
+     tizen_policy_conformant_unset(_ecore_wl_disp->wl.tz_policy, win->surface);
+}
+
+EAPI Eina_Bool
+ecore_wl_window_conformant_get(Ecore_Wl_Window *win)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return 0;
+   if (!win->surface) return 0;
+   if (!_ecore_wl_disp->wl.tz_policy) return 0;
+
+   tizen_policy_conformant_get(_ecore_wl_disp->wl.tz_policy, win->surface);
+
+   ecore_wl_sync();
+
+   return win->conformant;
+}

@@ -160,6 +160,22 @@ struct _Ecore_Wl_Window
 
    struct
      {
+        int x, y, w, h;
+        Ecore_Wl_Indicator_State state;
+     } indicator;
+   struct
+     {
+        int x, y, w, h;
+        Ecore_Wl_Clipboard_State state;
+     } clipboard;
+   struct
+     {
+        int x, y, w, h;
+        Ecore_Wl_Virtual_Keyboard_State state;
+     } keyboard;
+
+   struct
+     {
         int w, h;
      } saved;
 
@@ -173,6 +189,7 @@ struct _Ecore_Wl_Window
    Eina_Bool alpha : 1;
    Eina_Bool transparent : 1;
    Eina_Bool has_buffer : 1;
+   Eina_Bool conformant : 1;
 
    Ecore_Wl_Window_Type type;
    Ecore_Wl_Window_Buffer_Type buffer_type;

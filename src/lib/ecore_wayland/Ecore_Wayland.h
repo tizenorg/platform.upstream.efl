@@ -69,6 +69,7 @@ typedef struct _Ecore_Wl_Event_Data_Source_Send Ecore_Wl_Event_Data_Source_Send;
 typedef struct _Ecore_Wl_Event_Data_Source_Target  Ecore_Wl_Event_Data_Source_Target; /** @since 1.12 */
 typedef struct _Ecore_Wl_Event_Selection_Data_Ready Ecore_Wl_Event_Selection_Data_Ready; /** @since 1.7 */
 typedef struct _Ecore_Wl_Event_Interfaces_Bound Ecore_Wl_Event_Interfaces_Bound;
+typedef struct _Ecore_Wl_Event_Conformant_Change Ecore_Wl_Event_Conformant_Change;
 
 enum _Ecore_Wl_Window_Type
 {
@@ -100,9 +101,41 @@ enum _Ecore_Wl_Window_Keygrab_Mode
    ECORE_WL_WINDOW_KEYGRAB_OVERRIDE_EXCLUSIVE = 4 /**< Getting the grabbed-key exclusively regardless of window's position. Being overrided the grab by the other client window  */
 };
 
+enum _Ecore_Wl_Conformant_Part_Type
+{
+   ECORE_WL_INDICATOR_PART = 0,
+   ECORE_WL_KEYBOARD_PART = 1,
+   ECORE_WL_CLIPBOARD_PART = 2
+};
+
+enum _Ecore_Wl_Virtual_Keyboard_State
+{
+   ECORE_WL_VIRTUAL_KEYBOARD_STATE_UNKNOWN = 0,
+   ECORE_WL_VIRTUAL_KEYBOARD_STATE_OFF,
+   ECORE_WL_VIRTUAL_KEYBOARD_STATE_ON,
+};
+
+enum _Ecore_Wl_Indicator_State
+{
+   ECORE_WL_INDICATOR_STATE_UNKNOWN = 0,
+   ECORE_WL_INDICATOR_STATE_OFF,
+   ECORE_WL_INDICATOR_STATE_ON
+};
+
+enum _Ecore_Wl_Clipboard_State
+{
+   ECORE_WL_CLIPBOARD_STATE_UNKNOWN = 0,
+   ECORE_WL_CLIPBOARD_STATE_OFF,
+   ECORE_WL_CLIPBOARD_STATE_ON
+};
+
 typedef enum _Ecore_Wl_Window_Type Ecore_Wl_Window_Type;
 typedef enum _Ecore_Wl_Window_Buffer_Type Ecore_Wl_Window_Buffer_Type;
 typedef enum _Ecore_Wl_Window_Keygrab_Mode Ecore_Wl_Window_Keygrab_Mode;
+typedef enum _Ecore_Wl_Conformant_Part_Type Ecore_Wl_Conformant_Part_Type;
+typedef enum _Ecore_Wl_Virtual_Keyboard_State Ecore_Wl_Virtual_Keyboard_State;
+typedef enum _Ecore_Wl_Indicator_State Ecore_Wl_Indicator_State;
+typedef enum _Ecore_Wl_Clipboard_State Ecore_Wl_Clipboard_State;
 
 /** @since 1.7.6 */
 struct _Ecore_Wl_Global
@@ -278,6 +311,13 @@ struct _Ecore_Wl_Event_Interfaces_Bound
    Eina_Bool policy : 1;
 };
 
+struct _Ecore_Wl_Event_Conformant_Change
+{
+   unsigned int win;
+   Ecore_Wl_Conformant_Part_Type part_type;
+   Eina_Bool state;
+};
+
 /**
  * @file
  * @brief Ecore functions for dealing with the Wayland window system
@@ -319,6 +359,7 @@ EAPI extern int ECORE_WL_EVENT_DATA_SOURCE_SEND; /** @since 1.7 */
 EAPI extern int ECORE_WL_EVENT_DATA_SOURCE_CANCELLED; /** @since 1.7 */
 EAPI extern int ECORE_WL_EVENT_SELECTION_DATA_READY; /** @since 1.7 */
 EAPI extern int ECORE_WL_EVENT_INTERFACES_BOUND;
+EAPI extern int ECORE_WL_EVENT_CONFORMANT_CHANGE;
 
 /**
  * @defgroup Ecore_Wl_Init_Group Wayland Library Init and Shutdown Functions
@@ -938,6 +979,24 @@ EAPI Eina_Bool ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key
  * @ingroup Ecore_Wl_Window
  */
 EAPI Eina_Bool ecore_wl_window_keygrab_unset(Ecore_Wl_Window *win, const char *key, int mod, int any_mod);
+EAPI void ecore_wl_window_conformant_set(Ecore_Wl_Window *win, unsigned int is_conformant);
+EAPI Eina_Bool ecore_wl_window_conformant_get(Ecore_Wl_Window *win);
+
+EAPI void ecore_wl_window_indicator_geometry_set(Ecore_Wl_Window *win, int x, int y, int w, int h);
+EAPI Eina_Bool ecore_wl_window_indicator_geometry_get(Ecore_Wl_Window *win, int *x, int *y, int *w, int *h);
+EAPI void ecore_wl_window_indicator_state_set(Ecore_Wl_Window *win, Eina_Bool on);
+EAPI Ecore_Wl_Indicator_State ecore_wl_window_indicator_state_get(Ecore_Wl_Window *win);
+
+EAPI void ecore_wl_window_clipboard_geometry_set(Ecore_Wl_Window *win, int x, int y, int w, int h);
+EAPI Eina_Bool ecore_wl_window_clipboard_geometry_get(Ecore_Wl_Window *win, int *x, int *y, int *w, int *h);
+EAPI void ecore_wl_window_clipboard_state_set(Ecore_Wl_Window *win, Eina_Bool on);
+EAPI Ecore_Wl_Clipboard_State ecore_wl_window_clipboard_state_get(Ecore_Wl_Window *win);
+
+EAPI void ecore_wl_window_keyboard_geometry_set(Ecore_Wl_Window *win, int x, int y, int w, int h);
+EAPI Eina_Bool ecore_wl_window_keyboard_geometry_get(Ecore_Wl_Window *win, int *x, int *y, int *w, int *h);
+EAPI void ecore_wl_window_keyboard_state_set(Ecore_Wl_Window *win, Eina_Bool on);
+EAPI Ecore_Wl_Virtual_Keyboard_State ecore_wl_window_keyboard_state_get(Ecore_Wl_Window *win);
+
 #ifdef __cplusplus
 }
 #endif

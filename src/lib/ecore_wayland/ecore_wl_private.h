@@ -13,6 +13,7 @@
 # endif
 
 # include "tizen-policy-client-protocol.h"
+# include "tizen-policy-ext-client-protocol.h"
 # include "tizen-extension-client-protocol.h"
 
 # include "keyrouter-client-protocol.h"
@@ -82,6 +83,7 @@ struct _Ecore_Wl_Display
         struct wl_shm *shm;
         struct wl_data_device_manager *data_device_manager;
         struct tizen_policy *tz_policy;
+        struct tizen_policy_ext *tz_policy_ext;
         struct tizen_surface_extension *tz_surf_ext;
         struct wl_keyrouter *keyrouter;
      } wl;
@@ -126,6 +128,7 @@ struct _Ecore_Wl_Window
 # endif
    struct tizen_visibility *tz_visibility;
    struct tizen_position *tz_position;
+   struct tizen_rotation *tz_rotation;
    struct tizen_resource *tz_resource;
    unsigned int resource_id;
 

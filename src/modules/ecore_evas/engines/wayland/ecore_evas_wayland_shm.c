@@ -82,10 +82,10 @@ static Ecore_Evas_Engine_Func _ecore_wl_engine_func =
    _ecore_evas_wl_common_pointer_xy_get,
    NULL, // pointer_warp
 
-   NULL, // wm_rot_preferred_rotation_set
-   NULL, // wm_rot_available_rotations_set
-   NULL, // wm_rot_manual_rotation_done_set
-   NULL, // wm_rot_manual_rotation_done
+   _ecore_evas_wl_common_wm_rot_preferred_rotation_set,
+   _ecore_evas_wl_common_wm_rot_available_rotations_set,
+   _ecore_evas_wl_common_wm_rot_manual_rotation_done_set,
+   _ecore_evas_wl_common_wm_rot_manual_rotation_done,
 
    NULL  // aux_hints_set
 };
@@ -97,6 +97,8 @@ EAPI Ecore_Evas *
 ecore_evas_wayland_shm_new_internal(const char *disp_name, unsigned int parent, int x, int y, int w, int h, Eina_Bool frame)
 {
    Ecore_Wl_Window *p = NULL;
+   Ecore_Wl_Global *global;
+   Eina_Inlist *globals;
    Evas_Engine_Info_Wayland_Shm *einfo;
    Ecore_Evas_Engine_Wl_Data *wdata;
    Ecore_Evas_Interface_Wayland *iface;
@@ -105,6 +107,9 @@ ecore_evas_wayland_shm_new_internal(const char *disp_name, unsigned int parent, 
    int fx = 0, fy = 0, fw = 0, fh = 0;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!(globals = ecore_wl_globals_get()))
+     return NULL;
 
    if (!(method = evas_render_method_lookup("wayland_shm")))
      {
@@ -189,6 +194,15 @@ ecore_evas_wayland_shm_new_internal(const char *disp_name, unsigned int parent, 
      ecore_wl_window_new(p, x, y, w + fw, h + fh, 
                          ECORE_WL_WINDOW_BUFFER_TYPE_SHM);
    ee->prop.window = ecore_wl_window_id_get(wdata->win);
+
+   EINA_INLIST_FOREACH(globals, global)
+     {
+        if (!strcmp(global->interface, "tizen_policy_ext"))
+         {
+            ee->prop.wm_rot.supported = 1;
+            break;
+         }
+     }
 
    ee->evas = evas_new();
    evas_data_attach_set(ee->evas, ee);

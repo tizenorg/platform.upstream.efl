@@ -27,7 +27,9 @@ lib/ecore_wayland/keyrouter-protocol.c \
 lib/ecore_wayland/tizen-policy-client-protocol.h \
 lib/ecore_wayland/tizen-policy-protocol.c \
 lib/ecore_wayland/tizen-extension-client-protocol.h \
-lib/ecore_wayland/tizen-extension-protocol.c
+lib/ecore_wayland/tizen-extension-protocol.c \
+lib/ecore_wayland/tizen-policy-ext-client-protocol.h \
+lib/ecore_wayland/tizen-policy-ext-protocol.c
 
 lib_ecore_wayland_libecore_wayland_la_CPPFLAGS = -I$(top_builddir)/src/lib/efl @ECORE_WAYLAND_CFLAGS@
 lib_ecore_wayland_libecore_wayland_la_LIBADD = @ECORE_WAYLAND_LIBS@

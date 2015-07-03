@@ -57,6 +57,7 @@ typedef struct _Ecore_Wl_Event_Window_Configure Ecore_Wl_Event_Window_Configure;
 typedef struct _Ecore_Wl_Event_Window_Activate Ecore_Wl_Event_Window_Activate;
 typedef struct _Ecore_Wl_Event_Window_Deactivate Ecore_Wl_Event_Window_Deactivate;
 typedef struct _Ecore_Wl_Event_Window_Visibility_Change Ecore_Wl_Event_Window_Visibility_Change;
+typedef struct _Ecore_Wl_Event_Window_Rotate Ecore_Wl_Event_Window_Rotate;
 typedef struct _Ecore_Wl_Event_Window_Show Ecore_Wl_Event_Window_Show;
 typedef struct _Ecore_Wl_Event_Window_Hide Ecore_Wl_Event_Window_Hide;
 typedef struct _Ecore_Wl_Event_Dnd_Enter Ecore_Wl_Event_Dnd_Enter;
@@ -216,6 +217,12 @@ struct _Ecore_Wl_Event_Window_Visibility_Change
    int          fully_obscured;
 };
 
+struct _Ecore_Wl_Event_Window_Rotate
+{
+   unsigned int win;
+   unsigned int angle;
+};
+
 struct _Ecore_Wl_Event_Window_Show
 {
    unsigned int win;
@@ -309,6 +316,7 @@ struct _Ecore_Wl_Event_Interfaces_Bound
    Eina_Bool data_device_manager : 1;
    Eina_Bool subcompositor : 1;
    Eina_Bool policy : 1;
+   Eina_Bool policy_ext : 1;
 };
 
 struct _Ecore_Wl_Event_Conformant_Change
@@ -348,6 +356,7 @@ EAPI extern int ECORE_WL_EVENT_WINDOW_DEACTIVATE;
 EAPI extern int ECORE_WL_EVENT_WINDOW_VISIBILITY_CHANGE;
 EAPI extern int ECORE_WL_EVENT_WINDOW_SHOW;
 EAPI extern int ECORE_WL_EVENT_WINDOW_HIDE;
+EAPI extern int ECORE_WL_EVENT_WINDOW_ROTATE;
 EAPI extern int ECORE_WL_EVENT_DND_ENTER;
 EAPI extern int ECORE_WL_EVENT_DND_POSITION;
 EAPI extern int ECORE_WL_EVENT_DND_LEAVE;
@@ -979,6 +988,7 @@ EAPI Eina_Bool ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key
  * @ingroup Ecore_Wl_Window
  */
 EAPI Eina_Bool ecore_wl_window_keygrab_unset(Ecore_Wl_Window *win, const char *key, int mod, int any_mod);
+
 EAPI void ecore_wl_window_conformant_set(Ecore_Wl_Window *win, unsigned int is_conformant);
 EAPI Eina_Bool ecore_wl_window_conformant_get(Ecore_Wl_Window *win);
 
@@ -996,6 +1006,9 @@ EAPI void ecore_wl_window_keyboard_geometry_set(Ecore_Wl_Window *win, int x, int
 EAPI Eina_Bool ecore_wl_window_keyboard_geometry_get(Ecore_Wl_Window *win, int *x, int *y, int *w, int *h);
 EAPI void ecore_wl_window_keyboard_state_set(Ecore_Wl_Window *win, Eina_Bool on);
 EAPI Ecore_Wl_Virtual_Keyboard_State ecore_wl_window_keyboard_state_get(Ecore_Wl_Window *win);
+
+EAPI void ecore_wl_window_rotation_preferred_rotation_set(Ecore_Wl_Window *win, int rot);
+EAPI void ecore_wl_window_rotation_available_rotations_set(Ecore_Wl_Window *win, const int *rots, unsigned int count);
 
 #ifdef __cplusplus
 }

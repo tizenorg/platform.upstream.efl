@@ -105,6 +105,7 @@ EAPI int ECORE_WL_EVENT_WINDOW_DEACTIVATE = 0;
 EAPI int ECORE_WL_EVENT_WINDOW_VISIBILITY_CHANGE = 0;
 EAPI int ECORE_WL_EVENT_WINDOW_SHOW = 0;
 EAPI int ECORE_WL_EVENT_WINDOW_HIDE = 0;
+EAPI int ECORE_WL_EVENT_WINDOW_ROTATE = 0;
 EAPI int ECORE_WL_EVENT_DND_ENTER = 0;
 EAPI int ECORE_WL_EVENT_DND_POSITION = 0;
 EAPI int ECORE_WL_EVENT_DND_LEAVE = 0;
@@ -176,6 +177,7 @@ ecore_wl_init(const char *name)
         ECORE_WL_EVENT_WINDOW_VISIBILITY_CHANGE = ecore_event_type_new();
         ECORE_WL_EVENT_WINDOW_SHOW = ecore_event_type_new();
         ECORE_WL_EVENT_WINDOW_HIDE = ecore_event_type_new();
+        ECORE_WL_EVENT_WINDOW_ROTATE = ecore_event_type_new();
         ECORE_WL_EVENT_DND_ENTER = ecore_event_type_new();
         ECORE_WL_EVENT_DND_POSITION = ecore_event_type_new();
         ECORE_WL_EVENT_DND_LEAVE = ecore_event_type_new();
@@ -536,6 +538,8 @@ _ecore_wl_shutdown(Eina_Bool close)
           wl_data_device_manager_destroy(_ecore_wl_disp->wl.data_device_manager);
         if (_ecore_wl_disp->wl.tz_policy)
           tizen_policy_destroy(_ecore_wl_disp->wl.tz_policy);
+        if (_ecore_wl_disp->wl.tz_policy_ext)
+          tizen_policy_ext_destroy(_ecore_wl_disp->wl.tz_policy_ext);
         if (_ecore_wl_disp->wl.tz_surf_ext)
           tizen_surface_extension_destroy(_ecore_wl_disp->wl.tz_surf_ext);
         if (_ecore_wl_disp->wl.compositor)
@@ -725,6 +729,11 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
         if (ewd->wl.tz_policy)
           tizen_policy_add_listener(_ecore_wl_disp->wl.tz_policy, &_ecore_tizen_policy_listener, ewd->wl.display);
      }
+   else if (!strcmp(interface, "tizen_policy_ext"))
+     {
+        ewd->wl.tz_policy_ext =
+          wl_registry_bind(registry, id, &tizen_policy_ext_interface, 1);
+     }
    else if (!strcmp(interface, "tizen_surface_extension"))
      {
         ewd->wl.tz_surf_ext =
@@ -753,6 +762,7 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
         ev->seat = (ewd->input != NULL);
         ev->data_device_manager = (ewd->wl.data_device_manager != NULL);
         ev->policy = (ewd->wl.tz_policy != NULL);
+        ev->policy_ext = (ewd->wl.tz_policy_ext != NULL);
         ev->subcompositor = (ewd->wl.subcompositor != NULL);
 
         ecore_event_add(ECORE_WL_EVENT_INTERFACES_BOUND, ev, NULL, NULL);

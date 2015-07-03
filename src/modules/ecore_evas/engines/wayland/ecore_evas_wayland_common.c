@@ -34,7 +34,7 @@ EVAS_SMART_SUBCLASS_NEW(_smart_frame_type, _ecore_evas_wl_frame,
 
 /* local variables */
 static int _ecore_evas_wl_init_count = 0;
-static Ecore_Event_Handler *_ecore_evas_wl_event_hdls[6];
+static Ecore_Event_Handler *_ecore_evas_wl_event_hdls[7];
 
 static void _ecore_evas_wayland_resize(Ecore_Evas *ee, int location);
 
@@ -376,6 +376,29 @@ _ecore_evas_wl_common_cb_conformant_change(void *data EINA_UNUSED, int type EINA
    return ECORE_CALLBACK_PASS_ON;
 }
 
+static Eina_Bool
+_ecore_evas_wl_common_cb_window_rotate(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
+{
+   Ecore_Evas *ee;
+   Ecore_Evas_Engine_Wl_Data *wdata;
+   Ecore_Wl_Event_Window_Rotate *ev;
+   int resize;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   ev = event;
+   ee = ecore_event_window_match(ev->win);
+   if (!ee) return ECORE_CALLBACK_PASS_ON;
+   if (ev->win != ee->prop.window) return ECORE_CALLBACK_PASS_ON;
+
+   wdata = ee->engine.data;
+   if (!wdata) return ECORE_CALLBACK_PASS_ON;
+
+   //Fixme resize
+   resize = 0;
+   _ecore_evas_wl_common_rotation_set(ee, ev->angle, resize);
+}
+
 static void
 _rotation_do(Ecore_Evas *ee, int rotation, int resize)
 {
@@ -565,6 +588,9 @@ _ecore_evas_wl_common_init(void)
    _ecore_evas_wl_event_hdls[5] =
      ecore_event_handler_add(ECORE_WL_EVENT_CONFORMANT_CHANGE,
                              _ecore_evas_wl_common_cb_conformant_change, NULL);
+   _ecore_evas_wl_event_hdls[6] =
+     ecore_event_handler_add(ECORE_WL_EVENT_WINDOW_ROTATE,
+                             _ecore_evas_wl_common_cb_window_rotate, NULL);
 
    ecore_event_evas_init();
 
@@ -1103,6 +1129,85 @@ _ecore_evas_wl_common_pointer_xy_get(const Ecore_Evas *ee EINA_UNUSED, Evas_Coor
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    ecore_wl_pointer_xy_get(x, y);
+}
+
+void
+_ecore_evas_wl_common_wm_rot_preferred_rotation_set(Ecore_Evas *ee, int rot)
+{
+   Ecore_Evas_Engine_Wl_Data *wdata;
+   wdata = ee->engine.data;
+
+   if (ee->prop.wm_rot.supported)
+     {
+        if (!ee->prop.wm_rot.app_set)
+          {
+             //Need?: App_set wayland rotation request?
+             ee->prop.wm_rot.app_set = EINA_TRUE;
+          }
+        ecore_wl_window_rotation_preferred_rotation_set(wdata->win, rot);
+        ee->prop.wm_rot.preferred_rot = rot;
+     }
+}
+
+void
+_ecore_evas_wl_common_wm_rot_available_rotations_set(Ecore_Evas *ee, const int *rots, unsigned int count)
+{
+   Ecore_Evas_Engine_Wl_Data *wdata;
+   wdata = ee->engine.data;
+
+   if (ee->prop.wm_rot.supported)
+     {
+        if (!ee->prop.wm_rot.app_set)
+          {
+             //Need?: App_set wayland rotation request?
+             ee->prop.wm_rot.app_set = EINA_TRUE;
+          }
+
+        if (ee->prop.wm_rot.available_rots)
+          {
+             free(ee->prop.wm_rot.available_rots);
+             ee->prop.wm_rot.available_rots = NULL;
+          }
+
+        ee->prop.wm_rot.count = 0;
+
+        if (count > 0)
+          {
+             ee->prop.wm_rot.available_rots = calloc(count, sizeof(int));
+             if (!ee->prop.wm_rot.available_rots) return;
+
+             memcpy(ee->prop.wm_rot.available_rots, rots, sizeof(int) * count);
+          }
+
+        ee->prop.wm_rot.count = count;
+
+        ecore_wl_window_rotation_available_rotations_set(wdata->win, rots, count);
+     }
+}
+
+void
+_ecore_evas_wl_common_wm_rot_manual_rotation_done_set(Ecore_Evas *ee, Eina_Bool set)
+{
+   ee->prop.wm_rot.manual_mode.set = set;
+}
+
+void
+_ecore_evas_wl_common_wm_rot_manual_rotation_done(Ecore_Evas *ee)
+{
+   Ecore_Evas_Engine_Wl_Data *wdata = ee->engine.data;
+
+   if ((ee->prop.wm_rot.supported) &&
+       (ee->prop.wm_rot.app_set) &&
+       (ee->prop.wm_rot.manual_mode.set))
+     {
+        if (ee->prop.wm_rot.manual_mode.wait_for_done)
+          {
+             if (ee->prop.wm_rot.manual_mode.timer)
+               ecore_timer_del(ee->prop.wm_rot.manual_mode.timer);
+             ee->prop.wm_rot.manual_mode.timer = NULL;
+             //Fixme: Add wayland rotation done timer
+          }
+     }
 }
 
 void

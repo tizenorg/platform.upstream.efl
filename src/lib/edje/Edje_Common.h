@@ -1712,7 +1712,7 @@ EAPI Eina_Bool    edje_text_class_set             (const char *text_class, const
  * @see edje_text_class_set().
  *
  */
-EAPI Eina_Bool    edje_text_class_get             (const char *text_class, const char **font, Evas_Font_Size *size);
+EAPI Eina_Bool    edje_text_class_get             (const char *text_class, char **font, Evas_Font_Size *size);
 
 /**
  * @brief Delete the text class.

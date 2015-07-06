@@ -2108,6 +2108,8 @@ evgl_surface_destroy(void *eng_data, EVGL_Surface *sfc)
 //TIZEN ONLY
 ret_fail:
    ret_val = 0;
+   return ret_val;
+
 ret_success:
    ret_val = 1;
 

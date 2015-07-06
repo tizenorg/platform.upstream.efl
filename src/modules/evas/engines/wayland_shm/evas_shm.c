@@ -265,6 +265,11 @@ _shm_buffer_release(void *data, struct wl_buffer *buffer)
                   _shm_leaf_create(surf, leaf, surf->w, surf->h);
                }
 
+             if (surf->callback.released)
+               {
+                  surf->callback.released(surf->callback.data);
+               }
+
              break;
           }
      }
@@ -504,4 +509,27 @@ _evas_shm_surface_redraw(Shm_Surface *surface)
 
    surface->frame_cb = wl_surface_frame(surface->surface);
    wl_callback_add_listener(surface->frame_cb, &_shm_frame_listener, surface);
+}
+
+Eina_Bool
+_evas_shm_surface_busy_check(Shm_Surface *surface)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   Shm_Leaf *leaf = NULL;
+   int i = 0;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   for (; i < surface->num_buff; i++)
+     {
+        if (surface->leaf[i].busy) continue;
+        if ((!leaf) || (leaf->valid))
+          {
+             leaf = &surface->leaf[i];
+             break;
+          }
+     }
+
+   return (!leaf)? EINA_TRUE : EINA_FALSE;
 }

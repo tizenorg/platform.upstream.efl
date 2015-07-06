@@ -22,6 +22,25 @@ struct _Render_Engine
 };
 
 /* LOCAL FUNCTIONS */
+Eina_Bool
+_render_engine_swapbuf_busy_check(void *data)
+{
+   Evas *evas = data;
+   Evas_Public_Data *epd;
+   Render_Engine *re = NULL;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   /* try to get evas public data */
+   if (!(epd = eo_data_scope_get(evas, EVAS_CANVAS_CLASS)))
+     return 0;
+
+   if (!(re = epd->engine.data.output))
+     return 0;
+
+   return _evas_outbuf_buffer_busy_check(re->generic.ob);
+}
+
 Render_Engine *
 _render_engine_swapbuf_setup(int w, int h, unsigned int rotation, unsigned int depth, Eina_Bool alpha, struct wl_shm *shm, struct wl_surface *surface)
 {
@@ -76,6 +95,7 @@ eng_info(Evas *eo_evas EINA_UNUSED)
    /* fill in engine info */
    einfo->magic.magic = rand();
    einfo->render_mode = EVAS_RENDER_MODE_BLOCKING;
+   einfo->func.busy_check = _render_engine_swapbuf_busy_check;
 
    /* return allocated engine info */
    return einfo;
@@ -134,7 +154,14 @@ eng_setup(Evas *eo_evas, void *info)
                                           einfo->info.wl_surface);
 
         if (re)
-          re->generic.ob->info = einfo;
+          {
+             re->generic.ob->info = einfo;
+             if (re->generic.ob->surface)
+               {
+                  re->generic.ob->surface->callback.released = einfo->callback.released;
+                  re->generic.ob->surface->callback.data = einfo->callback.data;
+               }
+          }
         else
           goto err;
      }
@@ -150,6 +177,11 @@ eng_setup(Evas *eo_evas, void *info)
         if (ob)
           {
              ob->info = einfo;
+             if (ob->surface)
+               {
+                  ob->surface->callback.released = einfo->callback.released;
+                  ob->surface->callback.data = einfo->callback.data;
+               }
              evas_render_engine_software_generic_update(&re->generic, ob,
                                                         epd->output.w,
                                                         epd->output.h);

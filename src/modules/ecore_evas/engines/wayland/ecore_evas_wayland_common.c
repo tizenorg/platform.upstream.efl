@@ -1559,6 +1559,26 @@ _ecore_evas_wl_common_render(Ecore_Evas *ee)
         return 0;
      }
 
+   if (!strcmp(ee->driver, "wayland_shm"))
+     {
+#ifdef BUILD_ECORE_EVAS_WAYLAND_SHM
+        /* check if there is an available buffer. */
+        Eina_Bool busy = EINA_FALSE;
+
+        if (wdata->wait_buffer_release)
+          return 0;
+
+        if (wdata->func.busy_check)
+          busy = wdata->func.busy_check(ee->evas);
+
+        if (busy)
+          {
+             wdata->wait_buffer_release = EINA_TRUE;
+             return 0;
+          }
+#endif
+     }
+
    EINA_LIST_FOREACH(ee->sub_ecore_evas, l, ee2)
      {
         if (ee2->func.fn_pre_render) ee2->func.fn_pre_render(ee2);

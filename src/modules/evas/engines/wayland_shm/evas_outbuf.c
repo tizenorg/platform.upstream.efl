@@ -569,3 +569,14 @@ _evas_outbuf_update_region_free(Outbuf *ob EINA_UNUSED, RGBA_Image *update EINA_
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 }
+
+Eina_Bool
+_evas_outbuf_buffer_busy_check(Outbuf *ob)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!ob) return 0;
+   if (!ob->surface) return 0;
+
+   return _evas_shm_surface_busy_check(ob->surface);
+}

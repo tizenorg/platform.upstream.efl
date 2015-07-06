@@ -35,6 +35,13 @@ struct _Ecore_Evas_Engine_Wl_Data
 #ifdef BUILD_ECORE_EVAS_WAYLAND_EGL
    struct wl_egl_window *egl_win;
 #endif
+#ifdef BUILD_ECORE_EVAS_WAYLAND_SHM
+   struct
+     {
+        Eina_Bool (*busy_check) (void *data);
+     } func;
+   Eina_Bool wait_buffer_release : 1;
+#endif
    Eina_Bool frame_pending : 1;
    struct wl_callback *frame_callback;
 };
@@ -95,6 +102,7 @@ void _ecore_evas_wayland_shm_resize(Ecore_Evas *ee, int location);
 void _ecore_evas_wayland_shm_resize_edge_set(Ecore_Evas *ee, int edge);
 void _ecore_evas_wayland_shm_transparent_do(Ecore_Evas *ee, int transparent);
 void _ecore_evas_wayland_shm_alpha_do(Ecore_Evas *ee, int transparent);
+void _ecore_evas_wayland_shm_buffer_released(void *data);
 #endif
 
 #ifdef BUILD_ECORE_EVAS_WAYLAND_EGL

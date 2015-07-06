@@ -88,6 +88,12 @@ struct _Shm_Surface
 
    Eina_Bool redraw : 1;
    Eina_Bool alpha : 1;
+
+   struct
+     {
+        void (*released) (void *data);
+        void *data;
+     } callback;
 };
 
 struct _Outbuf
@@ -125,6 +131,7 @@ void _evas_shm_surface_reconfigure(Shm_Surface *surface, int dx, int dy, int w, 
 void _evas_shm_surface_swap(Shm_Surface *surface, Eina_Rectangle *rects, unsigned int count);
 void *_evas_shm_surface_data_get(Shm_Surface *surface, int *w, int *h);
 void _evas_shm_surface_redraw(Shm_Surface *surface);
+Eina_Bool _evas_shm_surface_busy_check(Shm_Surface *surface);
 
 Outbuf *_evas_outbuf_setup(int w, int h, int rot, Outbuf_Depth depth, Eina_Bool alpha, struct wl_shm *shm, struct wl_surface *surface);
 void _evas_outbuf_free(Outbuf *ob);
@@ -137,5 +144,6 @@ void _evas_outbuf_reconfigure(Outbuf *ob, int x, int y, int w, int h, int rot, O
 void *_evas_outbuf_update_region_new(Outbuf *ob, int x, int y, int w, int h, int *cx, int *cy, int *cw, int *ch);
 void _evas_outbuf_update_region_push(Outbuf *ob, RGBA_Image *update, int x, int y, int w, int h);
 void _evas_outbuf_update_region_free(Outbuf *ob, RGBA_Image *update);
+Eina_Bool _evas_outbuf_buffer_busy_check(Outbuf *ob);
 
 #endif

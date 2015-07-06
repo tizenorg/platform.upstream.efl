@@ -588,6 +588,25 @@ text_input_input_panel_state(void                 *data EINA_UNUSED,
                              struct wl_text_input *text_input EINA_UNUSED,
                              uint32_t              state EINA_UNUSED)
 {
+    WaylandIMContext *imcontext = (WaylandIMContext *)data;
+    Ecore_IMF_Input_Panel_State ecore_imf_input_panel_state;
+
+    switch (state)
+      {
+       case WL_TEXT_INPUT_INPUT_PANEL_STATE_HIDE:
+          ecore_imf_input_panel_state = ECORE_IMF_INPUT_PANEL_STATE_HIDE;
+          break;
+       case WL_TEXT_INPUT_INPUT_PANEL_STATE_SHOW:
+          ecore_imf_input_panel_state = ECORE_IMF_INPUT_PANEL_STATE_SHOW;
+          break;
+       default:
+          ecore_imf_input_panel_state = (Ecore_IMF_Input_Panel_State)state;
+          break;
+      }
+
+    ecore_imf_context_input_panel_event_callback_call(imcontext->ctx,
+                                                      ECORE_IMF_INPUT_PANEL_STATE_EVENT,
+                                                      ecore_imf_input_panel_state);
 }
 
 static void

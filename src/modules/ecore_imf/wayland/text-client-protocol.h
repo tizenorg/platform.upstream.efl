@@ -157,6 +157,15 @@ enum wl_text_input_text_direction
 };
 #endif /* WL_TEXT_INPUT_TEXT_DIRECTION_ENUM */
 
+#ifndef WL_TEXT_INPUT_INPUT_PANEL_STATE_ENUM
+#define WL_TEXT_INPUT_INPUT_PANEL_STATE_ENUM
+enum wl_text_input_input_panel_state
+{
+   WL_TEXT_INPUT_INPUT_PANEL_STATE_HIDE = 0,
+   WL_TEXT_INPUT_INPUT_PANEL_STATE_SHOW = 1,
+};
+#endif /* WL_TEXT_INPUT_INPUT_PANEL_STATE_ENUM */
+
 /**
  * wl_text_input - text input
  * @enter: enter event

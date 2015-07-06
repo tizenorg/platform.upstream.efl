@@ -1245,7 +1245,7 @@ evgl_eng_native_win_surface_config_check(void *data,
 }
 
  // TIZEN_ONLY
-static int
+static void
 evgl_eng_partial_rendering_enable(void *data)
 {
    extn_have_buffer_age = prev_extn_have_buffer_age;
@@ -1253,7 +1253,7 @@ evgl_eng_partial_rendering_enable(void *data)
 }
 
 // TIZEN_ONLY
-static int
+static void
 evgl_eng_partial_rendering_disable(void *data)
 {
    prev_extn_have_buffer_age = extn_have_buffer_age;

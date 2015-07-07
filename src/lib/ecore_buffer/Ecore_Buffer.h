@@ -568,6 +568,8 @@ EAPI void          ecore_buffer_free_callback_add(Ecore_Buffer *buf, Ecore_Buffe
  */
 EAPI void          ecore_buffer_free_callback_remove(Ecore_Buffer *buf, Ecore_Buffer_Cb func, void *data);
 /**
+ * @internal
+ *
  * @brief Return the Pixmap of given Ecore_Buffer.
  *
  * @since_tizen 2.4

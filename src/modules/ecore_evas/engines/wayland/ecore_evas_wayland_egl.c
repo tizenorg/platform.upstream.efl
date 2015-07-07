@@ -508,4 +508,12 @@ _ecore_evas_wayland_egl_resize_edge_set(Ecore_Evas *ee, int edge)
      einfo->info.edges = edge;
 }
 
+void
+_ecore_evas_wayland_egl_window_rotate(Ecore_Evas *ee, int rotation, int resize)
+{
+   if (!ee) return;
+   _ecore_evas_wl_rotation_set(ee, rotation, resize);
+   if (ee->func.fn_state_change) ee->func.fn_state_change(ee);
+}
+
 #endif

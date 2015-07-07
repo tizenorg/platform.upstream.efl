@@ -108,11 +108,13 @@ void _ecore_evas_wayland_shm_resize_edge_set(Ecore_Evas *ee, int edge);
 void _ecore_evas_wayland_shm_transparent_do(Ecore_Evas *ee, int transparent);
 void _ecore_evas_wayland_shm_alpha_do(Ecore_Evas *ee, int transparent);
 void _ecore_evas_wayland_shm_buffer_released(void *data);
+void _ecore_evas_wayland_shm_window_rotate(Ecore_Evas *ee, int rotation, int resize);
 #endif
 
 #ifdef BUILD_ECORE_EVAS_WAYLAND_EGL
 void _ecore_evas_wayland_egl_resize(Ecore_Evas *ee, int location);
 void _ecore_evas_wayland_egl_resize_edge_set(Ecore_Evas *ee, int edge);
+void _ecore_evas_wayland_egl_window_rotate(Ecore_Evas *ee, int rotation, int resize);
 #endif
 
 #endif /* _ECORE_EVAS_WAYLAND_PRIVATE_H_ */

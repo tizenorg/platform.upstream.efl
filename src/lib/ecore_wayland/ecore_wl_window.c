@@ -1195,7 +1195,7 @@ ecore_wl_window_rotation_preferred_rotation_set(Ecore_Wl_Window *win, int rot)
 EAPI void
 ecore_wl_window_rotation_available_rotations_set(Ecore_Wl_Window *win, const int *rots, unsigned int count)
 {
-   uint32_t angles;
+   uint32_t angles = 0;
    int i = 0;
 
    if (!win) return;

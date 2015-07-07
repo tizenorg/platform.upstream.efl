@@ -526,4 +526,12 @@ _ecore_evas_wayland_shm_buffer_released(void *data)
    _ecore_evas_wl_common_render(ee);
 }
 
+void
+_ecore_evas_wayland_shm_window_rotate(Ecore_Evas *ee, int rotation, int resize)
+{
+   if (!ee) return;
+   _ecore_evas_wl_rotation_set(ee, rotation, resize);
+   if (ee->func.fn_state_change) ee->func.fn_state_change(ee);
+}
+
 #endif

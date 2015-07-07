@@ -380,7 +380,6 @@ static Eina_Bool
 _ecore_evas_wl_common_cb_window_rotate(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
    Ecore_Evas *ee;
-   Ecore_Evas_Engine_Wl_Data *wdata;
    Ecore_Wl_Event_Window_Rotate *ev;
    int resize;
 
@@ -391,12 +390,23 @@ _ecore_evas_wl_common_cb_window_rotate(void *data EINA_UNUSED, int type EINA_UNU
    if (!ee) return ECORE_CALLBACK_PASS_ON;
    if (ev->win != ee->prop.window) return ECORE_CALLBACK_PASS_ON;
 
-   wdata = ee->engine.data;
-   if (!wdata) return ECORE_CALLBACK_PASS_ON;
-
-   //Fixme resize
+   //FIXME: resize
    resize = 0;
-   _ecore_evas_wl_common_rotation_set(ee, ev->angle, resize);
+
+   if (!strcmp(ee->driver, "wayland_shm"))
+     {
+#ifdef BUILD_ECORE_EVAS_WAYLAND_SHM
+        _ecore_evas_wayland_shm_window_rotate(ee, ev->angle, resize);
+#endif
+     }
+   else if (!strcmp(ee->driver, "wayland_egl"))
+     {
+#ifdef BUILD_ECORE_EVAS_WAYLAND_EGL
+        _ecore_evas_wayland_egl_window_rotate(ee, ev->angle, resize);
+#endif
+     }
+
+   return ECORE_CALLBACK_PASS_ON;
 }
 
 static void

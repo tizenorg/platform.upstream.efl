@@ -217,23 +217,23 @@ _ector_renderer_software_shape_ector_renderer_generic_base_prepare(Eo *obj, Ecto
         Outline * outline = _outline_create();
 
         pts = pd->shape->path.pts;
-        for (i = 0; pd->shape->path.cmd[i] != EFL_GRAPHICS_PATH_COMMAND_TYPE_END; i++)
+        for (i = 0; pd->shape->path.cmd[i] != EFL_GFX_PATH_COMMAND_TYPE_END; i++)
           {
              switch (pd->shape->path.cmd[i])
                {
-                case EFL_GRAPHICS_PATH_COMMAND_TYPE_MOVE_TO:
+                case EFL_GFX_PATH_COMMAND_TYPE_MOVE_TO:
 
                    _outline_move_to(outline, pts[0], pts[1]);
 
                    pts += 2;
                    break;
-                case EFL_GRAPHICS_PATH_COMMAND_TYPE_LINE_TO:
+                case EFL_GFX_PATH_COMMAND_TYPE_LINE_TO:
 
                    _outline_line_to(outline, pts[0], pts[1]);
 
                    pts += 2;
                    break;
-                case EFL_GRAPHICS_PATH_COMMAND_TYPE_CUBIC_TO:
+                case EFL_GFX_PATH_COMMAND_TYPE_CUBIC_TO:
 
                    // Be careful, we do have a different order than
                    // cairo, first is destination point, followed by
@@ -244,13 +244,13 @@ _ector_renderer_software_shape_ector_renderer_generic_base_prepare(Eo *obj, Ecto
                    pts += 6;
                    break;
 
-                case EFL_GRAPHICS_PATH_COMMAND_TYPE_CLOSE:
+                case EFL_GFX_PATH_COMMAND_TYPE_CLOSE:
 
                    close_path = _outline_close_path(outline);
                    break;
 
-                case EFL_GRAPHICS_PATH_COMMAND_TYPE_LAST:
-                case EFL_GRAPHICS_PATH_COMMAND_TYPE_END:
+                case EFL_GFX_PATH_COMMAND_TYPE_LAST:
+                case EFL_GFX_PATH_COMMAND_TYPE_END:
                    break;
                }
           }
@@ -315,20 +315,16 @@ _ector_renderer_software_shape_ector_renderer_software_base_fill(Eo *obj EINA_UN
   return EINA_FALSE;
 }
 
-static Eina_Bool
-_ector_renderer_software_shape_efl_graphics_shape_path_set(Eo *obj, Ector_Renderer_Software_Shape_Data *pd,
-                                                        const Efl_Graphics_Path_Command *op, const double *points)
+static void
+_ector_renderer_software_shape_efl_gfx_shape_path_set(Eo *obj, Ector_Renderer_Software_Shape_Data *pd,
+                                                      const Efl_Gfx_Path_Command *op, const double *points)
 {
-   Eina_Bool r;
-
    if(pd->shape_data) ector_software_rasterizer_destroy_rle_data(pd->shape_data);
    if(pd->outline_data) ector_software_rasterizer_destroy_rle_data(pd->outline_data);
    pd->shape_data = NULL;
    pd->outline_data = NULL;
 
-   eo_do_super(obj, ECTOR_RENDERER_SOFTWARE_SHAPE_CLASS, r = efl_graphics_shape_path_set(op, points));
-
-   return r;
+   eo_do_super(obj, ECTOR_RENDERER_SOFTWARE_SHAPE_CLASS, efl_gfx_shape_path_set(op, points));
 }
 
 

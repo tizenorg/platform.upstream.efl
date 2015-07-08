@@ -9,6 +9,6 @@ class Ector.Renderer.Software.Gradient_Linear (Ector.Renderer.Generic.Gradient_L
       Ector.Renderer.Software.Base.fill;
       Eo.Base.constructor;
       Eo.Base.destructor;
-      Efl.Graphics.Gradient.stop.set;
+      Efl.Gfx.Gradient.stop.set;
    }
 }

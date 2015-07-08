@@ -14,10 +14,10 @@
 
 static inline int _gradient_clamp(const Ector_Renderer_Software_Gradient_Data *data, int ipos)
 {
-    if (data->gd->s == EFL_GRAPHICS_GRADIENT_SPREAD_REPEAT) {
+    if (data->gd->s == EFL_GFX_GRADIENT_SPREAD_REPEAT) {
         ipos = ipos % GRADIENT_STOPTABLE_SIZE;
         ipos = ipos < 0 ? GRADIENT_STOPTABLE_SIZE + ipos : ipos;
-    } else if (data->gd->s == EFL_GRAPHICS_GRADIENT_SPREAD_REFLECT) {
+    } else if (data->gd->s == EFL_GFX_GRADIENT_SPREAD_REFLECT) {
         const int limit = GRADIENT_STOPTABLE_SIZE * 2;
         ipos = ipos % limit;
         ipos = ipos < 0 ? limit + ipos : ipos;
@@ -54,10 +54,10 @@ static double _ease_linear(double t)
 }
 
 static void
-_generate_gradient_color_table(Efl_Graphics_Gradient_Stop *gradient_stops, int stop_count, uint *colorTable, int size)
+_generate_gradient_color_table(Efl_Gfx_Gradient_Stop *gradient_stops, int stop_count, uint *colorTable, int size)
 {
     int pos = 0;
-    Efl_Graphics_Gradient_Stop *curr, *next;
+    Efl_Gfx_Gradient_Stop *curr, *next;
     assert(stop_count > 0);
 
     curr = gradient_stops;

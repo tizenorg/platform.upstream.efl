@@ -239,23 +239,27 @@ evas_object_vg_render_pre(Evas_Object *eo_obj,
 
    if (obj->changed_map || obj->changed_src_visible)
      {
-        evas_object_render_pre_prev_cur_add(&obj->layer->evas->clip_changes, eo_obj, obj);
+        evas_object_render_pre_prev_cur_add(&obj->layer->evas->clip_changes,
+                                            eo_obj, obj);
         goto done;
      }
    /* it's not visible - we accounted for it appearing or not so just abort */
    if (!is_v) goto done;
    /* clipper changed this is in addition to anything else for obj */
-   evas_object_render_pre_clipper_change(&obj->layer->evas->clip_changes, eo_obj);
+   evas_object_render_pre_clipper_change(&obj->layer->evas->clip_changes,
+                                         eo_obj);
    /* if we restacked (layer or just within a layer) and don't clip anyone */
    if ((obj->restack) && (!obj->clip.clipees))
      {
-        evas_object_render_pre_prev_cur_add(&obj->layer->evas->clip_changes, eo_obj, obj);
+        evas_object_render_pre_prev_cur_add(&obj->layer->evas->clip_changes,
+                                            eo_obj, obj);
         goto done;
      }
    /* if it changed render op */
    if (obj->cur->render_op != obj->prev->render_op)
      {
-        evas_object_render_pre_prev_cur_add(&obj->layer->evas->clip_changes, eo_obj, obj);
+        evas_object_render_pre_prev_cur_add(&obj->layer->evas->clip_changes,
+                                            eo_obj, obj);
         goto done;
      }
    /* if it changed color */
@@ -264,7 +268,8 @@ evas_object_vg_render_pre(Evas_Object *eo_obj,
        (obj->cur->color.b != obj->prev->color.b) ||
        (obj->cur->color.a != obj->prev->color.a))
      {
-        evas_object_render_pre_prev_cur_add(&obj->layer->evas->clip_changes, eo_obj, obj);
+        evas_object_render_pre_prev_cur_add(&obj->layer->evas->clip_changes,
+                                            eo_obj, obj);
         goto done;
      }
    /* if it changed geometry - and obviously not visibility or color */
@@ -313,8 +318,9 @@ evas_object_vg_render_pre(Evas_Object *eo_obj,
          y + obj->layer->evas->framespace.y,
          w, h);
      }
-   done:
-   evas_object_render_pre_effect_updates(&obj->layer->evas->clip_changes, eo_obj, is_v, was_v);
+done:
+   evas_object_render_pre_effect_updates(&obj->layer->evas->clip_changes,
+                                         eo_obj, is_v, was_v);
 }
 
 static void

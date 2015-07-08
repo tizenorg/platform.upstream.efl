@@ -6,11 +6,13 @@ interface Efl.Gfx.Gradient
          set {
             /*@
               Set the list of color stops for the gradient
+              @since 1.14
             */
          }
          get {
             /*@
               get the list of color stops.
+              @since 1.14
             */
          }
          values {
@@ -22,11 +24,14 @@ interface Efl.Gfx.Gradient
          set {
             /*@
               Specifies the spread method that should be used for this gradient.
+              @since 1.14
             */
          }
          get {
             /*@
-              Returns the spread method use by this gradient. The default is EFL_GFX_GRADIENT_SPREAD_PAD.
+              Returns the spread method use by this gradient. The default is
+              EFL_GFX_GRADIENT_SPREAD_PAD.
+              @since 1.14
             */
          }
          values {

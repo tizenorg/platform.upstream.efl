@@ -22,6 +22,8 @@
 
 #include "ector_cairo_software_surface.eo.h"
 
+#include "software/Ector_Software.h"
+
 #ifdef EVAS_GL
 //----------------------------------//
 // OSMesa...
@@ -3085,6 +3087,148 @@ eng_output_idle_flush(void *data)
    if (re->outbuf_idle_flush) re->outbuf_idle_flush(re->ob);
 }
 
+static Ector_Surface *_software_ector = NULL;
+
+static Ector_Surface *
+eng_ector_get(void *data EINA_UNUSED)
+{
+   if (!_software_ector)
+     {
+        _software_ector = eo_add(ECTOR_CAIRO_SOFTWARE_SURFACE_CLASS, NULL);
+     }
+   return _software_ector;
+}
+
+static Ector_Rop
+_evas_render_op_to_ector_rop(Evas_Render_Op op)
+{
+   switch (op)
+     {
+      case EVAS_RENDER_BLEND:
+         return ECTOR_ROP_BLEND;
+      case EVAS_RENDER_COPY:
+         return ECTOR_ROP_COPY;
+      default:
+         return ECTOR_ROP_BLEND;
+     }
+}
+
+static void
+_draw_thread_ector_cleanup(Evas_Thread_Command_Ector *ector)
+{
+   Eina_Rectangle *r;
+
+   while ((r = eina_array_pop(ector->clips)))
+     eina_rectangle_free(r);
+   eina_array_free(ector->clips);
+   eo_unref(ector->r);
+
+   if (ector->free_it)
+     eina_mempool_free(_mp_command_ector, ector);
+}
+
+static void
+_draw_thread_ector_draw(void *data)
+{
+   Evas_Thread_Command_Ector *ector = data;
+   RGBA_Image *surface = ector->surface;
+   void *pixels = evas_cache_image_pixels(&surface->cache_entry);
+   unsigned int w, h;
+
+   w = surface->cache_entry.w;
+   h = surface->cache_entry.h;
+
+   // FIXME: do not reset cairo context if not necessary
+   eo_do(_software_ector,
+         ector_surface_set(pixels, w, h));
+
+   eo_do(ector->r,
+         ector_renderer_draw(ector->render_op,
+                             ector->clips,
+                             ector->x,
+                             ector->y,
+                             ector->mul_col));
+
+   _draw_thread_ector_cleanup(ector);
+}
+
+static void
+eng_ector_renderer_draw(void *data EINA_UNUSED, void *context, void *surface, Ector_Renderer *renderer, Eina_Array *clips, int x, int y, Eina_Bool do_async)
+{
+   RGBA_Image *dst = surface;
+   RGBA_Draw_Context *dc = context;
+   Evas_Thread_Command_Ector ector;
+   Eina_Array *c;
+   Eina_Rectangle *r;
+   Eina_Rectangle clip;
+   Eina_Array_Iterator it;
+   unsigned int i;
+
+   if (dc->clip.use)
+     {
+        clip.x = dc->clip.x;
+        clip.y = dc->clip.y;
+        clip.w = dc->clip.w;
+        clip.h = dc->clip.h;
+     }
+   else
+     {
+        clip.x = 0;
+        clip.y = 0;
+        clip.w = dst->cache_entry.w;
+        clip.h = dst->cache_entry.h;
+     }
+
+   c = eina_array_new(8);
+   EINA_ARRAY_ITER_NEXT(clips, i, r, it)
+     {
+        Eina_Rectangle *rc;
+
+        rc = eina_rectangle_new(r->x, r->y, r->w, r->h);
+        if (!rc) continue;
+
+        if (eina_rectangle_intersection(rc, &clip))
+          eina_array_push(c, rc);
+        else
+          eina_rectangle_free(rc);
+     }
+   if (eina_array_count(c) == 0 &&
+       eina_array_count(clips) > 0)
+     return ;
+
+   if (eina_array_count(c) == 0)
+     eina_array_push(c, eina_rectangle_new(clip.x, clip.y, clip.w, clip.h));
+
+   ector.surface = surface;
+   ector.r = eo_ref(renderer);
+   ector.clips = c;
+   ector.render_op = _evas_render_op_to_ector_rop(dc->render_op);
+   ector.mul_col = dc->mul.use ? dc->mul.col : 0xffffffff;
+   ector.x = x;
+   ector.y = y;
+   ector.free_it = EINA_FALSE;
+
+   if (do_async)
+     {
+        Evas_Thread_Command_Ector *ne;
+
+        ne = eina_mempool_malloc(_mp_command_ector, sizeof (Evas_Thread_Command_Ector));
+        if (!ne)
+          {
+             _draw_thread_ector_cleanup(&ector);
+             return ;
+          }
+
+        memcpy(ne, &ector, sizeof (Evas_Thread_Command_Ector));
+        ne->free_it = EINA_TRUE;
+
+        evas_thread_cmd_enqueue(_draw_thread_ector_draw, ne);
+     }
+   else
+     {
+        _draw_thread_ector_draw(&ector);
+     }
+}
 
 //------------------------------------------------//
 
@@ -4352,17 +4496,21 @@ struct _Ector_Cairo_Software_Surface_Data
 };
 
 void
-_ector_cairo_software_surface_surface_set(Eo *obj, Ector_Cairo_Software_Surface_Data *pd, void *pixels, unsigned int width, unsigned int height)
+_ector_cairo_software_surface_ector_generic_surface_surface_set(Eo *obj, Ector_Cairo_Software_Surface_Data *pd, void *pixels, unsigned int width, unsigned int height)
 {
 }
 
 void
+<<<<<<< HEAD
 _ector_cairo_software_surface_surface_get(Eo *obj, Ector_Cairo_Software_Surface_Data *pd, void **pixels, unsigned int *width, unsigned int *height)
 {
 }
 
 Eo *
 _ector_cairo_software_surface_eo_base_finalize(Eo *obj, Ector_Cairo_Software_Surface_Data *pd)
+=======
+_ector_cairo_software_surface_ector_generic_surface_surface_get(Eo *obj EINA_UNUSED, Ector_Cairo_Software_Surface_Data *pd, void **pixels, unsigned int *width, unsigned int *height)
+>>>>>>> da39a9f... ector/evas : fixed cairo backend to implement surface property
 {
 }
 

@@ -31,6 +31,13 @@
 
 #include "wayland_imcontext.h"
 
+// TIZEN_ONLY(20150708): Support back key
+#define BACK_KEY "XF86Back"
+
+static Ecore_Event_Handler  *_key_down_handler           = NULL;
+static Ecore_Event_Handler  *_key_up_handler             = NULL;
+static Ecore_IMF_Context    *_active_ctx                 = NULL;
+//
 static Ecore_IMF_Input_Panel_State _input_panel_state    = ECORE_IMF_INPUT_PANEL_STATE_HIDE;
 
 struct _WaylandIMContext
@@ -80,6 +87,72 @@ struct _WaylandIMContext
    uint32_t content_purpose;
    uint32_t content_hint;
 };
+
+// TIZEN_ONLY(20150708): Support back key
+static Eina_Bool
+key_down_cb(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
+{
+   Ecore_Event_Key *ev = (Ecore_Event_Key *)event;
+   if (!ev || !ev->keyname || !_active_ctx) return ECORE_CALLBACK_PASS_ON;
+
+   if (_input_panel_state == ECORE_IMF_INPUT_PANEL_STATE_SHOW &&
+       strcmp(ev->keyname, BACK_KEY) == 0)
+     return ECORE_CALLBACK_DONE;
+
+   return ECORE_CALLBACK_PASS_ON;
+}
+
+static Eina_Bool
+key_up_cb(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
+{
+   Ecore_Event_Key *ev = (Ecore_Event_Key *)event;
+   WaylandIMContext *imcontext = NULL;
+   if (!ev || !ev->keyname || !_active_ctx) return ECORE_CALLBACK_PASS_ON;
+
+   if (_input_panel_state != ECORE_IMF_INPUT_PANEL_STATE_SHOW ||
+       strcmp(ev->keyname, BACK_KEY) != 0)
+     return ECORE_CALLBACK_PASS_ON;
+
+   ecore_imf_context_reset(_active_ctx);
+
+   imcontext = (WaylandIMContext *)ecore_imf_context_data_get(_active_ctx);
+   if (imcontext)
+     {
+        wl_text_input_hide_input_panel(imcontext->text_input);
+
+        wl_text_input_deactivate(imcontext->text_input,
+                                 ecore_wl_input_seat_get(imcontext->input));
+     }
+
+   return ECORE_CALLBACK_DONE;
+}
+
+EAPI void
+register_key_handler()
+{
+   if (!_key_down_handler)
+     _key_down_handler = ecore_event_handler_add(ECORE_EVENT_KEY_DOWN, key_down_cb, NULL);
+
+   if (!_key_up_handler)
+     _key_up_handler = ecore_event_handler_add(ECORE_EVENT_KEY_UP, key_up_cb, NULL);
+}
+
+EAPI void
+unregister_key_handler()
+{
+   if (_key_down_handler)
+     {
+        ecore_event_handler_del(_key_down_handler);
+        _key_down_handler = NULL;
+     }
+
+   if (_key_up_handler)
+     {
+        ecore_event_handler_del(_key_up_handler);
+        _key_up_handler = NULL;
+     }
+}
+//
 
 static unsigned int
 utf8_offset_to_characters(const char *str, int offset)
@@ -666,6 +739,11 @@ wayland_im_context_del(Ecore_IMF_Context *ctx)
 
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom, "context_del");
 
+   // TIZEN_ONLY(20150708): Support back key
+   if (_active_ctx == ctx)
+     _active_ctx = NULL;
+   //
+
    if (imcontext->text_input)
      wl_text_input_destroy(imcontext->text_input);
 
@@ -693,6 +771,10 @@ wayland_im_context_focus_in(Ecore_IMF_Context *ctx)
 {
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom, "focus-in");
 
+   // TIZEN_ONLY(20150708): Support back key
+   _active_ctx = ctx;
+   //
+
    if (!ecore_imf_context_input_panel_show_on_demand_get (ctx))
      show_input_panel(ctx);
 }
@@ -705,6 +787,10 @@ wayland_im_context_focus_out(Ecore_IMF_Context *ctx)
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom, "focus-out");
 
    if (!imcontext->input) return;
+
+   // TIZEN_ONLY(20150708): Support back key
+   _active_ctx = NULL;
+   //
 
    if (imcontext->text_input)
      {

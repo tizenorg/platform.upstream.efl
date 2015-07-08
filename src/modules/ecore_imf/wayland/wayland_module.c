@@ -147,6 +147,10 @@ im_module_init(void)
 
    ecore_imf_module_register(&wayland_im_info, im_module_create, 
                              im_module_exit);
+
+   // TIZEN_ONLY(20150708): Support back key
+   register_key_handler();
+   //
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom, "im module initalized");
 
    return EINA_TRUE;
@@ -155,6 +159,9 @@ im_module_init(void)
 static void
 im_module_shutdown(void)
 {
+   // TIZEN_ONLY(20150708): Support back key
+   unregister_key_handler();
+   //
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom, "im module shutdown");
 }
 

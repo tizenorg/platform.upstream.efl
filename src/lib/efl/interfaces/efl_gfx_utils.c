@@ -785,6 +785,144 @@ _efl_gfx_path_parse_arc_to(const char *content, char **end,
    return EINA_TRUE;
 }
 
+inline void
+_efl_gfx_bezier_coefficients(double t, double *ap, double *bp, double *cp, double *dp)
+{
+   double a,b,c,d;
+   double m_t = 1. - t;
+   b = m_t * m_t;
+   c = t * t;
+   d = c * t;
+   a = b * m_t;
+   b *= 3. * t;
+   c *= 3. * m_t;
+   *ap = a;
+   *bp = b;
+   *cp = c;
+   *dp = d;
+}
+
+#define PATH_KAPPA 0.5522847498
+static double
+_efl_gfx_t_for_arc_angle(double angle)
+{
+   if (angle < 0.00001)
+     return 0;
+
+   if (angle == 90.0)
+     return 1;
+
+   double radians = M_PI * angle / 180;
+   double cosAngle = cos(radians);
+   double sinAngle = sin(radians);
+
+   // initial guess
+   double tc = angle / 90;
+   // do some iterations of newton's method to approximate cosAngle
+   // finds the zero of the function b.pointAt(tc).x() - cosAngle
+   tc -= ((((2-3*PATH_KAPPA) * tc + 3*(PATH_KAPPA-1)) * tc) * tc + 1 - cosAngle) // value
+   / (((6-9*PATH_KAPPA) * tc + 6*(PATH_KAPPA-1)) * tc); // derivative
+   tc -= ((((2-3*PATH_KAPPA) * tc + 3*(PATH_KAPPA-1)) * tc) * tc + 1 - cosAngle) // value
+   / (((6-9*PATH_KAPPA) * tc + 6*(PATH_KAPPA-1)) * tc); // derivative
+
+   // initial guess
+   double ts = tc;
+   // do some iterations of newton's method to approximate sinAngle
+   // finds the zero of the function b.pointAt(tc).y() - sinAngle
+   ts -= ((((3*PATH_KAPPA-2) * ts -  6*PATH_KAPPA + 3) * ts + 3*PATH_KAPPA) * ts - sinAngle)
+   / (((9*PATH_KAPPA-6) * ts + 12*PATH_KAPPA - 6) * ts + 3*PATH_KAPPA);
+   ts -= ((((3*PATH_KAPPA-2) * ts -  6*PATH_KAPPA + 3) * ts + 3*PATH_KAPPA) * ts - sinAngle)
+   / (((9*PATH_KAPPA-6) * ts + 12*PATH_KAPPA - 6) * ts + 3*PATH_KAPPA);
+
+   // use the average of the t that best approximates cosAngle
+   // and the t that best approximates sinAngle
+   double t = 0.5 * (tc + ts);
+   return t;
+}
+
+static void
+_efl_gfx_find_arc_end_points(int x, int y, int w, int h, double angle, double length,
+                             double *sx, double *sy, double *ex, double *ey)
+{
+   if (!w || !h )
+     {
+        if (sx) *sx = 0;
+        if (sy) *sy = 0;
+        if (ex) *ex = 0;
+        if (ey) *ey = 0;
+        return;
+      }
+
+   int w2 = w / 2;
+   int h2 = h / 2;
+
+   double angles[2] = { angle, angle + length };
+   double *px[2] = { sx, ex };
+   double *py[2] = { sy, ey };
+   int i =0;
+   for (i = 0; i < 2; ++i)
+     {
+        if (!px[i] || !py[y])
+          continue;
+
+        double theta = angles[i] - 360 * floor(angles[i] / 360);
+        double t = theta / 90;
+        // truncate
+        int quadrant = (int)t;
+        t -= quadrant;
+
+        t = _efl_gfx_t_for_arc_angle(90 * t);
+
+        // swap x and y?
+        if (quadrant & 1)
+          t = 1 - t;
+
+        double a, b, c, d;
+        _efl_gfx_bezier_coefficients(t, &a, &b, &c, &d);
+        double ptx = a + b + c*PATH_KAPPA;
+        double pty = d + c + b*PATH_KAPPA;
+
+        // left quadrants
+        if (quadrant == 1 || quadrant == 2)
+          ptx = -ptx;
+
+        // top quadrants
+        if (quadrant == 0 || quadrant == 1)
+          pty = -pty;
+        int cx = x+w/2;
+        int cy = y+h/2;
+        *px[i] = cx + w2 * ptx;
+        *py[i] = cy + h2 * pty;
+     }
+}
+
+EAPI void
+efl_gfx_path_append_arc(Efl_Gfx_Path_Command **commands, double **points,
+                        double x, double y, double w, double h,
+                        double start_angle,double sweep_length)
+{
+   double sx, sy, ex, ey;
+   _efl_gfx_find_arc_end_points(x, y, w, h, start_angle, sweep_length, &sx, &sy, &ex, &ey);
+
+   efl_gfx_path_append_line_to(commands, points, sx, sy);
+
+   Eina_Bool large_arc = EINA_FALSE;
+   Eina_Bool sweep_flag = EINA_FALSE;
+
+   if (sweep_length < 0)
+     { // clockwise
+        sweep_flag = EINA_TRUE;
+        sweep_length = fabs(sweep_length);
+     }
+
+   // draw the large arc
+   if (sweep_length > 180) large_arc = EINA_TRUE;
+
+   efl_gfx_path_append_arc_to(commands, points, ex, ey, w/2, h/2, 0, large_arc, sweep_flag);  
+}
+
+
+
 EAPI Eina_Bool
 efl_gfx_path_append_svg_path(Efl_Gfx_Path_Command **commands, double **points, const char *svg_path_data)
 {

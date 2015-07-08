@@ -40,6 +40,11 @@ efl_gfx_path_append_arc_to(Efl_Gfx_Path_Command **commands, double **points,
                            Eina_Bool large_arc, Eina_Bool sweep);
 
 EAPI void
+efl_gfx_path_append_arc(Efl_Gfx_Path_Command **commands, double **points,
+                        double x, double y, double w, double h,
+                        double start_angle,double sweep_length);
+
+EAPI void
 efl_gfx_path_append_close(Efl_Gfx_Path_Command **commands, double **points);
 
 EAPI void

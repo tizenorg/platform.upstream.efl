@@ -26,6 +26,21 @@ _ector_generic_surface_size_get(Eo *obj,
 {
 }
 
+void _ector_generic_surface_surface_set(Eo *obj, 
+	                                    Ector_Generic_Surface_Data *pd, 
+	                                    void *pixels, unsigned int width, unsigned int height)
+{
+
+}
+
+void _ector_generic_surface_surface_get(Eo *obj, 
+										Ector_Generic_Surface_Data *pd, 
+										void **pixels, unsigned int *width, unsigned int *height)
+{
+
+}
+
+
 Eina_Bool
 _ector_generic_surface_update_push(Eo *obj,
                                    Ector_Generic_Surface_Data *pd,

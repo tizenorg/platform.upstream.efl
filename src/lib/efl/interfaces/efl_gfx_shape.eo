@@ -189,6 +189,16 @@ mixin Efl.Gfx.Shape
           @in Eo *dup_from; /*@ Shape object from where data will be copied.*/
         }
       }
+      bounds_get {
+        /*@
+          Compute and return the bounding box of the currently set path
+
+          @since 1.14
+	*/
+        params {
+	  @out Eina_Rectangle r; /*@ Contain the bounding box of the currently set path */
+	}
+      }
       reset {
         /*@
           Reset the shape data of the shape object.
@@ -198,7 +208,7 @@ mixin Efl.Gfx.Shape
       }
       append_move_to {
         /*@
-          Moves the current point to the given point,
+          Moves the current point to the given point, 
           implicitly starting a new subpath and closing the previous one.
 
           @see efl_gfx_path_append_close()
@@ -292,7 +302,7 @@ mixin Efl.Gfx.Shape
       append_arc_to {
         /*@
           Append an arc that connects from the current point int the point list
-          to the given point (x,y). The arc is defined by the given radius in
+          to the given point (x,y). The arc is defined by the given radius in 
           x-direction (rx) and radius in y direction (ry) .
 
           @note Use this api if you know the end point's of the arc otherwise

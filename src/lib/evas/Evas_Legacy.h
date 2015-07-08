@@ -1540,6 +1540,8 @@ EAPI Evas_Object *evas_object_rectangle_add(Evas *e) EINA_WARN_UNUSED_RESULT EIN
  * @since 1.14
  */
 
+#ifdef EFL_BETA_API_SUPPORT
+
 /**
  * Creates a new vector object on the given Evas @p e canvas.
  *
@@ -2286,7 +2288,8 @@ EAPI void evas_vg_gradient_radial_focal_set(Eo *obj, double x, double y);
 EAPI void evas_vg_gradient_radial_focal_get(Eo *obj, double *x, double *y);
 
 #include "canvas/efl_vg_gradient_radial.eo.legacy.h"
->>>>>>> f359123... ector : integration of ector library in efl1.30.0 branch for tizen2.4
+
+#endif
 
 /**
  * @}

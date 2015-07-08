@@ -124,6 +124,18 @@ _efl_vg_gradient_radial_eo_base_destructor(Eo *obj,
    eo_do_super(obj, MY_CLASS, eo_destructor());
 }
 
+static void
+_efl_vg_gradient_radial_efl_vg_base_bounds_get(Eo *obj, Efl_VG_Gradient_Radial_Data *pd, Eina_Rectangle *r)
+{
+   Efl_VG_Base_Data *nd;
+
+   nd = eo_data_scope_get(obj, EFL_VG_BASE_CLASS);
+   EINA_RECTANGLE_SET(r,
+                      nd->x + pd->center.x - pd->radius,
+                      nd->y + pd->center.y - pd->radius,
+                      pd->radius * 2, pd->radius * 2);
+}
+
 EAPI void
 evas_vg_gradient_radial_center_set(Eo *obj, double x, double y)
 {

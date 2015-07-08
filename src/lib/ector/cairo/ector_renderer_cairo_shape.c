@@ -14,6 +14,18 @@
 
 typedef struct _cairo_path_t cairo_path_t;
 
+typedef enum _cairo_line_cap {
+  CAIRO_LINE_CAP_BUTT,
+  CAIRO_LINE_CAP_ROUND,
+  CAIRO_LINE_CAP_SQUARE
+} cairo_line_cap_t;
+
+typedef enum _cairo_line_join {
+  CAIRO_LINE_JOIN_MITER,
+  CAIRO_LINE_JOIN_ROUND,
+  CAIRO_LINE_JOIN_BEVEL
+} cairo_line_join_t;
+
 static void (*cairo_move_to)(cairo_t *cr, double x, double y) = NULL;
 static void (*cairo_line_to)(cairo_t *cr, double x, double y) = NULL;
 static void (*cairo_curve_to)(cairo_t *cr,
@@ -36,6 +48,15 @@ static void (*cairo_path_destroy)(cairo_path_t *path) = NULL;
 static void (*cairo_new_path)(cairo_t *cr) = NULL;
 static void (*cairo_append_path)(cairo_t *cr, const cairo_path_t *path) = NULL;
 
+static void (*cairo_set_line_width)(cairo_t *cr, double width) = NULL;
+static void (*cairo_set_line_cap)(cairo_t *cr, cairo_line_cap_t line_cap) = NULL;
+static void (*cairo_set_line_join)(cairo_t *cr, cairo_line_join_t line_join) = NULL;
+
+static void (*cairo_save)(cairo_t *cr) = NULL;
+static void (*cairo_restore)(cairo_t *cr) = NULL;
+
+static void (*cairo_set_dash) (cairo_t *cr, const double *dashes, int num_dashes, double offset) = NULL;
+
 typedef struct _Ector_Renderer_Cairo_Shape_Data Ector_Renderer_Cairo_Shape_Data;
 struct _Ector_Renderer_Cairo_Shape_Data
 {
@@ -46,7 +67,7 @@ struct _Ector_Renderer_Cairo_Shape_Data
 };
 
 static Eina_Bool
-_ector_renderer_cairo_shape_path_changed(void *data, Eo *obj, const Eo_Event_Description *desc, void *event_info)
+_ector_renderer_cairo_shape_path_changed(void *data, Eo *obj, const Eo_Event_Description *desc EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ector_Renderer_Cairo_Shape_Data *pd = data;
 
@@ -143,9 +164,12 @@ _ector_renderer_cairo_shape_ector_renderer_generic_base_prepare(Eo *obj, Ector_R
 static Eina_Bool
 _ector_renderer_cairo_shape_ector_renderer_generic_base_draw(Eo *obj, Ector_Renderer_Cairo_Shape_Data *pd, Ector_Rop op, Eina_Array *clips, unsigned int mul_col)
 {
+   int r, g, b, a;
    if (pd->path == NULL) return EINA_FALSE;
 
-   // FIXME: find a way to set multiple clips
+   USE(obj, cairo_save, EINA_FALSE);
+   cairo_save(pd->parent->cairo);
+
    eo_do_super(obj, ECTOR_RENDERER_CAIRO_SHAPE_CLASS, ector_renderer_draw(op, clips, mul_col));
 
    USE(obj, cairo_new_path, EINA_FALSE);
@@ -157,24 +181,46 @@ _ector_renderer_cairo_shape_ector_renderer_generic_base_draw(Eo *obj, Ector_Rend
    if (pd->shape->fill)
      eo_do(pd->shape->fill, ector_renderer_cairo_base_fill());
 
-   if (pd->shape->stroke.color.a > 0)
+   if (pd->shape->stroke.fill || pd->shape->stroke.color.a > 0)
      {
         USE(obj, cairo_fill_preserve, EINA_FALSE);
         USE(obj, cairo_set_source_rgba, EINA_FALSE);
         USE(obj, cairo_stroke, EINA_FALSE);
+        USE(obj, cairo_set_line_width, EINA_FALSE);
+        USE(obj, cairo_set_line_cap, EINA_FALSE);
+        USE(obj, cairo_set_line_join, EINA_FALSE);
 
         cairo_fill_preserve(pd->parent->cairo);
 
-        cairo_set_source_rgba(pd->parent->cairo,
-                              pd->shape->stroke.color.r / 255.0,
-                              pd->shape->stroke.color.g / 255.0,
-                              pd->shape->stroke.color.b / 255.0,
-                              pd->shape->stroke.color.a / 255.0);
-
         if (pd->shape->stroke.fill)
           eo_do(pd->shape->stroke.fill, ector_renderer_cairo_base_fill());
-        // Set dash, cap and join
-        cairo_stroke(pd->parent->cairo);
+       else
+         {
+            r = (((pd->shape->stroke.color.r * R_VAL(&mul_col)) + 0xff) >> 8);
+            g = (((pd->shape->stroke.color.g * G_VAL(&mul_col)) + 0xff) >> 8);
+            b = (((pd->shape->stroke.color.b * B_VAL(&mul_col)) + 0xff) >> 8);
+            a = (((pd->shape->stroke.color.a * A_VAL(&mul_col)) + 0xff) >> 8);
+            ector_color_argb_unpremul(a, &r, &g, &b);
+            cairo_set_source_rgba(pd->parent->cairo, r/255.0, g/255.0, b/255.0, a/255.0);
+            if (pd->shape->stroke.dash)
+              {
+                 unsigned int i = 0;
+                 double *dashinfo = (double *) malloc(2 * pd->shape->stroke.dash_length * sizeof(double));
+                 for (i = 0 ; i < pd->shape->stroke.dash_length ; i++)
+                   {
+                      dashinfo[i*2] = pd->shape->stroke.dash[i].length;
+                      dashinfo[i*2 + 1] = pd->shape->stroke.dash[i].gap;
+                   }
+                 USE(obj, cairo_set_dash, EINA_FALSE);
+                 cairo_set_dash(pd->parent->cairo, dashinfo, pd->shape->stroke.dash_length * 2, 0);
+              }
+         }
+
+       // Set dash, cap and join
+       cairo_set_line_width(pd->parent->cairo, (pd->shape->stroke.width * pd->shape->stroke.scale * 2));
+       cairo_set_line_cap(pd->parent->cairo, pd->shape->stroke.cap);
+       cairo_set_line_join(pd->parent->cairo, pd->shape->stroke.join);
+       cairo_stroke(pd->parent->cairo);
      }
    else
      {
@@ -182,6 +228,8 @@ _ector_renderer_cairo_shape_ector_renderer_generic_base_draw(Eo *obj, Ector_Rend
         cairo_fill(pd->parent->cairo);
      }
 
+   USE(obj, cairo_restore, EINA_FALSE);
+   cairo_restore(pd->parent->cairo);
    return EINA_TRUE;
 }
 
@@ -194,6 +242,21 @@ _ector_renderer_cairo_shape_ector_renderer_cairo_base_fill(Eo *obj EINA_UNUSED,
 #warning "fill for a shape object is unhandled at this moment in cairo backend."
    ERR("fill with shape not implemented\n");
    return EINA_FALSE;
+}
+
+static void
+_ector_renderer_cairo_shape_ector_renderer_generic_base_bounds_get(Eo *obj,
+                                                                   Ector_Renderer_Cairo_Shape_Data *pd EINA_UNUSED,
+                                                                   Eina_Rectangle *r)
+{
+   Ector_Renderer_Cairo_Base_Data *bd;
+
+   // FIXME: It should be possible to actually ask cairo about that
+   eo_do(obj, efl_gfx_shape_bounds_get(r));
+
+   bd = eo_data_scope_get(obj, ECTOR_RENDERER_CAIRO_BASE_CLASS);
+   r->x += bd->generic->origin.x;
+   r->y += bd->generic->origin.y;
 }
 
 void

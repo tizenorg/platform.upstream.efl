@@ -139,7 +139,7 @@ _efl_gfx_path_current_search(const Efl_Gfx_Path_Command *cmd,
    return EINA_TRUE;
 }
 
-void
+static void
 _efl_gfx_shape_path_set(Eo *obj, Efl_Gfx_Shape_Data *pd,
                         const Efl_Gfx_Path_Command *commands,
                         const double *points)
@@ -185,7 +185,7 @@ _efl_gfx_shape_path_set(Eo *obj, Efl_Gfx_Shape_Data *pd,
          eo_event_callback_call(EFL_GFX_CHANGED, NULL));
 }
 
-void
+static void
 _efl_gfx_shape_path_get(Eo *obj EINA_UNUSED, Efl_Gfx_Shape_Data *pd,
                         const Efl_Gfx_Path_Command **commands,
                         const double **points)
@@ -194,7 +194,7 @@ _efl_gfx_shape_path_get(Eo *obj EINA_UNUSED, Efl_Gfx_Shape_Data *pd,
    if (points) *points = pd->points;
 }
 
-void
+static void
 _efl_gfx_shape_path_length_get(Eo *obj EINA_UNUSED, Efl_Gfx_Shape_Data *pd,
                                unsigned int *commands, unsigned int *points)
 {
@@ -202,7 +202,37 @@ _efl_gfx_shape_path_length_get(Eo *obj EINA_UNUSED, Efl_Gfx_Shape_Data *pd,
    if (points) *points = pd->points_count;
 }
 
-void
+static void
+_efl_gfx_shape_bounds_get(Eo *obj EINA_UNUSED,
+                          Efl_Gfx_Shape_Data *pd,
+                          Eina_Rectangle *r)
+{
+   double minx, miny, maxx, maxy;
+   unsigned int i;
+
+   EINA_RECTANGLE_SET(r, 0, 0, 0, 0);
+
+   if (pd->points_count <= 0) return ;
+
+   minx = pd->points[0];
+   miny = pd->points[1];
+   maxx = pd->points[0];
+   maxy = pd->points[1];
+
+   for (i = 1; i < pd->points_count; i += 2)
+     {
+        minx = minx < pd->points[i] ? minx : pd->points[i];
+        miny = miny < pd->points[i + 1] ? miny : pd->points[i + 1];
+        maxx = maxx > pd->points[i] ? maxx : pd->points[i];
+        maxy = maxy > pd->points[i + 1] ? maxy : pd->points[i + 1];
+     }
+
+   EINA_RECTANGLE_SET(r,
+                      minx, miny,
+                      maxx - minx, maxy - miny);
+}
+
+static void
 _efl_gfx_shape_current_get(Eo *obj EINA_UNUSED, Efl_Gfx_Shape_Data *pd,
                            double *x, double *y)
 {
@@ -210,7 +240,7 @@ _efl_gfx_shape_current_get(Eo *obj EINA_UNUSED, Efl_Gfx_Shape_Data *pd,
    if (y) *y = pd->current.y;
 }
 
-void
+static void
 _efl_gfx_shape_current_ctrl_get(Eo *obj EINA_UNUSED, Efl_Gfx_Shape_Data *pd,
                                 double *x, double *y)
 {
@@ -245,11 +275,12 @@ interpolatei(int from, int to, double pos_map)
    return (from * pos_map) + (to * (1.0 - pos_map));
 }
 
-typedef struct _Efl_Gfx_Stroke Efl_Gfx_Stroke;
-struct _Efl_Gfx_Stroke
+typedef struct _Efl_Gfx_Property Efl_Gfx_Property;
+struct _Efl_Gfx_Property
 {
    double scale;
    int r, g, b, a;
+   int fr, fg, fb, fa; 
    double w;
    double centered;
    const Efl_Gfx_Dash *dash;
@@ -259,19 +290,20 @@ struct _Efl_Gfx_Stroke
 };
 
 static inline void
-stroke_get(const Eo *obj, Efl_Gfx_Stroke *stroke)
+gfx_property_get(const Eo *obj, Efl_Gfx_Property *property)
 {
    eo_do(obj,
-         stroke->scale = efl_gfx_shape_stroke_scale_get(),
-         efl_gfx_shape_stroke_color_get(&stroke->r, &stroke->g, &stroke->b, &stroke->a),
-         stroke->w = efl_gfx_shape_stroke_width_get(),
-         stroke->centered = efl_gfx_shape_stroke_location_get(),
-         efl_gfx_shape_stroke_dash_get(&stroke->dash, &stroke->dash_length),
-         stroke->c = efl_gfx_shape_stroke_cap_get(),
-         stroke->j = efl_gfx_shape_stroke_join_get());
+         property->scale = efl_gfx_shape_stroke_scale_get(),
+         efl_gfx_shape_stroke_color_get(&property->r, &property->g, &property->b, &property->a),
+         efl_gfx_color_get(&property->fr, &property->fg, &property->fb, &property->fa),
+         property->w = efl_gfx_shape_stroke_width_get(),
+         property->centered = efl_gfx_shape_stroke_location_get(),
+         efl_gfx_shape_stroke_dash_get(&property->dash, &property->dash_length),
+         property->c = efl_gfx_shape_stroke_cap_get(),
+         property->j = efl_gfx_shape_stroke_join_get());
 }
 
-Eina_Bool
+static Eina_Bool
 _efl_gfx_shape_interpolate(Eo *obj, Efl_Gfx_Shape_Data *pd,
                            const Eo *from, const Eo *to, double pos_map)
 {
@@ -279,8 +311,8 @@ _efl_gfx_shape_interpolate(Eo *obj, Efl_Gfx_Shape_Data *pd,
    Efl_Gfx_Path_Command *cmds;
    double *pts, *from_pts, *to_pts;
    unsigned int i, j;
-   Efl_Gfx_Stroke stroke_from, stroke_to;
-   Efl_Gfx_Dash *dash;
+   Efl_Gfx_Property property_from, property_to;
+   Efl_Gfx_Dash *dash = NULL;
 
    from_pd = eo_data_scope_get(from, EFL_GFX_SHAPE_MIXIN);
    to_pd = eo_data_scope_get(to, EFL_GFX_SHAPE_MIXIN);
@@ -290,10 +322,10 @@ _efl_gfx_shape_interpolate(Eo *obj, Efl_Gfx_Shape_Data *pd,
    if (!_efl_gfx_shape_equal_commands_internal(from_pd, to_pd))
      return EINA_FALSE;
 
-   stroke_get(from, &stroke_from);
-   stroke_get(to, &stroke_to);
+   gfx_property_get(from, &property_from);
+   gfx_property_get(to, &property_to);
 
-   if (stroke_from.dash_length != stroke_to.dash_length) return EINA_FALSE;
+   if (property_from.dash_length != property_to.dash_length) return EINA_FALSE;
 
    cmds = realloc(pd->commands,
                   sizeof (Efl_Gfx_Path_Command) * from_pd->commands_count);
@@ -337,33 +369,36 @@ _efl_gfx_shape_interpolate(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                     to_pd->current_ctrl.y,
                                     pos_map);
 
-   dash = malloc(sizeof (Efl_Gfx_Dash) * stroke_to.dash_length);
-   if (dash)
+   if (property_to.dash_length)
      {
-        for (i = 0; i < stroke_to.dash_length; i++)
+        dash = malloc(sizeof (Efl_Gfx_Dash) * property_to.dash_length);
+        if (!dash) return EINA_FALSE;
+
+        for (i = 0; i < property_to.dash_length; i++)
           {
-             dash[i].length = interpolate(stroke_from.dash[i].length,
-                                          stroke_to.dash[i].length, pos_map);
-             dash[i].gap = interpolate(stroke_from.dash[i].gap,
-                                       stroke_to.dash[i].gap, pos_map);
+             dash[i].length = interpolate(property_from.dash[i].length,
+                                          property_to.dash[i].length, pos_map);
+             dash[i].gap = interpolate(property_from.dash[i].gap,
+                                       property_to.dash[i].gap, pos_map);
           }
      }
-   else
-     {
-        stroke_to.dash_length = 0;
-     }
+
 
    eo_do(obj,
-         efl_gfx_shape_stroke_scale_set(interpolate(stroke_to.scale, stroke_from.scale, pos_map)),
-         efl_gfx_shape_stroke_color_set(interpolatei(stroke_to.r, stroke_from.r, pos_map),
-                                        interpolatei(stroke_to.g, stroke_from.g, pos_map),
-                                        interpolatei(stroke_to.b, stroke_from.b, pos_map),
-                                        interpolatei(stroke_to.a, stroke_from.a, pos_map)),
-         efl_gfx_shape_stroke_width_set(interpolate(stroke_to.w, stroke_from.w, pos_map)),
-         efl_gfx_shape_stroke_location_set(interpolate(stroke_to.centered, stroke_from.centered, pos_map)),
-         efl_gfx_shape_stroke_dash_set(dash, stroke_to.dash_length),
-         efl_gfx_shape_stroke_cap_set(pos_map < 0.5 ? stroke_from.c : stroke_to.c),
-         efl_gfx_shape_stroke_join_set(pos_map < 0.5 ? stroke_from.j : stroke_to.j),
+         efl_gfx_shape_stroke_scale_set(interpolate(property_to.scale, property_from.scale, pos_map)),
+         efl_gfx_shape_stroke_color_set(interpolatei(property_to.r, property_from.r, pos_map),
+                                        interpolatei(property_to.g, property_from.g, pos_map),
+                                        interpolatei(property_to.b, property_from.b, pos_map),
+                                        interpolatei(property_to.a, property_from.a, pos_map)),
+         efl_gfx_color_set(interpolatei(property_to.fr, property_from.fr, pos_map),
+                           interpolatei(property_to.fg, property_from.fg, pos_map),
+                           interpolatei(property_to.fb, property_from.fb, pos_map),
+                           interpolatei(property_to.fa, property_from.fa, pos_map)),
+         efl_gfx_shape_stroke_width_set(interpolate(property_to.w, property_from.w, pos_map)),
+         efl_gfx_shape_stroke_location_set(interpolate(property_to.centered, property_from.centered, pos_map)),
+         efl_gfx_shape_stroke_dash_set(dash, property_to.dash_length),
+         efl_gfx_shape_stroke_cap_set(pos_map < 0.5 ? property_from.c : property_to.c),
+         efl_gfx_shape_stroke_join_set(pos_map < 0.5 ? property_from.j : property_to.j),
 
          eo_event_callback_call(EFL_GFX_PATH_CHANGED, NULL),
          eo_event_callback_call(EFL_GFX_CHANGED, NULL));
@@ -371,7 +406,7 @@ _efl_gfx_shape_interpolate(Eo *obj, Efl_Gfx_Shape_Data *pd,
    return EINA_TRUE;
 }
 
-Eina_Bool
+static Eina_Bool
 _efl_gfx_shape_equal_commands(Eo *obj EINA_UNUSED,
                               Efl_Gfx_Shape_Data *pd,
                               const Eo *with)
@@ -384,7 +419,7 @@ _efl_gfx_shape_equal_commands(Eo *obj EINA_UNUSED,
    return _efl_gfx_shape_equal_commands_internal(with_pd, pd);
 }
 
-void
+static void
 _efl_gfx_shape_dup(Eo *obj, Efl_Gfx_Shape_Data *pd, Eo *dup_from)
 {
    const Efl_Gfx_Dash *dash = NULL;
@@ -424,7 +459,7 @@ _efl_gfx_shape_dup(Eo *obj, Efl_Gfx_Shape_Data *pd, Eo *dup_from)
          eo_event_callback_call(EFL_GFX_CHANGED, NULL));
 }
 
-void
+static void
 _efl_gfx_shape_reset(Eo *obj, Efl_Gfx_Shape_Data *pd)
 {
    free(pd->commands);
@@ -445,7 +480,7 @@ _efl_gfx_shape_reset(Eo *obj, Efl_Gfx_Shape_Data *pd)
          eo_event_callback_call(EFL_GFX_CHANGED, NULL));
 }
 
-void
+static void
 _efl_gfx_shape_append_move_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
                               double x, double y)
 {
@@ -466,7 +501,7 @@ _efl_gfx_shape_append_move_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
          eo_event_callback_call(EFL_GFX_CHANGED, NULL));
 }
 
-void
+static void
 _efl_gfx_shape_append_line_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
                               double x, double y)
 {
@@ -487,7 +522,7 @@ _efl_gfx_shape_append_line_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
          eo_event_callback_call(EFL_GFX_CHANGED, NULL));
 }
 
-void
+static void
 _efl_gfx_shape_append_cubic_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                double x, double y,
                                double ctrl_x0, double ctrl_y0,
@@ -516,7 +551,7 @@ _efl_gfx_shape_append_cubic_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
          eo_event_callback_call(EFL_GFX_CHANGED, NULL));
 }
 
-void
+static void
 _efl_gfx_shape_append_scubic_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                 double x, double y,
                                 double ctrl_x, double ctrl_y)
@@ -537,7 +572,7 @@ _efl_gfx_shape_append_scubic_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                   ctrl_x0, ctrl_y0, ctrl_x, ctrl_y);
 }
 
-void
+static void
 _efl_gfx_shape_append_quadratic_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                    double x, double y,
                                    double ctrl_x, double ctrl_y)
@@ -558,7 +593,7 @@ _efl_gfx_shape_append_quadratic_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                   ctrl_x0, ctrl_y0, ctrl_x1, ctrl_y1);
 }
 
-void
+static void
 _efl_gfx_shape_append_squadratic_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                     double x, double y)
 {
@@ -588,7 +623,7 @@ _efl_gfx_shape_append_squadratic_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
 /*
  * code adapted from enesim which was adapted from moonlight sources
  */
-void
+static void
 _efl_gfx_shape_append_arc_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
                              double x, double y,
                              double rx, double ry,
@@ -773,7 +808,7 @@ _efl_gfx_shape_append_arc_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
      }
 }
 
-void
+static void
 _efl_gfx_shape_append_close(Eo *obj, Efl_Gfx_Shape_Data *pd)
 {
    double *offset_point;
@@ -786,18 +821,16 @@ _efl_gfx_shape_append_close(Eo *obj, Efl_Gfx_Shape_Data *pd)
          eo_event_callback_call(EFL_GFX_CHANGED, NULL));
 }
 
-void
+static void
 _efl_gfx_shape_append_circle(Eo *obj, Efl_Gfx_Shape_Data *pd,
-                             double x, double y, double radius)
+                             double xc, double yc, double radius)
 {
-   _efl_gfx_shape_append_move_to(obj, pd, x - radius, y);
-   _efl_gfx_shape_append_arc_to(obj, pd, x + radius, y, radius, radius, 0, EINA_FALSE, EINA_TRUE);
-   _efl_gfx_shape_append_arc_to(obj, pd, x, y + radius, radius, radius, 0, EINA_FALSE, EINA_TRUE);
-   _efl_gfx_shape_append_arc_to(obj, pd, x - radius, y, radius, radius, 0, EINA_FALSE, EINA_TRUE);
-   _efl_gfx_shape_append_arc_to(obj, pd, x, y - radius, radius, radius, 0, EINA_FALSE, EINA_TRUE);
+   _efl_gfx_shape_append_move_to(obj, pd, xc - radius, yc);
+   _efl_gfx_shape_append_arc_to(obj, pd, xc + radius, yc, radius, radius, 0, EINA_TRUE, EINA_TRUE);
+   _efl_gfx_shape_append_arc_to(obj, pd, xc - radius, yc, radius, radius, 0, EINA_TRUE, EINA_TRUE);
 }
 
-void
+static void
 _efl_gfx_shape_append_rect(Eo *obj, Efl_Gfx_Shape_Data *pd,
                            double x, double y, double w, double h,
                            double rx, double ry)
@@ -1147,7 +1180,7 @@ _efl_gfx_path_parse_arc_to(const char *content, char **end,
    return EINA_TRUE;
 }
 
-void
+static void
 _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                const char *svg_path_data)
 {
@@ -1181,6 +1214,7 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                 return ;
               break;
            case 'z':
+           case 'Z':
               _efl_gfx_shape_append_close(obj, pd);
               content++;
               break;

@@ -181,12 +181,8 @@ evas_object_vg_render_pre(Evas_Object *eo_obj,
    Evas_VG_Data *vd = type_private_data;
    Evas_Public_Data *e = obj->layer->evas;
    int is_v, was_v;
-   Ector_Surface *s;
-
-   // FIXME: handle damage only on changed renderer.
-   s = e->engine.func->ector_get(e->engine.data.output);
-   if (vd->root && s)
-     _evas_vg_render_pre(vd->root, s, NULL);
+   Ector_Surface *surface;
+   Eina_Bool change = EINA_FALSE;
 
    /* dont pre-render the obj twice! */
    if (obj->pre_render_done) return;
@@ -210,11 +206,26 @@ evas_object_vg_render_pre(Evas_Object *eo_obj,
    is_v = evas_object_is_visible(eo_obj, obj);
    was_v = evas_object_was_visible(eo_obj,obj);
    if (!(is_v | was_v)) goto done;
-   if (is_v != was_v)
+
+   // FIXME: handle damage only on changed renderer.
+   surface = e->engine.func->ector_get(e->engine.data.output);
+   if (surface)
+     change = _evas_vg_render_pre(vd->root, surface, NULL);
+
+   if (change)
      {
-        evas_object_render_pre_visible_change(&obj->layer->evas->clip_changes, eo_obj, is_v, was_v);
+        evas_object_render_pre_prev_cur_add(&obj->layer->evas->clip_changes,
+                                            eo_obj, obj);
         goto done;
      }
+
+   if (is_v != was_v)
+     {
+        evas_object_render_pre_visible_change(&obj->layer->evas->clip_changes,
+                                              eo_obj, is_v, was_v);
+        goto done;
+     }
+
    if (obj->changed_map || obj->changed_src_visible)
      {
         evas_object_render_pre_prev_cur_add(&obj->layer->evas->clip_changes, eo_obj, obj);

@@ -303,16 +303,16 @@ _evas_vg_node_lower(Eo *obj, Evas_VG_Node_Data *pd EINA_UNUSED)
 }
 
 Eina_Bool
-_evas_vg_node_original_bound_get(Eo *obj,
-                                 Evas_VG_Node_Data *pd,
-                                 Eina_Rectangle *r)
+_evas_vg_node_original_bound_get(Eo *obj EINA_UNUSED,
+                                 Evas_VG_Node_Data *pd EINA_UNUSED,
+                                 Eina_Rectangle *r EINA_UNUSED)
 {
    return EINA_FALSE;
 }
 
 
 void
-_evas_vg_node_changed(Eo *obj, Evas_VG_Node_Data *pd)
+_evas_vg_node_changed(Eo *obj EINA_UNUSED, Evas_VG_Node_Data *pd)
 {
    if (!pd->eo_vg) return;
    Evas_Object_Protected_Data *obj_vg = eo_data_scope_get(pd->eo_vg,

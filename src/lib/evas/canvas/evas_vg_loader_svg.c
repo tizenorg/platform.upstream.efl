@@ -410,7 +410,7 @@ _attr_color_parser(void *data, const char *key, const char *value)
 static Eina_Bool
 _attrs_stop_parser(void *data, const char *key, const char *value)
 {
-   Efl_Graphics_Gradient_Stop *stop = data;
+   Efl_Gfx_Gradient_Stop *stop = data;
 
    if (!strcmp(key, "style"))
      {
@@ -436,9 +436,9 @@ _tag_stop_handler(Evas_SVG_Loader *loader,
                   const char *attrs,
                   unsigned int attrs_length)
 {
-   Efl_Graphics_Gradient_Stop stop = { -1, 0, 0, 0, 0xFF };
-   const Efl_Graphics_Gradient_Stop *old = NULL;
-   Efl_Graphics_Gradient_Stop *new;
+   Efl_Gfx_Gradient_Stop stop = { -1, 0, 0, 0, 0xFF };
+   const Efl_Gfx_Gradient_Stop *old = NULL;
+   Efl_Gfx_Gradient_Stop *new;
    unsigned int length = 0;
    Eo *node;
 
@@ -446,7 +446,7 @@ _tag_stop_handler(Evas_SVG_Loader *loader,
    if (((int)eina_array_count(loader->stack) - 1) < 0) return EINA_FALSE;
 
    node = eina_array_data_get(loader->stack, eina_array_count(loader->stack) - 1);
-   if (!eo_isa(node, EFL_GRAPHICS_GRADIENT_INTERFACE))
+   if (!eo_isa(node, EFL_GFX_GRADIENT_INTERFACE))
      return EINA_FALSE;
 
    eina_simple_xml_attributes_parse(attrs, attrs_length,
@@ -455,16 +455,16 @@ _tag_stop_handler(Evas_SVG_Loader *loader,
    if (stop.offset < 0) return EINA_FALSE;
 
    eo_do(node,
-         efl_graphics_gradient_stop_get(&old, &length);
+         efl_gfx_gradient_stop_get(&old, &length);
          length++;
-         new = malloc(sizeof (Efl_Graphics_Gradient_Stop) * length);
+         new = malloc(sizeof (Efl_Gfx_Gradient_Stop) * length);
          if (new)
            {
               if (length > 1)
-                memcpy(new, old, sizeof (Efl_Graphics_Gradient_Stop) * (length - 1));
+                memcpy(new, old, sizeof (Efl_Gfx_Gradient_Stop) * (length - 1));
               new[length - 1] = stop;
 
-              efl_graphics_gradient_stop_set(new, length);
+              efl_gfx_gradient_stop_set(new, length);
            });
 
    return EINA_TRUE;
@@ -489,8 +489,8 @@ _tag_g_handler(Evas_SVG_Loader *loader,
 
 static Eina_Bool
 _tag_rect_handler(Evas_SVG_Loader *loader,
-               const char *attrs,
-               unsigned int attrs_length)
+                  const char *attrs,
+                  unsigned int attrs_length)
 {
    Eo *node, *parent;
 
@@ -505,7 +505,7 @@ _tag_rect_handler(Evas_SVG_Loader *loader,
    return EINA_TRUE;
 }
 
-#define TAG_DEF(Name) \
+#define TAG_DEF(Name)                                   \
   { #Name, sizeof (#Name), _tag_##Name##_handler }
 
 static struct {

@@ -116,26 +116,28 @@ _evas_vg_eo_base_constructor(Eo *eo_obj, Evas_VG_Data *pd)
 
 static void
 _evas_vg_render(Evas_Object_Protected_Data *obj,
-                void *output, void *context, void *surface, Evas_VG_Node *n,
+                void *output, void *context, void *surface, Evas_VG_Node *node,
                 Eina_Array *clips, int x, int y, Eina_Bool do_async)
 {
-   Evas_VG_Container_Data *vd = eo_data_scope_get(n, EVAS_VG_CONTAINER_CLASS);
-
-   if (vd)
+    // FIXME if the class is not container ,
+    // some times its returning garbage container data.
+    if (eo_isa(node, EVAS_VG_CONTAINER_CLASS))
      {
+        Evas_VG_Container_Data *cd = eo_data_scope_get(node,
+                                                       EVAS_VG_CONTAINER_CLASS);
         Evas_VG_Node *child;
         Eina_List *l;
 
-        EINA_LIST_FOREACH(vd->children, l, child)
-          _evas_vg_render(obj,
-                          output, context, surface, child,
-                          clips, x, y, do_async);
+        EINA_LIST_FOREACH(cd->children, l, child)
+           _evas_vg_render(obj, output, context, surface, child, clips, x, y,
+                           do_async);
      }
    else
      {
-        Evas_VG_Node_Data *nd = eo_data_scope_get(n, EVAS_VG_NODE_CLASS);
-
-        obj->layer->evas->engine.func->ector_draw(output, context, surface, nd->renderer, clips, x, y, do_async);
+        Evas_VG_Node_Data *nd = eo_data_scope_get(node, EVAS_VG_NODE_CLASS);
+        obj->layer->evas->engine.func->ector_draw(output, context, surface,
+                                                  nd->renderer, clips, x, y,
+                                                  do_async);
      }
 }
 

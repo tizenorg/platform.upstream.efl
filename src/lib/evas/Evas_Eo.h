@@ -812,11 +812,6 @@ typedef enum _Evas_3D_Material_Attrib
 #include "canvas/evas_3d_object.eo.h"
 
 /**
- * Type of abstract VG node
- */
-typedef Eo      Evas_VG_Node;
-
-/**
  * @ingroup Evas_Object_VG
  *
  * @{

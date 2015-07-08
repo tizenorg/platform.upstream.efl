@@ -44,8 +44,6 @@ _evas_vg_shape_efl_gfx_shape_path_set(Eo *obj EINA_UNUSED,
    efl_gfx_path_dup(&pd->ops, &pd->points, ops, points);
 
    eo_do_super(obj, MY_CLASS, evas_vg_node_changed());
-
-   efl_gfx_path_dup(&pd->ops, &pd->points, ops, points);
 }
 
 static void

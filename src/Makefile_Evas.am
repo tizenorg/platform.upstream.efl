@@ -33,14 +33,14 @@ evas_eolian_files = \
 	lib/evas/canvas/evas_3d_scene.eo\
 	lib/evas/canvas/evas_3d_object.eo \
 	lib/evas/canvas/evas_vg.eo \
-	lib/evas/canvas/evas_vg_node.eo \
-	lib/evas/canvas/evas_vg_container.eo \
-	lib/evas/canvas/evas_vg_shape.eo \
-	lib/evas/canvas/evas_vg_root_node.eo \
-	lib/evas/canvas/evas_vg_gradient.eo \
-	lib/evas/canvas/evas_vg_gradient_radial.eo \
-	lib/evas/canvas/evas_vg_gradient_linear.eo \
-	lib/evas/canvas/evas_vg_image.eo
+	lib/evas/canvas/efl_vg_base.eo \
+	lib/evas/canvas/efl_vg_container.eo \
+	lib/evas/canvas/efl_vg_shape.eo \
+	lib/evas/canvas/efl_vg_root_node.eo \
+	lib/evas/canvas/efl_vg_gradient.eo \
+	lib/evas/canvas/efl_vg_gradient_radial.eo \
+	lib/evas/canvas/efl_vg_gradient_linear.eo \
+	lib/evas/canvas/efl_vg_image.eo
 
 evas_eolian_c = $(evas_eolian_files:%.eo=%.eo.c)
 evas_eolian_h = $(evas_eolian_files:%.eo=%.eo.h) \
@@ -514,11 +514,18 @@ lib/evas/filters/blur/blur_box_rgba_i386.c \
 lib/evas/filters/blur/blur_box_rgba_sse3.c \
 lib/evas/filters/blur/blur_box_rgba_neon.c
 
+### Vector surface helper
+
+EXTRA_DIST += \
+modules/evas/engines/software_generic/ector_cairo_software_surface.eo \
+modules/evas/engines/gl_generic/ector_cairo_software_surface.eo
 
 ### Engines
 
 if EVAS_STATIC_BUILD_SOFTWARE_GENERIC
-evas_eolian_files += modules/evas/engines/software_generic/ector_cairo_software_surface.eo
+BUILT_SOURCES += \
+modules/evas/engines/software_generic/ector_cairo_software_surface.eo.c \
+modules/evas/engines/software_generic/ector_cairo_software_surface.eo.h
 lib_evas_libevas_la_SOURCES += modules/evas/engines/software_generic/evas_engine.c modules/evas/engines/software_generic/Evas_Engine_Software_Generic.h
 lib_evas_libevas_la_LIBADD +=
 else
@@ -589,6 +596,10 @@ endif
 endif
 
 if BUILD_ENGINE_GL_COMMON
+BUILT_SOURCES += \
+modules/evas/engines/gl_generic/ector_cairo_software_surface.eo.c \
+modules/evas/engines/gl_generic/ector_cairo_software_surface.eo.h
+
 GL_COMMON_SOURCES = \
 modules/evas/engines/gl_common/evas_gl_private.h \
 modules/evas/engines/gl_common/evas_gl_common.h \

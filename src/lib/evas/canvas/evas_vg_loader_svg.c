@@ -45,11 +45,11 @@ _attrs_id_parser(void *data, const char *key, const char *value)
 static Eina_Bool
 _attrs_size_parser(void *data, const char *key, const char *value)
 {
-   unsigned int width, height;
+   int width, height;
    Evas_Object *vg = data;
    Eina_Bool get_w = EINA_FALSE, get_h = EINA_FALSE;
 
-   eo_do(vg, evas_obj_vg_size_get(&width, &height));
+   eo_do(vg, efl_gfx_view_size_get(&width, &height));
    if (!strcmp(key, "width"))
      get_w = EINA_TRUE;
    else if (!strcmp(key, "height"))
@@ -66,7 +66,7 @@ _attrs_size_parser(void *data, const char *key, const char *value)
              if (get_w) width = r;
              else if (get_h) height = r;
           }
-        eo_do(vg, evas_obj_vg_size_set(width, height));
+        eo_do(vg, efl_gfx_view_size_set(width, height));
      }
 
    return EINA_TRUE;
@@ -116,7 +116,7 @@ _tag_linearGradient_handler(Evas_SVG_Loader *loader,
                                     _attrs_id_parser, &id);
 
    if (!id) return EINA_FALSE;
-   node = eo_add(EVAS_VG_GRADIENT_LINEAR_CLASS, NULL);
+   node = eo_add(EFL_VG_GRADIENT_LINEAR_CLASS, NULL);
    if (!node) return EINA_FALSE;
 
    eina_hash_direct_add(loader->definition, id, node);
@@ -446,7 +446,7 @@ _tag_stop_handler(Evas_SVG_Loader *loader,
    if (((int)eina_array_count(loader->stack) - 1) < 0) return EINA_FALSE;
 
    node = eina_array_data_get(loader->stack, eina_array_count(loader->stack) - 1);
-   if (!eo_isa(node, EFL_GFX_GRADIENT_INTERFACE))
+   if (!eo_isa(node, EFL_GFX_GRADIENT_BASE_INTERFACE))
      return EINA_FALSE;
 
    eina_simple_xml_attributes_parse(attrs, attrs_length,
@@ -481,7 +481,7 @@ _tag_g_handler(Evas_SVG_Loader *loader,
 
    parent = eina_array_data_get(loader->stack, eina_array_count(loader->stack) - 1);
 
-   node = eo_add(EVAS_VG_CONTAINER_CLASS, parent);
+   node = eo_add(EFL_VG_CONTAINER_CLASS, parent);
    eina_array_push(loader->stack, node);
 
    return EINA_TRUE;

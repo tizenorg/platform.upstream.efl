@@ -51,7 +51,8 @@ _evas_vg_image_efl_file_file_set(Eo *obj EINA_UNUSED, Evas_VG_Image_Data *pd,
 {
    eina_stringshare_replace(&pd->file, file);
    eina_stringshare_replace(&pd->key, key);
-   return EINA_TRUE;
+
+   return EINA_FALSE;
 }
 
 static void

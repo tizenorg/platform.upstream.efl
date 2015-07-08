@@ -75,8 +75,8 @@ void
 _evas_vg_root_node_eo_base_destructor(Eo *obj,
                                       Evas_VG_Root_Node_Data *pd EINA_UNUSED)
 {
-   eo_do_super(obj, MY_CLASS, eo_constructor());
    evas_vg_root_node_vg_set(obj, NULL);
+   eo_do_super(obj, MY_CLASS, eo_destructor());
 }
 
 #include "evas_vg_root_node.eo.c"

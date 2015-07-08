@@ -31,6 +31,8 @@
 
 #include "wayland_imcontext.h"
 
+static Ecore_IMF_Input_Panel_State _input_panel_state    = ECORE_IMF_INPUT_PANEL_STATE_HIDE;
+
 struct _WaylandIMContext
 {
    Ecore_IMF_Context *ctx;
@@ -589,24 +591,23 @@ text_input_input_panel_state(void                 *data EINA_UNUSED,
                              uint32_t              state EINA_UNUSED)
 {
     WaylandIMContext *imcontext = (WaylandIMContext *)data;
-    Ecore_IMF_Input_Panel_State ecore_imf_input_panel_state;
 
     switch (state)
       {
        case WL_TEXT_INPUT_INPUT_PANEL_STATE_HIDE:
-          ecore_imf_input_panel_state = ECORE_IMF_INPUT_PANEL_STATE_HIDE;
+          _input_panel_state = ECORE_IMF_INPUT_PANEL_STATE_HIDE;
           break;
        case WL_TEXT_INPUT_INPUT_PANEL_STATE_SHOW:
-          ecore_imf_input_panel_state = ECORE_IMF_INPUT_PANEL_STATE_SHOW;
+          _input_panel_state = ECORE_IMF_INPUT_PANEL_STATE_SHOW;
           break;
        default:
-          ecore_imf_input_panel_state = (Ecore_IMF_Input_Panel_State)state;
+          _input_panel_state = (Ecore_IMF_Input_Panel_State)state;
           break;
       }
 
     ecore_imf_context_input_panel_event_callback_call(imcontext->ctx,
                                                       ECORE_IMF_INPUT_PANEL_STATE_EVENT,
-                                                      ecore_imf_input_panel_state);
+                                                      _input_panel_state);
 }
 
 static void
@@ -965,6 +966,12 @@ wayland_im_context_input_panel_language_set(Ecore_IMF_Context *ctx,
      imcontext->content_hint |= WL_TEXT_INPUT_CONTENT_HINT_LATIN;
    else
      imcontext->content_hint &= ~WL_TEXT_INPUT_CONTENT_HINT_LATIN;
+}
+
+EAPI Ecore_IMF_Input_Panel_State
+wayland_im_context_input_panel_state_get(Ecore_IMF_Context *ctx EINA_UNUSED)
+{
+   return _input_panel_state;
 }
 
 WaylandIMContext *wayland_im_context_new (struct wl_text_input_manager *text_input_manager)

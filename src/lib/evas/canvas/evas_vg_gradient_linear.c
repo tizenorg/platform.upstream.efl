@@ -92,7 +92,7 @@ _evas_vg_gradient_linear_eo_base_constructor(Eo *obj,
    eo_do_super(obj, MY_CLASS, eo_constructor());
 
    nd = eo_data_scope_get(obj, EVAS_VG_NODE_CLASS);
-   nd->render_pre = _evas_vg_gradient_linear_render_pre;
+   nd->render_pre = &_evas_vg_gradient_linear_render_pre;
    nd->data = pd;
 }
 

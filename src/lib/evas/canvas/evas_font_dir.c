@@ -63,10 +63,16 @@ static FcConfig *fc_config = NULL;
 */
 //
 
+// TIZEN_ONLY(20150709): Do FcFini() if fc_init is TRUE.
+static Eina_Bool fc_init = EINA_FALSE;
+//
+
 static void
 evas_font_init(void)
 {
-   static Eina_Bool fc_init = EINA_FALSE;
+   // TIZEN_ONLY(20150709): Do FcFini() if fc_init is TRUE.
+   //static Eina_Bool fc_init = EINA_FALSE;
+   //
    if (fc_init)
       return;
    fc_init = EINA_TRUE;
@@ -99,7 +105,15 @@ evas_font_dir_cache_free(void)
         fc_config = NULL;
      }
    */
-   FcFini();
+
+   // TIZEN_ONLY(20150709): Do FcFini() if fc_init is TRUE.
+   if (fc_init)
+     {
+        FcFini();
+        fc_init = EINA_FALSE;
+     }
+   //FcFini();
+   //
    //
 #endif
 }

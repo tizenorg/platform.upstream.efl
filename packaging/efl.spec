@@ -671,6 +671,7 @@ export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed "
     --disable-gstreamer1 \
     --disable-physics \
     --disable-cxx-bindings \
+    --disable-audio \
     --enable-systemd \
     --enable-lua-old \
     --enable-harfbuzz \
@@ -887,7 +888,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %defattr(-,root,root,-)
 #%license %{_builddir}/%{buildsubdir}/COPYING
 %{_libdir}/libecore.so.*
-%{_libdir}/libecore_audio.so.*
+#%{_libdir}/libecore_audio.so.*
 %{_libdir}/libecore_avahi.so.*
 %{_libdir}/libecore_con.so.*
 %{_libdir}/libecore_evas.so.*
@@ -929,7 +930,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_includedir}/ecore*/*.h
 #%{_includedir}/ecore*cxx*/*.hh
 %{_libdir}/libecore.so
-%{_libdir}/libecore_audio.so
+#%{_libdir}/libecore_audio.so
 %{_libdir}/libecore_avahi.so
 %{_libdir}/libecore_con.so
 %{_libdir}/libecore_evas.so

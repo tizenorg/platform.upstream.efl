@@ -212,7 +212,7 @@ evgl_eng_evas_surface_get(void *data)
 
 #ifdef GL_GLES
    if (eng_get_ob(re))
-      return (void*)eng_get_ob(re)->egl_surface[0];
+      return (void*)eng_get_ob(re)->egl_surface[eng_get_ob(re)->offscreen];
 #else
    if (eng_get_ob(re))
       return (void*)eng_get_ob(re)->win;
@@ -1693,6 +1693,7 @@ eng_setup(Evas *eo_e, void *in)
         ob = eng_window_new(info, eo_e,
                             info->info.display,
                             info->info.drawable,
+                            info->info.drawable_back,
                             info->info.screen,
                             info->info.visual,
                             info->info.colormap,
@@ -1765,6 +1766,7 @@ eng_setup(Evas *eo_e, void *in)
           {
              if ((info->info.display != eng_get_ob(re)->disp) ||
                  (info->info.drawable != eng_get_ob(re)->win) ||
+                 (info->info.drawable_back != eng_get_ob(re)->win_back) ||
                  (info->info.screen != eng_get_ob(re)->screen) ||
                  (info->info.visual != eng_get_ob(re)->visual) ||
                  (info->info.colormap != eng_get_ob(re)->colormap) ||
@@ -1783,6 +1785,7 @@ eng_setup(Evas *eo_e, void *in)
                   ob = eng_window_new(info, eo_e,
                                       info->info.display,
                                       info->info.drawable,
+                                      info->info.drawable_back,
                                       info->info.screen,
                                       info->info.visual,
                                       info->info.colormap,
@@ -1805,6 +1808,7 @@ eng_setup(Evas *eo_e, void *in)
                   if (ob_old) eng_window_free(ob_old);
                   evas_render_engine_software_generic_update(&re->generic.software, ob,
                                                              e->output.w, e->output.h);
+                  eng_get_ob(re)->offscreen = info->info.offscreen;
 
                   gl_wins++;
                }
@@ -1819,6 +1823,12 @@ eng_setup(Evas *eo_e, void *in)
                   if (re->generic.software.tb)
                     evas_common_tilebuf_set_tile_size(re->generic.software.tb,
                                                       EVAS_GL_UPDATE_TILE_SIZE, EVAS_GL_UPDATE_TILE_SIZE);
+               }
+             else if ((info->info.drawable_back) &&
+                      (info->info.offscreen != eng_get_ob(re)->offscreen))
+               {
+                  eng_get_ob(re)->offscreen = info->info.offscreen;
+                  eng_window_use(eng_get_ob(re));
                }
           }
      }

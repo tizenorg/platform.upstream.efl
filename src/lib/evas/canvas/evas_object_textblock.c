@@ -82,7 +82,10 @@
 static const char o_type[] = "textblock";
 
 /* The char to be inserted instead of visible formats */
-#define _REPLACEMENT_CHAR 0xFFFC
+// TIZEN_ONLY(20150709): Replace the replacement character to 0x00A0 which is empty character.
+//#define _REPLACEMENT_CHAR 0xFFFC
+#define _REPLACEMENT_CHAR 0x00A0
+//
 #define _PARAGRAPH_SEPARATOR 0x2029
 #define _NEWLINE '\n'
 #define _TAB '\t'

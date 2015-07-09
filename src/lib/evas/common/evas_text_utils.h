@@ -21,7 +21,10 @@ typedef enum
 # include "language/evas_language_utils.h"
 
 /* Used for showing "malformed" or missing chars */
-#define REPLACEMENT_CHAR 0xFFFD
+// TIZEN_ONLY(20150709): Replace the replacement character to 0x00A0 which is empty character.
+//#define REPLACEMENT_CHAR 0xFFFD
+#define REPLACEMENT_CHAR 0x00A0
+//
 
 /////////////////////////////////////////////////////////////////////
 // TIZEN_ONLY(20150127): Add evas_textblock_cursor_cluster_* APIs. //

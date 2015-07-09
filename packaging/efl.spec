@@ -688,6 +688,11 @@ export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed "
 rm -rf %{buildroot}%{_libdir}/ecore/system/upower
 
 
+# systemd setting
+mkdir -p %{buildroot}%{_libdir}/systemd/system/multi-user.target.wants
+install -m 0644 ecore.service %{buildroot}%{_libdir}/systemd/system/
+ln -s ../ecore.service  %{buildroot}%{_libdir}/systemd/system/multi-user.target.wants/ecore.service
+
 %post -n eina -p /sbin/ldconfig
 %postun -n eina -p /sbin/ldconfig
 
@@ -906,6 +911,10 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/ecore/system/systemd/v-*/module.so
 %{_datadir}/ecore/checkme
 %{_datadir}/ecore_*/checkme
+
+# systemd setting
+%{_libdir}/systemd/system/ecore.service
+%{_libdir}/systemd/system/multi-user.target.wants/ecore.service
 
 #%files -n ecore-examples
 #%manifest %{name}.manifest

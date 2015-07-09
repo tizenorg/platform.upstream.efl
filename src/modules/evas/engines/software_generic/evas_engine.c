@@ -3074,7 +3074,7 @@ eng_output_redraws_next_update_get(void *data, int *x, int *y, int *w, int *h, i
 
    if (!re->rects)
      {
-        int mode = MODE_COPY;
+        int mode = re->swap_mode;
 
         re->rects = evas_common_tilebuf_get_render_rects(re->tb);
         if (re->rects)

@@ -1736,6 +1736,7 @@ eng_setup(Evas *eo_e, void *in)
              return 0;
           }
 
+        eng_get_ob(re)->offscreen = info->info.offscreen;
         e->engine.data.output = re;
         gl_wins++;
 
@@ -1779,6 +1780,7 @@ eng_setup(Evas *eo_e, void *in)
                   Outbuf *ob, *ob_old;
 
                   ob_old = re->generic.software.ob;
+                  if (ob_old) eng_window_free(ob_old);
                   re->generic.software.ob = NULL;
                   gl_wins--;
 
@@ -1800,12 +1802,10 @@ eng_setup(Evas *eo_e, void *in)
                                       info->msaa_bits);
                   if (!ob)
                     {
-                       if (ob_old) eng_window_free(ob_old);
                        free(re);
                        return 0;
                     }
                   eng_window_use(ob);
-                  if (ob_old) eng_window_free(ob_old);
                   evas_render_engine_software_generic_update(&re->generic.software, ob,
                                                              e->output.w, e->output.h);
                   eng_get_ob(re)->offscreen = info->info.offscreen;
@@ -1922,7 +1922,7 @@ eng_preload_make_current(void *data, void *doit)
    if (doit)
      {
 #ifdef GL_GLES
-        if (!eglMakeCurrent(ob->egl_disp, ob->egl_surface[0], ob->egl_surface[0], ob->egl_context[0]))
+        if (!eglMakeCurrent(ob->egl_disp, ob->egl_surface[ob->offscreen], ob->egl_surface[ob->offscreen], ob->egl_context[0]))
           return EINA_FALSE;
 #else
         if (!__glXMakeContextCurrent(ob->info->info.display, ob->glxwin, ob->context))

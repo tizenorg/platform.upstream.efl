@@ -64,7 +64,7 @@ struct _Outbuf
              struct 
                {
                   Display *disp;
-                  Window win;
+                  Drawable win;
                   Pixmap mask;
                   Visual *vis;
                   Colormap cmap;

@@ -243,9 +243,10 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
                                                     NULL);
         if (gw->egl_surface[0] == EGL_NO_SURFACE)
           {
-             printf("surf creat fail! %x\n", eglGetError());
+             int err = eglGetError();
+             printf("surf creat fail! %x\n", err);
              ERR("eglCreatePixmapSurface() fail for %#x. code=%#x",
-                 (unsigned int)gw->win, eglGetError());
+                 (unsigned int)gw->win, err);
              eng_window_free(gw);
              return NULL;
           }
@@ -255,9 +256,10 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
                                                     NULL);
         if (gw->egl_surface[1] == EGL_NO_SURFACE)
           {
-             printf("surf creat fail! %x\n", eglGetError());
+             int err = eglGetError();
+             printf("surf creat fail! %x\n", err);
              ERR("eglCreatePixmapSurface() fail for %#x. code=%#x",
-                 (unsigned int)gw->win_back, eglGetError());
+                 (unsigned int)gw->win_back, err);
              eng_window_free(gw);
              return NULL;
           }
@@ -269,9 +271,10 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
                                                     NULL);
         if (gw->egl_surface[0] == EGL_NO_SURFACE)
           {
-             printf("surf creat fail! %x\n", eglGetError());
+             int err = eglGetError();
+             printf("surf creat fail! %x\n", err);
              ERR("eglCreateWindowSurface() fail for %#x. code=%#x",
-                 (unsigned int)gw->win, eglGetError());
+                 (unsigned int)gw->win, err);
              eng_window_free(gw);
              return NULL;
           }
@@ -606,9 +609,9 @@ eng_window_free(Outbuf *gw)
    SET_RESTORE_CONTEXT();
    eglMakeCurrent(gw->egl_disp, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
    if (gw->egl_surface[0] != EGL_NO_SURFACE)
-      eglDestroySurface(gw->egl_disp, gw->egl_surface[0]);
+     eglDestroySurface(gw->egl_disp, gw->egl_surface[0]);
    if (gw->egl_surface[1] != EGL_NO_SURFACE)
-      eglDestroySurface(gw->egl_disp, gw->egl_surface[1]);
+     eglDestroySurface(gw->egl_disp, gw->egl_surface[1]);
    if (gw->egl_context[0] != context)
      eglDestroyContext(gw->egl_disp, gw->egl_context[0]);
    if (ref == 0)
@@ -716,7 +719,7 @@ eng_window_use(Outbuf *gw)
           {
 // EGL / GLES
 #ifdef GL_GLES
-             if (gw->egl_surface[0] != EGL_NO_SURFACE)
+             if (gw->egl_surface[gw->offscreen] != EGL_NO_SURFACE)
                {
                   SET_RESTORE_CONTEXT();
                   if (eglMakeCurrent(gw->egl_disp,
@@ -757,10 +760,10 @@ eng_window_unsurf(Outbuf *gw)
         SET_RESTORE_CONTEXT();
         eglMakeCurrent(gw->egl_disp, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
         if (gw->egl_surface[0] != EGL_NO_SURFACE)
-           eglDestroySurface(gw->egl_disp, gw->egl_surface[0]);
+          eglDestroySurface(gw->egl_disp, gw->egl_surface[0]);
         gw->egl_surface[0] = EGL_NO_SURFACE;
         if (gw->egl_surface[1] != EGL_NO_SURFACE)
-           eglDestroySurface(gw->egl_disp, gw->egl_surface[1]);
+          eglDestroySurface(gw->egl_disp, gw->egl_surface[1]);
         gw->egl_surface[1] = EGL_NO_SURFACE;
         _tls_outbuf_set(NULL);
      }
@@ -1380,7 +1383,7 @@ eng_outbuf_swap_mode(Outbuf *ob)
 #ifdef GL_GLES
         EGLint age = 0;
 
-        if (!eglQuerySurface(ob->egl_disp, ob->egl_surface[0],
+        if (!eglQuerySurface(ob->egl_disp, ob->egl_surface[ob->offscreen],
                              EGL_BUFFER_AGE_EXT, &age))
           age = 0;
 #else

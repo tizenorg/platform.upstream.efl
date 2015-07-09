@@ -592,6 +592,7 @@ eng_setup(Evas *eo_e, void *in)
                                             info->info.mask, info->info.shape_dither,
                                             info->info.destination_alpha);
                     re->outbuf_alpha_get = evas_software_xlib_outbuf_alpha_get;
+                    re->generic.swap_mode = info->swap_mode;
                  }
           }
 #endif
@@ -837,18 +838,18 @@ eng_image_native_set(void *data, void *image, void *native)
          if (!dri_im) dri_im = evas_xlib_image_dri_native_set(re->generic.ob, im, ns);
          if (dri_im) return dri_im;
          else // TIZEN_ONLY ]]
-            return evas_xlib_image_native_set(re->generic.ob, im, ns);
+            return evas_xlib_image_native_set(re->generic.ob, ie, ns);
       }
 #endif
 #ifdef HAVE_NATIVE_BUFFER
    if (ns->type == EVAS_NATIVE_SURFACE_TIZEN)
      {
-        return evas_native_buffer_image_set(re->generic.ob, im, ns);
+        return evas_native_buffer_image_set(re->generic.ob, ie, ns);
      }
 #endif
    if (ns->type == EVAS_NATIVE_SURFACE_TBM)
      {
-        return evas_native_tbm_image_set(re->generic.ob, im, ns);
+        return evas_native_tbm_image_set(re->generic.ob, ie, ns);
      }
    return im;
 }

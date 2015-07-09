@@ -147,6 +147,9 @@ struct _Ecore_Evas_Engine
       Evas_Object *image;
    } ews;
 #endif
+   struct {
+      void *data;
+   } extn;
 };
 
 struct _Ecore_Evas

@@ -28,16 +28,49 @@ struct _Extn
    } file;
    struct {
       Extnbuf *buf, *obuf; // current buffer and if needed an "old" buffer
+      Ecore_X_Pixmap pixmap;
       const char *base, *lock;
       int id, num, w, h;
       Eina_Bool sys : 1;
       Eina_Bool alpha : 1;
+      int type : 4;
    } b[NBUF];
    int cur_b; // current buffer (b) being displayed or rendered to
    struct {
       Eina_Bool   done : 1; /* need to send change done event to the client(plug) */
    } profile;
 };
+
+static int
+_ecore_evas_extn_type_get()
+{
+   static int type = BUFFER_TYPE_SHM;
+   static int checked = 0;
+   char *engine = NULL;
+
+   if (checked) return type;
+
+   engine = getenv("ECORE_EVAS_EXTN_SOCKET_ENGINE");
+
+   if (engine)
+     {
+        if ((!strcasecmp(engine, "gl_pixmap")))
+           type = BUFFER_TYPE_GL_PIXMAP;
+        else if ((!strcasecmp(engine, "x11")) ||
+                 (!strcasecmp(engine, "x")) ||
+                 (!strcasecmp(engine, "software-x11")) ||
+                 (!strcasecmp(engine, "software_x11")))
+           type = BUFFER_TYPE_DRI2_PIXMAP;
+        else if (!strcasecmp(engine, "buffer"))
+           type = BUFFER_TYPE_SHM;
+        else
+           type = BUFFER_TYPE_DRI2_PIXMAP;
+     }
+
+   checked = 1;
+
+   return type;
+}
 
 static Eina_List *extn_ee_list = NULL;
 
@@ -74,11 +107,24 @@ _ecore_evas_extn_plug_render_pre(void *data, Evas *e EINA_UNUSED, void *event_in
    Extn *extn;
 
    if (!ee) return;
-   bdata = ee->engine.data;
+   bdata = ee->engine.extn.data;
    if (!bdata) return;
    extn = bdata->data;
    if (!extn) return;
-   bdata->pixels = _extnbuf_lock(extn->b[extn->cur_b].buf, NULL, NULL, NULL);
+   if (extn->b[extn->cur_b].buf)
+     bdata->pixels = _extnbuf_lock(extn->b[extn->cur_b].buf, NULL, NULL, NULL);
+
+   if (extn->b[extn->cur_b].type == BUFFER_TYPE_DRI2_PIXMAP ||
+       extn->b[extn->cur_b].type == BUFFER_TYPE_GL_PIXMAP)
+     {
+        Evas_Native_Surface ns;
+        ns.type = EVAS_NATIVE_SURFACE_X11;
+        ns.version = EVAS_NATIVE_SURFACE_VERSION;
+        ns.data.x11.pixmap = _extnbuf_pixmap_get(extn->b[extn->cur_b].buf);
+        ns.data.x11.visual = ecore_x_default_visual_get(ecore_x_display_get(),
+                                                        ecore_x_default_screen_get());
+        evas_object_image_native_surface_set(bdata->image, &ns);
+     }
 }
 
 static void
@@ -89,11 +135,12 @@ _ecore_evas_extn_plug_render_post(void *data, Evas *e EINA_UNUSED, void *event_i
    Extn *extn;
 
    if (!ee) return;
-   bdata = ee->engine.data;
+   bdata = ee->engine.extn.data;
    if (!bdata) return;
    extn = bdata->data;
    if (!extn) return;
-   _extnbuf_unlock(extn->b[extn->cur_b].buf);
+   if (extn->b[extn->cur_b].buf)
+     _extnbuf_unlock(extn->b[extn->cur_b].buf);
 }
 
 static void
@@ -107,7 +154,7 @@ static void
 _ecore_evas_extn_coord_translate(Ecore_Evas *ee, Evas_Coord *x, Evas_Coord *y)
 {
    Evas_Coord xx, yy, ww, hh, fx, fy, fw, fh;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
 
    evas_object_geometry_get(bdata->image, &xx, &yy, &ww, &hh);
    evas_object_image_fill_get(bdata->image, &fx, &fy, &fw, &fh);
@@ -147,7 +194,7 @@ _ecore_evas_extn_free(Ecore_Evas *ee)
 {
    Extn *extn;
    Ecore_Ipc_Client *client;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    if (!bdata) return;
 
    extn = bdata->data;
@@ -172,6 +219,7 @@ _ecore_evas_extn_free(Ecore_Evas *ee)
              extn->b[i].obuf = NULL;
              extn->b[i].base = NULL;
              extn->b[i].lock = NULL;
+             extn->b[i].pixmap = 0;
           }
         if (extn->svc.name) eina_stringshare_del(extn->svc.name);
         if (extn->ipc.clients)
@@ -215,14 +263,14 @@ _ecore_evas_extn_free(Ecore_Evas *ee)
         bdata->image = NULL;
      }
    free(bdata);
-   ee->engine.data = NULL;
+   ee->engine.extn.data = NULL;
    extn_ee_list = eina_list_remove(extn_ee_list, ee);
 }
 
 static void
 _ecore_evas_resize(Ecore_Evas *ee, int w, int h)
 {
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
 
    if (w < 1) w = 1;
    if (h < 1) h = 1;
@@ -311,7 +359,7 @@ static void
 _ecore_evas_extn_cb_mouse_in(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Evas_Event_Mouse_In *ev = event_info;
    Extn *extn;
 
@@ -333,7 +381,7 @@ static void
 _ecore_evas_extn_cb_mouse_out(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Evas_Event_Mouse_Out *ev = event_info;
    Extn *extn;
 
@@ -356,7 +404,7 @@ _ecore_evas_extn_cb_mouse_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj
 {
    Ecore_Evas *ee = data;
    Evas_Event_Mouse_Down *ev = event_info;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Extn *extn;
 
    extn = bdata->data;
@@ -396,7 +444,7 @@ static void
 _ecore_evas_extn_cb_mouse_up(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Evas_Event_Mouse_Up *ev = event_info;
    Extn *extn;
 
@@ -420,7 +468,7 @@ static void
 _ecore_evas_extn_cb_mouse_move(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Evas_Event_Mouse_Move *ev = event_info;
    Extn *extn;
 
@@ -448,7 +496,7 @@ static void
 _ecore_evas_extn_cb_mouse_wheel(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Evas_Event_Mouse_Wheel *ev = event_info;
    Extn *extn;
 
@@ -472,7 +520,7 @@ static void
 _ecore_evas_extn_cb_multi_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Evas_Event_Multi_Down *ev = event_info;
    Extn *extn;
 
@@ -510,7 +558,7 @@ static void
 _ecore_evas_extn_cb_multi_up(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Evas_Event_Multi_Up *ev = event_info;
    Extn *extn;
 
@@ -547,7 +595,7 @@ static void
 _ecore_evas_extn_cb_multi_move(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Evas_Event_Multi_Move *ev = event_info;
    Extn *extn;
 
@@ -583,7 +631,7 @@ static void
 _ecore_evas_extn_cb_key_down(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Evas_Event_Key_Down *ev = event_info;
    Extn *extn;
 
@@ -640,7 +688,7 @@ static void
 _ecore_evas_extn_cb_key_up(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Evas_Event_Key_Up *ev = event_info;
    Extn *extn;
 
@@ -697,7 +745,7 @@ static void
 _ecore_evas_extn_cb_hold(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info)
 {
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Evas_Event_Hold *ev = event_info;
    Extn *extn;
 
@@ -719,7 +767,7 @@ static void
 _ecore_evas_extn_cb_focus_in(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Extn *extn;
 
    ee->prop.focused = EINA_TRUE;
@@ -733,7 +781,7 @@ static void
 _ecore_evas_extn_cb_focus_out(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Extn *extn;
 
    ee->prop.focused = EINA_FALSE;
@@ -747,7 +795,7 @@ static void
 _ecore_evas_extn_cb_show(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Extn *extn;
 
    ee->visible = 1;
@@ -761,7 +809,7 @@ static void
 _ecore_evas_extn_cb_hide(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Extn *extn;
 
    ee->visible = 0;
@@ -775,7 +823,7 @@ static void
 _ecore_evas_extn_plug_profile_set(Ecore_Evas *ee, const char *profile)
 {
    Extn *extn;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
 
    _ecore_evas_window_profile_free(ee);
    ee->prop.profile.name = NULL;
@@ -796,7 +844,7 @@ _ecore_evas_extn_plug_profile_set(Ecore_Evas *ee, const char *profile)
 static void
 _ecore_evas_extn_plug_msg_parent_send(Ecore_Evas *ee, int msg_domain, int msg_id, void *data, int size)
 {
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Extn *extn;
 
    extn = bdata->data;
@@ -889,7 +937,7 @@ _ipc_server_add(void *data, int type EINA_UNUSED, void *event)
 {
    Ecore_Ipc_Event_Server_Add *e = event;
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Extn *extn;
 
    if (ee != ecore_ipc_server_data_get(e->server))
@@ -907,7 +955,7 @@ _ipc_server_del(void *data, int type EINA_UNUSED, void *event)
 {
    Ecore_Ipc_Event_Server_Del *e = event;
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Extn *extn;
    int i;
 
@@ -939,7 +987,7 @@ _ipc_server_data(void *data, int type EINA_UNUSED, void *event)
 {
    Ecore_Ipc_Event_Server_Data *e = event;
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Extn *extn;
 
    if (ee != ecore_ipc_server_data_get(e->server))
@@ -1004,7 +1052,20 @@ _ipc_server_data(void *data, int type EINA_UNUSED, void *event)
                         evas_object_image_alpha_set(bdata->image,
                                                     extn->b[n].alpha);
                         evas_object_image_size_set(bdata->image, w, h);
-                        evas_object_image_data_set(bdata->image, data2);
+
+                        if (extn->b[n].type == BUFFER_TYPE_DRI2_PIXMAP ||
+                            extn->b[n].type == BUFFER_TYPE_GL_PIXMAP)
+                          {
+                             Evas_Native_Surface ns;
+                             ns.type = EVAS_NATIVE_SURFACE_X11;
+                             ns.version = EVAS_NATIVE_SURFACE_VERSION;
+                             ns.data.x11.pixmap = _extnbuf_pixmap_get(extn->b[n].buf);
+                             ns.data.x11.visual = ecore_x_default_visual_get(ecore_x_display_get(),
+                                                                             ecore_x_default_screen_get());
+                             evas_object_image_native_surface_set(bdata->image, &ns);
+                          }
+                        else
+                          evas_object_image_data_set(bdata->image, data2);
                      }
                    else
                      {
@@ -1081,10 +1142,29 @@ _ipc_server_data(void *data, int type EINA_UNUSED, void *event)
                                                  extn->b[n].num,
                                                  extn->b[n].w,
                                                  extn->b[n].h,
-                                                 EINA_FALSE);
+                                                 EINA_FALSE,
+                                                 extn->b[n].type);
                    if ((extn->b[n].buf) && (extn->b[n].lock))
                      _extnbuf_lock_file_set(extn->b[n].buf,
                                             extn->b[n].lock);
+                   if ((extn->b[n].buf) && (extn->b[n].pixmap))
+                     _extnbuf_pixmap_set(extn->b[n].buf, extn->b[n].pixmap);
+                }
+           }
+         break;
+      case OP_PIXMAP_REF:
+         // e->ref == pixmap id
+         // e->ref_to == type
+         // e->response == buffer num
+           {
+              int n = e->response;
+
+              if ((n >= 0) && (n < NBUF))
+                {
+                   extn->b[n].pixmap = e->ref;
+                   extn->b[n].type = e->ref_to;
+                   if ((extn->b[n].buf) && (extn->b[n].pixmap))
+                     _extnbuf_pixmap_set(extn->b[n].buf, extn->b[n].pixmap);
                 }
            }
          break;
@@ -1136,7 +1216,7 @@ ecore_evas_extn_plug_new_internal(Ecore_Evas *ee_target)
 	free(ee);
 	return NULL;
      }
-   ee->engine.data = bdata;
+   ee->engine.extn.data = bdata;
    o = evas_object_image_filled_add(ee_target->evas);
    /* this make problem in gl engine, so I'll block this until solve problem
    evas_object_image_content_hint_set(o, EVAS_IMAGE_CONTENT_HINT_DYNAMIC);*/
@@ -1232,6 +1312,12 @@ ecore_evas_extn_plug_new_internal(Ecore_Evas *ee_target)
 
    extn_ee_list = eina_list_append(extn_ee_list, ee);
    ee_target->sub_ecore_evas = eina_list_append(ee_target->sub_ecore_evas, ee);
+
+   evas_event_callback_add(ee_target->evas, EVAS_CALLBACK_RENDER_PRE,
+                           _ecore_evas_extn_plug_render_pre, ee);
+   evas_event_callback_add(ee_target->evas, EVAS_CALLBACK_RENDER_POST,
+                           _ecore_evas_extn_plug_render_post, ee);
+
    return o;
 }
 
@@ -1243,7 +1329,7 @@ _ecore_evas_extn_plug_connect(Ecore_Evas *ee, const char *svcname, int svcnum, E
 
    if (!ECORE_MAGIC_CHECK(ee, ECORE_MAGIC_EVAS)) return EINA_FALSE;
 
-   bdata = ee->engine.data;
+   bdata = ee->engine.extn.data;
    if (!svcname)
      {
         bdata->data = NULL;
@@ -1294,7 +1380,7 @@ _ecore_evas_socket_resize(Ecore_Evas *ee, int w, int h)
 {
    Extn *extn;
    Evas_Engine_Info_Buffer *einfo;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    int stride = 0;
 
    if (w < 1) w = 1;
@@ -1324,42 +1410,136 @@ _ecore_evas_socket_resize(Ecore_Evas *ee, int w, int h)
              extn->b[i].lock = NULL;
           }
         bdata->pixels = NULL;
-        for (i = 0; i < NBUF; i++)
+
+        if (_ecore_evas_extn_type_get() == BUFFER_TYPE_DRI2_PIXMAP)
           {
-             do
+             Ecore_X_Pixmap pixmap = 0;
+             for (i = 0; i < NBUF; i++)
                {
-                  extn->b[i].buf = _extnbuf_new(extn->svc.name, extn->svc.num,
-                                                extn->svc.sys, last_try,
-                                                ee->w, ee->h, EINA_TRUE);
-                  if (extn->b[i].buf) extn->b[i].num = last_try;
-                  last_try++;
-                  if (last_try > 1024) break;
+                  do
+                    {
+                       extn->b[i].buf = _extnbuf_new(extn->svc.name, extn->svc.num,
+                                                     extn->svc.sys, last_try,
+                                                     ee->w, ee->h, EINA_TRUE, BUFFER_TYPE_DRI2_PIXMAP);
+                       if (extn->b[i].buf) extn->b[i].num = last_try;
+                       last_try++;
+                       if (last_try > 1024) break;
+                    }
+                  while (!extn->b[i].buf);
                }
-             while (!extn->b[i].buf);
 
-          }
-
-        if (extn->b[extn->cur_b].buf)
-          bdata->pixels = _extnbuf_data_get(extn->b[extn->cur_b].buf,
-                                            NULL, NULL, &stride);
-        einfo = (Evas_Engine_Info_Buffer *)evas_engine_info_get(ee->evas);
-        if (einfo)
-          {
-             if (ee->alpha)
-               einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_ARGB32;
-             else
-               einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_RGB32;
-             einfo->info.dest_buffer = bdata->pixels;
-             einfo->info.dest_buffer_row_bytes = stride;
-             einfo->info.use_color_key = 0;
-             einfo->info.alpha_threshold = 0;
-             einfo->info.func.new_update_region = NULL;
-             einfo->info.func.free_update_region = NULL;
-             einfo->info.func.switch_buffer = _ecore_evas_socket_switch;
-             einfo->info.switch_data = ee;
-             if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
+             if (extn->b[extn->cur_b].buf)
                {
-                  ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
+                  bdata->pixels = _extnbuf_data_get(extn->b[extn->cur_b].buf,
+                                                    NULL, NULL, &stride);
+                  pixmap = _extnbuf_pixmap_get(extn->b[extn->cur_b].buf);
+               }
+             einfo = (Evas_Engine_Info_Buffer *)evas_engine_info_get(ee->evas);
+             if (einfo)
+               {
+                  if (ee->alpha)
+                    einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_ARGB32;
+                  else
+                    einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_RGB32;
+                  einfo->info.dest_buffer = bdata->pixels;
+                  einfo->info.dest_buffer_row_bytes = stride;
+                  einfo->info.use_color_key = 0;
+                  einfo->info.alpha_threshold = 0;
+                  einfo->info.func.new_update_region = NULL;
+                  einfo->info.func.free_update_region = NULL;
+                  einfo->info.func.switch_buffer = _ecore_evas_socket_switch;
+                  einfo->info.switch_data = ee;
+                  if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
+                    {
+                       ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
+                    }
+               }
+
+             if (extn->ipc.clients && pixmap)
+               {
+                  Eina_List *l;
+                  Ecore_Ipc_Client *client;
+
+                  EINA_LIST_FOREACH(extn->ipc.clients, l, client)
+                    {
+                       for (i = 0; i < NBUF; i++)
+                         {
+                            ecore_ipc_client_send(client, MAJOR, OP_PIXMAP_REF,
+                                                  pixmap, BUFFER_TYPE_DRI2_PIXMAP, i,
+                                                  NULL, 0);
+                         }
+                    }
+               }
+          }
+        else if (_ecore_evas_extn_type_get() == BUFFER_TYPE_GL_PIXMAP)
+          {
+             for (i = 0; i < NBUF; i++)
+               {
+                  do
+                    {
+                       extn->b[i].buf = _extnbuf_new(extn->svc.name, extn->svc.num,
+                                                     extn->svc.sys, last_try,
+                                                     ee->w, ee->h, EINA_TRUE, BUFFER_TYPE_GL_PIXMAP);
+                       if (extn->b[i].buf) extn->b[i].num = last_try;
+                       last_try++;
+                       if (last_try > 1024) break;
+                    }
+                  while (!extn->b[i].buf);
+               }
+             Ecore_X_Pixmap pixmap = ecore_evas_gl_x11_pixmap_get(ee);
+             _extnbuf_pixmap_set(extn->b[extn->cur_b].buf, pixmap);
+
+             if (extn->ipc.clients && pixmap)
+               {
+                  Eina_List *l;
+                  Ecore_Ipc_Client *client;
+
+                  EINA_LIST_FOREACH(extn->ipc.clients, l, client)
+                    {
+                       ecore_ipc_client_send(client, MAJOR, OP_PIXMAP_REF,
+                                             pixmap, BUFFER_TYPE_GL_PIXMAP, extn->cur_b,
+                                             NULL, 0);
+                    }
+               }
+          }
+        else
+          {
+             for (i = 0; i < NBUF; i++)
+               {
+                  do
+                    {
+                       extn->b[i].buf = _extnbuf_new(extn->svc.name, extn->svc.num,
+                                                     extn->svc.sys, last_try,
+                                                     ee->w, ee->h, EINA_TRUE, BUFFER_TYPE_SHM);
+                       if (extn->b[i].buf) extn->b[i].num = last_try;
+                       last_try++;
+                       if (last_try > 1024) break;
+                    }
+                  while (!extn->b[i].buf);
+               }
+
+             if (extn->b[extn->cur_b].buf)
+               bdata->pixels = _extnbuf_data_get(extn->b[extn->cur_b].buf,
+                                                 NULL, NULL, &stride);
+             einfo = (Evas_Engine_Info_Buffer *)evas_engine_info_get(ee->evas);
+             if (einfo)
+               {
+                  if (ee->alpha)
+                    einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_ARGB32;
+                  else
+                    einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_RGB32;
+                  einfo->info.dest_buffer = bdata->pixels;
+                  einfo->info.dest_buffer_row_bytes = stride;
+                  einfo->info.use_color_key = 0;
+                  einfo->info.alpha_threshold = 0;
+                  einfo->info.func.new_update_region = NULL;
+                  einfo->info.func.free_update_region = NULL;
+                  einfo->info.func.switch_buffer = _ecore_evas_socket_switch;
+                  einfo->info.switch_data = ee;
+                  if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
+                    {
+                       ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
+                    }
                }
           }
 
@@ -1407,7 +1587,7 @@ static void
 _ecore_evas_extn_socket_window_profile_change_done_send(Ecore_Evas *ee)
 {
    Extn *extn;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Ecore_Ipc_Client *client;
    Eina_List *l = NULL;
    char *s;
@@ -1429,7 +1609,7 @@ static void *
 _ecore_evas_socket_switch(void *data, void *dest_buf EINA_UNUSED)
 {
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Extn *extn = bdata->data;
 
    extn->cur_b++;
@@ -1448,7 +1628,7 @@ _ecore_evas_extn_socket_render(Ecore_Evas *ee)
    Eina_Rectangle *r;
    Extn *extn;
    Ecore_Ipc_Client *client;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    int cur_b;
 
    extn = bdata->data;
@@ -1463,12 +1643,14 @@ _ecore_evas_extn_socket_render(Ecore_Evas *ee)
    if (ee->func.fn_pre_render) ee->func.fn_pre_render(ee);
 
    cur_b = extn->cur_b;
-   if (bdata->pixels)
+   if (bdata->pixels ||
+       _ecore_evas_extn_type_get() == BUFFER_TYPE_GL_PIXMAP)
      {
         bdata->pixels = _extnbuf_lock(extn->b[cur_b].buf, NULL, NULL, NULL);
         updates = evas_render_updates(ee->evas);
         _extnbuf_unlock(extn->b[cur_b].buf);
      }
+
    if (updates)
      {
         EINA_LIST_FOREACH(updates, l, r)
@@ -1486,9 +1668,27 @@ _ecore_evas_extn_socket_render(Ecore_Evas *ee)
           }
         evas_render_updates_free(updates);
         _ecore_evas_idle_timeout_update(ee);
-        EINA_LIST_FOREACH(extn->ipc.clients, ll, client)
-           ecore_ipc_client_send(client, MAJOR, OP_UPDATE_DONE, 0, 0,
-                                 cur_b, NULL, 0);
+        if (_ecore_evas_extn_type_get() == BUFFER_TYPE_GL_PIXMAP)
+          {
+             Ecore_X_Pixmap pixmap = ecore_evas_gl_x11_pixmap_get(ee);
+             _extnbuf_pixmap_set(extn->b[cur_b].buf, pixmap);
+
+             EINA_LIST_FOREACH(extn->ipc.clients, ll, client)
+               {
+                  ecore_ipc_client_send(client, MAJOR, OP_PIXMAP_REF,
+                                        pixmap, BUFFER_TYPE_GL_PIXMAP, cur_b,
+                                        NULL, 0);
+                  ecore_ipc_client_send(client, MAJOR, OP_UPDATE_DONE, 0, 0,
+                                        cur_b, NULL, 0);
+               }
+             _ecore_evas_socket_switch(ee, NULL);
+          }
+        else
+          {
+             EINA_LIST_FOREACH(extn->ipc.clients, ll, client)
+               ecore_ipc_client_send(client, MAJOR, OP_UPDATE_DONE, 0, 0,
+                                     cur_b, NULL, 0);
+          }
         if (extn->profile.done)
           {
              _ecore_evas_extn_socket_window_profile_change_done_send(ee);
@@ -1505,7 +1705,7 @@ _ipc_client_add(void *data, int type EINA_UNUSED, void *event)
 {
    Ecore_Ipc_Event_Client_Add *e = event;
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Extn *extn;
    Ipc_Data_Resize ipc;
    Ipc_Data_Update ipc2;
@@ -1524,6 +1724,11 @@ _ipc_client_add(void *data, int type EINA_UNUSED, void *event)
      {
         const char *lock;
 
+        if (_ecore_evas_extn_type_get() == BUFFER_TYPE_GL_PIXMAP ||
+            _ecore_evas_extn_type_get() == BUFFER_TYPE_DRI2_PIXMAP)
+          ecore_ipc_client_send(e->client, MAJOR, OP_PIXMAP_REF,
+                                _extnbuf_pixmap_get(extn->b[i].buf), _ecore_evas_extn_type_get(), i,
+                                NULL, 0);
         ecore_ipc_client_send(e->client, MAJOR, OP_SHM_REF0,
                               extn->svc.num, extn->b[i].num, i,
                               extn->svc.name,
@@ -1555,7 +1760,7 @@ _ipc_client_del(void *data, int type EINA_UNUSED, void *event)
 {
    Ecore_Ipc_Event_Client_Del *e = event;
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Extn *extn;
    extn = bdata->data;
    if (!extn) return ECORE_CALLBACK_PASS_ON;
@@ -1572,7 +1777,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
 {
    Ecore_Ipc_Event_Client_Data *e = event;
    Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Extn *extn;
 
    if (ee != ecore_ipc_server_data_get(ecore_ipc_client_server_get(e->client)))
@@ -1851,7 +2056,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
 static void
 _ecore_evas_extn_socket_alpha_set(Ecore_Evas *ee, int alpha)
 {
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Extn *extn;
    Eina_List *l;
    Ecore_Ipc_Client *client;
@@ -1862,18 +2067,47 @@ _ecore_evas_extn_socket_alpha_set(Ecore_Evas *ee, int alpha)
    extn = bdata->data;
    if (extn)
      {
-        Evas_Engine_Info_Buffer *einfo;
-
-        einfo = (Evas_Engine_Info_Buffer *)evas_engine_info_get(ee->evas);
-        if (einfo)
+        if (_ecore_evas_extn_type_get() == BUFFER_TYPE_GL_PIXMAP)
           {
-             if (ee->alpha)
-               einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_ARGB32;
-             else
-               einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_RGB32;
-             if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
-               ERR("Cannot set ecore_evas_ext alpha");
-             evas_damage_rectangle_add(ee->evas, 0, 0, ee->w, ee->h);
+             if (evas_output_method_get(ee->evas) == evas_render_method_lookup("gl_x11"))
+               {
+                  Evas_Engine_Info_GL_X11 *einfo;
+
+                  einfo = (Evas_Engine_Info_GL_X11 *)evas_engine_info_get(ee->evas);
+                  if (einfo)
+                    {
+                       einfo->info.destination_alpha = alpha;
+                       evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo);
+                       evas_damage_rectangle_add(ee->evas, 0, 0, ee->w, ee->h);
+                    }
+                }
+             EINA_LIST_FOREACH(extn->ipc.clients, l, client)
+               {
+                  int i;
+
+                  for (i = 0; i < NBUF; i++)
+                    {
+                       ecore_ipc_client_send(client, MAJOR, OP_PIXMAP_REF,
+                                             _extnbuf_pixmap_get(extn->b[i].buf), BUFFER_TYPE_GL_PIXMAP, i,
+                                             NULL, 0);
+                    }
+               }
+          }
+        else // BUFFER_TYPE_DRI2_PIXMAP, BUFFER_TYPE_SHM
+          {
+             Evas_Engine_Info_Buffer *einfo;
+
+             einfo = (Evas_Engine_Info_Buffer *)evas_engine_info_get(ee->evas);
+             if (einfo)
+               {
+                  if (ee->alpha)
+                    einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_ARGB32;
+                  else
+                    einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_RGB32;
+                  if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
+                    ERR("Cannot set ecore_evas_ext alpha");
+                  evas_damage_rectangle_add(ee->evas, 0, 0, ee->w, ee->h);
+               }
           }
         EINA_LIST_FOREACH(extn->ipc.clients, l, client)
           {
@@ -1939,7 +2173,7 @@ _ecore_evas_extn_socket_available_profiles_set(Ecore_Evas *ee, const char **plis
 static void
 _ecore_evas_extn_socket_msg_send(Ecore_Evas *ee, int msg_domain, int msg_id, void *data, int size)
 {
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
    Extn *extn;
    Eina_List *l;
    Ecore_Ipc_Client *client;
@@ -2035,86 +2269,119 @@ static const Ecore_Evas_Engine_Func _ecore_extn_socket_engine_func =
 EAPI Ecore_Evas *
 ecore_evas_extn_socket_new_internal(int w, int h)
 {
-   Evas_Engine_Info_Buffer *einfo;
    Ecore_Evas_Interface_Extn *iface;
    Ecore_Evas_Engine_Buffer_Data *bdata;
    Ecore_Evas *ee;
    int rmethod;
 
-   rmethod = evas_render_method_lookup("buffer");
-   if (!rmethod) return NULL;
-   ee = calloc(1, sizeof(Ecore_Evas));
-   if (!ee) return NULL;
    bdata = calloc(1, sizeof(Ecore_Evas_Engine_Buffer_Data));
-   if (!bdata)
+   if (!bdata) return NULL;
+
+   if (_ecore_evas_extn_type_get() == BUFFER_TYPE_GL_PIXMAP)
      {
-	free(ee);
-	return NULL;
-     }
-
-   ECORE_MAGIC_SET(ee, ECORE_MAGIC_EVAS);
-
-   ee->engine.func = (Ecore_Evas_Engine_Func *)&_ecore_extn_socket_engine_func;
-   ee->engine.data = bdata;
-
-   ee->driver = "extn_socket";
-
-   iface = _ecore_evas_extn_interface_new();
-   ee->engine.ifaces = eina_list_append(ee->engine.ifaces, iface);
-
-   ee->rotation = 0;
-   ee->visible = 0;
-   ee->w = w;
-   ee->h = h;
-   ee->req.w = ee->w;
-   ee->req.h = ee->h;
-   ee->profile_supported = 1; /* to accept the profile change request from the client(plug) */
-
-   ee->prop.max.w = 0;
-   ee->prop.max.h = 0;
-   ee->prop.layer = 0;
-   ee->prop.focused = EINA_FALSE;
-   ee->prop.borderless = EINA_TRUE;
-   ee->prop.override = EINA_TRUE;
-   ee->prop.maximized = EINA_FALSE;
-   ee->prop.fullscreen = EINA_FALSE;
-   ee->prop.withdrawn = EINA_FALSE;
-   ee->prop.sticky = EINA_FALSE;
-
-   /* init evas here */
-   ee->evas = evas_new();
-   evas_data_attach_set(ee->evas, ee);
-   evas_output_method_set(ee->evas, rmethod);
-   evas_output_size_set(ee->evas, w, h);
-   evas_output_viewport_set(ee->evas, 0, 0, w, h);
-
-   einfo = (Evas_Engine_Info_Buffer *)evas_engine_info_get(ee->evas);
-   if (einfo)
-     {
-        if (ee->alpha)
-          einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_ARGB32;
-        else
-          einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_RGB32;
-        einfo->info.dest_buffer = NULL;
-        einfo->info.dest_buffer_row_bytes = 0;
-        einfo->info.use_color_key = 0;
-        einfo->info.alpha_threshold = 0;
-        einfo->info.func.new_update_region = NULL;
-        einfo->info.func.free_update_region = NULL;
-        einfo->info.func.switch_buffer = _ecore_evas_socket_switch;
-        einfo->info.switch_data = ee;
-        if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
+        ee = ecore_evas_gl_x11_pixmap_new(NULL, 0, 0, 0, w, h);
+        if (!ee)
           {
-             ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
-             ecore_evas_free(ee);
+             free(bdata);
              return NULL;
           }
+        ee->engine.func = (Ecore_Evas_Engine_Func *)&_ecore_extn_socket_engine_func;
+        ee->engine.extn.data = bdata;
+
+        iface = _ecore_evas_extn_interface_new();
+        ee->engine.ifaces = eina_list_append(ee->engine.ifaces, iface);
+
+        ee->visible = 0;
      }
    else
      {
-        ERR("evas_engine_info_set() init engine '%s' failed.", ee->driver);
-        ecore_evas_free(ee);
-        return NULL;
+        Evas_Engine_Info_Buffer *einfo;
+
+        rmethod = evas_render_method_lookup("buffer");
+        if (!rmethod)
+          {
+             free(bdata);
+             return NULL;
+          }
+        if (_ecore_evas_extn_type_get() == BUFFER_TYPE_DRI2_PIXMAP && !ecore_x_init(NULL))
+          {
+             free(bdata);
+             return NULL;
+          }
+        ee = calloc(1, sizeof(Ecore_Evas));
+        if (!ee)
+          {
+             free(bdata);
+             return NULL;
+          }
+
+        ECORE_MAGIC_SET(ee, ECORE_MAGIC_EVAS);
+
+        ee->engine.func = (Ecore_Evas_Engine_Func *)&_ecore_extn_socket_engine_func;
+        ee->engine.extn.data = bdata;
+
+        ee->driver = "extn_socket";
+
+        iface = _ecore_evas_extn_interface_new();
+        ee->engine.ifaces = eina_list_append(ee->engine.ifaces, iface);
+
+        ee->rotation = 0;
+        ee->visible = 0;
+        ee->w = w;
+        ee->h = h;
+        ee->req.w = ee->w;
+        ee->req.h = ee->h;
+        ee->profile_supported = 1; /* to accept the profile change request from the client(plug) */
+
+        ee->prop.max.w = 0;
+        ee->prop.max.h = 0;
+        ee->prop.layer = 0;
+        ee->prop.focused = EINA_FALSE;
+        ee->prop.borderless = EINA_TRUE;
+        ee->prop.override = EINA_TRUE;
+        ee->prop.maximized = EINA_FALSE;
+        ee->prop.fullscreen = EINA_FALSE;
+        ee->prop.withdrawn = EINA_FALSE;
+        ee->prop.sticky = EINA_FALSE;
+
+        /* init evas here */
+        ee->evas = evas_new();
+        evas_data_attach_set(ee->evas, ee);
+        evas_output_method_set(ee->evas, rmethod);
+        evas_output_size_set(ee->evas, w, h);
+        evas_output_viewport_set(ee->evas, 0, 0, w, h);
+
+        einfo = (Evas_Engine_Info_Buffer *)evas_engine_info_get(ee->evas);
+        if (einfo)
+          {
+             if (ee->alpha)
+               einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_ARGB32;
+             else
+               einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_RGB32;
+             einfo->info.dest_buffer = NULL;
+             einfo->info.dest_buffer_row_bytes = 0;
+             einfo->info.use_color_key = 0;
+             einfo->info.alpha_threshold = 0;
+             einfo->info.func.new_update_region = NULL;
+             einfo->info.func.free_update_region = NULL;
+             einfo->info.func.switch_buffer = _ecore_evas_socket_switch;
+             einfo->info.switch_data = ee;
+             if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
+               {
+                  ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
+                  ecore_evas_free(ee);
+                  free(bdata);
+                  return NULL;
+               }
+          }
+        else
+          {
+             ERR("evas_engine_info_set() init engine '%s' failed.", ee->driver);
+             ecore_evas_free(ee);
+             free(bdata);
+             return NULL;
+          }
+        _ecore_evas_register(ee);
      }
    evas_key_modifier_add(ee->evas, "Shift");
    evas_key_modifier_add(ee->evas, "Control");
@@ -2128,8 +2395,6 @@ ecore_evas_extn_socket_new_internal(int w, int h)
 
    extn_ee_list = eina_list_append(extn_ee_list, ee);
 
-   _ecore_evas_register(ee);
-
    return ee;
 }
 
@@ -2137,7 +2402,7 @@ Eina_Bool
 _ecore_evas_extn_socket_listen(Ecore_Evas *ee, const char *svcname, int svcnum, Eina_Bool svcsys)
 {
    Extn *extn;
-   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.data;
+   Ecore_Evas_Engine_Buffer_Data *bdata = ee->engine.extn.data;
 
    extn = calloc(1, sizeof(Extn));
    if (!extn)
@@ -2161,13 +2426,12 @@ _ecore_evas_extn_socket_listen(Ecore_Evas *ee, const char *svcname, int svcnum, 
                {
                   extn->b[i].buf = _extnbuf_new(extn->svc.name, extn->svc.num,
                                                 extn->svc.sys, last_try,
-                                                ee->w, ee->h, EINA_TRUE);
+                                                ee->w, ee->h, EINA_TRUE, _ecore_evas_extn_type_get());
                   if (extn->b[i].buf) extn->b[i].num = last_try;
                   last_try++;
                   if (last_try > 1024) break;
                }
              while (!extn->b[i].buf);
-
           }
 
         if (extn->b[extn->cur_b].buf)
@@ -2235,6 +2499,55 @@ _ecore_evas_extn_interface_new(void)
    iface->listen = _ecore_evas_extn_socket_listen;
 
    return iface;
+}
+
+EAPI void *
+ecore_evas_extn_socket_pixels_get_internal(Ecore_Evas *ee)
+{
+   Ecore_Evas_Engine_Buffer_Data *bdata;
+   Extn *extn;
+
+   if (!ee) return NULL;
+   bdata = ee->engine.extn.data;
+   if (!bdata) return NULL;
+   extn = bdata->data;
+   if (!extn) return NULL;
+   if (_ecore_evas_extn_type_get() == BUFFER_TYPE_DRI2_PIXMAP)
+     return (void *)_extnbuf_pixmap_get(extn->b[extn->cur_b].buf);
+   else if (_ecore_evas_extn_type_get() == BUFFER_TYPE_GL_PIXMAP)
+     return (void *)ecore_evas_gl_x11_pixmap_get(ee);
+
+   return bdata->pixels;
+}
+
+EAPI void
+ecore_evas_extn_socket_lock_internal(Ecore_Evas *ee)
+{
+   Ecore_Evas_Engine_Buffer_Data *bdata;
+   Extn *extn;
+
+   if (!ee) return;
+   bdata = ee->engine.extn.data;
+   if (!bdata) return;
+   extn = bdata->data;
+   if (!extn) return;
+   if (extn->b[extn->cur_b].buf)
+     bdata->pixels = _extnbuf_lock(extn->b[extn->cur_b].buf, NULL, NULL, NULL);
+}
+
+EAPI void
+ecore_evas_extn_socket_unlock_internal(Ecore_Evas *ee)
+{
+   Ecore_Evas_Engine_Buffer_Data *bdata;
+   Extn *extn;
+
+   if (!ee) return;
+   bdata = ee->engine.extn.data;
+   if (!bdata) return;
+   extn = bdata->data;
+   if (!extn) return;
+   if (extn->b[extn->cur_b].buf)
+     _extnbuf_unlock(extn->b[extn->cur_b].buf);
 }
 
 EAPI void

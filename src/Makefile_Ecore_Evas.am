@@ -48,15 +48,19 @@ modules_ecore_evas_engines_extn_module_la_SOURCES = $(EXTNSOURCES)
 modules_ecore_evas_engines_extn_module_la_CPPFLAGS = -I$(top_builddir)/src/lib/efl \
 @ECORE_EVAS_CFLAGS@ \
 @ECORE_IPC_CFLAGS@ \
+@ECORE_X_CFLAGS@ \
 -I$(top_srcdir)/src/modules/evas/engines/buffer \
+-I$(top_srcdir)/src/modules/evas/engines/gl_x11 \
 -I$(top_srcdir)/src/modules/ecore_evas/engines/extn
 modules_ecore_evas_engines_extn_module_la_LIBADD = \
 @USE_ECORE_EVAS_LIBS@ \
 @USE_ECORE_IPC_LIBS@ \
+@USE_ECORE_X_LIBS@ \
 @SHM_LIBS@
 modules_ecore_evas_engines_extn_module_la_DEPENDENCIES = \
 @USE_ECORE_EVAS_INTERNAL_LIBS@ \
-@USE_ECORE_IPC_INTERNAL_LIBS@
+@USE_ECORE_IPC_INTERNAL_LIBS@ \
+@USE_ECORE_X_INTERNAL_LIBS@
 modules_ecore_evas_engines_extn_module_la_LDFLAGS = -module @EFL_LTMODULE_FLAGS@
 modules_ecore_evas_engines_extn_module_la_LIBTOOLFLAGS = --tag=disable-static
 endif

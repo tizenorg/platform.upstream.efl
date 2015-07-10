@@ -990,7 +990,7 @@ wayland_im_context_input_panel_layout_set(Ecore_IMF_Context *ctx, Ecore_IMF_Inpu
          imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_PHONE;
          break;
       case ECORE_IMF_INPUT_PANEL_LAYOUT_IP:
-         imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_NUMBER;
+         imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_IP;
          break;
       case ECORE_IMF_INPUT_PANEL_LAYOUT_MONTH:
          imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_DATE;
@@ -1006,6 +1006,9 @@ wayland_im_context_input_panel_layout_set(Ecore_IMF_Context *ctx, Ecore_IMF_Inpu
         break;
       case ECORE_IMF_INPUT_PANEL_LAYOUT_DATETIME:
         imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_DATETIME;
+        break;
+      case ECORE_IMF_INPUT_PANEL_LAYOUT_EMOTICON:
+        imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_EMOTICON;
         break;
       default:
         imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_NORMAL;

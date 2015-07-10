@@ -306,7 +306,7 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
       filter_program {
          set {
             /*@
-            @deprecated Deprecated since 2.4
+            @deprecated Deprecated since Tizen 2.4
             @brief Set an Evas filter program on this Text Object.
 
             @if MOBILE @since_tizen 2.3
@@ -336,7 +336,7 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
       filter_source {
          set {
             /*@
-            @deprecated Deprecated since 2.4
+            @deprecated Deprecated since Tizen 2.4
             @brief Bind an object to use as a mask or texture with Evas Filters.
 
             @if MOBILE @since_tizen 2.3

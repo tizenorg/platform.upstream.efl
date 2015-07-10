@@ -185,13 +185,14 @@ EAPI Eina_Unicode *eina_unicode_escape(const Eina_Unicode *str) EINA_ARG_NONNULL
 
 
 /**
- * @internal
  * @brief Reads UTF8 bytes from @p buf, starting at @p iindex and returns
  * the decoded code point at @p iindex offset, and advances @p iindex
  * to the next code point after this. @p iindex is always advanced,
  * unless if the advancement is after the @c NULL.
  * On error: return a codepoint between DC80 to DCFF where the low 8 bits
  *   are the byte's value.
+ *
+ * @since_tizen 2.4
  *
  * @param[in] buf the string
  * @param[out] iindex the index to look at and return by.
@@ -217,6 +218,7 @@ static inline Eina_Unicode eina_unicode_utf8_next_get(const char *buf, int *iind
  * @return the codepoint found, 0 if @p buf or @p iindex are NULL
  * @since 1.1.0
  * @deprecated use eina_unicode_utf8_next_get
+ *             Deprecated since Tizen 2.4
  */
 EAPI Eina_Unicode eina_unicode_utf8_get_next(const char *buf, int *iindex) EINA_ARG_NONNULL(1, 2) EINA_DEPRECATED;
 

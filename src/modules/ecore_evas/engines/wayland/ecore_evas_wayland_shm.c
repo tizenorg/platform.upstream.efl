@@ -108,9 +108,6 @@ ecore_evas_wayland_shm_new_internal(const char *disp_name, unsigned int parent, 
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
-   if (!(globals = ecore_wl_globals_get()))
-     return NULL;
-
    if (!(method = evas_render_method_lookup("wayland_shm")))
      {
         ERR("Render method lookup failed for Wayland_Shm");
@@ -120,6 +117,12 @@ ecore_evas_wayland_shm_new_internal(const char *disp_name, unsigned int parent, 
    if (!ecore_wl_init(disp_name))
      {
         ERR("Failed to initialize Ecore_Wayland");
+        return NULL;
+     }
+
+   if (!(globals = ecore_wl_globals_get()))
+     {
+        ERR("Failed to get wayland globals");
         return NULL;
      }
 

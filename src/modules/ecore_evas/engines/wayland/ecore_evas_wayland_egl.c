@@ -109,9 +109,6 @@ ecore_evas_wayland_egl_new_internal(const char *disp_name, unsigned int parent,
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
-   if (!(globals = ecore_wl_globals_get()))
-     return NULL;
-
    if (!(method = evas_render_method_lookup("wayland_egl")))
      {
         ERR("Render method lookup failed for Wayland_Egl");
@@ -122,6 +119,12 @@ ecore_evas_wayland_egl_new_internal(const char *disp_name, unsigned int parent,
    if (!count)
      {
         ERR("Failed to initialize Ecore_Wayland");
+        return NULL;
+     }
+
+   if (!(globals = ecore_wl_globals_get()))
+     {
+        ERR("Failed to get wayland globals");
         return NULL;
      }
 

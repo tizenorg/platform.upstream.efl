@@ -5450,4 +5450,38 @@ _edje_part_repeat_events_set(Edje *ed EINA_UNUSED, Edje_Real_Part *rp, Eina_Bool
      evas_object_repeat_events_set(rp->object, 0);
 }
 
+// TIZEN_ONLY(20150707): Add methods to handle event flags
+Evas_Event_Flags
+_edje_part_ignore_flags_get(Edje *ed EINA_UNUSED, Edje_Real_Part *rp)
+{
+   if (!rp) return EINA_FALSE;
+
+   return rp->part->ignore_flags;
+}
+
+void
+_edje_part_ignore_flags_set(Edje *ed EINA_UNUSED, Edje_Real_Part *rp, Evas_Event_Flags ignore_flags)
+{
+   if (!rp) return;
+
+   rp->part->ignore_flags = ignore_flags;
+}
+
+Evas_Event_Flags
+_edje_part_mask_flags_get(Edje *ed EINA_UNUSED, Edje_Real_Part *rp)
+{
+   if (!rp) return EINA_FALSE;
+
+   return rp->part->mask_flags;
+}
+
+void
+_edje_part_mask_flags_set(Edje *ed EINA_UNUSED, Edje_Real_Part *rp, Evas_Event_Flags mask_flags)
+{
+   if (!rp) return;
+
+   rp->part->mask_flags = mask_flags;
+}
+// TIZEN_ONLY
+
 /* vim:set ts=8 sw=3 sts=3 expandtab cino=>5n-2f0^-2{2(0W1st0 :*/

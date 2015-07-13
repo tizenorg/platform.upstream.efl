@@ -102,6 +102,7 @@ void    *(*glsym_eglCreateImage)               (EGLDisplay a, EGLContext b, EGLe
 void     (*glsym_eglDestroyImage)              (EGLDisplay a, void *b) = NULL;
 void     (*glsym_glEGLImageTargetTexture2DOES) (int a, void *b)  = NULL;
 unsigned int   (*glsym_eglSwapBuffersWithDamage) (EGLDisplay a, void *b, const EGLint *d, EGLint c) = NULL;
+unsigned int   (*glsym_eglSetDamageRegionKHR)  (EGLDisplay a, EGLSurface b, EGLint *c, EGLint d) = NULL;
 
 #else
 
@@ -1361,6 +1362,7 @@ gl_symbols(void)
    FINDSYM(glsym_eglSwapBuffersWithDamage, "eglSwapBuffersWithDamageEXT", glsym_func_uint);
    FINDSYM(glsym_eglSwapBuffersWithDamage, "eglSwapBuffersWithDamageINTEL", glsym_func_uint);
    FINDSYM(glsym_eglSwapBuffersWithDamage, "eglSwapBuffersWithDamage", glsym_func_uint);
+   FINDSYM(glsym_eglSetDamageRegionKHR, "eglSetDamageRegionKHR", glsym_func_uint);
 
 
 #else
@@ -1428,11 +1430,17 @@ gl_extn_veto(Render_Engine *re)
           {
              extn_have_buffer_age = 0;
              glsym_eglSwapBuffersWithDamage = NULL;
+             glsym_eglSetDamageRegionKHR = NULL;
           }
         //Tizen Only end
         if (!strstr(str, "EGL_EXT_buffer_age"))
           {
-             extn_have_buffer_age = 0;
+             if (!strstr(str, "EGL_KHR_partial_update"))
+               extn_have_buffer_age = 0;
+          }
+        if (!strstr(str, "EGL_KHR_partial_update"))
+          {
+             glsym_eglSetDamageRegionKHR = NULL;
           }
         if (!strstr(str, "EGL_NOK_texture_from_pixmap"))
           {

@@ -684,6 +684,25 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             return: int @warn_unused;
          }
       }
+      iconified {
+         set {
+            // TIZEN_ONLY
+            /*@
+            @brief Sets the iconified or deiconified If windows became an iconified or deiconified.
+
+            @if MOBILE @since_tizen 2.4
+            @elseif WEARABLE @since_tizen 2.4
+            @endif
+
+            @param iconified @c EINA_TRUE to iconify, @c EINA_FALSE to uniconify.
+
+            @note Iconify and minimize are synonyms.
+            */
+         }
+         values {
+            Eina_Bool iconified;
+         }
+      }
    }
    methods {
       tree_objects_at_xy_get {

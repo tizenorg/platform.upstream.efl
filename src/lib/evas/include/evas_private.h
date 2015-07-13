@@ -783,6 +783,7 @@ struct _Evas_Public_Data
    unsigned char  invalidate : 1;
    unsigned char  cleanup : 1;
    unsigned char  focus : 1;
+   unsigned char  iconified_change : 1; // TIZEN_ONLY
    Eina_Bool      is_frozen : 1;
    Eina_Bool      rendering : 1;
 };

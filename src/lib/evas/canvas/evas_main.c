@@ -28,7 +28,7 @@ evas_init(void)
          lockmax = atoi(getenv("EVAS_LOCK_DEBUG"));
       }
 #endif
-   
+
 #ifdef HAVE_EVIL
    if (!evil_init())
      return --_evas_init_count;
@@ -487,7 +487,7 @@ EAPI void
 evas_render_method_list_free(Eina_List *list)
 {
    const char *s;
-   
+
    EINA_LIST_FREE(list, s) eina_stringshare_del(s);
 }
 
@@ -586,6 +586,29 @@ EOLIAN static void
 _evas_canvas_nochange_pop(Eo *eo_e EINA_UNUSED, Evas_Public_Data *e)
 {
    e->nochange--;
+}
+
+// TIZEN_ONLY
+EOLIAN static void
+_evas_canvas_iconified_set(Eo *eo_e EINA_UNUSED, Evas_Public_Data *e, Eina_Bool iconified)
+{
+   if ((e->engine.func) && (e->engine.func->output_resize) &&
+         (e->engine.data.output))
+     {
+       if (iconified)
+         {
+           e->engine.func->output_resize(e->engine.data.output, 0, 0);
+           e->iconified_change = 1;
+         }
+       else
+         {
+           if (e->iconified_change)
+             {
+               e->engine.func->output_resize(e->engine.data.output, e->output.w, e->output.h);
+               e->iconified_change = 0;
+             }
+         }
+     }
 }
 
 void

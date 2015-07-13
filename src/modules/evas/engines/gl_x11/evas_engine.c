@@ -36,6 +36,8 @@ int partial_render_debug = -1;
 int extn_have_buffer_age = 1;
 //TIZEN ONLY
 int prev_extn_have_buffer_age = 1;
+int evas_render_info = -1;
+
 
 static int initted = 0;
 static int gl_wins = 0;
@@ -1562,6 +1564,13 @@ eng_setup(Evas *eo_e, void *in)
    const char *s;
 
    info = (Evas_Engine_Info_GL_X11 *)in;
+    // Tizen Only :: Add log for check rendering engine and render info
+   INF("[ evas_dbg ]: Evas_Engine Info -> GL_X11");
+   if(evas_render_info == -1)
+     {
+        if(getenv("EVAS_RENDER_INFO")) evas_render_info = 1;
+        else evas_render_info = 0;
+     }
 
    if ((s = getenv("EVAS_GL_SWAP_MODE")))
      {

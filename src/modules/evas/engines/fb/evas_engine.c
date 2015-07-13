@@ -108,6 +108,9 @@ eng_setup(Evas *eo_e, void *in)
    Evas_Engine_Info_FB *info;
 
    info = (Evas_Engine_Info_FB *)in;
+    // Tizen Only :: Add log for check rendering engine
+   INF("[ evas_dbg ]: Evas_Engine Info -> FB");
+
    re = _output_setup(e->output.w,
 		      e->output.h,
 		      info->info.rotation,

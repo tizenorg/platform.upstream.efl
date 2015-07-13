@@ -1893,7 +1893,7 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
           {
              if ((smooth) && ((sw >= (w * 2)) && (sh >= (h * 2))))
                {
-                  if ((!tex->alpha) && (tex->pt->native))
+                  if ((!tex->alpha) && (tex->pt->native)&& (!tex->im->native.offbuffer))
                     shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
                                                           SHADER_TEX_22_NOMUL_AFILL, SHADER_TEX_22_AFILL,
                                                           SHADER_IMG_MASK_NOMUL, SHADER_IMG_MASK);
@@ -1905,7 +1905,7 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
                }
              else if ((smooth) && (sw >= (w * 2)))
                {
-                  if ((!tex->alpha) && (tex->pt->native))
+                  if ((!tex->alpha) && (tex->pt->native)&& (!tex->im->native.offbuffer))
                     shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
                                                           SHADER_TEX_21_NOMUL_AFILL, SHADER_TEX_21_AFILL,
                                                           SHADER_IMG_MASK_NOMUL, SHADER_IMG_MASK);
@@ -1917,7 +1917,7 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
                }
              else if ((smooth) && (sh >= (h * 2)))
                {
-                  if ((!tex->alpha) && (tex->pt->native))
+                  if ((!tex->alpha) && (tex->pt->native)&& (!tex->im->native.offbuffer))
                     shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
                                                           SHADER_TEX_12_NOMUL_AFILL, SHADER_TEX_12_AFILL,
                                                           SHADER_IMG_MASK_NOMUL, SHADER_IMG_MASK);

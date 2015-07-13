@@ -184,6 +184,14 @@
  * get_mouse_events(part_id)
  * set_repeat_events(part_id, rep)
  * get_repeat_events(part_id)
+ *
+ // TIZEN_ONLY(20150707): Add methods to handle event flags
+ * set_ignore_flags(part_id, flags)
+ * get_ignore_flags(part_id)
+ * set_mask_flags(part_id, flags)
+ * get_mask_flags(part_id)
+ // TIZEN_ONLY
+ *
  * set_clip(part_id, clip_part_id)
  * get_clip(part_id)
  *
@@ -3203,6 +3211,98 @@ _edje_embryo_fn_get_repeat_events(Embryo_Program *ep, Embryo_Cell *params)
 
 }
 
+// TIZEN_ONLY(20150707): Add methods to handle event flags
+/* set_ignore_flags(part_id, flags) */
+static Embryo_Cell
+_edje_embryo_fn_set_ignore_flags(Embryo_Program *ep, Embryo_Cell *params)
+{
+   int part_id = 0;
+   Edje *ed;
+   Edje_Real_Part *rp;
+
+   CHKPARAM(2);
+
+   part_id = params[1];
+   if (part_id < 0) return 0;
+
+   ed = embryo_program_data_get(ep);
+   rp = ed->table_parts[part_id % ed->table_parts_size];
+
+   if (rp)
+     _edje_part_ignore_flags_set(ed, rp, params[2]);
+
+   return 0;
+}
+
+/* get_ignore_flags(part_id) */
+static Embryo_Cell
+_edje_embryo_fn_get_ignore_flags(Embryo_Program *ep, Embryo_Cell *params)
+{
+   int part_id = 0;
+   Edje *ed;
+   Edje_Real_Part *rp;
+
+   CHKPARAM(1);
+
+   part_id = params[1];
+   if (part_id < 0) return 0;
+
+   ed = embryo_program_data_get(ep);
+   rp = ed->table_parts[part_id % ed->table_parts_size];
+
+   if (rp)
+     return (Embryo_Cell)_edje_var_int_get(ed, (int)_edje_part_ignore_flags_get(ed, rp));
+
+   return 0;
+
+}
+
+/* set_mask_flags(part_id, flags) */
+static Embryo_Cell
+_edje_embryo_fn_set_mask_flags(Embryo_Program *ep, Embryo_Cell *params)
+{
+   int part_id = 0;
+   Edje *ed;
+   Edje_Real_Part *rp;
+
+   CHKPARAM(2);
+
+   part_id = params[1];
+   if (part_id < 0) return 0;
+
+   ed = embryo_program_data_get(ep);
+   rp = ed->table_parts[part_id % ed->table_parts_size];
+
+   if (rp)
+     _edje_part_mask_flags_set(ed, rp, params[2]);
+
+   return 0;
+}
+
+/* get_mask_flags(part_id) */
+static Embryo_Cell
+_edje_embryo_fn_get_mask_flags(Embryo_Program *ep, Embryo_Cell *params)
+{
+   int part_id = 0;
+   Edje *ed;
+   Edje_Real_Part *rp;
+
+   CHKPARAM(1);
+
+   part_id = params[1];
+   if (part_id < 0) return 0;
+
+   ed = embryo_program_data_get(ep);
+   rp = ed->table_parts[part_id % ed->table_parts_size];
+
+   if (rp)
+     return (Embryo_Cell)_edje_var_int_get(ed, (int)_edje_part_mask_flags_get(ed, rp));
+
+   return 0;
+
+}
+// TIZEN_ONLY
+
 /* part_swallow(part_id, group_name) */
 static Embryo_Cell
 _edje_embryo_fn_part_swallow(Embryo_Program *ep, Embryo_Cell *params)
@@ -3929,11 +4029,16 @@ _edje_embryo_script_init(Edje_Part_Collection *edc)
    embryo_program_native_call_add(ep, "set_state_val", _edje_embryo_fn_set_state_val);
    embryo_program_native_call_add(ep, "get_state_val", _edje_embryo_fn_get_state_val);
 
-   // TIZEN_ONY(20150625): under upstream review
    embryo_program_native_call_add(ep, "set_mouse_events", _edje_embryo_fn_set_mouse_events);
    embryo_program_native_call_add(ep, "get_mouse_events", _edje_embryo_fn_get_mouse_events);
    embryo_program_native_call_add(ep, "set_repeat_events", _edje_embryo_fn_set_repeat_events);
    embryo_program_native_call_add(ep, "get_repeat_events", _edje_embryo_fn_get_repeat_events);
+
+   // TIZEN_ONY(20150707): Add methods to handle event flags
+   embryo_program_native_call_add(ep, "set_ignore_flags", _edje_embryo_fn_set_ignore_flags);
+   embryo_program_native_call_add(ep, "get_ignore_flags", _edje_embryo_fn_get_ignore_flags);
+   embryo_program_native_call_add(ep, "set_mask_flags", _edje_embryo_fn_set_mask_flags);
+   embryo_program_native_call_add(ep, "get_mask_flags", _edje_embryo_fn_get_mask_flags);
    // TIZEN_ONLY
 
    embryo_program_native_call_add(ep, "part_swallow", _edje_embryo_fn_part_swallow);

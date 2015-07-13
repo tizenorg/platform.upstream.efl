@@ -847,7 +847,7 @@ _dri3_update_drawable(dri3_drawable *drawable)
          cookie = sym_xcb_present_select_input_checked(info.conn,
                                                        (drawable->eid = xcb_generate_id(info.conn)),
                                                        drawable->window,
-                                                       /*XCB_PRESENT_EVENT_MASK_CONFIGURE_NOTIFY|*/
+                                                       XCB_PRESENT_EVENT_MASK_CONFIGURE_NOTIFY|
                                                        XCB_PRESENT_EVENT_MASK_COMPLETE_NOTIFY|
                                                        XCB_PRESENT_EVENT_MASK_IDLE_NOTIFY);
 
@@ -1003,19 +1003,9 @@ dri3_get_backbuffers(dri3_drawable *drawable, uint32_t *stamp)
          new_buffer = dri3_alloc_render_buffer(drawable->window, drawable->width, drawable->height, drawable->depth, 32);
          if (!new_buffer)
             return 0;
-         /* When resizing, copy the contents of the old buffer, waiting for that
-          * copy to complete using our fences before proceeding
-          */
-         if (back_buffer)
-            {
-               dri3_fence_reset(new_buffer);
-               dri3_fence_await(back_buffer);
-               dri3_copy_area(back_buffer->pixmap, new_buffer->pixmap,
-                               _dri3_drawable_gc(drawable),
-                               0, 0, 0, 0, drawable->width, drawable->height);
-               dri3_fence_trigger(new_buffer);
-               dri3_destroy_buffer(back_buffer);
-            }
+
+         if (back_buffer) dri3_destroy_buffer(back_buffer);
+
          back_buffer = new_buffer;
          drawable->buffers[buf_id] = back_buffer;
       }
@@ -1046,6 +1036,13 @@ dri3_swap_buffers(dri3_drawable *drawable, int64_t target_msc, int64_t divisor, 
 
    if (back)
       {
+
+         if (back->w != drawable->width || back->h != drawable->height)
+            {
+               DBG("buffer and drawable size mismatch, frame skip");
+               return ret;
+            }
+
          dri3_fence_reset(back);
 
          /* Compute when we want the frame shown by taking the last known successful

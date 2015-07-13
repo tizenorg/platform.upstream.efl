@@ -1400,8 +1400,15 @@ eng_outbuf_new_region_for_update(Outbuf *ob,
      {
         Evas_Public_Data *e;
         e = eo_data_scope_get(ob->evas, EVAS_CANVAS_CLASS);
-        RINF("[ evas_dbg ]:[ --- Render Info (%ix%i) \n", e->viewport.w, e->viewport.h);
-        RINF("[ evas_dbg ]:Outbuf Region Update   Surf: %p, Area = ( x:%i, y:%i , size: (%ix%i))",ob->gl_context->def_surface,x,y,w,h);
+        if(e)
+          {
+             RINF("[ evas_dbg ]:[ --- Render Info (%ix%i) \n", e->viewport.w, e->viewport.h);
+             RINF("[ evas_dbg ]:Outbuf Region Update   Surf: %p, Area = ( x:%i, y:%i , size: (%ix%i))",ob->gl_context->def_surface,x,y,w,h);
+          }
+        else
+          {
+             ERR("can't print render info. eo_data_scope_get returns null \n");
+          }
      }
    return ob->gl_context->def_surface;
 }

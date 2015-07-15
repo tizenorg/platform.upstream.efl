@@ -763,12 +763,13 @@ eng_image_data_put(void *data, void *image, DATA32 *image_data)
 #ifdef GL_GLES
                  if (im->tex->pt->dyn.checked_out == 0)
                    {
-                      void *disp;
-
-                      disp = re->window_egl_display_get(re->software.ob);
-                      secsym_eglUnmapImageSEC(disp,
-                                              im->tex->pt->dyn.img,
-                                              EGL_MAP_GL_TEXTURE_DEVICE_CPU_SEC);
+                      if (im->gc->shared->info.sec_tbm_surface)
+                        secsym_tbm_surface_unmap(im->tex->pt->dyn.buffer);
+                      else if (im->gc->shared->info.sec_image_map)
+                        {
+                           void *disp = disp = re->window_egl_display_get(re->software.ob);
+                           secsym_eglUnmapImageSEC(disp, im->tex->pt->dyn.img, EGL_MAP_GL_TEXTURE_DEVICE_CPU_SEC);
+                        }
                    }
 #endif
                }

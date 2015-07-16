@@ -1774,7 +1774,6 @@ evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
    EVGL_Surface *sfc = NULL;
    char *s = NULL;
    int direct_override = 0, direct_mem_opt = 0;
-   Eina_Bool need_reconfigure = EINA_FALSE;
    Eina_Bool dbg;
 
    // Check if engine is valid
@@ -1844,21 +1843,7 @@ evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
    // Keep track of all the created surfaces
    LKL(evgl_engine->resource_lock);
    evgl_engine->surfaces = eina_list_prepend(evgl_engine->surfaces, sfc);
-
-   if (sfc->direct_fb_opt &&
-       (sfc->depth_fmt || sfc->stencil_fmt || sfc->depth_stencil_fmt))
-     {
-        need_reconfigure = !evgl_engine->direct_depth_stencil_surfaces;
-        evgl_engine->direct_depth_stencil_surfaces =
-          eina_list_prepend(evgl_engine->direct_depth_stencil_surfaces, sfc);
-     }
    LKU(evgl_engine->resource_lock);
-
-   if (need_reconfigure)
-     {
-        // See FIXME notice above in _internal_config_set
-        ERR("Surface reconfigure is not implemented yet");
-     }
 
    if (dbg) DBG("Created surface sfc %p (eng %p)", sfc, eng_data);
 
@@ -1978,7 +1963,6 @@ int
 evgl_surface_destroy(void *eng_data, EVGL_Surface *sfc)
 {
    EVGL_Resource *rsc;
-   Eina_Bool need_reconfigure = EINA_FALSE;
    Eina_Bool dbg;
    int ret_val = 0;
 
@@ -2084,23 +2068,7 @@ evgl_surface_destroy(void *eng_data, EVGL_Surface *sfc)
    // Remove it from the list
    LKL(evgl_engine->resource_lock);
    evgl_engine->surfaces = eina_list_remove(evgl_engine->surfaces, sfc);
-
-   if (sfc->direct_fb_opt &&
-       (sfc->depth_fmt || sfc->stencil_fmt || sfc->depth_stencil_fmt))
-     {
-        Eina_List *found;
-        found = eina_list_data_find_list(evgl_engine->direct_depth_stencil_surfaces, sfc);
-        need_reconfigure = !!found;
-        evgl_engine->direct_depth_stencil_surfaces =
-          eina_list_remove_list(evgl_engine->direct_depth_stencil_surfaces, found);
-     }
    LKU(evgl_engine->resource_lock);
-
-   if (need_reconfigure)
-     {
-        // See FIXME notice above in _internal_config_set
-        WRN("Surface reconfigure is not implemented yet");
-     }
 
    free(sfc);
    sfc = NULL;

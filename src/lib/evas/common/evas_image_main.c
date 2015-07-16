@@ -419,6 +419,7 @@ evas_common_rgba_image_unload(Image_Entry *ie)
    ie->allocated.h = 0;
    ie->flags.loaded = 0;
    ie->flags.preload_done = 0;
+   ie->need_unload = 0;
 #ifdef SURFDBG
    surf_debug();
 #endif

@@ -71,7 +71,7 @@ static Ecore_IMF_Context_Class wayland_imf_class =
    wayland_im_context_cursor_location_set,    /* cursor_location_set */
    NULL,                                      /* input_panel_imdata_set */
    NULL,                                      /* input_panel_imdata_get */
-   NULL,                                      /* input_panel_return_key_type_set */
+   wayland_im_context_input_panel_return_key_type_set, /* input_panel_return_key_type_set */
    NULL,                                      /* input_panel_return_key_disabled_set */
    NULL,                                      /* input_panel_caps_lock_mode_set */
    NULL,                                      /* input_panel_geometry_get */

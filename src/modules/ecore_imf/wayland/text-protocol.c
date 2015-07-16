@@ -29,8 +29,6 @@
 
 extern const struct wl_interface wl_seat_interface;
 extern const struct wl_interface wl_surface_interface;
-extern const struct wl_interface wl_seat_interface;
-extern const struct wl_interface wl_surface_interface;
 extern const struct wl_interface wl_text_input_interface;
 
 static const struct wl_interface *types[] = {
@@ -58,6 +56,7 @@ static const struct wl_message wl_text_input_requests[] = {
 	{ "set_preferred_language", "s", types + 0 },
 	{ "commit_state", "u", types + 0 },
 	{ "invoke_action", "uu", types + 0 },
+	{ "set_return_key_type", "u", types + 0 },
 };
 
 static const struct wl_message wl_text_input_events[] = {
@@ -78,7 +77,7 @@ static const struct wl_message wl_text_input_events[] = {
 
 WL_EXPORT const struct wl_interface wl_text_input_interface = {
 	"wl_text_input", 1,
-	11, wl_text_input_requests,
+	12, wl_text_input_requests,
 	13, wl_text_input_events,
 };
 

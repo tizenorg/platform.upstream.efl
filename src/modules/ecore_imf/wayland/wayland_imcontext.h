@@ -83,6 +83,10 @@ EAPI void wayland_im_context_input_panel_language_set(Ecore_IMF_Context *ctx,
 EAPI Ecore_IMF_Input_Panel_State
 wayland_im_context_input_panel_state_get   (Ecore_IMF_Context *ctx);
 
+EAPI void
+wayland_im_context_input_panel_return_key_type_set(Ecore_IMF_Context *ctx,
+                                                   Ecore_IMF_Input_Panel_Return_Key_Type return_key_type);
+
 WaylandIMContext *wayland_im_context_new        (struct wl_text_input_manager *text_input_manager);
 
 extern int _ecore_imf_wayland_log_dom;

@@ -137,6 +137,42 @@ enum wl_text_input_content_purpose
 };
 #endif /* WL_TEXT_INPUT_CONTENT_PURPOSE_ENUM */
 
+#ifndef WL_TEXT_INPUT_RETURN_KEY_TYPE_ENUM
+#define WL_TEXT_INPUT_RETURN_KEY_TYPE_ENUM
+/**
+ * wl_text_input_return_key_type - return key type
+ * @WL_TEXT_INPUT_RETURN_KEY_TYPE_DEFAULT: default
+ * @WL_TEXT_INPUT_RETURN_KEY_TYPE_DONE: done
+ * @WL_TEXT_INPUT_RETURN_KEY_TYPE_GO: go
+ * @WL_TEXT_INPUT_RETURN_KEY_TYPE_JOIN: join
+ * @WL_TEXT_INPUT_RETURN_KEY_TYPE_LOGIN: login
+ * @WL_TEXT_INPUT_RETURN_KEY_TYPE_NEXT: next
+ * @WL_TEXT_INPUT_RETURN_KEY_TYPE_SEARCH: search
+ * @WL_TEXT_INPUT_RETURN_KEY_TYPE_SEND: send
+ *
+ * The return key type allows to specify the return key on the input
+ * panel.
+ */
+enum wl_text_input_return_key_type {
+	WL_TEXT_INPUT_RETURN_KEY_TYPE_DEFAULT = 0,
+	WL_TEXT_INPUT_RETURN_KEY_TYPE_DONE = 1,
+	WL_TEXT_INPUT_RETURN_KEY_TYPE_GO = 2,
+	WL_TEXT_INPUT_RETURN_KEY_TYPE_JOIN = 3,
+	WL_TEXT_INPUT_RETURN_KEY_TYPE_LOGIN = 4,
+	WL_TEXT_INPUT_RETURN_KEY_TYPE_NEXT = 5,
+	WL_TEXT_INPUT_RETURN_KEY_TYPE_SEARCH = 6,
+	WL_TEXT_INPUT_RETURN_KEY_TYPE_SEND = 7,
+};
+#endif /* WL_TEXT_INPUT_RETURN_KEY_TYPE_ENUM */
+
+#ifndef WL_TEXT_INPUT_INPUT_PANEL_STATE_ENUM
+#define WL_TEXT_INPUT_INPUT_PANEL_STATE_ENUM
+enum wl_text_input_input_panel_state {
+	WL_TEXT_INPUT_INPUT_PANEL_STATE_HIDE = 0,
+	WL_TEXT_INPUT_INPUT_PANEL_STATE_SHOW = 1,
+};
+#endif /* WL_TEXT_INPUT_INPUT_PANEL_STATE_ENUM */
+
 #ifndef WL_TEXT_INPUT_PREEDIT_STYLE_ENUM
 #define WL_TEXT_INPUT_PREEDIT_STYLE_ENUM
 enum wl_text_input_preedit_style 
@@ -161,15 +197,6 @@ enum wl_text_input_text_direction
    WL_TEXT_INPUT_TEXT_DIRECTION_RTL = 2,
 };
 #endif /* WL_TEXT_INPUT_TEXT_DIRECTION_ENUM */
-
-#ifndef WL_TEXT_INPUT_INPUT_PANEL_STATE_ENUM
-#define WL_TEXT_INPUT_INPUT_PANEL_STATE_ENUM
-enum wl_text_input_input_panel_state
-{
-   WL_TEXT_INPUT_INPUT_PANEL_STATE_HIDE = 0,
-   WL_TEXT_INPUT_INPUT_PANEL_STATE_SHOW = 1,
-};
-#endif /* WL_TEXT_INPUT_INPUT_PANEL_STATE_ENUM */
 
 /**
  * wl_text_input - text input
@@ -397,6 +424,7 @@ wl_text_input_add_listener(struct wl_text_input *wl_text_input, const struct wl_
 #define WL_TEXT_INPUT_SET_PREFERRED_LANGUAGE 8
 #define WL_TEXT_INPUT_COMMIT_STATE 9
 #define WL_TEXT_INPUT_INVOKE_ACTION 10
+#define WL_TEXT_INPUT_SET_RETURN_KEY_TYPE 11
 
 static inline void
 wl_text_input_set_user_data(struct wl_text_input *wl_text_input, void *user_data)
@@ -504,6 +532,13 @@ wl_text_input_invoke_action(struct wl_text_input *wl_text_input, uint32_t button
    if (!wl_text_input) return;
    wl_proxy_marshal((struct wl_proxy *) wl_text_input,
                     WL_TEXT_INPUT_INVOKE_ACTION, button, index);
+}
+
+static inline void
+wl_text_input_set_return_key_type(struct wl_text_input *wl_text_input, uint32_t return_key_type)
+{
+   wl_proxy_marshal((struct wl_proxy *) wl_text_input,
+                    WL_TEXT_INPUT_SET_RETURN_KEY_TYPE, return_key_type);
 }
 
 #define WL_TEXT_INPUT_MANAGER_CREATE_TEXT_INPUT	0

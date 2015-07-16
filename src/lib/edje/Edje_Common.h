@@ -2479,6 +2479,33 @@ EAPI Eina_Bool edje_audio_channel_mute_get(Edje_Channel channel);
  * @since 1.10
  */
 EAPI const char *edje_object_part_object_name_get(const Evas_Object *obj);
+
+/**
+ * @internal
+ * @brief These APIs are for communicating with edje_entry for not moving
+ *        cursor position meanwhile.
+ *
+ * @remarks Tizen only feature (2015.07.16)
+ *
+ * @remarks Applications NEVER USE THESE APIs for private purporse.
+ *
+ * @see edje_object_part_text_thaw()
+ */
+EAPI void                    edje_object_part_text_freeze    (Evas_Object *obj, const char *part);
+
+/**
+ * @internal
+ * @brief These APIs are for communicating with edje_entry for not moving
+ *        cursor position meanwhile.
+ *
+ * @remarks Tizen only feature (2015.07.16)
+ *
+ * @remarks Applications NEVER USE THESE APIs for private purporse.
+ *
+ * @see edje_object_part_text_freeze()
+ */
+EAPI void                    edje_object_part_text_thaw      (Evas_Object *obj, const char *part);
+
 /**
  * @}
  */

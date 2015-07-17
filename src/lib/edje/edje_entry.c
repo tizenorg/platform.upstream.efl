@@ -4294,11 +4294,20 @@ _edje_entry_imf_event_preedit_changed_cb(void *data, Ecore_IMF_Context *ctx EINA
              Edje_Entry_Change_Info *info;
 
              _edje_entry_hide_visible_password(ed, en->rp);
-             info = _text_filter_text_prepend(ed, en, en->cursor,
-                                              eina_strbuf_string_get(buf),
-                                              "+ password=off",
-                                              "- password",
-                                              EINA_TRUE, EINA_TRUE);
+           // TIZEN_ONLY(20150629): In case of unicode language preedit status is needed to be maintained
+           // so markup text comes from imf
+              info = _text_filter_markup_prepend(ed, en, en->cursor,
+                                                    eina_strbuf_string_get(buf),
+                                                    "+ password=off",
+                                                    "- password",
+                                                    EINA_TRUE, EINA_TRUE);
+              //info = _text_filter_text_prepend(ed, en, en->cursor,
+              //                                eina_strbuf_string_get(buf),
+              //                                 "+ password=off",
+              //                                 "- password",
+              //                                 EINA_TRUE, EINA_TRUE);
+              //
+           //
              if (info)
                {
                   if (en->pw_timer)

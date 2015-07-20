@@ -53,6 +53,7 @@ struct _WaylandIMContext
 
    char *preedit_text;
    char *preedit_commit;
+   char *language;
    Eina_List *preedit_attrs;
    int32_t preedit_cursor;
 
@@ -688,11 +689,17 @@ text_input_input_panel_state(void                 *data EINA_UNUSED,
 }
 
 static void
-text_input_language(void                 *data EINA_UNUSED,
+text_input_language(void                 *data,
                     struct wl_text_input *text_input EINA_UNUSED,
                     uint32_t              serial EINA_UNUSED,
-                    const char           *language EINA_UNUSED)
+                    const char           *language)
 {
+    WaylandIMContext *imcontext = (WaylandIMContext *)data;
+
+    if (imcontext->language)
+      free(imcontext->language);
+
+    imcontext->language = strdup(language ? language : "");
 }
 
 static void
@@ -747,6 +754,12 @@ wayland_im_context_del(Ecore_IMF_Context *ctx)
    if (_active_ctx == ctx)
      _active_ctx = NULL;
    //
+
+   if (imcontext->language)
+     {
+        free(imcontext->language);
+        imcontext->language = NULL;
+     }
 
    if (imcontext->text_input)
      wl_text_input_destroy(imcontext->text_input);
@@ -1074,6 +1087,16 @@ wayland_im_context_input_panel_return_key_type_set(Ecore_IMF_Context *ctx,
    WaylandIMContext *imcontext = (WaylandIMContext *)ecore_imf_context_data_get(ctx);
 
    imcontext->return_key_type = return_key_type;
+}
+
+EAPI void
+wayland_im_context_input_panel_language_locale_get(Ecore_IMF_Context *ctx,
+                                                   char **locale)
+{
+   WaylandIMContext *imcontext = (WaylandIMContext *)ecore_imf_context_data_get(ctx);
+
+   if (locale)
+     *locale = strdup(imcontext->language ? imcontext->language : "");
 }
 
 WaylandIMContext *wayland_im_context_new (struct wl_text_input_manager *text_input_manager)

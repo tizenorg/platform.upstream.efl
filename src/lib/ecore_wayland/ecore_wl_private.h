@@ -165,6 +165,7 @@ struct _Ecore_Wl_Window
      {
         int x, y, w, h;
         Ecore_Wl_Indicator_State state;
+        Ecore_Wl_Indicator_Opacity_Mode mode;
      } indicator;
    struct
      {

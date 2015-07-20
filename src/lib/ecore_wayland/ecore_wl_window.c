@@ -1640,13 +1640,12 @@ ecore_wl_window_indicator_geometry_get(Ecore_Wl_Window *win, int *x, int *y, int
 }
 
 EAPI void
-ecore_wl_window_indicator_state_set(Ecore_Wl_Window *win, Eina_Bool on)
+ecore_wl_window_indicator_state_set(Ecore_Wl_Window *win, Ecore_Wl_Indicator_State state)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
    if (!win) return;
 
-   if (on) win->indicator.state = ECORE_WL_INDICATOR_STATE_ON;
-   else if (!on) win->indicator.state = ECORE_WL_INDICATOR_STATE_OFF;
+   win->indicator.state = state;
 }
 
 EAPI Ecore_Wl_Indicator_State
@@ -1656,6 +1655,24 @@ ecore_wl_window_indicator_state_get(Ecore_Wl_Window *win)
    if (!win) return EINA_FALSE;
 
    return win->indicator.state;
+}
+
+EAPI void
+ecore_wl_window_indicator_opacity_set(Ecore_Wl_Window *win, Ecore_Wl_Indicator_Opacity_Mode mode)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return;
+
+   win->indicator.mode = mode;
+}
+
+EAPI Ecore_Wl_Indicator_Opacity_Mode
+ecore_wl_window_indicator_opacity_get(Ecore_Wl_Window *win)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return EINA_FALSE;
+
+   return win->indicator.mode;
 }
 
 void

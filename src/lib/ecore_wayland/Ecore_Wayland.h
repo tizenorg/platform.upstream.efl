@@ -130,6 +130,14 @@ enum _Ecore_Wl_Clipboard_State
    ECORE_WL_CLIPBOARD_STATE_ON
 };
 
+enum _Ecore_Wl_Indicator_Opacity_Mode
+{
+   ECORE_WL_INDICATOR_OPACITY_UNKNOWN = 0,
+   ECORE_WL_INDICATOR_OPAQUE,
+   ECORE_WL_INDICATOR_TRANSLUCENT,
+   ECORE_WL_INDICATOR_TRANSPARENT
+};
+
 typedef enum _Ecore_Wl_Window_Type Ecore_Wl_Window_Type;
 typedef enum _Ecore_Wl_Window_Buffer_Type Ecore_Wl_Window_Buffer_Type;
 typedef enum _Ecore_Wl_Window_Keygrab_Mode Ecore_Wl_Window_Keygrab_Mode;
@@ -137,6 +145,7 @@ typedef enum _Ecore_Wl_Conformant_Part_Type Ecore_Wl_Conformant_Part_Type;
 typedef enum _Ecore_Wl_Virtual_Keyboard_State Ecore_Wl_Virtual_Keyboard_State;
 typedef enum _Ecore_Wl_Indicator_State Ecore_Wl_Indicator_State;
 typedef enum _Ecore_Wl_Clipboard_State Ecore_Wl_Clipboard_State;
+typedef enum _Ecore_Wl_Indicator_Opacity_Mode Ecore_Wl_Indicator_Opacity_Mode;
 
 /** @since 1.7.6 */
 struct _Ecore_Wl_Global
@@ -994,8 +1003,10 @@ EAPI Eina_Bool ecore_wl_window_conformant_get(Ecore_Wl_Window *win);
 
 EAPI void ecore_wl_window_indicator_geometry_set(Ecore_Wl_Window *win, int x, int y, int w, int h);
 EAPI Eina_Bool ecore_wl_window_indicator_geometry_get(Ecore_Wl_Window *win, int *x, int *y, int *w, int *h);
-EAPI void ecore_wl_window_indicator_state_set(Ecore_Wl_Window *win, Eina_Bool on);
+EAPI void ecore_wl_window_indicator_state_set(Ecore_Wl_Window *win, Ecore_Wl_Indicator_State state);
 EAPI Ecore_Wl_Indicator_State ecore_wl_window_indicator_state_get(Ecore_Wl_Window *win);
+EAPI void ecore_wl_window_indicator_opacity_set(Ecore_Wl_Window *win, Ecore_Wl_Indicator_Opacity_Mode mode);
+EAPI Ecore_Wl_Indicator_Opacity_Mode ecore_wl_window_indicator_opacity_get(Ecore_Wl_Window *win);
 
 EAPI void ecore_wl_window_clipboard_geometry_set(Ecore_Wl_Window *win, int x, int y, int w, int h);
 EAPI Eina_Bool ecore_wl_window_clipboard_geometry_get(Ecore_Wl_Window *win, int *x, int *y, int *w, int *h);

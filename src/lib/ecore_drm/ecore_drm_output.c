@@ -125,6 +125,10 @@ _ecore_drm_output_mode_add(Ecore_Drm_Output *output, drmModeModeInfo *info)
    Ecore_Drm_Output_Mode *mode;
    uint64_t refresh;
 
+   EINA_SAFETY_ON_NULL_RETURN_VAL(info, NULL);
+   EINA_SAFETY_ON_FALSE_RETURN_VAL((info->htotal > 0), NULL);
+   EINA_SAFETY_ON_FALSE_RETURN_VAL((info->vtotal > 0), NULL);
+
    /* try to allocate space for mode */
    if (!(mode = malloc(sizeof(Ecore_Drm_Output_Mode))))
      {

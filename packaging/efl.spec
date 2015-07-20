@@ -252,7 +252,7 @@ Development files for evas
 %package -n ecore
 Summary: Enlightened Core X interface library
 Requires: %{name}-data = %{version}-%{release}
-Requires:  pkgconfig(xgesture)
+Requires:  libXgesture
 
 %description -n ecore
 Ecore is the event/X abstraction layer that makes doing selections,

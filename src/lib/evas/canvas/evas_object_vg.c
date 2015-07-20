@@ -162,10 +162,11 @@ evas_object_vg_render(Evas_Object *eo_obj EINA_UNUSED,
 {
    Evas_VG_Data *vd = type_private_data;
 
-   vd->backing_store = obj->layer->evas->engine.func->ector_surface_create(output,
-                                                                           vd->backing_store,
-                                                                           obj->cur->geometry.w,
-                                                                           obj->cur->geometry.h);
+   if (vd->content_changed)
+     vd->backing_store = obj->layer->evas->engine.func->ector_surface_create(output,
+                                                                             vd->backing_store,
+                                                                             obj->cur->geometry.w,
+                                                                             obj->cur->geometry.h);
    // FIXME: Set context (that should affect Ector_Surface) and
    // then call Ector_Renderer render from bottom to top. Get the
    // Ector_Surface that match the output from Evas engine API.
@@ -214,6 +215,10 @@ evas_object_vg_render(Evas_Object *eo_obj EINA_UNUSED,
                                                   obj->cur->geometry.y + y, obj->cur->geometry.w, obj->cur->geometry.h,
                                                   EINA_TRUE, do_async);
      }
+   // reset the content change flag
+   // don't move this to render_pre as there is no guarentee that
+   // each render_pre() will be followed by a render() call.
+   vd->content_changed = EINA_FALSE;
 }
 
 static void
@@ -276,8 +281,6 @@ evas_object_vg_render_pre(Evas_Object *eo_obj,
         if ((obj->cur->geometry.w != obj->prev->geometry.w) ||
             (obj->cur->geometry.h != obj->prev->geometry.h))
           vd->content_changed = EINA_TRUE;
-        else
-          vd->content_changed = EINA_FALSE;
      }
 
    if (is_v != was_v)

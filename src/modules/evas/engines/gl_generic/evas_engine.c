@@ -1381,6 +1381,18 @@ eng_gl_get_pixels_set(void *data, void *get_pixels, void *get_pixels_data, void 
    re->func.obj = (Evas_Object*)obj;
 }
 
+static void
+eng_gl_get_pixels_pre(void *data EINA_UNUSED)
+{
+   evgl_get_pixels_pre();
+}
+
+static void
+eng_gl_get_pixels_post(void *data EINA_UNUSED)
+{
+   evgl_get_pixels_post();
+}
+
 static Eina_Bool
 eng_gl_surface_lock(void *data, void *surface)
 {
@@ -2273,6 +2285,8 @@ module_open(Evas_Module *em)
    ORD(gl_direct_override_get);
    ORD(gl_surface_direct_renderable_get);
    ORD(gl_get_pixels_set);
+   ORD(gl_get_pixels_pre);
+   ORD(gl_get_pixels_post);
    ORD(gl_surface_lock);
    ORD(gl_surface_read_pixels);
    ORD(gl_surface_unlock);

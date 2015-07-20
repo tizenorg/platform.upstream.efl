@@ -294,6 +294,7 @@ struct _EVGL_Resource
         } partial;
 
         Eina_Bool            enabled : 1;
+        Eina_Bool            in_get_pixels : 1;
         Eina_Bool            render_op_copy : 1;
    } direct;
    struct {

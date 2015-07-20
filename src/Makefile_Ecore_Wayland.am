@@ -16,18 +16,8 @@ lib/ecore_wayland/ecore_wl_output.c \
 lib/ecore_wayland/ecore_wl_window.c \
 lib/ecore_wayland/ecore_wl_subsurf.c \
 lib/ecore_wayland/ecore_wl_private.h \
-lib/ecore_wayland/subsurface-protocol.c \
-lib/ecore_wayland/subsurface-client-protocol.h \
 lib/ecore_wayland/ivi-application-protocol.c \
 lib/ecore_wayland/ivi-application-client-protocol.h \
-lib/ecore_wayland/xdg-shell-client-protocol.h \
-lib/ecore_wayland/xdg-shell-protocol.c \
-lib/ecore_wayland/keyrouter-client-protocol.h \
-lib/ecore_wayland/keyrouter-protocol.c \
-lib/ecore_wayland/tizen-policy-client-protocol.h \
-lib/ecore_wayland/tizen-policy-protocol.c \
-lib/ecore_wayland/tizen-extension-client-protocol.h \
-lib/ecore_wayland/tizen-extension-protocol.c \
 lib/ecore_wayland/tizen-policy-ext-client-protocol.h \
 lib/ecore_wayland/tizen-policy-ext-protocol.c
 

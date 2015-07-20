@@ -30,7 +30,7 @@
 #include <stdio.h>
 
 #include "wayland_imcontext.h"
-#include "text-client-protocol.h"
+#include <text-client-protocol.h>
 
 int _ecore_imf_wayland_log_dom = -1;
 

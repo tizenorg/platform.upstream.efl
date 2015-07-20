@@ -21,6 +21,9 @@ BuildRequires:  pkgconfig(gles20)
 BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(wayland-cursor)
 BuildRequires:  pkgconfig(wayland-egl)
+BuildRequires:  pkgconfig(text-client)
+BuildRequires:  pkgconfig(xdg-shell-client)
+BuildRequires:  pkgconfig(tizen-extension-client)
 %endif
 
 %if %{with x}

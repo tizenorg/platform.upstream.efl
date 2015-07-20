@@ -12,6 +12,7 @@
 # include <wayland-client.h>
 # include <wayland-cursor.h>
 # include <xkbcommon/xkbcommon.h>
+# include <xdg-shell-client-protocol.h>
 
 # ifdef EAPI
 #  undef EAPI

@@ -3,9 +3,8 @@
 #endif
 
 #include "ecore_wl_private.h"
-#include "xdg-shell-client-protocol.h"
-#include "tizen-policy-client-protocol.h"
-#include "tizen-extension-client-protocol.h"
+#include <xdg-shell-client-protocol.h>
+#include <tizen-extension-client-protocol.h>
 
 /* local function prototypes */
 static void _ecore_wl_window_cb_ping(void *data EINA_UNUSED, struct wl_shell_surface *shell_surface, unsigned int serial);
@@ -443,7 +442,7 @@ ecore_wl_window_show(Ecore_Wl_Window *win)
         if (win->role)
           {
              if (win->surface)
-               tizen_policy_role_set(_ecore_wl_disp->wl.tz_policy,
+               tizen_policy_set_role(_ecore_wl_disp->wl.tz_policy,
                                      win->surface,
                                      win->role);
           }
@@ -458,11 +457,10 @@ ecore_wl_window_show(Ecore_Wl_Window *win)
                                       &_ecore_tizen_rotation_listener, win);
      }
 
-   if ((!win->tz_resource) && (_ecore_wl_disp->wl.tz_surf_ext))
+   if ((!win->tz_resource) && (_ecore_wl_disp->wl.tz_surf))
      {
         win->tz_resource =
-           tizen_surface_extension_get_tizen_resource(_ecore_wl_disp->wl.tz_surf_ext,
-                                                      win->surface);
+           tizen_surface_get_tizen_resource(_ecore_wl_disp->wl.tz_surf, win->surface);
         if (!win->tz_resource) return;
         tizen_resource_add_listener(win->tz_resource,
                                     &_ecore_tizen_resource_listener, win);
@@ -908,12 +906,12 @@ ecore_wl_window_focus_skip_set(Ecore_Wl_Window *win, Eina_Bool focus_skip)
    if (focus_skip)
      {
         if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
-          tizen_policy_focus_skip_set(_ecore_wl_disp->wl.tz_policy, win->surface);
+          tizen_policy_set_focus_skip(_ecore_wl_disp->wl.tz_policy, win->surface);
       }
    else
      {
         if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
-          tizen_policy_focus_skip_unset(_ecore_wl_disp->wl.tz_policy, win->surface);
+          tizen_policy_unset_focus_skip(_ecore_wl_disp->wl.tz_policy, win->surface);
      }
  }
 
@@ -926,7 +924,7 @@ ecore_wl_window_role_set(Ecore_Wl_Window *win, const char *role)
    eina_stringshare_replace(&win->role, role);
 
    if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
-     tizen_policy_role_set(_ecore_wl_disp->wl.tz_policy, win->surface, win->role);
+     tizen_policy_set_role(_ecore_wl_disp->wl.tz_policy, win->surface, win->role);
 }
 
 /* @since 1.12 */
@@ -1783,9 +1781,9 @@ ecore_wl_window_conformant_set(Ecore_Wl_Window *win, unsigned int is_conformant)
    if (!_ecore_wl_disp->wl.tz_policy) return;
 
    if (is_conformant)
-     tizen_policy_conformant_set(_ecore_wl_disp->wl.tz_policy, win->surface);
+     tizen_policy_set_conformant(_ecore_wl_disp->wl.tz_policy, win->surface);
    else
-     tizen_policy_conformant_unset(_ecore_wl_disp->wl.tz_policy, win->surface);
+     tizen_policy_unset_conformant(_ecore_wl_disp->wl.tz_policy, win->surface);
 }
 
 EAPI Eina_Bool
@@ -1796,7 +1794,7 @@ ecore_wl_window_conformant_get(Ecore_Wl_Window *win)
    if (!win->surface) return 0;
    if (!_ecore_wl_disp->wl.tz_policy) return 0;
 
-   tizen_policy_conformant_get(_ecore_wl_disp->wl.tz_policy, win->surface);
+   tizen_policy_get_conformant(_ecore_wl_disp->wl.tz_policy, win->surface);
 
    ecore_wl_sync();
 

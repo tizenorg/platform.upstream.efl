@@ -16,9 +16,9 @@
 # include <subsurface-client-protocol.h>
 #endif
 
-#include "xdg-shell-client-protocol.h"
+#include <xdg-shell-client-protocol.h>
 #define XDG_VERSION 4
-#include "keyrouter-client-protocol.h"
+#include <tizen-extension-client-protocol.h>
 
 /* local function prototypes */
 static int _ecore_wl_shutdown(Eina_Bool close);
@@ -40,6 +40,9 @@ static void _ecore_wl_init_callback(void *data, struct wl_callback *callback, ui
 static void _ecore_wl_cb_keygrab_notify(void *data, struct wl_keyrouter *wl_keyrouter, struct wl_surface *surface, uint32_t key, uint32_t mode, uint32_t error);
 static void _ecore_wl_cb_conformant(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface_resource, uint32_t is_conformant);
 static void _ecore_wl_cb_conformant_area(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface_resource, uint32_t conformant_part, uint32_t state, int32_t x, int32_t y, int32_t w, int32_t h);
+static void _ecore_wl_cb_notification_done(void *data, struct tizen_policy *tizen_policy, struct wl_surface *surface, int32_t level, uint32_t state);
+static void _ecore_wl_cb_transient_for_done(void *data, struct tizen_policy *tizen_policy, uint32_t child_id);
+static void _ecore_wl_cb_scr_mode_done(void *data, struct tizen_policy *tizen_policy, struct wl_surface *surface, uint32_t mode, uint32_t state);
 static void _ecore_wl_window_conformant_area_send(Ecore_Wl_Window *win, uint32_t conformant_part, uint32_t state);
 
 /* local variables */
@@ -79,6 +82,9 @@ static const struct tizen_policy_listener _ecore_tizen_policy_listener =
 {
    _ecore_wl_cb_conformant,
    _ecore_wl_cb_conformant_area,
+   _ecore_wl_cb_notification_done,
+   _ecore_wl_cb_transient_for_done,
+   _ecore_wl_cb_scr_mode_done,
 };
 static void 
 xdg_shell_ping(void *data EINA_UNUSED, struct xdg_shell *shell, uint32_t serial)
@@ -540,8 +546,8 @@ _ecore_wl_shutdown(Eina_Bool close)
           tizen_policy_destroy(_ecore_wl_disp->wl.tz_policy);
         if (_ecore_wl_disp->wl.tz_policy_ext)
           tizen_policy_ext_destroy(_ecore_wl_disp->wl.tz_policy_ext);
-        if (_ecore_wl_disp->wl.tz_surf_ext)
-          tizen_surface_extension_destroy(_ecore_wl_disp->wl.tz_surf_ext);
+        if (_ecore_wl_disp->wl.tz_surf)
+          tizen_surface_destroy(_ecore_wl_disp->wl.tz_surf);
         if (_ecore_wl_disp->wl.compositor)
           wl_compositor_destroy(_ecore_wl_disp->wl.compositor);
         if (_ecore_wl_disp->wl.subcompositor)
@@ -734,10 +740,10 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
         ewd->wl.tz_policy_ext =
           wl_registry_bind(registry, id, &tizen_policy_ext_interface, 1);
      }
-   else if (!strcmp(interface, "tizen_surface_extension"))
+   else if (!strcmp(interface, "tizen_surface"))
      {
-        ewd->wl.tz_surf_ext =
-          wl_registry_bind(registry, id, &tizen_surface_extension_interface, 1);
+        ewd->wl.tz_surf =
+          wl_registry_bind(registry, id, &tizen_surface_interface, 1);
      }
    else if (!strcmp(interface, "wl_keyrouter"))
      {
@@ -1114,4 +1120,19 @@ _ecore_wl_cb_conformant_area(void *data EINA_UNUSED, struct tizen_policy *tizen_
 
    if (changed)
      _ecore_wl_window_conformant_area_send(win, conformant_part, state);
+}
+
+static void
+_ecore_wl_cb_notification_done(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface EINA_UNUSED, int32_t level EINA_UNUSED, uint32_t state EINA_UNUSED)
+{
+}
+
+static void
+_ecore_wl_cb_transient_for_done(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, uint32_t child_id EINA_UNUSED)
+{
+}
+
+static void
+_ecore_wl_cb_scr_mode_done(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface EINA_UNUSED, uint32_t mode EINA_UNUSED, uint32_t state EINA_UNUSED)
+{
 }

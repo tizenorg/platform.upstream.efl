@@ -103,7 +103,6 @@ typedef struct _Software_Rasterizer
 {
    SW_FT_Raster     raster;
    SW_FT_Stroker    stroker;
-   void            *mem_pool;
    Span_Data        fill_data;
    Eina_Matrix3    *transform;
    Eina_Rectangle   system_clip;

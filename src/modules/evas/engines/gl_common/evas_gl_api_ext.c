@@ -95,15 +95,30 @@ typedef _getproc_fn (*fp_getproc)(const char *);
 
 // Evas extensions from EGL extensions
 #ifdef GL_GLES
-#define EGLDISPLAY_GET() _evgl_egl_display_get(__FUNCTION__)
+#define EGLDISPLAY_GET(a) _evgl_egl_display_get(__FUNCTION__, a)
+
+// this struct defines an EvasGLImage when using EGL
+typedef struct _EvasGLImage {
+   EGLDisplay  dpy;
+   EGLImageKHR img;
+} EvasGLImage_EGL;
+
 static EGLDisplay
-_evgl_egl_display_get(const char *function)
+_evgl_egl_display_get(const char *function, Evas_GL *evgl)
 {
    EGLDisplay dpy = EGL_NO_DISPLAY;
    EVGL_Resource *rsc;
 
+   if (!evgl_engine || !evgl_engine->funcs || !evgl_engine->funcs->display_get)
+     {
+        ERR("%s: Invalid Engine... (Can't acccess EGL Display)\n", function);
+        evas_gl_common_error_set(NULL, EVAS_GL_BAD_DISPLAY);
+        return EGL_NO_DISPLAY;
+     }
+
    if (!(rsc=_evgl_tls_resource_get()))
      {
+        if (evgl) goto fallback;
         ERR("%s: Unable to execute GL command. Error retrieving tls", function);
         evas_gl_common_error_set(NULL, EVAS_GL_NOT_INITIALIZED);
         return EGL_NO_DISPLAY;
@@ -111,29 +126,27 @@ _evgl_egl_display_get(const char *function)
 
    if (!rsc->current_eng)
      {
-        ERR("%s: Unable to retrive Current Engine", function);
+        if (evgl) goto fallback;
+        ERR("%s: no current engine set; ensure you've called evas_gl_make_current()", function);
         evas_gl_common_error_set(NULL, EVAS_GL_NOT_INITIALIZED);
         return EGL_NO_DISPLAY;
      }
 
-   if ((evgl_engine) && (evgl_engine->funcs->display_get))
-     {
-        dpy = (EGLDisplay)evgl_engine->funcs->display_get(rsc->current_eng);
-        return dpy;
-     }
-   else
-     {
-        ERR("%s: Invalid Engine... (Can't acccess EGL Display)\n", function);
-        evas_gl_common_error_set(NULL, EVAS_GL_BAD_DISPLAY);
-        return EGL_NO_DISPLAY;
-     }
+   dpy = (EGLDisplay) evgl_engine->funcs->display_get(rsc->current_eng);
+   return dpy;
+
+fallback:
+   dpy = (EGLDisplay) evgl_engine->funcs->display_get(_evgl_engine_data_get(evgl));
+   return dpy;
 }
 
 static void *
 _evgl_eglCreateImageKHR(EGLDisplay dpy, EGLContext ctx,
                         int target, void* buffer, const int *attrib_list)
 {
+   EvasGLImage_EGL *img;
    int *attribs = NULL;
+   void *eglimg;
 
    /* Convert 0 terminator into a EGL_NONE terminator */
    if (attrib_list)
@@ -157,35 +170,50 @@ _evgl_eglCreateImageKHR(EGLDisplay dpy, EGLContext ctx,
         *a = EGL_NONE;
      }
 
-   return EXT_FUNC(eglCreateImage)(dpy, ctx, target, buffer, attribs);
+   eglimg = EXT_FUNC(eglCreateImage)(dpy, ctx, target, buffer, attribs);
+   if (!eglimg) return NULL;
+
+   img = calloc(1, sizeof(EvasGLImage_EGL));
+   img->dpy = dpy;
+   img->img = eglimg;
+   return img;
 }
 
 static void *
 _evgl_evasglCreateImage(int target, void* buffer, const int *attrib_list)
 {
-   EGLDisplay dpy = EGLDISPLAY_GET();
+   EGLDisplay dpy = EGLDISPLAY_GET(NULL);
    EGLContext ctx = EGL_NO_CONTEXT;
 
-   if (!dpy) return NULL;
+   if (!dpy)
+     {
+        WRN("No display found, use evasglCreateImageForContext instead.");
+        return NULL;
+     }
 
    /* EGL_NO_CONTEXT will always fail for TEXTURE_2D */
    if (target == EVAS_GL_TEXTURE_2D)
      {
         ctx = eglGetCurrentContext();
-        INF("Creating EGL image based on the current context: %p", ctx);
+        DBG("Creating EGL image based on the current context: %p", ctx);
      }
 
    return _evgl_eglCreateImageKHR(dpy, ctx, target, buffer, attrib_list);
 }
 
 static void *
-_evgl_evasglCreateImageForContext(Evas_GL *evasgl EINA_UNUSED, Evas_GL_Context *evasctx,
-                                 int target, void* buffer, const int *attrib_list)
+_evgl_evasglCreateImageForContext(Evas_GL *evasgl, Evas_GL_Context *evasctx,
+                                  int target, void* buffer, const int *attrib_list)
 {
-   EGLDisplay dpy = EGLDISPLAY_GET();
+   EGLDisplay dpy = EGLDISPLAY_GET(evasgl);
    EGLContext ctx = EGL_NO_CONTEXT;
 
-   if (!evasgl || !dpy) return NULL;
+   if (!dpy || !evasgl)
+     {
+        ERR("Evas_GL can not be NULL here.");
+        evas_gl_common_error_set(NULL, EVAS_GL_BAD_DISPLAY);
+        return NULL;
+     }
 
    ctx = _evgl_native_context_get(evasctx);
    return _evgl_eglCreateImageKHR(dpy, ctx, target, buffer, attrib_list);
@@ -194,100 +222,105 @@ _evgl_evasglCreateImageForContext(Evas_GL *evasgl EINA_UNUSED, Evas_GL_Context *
 static void
 _evgl_evasglDestroyImage(EvasGLImage image)
 {
-   EGLDisplay dpy = EGLDISPLAY_GET();
-   if (!dpy) return;
-   EXT_FUNC(eglDestroyImage)(dpy, image);
+   EvasGLImage_EGL *img = image;
+
+   EXT_FUNC(eglDestroyImage)(img->dpy, img->img);
+   free(img);
 }
 
 static void
 _evgl_glEvasGLImageTargetTexture2D(GLenum target, EvasGLImage image)
 {
-   EXT_FUNC(glEGLImageTargetTexture2DOES)(target, image);
+   EvasGLImage_EGL *img = image;
+
+   EXT_FUNC(glEGLImageTargetTexture2DOES)(target, img->img);
 }
 
 static void
 _evgl_glEvasGLImageTargetRenderbufferStorage(GLenum target, EvasGLImage image)
 {
-   EXT_FUNC(glEGLImageTargetRenderbufferStorageOES)(target, image);
+   EvasGLImage_EGL *img = image;
+
+   EXT_FUNC(glEGLImageTargetRenderbufferStorageOES)(target, img->img);
 }
 
 static EvasGLSync
-_evgl_evasglCreateSync(Evas_GL *evas_gl EINA_UNUSED,
-                      unsigned int type, const int *attrib_list)
+_evgl_evasglCreateSync(Evas_GL *evas_gl,
+                       unsigned int type, const int *attrib_list)
 {
-   EGLDisplay dpy = EGLDISPLAY_GET();
+   EGLDisplay dpy = EGLDISPLAY_GET(evas_gl);
    if (!dpy) return NULL;
    return EXT_FUNC(eglCreateSyncKHR)(dpy, type, attrib_list);
 }
 
 static Eina_Bool
-_evgl_evasglDestroySync(Evas_GL *evas_gl EINA_UNUSED, EvasGLSync sync)
+_evgl_evasglDestroySync(Evas_GL *evas_gl, EvasGLSync sync)
 {
-   EGLDisplay dpy = EGLDISPLAY_GET();
+   EGLDisplay dpy = EGLDISPLAY_GET(evas_gl);
    if (!dpy) return EINA_FALSE;
    return EXT_FUNC(eglDestroySyncKHR)(dpy, sync);
 }
 
 static int
-_evgl_evasglClientWaitSync(Evas_GL *evas_gl EINA_UNUSED,
-                          EvasGLSync sync, int flags, EvasGLTime timeout)
+_evgl_evasglClientWaitSync(Evas_GL *evas_gl,
+                           EvasGLSync sync, int flags, EvasGLTime timeout)
 {
-   EGLDisplay dpy = EGLDISPLAY_GET();
+   EGLDisplay dpy = EGLDISPLAY_GET(evas_gl);
    if (!dpy) return EINA_FALSE;
    return EXT_FUNC(eglClientWaitSyncKHR)(dpy, sync, flags, timeout);
 }
 
 static Eina_Bool
-_evgl_evasglSignalSync(Evas_GL *evas_gl EINA_UNUSED,
-                      EvasGLSync sync, unsigned mode)
+_evgl_evasglSignalSync(Evas_GL *evas_gl,
+                       EvasGLSync sync, unsigned mode)
 {
-   EGLDisplay dpy = EGLDISPLAY_GET();
+   EGLDisplay dpy = EGLDISPLAY_GET(evas_gl);
    if (!dpy) return EINA_FALSE;
    return EXT_FUNC(eglSignalSyncKHR)(dpy, sync, mode);
 }
 
 static Eina_Bool
-_evgl_evasglGetSyncAttrib(Evas_GL *evas_gl EINA_UNUSED,
-                         EvasGLSync sync, int attribute, int *value)
+_evgl_evasglGetSyncAttrib(Evas_GL *evas_gl,
+                          EvasGLSync sync, int attribute, int *value)
 {
-   EGLDisplay dpy = EGLDISPLAY_GET();
+   EGLDisplay dpy = EGLDISPLAY_GET(evas_gl);
    if (!dpy) return EINA_FALSE;
    return EXT_FUNC(eglGetSyncAttribKHR)(dpy, sync, attribute, value);
 }
 
 static int
-_evgl_evasglWaitSync(Evas_GL *evas_gl EINA_UNUSED,
-                    EvasGLSync sync, int flags)
+_evgl_evasglWaitSync(Evas_GL *evas_gl,
+                     EvasGLSync sync, int flags)
 {
-   EGLDisplay dpy = EGLDISPLAY_GET();
+   EGLDisplay dpy = EGLDISPLAY_GET(evas_gl);
    if (!dpy) return EINA_FALSE;
    return EXT_FUNC(eglWaitSyncKHR)(dpy, sync, flags);
 }
 
 /*
 static Eina_Bool
-evgl_evasglBindWaylandDisplay(Evas_GL *evas_gl EINA_UNUSED,
-                              void *wl_display)
+_evgl_evasglBindWaylandDisplay(Evas_GL *evas_gl,
+                               void *wl_display)
 {
-   EGLDisplay dpy = EGLDISPLAY_GET();
+   EGLDisplay dpy = EGLDISPLAY_GET(evas_gl);
    if (!dpy) return EINA_FALSE;
    return EXT_FUNC(eglBindWaylandDisplayWL)(dpy, wl_display);
 }
 
 static Eina_Bool
-evgl_evasglUnbindWaylandDisplay(Evas_GL *evas_gl EINA_UNUSED,
-                                void *wl_display)
+_evgl_evasglUnbindWaylandDisplay(Evas_GL *evas_gl,
+                                 void *wl_display)
 {
-   EGLDisplay dpy = EGLDISPLAY_GET();
+   EGLDisplay dpy = EGLDISPLAY_GET(evas_gl);
    if (!dpy) return EINA_FALSE;
    return EXT_FUNC(eglUnbindWaylandDisplayWL)(dpy, wl_display);
 }
 
 static Eina_Bool
-evgl_evasglQueryWaylandBuffer(Evas_GL *evas_gl EINA_UNUSED,
-                              void *buffer, int attribute, int *value)
+_evgl_evasglQueryWaylandBuffer(Evas_GL *evas_gl,
+                               void *buffer, int attribute, int *value)
 {
-   EGLDisplay dpy = EGLDISPLAY_GET();
+   EGLDisplay dpy = EGLDISPLAY_GET(evas_gl);
    if (!dpy) return EINA_FALSE;
    return EXT_FUNC(eglQueryWaylandBufferWL)(dpy, buffer, attribute, value);
 }

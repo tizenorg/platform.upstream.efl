@@ -1607,7 +1607,7 @@ _EVASGL_EXT_BEGIN(EGL_KHR_wait_sync)
 
 _EVASGL_EXT_END()
 
-	/*
+/*
 _EVASGL_EXT_BEGIN(EGL_WL_bind_wayland_display)
 
         _EVASGL_EXT_DRVNAME(EGL_WL_bind_wayland_display)

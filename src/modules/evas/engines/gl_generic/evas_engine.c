@@ -51,7 +51,7 @@ _context_restore(void)
    }
 }
 
-inline void
+static inline void
 _context_store(void *data, void *surface, void *context)
 {
    EVGL_Resource *rsc = _evgl_tls_resource_get();
@@ -72,8 +72,8 @@ _context_store(void *data, void *surface, void *context)
    }
 }
 
-inline void
-_context_stored_reset(void *data, void *surface)
+static inline void
+_context_stored_reset(void *data EINA_UNUSED, void *surface)
 {
    EVGL_Resource *rsc = _evgl_tls_resource_get();
    if (rsc && rsc->stored.surface == surface)

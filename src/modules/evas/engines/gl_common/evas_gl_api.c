@@ -1020,7 +1020,7 @@ _evgl_glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
 #define _EVASGL_FUNCTION_BEGIN(ret, name, param1, param2) \
    static ret evgl_gles3_##name param1 {\
     if (!_gles3_api.name) return (ret)0;\
-    return name param2; }
+    return _gles3_api.name param2; }
 
 #include "evas_gl_api_gles3_def.h"
 
@@ -1901,14 +1901,10 @@ _evgld_glShaderBinary(GLsizei n, const GLuint* shaders, GLenum binaryformat, con
 }
 
 void
-_evgld_glShaderSource(GLuint shader, GLsizei count, const char** string, const GLint* length)
+_evgld_glShaderSource(GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length)
 {
    EVGLD_FUNC_BEGIN();
-#ifdef GL_GLES
-   evgl_glShaderSource(shader, count, (const GLchar * const *) string, length);
-#else
-   evgl_glShaderSource(shader, count, (const GLchar **) string, length);
-#endif
+   evgl_glShaderSource(shader, count, (const GLchar* const*) string, length);
    GLERR(__FUNCTION__, __FILE__, __LINE__, "");
    EVGLD_FUNC_END();
 }

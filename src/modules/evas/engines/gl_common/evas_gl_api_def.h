@@ -98,7 +98,7 @@ _EVASGL_FUNCTION_BEGIN(void, glPixelStorei, (GLenum pname, GLint param), (pname,
 _EVASGL_FUNCTION_BEGIN(void, glPolygonOffset, (GLfloat factor, GLfloat units), (factor, units))
 _EVASGL_FUNCTION_BEGIN(void, glRenderbufferStorage, (GLenum target, GLenum internalformat, GLsizei width, GLsizei height), (target, internalformat, width, height))
 _EVASGL_FUNCTION_BEGIN(void, glSampleCoverage, (GLclampf value, GLboolean invert), (value, invert))
-_EVASGL_FUNCTION_BEGIN(void, glShaderSource, (GLuint shader, GLsizei count, const char** string, const GLint* length), (shader, count, string, length))
+_EVASGL_FUNCTION_BEGIN(void, glShaderSource, (GLuint shader, GLsizei count, const GLchar* const* string, const GLint* length), (shader, count, string, length))
 _EVASGL_FUNCTION_BEGIN(void, glStencilFunc, (GLenum func, GLint ref, GLuint mask), (func, ref, mask))
 _EVASGL_FUNCTION_BEGIN(void, glStencilFuncSeparate, (GLenum face, GLenum func, GLint ref, GLuint mask), (face, func, ref, mask))
 _EVASGL_FUNCTION_BEGIN(void, glStencilMask, (GLuint mask), (mask))

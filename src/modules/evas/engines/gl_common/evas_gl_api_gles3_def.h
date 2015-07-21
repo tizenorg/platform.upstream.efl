@@ -48,7 +48,7 @@ _EVASGL_FUNCTION_BEGIN(void, glGetQueryiv, (GLenum target, GLenum pname, GLint *
 _EVASGL_FUNCTION_BEGIN(void, glGetQueryObjectuiv, (GLuint id, GLenum pname, GLuint * params), (id, pname, params))
 _EVASGL_FUNCTION_BEGIN(void, glGetSamplerParameterfv, (GLuint sampler, GLenum pname, GLfloat * params), (sampler, pname, params))
 _EVASGL_FUNCTION_BEGIN(void, glGetSamplerParameteriv, (GLuint sampler, GLenum pname, GLint * params), (sampler, pname, params))
-_EVASGL_FUNCTION_BEGIN(const, glGetStringi, (GLenum name, GLuint index), (name, index))
+_EVASGL_FUNCTION_BEGIN(const GLubyte *, glGetStringi, (GLenum name, GLuint index), (name, index))
 _EVASGL_FUNCTION_BEGIN(void, glGetSynciv, (GLsync sync, GLenum pname, GLsizei bufSize, GLsizei *length, GLint *values), (sync, pname, bufSize, length, values))
 _EVASGL_FUNCTION_BEGIN(void, glGetTransformFeedbackVarying, (GLuint program, GLuint index, GLsizei bufSize, GLsizei * length, GLsizei * size, GLenum * type, char * name), (program, index, bufSize, length, size, type, name))
 _EVASGL_FUNCTION_BEGIN(GLuint, glGetUniformBlockIndex, (GLuint program, const GLchar *uniformBlockName), (program, uniformBlockName))

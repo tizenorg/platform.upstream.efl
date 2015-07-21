@@ -1421,7 +1421,7 @@ _EVASGL_EXT_BEGIN(EGL_KHR_image_base)
         _EVASGL_EXT_FUNCTION_DRVFUNC(_evgl_evasglDestroyImage)
 	_EVASGL_EXT_FUNCTION_END()
 	_EVASGL_EXT_FUNCTION_BEGIN(EvasGLImage, evasglCreateImageForContext, (Evas_GL *evas_gl, Evas_GL_Context *ctx, int target, void* buffer, const int *attrib_list), (evas_gl, ctx, target, buffer, attrib_list))
-		_EVASGL_EXT_FUNCTION_DRVFUNC(evgl_evasglCreateImageForContext)
+		_EVASGL_EXT_FUNCTION_DRVFUNC(_evgl_evasglCreateImageForContext)
 	_EVASGL_EXT_FUNCTION_END()
 
 	#ifdef _EVASGL_EXT_VERIFY

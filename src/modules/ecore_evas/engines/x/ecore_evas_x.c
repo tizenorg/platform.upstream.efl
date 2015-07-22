@@ -1014,7 +1014,6 @@ _ecore_evas_x_event_property_change(void *data EINA_UNUSED, int type EINA_UNUSED
                   state_change = 1;
                   ee->prop.iconified = EINA_FALSE;
                   ee->prop.withdrawn = EINA_FALSE;
-                  evas_iconified_set(ee->evas, EINA_FALSE); // TIZEN_ONLY
                }
              break;
            default:
@@ -1143,6 +1142,8 @@ _ecore_evas_x_event_client_message(void *data EINA_UNUSED, int type EINA_UNUSED,
         if (!ee) return ECORE_CALLBACK_PASS_ON; /* pass on event */
         if (e->data.l[1] != 0) //wm sends request message using value 0
           return ECORE_CALLBACK_PASS_ON;
+
+        evas_iconified_set(ee->evas, EINA_FALSE); // TIZEN_ONLY
 
         if (ecore_evas_manual_render_get(ee))
           ecore_evas_manual_render(ee);

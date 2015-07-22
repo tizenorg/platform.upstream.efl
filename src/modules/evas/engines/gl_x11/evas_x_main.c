@@ -818,7 +818,6 @@ eng_best_visual_get(Evas_Engine_Info_GL_X11 *einfo)
    EGLDisplay *egl_disp;
    EGLConfig configs[200];
    int major_version, minor_version;
-   const char *eglexts, *s;
    int depth = DefaultDepth(einfo->info.display, einfo->info.screen);
 
    egl_disp = eglGetDisplay((EGLNativeDisplayType)(einfo->info.display));

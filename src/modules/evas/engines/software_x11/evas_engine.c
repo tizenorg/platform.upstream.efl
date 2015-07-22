@@ -76,10 +76,6 @@ static int eng_setup(Evas *eo_e, void *info);
 static void eng_output_free(void *data);
 static void *eng_image_native_set(void *data, void *image, void *native);
 static void *eng_image_native_get(void *data EINA_UNUSED, void *image);
-static Eina_Bool eng_image_draw(void *data, void *context, void *surface, void *image,
-                           int src_x, int src_y, int src_w, int src_h,
-                           int dst_x, int dst_y, int dst_w, int dst_h,
-                           int smooth, Eina_Bool do_async);
 /* internal engine routines */
 
 #ifdef BUILD_ENGINE_SOFTWARE_XLIB

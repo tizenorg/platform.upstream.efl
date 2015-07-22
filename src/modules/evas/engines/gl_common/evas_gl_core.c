@@ -1772,8 +1772,6 @@ void *
 evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
 {
    EVGL_Surface *sfc = NULL;
-   char *s = NULL;
-   int direct_override = 0, direct_mem_opt = 0;
    Eina_Bool dbg;
 
    // Check if engine is valid

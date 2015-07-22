@@ -409,7 +409,7 @@ evas_xlib_image_get_buffers(RGBA_Image *im)
         }
 
     bo_handle = sym_tbm_bo_map(exim->buf_bo, TBM_DEVICE_CPU, TBM_OPTION_READ |TBM_OPTION_WRITE);
-    if (&bo_handle == NULL) return _evas_xlib_image_x_free(d);
+    if (bo_handle.ptr == NULL) return _evas_xlib_image_x_free(d);
 
     exim->buf_data = bo_handle.ptr;
     if (!exim->buf_data)
@@ -470,7 +470,7 @@ evas_xlib_image_dri_new(int w, int h, Visual *vis, int depth)
 }
 
 static void
-_native_bind_cb(void *data EINA_UNUSED, void *image, int x, int y, int w, int h)
+_native_bind_cb(void *data EINA_UNUSED, void *image, int x EINA_UNUSED, int y EINA_UNUSED, int w EINA_UNUSED, int h EINA_UNUSED)
 {
    RGBA_Image *im = image;
    DRI_Native *n = im->native.data;

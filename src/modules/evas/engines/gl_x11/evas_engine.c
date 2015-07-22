@@ -1106,7 +1106,7 @@ try_again:
           }
      }
 
-   egl_sfc = eglCreatePixmapSurface(eng_get_ob(re)->egl_disp, egl_cfg, px, NULL);
+   egl_sfc = eglCreatePixmapSurface(eng_get_ob(re)->egl_disp, egl_cfg, (EGLNativePixmapType)px, NULL);
    if (!egl_sfc)
      {
         int err = eglGetError();
@@ -1249,7 +1249,7 @@ evgl_eng_native_win_surface_config_check(void *data,
 
  // TIZEN_ONLY
 static void
-evgl_eng_partial_rendering_enable(void *data)
+evgl_eng_partial_rendering_enable(void *data EINA_UNUSED)
 {
    extn_have_buffer_age = prev_extn_have_buffer_age;
    prev_extn_have_buffer_age = 0;
@@ -1257,7 +1257,7 @@ evgl_eng_partial_rendering_enable(void *data)
 
 // TIZEN_ONLY
 static void
-evgl_eng_partial_rendering_disable(void *data)
+evgl_eng_partial_rendering_disable(void *data EINA_UNUSED)
 {
    prev_extn_have_buffer_age = extn_have_buffer_age;
    extn_have_buffer_age = 0;

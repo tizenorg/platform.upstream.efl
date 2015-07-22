@@ -389,7 +389,7 @@ dri3_wait_fence_await(dri3_buffer *buffer)
    if (!buffer->shm_fence) return;
 
    xcb_flush(info.conn);
-   xshmfence_await(buffer->wait_shm_fence);
+   sym_xshmfence_await(buffer->wait_shm_fence);
 }
 
 
@@ -652,7 +652,7 @@ dri3_wait_for_sbc(dri3_drawable *drawable, uint64_t target_sbc, uint64_t *ust, u
    return 1;
 }
 
-
+#if 0 // NOT USED
 static xcb_gcontext_t
 _dri3_drawable_gc(dri3_drawable *drawable)
 {
@@ -695,7 +695,7 @@ dri3_copy_area(xcb_drawable_t    src_drawable,
                                   height);
    xcb_discard_reply(info.conn, cookie.sequence);
 }
-
+#endif
 
 /** dri3_error_free
  *

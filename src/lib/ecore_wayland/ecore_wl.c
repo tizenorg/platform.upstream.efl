@@ -37,7 +37,9 @@ static Eina_Bool _ecore_wl_animator_window_add(const Eina_Hash *hash EINA_UNUSED
 static void _ecore_wl_signal_exit(void);
 static void _ecore_wl_signal_exit_free(void *data EINA_UNUSED, void *event);
 static void _ecore_wl_init_callback(void *data, struct wl_callback *callback, uint32_t serial EINA_UNUSED);
+// TIZEN_ONLY(20150722): Add ecore_wl_window_keygrab_* APIs
 static void _ecore_wl_cb_keygrab_notify(void *data, struct tizen_keyrouter *tizen_keyrouter, struct wl_surface *surface, uint32_t key, uint32_t mode, uint32_t error);
+//
 static void _ecore_wl_cb_conformant(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface_resource, uint32_t is_conformant);
 static void _ecore_wl_cb_conformant_area(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface_resource, uint32_t conformant_part, uint32_t state, int32_t x, int32_t y, int32_t w, int32_t h);
 static void _ecore_wl_cb_notification_done(void *data, struct tizen_policy *tizen_policy, struct wl_surface *surface, int32_t level, uint32_t state);
@@ -50,7 +52,9 @@ static int _ecore_wl_init_count = 0;
 static Eina_Bool _ecore_wl_animator_busy = EINA_FALSE;
 static Eina_Bool _ecore_wl_fatal_error = EINA_FALSE;
 static Eina_Bool _ecore_wl_server_mode = EINA_FALSE;
+// TIZEN_ONLY(20150722): Add ecore_wl_window_keygrab_* APIs
 static int _ecore_wl_keygrab_error = -1;
+//
 
 static const struct wl_registry_listener _ecore_wl_registry_listener =
 {
@@ -73,10 +77,12 @@ static const struct wl_callback_listener _ecore_wl_anim_listener =
    _ecore_wl_animator_callback
 };
 
+// TIZEN_ONLY(20150722): Add ecore_wl_window_keygrab_* APIs
 static const struct tizen_keyrouter_listener _ecore_tizen_keyrouter_listener =
 {
    _ecore_wl_cb_keygrab_notify
 };
+//
 
 static const struct tizen_policy_listener _ecore_tizen_policy_listener =
 {
@@ -552,8 +558,10 @@ _ecore_wl_shutdown(Eina_Bool close)
           wl_compositor_destroy(_ecore_wl_disp->wl.compositor);
         if (_ecore_wl_disp->wl.subcompositor)
           wl_subcompositor_destroy(_ecore_wl_disp->wl.subcompositor);
+// TIZEN_ONLY(20150722): Add ecore_wl_window_keygrab_* APIs
         if (_ecore_wl_disp->wl.keyrouter)
           tizen_keyrouter_destroy(_ecore_wl_disp->wl.keyrouter);
+//
         if (_ecore_wl_disp->wl.display)
           {
              wl_registry_destroy(_ecore_wl_disp->wl.registry);
@@ -745,6 +753,7 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
         ewd->wl.tz_surf =
           wl_registry_bind(registry, id, &tizen_surface_interface, 1);
      }
+// TIZEN_ONLY(20150722): Add ecore_wl_window_keygrab_* APIs
    else if (!strcmp(interface, "tizen_keyrouter"))
      {
         ewd->wl.keyrouter =
@@ -752,6 +761,7 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
         if (ewd->wl.keyrouter)
           tizen_keyrouter_add_listener(_ecore_wl_disp->wl.keyrouter, &_ecore_tizen_keyrouter_listener, ewd->wl.display);
      }
+//
 
    if ((ewd->wl.compositor) && (ewd->wl.shm) &&
        ((ewd->wl.shell) || (ewd->wl.xdg_shell)))
@@ -909,19 +919,7 @@ _ecore_wl_signal_exit_free(void *data EINA_UNUSED, void *event)
    free(event);
 }
 
-//Currently we cannot change keyname to keycode.
-//we need wl function like XStringToKeysym and XKeysymToKeycode function.
-
-static unsigned int
-_ecore_wl_keystring_to_keycode(const char *key)
-{
-   unsigned int keycode;
-
-   /* xkb rules reflect X broken keycodes, so offset by 8 */
-   keycode = (unsigned)atoi(key) + 8;
-   return keycode;
-}
-
+// TIZEN_ONLY(20150722): Add ecore_wl_window_keygrab_* APIs
 //Currently this function is only used in sink call, so use global value(_ecore_wl_keygrab_error) and just check the error is ok.
 static void
 _ecore_wl_cb_keygrab_notify(void *data EINA_UNUSED, struct tizen_keyrouter *tizen_keyrouter EINA_UNUSED, struct wl_surface *surface EINA_UNUSED, uint32_t key, uint32_t mode, uint32_t error)
@@ -930,6 +928,58 @@ _ecore_wl_cb_keygrab_notify(void *data EINA_UNUSED, struct tizen_keyrouter *tize
 
    _ecore_wl_keygrab_error = error;
    INF("[PID:%d] key=%d, mode=%d, error=%d", getpid(), key, mode, error);
+}
+
+struct _Keycode_Map
+{
+   int num_keycodes;
+   xkb_keysym_t keysym;
+   Eina_List *keycodes;
+};
+
+typedef struct _Keycode_Map Keycode_Map;
+
+static void find_keycode(struct xkb_keymap *keymap, xkb_keycode_t key, void *data)
+{
+   Keycode_Map *found_keycodes = (Keycode_Map *)data;
+   xkb_keysym_t keysym = found_keycodes->keysym;
+   int num_syms = 0;
+   const xkb_keysym_t *syms_out = NULL;
+   num_syms = xkb_keymap_key_get_syms_by_level(keymap, key, 0, 0, &syms_out);
+   if ((num_syms) && (syms_out))
+     {
+        if ((*syms_out) == (keysym))
+          {
+             xkb_keycode_t *keycode = malloc(sizeof(xkb_keycode_t));
+             found_keycodes->num_keycodes++;
+             *keycode = key;
+             found_keycodes->keycodes = eina_list_append(found_keycodes->keycodes, keycode);
+          }
+     }
+}
+
+//If there are several keycodes, ecore_wl only deals with first keycode.
+static void
+_ecore_wl_keycode_from_keysym(struct xkb_keymap *keymap, xkb_keysym_t keysym, xkb_keycode_t *keycode)
+{
+   Keycode_Map keycode_map = {0,};
+   keycode_map.keysym = keysym;
+   keycode_map.keycodes = NULL;
+   xkb_keycode_t *data;
+
+   //called fewer (max_keycode - min_keycode +1) times.
+   xkb_keymap_key_for_each(keymap, find_keycode, &keycode_map);
+   if (keycode_map.num_keycodes > 0)
+     {
+        *keycode = *((xkb_keycode_t *) eina_list_data_get(keycode_map.keycodes));
+     }
+   else
+     *keycode = 0;
+
+   INF("num of keycodes:%d keycode=%d", keycode_map.num_keycodes, *keycode);
+
+   EINA_LIST_FREE(keycode_map.keycodes, data)
+     free(data);
 }
 
 //I'm not sure that keygrab function should be changed to Ecore_evas_XXX.
@@ -948,8 +998,10 @@ _ecore_wl_cb_keygrab_notify(void *data EINA_UNUSED, struct tizen_keyrouter *tize
 EAPI Eina_Bool
 ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key, int mod EINA_UNUSED, int not_mod EINA_UNUSED, int priority EINA_UNUSED, Ecore_Wl_Window_Keygrab_Mode grab_mode)
 {
+   xkb_keycode_t keycode = 0;
+   xkb_keysym_t keysym;
+
    Eina_Bool ret = EINA_FALSE;
-   unsigned int keycode = 0;
    struct wl_surface *surface = NULL;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -960,18 +1012,35 @@ ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key, int mod EINA_
 
    INF("win=%p key=%s mod=%d", win, key, grab_mode);
 
-   keycode = _ecore_wl_keystring_to_keycode(key);
+   keysym = xkb_keysym_from_name(key, XKB_KEYSYM_NO_FLAGS);
+
+   if (keysym == XKB_KEY_NoSymbol)
+     {
+        WRN("Keysym of key(\"%s\") doesn't exist", key);
+        return EINA_FALSE;
+     }
+
+   //We have to find the way to get keycode from keysym before keymap notify
+   if (_ecore_wl_disp->input->xkb.keymap)
+     _ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap, keysym, &keycode);
+   else
+     {
+        WRN("Keymap is not ready");
+        return EINA_FALSE;
+     }
+
    if (keycode == 0)
      {
         WRN("Keycode of key(\"%s\") doesn't exist", key);
         return EINA_FALSE;
      }
 
+   INF("keycode of key:(%d)", keycode);
+
    /* Request to grab a key */
    if (win)
      surface = ecore_wl_window_surface_get(win);
 
-   INF("Before keygrab _ecore_wl_keygrab_error = %d", _ecore_wl_keygrab_error);
    tizen_keyrouter_set_keygrab(_ecore_wl_disp->wl.keyrouter, surface, keycode, grab_mode);
 
    /* Send sync to wayland compositor and register sync callback to exit while dispatch loop below */
@@ -995,8 +1064,10 @@ ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key, int mod EINA_
 EAPI Eina_Bool
 ecore_wl_window_keygrab_unset(Ecore_Wl_Window *win, const char *key, int mod EINA_UNUSED, int any_mod EINA_UNUSED)
 {
+   xkb_keycode_t keycode = 0;
+   xkb_keysym_t keysym;
+
    Eina_Bool ret = EINA_FALSE;
-   unsigned int keycode = 0;
    struct wl_surface *surface = NULL;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -1004,18 +1075,33 @@ ecore_wl_window_keygrab_unset(Ecore_Wl_Window *win, const char *key, int mod EIN
    if (!key) return EINA_FALSE;
    INF("win=%p key=%s ", win, key);
 
-   keycode = _ecore_wl_keystring_to_keycode(key);
+   keysym = xkb_keysym_from_name(key, XKB_KEYSYM_NO_FLAGS);
+   if (keysym == XKB_KEY_NoSymbol)
+     {
+        WRN("Keysym of key(\"%s\") doesn't exist", key);
+        return EINA_FALSE;
+     }
+
+   //We have to find the way to get keycode from keysym before keymap notify
+   if (_ecore_wl_disp->input->xkb.keymap)
+     _ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap, keysym, &keycode);
+   else
+     {
+        WRN("Keymap is not ready");
+        return EINA_FALSE;
+     }
+
    if (keycode == 0)
      {
         WRN("Keycode of key(\"%s\") doesn't exist", key);
         return EINA_FALSE;
      }
 
+   INF("keycode of key:(%d)", keycode);
+
    /* Request to ungrab a key */
    if (win)
      surface = ecore_wl_window_surface_get(win);
-
-   INF("Before keyungrab _ecore_wl_keygrab_error = %d", _ecore_wl_keygrab_error);
 
    tizen_keyrouter_unset_keygrab(_ecore_wl_disp->wl.keyrouter, surface, keycode);
 
@@ -1036,6 +1122,7 @@ ecore_wl_window_keygrab_unset(Ecore_Wl_Window *win, const char *key, int mod EIN
    _ecore_wl_keygrab_error = -1;
    return ret;
 }
+//
 
 static void
 _ecore_wl_window_conformant_area_send(Ecore_Wl_Window *win, uint32_t conformant_part, uint32_t state)

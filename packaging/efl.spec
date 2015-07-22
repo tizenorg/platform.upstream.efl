@@ -24,6 +24,7 @@ BuildRequires:  pkgconfig(wayland-egl)
 BuildRequires:  pkgconfig(text-client)
 BuildRequires:  pkgconfig(xdg-shell-client)
 BuildRequires:  pkgconfig(tizen-extension-client)
+Requires:       libwayland-extension-client
 %endif
 
 %if %{with x}

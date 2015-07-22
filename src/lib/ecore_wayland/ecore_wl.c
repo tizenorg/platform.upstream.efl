@@ -37,7 +37,7 @@ static Eina_Bool _ecore_wl_animator_window_add(const Eina_Hash *hash EINA_UNUSED
 static void _ecore_wl_signal_exit(void);
 static void _ecore_wl_signal_exit_free(void *data EINA_UNUSED, void *event);
 static void _ecore_wl_init_callback(void *data, struct wl_callback *callback, uint32_t serial EINA_UNUSED);
-static void _ecore_wl_cb_keygrab_notify(void *data, struct wl_keyrouter *wl_keyrouter, struct wl_surface *surface, uint32_t key, uint32_t mode, uint32_t error);
+static void _ecore_wl_cb_keygrab_notify(void *data, struct tizen_keyrouter *tizen_keyrouter, struct wl_surface *surface, uint32_t key, uint32_t mode, uint32_t error);
 static void _ecore_wl_cb_conformant(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface_resource, uint32_t is_conformant);
 static void _ecore_wl_cb_conformant_area(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface_resource, uint32_t conformant_part, uint32_t state, int32_t x, int32_t y, int32_t w, int32_t h);
 static void _ecore_wl_cb_notification_done(void *data, struct tizen_policy *tizen_policy, struct wl_surface *surface, int32_t level, uint32_t state);
@@ -73,7 +73,7 @@ static const struct wl_callback_listener _ecore_wl_anim_listener =
    _ecore_wl_animator_callback
 };
 
-static const struct wl_keyrouter_listener _ecore_wl_keyrouter_listener =
+static const struct tizen_keyrouter_listener _ecore_tizen_keyrouter_listener =
 {
    _ecore_wl_cb_keygrab_notify
 };
@@ -553,7 +553,7 @@ _ecore_wl_shutdown(Eina_Bool close)
         if (_ecore_wl_disp->wl.subcompositor)
           wl_subcompositor_destroy(_ecore_wl_disp->wl.subcompositor);
         if (_ecore_wl_disp->wl.keyrouter)
-          wl_keyrouter_destroy(_ecore_wl_disp->wl.keyrouter);
+          tizen_keyrouter_destroy(_ecore_wl_disp->wl.keyrouter);
         if (_ecore_wl_disp->wl.display)
           {
              wl_registry_destroy(_ecore_wl_disp->wl.registry);
@@ -745,12 +745,12 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
         ewd->wl.tz_surf =
           wl_registry_bind(registry, id, &tizen_surface_interface, 1);
      }
-   else if (!strcmp(interface, "wl_keyrouter"))
+   else if (!strcmp(interface, "tizen_keyrouter"))
      {
         ewd->wl.keyrouter =
-          wl_registry_bind(registry, id, &wl_keyrouter_interface, 1);
+          wl_registry_bind(registry, id, &tizen_keyrouter_interface, 1);
         if (ewd->wl.keyrouter)
-          wl_keyrouter_add_listener(_ecore_wl_disp->wl.keyrouter, &_ecore_wl_keyrouter_listener, ewd->wl.display);
+          tizen_keyrouter_add_listener(_ecore_wl_disp->wl.keyrouter, &_ecore_tizen_keyrouter_listener, ewd->wl.display);
      }
 
    if ((ewd->wl.compositor) && (ewd->wl.shm) &&
@@ -924,7 +924,7 @@ _ecore_wl_keystring_to_keycode(const char *key)
 
 //Currently this function is only used in sink call, so use global value(_ecore_wl_keygrab_error) and just check the error is ok.
 static void
-_ecore_wl_cb_keygrab_notify(void *data EINA_UNUSED, struct wl_keyrouter *wl_keyrouter EINA_UNUSED, struct wl_surface *surface EINA_UNUSED, uint32_t key, uint32_t mode, uint32_t error)
+_ecore_wl_cb_keygrab_notify(void *data EINA_UNUSED, struct tizen_keyrouter *tizen_keyrouter EINA_UNUSED, struct wl_surface *surface EINA_UNUSED, uint32_t key, uint32_t mode, uint32_t error)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
@@ -972,7 +972,7 @@ ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key, int mod EINA_
      surface = ecore_wl_window_surface_get(win);
 
    INF("Before keygrab _ecore_wl_keygrab_error = %d", _ecore_wl_keygrab_error);
-   wl_keyrouter_set_keygrab(_ecore_wl_disp->wl.keyrouter, surface, keycode, grab_mode);
+   tizen_keyrouter_set_keygrab(_ecore_wl_disp->wl.keyrouter, surface, keycode, grab_mode);
 
    /* Send sync to wayland compositor and register sync callback to exit while dispatch loop below */
    ecore_wl_sync();
@@ -1017,7 +1017,7 @@ ecore_wl_window_keygrab_unset(Ecore_Wl_Window *win, const char *key, int mod EIN
 
    INF("Before keyungrab _ecore_wl_keygrab_error = %d", _ecore_wl_keygrab_error);
 
-   wl_keyrouter_unset_keygrab(_ecore_wl_disp->wl.keyrouter, surface, keycode);
+   tizen_keyrouter_unset_keygrab(_ecore_wl_disp->wl.keyrouter, surface, keycode);
 
    /* Send sync to wayland compositor and register sync callback to exit while dispatch loop below */
    ecore_wl_sync();

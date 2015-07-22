@@ -83,7 +83,7 @@ struct _Ecore_Wl_Display
         struct tizen_policy *tz_policy;
         struct tizen_policy_ext *tz_policy_ext;
         struct tizen_surface *tz_surf;
-        struct wl_keyrouter *keyrouter;
+        struct tizen_keyrouter *keyrouter;
      } wl;
 
    int fd;

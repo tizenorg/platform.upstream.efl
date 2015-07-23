@@ -784,7 +784,7 @@ _efl_gfx_path_parse_arc_to(const char *content, char **end,
    return EINA_TRUE;
 }
 
-inline void
+inline static void
 _efl_gfx_bezier_coefficients(double t, double *ap, double *bp, double *cp, double *dp)
 {
    double a,b,c,d;

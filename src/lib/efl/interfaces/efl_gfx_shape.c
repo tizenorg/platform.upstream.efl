@@ -836,7 +836,7 @@ Bezier bezier_from_points(Point p1, Point p2,
    return b;
 }
 
-inline void
+inline static void
 parameter_split_left(Bezier *b, double t, Bezier *left)
 {
    left->x1 = b->x1;
@@ -875,7 +875,7 @@ Bezier bezier_on_interval(Bezier *b, double t0, double t1)
    return result;
 }
 
-inline void
+inline static void
 _efl_gfx_bezier_coefficients(double t, double *ap, double *bp, double *cp, double *dp)
 {
    double a,b,c,d;

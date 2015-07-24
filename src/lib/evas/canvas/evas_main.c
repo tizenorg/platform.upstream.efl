@@ -592,23 +592,25 @@ _evas_canvas_nochange_pop(Eo *eo_e EINA_UNUSED, Evas_Public_Data *e)
 EOLIAN static void
 _evas_canvas_iconified_set(Eo *eo_e EINA_UNUSED, Evas_Public_Data *e, Eina_Bool iconified)
 {
-   if ((e->engine.func) && (e->engine.func->output_resize) &&
-         (e->engine.data.output))
-     {
-       if (iconified)
-         {
-           e->engine.func->output_resize(e->engine.data.output, 0, 0);
-           e->iconified_change = 1;
-         }
-       else
-         {
-           if (e->iconified_change)
-             {
-               e->engine.func->output_resize(e->engine.data.output, e->output.w, e->output.h);
-               e->iconified_change = 0;
-             }
-         }
-     }
+   /* Iconified patch has problem, so I block below code temporarily
+      I will fix all bug then revert code */
+   //   if ((e->engine.func) && (e->engine.func->output_resize) &&
+   //         (e->engine.data.output))
+   //     {
+   //       if (iconified)
+   //         {
+   //           e->engine.func->output_resize(e->engine.data.output, 0, 0);
+   //           e->iconified_change = 1;
+   //         }
+   //       else
+   //         {
+   //           if (e->iconified_change)
+   //             {
+   //               e->engine.func->output_resize(e->engine.data.output, e->output.w, e->output.h);
+   //               e->iconified_change = 0;
+   //             }
+   //         }
+   //     }
 }
 
 void

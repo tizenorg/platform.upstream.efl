@@ -45,6 +45,8 @@ static void _rotation_do(Ecore_Evas *ee, int rotation, int resize);
 static void _ecore_evas_wayland_alpha_do(Ecore_Evas *ee, int alpha);
 static void _ecore_evas_wayland_transparent_do(Ecore_Evas *ee, int transparent);
 static void _ecore_evas_wl_common_border_update(Ecore_Evas *ee);
+static Eina_Bool _ecore_evas_wl_common_wm_rot_manual_rotation_done_timeout(void *data);
+static void      _ecore_evas_wl_common_wm_rot_manual_rotation_done_timeout_update(Ecore_Evas *ee);
 
 /* Frame listener */
 static void _ecore_evas_wl_frame_complete(void *data, struct wl_callback *callback, uint32_t tm);
@@ -381,7 +383,7 @@ _ecore_evas_wl_common_cb_window_rotate(void *data EINA_UNUSED, int type EINA_UNU
 {
    Ecore_Evas *ee;
    Ecore_Wl_Event_Window_Rotate *ev;
-   int resize;
+   Ecore_Evas_Engine_Wl_Data *wdata;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
@@ -390,20 +392,47 @@ _ecore_evas_wl_common_cb_window_rotate(void *data EINA_UNUSED, int type EINA_UNU
    if (!ee) return ECORE_CALLBACK_PASS_ON;
    if (ev->win != ee->prop.window) return ECORE_CALLBACK_PASS_ON;
 
-   //FIXME: resize
-   resize = 0;
+   wdata = ee->engine.data;
+   if (!wdata) return ECORE_CALLBACK_PASS_ON;
+
+   if ((!ee->prop.wm_rot.supported) || (!ee->prop.wm_rot.app_set))
+     return ECORE_CALLBACK_PASS_ON;
+
+   wdata->wm_rot.request = 1;
+   wdata->wm_rot.done = 0;
+
+   if ((ee->w != ev->w) || (ee->h != ev->h))
+     {
+        _ecore_evas_wl_common_resize(ee, ev->w , ev->h);
+     }
+
+   if (ee->prop.wm_rot.manual_mode.set)
+     {
+        ee->prop.wm_rot.manual_mode.wait_for_done = EINA_TRUE;
+        _ecore_evas_wl_common_wm_rot_manual_rotation_done_timeout_update(ee);
+     }
 
    if (!strcmp(ee->driver, "wayland_shm"))
      {
 #ifdef BUILD_ECORE_EVAS_WAYLAND_SHM
-        _ecore_evas_wayland_shm_window_rotate(ee, ev->angle, resize);
+        _ecore_evas_wayland_shm_window_rotate(ee, ev->angle, 1);
 #endif
      }
    else if (!strcmp(ee->driver, "wayland_egl"))
      {
 #ifdef BUILD_ECORE_EVAS_WAYLAND_EGL
-        _ecore_evas_wayland_egl_window_rotate(ee, ev->angle, resize);
+        _ecore_evas_wayland_egl_window_rotate(ee, ev->angle, 1);
 #endif
+     }
+
+   wdata->wm_rot.done = 1;
+
+   /* Fixme: rotation done send move to render flush */
+   if (!ee->prop.wm_rot.manual_mode.set)
+     {
+        wdata->wm_rot.request = 0;
+        wdata->wm_rot.done = 0;
+        ecore_wl_window_rotation_change_done_send(wdata->win);
      }
 
    return ECORE_CALLBACK_PASS_ON;
@@ -1195,6 +1224,40 @@ _ecore_evas_wl_common_wm_rot_available_rotations_set(Ecore_Evas *ee, const int *
      }
 }
 
+static void
+_ecore_evas_wl_common_wm_rot_manual_rotation_done_job(void *data)
+{
+   Ecore_Evas *ee = (Ecore_Evas *)data;
+   Ecore_Evas_Engine_Wl_Data *wdata = ee->engine.data;
+
+   wdata->wm_rot.manual_mode_job = NULL;
+   ee->prop.wm_rot.manual_mode.wait_for_done = EINA_FALSE;
+
+   ecore_wl_window_rotation_change_done_send(wdata->win);
+
+   wdata->wm_rot.done = 0;
+}
+
+static Eina_Bool
+_ecore_evas_wl_common_wm_rot_manual_rotation_done_timeout(void *data)
+{
+   Ecore_Evas *ee = data;
+
+   ee->prop.wm_rot.manual_mode.timer = NULL;
+   _ecore_evas_wl_common_wm_rot_manual_rotation_done(ee);
+   return ECORE_CALLBACK_CANCEL;
+}
+
+static void
+_ecore_evas_wl_common_wm_rot_manual_rotation_done_timeout_update(Ecore_Evas *ee)
+{
+   if (ee->prop.wm_rot.manual_mode.timer)
+     ecore_timer_del(ee->prop.wm_rot.manual_mode.timer);
+
+   ee->prop.wm_rot.manual_mode.timer = ecore_timer_add
+     (4.0f, _ecore_evas_wl_common_wm_rot_manual_rotation_done_timeout, ee);
+}
+
 void
 _ecore_evas_wl_common_wm_rot_manual_rotation_done_set(Ecore_Evas *ee, Eina_Bool set)
 {
@@ -1215,7 +1278,11 @@ _ecore_evas_wl_common_wm_rot_manual_rotation_done(Ecore_Evas *ee)
              if (ee->prop.wm_rot.manual_mode.timer)
                ecore_timer_del(ee->prop.wm_rot.manual_mode.timer);
              ee->prop.wm_rot.manual_mode.timer = NULL;
-             //Fixme: Add wayland rotation done timer
+
+             if (wdata->wm_rot.manual_mode_job)
+               ecore_job_del(wdata->wm_rot.manual_mode_job);
+             wdata->wm_rot.manual_mode_job = ecore_job_add
+               (_ecore_evas_wl_common_wm_rot_manual_rotation_done_job, ee);
           }
      }
 }

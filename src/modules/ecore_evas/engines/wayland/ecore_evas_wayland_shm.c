@@ -203,6 +203,7 @@ ecore_evas_wayland_shm_new_internal(const char *disp_name, unsigned int parent, 
         if (!strcmp(global->interface, "tizen_policy_ext"))
          {
             ee->prop.wm_rot.supported = 1;
+            wdata->wm_rot.supported = 1;
             break;
          }
      }

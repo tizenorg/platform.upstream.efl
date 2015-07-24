@@ -129,6 +129,7 @@ struct _Ecore_Wl_Window
    struct tizen_rotation *tz_rotation;
    struct tizen_resource *tz_resource;
    unsigned int resource_id;
+   unsigned int tz_rotation_serial;
 
    struct wl_region *opaque_region;
    struct wl_region *input_region;

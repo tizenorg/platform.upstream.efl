@@ -44,6 +44,13 @@ struct _Ecore_Evas_Engine_Wl_Data
 #endif
    Eina_Bool frame_pending : 1;
    struct wl_callback *frame_callback;
+   struct
+     {
+        unsigned char supported: 1;
+        unsigned char request : 1;
+        unsigned char done : 1;
+        Ecore_Job    *manual_mode_job;
+     } wm_rot;
 };
 
 Ecore_Evas_Interface_Wayland *_ecore_evas_wl_interface_new(void);

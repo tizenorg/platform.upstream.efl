@@ -232,6 +232,7 @@ struct _Ecore_Wl_Event_Window_Rotate
 {
    unsigned int win;
    unsigned int angle;
+   int w, h;
 };
 
 struct _Ecore_Wl_Event_Window_Show
@@ -1029,6 +1030,8 @@ EAPI Ecore_Wl_Virtual_Keyboard_State ecore_wl_window_keyboard_state_get(Ecore_Wl
 
 EAPI void ecore_wl_window_rotation_preferred_rotation_set(Ecore_Wl_Window *win, int rot);
 EAPI void ecore_wl_window_rotation_available_rotations_set(Ecore_Wl_Window *win, const int *rots, unsigned int count);
+EAPI void ecore_wl_window_rotation_change_done_send(Ecore_Wl_Window *win);
+EAPI void ecore_wl_window_rotation_geometry_set(Ecore_Wl_Window *win, int rot, int x, int y, int w, int h);
 
 #ifdef __cplusplus
 }

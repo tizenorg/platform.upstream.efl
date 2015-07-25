@@ -149,7 +149,9 @@ _eapi_decl_func_generate(const Eolian_Class *class, const Eolian_Function *funci
             const char *ptype = eolian_type_c_type_get(ptypet);
             const char *pdesc = eolian_parameter_description_get(param);
             Eolian_Parameter_Dir pdir = eolian_parameter_direction_get(param);
-            const char *str_dir[] = {"in", "out", "inout"};
+            // TIZEN_ONLY(20150725): for doxygen 1.7.6.1
+            //const char *str_dir[] = {"in", "out", "inout"};
+            const char *str_dir[] = {"in", "out", "in,out"};
             Eina_Bool had_star = !!strchr(ptype, '*');
             if (ftype == EOLIAN_UNRESOLVED || ftype == EOLIAN_METHOD) add_star = (pdir == EOLIAN_OUT_PARAM || pdir == EOLIAN_INOUT_PARAM);
             if (ftype == EOLIAN_PROP_GET) pdir = EOLIAN_OUT_PARAM;

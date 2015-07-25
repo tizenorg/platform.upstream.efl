@@ -90,7 +90,9 @@ static Eina_Bool
 eo_fundef_generate(const Eolian_Class *class, const Eolian_Function *func, Eolian_Function_Type ftype, Eina_Strbuf *functext)
 {
    _eolian_class_func_vars func_env;
-   const char *str_dir[] = {"in", "out", "inout"};
+   // TIZEN_ONLY(20150725): for doxygen 1.7.6.1
+   //const char *str_dir[] = {"in", "out", "inout"};
+   const char *str_dir[] = {"in", "out", "in,out"};
    Eina_Iterator *itr;
    void *data, *data2;
    char *tmpstr = malloc(0x1FF);

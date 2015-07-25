@@ -13,7 +13,9 @@ _comment_parameter(Eolian_Function_Parameter *param)
    std::string doc = "@param";
    if (direction == EOLIAN_IN_PARAM) doc += " ";
    else if (direction == EOLIAN_OUT_PARAM) doc += "[out] ";
-   else if (direction == EOLIAN_INOUT_PARAM) doc += "[inout] ";
+   // TIZEN_ONLY(20150725): for doxygen 1.7.6.1
+   //else if (direction == EOLIAN_INOUT_PARAM) doc += "[inout] ";
+   else if (direction == EOLIAN_INOUT_PARAM) doc += "[in,out] ";
    else assert(false);
 
    doc += safe_str(::eolian_parameter_name_get(param));

@@ -1484,7 +1484,8 @@ evas_render_mapped(Evas_Public_Data *e, Evas_Object *eo_obj,
                                   (e->engine.data.output, context,
                                    mask->mask->surface,
                                    mask->cur->geometry.x + off_x,
-                                   mask->cur->geometry.y + off_y);
+                                   mask->cur->geometry.y + off_y,
+                                   e, do_async);
                          }
                     }
                }

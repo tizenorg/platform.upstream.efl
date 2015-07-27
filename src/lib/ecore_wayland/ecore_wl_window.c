@@ -567,6 +567,9 @@ ecore_wl_window_raise(Ecore_Wl_Window *win)
 
    if (!win) return;
    /* FIXME: This should raise the xdg surface also */
+
+   if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
+     tizen_policy_raise(_ecore_wl_disp->wl.tz_policy, win->surface);
    if (win->shell_surface) 
      wl_shell_surface_set_toplevel(win->shell_surface);
 }

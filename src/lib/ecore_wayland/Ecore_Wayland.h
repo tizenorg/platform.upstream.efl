@@ -99,8 +99,8 @@ enum _Ecore_Wl_Window_Keygrab_Mode
    ECORE_WL_WINDOW_KEYGRAB_UNKNOWN = 0, /**< Unknown keygrab mode */
    ECORE_WL_WINDOW_KEYGRAB_SHARED = 1, /**< Getting the grabbed-key together with the other client windows */
    ECORE_WL_WINDOW_KEYGRAB_TOPMOST = 2, /**< Getting the grabbed-key only when window is top of the stack */
-   ECORE_WL_WINDOW_KEYGRAB_EXCLUSIVE = 3, /**< Getting the grabbed-key exclusively regardless of window's position */
-   ECORE_WL_WINDOW_KEYGRAB_OVERRIDE_EXCLUSIVE = 4 /**< Getting the grabbed-key exclusively regardless of window's position. Being overrided the grab by the other client window  */
+   ECORE_WL_WINDOW_KEYGRAB_OVERRIDE_EXCLUSIVE = 3, /**< Getting the grabbed-key exclusively regardless of window's position. Being overrided the grab by the other client window  */
+   ECORE_WL_WINDOW_KEYGRAB_EXCLUSIVE = 4 /**< Getting the grabbed-key exclusively regardless of window's position */
 };
 
 enum _Ecore_Wl_Conformant_Part_Type

@@ -31,7 +31,6 @@
 
 #define SIZE_ALIGN( value, base ) (((value) + ((base) - 1)) & ~((base) - 1))
 #define ALIGNMENT_PITCH_ARGB 64
-
 ////////////////////////////////////
 // libtbm.so.1
 #define TBM_DEVICE_CPU 1
@@ -186,6 +185,10 @@ _lib_init()
          goto err;
       }
    lib_xcb = dlopen("libX11-xcb.so", RTLD_NOW | RTLD_LOCAL);
+   if (!lib_xcb)
+      lib_xcb = dlopen("libX11-xcb.so.1", RTLD_NOW | RTLD_LOCAL);
+   if (!lib_xcb)
+      lib_xcb = dlopen("libX11-xcb.so.1.0.0", RTLD_NOW | RTLD_LOCAL);
    if (!lib_xcb)
       {
          WRN("Can't load libX11-xcb.so");

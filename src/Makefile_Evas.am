@@ -1059,6 +1059,7 @@ modules/evas/engines/software_x11/evas_xcb_xdefaults.h
 SOFTWARE_X11_CPPFLAGS += @evas_engine_software_xcb_cflags@
 SOFTWARE_X11_LIBADD += @evas_engine_software_xcb_libs@
 endif
+if BUILD_SOFTWARE_X11_DRI3
 SOFTWARE_X11_SOURCES += \
 modules/evas/engines/software_x11/evas_xcb_swapbuf.h \
 modules/evas/engines/software_x11/evas_xcb_swapbuf.c \
@@ -1068,6 +1069,7 @@ modules/evas/engines/software_x11/dri3/evas_xcb_dri3.c \
 modules/evas/engines/software_x11/dri3/evas_xcb_dri3.h \
 modules/evas/engines/software_x11/evas_xcb_dri3_image.c \
 modules/evas/engines/software_x11/evas_xcb_dri3_image.h
+endif
 if EVAS_STATIC_BUILD_SOFTWARE_X11
 lib_evas_libevas_la_SOURCES += $(SOFTWARE_X11_SOURCES)
 lib_evas_libevas_la_CPPFLAGS += $(SOFTWARE_X11_CPPFLAGS)

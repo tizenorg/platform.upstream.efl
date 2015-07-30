@@ -9,14 +9,17 @@
 #ifdef BUILD_ENGINE_SOFTWARE_XLIB
 # include "evas_xlib_outbuf.h"
 # include "evas_xlib_swapbuf.h"
-# include "evas_xcb_swapbuf.h" // TIZNE_ONLY
 # include "evas_xlib_color.h"
 # include "evas_xlib_image.h"
-// TIZEN_ONLY [[
 # include "evas_xlib_dri_image.h"
-# include "evas_xcb_dri3_image.h"
-// TIZEN_ONLY ]]
 #endif
+
+// TIZEN_ONLY [[
+#ifdef BUILD_SOFTWARE_X11_DRI3
+#include "evas_xcb_swapbuf.h" // TIZNE_ONLY
+#include "evas_xcb_dri3_image.h"
+#endif
+// TIZEN_ONLY ]]
 
 #ifdef BUILD_ENGINE_SOFTWARE_XCB
 # include "evas_xcb_outbuf.h"
@@ -253,6 +256,7 @@ _output_swapbuf_setup(int w, int h, int rot, Display *disp, Drawable draw,
 #endif
 
 // TIZEN_ONLY [[
+#ifdef BUILD_SOFTWARE_X11_DRI3
 static void *
 _output_dri3_swapbuf_setup(int w, int h, int rot, Display *disp, Drawable draw,
                       Visual *vis, Colormap cmap, int depth,
@@ -296,6 +300,7 @@ _output_dri3_swapbuf_setup(int w, int h, int rot, Display *disp, Drawable draw,
    free(re);
    return NULL;
 }
+#endif
 // TIZEN_ONLY ]]
 
 #ifdef BUILD_ENGINE_SOFTWARE_XCB
@@ -522,6 +527,7 @@ eng_setup(Evas *eo_e, void *in)
         if (info->info.backend == EVAS_ENGINE_INFO_SOFTWARE_X11_BACKEND_XLIB)
           {
               // TIZEN_ONLY [[
+#ifdef BUILD_SOFTWARE_X11_DRI3
               static int try_dri3_swapbuf = -1;
               char *v;
               if (try_dri3_swapbuf == -1)
@@ -547,6 +553,7 @@ eng_setup(Evas *eo_e, void *in)
                     if (re) re->outbuf_alpha_get = evas_software_xcb_swapbuf_alpha_get;
                  }
               // TIZEN_ONLY ]]
+#endif
 
               static int try_swapbuf = -1;
               char *s;
@@ -636,6 +643,7 @@ eng_setup(Evas *eo_e, void *in)
                                                        info->info.destination_alpha);
                }
              // TIZEN_ONLY [[
+#ifdef BUILD_SOFTWARE_X11_DRI3
              else if (re->generic.outbuf_free == evas_software_xcb_swapbuf_free)
                 {
                    ob =
@@ -653,6 +661,7 @@ eng_setup(Evas *eo_e, void *in)
                                                        info->info.shape_dither,
                                                        info->info.destination_alpha);
                 }
+#endif
              // TIZEN_ONLY ]]
              else
                {
@@ -821,8 +830,10 @@ eng_image_native_set(void *data, void *image, void *native)
       {
          // TIZEN_ONLY [[
          RGBA_Image *dri_im = NULL;
+#ifdef BUILD_SOFTWARE_X11_DRI3
          if (!getenv("EVAS_NO_DRI3_GETBUF"))
             dri_im = evas_xcb_image_dri3_native_set(re->generic.ob, im, ns);
+#endif
          if (!dri_im) dri_im = evas_xlib_image_dri_native_set(re->generic.ob, im, ns);
          if (dri_im) return dri_im;
          else // TIZEN_ONLY ]]

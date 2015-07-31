@@ -150,7 +150,7 @@ _evas_object_stack_above(Eo *eo_obj, Evas_Object_Protected_Data *obj, Evas_Objec
      {
         if (obj->smart.parent != above->smart.parent)
           {
-             ERR("BITCH! evas_object_stack_above(), %p not inside same smart as %p!", eo_obj, eo_above);
+             ERR("COMPLAIN! evas_object_stack_above(), %p not inside same smart as %p!", eo_obj, eo_above);
              return;
           }
         evas_object_smart_member_stack_above(eo_obj, eo_above);
@@ -159,12 +159,12 @@ _evas_object_stack_above(Eo *eo_obj, Evas_Object_Protected_Data *obj, Evas_Objec
      {
         if (above->smart.parent)
           {
-             ERR("BITCH! evas_object_stack_above(), %p stack above %p, but above has smart parent, obj does not", eo_obj, eo_above);
+             ERR("COMPLAIN! evas_object_stack_above(), %p stack above %p, but above has smart parent, obj does not", eo_obj, eo_above);
              return;
           }
         if (obj->layer != above->layer)
           {
-             ERR("BITCH! evas_object_stack_above(), %p stack above %p, not matching layers", eo_obj, eo_above);
+             ERR("COMPLAIN! evas_object_stack_above(), %p stack above %p, not matching layers", eo_obj, eo_above);
              return;
           }
         if (obj->in_layer)
@@ -225,7 +225,7 @@ _evas_object_stack_below(Eo *eo_obj, Evas_Object_Protected_Data *obj, Evas_Objec
      {
         if (obj->smart.parent != below->smart.parent)
           {
-             ERR("BITCH! evas_object_stack_below(), %p not inside same smart as %p!", eo_obj, eo_below);
+             ERR("COMPLAIN! evas_object_stack_below(), %p not inside same smart as %p!", eo_obj, eo_below);
              return;
           }
         evas_object_smart_member_stack_below(eo_obj, eo_below);
@@ -234,12 +234,12 @@ _evas_object_stack_below(Eo *eo_obj, Evas_Object_Protected_Data *obj, Evas_Objec
      {
         if (below->smart.parent)
           {
-             ERR("BITCH! evas_object_stack_below(), %p stack below %p, but below has smart parent, obj does not", eo_obj, eo_below);
+             ERR("COMPLAIN! evas_object_stack_below(), %p stack below %p, but below has smart parent, obj does not", eo_obj, eo_below);
              return;
           }
         if (obj->layer != below->layer)
           {
-             ERR("BITCH! evas_object_stack_below(), %p stack below %p, not matching layers", eo_obj, eo_below);
+             ERR("COMPLAIN! evas_object_stack_below(), %p stack below %p, not matching layers", eo_obj, eo_below);
              return;
           }
         if (obj->in_layer)

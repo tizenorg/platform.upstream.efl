@@ -170,6 +170,10 @@ _extnbuf_new(const char *base, int id, Eina_Bool sys, int num,
              _extnbuf_data_get_from_pixmap(b);
           }
      }
+   else if (b->type == BUFFER_TYPE_GL_PIXMAP)
+     {
+        b->addr = NULL;
+     }
    return b;
 err:
    _extnbuf_free(b);

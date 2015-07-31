@@ -112,6 +112,7 @@ _ecore_evas_extn_plug_render_pre(void *data, Evas *e EINA_UNUSED, void *event_in
    extn = bdata->data;
    if (!extn) return;
    if (extn->b[extn->cur_b].buf)
+      {
      bdata->pixels = _extnbuf_lock(extn->b[extn->cur_b].buf, NULL, NULL, NULL);
 
    if (extn->b[extn->cur_b].type == BUFFER_TYPE_DRI2_PIXMAP ||
@@ -125,6 +126,7 @@ _ecore_evas_extn_plug_render_pre(void *data, Evas *e EINA_UNUSED, void *event_in
                                                         ecore_x_default_screen_get());
         evas_object_image_native_surface_set(bdata->image, &ns);
      }
+}
 }
 
 static void
@@ -1434,6 +1436,8 @@ _ecore_evas_socket_resize(Ecore_Evas *ee, int w, int h)
                                                     NULL, NULL, &stride);
                   pixmap = _extnbuf_pixmap_get(extn->b[extn->cur_b].buf);
                }
+             evas_output_size_set(ee->evas, stride/4, ee->h);
+             evas_output_viewport_set(ee->evas, 0, 0, stride/4, ee->h);
              einfo = (Evas_Engine_Info_Buffer *)evas_engine_info_get(ee->evas);
              if (einfo)
                {
@@ -1485,21 +1489,6 @@ _ecore_evas_socket_resize(Ecore_Evas *ee, int w, int h)
                        if (last_try > 1024) break;
                     }
                   while (!extn->b[i].buf);
-               }
-             Ecore_X_Pixmap pixmap = ecore_evas_gl_x11_pixmap_get(ee);
-             _extnbuf_pixmap_set(extn->b[extn->cur_b].buf, pixmap);
-
-             if (extn->ipc.clients && pixmap)
-               {
-                  Eina_List *l;
-                  Ecore_Ipc_Client *client;
-
-                  EINA_LIST_FOREACH(extn->ipc.clients, l, client)
-                    {
-                       ecore_ipc_client_send(client, MAJOR, OP_PIXMAP_REF,
-                                             pixmap, BUFFER_TYPE_GL_PIXMAP, extn->cur_b,
-                                             NULL, 0);
-                    }
                }
           }
         else
@@ -1650,6 +1639,7 @@ _ecore_evas_extn_socket_render(Ecore_Evas *ee)
         updates = evas_render_updates(ee->evas);
         _extnbuf_unlock(extn->b[cur_b].buf);
      }
+   else evas_norender(ee->evas);
 
    if (updates)
      {
@@ -1682,6 +1672,19 @@ _ecore_evas_extn_socket_render(Ecore_Evas *ee)
                                         cur_b, NULL, 0);
                }
              _ecore_evas_socket_switch(ee, NULL);
+          }
+        else if (_ecore_evas_extn_type_get() == BUFFER_TYPE_DRI2_PIXMAP)
+          {
+             Ecore_X_Pixmap pixmap = _extnbuf_pixmap_get(extn->b[cur_b].buf);
+
+             EINA_LIST_FOREACH(extn->ipc.clients, ll, client)
+              {
+                 ecore_ipc_client_send(client, MAJOR, OP_PIXMAP_REF,
+                                       pixmap, BUFFER_TYPE_DRI2_PIXMAP, cur_b,
+                                       NULL, 0);
+                 ecore_ipc_client_send(client, MAJOR, OP_UPDATE_DONE, 0, 0,
+                                       cur_b, NULL, 0);
+              }
           }
         else
           {
@@ -2077,21 +2080,11 @@ _ecore_evas_extn_socket_alpha_set(Ecore_Evas *ee, int alpha)
                   if (einfo)
                     {
                        einfo->info.destination_alpha = alpha;
+                       einfo->info.visual = einfo->func.best_visual_get(einfo);
                        evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo);
                        evas_damage_rectangle_add(ee->evas, 0, 0, ee->w, ee->h);
                     }
                 }
-             EINA_LIST_FOREACH(extn->ipc.clients, l, client)
-               {
-                  int i;
-
-                  for (i = 0; i < NBUF; i++)
-                    {
-                       ecore_ipc_client_send(client, MAJOR, OP_PIXMAP_REF,
-                                             _extnbuf_pixmap_get(extn->b[i].buf), BUFFER_TYPE_GL_PIXMAP, i,
-                                             NULL, 0);
-                    }
-               }
           }
         else // BUFFER_TYPE_DRI2_PIXMAP, BUFFER_TYPE_SHM
           {
@@ -2116,6 +2109,11 @@ _ecore_evas_extn_socket_alpha_set(Ecore_Evas *ee, int alpha)
              for (i = 0; i < NBUF; i++)
                {
                   const char *lock;
+
+                  if (_ecore_evas_extn_type_get() == BUFFER_TYPE_GL_PIXMAP ||
+                                    _ecore_evas_extn_type_get() == BUFFER_TYPE_DRI2_PIXMAP)
+                                    ecore_ipc_client_send(client, MAJOR, OP_PIXMAP_REF,
+                                    _extnbuf_pixmap_get(extn->b[i].buf), _ecore_evas_extn_type_get(), i, NULL, 0);
 
                   ecore_ipc_client_send(client, MAJOR, OP_SHM_REF0,
                                         extn->svc.num, extn->b[i].num, i,

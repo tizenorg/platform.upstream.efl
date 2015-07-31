@@ -1736,7 +1736,6 @@ eng_setup(Evas *eo_e, void *in)
              return 0;
           }
 
-        eng_get_ob(re)->offscreen = info->info.offscreen;
         e->engine.data.output = re;
         gl_wins++;
 
@@ -1780,6 +1779,7 @@ eng_setup(Evas *eo_e, void *in)
                   Outbuf *ob, *ob_old;
 
                   ob_old = re->generic.software.ob;
+                  ob_old->gl_context->references++;
                   if (ob_old) eng_window_free(ob_old);
                   re->generic.software.ob = NULL;
                   gl_wins--;
@@ -1811,6 +1811,7 @@ eng_setup(Evas *eo_e, void *in)
                   eng_get_ob(re)->offscreen = info->info.offscreen;
 
                   gl_wins++;
+                  ob->gl_context->references--;
                }
              else if ((eng_get_ob(re)->w != e->output.w) ||
                       (eng_get_ob(re)->h != e->output.h) ||

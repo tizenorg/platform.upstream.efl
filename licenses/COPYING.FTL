@@ -164,6 +164,3 @@ Legal Terms
   Our home page can be found at
 
     http://www.freetype.org
-
-
---- end of FTL.TXT ---

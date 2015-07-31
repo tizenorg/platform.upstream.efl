@@ -4,8 +4,8 @@
 Name:           efl
 Version:        1.16.0
 Release:        0
-License:        LGPL-2.1
-Summary:        Enlightenment Foundation Libraries - set of libraries used (not only) by e
+License:        LGPL-2.1+
+Summary:        Enlightenment Foundation Libraries - set of libraries used (not only) by E17
 Url:            http://enlightenment.org/
 Group:          Graphics & UI Framework/API
 Source:         %{name}-%{version}.tar.bz2
@@ -126,6 +126,7 @@ This package includes developer files common to all packages.
 %package -n eina
 Summary: Data type library
 Requires: %{name}-data = %{version}-%{release}
+License: LGPL-2.1+
 
 %description -n eina
 Eina is a data type library.
@@ -143,6 +144,7 @@ The eina tools package the eina binary utility.
 #Summary:  Examples for the eina package
 #Group:    Graphics & UI Framework/Testing
 #Requires: eina = %{version}-%{release}
+#License: LGPL-2.1+
 
 #%description -n eina-examples
 #Example files for eina
@@ -151,6 +153,7 @@ The eina tools package the eina binary utility.
 Summary:  Development components for the eina package
 Group:    Graphics & UI Framework/Development
 Requires: eina = %{version}-%{release}
+License: LGPL-2.1+
 
 %description -n eina-devel
 Development files for eina.
@@ -175,6 +178,7 @@ Development files for emile.
 %package -n eet
 Summary: Library for speedy data storage, retrieval, and compression
 Requires: %{name}-data = %{version}-%{release}
+License: BSD-2-Clause
 
 %description -n eet
 Eet is a tiny library designed to write an arbitrary set of chunks of
@@ -194,6 +198,7 @@ Summary:   Eet Tools
 Group:     Graphics & UI Framework/Utilities
 Requires:  eet = %{version}-%{release}
 Provides:  eet-bin
+License: BSD-2-Clause
 
 %description -n eet-tools
 The eet tools package the eet binary utility.
@@ -210,6 +215,7 @@ The eet tools package the eet binary utility.
 Summary:  Development components for the eet package
 Group:    Graphics & UI Framework/Development
 Requires: eet = %{version}-%{release}
+License: BSD-2-Clause
 
 %description -n eet-devel
 Development files for eet
@@ -235,6 +241,7 @@ system for the EFL.
 Summary:  Development components for the eo package
 Group:    Graphics & UI Framework/Development
 Requires: eo = %{version}-%{release}
+License: BSD-2-Clause
 
 %description -n eo-devel
 Development files for eo
@@ -243,6 +250,7 @@ Development files for eo
 %package -n ector
 Summary: vector graphics library
 Requires: %{name}-data = %{version}-%{release}
+License: FTL or GPL-2.0+
 
 %description -n ector
 vector graphics library.
@@ -251,6 +259,7 @@ vector graphics library.
 Summary:  Development components for the ector package
 Group:    Graphics & UI Framework/Development
 Requires: ector = %{version}-%{release}
+License: FTL or GPL-2.0+
 
 %description -n ector-devel
 Development files for ector
@@ -259,6 +268,7 @@ Development files for ector
 %package -n evas
 Summary: Multi-platform canvas library
 Requires: %{name}-data = %{version}-%{release}
+License: BSD-2-Clause and Zlib
 
 %description -n evas
 Evas is a clean display canvas API for several target display systems
@@ -269,6 +279,7 @@ images, alpha-blend objects much and more.
 #Summary:  Examples for the evas package
 #Group:    Graphics & UI Framework/Testing
 #Requires: evas = %{version}-%{release}
+#License: BSD-2-Clause and Zlib
 
 #%description -n evas-examples
 #Example files for evas
@@ -277,6 +288,7 @@ images, alpha-blend objects much and more.
 Summary:  Development components for the evas package
 Group:    Graphics & UI Framework/Development
 Requires: evas = %{version}-%{release}
+License: BSD-2-Clause and Zlib
 
 %description -n evas-devel
 Development files for evas
@@ -285,6 +297,7 @@ Development files for evas
 %package -n ecore
 Summary: Enlightened Core X interface library
 Requires: %{name}-data = %{version}-%{release}
+License: BSD-2-Clause and MIT
 
 %description -n ecore
 Ecore is the event/X abstraction layer that makes doing selections,
@@ -295,6 +308,7 @@ optimized, and convenient.
 #Summary:  Examples for the ecore package
 #Group:    Graphics & UI Framework/Testing
 #Requires: ecore = %{version}-%{release}
+#License: BSD-2-Clause and MIT
 
 #%description -n ecore-examples
 #Example files for ecore
@@ -303,6 +317,7 @@ optimized, and convenient.
 Summary:  Development components for the ecore package
 Group:    Graphics & UI Framework/Development
 Requires: ecore = %{version}-%{release}
+License: BSD-2-Clause and MIT
 
 %description -n ecore-devel
 Development files for ecore
@@ -311,6 +326,7 @@ Development files for ecore
 %package -n eldbus
 Summary: D-Bus bindings for EFL
 Requires: %{name}-data = %{version}-%{release}
+License: LGPL-2.1+
 
 %description -n eldbus
 Eldbus allows connecting to both system and session buses acting as
@@ -325,6 +341,7 @@ dependency.
 #Summary:  Examples for the eldbus package
 #Group:    Graphics & UI Framework/Testing
 #Requires: eldbus = %{version}-%{release}
+#License: LGPL-2.1+
 
 #%description -n eldbus-examples
 #Example files for eldbus
@@ -333,6 +350,7 @@ dependency.
 Summary:  Development components for the eldbus package
 Group:    Graphics & UI Framework/Development
 Requires: eldbus = %{version}-%{release}
+License: LGPL-2.1+
 
 %description -n eldbus-devel
 Development files for eldbus
@@ -342,6 +360,7 @@ Development files for eldbus
 Summary: A small virtual machine engine (in a library) and bytecode compiler
 Requires: %{name}-data = %{version}-%{release}
 Provides: embryo-bin
+License: BSD-2-Clause
 
 %description -n embryo
 Embryo is a tiny library designed as a virtual machine to interpret a
@@ -351,6 +370,7 @@ limited set of small compiled programs.
 Summary:  Development components for the embryo package
 Group:    Graphics & UI Framework/Development
 Requires: embryo = %{version}-%{release}
+License: BSD-2-Clause
 
 %description -n embryo-devel
 Development files for embryo
@@ -359,6 +379,7 @@ Development files for embryo
 %package -n eio
 Summary: Enlightenment Input/Output Library
 Requires: %{name}-data = %{version}-%{release}
+License: LGPL-2.1+
 
 %description -n eio
 Enlightenment Input/Output Library
@@ -367,6 +388,7 @@ Enlightenment Input/Output Library
 #Summary:  Examples for the eio package
 #Group:    Graphics & UI Framework/Testing
 #Requires: eio = %{version}-%{release}
+#License: LGPL-2.1+
 
 #%description -n eio-examples
 #Example files for eio
@@ -375,6 +397,7 @@ Enlightenment Input/Output Library
 Summary:  Development components for the eio package
 Group:    Graphics & UI Framework/Development
 Requires: eio = %{version}-%{release}
+License: LGPL-2.1+
 
 %description -n eio-devel
 Development files for eio
@@ -382,6 +405,7 @@ Development files for eio
 ############ Ephysics
 %package -n ephysics
 Summary: EFL wrapper for the Bullet Physics library
+License: BSD-2-Clause
 
 %description -n ephysics
 EPhysics is a library that makes it easy to use Ecore, Evas and Bullet
@@ -394,6 +418,7 @@ Enlightenment Input/Output Library
 #Summary:  Examples for the ephysics package
 #Group:    Graphics & UI Framework/Testing
 #Requires: ephysics = %{version}-%{release}
+#License: BSD-2-Clause
 
 #%description -n ephysics-examples
 #Example files for ephysics
@@ -402,6 +427,7 @@ Enlightenment Input/Output Library
 Summary:  Development components for the ephysics package
 Group:    Graphics & UI Framework/Development
 Requires: ephysics = %{version}-%{release}
+License: BSD-2-Clause
 
 %description -n ephysics-devel
 Development files for ephysics
@@ -410,6 +436,7 @@ Development files for ephysics
 %package -n edje
 Summary: Complex Graphical Design/Layout Engine
 Requires: %{name}-data = %{version}-%{release}
+License: BSD-2-Clause and GPL-2.0+
 
 %description -n edje
 Edje is a complex graphical design and layout engine. It provides a
@@ -432,6 +459,7 @@ Summary:   Edje tools
 Group:     Graphics & UI Framework/Utilities
 Requires:  edje = %{version}-%{release}
 Provides:  edje-bin
+License: BSD-2-Clause and GPL-2.0+
 
 %description -n edje-tools
 The edje tools package include the compiler, decompiler, visualizer, code
@@ -441,6 +469,7 @@ generator and more.
 #Summary:  Examples for the edje package
 #Group:    Graphics & UI Framework/Testing
 #Requires: edje = %{version}-%{release}
+#License: BSD-2-Clause and GPL-2.0+
 
 #%description -n edje-examples
 #Example files for edje
@@ -449,6 +478,7 @@ generator and more.
 Summary:  Development components for the edje package
 Group:    Graphics & UI Framework/Development
 Requires: edje-tools = %{version}-%{release}
+License: BSD-2-Clause and GPL-2.0+
 
 %description -n edje-devel
 Development files for edje
@@ -457,6 +487,7 @@ Development files for edje
 %package -n eeze
 Summary: Device convenience library
 Requires: %{name}-data = %{version}-%{release}
+License: BSD-2-Clause
 
 %description -n eeze
 Eeze is a library for manipulating devices through udev with a simple
@@ -478,6 +509,7 @@ reduce the complexity of managing devices.
 Summary:  Development components for the eeze package
 Group:    Graphics & UI Framework/Development
 Requires: eeze = %{version}-%{release}
+License: BSD-2-Clause
 
 %description -n eeze-devel
 Development files for eeze
@@ -486,6 +518,7 @@ Development files for eeze
 %package -n efreet
 Summary: FreeDesktop.Org standards implementation
 Requires: %{name}-data = %{version}-%{release}
+License: BSD-2-Clause
 
 %description -n efreet
 Efreet implements the FreeDesktop.Org application and MIME-handling
@@ -495,6 +528,7 @@ standards.
 Summary:  Development components for the efreet package
 Group:    Graphics & UI Framework/Development
 Requires: efreet = %{version}-%{release}
+License: BSD-2-Clause
 
 %description -n efreet-devel
 Development files for efreet
@@ -503,6 +537,7 @@ Development files for efreet
 %package -n emotion
 Summary: EFL Media Library
 Requires: %{name}-data = %{version}-%{release}
+License: BSD-2-Clause
 
 %description -n emotion
 Emotion is a media library with support for different backends as plug-ins.
@@ -519,6 +554,7 @@ Emotion is a media library with support for different backends as plug-ins.
 Summary:  Development components for the emotion package
 Group:    Graphics & UI Framework/Development
 Requires: emotion = %{version}-%{release}
+License: BSD-2-Clause
 
 %description -n emotion-devel
 Development files for emotion
@@ -527,6 +563,7 @@ Development files for emotion
 %package -n ethumb
 Summary: EFL thumbnail generator library
 Requires: %{name}-data = %{version}-%{release}
+License: LGPL-2.1+
 
 %description -n ethumb
 Enlightenment thumbnailing library
@@ -535,6 +572,7 @@ Enlightenment thumbnailing library
 #Summary:  Examples for the ethumb package
 #Group:    Graphics & UI Framework/Testing
 #Requires: ethumb = %{version}-%{release}
+#License: LGPL-2.1+
 
 #%description -n ethumb-examples
 #Example files for ethumb
@@ -543,6 +581,7 @@ Enlightenment thumbnailing library
 Summary:  Development components for the ethumb package
 Group:    Graphics & UI Framework/Development
 Requires: ethumb = %{version}-%{release}
+License: LGPL-2.1+
 
 %description -n ethumb-devel
 Development files for emotion
@@ -552,6 +591,7 @@ Development files for emotion
 Summary: EO object parser and C code generator
 Group:    Graphics & UI Framework/Development
 Requires: %{name}-data = %{version}-%{release}
+License: BSD-2-Clause
 
 %description -n eolian
 Tool that parses Enlightenment's meta-data (.eo) filesg
@@ -561,6 +601,7 @@ and can then generate C code along with header files.
 Summary: Development components for the eolian package
 Group:    Graphics & UI Framework/Development
 Requires: eolian = %{version}-%{release}
+License: BSD-2-Clause
 
 %description -n eolian-devel
 Development files for eolian
@@ -569,6 +610,7 @@ Development files for eolian
 #Summary:  Examples for the eolian package
 #Group:    Graphics & UI Framework/Testing
 #Requires: eolian = %{version}-%{release}
+#License: BSD-2-Clause
 
 #%description -n eolian-examples
 #Example files for eolian
@@ -577,6 +619,7 @@ Development files for eolian
 %package -n elocation
 Summary: EFL location library
 Requires: %{name}-data = %{version}-%{release}
+License: LGPL-2.1+
 
 %description -n elocation
 Elocation is meant as a convenience library to ease application developers
@@ -588,6 +631,7 @@ some of the use cases.
 #Summary:  Examples for the elocation package
 #Group:    Graphics & UI Framework/Testing
 #Requires: elocation = %{version}-%{release}
+#License: LGPL-2.1+
 #
 #%description -n elocation-examples
 #Example files for elocation
@@ -596,6 +640,7 @@ some of the use cases.
 Summary: Development components for the elocation package
 Group:    Graphics & UI Framework/Development
 Requires: elocation = %{version}-%{release}
+License: LGPL-2.1+
 
 %description -n elocation-devel
 Development files for elocation
@@ -604,6 +649,7 @@ Development files for elocation
 %package -n elua
 Summary: EFL lua binding library
 Requires: %{name}-data = %{version}-%{release}
+License: BSD-2-Clause
 
 %description -n elua
 The Elua library was created to ease integration of EFL Lua into other EFL
@@ -614,6 +660,7 @@ Lua state that is fully set up for running EFL Lua bindings.
 Summary: Development components for the elua package
 Group:    Graphics & UI Framework/Development
 Requires: elua = %{version}-%{release}
+License: BSD-2-Clause
 
 %description -n elua-devel
 Development files for elua

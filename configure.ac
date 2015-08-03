@@ -1622,6 +1622,19 @@ AC_ARG_ENABLE([ecore-buffer],
    ],
    [want_ecore_buffer="no"])
 
+# software_x11 DRI3
+AC_ARG_ENABLE([dri3],
+   [AS_HELP_STRING([--disable-dri3],[disable DRI3. @<:@default=enabled@:>@])],
+   [
+    if test "x${enableval}" = "xyes" ; then
+       want_sw_dri3="yes"
+    else
+       want_sw_dri3="no"
+    fi
+   ],
+   [want_sw_dri3="yes"])
+
+
 # Image Loaders
 
 ARG_ENABLE_EVAS_IMAGE_LOADER(BMP, static)
@@ -4599,6 +4612,50 @@ AM_CONDITIONAL([BUILD_ECORE_BUFFER_X11_DRI2], [test "${build_ecore_buffer_x11_dr
 AM_CONDITIONAL([BUILD_ECORE_BUFFER_X11_DRI3], [test "${build_ecore_buffer_x11_dri3}" = "yes"])
 
 #### End of Ecore_Buffer
+
+#### software_x11 DRI3
+build_software_x11_dri3="no"
+EFL_LIB_START_OPTIONAL([SW_DRI3], [test "${want_sw_dri3}" = "yes"])
+### Checks for libraries
+EFL_EVAL_PKGS([SW_DRI3])
+
+tbm_version="1.1.0"
+drm_version="2.4.35"
+PKG_CHECK_MODULES([X11_DRI_COMMON],
+   [
+      libtbm >= ${tbm_version},
+      libdrm >= ${drm_version}
+   ],
+   [have_x11_dri_common_pkgs="yes"],
+   [have_x11_dri_common_pkgs="no"]
+)
+
+if test "x$have_x11_dri_common_pkgs" = "xyes" ; then
+
+   PKG_CHECK_MODULES([X11_DRI3],
+      [
+         xshmfence,
+         xcb,
+         x11-xcb,
+         xcb-sync,
+         xcb-present,
+         xcb-dri3
+      ],
+      [have_x11_dri3_pkgs="yes"],
+      [have_x11_dri3_pkgs="no"])
+fi
+
+if test "x${have_x11_dri3_pkgs}" = "xyes" ; then
+   build_software_x11_dri3="yes"
+   AC_DEFINE(BUILD_SOFTWARE_X11_DRI3, 1, [Support for X11_DRI3 Backend in Software])
+fi
+EFL_ADD_FEATURE([SW_DRI3], [x11_dri3], [${build_software_x11_dri3}])
+
+EFL_LIB_END_OPTIONAL([SW_DRI3])
+
+AM_CONDITIONAL([BUILD_SOFTWARE_X11_DRI3], [test "${build_software_x11_dri3}" = "yes"])
+
+#### End of software_x11 DRI3
 
 #### src/examples/ephysics/Makefile
 AC_CONFIG_FILES([

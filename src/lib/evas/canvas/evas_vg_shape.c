@@ -333,6 +333,10 @@ _efl_vg_shape_eo_base_constructor(Eo *obj, Efl_VG_Shape_Data *pd)
 static void
 _efl_vg_shape_eo_base_destructor(Eo *obj, Efl_VG_Shape_Data *pd EINA_UNUSED)
 {
+   //FIXME, As base class  destructor can't call destructor of mixin class.
+   // call explicit API to free shape data.
+   eo_do(obj, efl_gfx_shape_reset());
+
    eo_do_super(obj, MY_CLASS, eo_destructor());
 }
 

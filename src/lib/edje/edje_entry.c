@@ -208,8 +208,6 @@ _text_filter_markup_prepend_internal(Edje *ed, Entry *en, Evas_Textblock_Cursor 
 {
    Edje_Markup_Filter_Callback *cb;
    Eina_List *l;
-   // TIZEN_ONLY: (20150731) Remove selection first and apply filter
-   // compatibility issue with 2.3
    Eina_Bool have_sel = EINA_FALSE;
 
    if ((clearsel) && (en->have_selection))
@@ -217,7 +215,7 @@ _text_filter_markup_prepend_internal(Edje *ed, Entry *en, Evas_Textblock_Cursor 
         _range_del_emit(ed, en->cursor, en->rp->object, en);
         have_sel= EINA_TRUE;
      }
-   //
+
    EINA_LIST_FOREACH(ed->markup_filter_callbacks, l, cb)
      {
         if (!strcmp(cb->part, en->rp->part->name))
@@ -248,19 +246,13 @@ _text_filter_markup_prepend_internal(Edje *ed, Entry *en, Evas_Textblock_Cursor 
                     eina_unicode_utf8_get_len(info->change.insert.content);
                }
           }
-        // TIZEN_ONLY: (20150731) Remove selection first and apply filter
-        // compatibility issue with 2.3
         if (have_sel)
           {
             if (info)
-              info->merge = EINA_TRUE;
+              {
+                 info->merge = EINA_TRUE;
+              }
           }
-        //
-        //if ((clearsel) && (en->have_selection))
-        //  {
-        //     _range_del_emit(ed, en->cursor, en->rp->object, en);
-        //     if (info) info->merge = EINA_TRUE;
-        //  }
         if (info) info->change.insert.pos =
           evas_textblock_cursor_pos_get(en->cursor);
         if (fmtpre) _text_filter_format_prepend(ed, en, en->cursor, fmtpre);
@@ -283,13 +275,12 @@ _text_filter_text_prepend(Edje *ed, Entry *en, Evas_Textblock_Cursor *c,
    Eina_List *l;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(text, NULL);
-   // TIZEN_ONLY: (20150731) Remove selection first and apply filter
-   // compatibility issue with 2.3
+
    if ((clearsel) && (en->have_selection))
      {
         _range_del_emit(ed, en->cursor, en->rp->object, en);
      }
-   //
+
    text2 = strdup(text);
    EINA_LIST_FOREACH(ed->text_insert_filter_callbacks, l, cb)
      {
@@ -406,13 +397,11 @@ _text_filter_markup_prepend(Edje *ed, Entry *en, Evas_Textblock_Cursor *c,
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(text, NULL);
 
-   // TIZEN_ONLY: (20150731) Remove selection first and apply filter
-   // compatibility issue with 2.3
    if ((clearsel) && (en->have_selection))
      {
         _range_del_emit(ed, en->cursor, en->rp->object, en);
      }
-   //
+
    text2 = strdup(text);
    EINA_LIST_FOREACH(ed->text_insert_filter_callbacks, l, cb)
      {

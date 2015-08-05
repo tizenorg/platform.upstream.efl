@@ -316,6 +316,7 @@ extern Ecore_Wl_Display *_ecore_wl_disp;
 void _ecore_wl_window_init(void);
 void _ecore_wl_window_shutdown(void);
 Eina_Hash *_ecore_wl_window_hash_get(void);
+Eina_Hash *_ecore_wl_keygrab_hash_get(void);
 
 void _ecore_wl_output_add(Ecore_Wl_Display *ewd, unsigned int id);
 void _ecore_wl_output_del(Ecore_Wl_Output *output);

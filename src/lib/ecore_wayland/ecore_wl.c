@@ -53,6 +53,7 @@ static Eina_Bool _ecore_wl_animator_busy = EINA_FALSE;
 static Eina_Bool _ecore_wl_fatal_error = EINA_FALSE;
 static Eina_Bool _ecore_wl_server_mode = EINA_FALSE;
 // TIZEN_ONLY(20150722): Add ecore_wl_window_keygrab_* APIs
+static Eina_Hash *_keygrabs = NULL;
 static int _ecore_wl_keygrab_error = -1;
 //
 
@@ -505,6 +506,12 @@ _ecore_wl_shutdown(Eina_Bool close)
    if (--_ecore_wl_init_count != 0) return _ecore_wl_init_count;
    if (!_ecore_wl_disp) return _ecore_wl_init_count;
 
+   if (_keygrabs)
+     {
+        eina_hash_free(_keygrabs);
+        _keygrabs = NULL;
+     }
+
    _ecore_wl_events_shutdown();
    _ecore_wl_window_shutdown();
 
@@ -921,6 +928,34 @@ _ecore_wl_signal_exit_free(void *data EINA_UNUSED, void *event)
 
 // TIZEN_ONLY(20150722): Add ecore_wl_window_keygrab_* APIs
 //Currently this function is only used in sink call, so use global value(_ecore_wl_keygrab_error) and just check the error is ok.
+/* internal functions */
+static Eina_Bool
+_ecore_wl_keygrab_hash_add(void *key, void *data)
+{
+   Eina_Bool ret = EINA_FALSE;
+
+   if (!_keygrabs)
+     _keygrabs = eina_hash_int32_new(NULL);
+   ret = eina_hash_add(_keygrabs, key, data);
+   return ret;
+}
+
+static Eina_Bool
+_ecore_wl_keygrab_hash_del(void *key)
+{
+   Eina_Bool ret = EINA_FALSE;
+
+   ret = eina_hash_del_by_key(_keygrabs, key);
+
+   return ret;
+}
+
+Eina_Hash *
+_ecore_wl_keygrab_hash_get(void)
+{
+   return _keygrabs;
+}
+
 static void
 _ecore_wl_cb_keygrab_notify(void *data EINA_UNUSED, struct tizen_keyrouter *tizen_keyrouter EINA_UNUSED, struct wl_surface *surface EINA_UNUSED, uint32_t key, uint32_t mode, uint32_t error)
 {
@@ -1007,7 +1042,7 @@ ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key, int mod EINA_
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!key) return EINA_FALSE;
-   if ((grab_mode < ECORE_WL_WINDOW_KEYGRAB_UNKNOWN) || (grab_mode > ECORE_WL_WINDOW_KEYGRAB_OVERRIDE_EXCLUSIVE))
+   if ((grab_mode < ECORE_WL_WINDOW_KEYGRAB_UNKNOWN) || (grab_mode > ECORE_WL_WINDOW_KEYGRAB_EXCLUSIVE))
      return EINA_FALSE;
 
    INF("win=%p key=%s mod=%d", win, key, grab_mode);
@@ -1050,6 +1085,11 @@ ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key, int mod EINA_
    if (!_ecore_wl_keygrab_error)
      {
         INF("[PID:%d]Succeed to get return value !", getpid());
+        if (_ecore_wl_keygrab_hash_add(&keycode, surface))
+          INF("Succeed to add key to the keygrab hash!");
+        //TODO: deal with if (win == NULL)
+        else
+          WRN("Failed to add key to the keygrab hash!");
         ret = EINA_TRUE;
      }
    else
@@ -1111,8 +1151,12 @@ ecore_wl_window_keygrab_unset(Ecore_Wl_Window *win, const char *key, int mod EIN
    INF("After keygrab _ecore_wl_keygrab_error = %d", _ecore_wl_keygrab_error);
    if (!_ecore_wl_keygrab_error)
      {
+        INF("[PID:%d]Succeed to get return value !", getpid());
+        if (_ecore_wl_keygrab_hash_del(&keycode))
+          INF("Succeed to delete key from the keygrab hash!");
+        else
+          WRN("Failed to delete key from the keygrab hash!");
         ret = EINA_TRUE;
-        INF("[PID:%d] Succeed to get return value ! ", getpid());
      }
    else
      {

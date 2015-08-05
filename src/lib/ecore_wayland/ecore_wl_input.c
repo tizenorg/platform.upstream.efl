@@ -758,18 +758,50 @@ _ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard EINA_UN
    char key[256], keyname[256], compose[256];
    Ecore_Event_Key *e;
 
+   struct wl_surface *surface = NULL;
+
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!(input = data)) return;
 
    win = input->keyboard_focus;
-   if ((!win) || (win->keyboard_device != input) || (!input->xkb.state))
-     return;
-
-   input->display->serial = serial;
 
    /* xkb rules reflect X broken keycodes, so offset by 8 */
    code = keycode + 8;
+
+   if (!win)
+     {
+        INF("window is not focused");
+        surface = (struct wl_surface *) eina_hash_find(_ecore_wl_keygrab_hash_get(), &code);
+        if (surface)
+          {
+             win = ecore_wl_window_surface_find(surface);
+             INF("keycode(%d) is grabbed in the window(%p)", code, win);
+          }
+        else
+          {
+             //key event callback can be called even though surface is not exist.
+             //TODO: Ecore_Event_Key have event_window info, so if (surface == NULL), we should generate proper window info
+             WRN("surface is not exist");
+             return;
+          }
+     }
+   else
+     {
+        if ((win->keyboard_device != input))
+          {
+             INF("window(%p) is focused, but keyboard device info is wrong", win);
+             return;
+          }
+     }
+
+   if (!input->xkb.state)
+     {
+        WRN("xkb state is wrong");
+        return;
+     }
+
+   input->display->serial = serial;
 
    /* get the keysym for this key code */
    nsyms = xkb_key_get_syms(input->xkb.state, code, &syms);

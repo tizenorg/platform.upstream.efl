@@ -967,9 +967,9 @@ _ecore_wl_cb_keygrab_notify(void *data EINA_UNUSED, struct tizen_keyrouter *tize
 
 struct _Keycode_Map
 {
-   int num_keycodes;
    xkb_keysym_t keysym;
-   Eina_List *keycodes;
+   xkb_keycode_t *keycodes;
+   int num_keycodes;
 };
 
 typedef struct _Keycode_Map Keycode_Map;
@@ -985,36 +985,28 @@ static void find_keycode(struct xkb_keymap *keymap, xkb_keycode_t key, void *dat
      {
         if ((*syms_out) == (keysym))
           {
-             xkb_keycode_t *keycode = malloc(sizeof(xkb_keycode_t));
              found_keycodes->num_keycodes++;
-             *keycode = key;
-             found_keycodes->keycodes = eina_list_append(found_keycodes->keycodes, keycode);
+             found_keycodes->keycodes = realloc(found_keycodes->keycodes, sizeof(int) * found_keycodes->num_keycodes);
+             found_keycodes->keycodes[found_keycodes->num_keycodes - 1] = key;
           }
      }
 }
 
 //If there are several keycodes, ecore_wl only deals with first keycode.
-static void
-_ecore_wl_keycode_from_keysym(struct xkb_keymap *keymap, xkb_keysym_t keysym, xkb_keycode_t *keycode)
+static int
+_ecore_wl_keycode_from_keysym(struct xkb_keymap *keymap, xkb_keysym_t keysym, xkb_keycode_t **keycodes)
 {
-   Keycode_Map keycode_map = {0,};
-   keycode_map.keysym = keysym;
-   keycode_map.keycodes = NULL;
-   xkb_keycode_t *data;
+   Keycode_Map found_keycodes = {0,};
+   found_keycodes.keysym = keysym;
 
    //called fewer (max_keycode - min_keycode +1) times.
-   xkb_keymap_key_for_each(keymap, find_keycode, &keycode_map);
-   if (keycode_map.num_keycodes > 0)
-     {
-        *keycode = *((xkb_keycode_t *) eina_list_data_get(keycode_map.keycodes));
-     }
-   else
-     *keycode = 0;
+   xkb_keymap_key_for_each(keymap, find_keycode, &found_keycodes);
 
-   INF("num of keycodes:%d keycode=%d", keycode_map.num_keycodes, *keycode);
+   *keycodes = found_keycodes.keycodes;
+   INF("num of keycodes:%d ", found_keycodes.num_keycodes);
+   return found_keycodes.num_keycodes;
 
-   EINA_LIST_FREE(keycode_map.keycodes, data)
-     free(data);
+
 }
 
 //I'm not sure that keygrab function should be changed to Ecore_evas_XXX.
@@ -1033,8 +1025,10 @@ _ecore_wl_keycode_from_keysym(struct xkb_keymap *keymap, xkb_keysym_t keysym, xk
 EAPI Eina_Bool
 ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key, int mod EINA_UNUSED, int not_mod EINA_UNUSED, int priority EINA_UNUSED, Ecore_Wl_Window_Keygrab_Mode grab_mode)
 {
-   xkb_keycode_t keycode = 0;
-   xkb_keysym_t keysym;
+   xkb_keysym_t keysym = 0x0;
+   int num_keycodes = 0;
+   xkb_keycode_t *keycodes = NULL;
+   int i;
 
    Eina_Bool ret = EINA_FALSE;
    struct wl_surface *surface = NULL;
@@ -1057,46 +1051,51 @@ ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key, int mod EINA_
 
    //We have to find the way to get keycode from keysym before keymap notify
    if (_ecore_wl_disp->input->xkb.keymap)
-     _ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap, keysym, &keycode);
+     num_keycodes = _ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap, keysym, &keycodes);
    else
      {
         WRN("Keymap is not ready");
         return EINA_FALSE;
      }
 
-   if (keycode == 0)
+   if (num_keycodes == 0)
      {
         WRN("Keycode of key(\"%s\") doesn't exist", key);
         return EINA_FALSE;
      }
 
-   INF("keycode of key:(%d)", keycode);
-
    /* Request to grab a key */
    if (win)
      surface = ecore_wl_window_surface_get(win);
 
-   tizen_keyrouter_set_keygrab(_ecore_wl_disp->wl.keyrouter, surface, keycode, grab_mode);
-
-   /* Send sync to wayland compositor and register sync callback to exit while dispatch loop below */
-   ecore_wl_sync();
-
-   INF("After keygrab _ecore_wl_keygrab_error = %d", _ecore_wl_keygrab_error);
-   if (!_ecore_wl_keygrab_error)
+   for (i = 0; i < num_keycodes; i++)
      {
-        INF("[PID:%d]Succeed to get return value !", getpid());
-        if (_ecore_wl_keygrab_hash_add(&keycode, surface))
-          INF("Succeed to add key to the keygrab hash!");
-        //TODO: deal with if (win == NULL)
+        INF("keycode of key:(%d)", keycodes[i]);
+        tizen_keyrouter_set_keygrab(_ecore_wl_disp->wl.keyrouter, surface, keycodes[i], grab_mode);
+        /* Send sync to wayland compositor and register sync callback to exit while dispatch loop below */
+        ecore_wl_sync();
+
+        INF("After keygrab _ecore_wl_keygrab_error = %d", _ecore_wl_keygrab_error);
+        if (!_ecore_wl_keygrab_error)
+          {
+             INF("[PID:%d]Succeed to get return value !", getpid());
+             if (_ecore_wl_keygrab_hash_add(&keycodes[i], surface))
+               INF("Succeed to add key to the keygrab hash!");
+             //TODO: deal with if (win == NULL)
+             else
+               WRN("Failed to add key to the keygrab hash!");
+             ret = EINA_TRUE;
+          }
         else
-          WRN("Failed to add key to the keygrab hash!");
-        ret = EINA_TRUE;
+          {
+             WRN("[PID:%d]Failed to get return value ! ret=%d)", getpid(), _ecore_wl_keygrab_error);
+             ret = EINA_FALSE;
+          }
      }
-   else
-     {
-        WRN("[PID:%d]Failed to get return value ! ret=%d)", getpid(), _ecore_wl_keygrab_error);
-        ret = EINA_FALSE;
-     }
+
+   free(keycodes);
+   keycodes = NULL;
+
    _ecore_wl_keygrab_error = -1;
    return ret;
 }
@@ -1104,8 +1103,10 @@ ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key, int mod EINA_
 EAPI Eina_Bool
 ecore_wl_window_keygrab_unset(Ecore_Wl_Window *win, const char *key, int mod EINA_UNUSED, int any_mod EINA_UNUSED)
 {
-   xkb_keycode_t keycode = 0;
-   xkb_keysym_t keysym;
+   xkb_keysym_t keysym = 0x0;
+   int num_keycodes = 0;
+   xkb_keycode_t *keycodes = NULL;
+   int i;
 
    Eina_Bool ret = EINA_FALSE;
    struct wl_surface *surface = NULL;
@@ -1124,45 +1125,51 @@ ecore_wl_window_keygrab_unset(Ecore_Wl_Window *win, const char *key, int mod EIN
 
    //We have to find the way to get keycode from keysym before keymap notify
    if (_ecore_wl_disp->input->xkb.keymap)
-     _ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap, keysym, &keycode);
+     num_keycodes = _ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap, keysym, &keycodes);
    else
      {
         WRN("Keymap is not ready");
         return EINA_FALSE;
      }
 
-   if (keycode == 0)
+   if (num_keycodes == 0)
      {
         WRN("Keycode of key(\"%s\") doesn't exist", key);
         return EINA_FALSE;
      }
 
-   INF("keycode of key:(%d)", keycode);
-
    /* Request to ungrab a key */
    if (win)
      surface = ecore_wl_window_surface_get(win);
 
-   tizen_keyrouter_unset_keygrab(_ecore_wl_disp->wl.keyrouter, surface, keycode);
-
-   /* Send sync to wayland compositor and register sync callback to exit while dispatch loop below */
-   ecore_wl_sync();
-
-   INF("After keygrab _ecore_wl_keygrab_error = %d", _ecore_wl_keygrab_error);
-   if (!_ecore_wl_keygrab_error)
+   for (i = 0; i < num_keycodes; i++)
      {
-        INF("[PID:%d]Succeed to get return value !", getpid());
-        if (_ecore_wl_keygrab_hash_del(&keycode))
-          INF("Succeed to delete key from the keygrab hash!");
+        INF("keycode of key:(%d)", keycodes[i]);
+        tizen_keyrouter_unset_keygrab(_ecore_wl_disp->wl.keyrouter, surface, keycodes[i]);
+
+        /* Send sync to wayland compositor and register sync callback to exit while dispatch loop below */
+        ecore_wl_sync();
+
+        INF("After keygrab unset  _ecore_wl_keygrab_error = %d", _ecore_wl_keygrab_error);
+        if (!_ecore_wl_keygrab_error)
+          {
+             INF("[PID:%d]Succeed to get return value !", getpid());
+             if (_ecore_wl_keygrab_hash_del(&keycodes[i]))
+               INF("Succeed to delete key from the keygrab hash!");
+             else
+               WRN("Failed to delete key from the keygrab hash!");
+             ret = EINA_TRUE;
+          }
         else
-          WRN("Failed to delete key from the keygrab hash!");
-        ret = EINA_TRUE;
+          {
+             ret = EINA_FALSE;
+             WRN("[PID:%d] Failed to get return value ! (ret=%d)", getpid(), _ecore_wl_keygrab_error);
+          }
      }
-   else
-     {
-        ret = EINA_FALSE;
-        WRN("[PID:%d] Failed to get return value ! (ret=%d)", getpid(), _ecore_wl_keygrab_error);
-     }
+
+   free(keycodes);
+   keycodes = NULL;
+
    _ecore_wl_keygrab_error = -1;
    return ret;
 }

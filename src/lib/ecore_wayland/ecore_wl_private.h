@@ -142,6 +142,7 @@ struct _Ecore_Wl_Window
    Eina_Bool fullscreen : 1;
    Eina_Bool maximized : 1;
    Eina_Bool minimized : 1;
+   Eina_Bool focus_skip : 1;
 
    struct
      {

@@ -140,6 +140,7 @@ ecore_wl_window_new(Ecore_Wl_Window *parent, int x, int y, int w, int h, int buf
    win->title = NULL;
    win->class_name = NULL;
    win->role = NULL;
+   win->focus_skip = EINA_FALSE;
 
    eina_hash_add(_windows, _ecore_wl_window_id_str_get(win->id), win);
    return win;
@@ -445,6 +446,16 @@ ecore_wl_window_show(Ecore_Wl_Window *win)
                tizen_policy_set_role(_ecore_wl_disp->wl.tz_policy,
                                      win->surface,
                                      win->role);
+          }
+        if (win->focus_skip)
+          {
+             if (win->surface)
+               tizen_policy_set_focus_skip(_ecore_wl_disp->wl.tz_policy, win->surface);
+          }
+        else
+          {
+             if (win->surface)
+               tizen_policy_unset_focus_skip(_ecore_wl_disp->wl.tz_policy, win->surface);
           }
      }
    if ((!win->tz_rotation) && (_ecore_wl_disp->wl.tz_policy_ext))
@@ -906,6 +917,10 @@ ecore_wl_window_focus_skip_set(Ecore_Wl_Window *win, Eina_Bool focus_skip)
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!win) return;
+   if (win->focus_skip == focus_skip) return;
+
+   win->focus_skip = focus_skip;
+
    if (focus_skip)
      {
         if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))

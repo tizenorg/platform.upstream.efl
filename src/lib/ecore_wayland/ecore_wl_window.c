@@ -558,6 +558,15 @@ ecore_wl_window_hide(Ecore_Wl_Window *win)
         win->visible = EINA_FALSE;
      }
 
+   if (win->tz_visibility) tizen_visibility_destroy(win->tz_visibility);
+   win->tz_visibility = NULL;
+
+   if (win->tz_rotation) tizen_rotation_destroy(win->tz_rotation);
+   win->tz_rotation = NULL;
+
+   if (win->tz_position) tizen_position_destroy(win->tz_position);
+   win->tz_position = NULL;
+
    if (win->xdg_surface) xdg_surface_destroy(win->xdg_surface);
    win->xdg_surface = NULL;
 

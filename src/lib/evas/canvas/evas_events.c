@@ -32,6 +32,22 @@ _evas_event_havemap_adjust(Evas_Object *eo_obj EINA_UNUSED, Evas_Object_Protecte
      }
 }
 
+static Eina_Bool
+_evas_event_havemap_is_in_output_rect(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, int x, int y, int w, int h)
+{
+   int mx = x, my = y;
+
+   _evas_event_havemap_adjust(eo_obj, obj, &mx, &my, obj->mouse_grabbed);
+
+   if ((RECTS_INTERSECT(mx, my, w, h,
+                        obj->cur->cache.clip.x,
+                        obj->cur->cache.clip.y,
+                        obj->cur->cache.clip.w,
+                        obj->cur->cache.clip.h)))
+     return 1;
+   return 0;
+}
+
 static Eina_List *
 _evas_event_object_list_raw_in_get(Evas *eo_e, Eina_List *in,
                                    const Eina_Inlist *list, Evas_Object *stop,
@@ -1626,7 +1642,7 @@ _canvas_event_feed_mouse_move_internal(Eo *eo_e, void *_pd, int x, int y, unsign
              // FIXME: i don't think we need this
              //	     evas_object_clip_recalc(eo_obj);
              if ((!e->is_frozen) &&
-                 evas_object_is_in_output_rect(eo_obj, obj, x, y, 1, 1) &&
+                 _evas_event_havemap_is_in_output_rect(eo_obj, obj, x, y, 1, 1) &&
                  (evas_object_clippers_is_visible(eo_obj, obj) ||
                   obj->mouse_grabbed) &&
                  eina_list_data_find(ins, eo_obj) &&

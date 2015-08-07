@@ -837,7 +837,7 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @see evas_key_modifier_is_set
 
          @remark If the programmer instantiates the canvas by means of the
-         ecore_evas_new() family of helper functions, Ecore will take
+         Ecore Evas New function family of helper functions, Ecore will take
          care of registering on it all standard modifiers: "Shift",
          "Control", "Alt", "Meta", "Hyper", "Super". */
 
@@ -1922,7 +1922,7 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @see evas_key_lock_is_set
 
          @remark If the programmer instantiates the canvas by means of the
-         ecore_evas_new() family of helper functions, Ecore will take
+         Ecore Evas New function family of helper functions, Ecore will take
          care of registering on it all standard lock keys: "Caps_Lock",
          "Num_Lock", "Scroll_Lock". */
 

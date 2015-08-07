@@ -359,6 +359,7 @@ extern EVGL_Resource *_evgl_tls_resource_get(void);
 extern EVGL_Resource *_evgl_tls_resource_create(void *data);
 extern void           _evgl_tls_resource_destroy(void *data);
 extern EVGL_Context  *_evgl_current_context_get(void);
+extern void          *_evgl_engine_data_get(Evas_GL *evasgl);
 extern int            _evgl_not_in_pixel_get(void);
 extern int            _evgl_direct_enabled(void);
 extern EVGLNative_Context _evgl_native_context_get(Evas_GL_Context *ctx);

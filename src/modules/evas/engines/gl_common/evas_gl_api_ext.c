@@ -647,7 +647,7 @@ _evgl_api_gles1_ext_init(void)
    const char *gles1_exts, *eglexts;
    EVGL_Resource *rsc;
    EGLint context_version;
-   EGLDisplay dpy = EGLDISPLAY_GET();
+   EGLDisplay dpy = EGLDISPLAY_GET(NULL);
 
    /* glGetString returns the information for the currently bound context
     * So, update gles1_exts only if GLES1 context is currently bound.
@@ -913,7 +913,7 @@ _evgl_api_gles3_ext_init(void)
 #ifdef GL_GLES
    EVGL_Resource *rsc;
    EGLint context_version;
-   EGLDisplay dpy = EGLDISPLAY_GET();
+   EGLDisplay dpy = EGLDISPLAY_GET(NULL);
 
    /* glGetString returns the information for the currently bound context
     * So, update gles3_exts only if GLES3 context is currently bound.

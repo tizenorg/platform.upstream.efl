@@ -122,7 +122,7 @@
  *
  * After returning from the main loop, every timer is checked to see if it's
  * still alive and, in that case, deleted, before finalizing the library. This
- * is not really necessary, since ecore_shutdown() will already delete them for
+ * is not really necessary, since Ecore Shutdown function will already delete them for
  * you, but it's good practice if you have other things going on after this
  * point that could restart the main loop.
  *
@@ -507,34 +507,9 @@
 /**
  * @page ecore_con_lookup_example_c Ecore_Con - DNS lookup
  *
- * This is a very simple example that shows how to make a simple DNS lookup
- * using ecore_con_lookup().
+ * This feature is not supported on Tizen.
  *
- * It's possible to see in the beginning of the main function that we are using
- * the arguments passed via command line. This is the address that we are going
- * to make the DNS lookup on.
- *
- * The next step is to initialize the libraries, and just call
- * ecore_con_lookup(). This function will get the string that contains the
- * address to be resolved as first parameter, then a callback that will be
- * called when the resolve stage is done, and finally a data pointer that will
- * be passed to the callback.
- *
- * This function is asynchronous, and the callback will be called only on
- * success. If there was an error during the resolve stage, there's no way to
- * know about that. It's only possible to know about errors when setting up the
- * lookup, by looking at the return code of the ecore_con_lookup() function.
- *
- * The callback @c _lookup_done_cb passed as argument to ecore_con_lookup() just
- * prints the resolved canonical name, IP, address of the sockaddr structure,
- * and the length of the socket address (in bytes).
- *
- * Finally, we start the main loop, and after that we finalize the libraries and
- * exit.
- *
- * This is the code for this simple example:
- *
- * @include ecore_con_lookup_example.c
+ * @dontinclude ecore_con_lookup_example.c
  */
 
 /**
@@ -556,7 +531,7 @@
  *
  * Notice that we also declared a struct that will hold how many bytes were
  * downloaded through this object. It will be set in the @c main function using
- * ecore_con_url_data_set().
+ * Url Data Set function.
  *
  * In the next step, on the @c main function, we open a file where we are going
  * to save the content being downloaded:
@@ -587,6 +562,8 @@
 
 /**
  * @page ecore_con_url_cookies_example_c Ecore_Con_Url - Managing cookies
+ *
+ * This feature is not supported on Tizen.
  *
  * This example shows how to use an @ref Ecore_Con_Url and enable it to
  * receive/send cookies. These cookies can be set by the server, saved to a
@@ -619,7 +596,7 @@
  * @until User-Agent
  *
  * Now we start playing with cookies. First, let's call
- * ecore_con_url_cookies_init() to inform that we want cookies enabled. We also
+ * Url Cookies Initiation fucntion to inform that we want cookies enabled. We also
  * set a file from which we are loading previously set (old) cookies, in case
  * that we don't want to clear old cookies or old session cookies.
  *
@@ -641,14 +618,14 @@
  *
  * Notice that in this code, if we want to clear old cookies, we also don't load
  * them from the file. This is a bit confusing and the API isn't clear, but
- * ecore_con_url_cookies_file_add() will load cookies from the specified files
- * just when the operation is really performed (i.e. ecore_con_url_get() is
- * called). So if ecore_con_url_cookies_clear() is called before
- * ecore_con_url_get(), the old cookies may not have been loaded yet, so they
+ * Url Cookies File Add function will load cookies from the specified files
+ * just when the operation is really performed (i.e. Url Get function is
+ * called). So if Url Cookies Clear function is called before
+ * Url Get function, the old cookies may not have been loaded yet, so they
  * are not cleared. To avoid having old cookies loaded, don't add any cookie
- * file with ecore_con_url_cookies_file_add().
+ * file with Url Cookies File Add function.
  *
- * The function ecore_con_url_cookies_clear() is just useful to clear cookies
+ * The Url Cookies Clear function is just useful to clear cookies
  * that are already loaded/valid in the @ref Ecore_Con_Url object (from a
  * previous request, for example).
  */
@@ -656,12 +633,14 @@
 /**
  * @page ecore_con_url_headers_example_c Ecore_Con_Url - customizing a request
  *
+ * This feature is not supported on Tizen.
+ *
  * This is a simple example that shows how to make a custom request using @ref
  * Ecore_Con_Url. The full source code for this example can be found at @ref
  * ecore_con_url_headers_example.c.
  *
- * The first part of the example is setting the callbacks to be called when an
- * #ECORE_CON_EVENT_URL_DATA or #ECORE_CON_EVENT_URL_COMPLETE event is received.
+ * The first part of the example is setting the callbacks to be called when a
+ * corresponding event is received.
  * These are the callbacks that are going to be used with this:
  *
  * @dontinclude ecore_con_url_headers_example.c
@@ -680,7 +659,7 @@
  *
  * @until pipeline_set
  *
- * Now we create our request object, but using ecore_con_url_custom_new() to use
+ * Now we create our request object, but using Url Custom New function to use
  * a POST or GET method depending on the command line arguments. And we also add
  * the event handlers for our callbacks:
  *
@@ -706,6 +685,8 @@
 /**
  * @page ecore_con_server_simple_example_c Ecore_Con - Creating a server
  *
+ * This feature is not supported on Tizen.
+ *
  * In this example we are going to create a server that listens for connections
  * from clients through a TCP port. You can get the full source code at @ref
  * ecore_con_server_simple_example.c.
@@ -714,7 +695,7 @@
  * things, and then go to the callbacks that are needed for it to run properly.
  *
  * In the @c main function, after initializing the libraries, we use
- * ecore_con_server_add() to startup the server. Look at the reference
+ * Server Add Function() to startup the server. Look at the reference
  * documentation of this function: it supports many types of server, and we are
  * going to use #ECORE_CON_REMOTE_TCP (a TCP based server). Other arguments to
  * this function are the address where we are listening on, the port, and a data
@@ -757,8 +738,7 @@
  * @until main_loop_begin
  *
  * After exiting the main loop, we print the list of connected clients, and also
- * free the data associated with each respective client. This data was
- * previously associated using ecore_con_client_data_set():
+ * free the data associated with each respective client.
  *
  * @until }
  *
@@ -768,13 +748,13 @@
  *
  * Now let's go back to the used callbacks.
  *
- * The first callback, @c _add, is registered to the event
- * #ECORE_CON_EVENT_CLIENT_ADD, which will be called whenever a client connects
+ * The first callback, @c _add, is registered to the corresponding event
+ * , which will be called whenever a client connects
  * to the server.
  *
  * This callback will associate a data structure to this client, that will be
  * used to count how many bytes were received from it. It also prints some info
- * about the client, and send a welcome string to it. ecore_con_client_flush()
+ * about the client, and send a welcome string to it. flush function
  * is used to ensure that the string is sent immediately, instead of being
  * buffered.
  *
@@ -790,11 +770,11 @@
  * @until }
  *
  * The second callback is @c _del. It is associated with
- * #ECORE_CON_EVENT_CLIENT_DEL, and is called whenever a client disconnects from
+ * the corresponding event, and is called whenever a client disconnects from
  * this server.
  *
  * It will just print some information about the client, free the associated
- * data structure, and call ecore_con_client_del() on it before exiting the
+ * data structure, and call delete function on it before exiting the
  * callback. Here's its code:
  *
  * @until CALLBACK_RENEW
@@ -1443,8 +1423,8 @@
  * The callback that actually does the hiding and showing is pretty simple, it
  * does a @c scanf(which we know won't block since there is something to read on
  * @c stdin) and if the character is an 'h' we iterate over all windows calling
- * @c ecore_evas_hide on them, if the character is an 's' we call @c
- * ecore_evas_show instead:
+ * @c Ecore Evas Hide function on them, if the character is an 's' we call @c
+ * Ecore Evas Show function instead:
  * @dontinclude ecore_evas_basics_example.c
  * @skip static Eina_Bool
  * @until }
@@ -1462,6 +1442,8 @@
 /**
  * @page Ecore_Evas_Buffer_Example_01_c Ecore_Evas buffer example
  *
+ * This feature is not supported on Tizen.
+ *
  * Between the Evas examples, there is one in which one creates a
  * canvas bound to the Evas @b buffer engine and uses its pixel
  * contents to create an PPM image on disk. There, one does that by
@@ -1474,7 +1456,7 @@
  * saved from by using the @c Ecore_Evas wrapper functions.
  *
  * The code is simple as it can be. After instantianting our canvas
- * window, with ecore_evas_buffer_new(), we grab its canvas pointer
+ * window, with Ecore Evas Buffer New function(), we grab its canvas pointer
  * and create the desired objects scene on it, which in this case is
  * formed by 3 rectangles over the top left corner of a white
  * background:
@@ -1483,16 +1465,16 @@
  * @until show(r3)
  *
  * Since it's a buffer canvas and we're using it to only save its
- * contents on a file, we even needn't ecore_evas_show() it. We make
+ * contents on a file, we even needn't call Ecore Evas Show function. We make
  * it render itself, forcefully, without the aid of Ecore's main loop,
- * with ecore_evas_manual_render():
+ * with Ecore Evas Manual Render function:
  * @dontinclude ecore_evas_buffer_example_01.c
  * @skip manual_render
  * @until manual_render
  *
  * And we're ready to save the window's shiny rendered contents as a
  * simple PPM image. We do so by grabbing the pixels of the @c
- * Ecore_Evas' internal canvas, with ecore_evas_buffer_pixels_get():
+ * Ecore_Evas' internal canvas, with Ecore Evas Buffer Pixels Get function:
  * @dontinclude ecore_evas_buffer_example_01.c
  * @skip _scene_save
  * @until }
@@ -1512,8 +1494,10 @@
 /**
  * @page Ecore_Evas_Buffer_Example_02_c Ecore_Evas (image) buffer example
  *
+ * This feature is not supported on Tizen.
+ *
  * In this example, we'll demonstrate the use of
- * ecore_evas_object_image_new().  The idea is to have the same scene
+ * Ecore Evas Object Image New function.  The idea is to have the same scene
  * created for @ref Ecore_Evas_Buffer_Example_01_c as the contents of
  * an image object.
  *
@@ -1546,6 +1530,9 @@
 
 /**
  * @page Ecore_exe_simple_example_c Ecore_exe
+ *
+ * This feature is not supported on Tizen.
+ *
  * Creating a processes and IPC (Inter process communication)
  *
  * In this example we will show how to create a new process and communicate
@@ -1647,10 +1634,10 @@
  * @skip _sendMessage(void *data)
  * @until }
  *
- * We use ecore_exe_send to send data to the child process, it's pretty simple.
+ * We use Ecore Exe Send function to send data to the child process, it's pretty simple.
  * To know what the parameters stands for, check the docs.
  *
- * @note The function @b ecore_exe_send will never block your program, also
+ * @note The function @b Ecore Exe Send function will never block your program, also
  * there is no partial send of the data. This means either the function will
  * send all the data or it will fail.
  *

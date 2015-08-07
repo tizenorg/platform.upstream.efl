@@ -190,8 +190,8 @@ struct _Ecore_Getopt_Desc
 {
    char                shortname; /**< used with a single dash */
    const char         *longname; /**< used with double dashes */
-   const char         *help; /**< used by --help/ecore_getopt_help() */
-   const char         *metavar; /**< used by ecore_getopt_help() with nargs > 0 */
+   const char         *help; /**< used by --help/Ecore Getopt Help function */
+   const char         *metavar; /**< used by Ecore Getopt Help function with nargs > 0 */
 
    Ecore_Getopt_Action action;   /**< define how to handle it */
    union
@@ -211,7 +211,7 @@ struct _Ecore_Getopt_Desc
  */
 struct _Ecore_Getopt
 {
-   const char             *prog; /**< to be used when ecore_app_args_get() fails */
+   const char             *prog; /**< to be used when getting application's arguments fails */
    const char             *usage; /**< usage example, %prog is replaced */
    const char             *version; /**< if exists, --version will work */
    const char             *copyright; /**< if exists, --copyright will work */

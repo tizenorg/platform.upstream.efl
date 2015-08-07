@@ -437,7 +437,7 @@ typedef struct _Ecore_Con_Event_Url_Progress Ecore_Con_Event_Url_Progress;
 
 /**
  * @struct _Ecore_Con_Event_Client_Add
- * Used as the @p data param for the @ref ECORE_CON_EVENT_CLIENT_ADD event
+ * Used as the @p data param for the corresponding event
  */
 struct _Ecore_Con_Event_Client_Add
 {
@@ -446,7 +446,7 @@ struct _Ecore_Con_Event_Client_Add
 
 /**
  * @struct _Ecore_Con_Event_Client_Upgrade
- * Used as the @p data param for the @ref ECORE_CON_EVENT_CLIENT_UPGRADE event
+ * Used as the @p data param for the corresponding event
  * @since 1.1
  */
 struct _Ecore_Con_Event_Client_Upgrade
@@ -456,7 +456,7 @@ struct _Ecore_Con_Event_Client_Upgrade
 
 /**
  * @struct _Ecore_Con_Event_Client_Del
- * Used as the @p data param for the @ref ECORE_CON_EVENT_CLIENT_DEL event
+ * Used as the @p data param for the corresponding event
  */
 struct _Ecore_Con_Event_Client_Del
 {
@@ -465,7 +465,7 @@ struct _Ecore_Con_Event_Client_Del
 
 /**
  * @struct _Ecore_Con_Event_Client_Error
- * Used as the @p data param for the @ref ECORE_CON_EVENT_CLIENT_ERROR event
+ * Used as the @p data param for the corresponding event
  */
 struct _Ecore_Con_Event_Client_Error
 {
@@ -475,7 +475,7 @@ struct _Ecore_Con_Event_Client_Error
 
 /**
  * @struct _Ecore_Con_Event_Server_Add
- * Used as the @p data param for the @ref ECORE_CON_EVENT_SERVER_ADD event
+ * Used as the @p data param for the corresponding event
  */
 struct _Ecore_Con_Event_Server_Add
 {
@@ -484,7 +484,7 @@ struct _Ecore_Con_Event_Server_Add
 
 /**
  * @struct _Ecore_Con_Event_Server_Upgrade
- * Used as the @p data param for the @ref ECORE_CON_EVENT_SERVER_UPGRADE event
+ * Used as the @p data param for the corresponding event
  * @since 1.1
  */
 struct _Ecore_Con_Event_Server_Upgrade
@@ -494,7 +494,7 @@ struct _Ecore_Con_Event_Server_Upgrade
 
 /**
  * @struct _Ecore_Con_Event_Server_Del
- * Used as the @p data param for the @ref ECORE_CON_EVENT_SERVER_DEL event
+ * Used as the @p data param for the corresponding event
  */
 struct _Ecore_Con_Event_Server_Del
 {
@@ -503,7 +503,7 @@ struct _Ecore_Con_Event_Server_Del
 
 /**
  * @struct _Ecore_Con_Event_Server_Error
- * Used as the @p data param for the @ref ECORE_CON_EVENT_SERVER_ERROR event
+ * Used as the @p data param for the corresponding event
  */
 struct _Ecore_Con_Event_Server_Error
 {
@@ -513,7 +513,7 @@ struct _Ecore_Con_Event_Server_Error
 
 /**
  * @struct _Ecore_Con_Event_Client_Data
- * Used as the @p data param for the @ref ECORE_CON_EVENT_CLIENT_DATA event
+ * Used as the @p data param for the corresponding event
  */
 struct _Ecore_Con_Event_Client_Data
 {
@@ -524,7 +524,7 @@ struct _Ecore_Con_Event_Client_Data
 
 /**
  * @struct _Ecore_Con_Event_Server_Data
- * Used as the @p data param for the @ref ECORE_CON_EVENT_SERVER_DATA event
+ * Used as the @p data param for the corresponding event
  */
 struct _Ecore_Con_Event_Server_Data
 {
@@ -535,7 +535,7 @@ struct _Ecore_Con_Event_Server_Data
 
 /**
  * @struct _Ecore_Con_Event_Client_Write
- * Used as the @p data param for the @ref ECORE_CON_EVENT_CLIENT_WRITE event
+ * Used as the @p data param for the corresponding event
  */
 struct _Ecore_Con_Event_Client_Write
 {
@@ -545,7 +545,7 @@ struct _Ecore_Con_Event_Client_Write
 
 /**
  * @struct _Ecore_Con_Event_Server_Write
- * Used as the @p data param for the @ref ECORE_CON_EVENT_SERVER_WRITE event
+ * Used as the @p data param for the corresponding event
  */
 struct _Ecore_Con_Event_Server_Write
 {
@@ -555,7 +555,7 @@ struct _Ecore_Con_Event_Server_Write
 
 /**
  * @struct _Ecore_Con_Event_Proxy_Bind
- * Used as the @p data param for the @ref ECORE_CON_EVENT_PROXY_BIND event
+ * Used as the @p data param for the corresponding event
  * @ingroup Ecore_Con_Socks_Group
  * @since 1.2
  */
@@ -568,7 +568,7 @@ struct _Ecore_Con_Event_Proxy_Bind
 
 /**
  * @struct _Ecore_Con_Event_Url_Data
- * Used as the @p data param for the @ref ECORE_CON_EVENT_URL_DATA event
+ * Used as the @p data param for the coressponding event
  * @ingroup Ecore_Con_Url_Group
  */
 struct _Ecore_Con_Event_Url_Data
@@ -580,7 +580,7 @@ struct _Ecore_Con_Event_Url_Data
 
 /**
  * @struct _Ecore_Con_Event_Url_Complete
- * Used as the @p data param for the @ref ECORE_CON_EVENT_URL_COMPLETE event
+ * Used as the @p data param for the corresponding event
  * @ingroup Ecore_Con_Url_Group
  */
 struct _Ecore_Con_Event_Url_Complete
@@ -591,7 +591,7 @@ struct _Ecore_Con_Event_Url_Complete
 
 /**
  * @struct _Ecore_Con_Event_Url_Progress
- * Used as the @p data param for the @ref ECORE_CON_EVENT_URL_PROGRESS event
+ * Used as the @p data param for the corresponding event
  * @ingroup Ecore_Con_Url_Group
  */
 struct _Ecore_Con_Event_Url_Progress

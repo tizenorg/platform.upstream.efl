@@ -136,7 +136,6 @@ typedef int (*Ecore_Select_Function)(int nfds, fd_set *readfds, fd_set *writefds
  * @remark DO NOT use this function unless you are the person God comes to ask for
  * advice when He has trouble managing the Universe.
  *
- * @see ecore_main_loop_iterate_may_block()
  */
 EAPI void ecore_main_loop_iterate(void);
 
@@ -257,7 +256,7 @@ EAPI Eina_Bool ecore_main_loop_glib_integrate(void);
  * @endif
  *
  * @remark If ecore is compiled with --with-glib=always (to always call
- * ecore_main_loop_glib_integrate() when ecore_init() is called), then calling
+ * ecore_main_loop_glib_integrate() when Ecore Init function is called), then calling
  * this before calling ecore_init() will disable the integration.
  * This is for apps that explicitly do not want this to happen for whatever
  * reasons they may have.
@@ -580,8 +579,8 @@ EAPI int ecore_thread_main_loop_end(void);
 #define ECORE_EVENT_SIGNAL_EXIT     3 /**< Exit signal event */
 #define ECORE_EVENT_SIGNAL_POWER    4 /**< Power signal event */
 #define ECORE_EVENT_SIGNAL_REALTIME 5 /**< Realtime signal event */
-#define ECORE_EVENT_MEMORY_STATE             6 /**< Memory state changed, see ecore_memory_state_get() */
-#define ECORE_EVENT_POWER_STATE              7 /**< Power state changed, see ecore_power_state_get() */
+#define ECORE_EVENT_MEMORY_STATE             6 /**< Memory state changed */
+#define ECORE_EVENT_POWER_STATE              7 /**< Power state changed */
 #define ECORE_EVENT_LOCALE_CHANGED           8 /**< Locale changed */
 #define ECORE_EVENT_HOSTNAME_CHANGED         9 /**< Hostname changed */
 #define ECORE_EVENT_SYSTEM_TIMEDATE_CHANGED 10 /**< Time or Date changed */
@@ -1732,7 +1731,7 @@ EAPI double ecore_time_unix_get(void);
  * ecore_time_unix_get() instead.
  *
  * @remark This function can be called before any loop has ever been run, but either
- * ecore_init() or ecore_time_get() must have been called once.
+ * Ecore Init function or ecore_time_get() must have been called once.
  *
  * @return The number of seconds. Start time is not defined (it may be
  *         when the machine was booted, unix time, etc), all it is

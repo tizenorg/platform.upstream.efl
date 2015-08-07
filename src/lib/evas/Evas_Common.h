@@ -3123,15 +3123,7 @@ typedef void (*Evas_Object_Intercept_Clip_Unset_Cb)(void *data, Evas_Object *obj
  *
  * This however will have issues if the @c evas_canvas is resized, however most
  * windows are created using ecore evas and that has a solution to using the
- * rectangle as a background:
- * @code
- * Evas_Object *bg = evas_object_rectangle_add(ecore_evas_get(ee));
- * //Here we set the rectangles red, green, blue and opacity levels
- * evas_object_color_set(bg, 255, 255, 255, 255); // opaque white background
- * evas_object_resize(bg, WIDTH, HEIGHT); // covers full canvas
- * evas_object_show(bg);
- * ecore_evas_object_associate(ee, bg, ECORE_EVAS_OBJECT_ASSOCIATE_BASE);
- * @endcode
+ * rectangle as a background
  * So this gives us a white background to our window that will be resized
  * together with it.
  *

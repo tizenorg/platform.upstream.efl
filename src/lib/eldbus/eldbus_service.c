@@ -669,10 +669,11 @@ _eldbus_service_object_add(Eldbus_Connection *conn, const char *path, Eina_Bool 
    obj->interfaces = eina_hash_string_superfast_new(NULL);
    eldbus_connection_free_cb_add(conn, _on_connection_free, obj);
 
+   eina_hash_add(obj->interfaces, properties_iface->name, properties_iface);
+
    if (obj->fallback) return obj;
 
    eina_hash_add(obj->interfaces, introspectable->name, introspectable);
-   eina_hash_add(obj->interfaces, properties_iface->name, properties_iface);
 
    obj->parent = _eldbus_service_object_parent_find(obj);
    if (obj->parent)

@@ -107,6 +107,18 @@ EAPI Eldbus_Message        *eldbus_message_error_new(const Eldbus_Message *msg, 
  */
 EAPI Eldbus_Message        *eldbus_message_method_return_new(const Eldbus_Message *msg) EINA_ARG_NONNULL(1) EINA_WARN_UNUSED_RESULT;
 
+//TIZEN_FEATURE(20150809) : make eldbus_message_signal_new API public.
+/**
+ * @brief Create a new signal message
+ *
+ * @param path valid dbus path of the object emitting the signal
+ * @param interface valid dbus interface name of the object emitting the signal
+ * @param name name of the signal
+ *
+ * @return new Eldbus_Message, free with eldbus_message_unref()
+ */
+EAPI Eldbus_Message        *eldbus_message_signal_new(const char *path, const char *interface, const char *name) EINA_ARG_NONNULL(1, 2, 3) EINA_WARN_UNUSED_RESULT;
+///
 
 /**
  * @brief Get the error text and name from a Eldbus_Message.

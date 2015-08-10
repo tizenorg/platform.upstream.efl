@@ -916,7 +916,6 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             @remark See the full example @ref Example_Evas_Events "here".
 
             @see evas_object_focus_get
-            @see evas_focus_get
             @see evas_object_key_grab
             @see evas_object_key_ungrab */
          }
@@ -943,7 +942,6 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
             @remark See the full example @ref Example_Evas_Events "here".
 
             @see evas_object_focus_set
-            @see evas_focus_get
             @see evas_object_key_grab
             @see evas_object_key_ungrab */
          }
@@ -1490,7 +1488,6 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
          @see evas_object_key_ungrab
          @see evas_object_focus_set
          @see evas_object_focus_get
-         @see evas_focus_get
          @see evas_key_modifier_add */
 
          return: bool @warn_unused;
@@ -1616,7 +1613,6 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
          <b>pointer comparison</b>, since a smart class' name is a single
          string in Evas.
 
-         @see evas_object_smart_type_check_ptr()
          @see eo_isa
 
          @ingroup Evas_Smart_Object_Group */
@@ -1670,7 +1666,7 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
          @see evas_object_key_grab
          @see evas_object_focus_set
          @see evas_object_focus_get
-         @see evas_focus_get */
+         */
 
          params {
             @in const(char)* keyname @nonull; /*@ the key the grab is set for. */

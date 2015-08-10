@@ -2312,34 +2312,6 @@ eet_identity_certificate_print(const unsigned char *certificate,
  * Just use something like @p some_struct.sub_struct.member when adding the
  * member to the descriptor and it will work.
  *
- * For example:
- * @code
- * typedef struct
- * {
- *    int a_number;
- *    char *a_string;
- *    struct {
- *       int other_num;
- *       int one_more;
- *    } sub;
- * } some_struct;
- *
- * void some_function()
- * {
- *    ...
- *    my_desc = eet_data_descriptor_stream_new(&eddc);
- *    EET_DATA_DESCRIPTOR_ADD_BASIC(my_desc, some_struct, "a_number",
- *                                  a_number, EET_T_INT);
- *    EET_DATA_DESCRIPTOR_ADD_BASIC(my_desc, some_struct, "a_string",
- *                                  a_string, EET_T_STRING);
- *    EET_DATA_DESCRIPTOR_ADD_BASIC(my_desc, some_struct, "sub.other_num",
- *                                  sub.other_num, EET_T_INT);
- *    EET_DATA_DESCRIPTOR_ADD_BASIC(my_desc, some_struct, "sub.one_more",
- *                                  sub.one_more", EET_T_INT);
- *    ...
- * }
- * @endcode
- *
  * But this is not what we are here for today. When we talk about nested
  * structures, what we really want are things like lists and hashes to be
  * taken into consideration automatically, and all their contents saved and
@@ -2820,8 +2792,8 @@ typedef void                            (*Eet_Descriptor_Array_Free_Callback)(vo
  * reference on them, look at the Eina_List and Eina_Hash documentation,
  * respectively.
  * For the most part these will be used with the standard Eina functions,
- * so using EET_EINA_STREAM_DATA_DESCRIPTOR_CLASS_SET() and
- * EET_EINA_FILE_DATA_DESCRIPTOR_CLASS_SET() will set up everything
+ * so using EET EINA STREAM DATA DESCRIPTOR CLASS SET function and
+ * EET EINA FILE DATA DESCRIPTOR CLASS SET fucntion will set up everything
  * accordingly.
  */
 struct _Eet_Data_Descriptor_Class

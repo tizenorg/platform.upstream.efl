@@ -116,7 +116,7 @@
  * domains with only one parameter (EINA_LOG_LEVEL=num).
  *
  * The global level (EINA_LOG_LEVEL) can also be set through code, using
- * eina_log_level_set() function.
+ * Eina Log Level Set function.
  *
  * While developing your libraries or applications, you may notice that
  * EINA_LOG_DOM_(ERR, DBG, INFO, CRIT, WARN) macros also print out
@@ -136,8 +136,8 @@
  * @section tutorial_log_advanced_display Advanced usage of print callbacks
  *
  * The log module allows the user to change the way
- * eina_log_print() displays the messages. It suffices to pass to
- * eina_log_print_cb_set() the function used to display the
+ * Eina Log Print function displays the messages. It suffices to pass to
+ * Eina Log Print Callback Set the function used to display the
  * message. That  function must be of type #Eina_Log_Print_Cb. As a
  * custom data can be passed to that callback, powerful display
  * messages can be displayed.

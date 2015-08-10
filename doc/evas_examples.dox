@@ -865,10 +865,7 @@
  * @skip ret = evas_object_smart_type_check
  * @until "no"
  * The evas_object_smart_type_check() one will assure we have the
- * string naming our smart class really set to the live object. The
- * evas_object_smart_clipped_clipper_get() exemplifies usage of
- * "static clippers" -- clipped smart objects have their global
- * clippers flagged static.
+ * string naming our smart class really set to the live object.
  *
  * Other important things we also exemplify here are <b>smart
  * callbacks</b> and smart callback @b introspection:
@@ -975,9 +972,9 @@
  * @until }
  *
  * Before accessing the interface data, we exercise the interface
- * fetching call evas_object_smart_interface_get(), with the name
+ * fetching call Evas Object Smart Interface Get function, with the name
  * string we used to be interface's name. With that handle in hands,
- * we issue evas_object_smart_interface_data_get() and write the
+ * we issue Evas Object Smart Interface Data Get function and write the
  * string we want as data on that memory region. That will make up for
  * the string you get on @c _iface1_del().
  *

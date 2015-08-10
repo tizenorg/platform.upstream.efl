@@ -168,7 +168,6 @@ EAPI char             *edje_mmap_data_get(const Eina_File *f, const char *key);
  *
  * @remark Then, edje_file_data_get("test.edj", "key1") will return "value1"
  *
- * @see edje_mmap_data_get()
  */
 EAPI char        *edje_file_data_get              (const char *file, const char *key);
 
@@ -535,7 +534,6 @@ struct _Edje_External_Type
 {
   unsigned int  abi_version; /**< always use:
                               *  - #EDJE_EXTERNAL_TYPE_ABI_VERSION to declare.
-                              *  - edje_external_type_abi_version_get() to check.
                               */
   const char    *module; /**< Name of the module that holds these definitions,
                            as used in the externals {} block of a theme
@@ -568,7 +566,6 @@ typedef struct _Edje_External_Type Edje_External_Type;
 /**
  * Convenience struct used to mass-register types of EXTERNAL objects.
  *
- * Used with edje_external_type_array_register().
  */
 struct _Edje_External_Type_Info
 {
@@ -1790,7 +1787,7 @@ typedef enum _Edje_Load_Error
  *
  * @return The Eina_List of group names (char *)
  *
- * Note: the list must be freed using edje_mmap_collection_list_free()
+ * Note: the list must be freed
  * when you are done with it.
  */
 EAPI Eina_List        *edje_mmap_collection_list(Eina_File *f);
@@ -1799,7 +1796,7 @@ EAPI Eina_List        *edje_mmap_collection_list(Eina_File *f);
  * Free file collection list
  * @param lst The Eina_List of groups
  *
- * Frees the list returned by edje_mmap_collection_list().
+ * Frees the list of groups in an edje mapped file.
  */
 EAPI void              edje_mmap_collection_list_free(Eina_List *lst);
 
@@ -1824,12 +1821,10 @@ EAPI Eina_Bool         edje_mmap_group_exists(Eina_File *f, const char *glob);
  * @param[in] file The path to the edje file
  *
  * @return The Eina_List of group names (char *)
- * @see edje_mmap_collection_list()
  *
  * @remark Note: the list must be freed using edje_file_collection_list_free()
  * when you are done with it.
  *
- * @see edje_mmap_group_exists()
  */
 EAPI Eina_List        *edje_file_collection_list  (const char *file);
 

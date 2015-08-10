@@ -160,7 +160,7 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             will be ignored.  The value for @p render_method can be found using
             @ref evas_render_method_lookup .
 
-            @attention it is mandatory that one calls evas_init() before
+            @attention it is mandatory that one calls Evas Initialization function before
             @remark setting the output method.
 
             @ingroup Evas_Output_Method */
@@ -552,12 +552,6 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             @return An integer that is 1 if the mouse is inside the canvas, 0 otherwise
             @ingroup Evas_Pointer_Group
 
-            @remark When this function is called it will return a value of either 0 or
-            1, depending on if evas_event_feed_mouse_in(),
-            evas_event_feed_mouse_in_data(), or evas_event_feed_mouse_out(),
-            evas_event_feed_mouse_out_data() have been called to feed in a
-            mouse enter event into the canvas.
-
             @remark A return value of 1 indicates the mouse is logically inside the
             canvas, and 0 implies it is logically outside the canvas.
 
@@ -657,11 +651,6 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             depressed. This limits Evas to a mouse devices with a maximum of 32
             buttons, but that is generally in excess of any host system's
             pointing device abilities.
-
-            @remark A canvas by default begins with no mouse buttons being pressed and
-            only calls to evas_event_feed_mouse_down(),
-            evas_event_feed_mouse_down_data(), evas_event_feed_mouse_up() and
-            evas_event_feed_mouse_up_data() will alter that.
 
             @remark The least significant bit corresponds to the first mouse button
             (button 1) and the most significant bit corresponds to the last
@@ -1042,13 +1031,13 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          Mouse move event feed from input.
 
-         Similar to the evas_event_feed_mouse_move(), this function will inform Evas
+         This function will inform Evas
          about mouse move events which were received by the input system, relative to
          the 0,0 of the window, not to the canvas 0,0. It will take care of doing any
          special transformation like adding the framespace offset to the mouse event.
 
          @since 1.8
-         @see evas_event_feed_mouse_move */
+         */
 
          params {
             @in int x; /*@ The horizontal position of the mouse pointer relative to the 0,0 of
@@ -1387,7 +1376,6 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          @elseif WEARABLE @since_tizen 2.3.1
          @endif
 
-         @see evas_object_smart_need_recalculate_set()
 
          @ingroup Evas_Smart_Object_Group */
 
@@ -1856,7 +1844,7 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
          /*@
          Mouse cancel event feed.
 
-         This function will call evas_event_feed_mouse_up() when a
+         This function will call Evas Event Feed Mouse Up function when a
          mouse cancel event happens. */
 
          params {

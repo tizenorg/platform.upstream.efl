@@ -54,9 +54,9 @@
  * @until iterator_free
  *
  * The above mentioned ways of getting files on a list may produce the same output, but
- * they have an important difference, eina_file_direct_ls() does @b not call
+ * they have an important difference, Eina File Direct Ls function does @b not call
  * stat, this means that on some systems it might not have file type
- * information. On the other hand, it might be faster than eina_file_stat_ls().
+ * information. On the other hand, it might be faster than Eina File Stat Ls function.
  *
  * @page eina_file_example_01
  * @include eina_file_01.c

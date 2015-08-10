@@ -58,7 +58,10 @@ _ecore_job_constructor(Eo *obj, Ecore_Job_Data *job, Ecore_Cb func, const void *
 {
    if (EINA_UNLIKELY(!eina_main_loop_is()))
      {
-        eo_error_set(obj);
+// TIZEN_ONLY(20150810): Add multi thread error message
+//      eo_error_set(obj);
+        ERR("You are calling %s from outside of the main loop threads. Program cannot run nomally", __FUNCTION__);
+//
         EINA_MAIN_LOOP_CHECK_RETURN;
      }
    eo_manual_free_set(obj, EINA_TRUE);

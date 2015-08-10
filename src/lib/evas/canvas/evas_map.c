@@ -782,6 +782,44 @@ evas_map_point_coord_get(const Evas_Map *m, int idx, Evas_Coord *x, Evas_Coord *
 }
 
 EAPI void
+evas_map_point_precise_coord_set(Evas_Map *m, int idx, double x, double y, double z)
+{
+   MAGIC_CHECK(m, Evas_Map, MAGIC_MAP);
+   return;
+   MAGIC_CHECK_END();
+
+   Evas_Map_Point *p;
+
+   if (idx >= m->count) return;
+   p = m->points + idx;
+   p->x = p->px = x;
+   p->y = p->py = y;
+   p->z = z;
+}
+
+EAPI void
+evas_map_point_precise_coord_get(const Evas_Map *m, int idx, double *x, double *y, double *z)
+{
+   MAGIC_CHECK(m, Evas_Map, MAGIC_MAP);
+   goto error;
+   MAGIC_CHECK_END();
+
+   const Evas_Map_Point *p;
+
+   if (idx >= m->count) goto error;
+   p = m->points + idx;
+   if (x) *x = p->x;
+   if (y) *y = p->y;
+   if (z) *z = p->z;
+   return;
+
+ error:
+   if (x) *x = 0;
+   if (y) *y = 0;
+   if (z) *z = 0;
+}
+
+EAPI void
 evas_map_point_image_uv_set(Evas_Map *m, int idx, double u, double v)
 {
    MAGIC_CHECK(m, Evas_Map, MAGIC_MAP);

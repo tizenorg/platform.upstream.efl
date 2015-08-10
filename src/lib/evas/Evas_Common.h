@@ -2518,6 +2518,36 @@ EAPI void            evas_map_point_coord_set(Evas_Map *m, int idx, Evas_Coord x
 EAPI void            evas_map_point_coord_get(const Evas_Map *m, int idx, Evas_Coord *x, Evas_Coord *y, Evas_Coord *z);
 
 /**
+ * Change the map point's coordinate precisely.
+ *
+ * This sets the fixed point's coordinate in the map precisely.
+ *
+ * @param m map to change point. Must not be @c NULL.
+ * @param idx index of point to change. Must be smaller than map size.
+ * @param x Point X Coordinate (double)
+ * @param y Point Y Coordinate (double)
+ * @param z Point Z Coordinate (double)
+ *
+ * @see evas_map_point_coord_set()
+ */
+EAPI void            evas_map_point_precise_coord_set(Evas_Map *m, int idx, double x, double y, double z);
+
+/**
+ * Get the map point's precise coordinate.
+ *
+ * This returns the coordinates of the given point in the map.
+ *
+ * @param m map to query point.
+ * @param idx index of point to query. Must be smaller than map size.
+ * @param x where to return the X coordinate. (double)
+ * @param y where to return the Y coordinate. (double)
+ * @param z where to return the Z coordinate. (double)
+ *
+ * @see evas_map_point_coord_get()
+ */
+EAPI void            evas_map_point_precise_coord_get(const Evas_Map *m, int idx, double *x, double *y, double *z);
+
+/**
  * Change the map point's U and V texture source point
  *
  * This sets the U and V coordinates for the point. This determines which

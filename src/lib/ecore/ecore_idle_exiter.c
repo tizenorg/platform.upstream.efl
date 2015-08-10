@@ -45,12 +45,14 @@ EOLIAN static void
 _ecore_idle_exiter_constructor(Eo *obj, Ecore_Idle_Exiter_Data *ie, Ecore_Task_Cb func, const void *data)
 {
    _ecore_lock();
-    if (EINA_UNLIKELY(!eina_main_loop_is()))
-      {
-         eo_error_set(obj);
-         EINA_MAIN_LOOP_CHECK_RETURN;
-      }
-
+   if (EINA_UNLIKELY(!eina_main_loop_is()))
+     {
+// TIZEN_ONLY(20150810): Add multi thread error message
+//      eo_error_set(obj);
+        ERR("You are calling %s from outside of the main loop threads. Program cannot run nomally", __FUNCTION__);
+//
+        EINA_MAIN_LOOP_CHECK_RETURN;
+     }
 
    ie->obj = obj;
    eo_manual_free_set(obj, EINA_TRUE);

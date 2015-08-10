@@ -619,6 +619,18 @@ eng_window_free(Outbuf *gw)
         if (context) eglDestroyContext(gw->egl_disp, context);
         eglTerminate(gw->egl_disp);
         eglReleaseThread();
+
+        /* free colormap */
+        Evas_GL_X11_Visual *evis;
+        Eina_Iterator *it;
+        it = eina_hash_iterator_data_new(_evas_gl_visuals);
+        EINA_ITERATOR_FOREACH(it,evis)
+          {
+             if ((evis) && (evis->cmap))
+               XFreeColormap(gw->disp,evis->cmap);
+          }
+        eina_iterator_free(it);
+
         eina_hash_free(_evas_gl_visuals);
         _evas_gl_visuals = NULL;
         _tls_context_set(EGL_NO_CONTEXT);
@@ -630,6 +642,18 @@ eng_window_free(Outbuf *gw)
         GLXContext rgbactx = _tls_rgba_context_get();
         if (context) glXDestroyContext(gw->disp, context);
         if (rgbactx) glXDestroyContext(gw->disp, rgbactx);
+
+        /* free colormap */
+        Evas_GL_X11_Visual *evis;
+        Eina_Iterator *it;
+        it = eina_hash_iterator_data_new(_evas_gl_visuals);
+        EINA_ITERATOR_FOREACH(it,evis)
+          {
+             if ((evis) && (evis->cmap))
+               XFreeColormap(gw->disp,evis->cmap);
+          }
+        eina_iterator_free(it);
+
         eina_hash_free(_evas_gl_visuals);
         _evas_gl_visuals = NULL;
         _tls_context_set(0);

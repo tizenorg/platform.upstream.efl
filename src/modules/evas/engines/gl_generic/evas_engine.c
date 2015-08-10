@@ -2137,9 +2137,6 @@ static void *
 eng_ector_surface_create(void *data, void *surface, int width, int height)
 {
    Evas_GL_Image *glim;
-   //@TODO hack to force the texture not to created in a texture atlas
-   if (width < 256) width = 256;
-   if (height < 256) height = 256;
 
    if (!surface)
      {
@@ -2159,6 +2156,8 @@ eng_ector_surface_create(void *data, void *surface, int width, int height)
       }
    // clear the buffer
    glim = surface;
+   // disable atlas
+   glim->disable_atlas = EINA_TRUE;
    void *pixels = evas_cache_image_pixels(&glim->im->cache_entry);
    memset(pixels, 0, width * height *4);
    return surface;

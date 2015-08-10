@@ -31,8 +31,8 @@
  * These functions allow you to convert integer or real numbers to
  * string or conversely.
  *
- * To use these functions, you have to call eina_init()
- * first, and eina_shutdown() when eina is not used anymore.
+ * To use these functions, Eina must be initialized
+ * first, and Eina must be shut down when eina is not used anymore.
  *
  * @section Eina_Convert_From_Integer_To_Sring Conversion from integer to string
  *

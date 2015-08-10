@@ -94,8 +94,8 @@ The scope and usage of a variable depends on its declaration.
     of any function.
 @li A stock variable is one that may not be compiled into a program if it
     is not used.  It is declared using @c stock.
-@li A public variable is one that can be read by the host program using
-    @ref embryo_program_variable_find.  It is declared using @c public
+@li A public variable is one that can be read by the host program
+    It is declared using @c public
     keyword.
 
 Remember that the keywords above are to be used on their own.  That is,

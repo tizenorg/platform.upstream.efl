@@ -2196,7 +2196,7 @@ EAPI int ecore_thread_pending_total_get(void);
  * task and becomes available to run a new one.
  *
  * @remark By default, this will be the number of available CPUs for the
- * running program (as returned by eina_cpu_count()), or 1 if this value
+ * running program, or 1 if this value
  * could not be fetched.
  *
  * @see ecore_thread_max_set()

@@ -52,7 +52,7 @@
  * @see evas_object_smart_callback_add()
  *
  * @remark Before creating the first Edje object in your code, remember
- * to initialize the library, with edje_init(), or unexpected behavior
+ * to initialize the library, or unexpected behavior
  * might occur.
  */
 EAPI Evas_Object *edje_object_add                 (Evas *evas);
@@ -233,7 +233,6 @@ EAPI void         edje_extern_object_aspect_set   (Evas_Object *obj, Edje_Aspect
  *
  * @see edje_object_add()
  * @see edje_object_file_get()
- * @see edje_object_mmap_set()
  *
  * @param[in] file The path to the EDJ file to load @p from
  * @param[in] group The name of the group, in @p file, which implements an
@@ -293,7 +292,6 @@ EAPI void edje_object_file_get(const Eo *obj, const char **file, const char **gr
  *
  * @see edje_object_add()
  * @see edje_object_file_get()
- * @see edje_object_mmap_set()
  * @since 1.8
  *
  * @param[in] file The Eina.File pointing to the EDJ file to load @p from

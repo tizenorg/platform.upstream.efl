@@ -146,8 +146,10 @@
 /**
  * @page Example_Eet_Data_Cipher_Decipher Eet data cipher/decipher example
  *
- * In this example, we exemplify the usage of eet_write_cipher() and
- * eet_read_cipher(). For it to work, <b>make sure</b> to have your
+ * This feature is not supported on Tizen.
+ *
+ * In this example, we exemplify the usage of Eet Write Cipher function and
+ * Eet Read Cipher function. For it to work, <b>make sure</b> to have your
  * Eet installation with a ciphering backend enabled.
  *
  * We start by defining the information to record in an Eet file (@c

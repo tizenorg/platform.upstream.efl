@@ -27,27 +27,25 @@
 /**
  * @page tutorial_error_page Error Tutorial
  *
+ * This feature is not supported on Tizen.
+ *
  * @section tutorial_error_registering_msg Registering messages
  *
  * The error module can provide a system that mimics the errno system
  * of the C standard library. It consists in 2 parts:
  *
- * @li A way of registering new messages with
- * eina_error_msg_register() and eina_error_msg_get(),
- * @li A way of setting / getting the last error message with
- * eina_error_set() / eina_error_get().
  *
  * So one has to first register all the error messages that a program
  * or a library should manage. Then, when an error occurs, use
- * eina_error_set(), and when errors are managed, use
- * eina_error_get(). If eina_error_set() is used to set an error, do
- * not forget to remove previous set errors before calling eina_error_set().
+ * Eina Error Set function, and when errors are managed, use
+ * Eina Error Get function. If Eina Error Set function is used to set an error, do
+ * not forget to remove previous set errors before calling Eina Error Set function.
  *
  * Here is an example for use:
  *
- * @include eina_error_01.c
+ * @dontinclude eina_error_01.c
  *
- * Of course, instead of printf(), eina_log_print() can be used to
+ * Of course, instead of printf(), Eina Log Print function can be used to
  * have beautiful error messages.
  */
 

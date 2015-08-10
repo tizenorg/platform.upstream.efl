@@ -442,7 +442,7 @@ typedef enum _Evas_Alloc_Error
    EVAS_ALLOC_ERROR_NONE = 0, /**< No allocation error */
    EVAS_ALLOC_ERROR_FATAL = 1, /**< Allocation failed despite attempts to free up memory */
    EVAS_ALLOC_ERROR_RECOVERED = 2 /**< Allocation succeeded, but extra memory had to be found by freeing up speculative resources */
-} Evas_Alloc_Error; /**< Possible allocation errors returned by evas_alloc_error() */
+} Evas_Alloc_Error; /**< Possible allocation errors */
 
 typedef Efl_Gfx_Fill_Spread Evas_Fill_Spread;
 #define EVAS_TEXTURE_REFLECT EFL_GFX_FILL_REFLECT
@@ -596,8 +596,6 @@ struct _Evas_Video_Surface
 
 /**
  * Enum values for the Video surface capabilities
- * @see evas_object_image_video_surface_caps_get()
- * @see evas_object_image_video_surface_caps_set()
  */
 
 typedef enum _Evas_Video_Surface_Caps
@@ -1289,26 +1287,6 @@ EAPI Eina_Bool         evas_async_events_put(const void *target, Evas_Callback_T
  *
  * The following code snippet shows how they can be used to
  * initialise an evas that uses the X11 software engine:
- * @code
- * Evas *evas;
- * Evas_Engine_Info_Software_X11 *einfo;
- * extern Display *display;
- * extern Window win;
- *
- * evas_init();
- *
- * evas = evas_new();
- * evas_output_method_set(evas, evas_render_method_lookup("software_x11"));
- * evas_output_size_set(evas, 640, 480);
- * evas_output_viewport_set(evas, 0, 0, 640, 480);
- * einfo = (Evas_Engine_Info_Software_X11 *)evas_engine_info_get(evas);
- * einfo->info.display = display;
- * einfo->info.visual = DefaultVisual(display, DefaultScreen(display));
- * einfo->info.colormap = DefaultColormap(display, DefaultScreen(display));
- * einfo->info.drawable = win;
- * einfo->info.depth = DefaultDepth(display, DefaultScreen(display));
- * evas_engine_info_set(evas, (Evas_Engine_Info *)einfo);
- * @endcode
  *
  * @ingroup Evas_Canvas
  *
@@ -1338,30 +1316,10 @@ EAPI Eina_Bool         evas_async_events_put(const void *target, Evas_Callback_T
  * written accessing render method ID's directly, without first
  * obtaining it from this function.
  *
- * @attention it is mandatory that one calls evas_init() before
+ * @attention it is mandatory that one calls Evas Initialization function before
  *       looking up the render method.
  *
  * @remark Example:
- * @code
- * int engine_id;
- * Evas *evas;
- *
- * evas_init();
- *
- * evas = evas_new();
- * if (!evas)
- *   {
- *     fprintf(stderr, "ERROR: Canvas creation failed. Fatal error.\n");
- *     exit(-1);
- *   }
- * engine_id = evas_render_method_lookup("software_x11");
- * if (!engine_id)
- *   {
- *     fprintf(stderr, "ERROR: Requested rendering engine is absent.\n");
- *     exit(-1);
- *   }
- * evas_output_method_set(evas, engine_id);
- * @endcode
  */
 EAPI int               evas_render_method_lookup(const char *name) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1);
 
@@ -4780,7 +4738,7 @@ struct _Evas_Smart_Class
 struct _Evas_Smart_Interface
 {
    const char *name; /**< Name of the given interface */
-   unsigned    private_size; /**< Size, in bytes, of the interface's private dada blob. This will be allocated and freed automatically for you. Get it with evas_object_smart_interface_data_get(). */
+   unsigned    private_size; /**< Size, in bytes, of the interface's private dada blob. This will be allocated and freed automatically for you. */
    Eina_Bool   (*add)(Evas_Object *obj); /**< Function to be called at object creation time. This will take place @b before the object's smart @c add() function. */
    void        (*del)(Evas_Object *obj); /**< Function to be called at object deletion time. This will take place @b after the object's smart @c del() function. */
 };

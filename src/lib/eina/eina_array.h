@@ -149,9 +149,9 @@
  * data at any position, the Eina @ref Eina_List_Group is the correct container
  * to use.
  *
- * To use the array data type, eina_init() must be called before any
+ * To use the array data type, Eina must be initialized before any
  * other array functions. When no more eina array functions are used,
- * eina_shutdown() must be called to free all the resources.
+ * Eina must be shut down to free all the resources.
  *
  * An array must be created with eina_array_new(). It allocates all
  * the necessary data for an array. When not needed anymore, an array

@@ -27,8 +27,8 @@
  *
  * @brief This group discusses the functions that allow you to get the time spent in a part of a code.
  *
- * Before using the counter system, Eina must be initialized with
- * eina_init() and later shut down with eina_shutdown(). To create a
+ * Before using the counter system, Eina must be initialized
+ * and later shut down. To create a
  * counter, use eina_counter_new(). To free it, use
  * eina_counter_free().
  *

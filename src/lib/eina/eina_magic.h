@@ -46,8 +46,6 @@
  * actually points to a person, and if not we print an error message and
  * quit:
  * @until }
- * @note EINA_MAGIC_FAIL is a macro that makes it easy to print an appropriate
- * (and consistent) error message.
  * Now knowing that ptr is indeed of type person we proceed to set EINA_MAGIC to
  * EINA_MAGIC_NONE and free the allocated memory:
  * @until }

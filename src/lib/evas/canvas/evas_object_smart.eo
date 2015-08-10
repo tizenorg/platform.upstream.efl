@@ -116,8 +116,7 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
             @since 1.7 This function will return @c NULL when a non-smart object is passed.
 
             @see evas_object_smart_member_add()
-            @see evas_object_smart_member_del()
-            @see evas_object_smart_iterator_new() */
+            @see evas_object_smart_member_del() */
             return: list<Evas.Object*> * @warn_unused;
          }
       }
@@ -208,13 +207,8 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
          ignored, if the caller wishes so. The terminator @c NULL is not
          counted in these values.
 
-         @remark If just class descriptions are of interest, try
-         evas_smart_callbacks_descriptions_get() instead.
-
          @remark Use @c NULL pointers on the descriptions/counters you're not
          interested in: they'll be ignored by the function.
-
-         @see evas_smart_callbacks_descriptions_get()
 
          @ingroup Evas_Smart_Object_Group */
          params {
@@ -360,8 +354,6 @@ class Evas.Object_Smart (Evas.Object, Evas.Signal_Interface)
          forcefully. As an effect, on the next rendering cycle its @b
          calculate() (see #Evas_Smart_Class) smart function will be called.
 
-         @see evas_object_smart_need_recalculate_set().
-         @see evas_object_smart_calculate().
 
          @ingroup Evas_Smart_Object_Group */
 

@@ -34,7 +34,7 @@ EAPI void                    evas_font_reinit(void);
  *       @ref Ecore_Evas_Group such as @c ecore_evas_new(). See
  *       @ref Ecore.
  *
- * @attention it is recommended that one calls evas_init() before
+ * @attention it is recommended that one calls Evas Initialization function before
  *       creating new canvas.
  *
  * @return A new uninitialised Evas canvas on success. Otherwise, @c NULL.
@@ -87,7 +87,7 @@ EAPI void              evas_free(Evas *e)  EINA_ARG_NONNULL(1);
  * func.
  *
  * @remark In the event of a memory allocation error during the addition of
- * the callback to the canvas, evas_alloc_error() should be used to
+ * the callback to the canvas, Evas Alloc Error function  should be used to
  * determine the nature of the error, if any, and the program should
  * sensibly try and recover.
  *
@@ -773,7 +773,7 @@ EAPI Eina_Bool evas_object_visible_get(const Evas_Object *obj);
  * of type @p type occurs on object @p obj. The function is @p func.
  *
  * @remark In the event of a memory allocation error during addition of the
- * callback to the object, evas_alloc_error() should be used to
+ * callback to the object, Evas Alloc Error function should be used to
  * determine the nature of the error, if any, and the program should
  * sensibly try and recover.
  *
@@ -3338,7 +3338,7 @@ EAPI void         evas_object_smart_member_del(Evas_Object *obj) EINA_ARG_NONNUL
  * event named @p event occurs in it. The function is @p func.
  *
  * @remark In the event of a memory allocation error during addition of the
- * callback to the object, evas_alloc_error() should be used to
+ * callback to the object, Evas Alloc Error function should be used to
  * determine the nature of the error, if any, and the program should
  * sensibly try and recover.
  *
@@ -3352,7 +3352,7 @@ EAPI void         evas_object_smart_member_del(Evas_Object *obj) EINA_ARG_NONNUL
  * given event.
  *
  * @remark There is an infrastructure for introspection on smart objects'
- * events (see evas_smart_callbacks_descriptions_get()), but no
+ * events, but no
  * internal smart objects on Evas implement them yet.
  *
  * @see @ref Evas_Smart_Object_Group_Callbacks for more details.

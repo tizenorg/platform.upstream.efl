@@ -20,11 +20,12 @@ typedef struct _EVGL_Surface_Format EVGL_Surface_Format;
 EAPI void         evgl_engine_shutdown(void *eng_data);
 EAPI void        *evgl_native_surface_buffer_get(EVGL_Surface *sfc);
 EAPI int          evgl_native_surface_yinvert_get(EVGL_Surface *sfc);
+EAPI void        *evgl_current_native_context_get(EVGL_Context *ctx);
 
 typedef void (*EVGL_Engine_Call)(void *eng_data);
 typedef void *(*EVGL_Native_Surface_Call)(void *sfc);
 typedef int (*EVGL_Native_Surface_Yinvert_Call)(void *sfc);
-typedef int (*EVGL_Direct_Rendered)(void);
+typedef void *(*EVGL_Current_Native_Context_Get_Call)(void *ctx);
 
 EVGL_Engine *evgl_engine_init(void *eng_data, const EVGL_Interface *efunc);
 
@@ -41,13 +42,15 @@ Evas_GL_API *evgl_api_get(Evas_GL_Context_Version version);
 void         evgl_safe_extension_add(const char *name, void *funcptr);
 Eina_Bool    evgl_safe_extension_get(const char *name, void **pfuncptr);
 
-EAPI int          evgl_direct_rendered();
+int          evgl_direct_rendered(void);
 void         evgl_direct_override_get(int *override, int *force_off);
 void         evgl_direct_info_set(int win_w, int win_h, int rot,
                                   int img_x, int img_y, int img_w, int img_h,
                                   int clip_x, int clip_y, int clip_w, int clip_h,
                                   int render_op, void *surface);
-void         evgl_direct_info_clear();
+void         evgl_direct_info_clear(void);
+void         evgl_get_pixels_pre(void);
+void         evgl_get_pixels_post(void);
 
 Eina_Bool    evgl_native_surface_direct_opts_get(Evas_Native_Surface *ns,
                                                  Eina_Bool *direct_render,
@@ -55,9 +58,9 @@ Eina_Bool    evgl_native_surface_direct_opts_get(Evas_Native_Surface *ns,
                                                  Eina_Bool *direct_override);
 
 void         evgl_direct_partial_info_set(int pres);
-void         evgl_direct_partial_info_clear();
-void         evgl_direct_partial_render_start();
-void         evgl_direct_partial_render_end();
+void         evgl_direct_partial_info_clear(void);
+void         evgl_direct_partial_render_start(void);
+void         evgl_direct_partial_render_end(void);
 
 //TIZEN ONLY
 Eina_Bool is_app_internal(EVGL_Surface *sfc);

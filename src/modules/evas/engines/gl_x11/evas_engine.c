@@ -65,7 +65,7 @@ Evas_GL_Preload glsym_evas_gl_preload_shutdown = NULL;
 EVGL_Engine_Call glsym_evgl_engine_shutdown = NULL;
 EVGL_Native_Surface_Call glsym_evgl_native_surface_buffer_get = NULL;
 EVGL_Native_Surface_Yinvert_Call glsym_evgl_native_surface_yinvert_get = NULL;
-EVGL_Direct_Rendered glsym_evgl_direct_rendered = NULL;
+EVGL_Current_Native_Context_Get_Call glsym_evgl_current_native_context_get = NULL;
 Evas_Gl_Symbols glsym_evas_gl_symbols = NULL;
 
 Evas_GL_Common_Context_New glsym_evas_gl_common_context_new = NULL;
@@ -1324,7 +1324,7 @@ gl_symbols(void)
    LINK2GENERIC(evgl_engine_shutdown);
    LINK2GENERIC(evgl_native_surface_buffer_get);
    LINK2GENERIC(evgl_native_surface_yinvert_get);
-   LINK2GENERIC(evgl_direct_rendered);
+   LINK2GENERIC(evgl_current_native_context_get);
    LINK2GENERIC(evas_gl_symbols);
    LINK2GENERIC(evas_gl_common_error_get);
    LINK2GENERIC(evas_gl_common_error_set);
@@ -1971,16 +1971,13 @@ eng_gl_current_context_get(void *data EINA_UNUSED)
    if (!ctx)
      return NULL;
 
-   context = ctx->context;
+   context = glsym_evgl_current_native_context_get(ctx);
 
 #ifdef GL_GLES
-   if ((ctx->pixmap_image_supported) && (!glsym_evgl_direct_rendered()))
-      context = ctx->indirect_context;
-
    if (eglGetCurrentContext() == context)
-      return ctx;
+     return ctx;
 #else
-   if (glXGetCurrentContext() == (ctx->context))
+   if (glXGetCurrentContext() == context)
      return ctx;
 #endif
 

@@ -90,7 +90,10 @@ static const char o_type[] = "textblock";
 #define _NEWLINE '\n'
 #define _TAB '\t'
 
-#define _REPLACEMENT_CHAR_UTF8 "\xEF\xBF\xBC"
+// TIZEN_ONLY(20150811): Replace the replacement character to 0x00A0 which is empty character.
+//#define _REPLACEMENT_CHAR_UTF8 "\xEF\xBF\xBC"
+#define _REPLACEMENT_CHAR_UTF8 "\xC2\xA0"
+//
 #define _PARAGRAPH_SEPARATOR_UTF8 "\xE2\x80\xA9"
 #define _NEWLINE_UTF8 "\n"
 #define _TAB_UTF8 "\t"
@@ -6614,7 +6617,10 @@ _markup_get_text_utf8_append(Eina_Strbuf *sbuf, const char *text)
         else if (ch == _PARAGRAPH_SEPARATOR)
            eina_strbuf_append(sbuf, "<ps/>");
         else if (ch == _REPLACEMENT_CHAR)
-           eina_strbuf_append(sbuf, "&#xfffc;");
+           // TIZEN_ONLY(20150811): Replace the replacement character to 0x00A0 which is empty character.
+           //eina_strbuf_append(sbuf, "&#xfffc;");
+           eina_strbuf_append(sbuf, "&#xa0;");
+           //
         else if (ch != '\r')
           {
              eina_strbuf_append_length(sbuf, text + pos, pos2 - pos);

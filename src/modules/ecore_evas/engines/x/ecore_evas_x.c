@@ -101,8 +101,9 @@ struct _Ecore_Evas_Engine_Data_X11 {
    Ecore_X_Window win_shaped_input;
    struct
      {
-        unsigned int front, back; // front and back pixmaps (double-buffer)
-        Evas_Coord w, h; // store pixmap size (saves X roundtrips)
+        Ecore_X_Pixmap front, back; // front and back pixmaps (double-buffer)
+        Evas_Coord front_w, front_h; // store pixmap size for front pixmap
+        Evas_Coord back_w, back_h; // store pixmap size for back pixmap
         int depth; // store depth to save us from fetching engine info pre_render
         void *visual; // store visual used to create pixmap
         unsigned long colormap; // store colormap used to create pixmap
@@ -1962,9 +1963,15 @@ _ecore_evas_x_free(Ecore_Evas *ee)
    Ecore_Evas_Engine_Data_X11 *edata = ee->engine.data;
 
    if (edata->pixmap.back)
-     ecore_x_pixmap_free(edata->pixmap.back);
+     {
+        ecore_x_pixmap_free(edata->pixmap.back);
+        edata->pixmap.back = 0;
+     }
    if (edata->pixmap.front)
-     ecore_x_pixmap_free(edata->pixmap.front);
+     {
+        ecore_x_pixmap_free(edata->pixmap.front);
+        edata->pixmap.front = 0;
+     }
    if (edata->wm_rot.manual_mode_job)
      {
         ecore_job_del(edata->wm_rot.manual_mode_job);
@@ -2097,11 +2104,16 @@ _ecore_evas_x_resize(Ecore_Evas *ee, int w, int h)
    if (!ee->prop.window)
      {
         /* the ecore_evas was resized. we need to free the back pixmap */
-        if ((edata->pixmap.w != w) || (edata->pixmap.h != h))
+        if ((edata->pixmap.back_w != w) || (edata->pixmap.back_h != h))
           {
              /* free the backing pixmap */
              if (edata->pixmap.back)
-               ecore_x_pixmap_free(edata->pixmap.back);
+               {
+                  ecore_x_pixmap_free(edata->pixmap.back);
+                  edata->pixmap.back = 0;
+               }
+             edata->pixmap.back_w = 0;
+             edata->pixmap.back_h = 0;
           }
      }
 
@@ -3679,7 +3691,7 @@ _ecore_evas_x_render_pre(void *data, Evas *e EINA_UNUSED, void *event_info EINA_
    /* before rendering to the back buffer pixmap, we should check the
     * size. If the back buffer is not the proper size, destroy it and
     * create a new one at the proper size */
-   if ((edata->pixmap.w != ee->w) || (edata->pixmap.h != ee->h))
+   if ((edata->pixmap.back_w != ee->w) || (edata->pixmap.back_h != ee->h))
      {
         /* free the backing pixmap */
         if (edata->pixmap.back)
@@ -3689,8 +3701,8 @@ _ecore_evas_x_render_pre(void *data, Evas *e EINA_UNUSED, void *event_info EINA_
           ecore_x_pixmap_new(edata->win_root, ee->w, ee->h,
                              edata->pixmap.depth);
 
-        edata->pixmap.w = ee->w;
-        edata->pixmap.h = ee->h;
+        edata->pixmap.back_w = ee->w;
+        edata->pixmap.back_h = ee->h;
 
         if (!strcmp(ee->driver, "software_x11"))
           {
@@ -3719,6 +3731,8 @@ _ecore_evas_x_render_pre(void *data, Evas *e EINA_UNUSED, void *event_info EINA_
              if (einfo)
                {
                   einfo->info.drawable = edata->pixmap.back;
+                  einfo->info.drawable_back = edata->pixmap.front;
+                  einfo->info.offscreen = 0;
 
                   if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
                     {
@@ -3760,6 +3774,7 @@ _ecore_evas_x_flush_post(void *data, Evas *e EINA_UNUSED, void *event_info EINA_
    if ((!ee->prop.window) && (edata->pixmap.back))
      {
         Ecore_X_Pixmap prev;
+        int prev_w, prev_h;
 
         /* printf("Ecore_Evas Flush Post\n"); */
         /* printf("\tBack Pixmap: %d\n", edata->pixmap.back); */
@@ -3771,12 +3786,18 @@ _ecore_evas_x_flush_post(void *data, Evas *e EINA_UNUSED, void *event_info EINA_
 
         /* record the current front buffer */
         prev = edata->pixmap.front;
+        prev_w = edata->pixmap.front_w;
+        prev_h = edata->pixmap.front_h;
 
         /* flip them */
         edata->pixmap.front = edata->pixmap.back;
+        edata->pixmap.front_w = edata->pixmap.back_w;
+        edata->pixmap.front_h = edata->pixmap.back_h;
 
         /* reassign back buffer to be the old front one */
         edata->pixmap.back = prev;
+        edata->pixmap.back_w = prev_w;
+        edata->pixmap.back_h = prev_h;
 
         /* update evas drawable */
         if (!strcmp(ee->driver, "software_x11"))
@@ -3805,7 +3826,7 @@ _ecore_evas_x_flush_post(void *data, Evas *e EINA_UNUSED, void *event_info EINA_
              einfo = (Evas_Engine_Info_GL_X11 *)evas_engine_info_get(ee->evas);
              if (einfo)
                {
-                  einfo->info.drawable = edata->pixmap.back;
+                  einfo->info.offscreen = 1 - einfo->info.offscreen;
 
                   if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
                     {
@@ -3867,7 +3888,7 @@ _ecore_evas_x_flush_post(void *data, Evas *e EINA_UNUSED, void *event_info EINA_
 #ifdef BUILD_ECORE_EVAS_SOFTWARE_X11
 EAPI Ecore_Evas *
 ecore_evas_software_x11_new_internal(const char *disp_name, Ecore_X_Window parent,
-				     int x, int y, int w, int h)
+                             int x, int y, int w, int h)
 {
    Evas_Engine_Info_Software_X11 *einfo;
    Ecore_Evas_Interface_X11 *iface;
@@ -3886,8 +3907,8 @@ ecore_evas_software_x11_new_internal(const char *disp_name, Ecore_X_Window paren
    edata = calloc(1, sizeof(Ecore_Evas_Engine_Data_X11));
    if (!edata)
      {
-	free(ee);
-	return NULL;
+      free(ee);
+      return NULL;
      }
 
    ee->engine.data = edata;
@@ -3938,7 +3959,7 @@ ecore_evas_software_x11_new_internal(const char *disp_name, Ecore_X_Window paren
                            _ecore_evas_x_flush_post, ee);
    if (ee->can_async_render)
      evas_event_callback_add(ee->evas, EVAS_CALLBACK_RENDER_POST,
-			     _ecore_evas_x_render_updates, ee);
+                       _ecore_evas_x_render_updates, ee);
    evas_data_attach_set(ee->evas, ee);
    evas_output_method_set(ee->evas, rmethod);
    evas_output_size_set(ee->evas, w, h);
@@ -4045,6 +4066,7 @@ ecore_evas_software_x11_new_internal(const char *disp_name, Ecore_X_Window paren
 
         einfo->info.rotation = 0;
         einfo->info.debug = redraw_debug;
+        einfo->swap_mode = EVAS_ENGINE_SOFTWARE_X11_SWAP_MODE_COPY;
         if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
           {
              ERR("evas_engine_info_set() init engine '%s' failed.", ee->driver);
@@ -4094,8 +4116,8 @@ ecore_evas_software_x11_pixmap_new_internal(const char *disp_name, Ecore_X_Windo
    edata = calloc(1, sizeof(Ecore_Evas_Engine_Data_X11));
    if (!edata)
      {
-	free(ee);
-	return NULL;
+      free(ee);
+      return NULL;
      }
 
    ee->engine.data = edata;
@@ -4132,10 +4154,10 @@ ecore_evas_software_x11_pixmap_new_internal(const char *disp_name, Ecore_X_Windo
    ee->prop.sticky = 0;
    edata->state.sticky = 0;
 
-   if (getenv("ECORE_EVAS_FORCE_SYNC_RENDER"))
-     ee->can_async_render = 0;
-   else
-     ee->can_async_render = 1;
+   ee->can_async_render = 0;
+
+   setenv("EVAS_NO_DRI3_SWAPBUF", "1", 1);
+   setenv("EVAS_NO_DRI_SWAPBUF", "1", 1);
 
    /* init evas here */
    ee->evas = evas_new();
@@ -4149,7 +4171,7 @@ ecore_evas_software_x11_pixmap_new_internal(const char *disp_name, Ecore_X_Windo
 
    if (ee->can_async_render)
      evas_event_callback_add(ee->evas, EVAS_CALLBACK_RENDER_POST,
-			     _ecore_evas_x_render_updates, ee);
+                       _ecore_evas_x_render_updates, ee);
    evas_data_attach_set(ee->evas, ee);
    evas_output_method_set(ee->evas, rmethod);
    evas_output_size_set(ee->evas, w, h);
@@ -4250,10 +4272,9 @@ ecore_evas_software_x11_pixmap_new_internal(const char *disp_name, Ecore_X_Windo
 
         einfo->info.rotation = 0;
         einfo->info.debug = redraw_debug;
+        einfo->swap_mode = EVAS_ENGINE_SOFTWARE_X11_SWAP_MODE_FULL;
 
         /* record pixmap size to save X roundtrips */
-        edata->pixmap.w = w;
-        edata->pixmap.h = h;
         edata->pixmap.depth = einfo->info.depth;
         edata->pixmap.visual = einfo->info.visual;
         edata->pixmap.colormap = einfo->info.colormap;
@@ -4261,8 +4282,13 @@ ecore_evas_software_x11_pixmap_new_internal(const char *disp_name, Ecore_X_Windo
         /* create front and back pixmaps for double-buffer rendering */
         edata->pixmap.front =
           ecore_x_pixmap_new(parent, w, h, edata->pixmap.depth);
+        edata->pixmap.front_w = w;
+        edata->pixmap.front_h = h;
+
         edata->pixmap.back =
           ecore_x_pixmap_new(parent, w, h, edata->pixmap.depth);
+        edata->pixmap.back_w = w;
+        edata->pixmap.back_h = h;
 
         einfo->info.drawable = edata->pixmap.back;
 
@@ -4395,7 +4421,7 @@ _ecore_evas_software_x11_extra_event_window_add(Ecore_Evas *ee, Ecore_X_Window w
 #ifdef BUILD_ECORE_EVAS_OPENGL_X11
 EAPI Ecore_Evas *
 ecore_evas_gl_x11_options_new_internal(const char *disp_name, Ecore_X_Window parent,
-				       int x, int y, int w, int h, const int *opt)
+                               int x, int y, int w, int h, const int *opt)
 {
    Ecore_Evas *ee;
    Ecore_Evas_Engine_Data_X11 *edata;
@@ -4412,8 +4438,8 @@ ecore_evas_gl_x11_options_new_internal(const char *disp_name, Ecore_X_Window par
    edata = calloc(1, sizeof(Ecore_Evas_Engine_Data_X11));
    if (!edata)
      {
-	free(ee);
-	return NULL;
+      free(ee);
+      return NULL;
      }
 
    iface = _ecore_evas_x_interface_x11_new();
@@ -4553,8 +4579,8 @@ ecore_evas_gl_x11_pixmap_new_internal(const char *disp_name, Ecore_X_Window pare
    edata = calloc(1, sizeof(Ecore_Evas_Engine_Data_X11));
    if (!edata)
      {
-	free(ee);
-	return NULL;
+      free(ee);
+      return NULL;
      }
 
    iface = _ecore_evas_x_interface_x11_new();
@@ -4575,7 +4601,7 @@ ecore_evas_gl_x11_pixmap_new_internal(const char *disp_name, Ecore_X_Window pare
 
    ee->driver = "opengl_x11";
 #if 1
-   ee->semi_sync = 0; // gl engine doesn't need to sync - its whole swaps
+   ee->no_comp_sync = 1;
 #else
    if (!getenv("ECORE_EVAS_COMP_NOSEMISYNC"))
       ee->semi_sync = 1; // gl engine doesn't need to sync - its whole swaps
@@ -4616,7 +4642,7 @@ ecore_evas_gl_x11_pixmap_new_internal(const char *disp_name, Ecore_X_Window pare
 
    if (ee->can_async_render)
      evas_event_callback_add(ee->evas, EVAS_CALLBACK_RENDER_POST,
-			     _ecore_evas_x_render_updates, ee);
+                       _ecore_evas_x_render_updates, ee);
 
    if (parent == 0) parent = ecore_x_window_root_first_get();
    edata->win_root = parent;
@@ -4671,6 +4697,9 @@ ecore_evas_gl_x11_pixmap_new_internal(const char *disp_name, Ecore_X_Window pare
         einfo->info.colormap = einfo->func.best_colormap_get(einfo);
         einfo->info.depth = einfo->func.best_depth_get(einfo);
 
+        einfo->info.offscreen = 0;
+        einfo->swap_mode = EVAS_ENGINE_GL_X11_SWAP_MODE_FULL;
+
         if (redraw_debug < 0)
           {
              if (getenv("REDRAW_DEBUG"))
@@ -4682,8 +4711,6 @@ ecore_evas_gl_x11_pixmap_new_internal(const char *disp_name, Ecore_X_Window pare
         einfo->info.rotation = 0;
 
         /* record pixmap size to save X roundtrips */
-        edata->pixmap.w = w;
-        edata->pixmap.h = h;
         edata->pixmap.depth = einfo->info.depth;
         edata->pixmap.visual = einfo->info.visual;
         edata->pixmap.colormap = einfo->info.colormap;
@@ -4691,10 +4718,16 @@ ecore_evas_gl_x11_pixmap_new_internal(const char *disp_name, Ecore_X_Window pare
         /* create front and back pixmaps for double-buffer rendering */
         edata->pixmap.front =
           ecore_x_pixmap_new(parent, w, h, edata->pixmap.depth);
+        edata->pixmap.front_w = w;
+        edata->pixmap.front_h = h;
+
         edata->pixmap.back =
           ecore_x_pixmap_new(parent, w, h, edata->pixmap.depth);
+        edata->pixmap.back_w = w;
+        edata->pixmap.back_h = h;
 
         einfo->info.drawable = edata->pixmap.back;
+        einfo->info.drawable_back = edata->pixmap.front;
 
         if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
           {

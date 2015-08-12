@@ -21,6 +21,8 @@
 #define EVAS_VERSION_MINOR EFL_VERSION_MINOR
 
 /**
+ * @internal
+ *
  * @typedef Evas_Version
  *
  * This is the Evas version information structure that can be used at

@@ -30,6 +30,7 @@
 #define ECORE_X_VERSION_MINOR EFL_VERSION_MINOR
 
 /**
+ * @internal
  * @typedef Ecore_X_Version
  * Represents the current version of Ecore_X
  */
@@ -76,6 +77,8 @@ EAPI extern Ecore_X_Version *ecore_x_version;
  *
  * When using the XLib backend, setting the ECORE_X_SYNC environment variable
  * will cause X calls to be run synchronously for easier debugging.
+ *
+ * @{
  */
 
 typedef unsigned int   Ecore_X_ID;
@@ -2776,5 +2779,9 @@ EAPI Eina_Bool                             ecore_x_e_keyrouter_get(Ecore_X_Windo
 
 #include <Ecore_X_Atoms.h>
 #include <Ecore_X_Cursor.h>
+
+/**
+ * @}
+ */
 
 #endif // ifndef _ECORE_X_H

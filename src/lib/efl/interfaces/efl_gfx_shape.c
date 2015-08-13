@@ -1186,6 +1186,16 @@ _efl_gfx_shape_append_rect(Eo *obj, Efl_Gfx_Shape_Data *pd,
                            double x, double y, double w, double h,
                            double rx, double ry)
 {
+   if (!rx || !ry)
+     {
+         _efl_gfx_shape_append_move_to(obj, pd, x, y);
+         _efl_gfx_shape_append_line_to(obj, pd, x + w, y);
+         _efl_gfx_shape_append_line_to(obj, pd, x + w, y + h);
+         _efl_gfx_shape_append_line_to(obj, pd, x, y + h);
+         _efl_gfx_shape_append_close(obj, pd);
+
+         return;
+     }
    // clamp the rx and ry radius value.
    rx = 2*rx;
    ry = 2*ry;

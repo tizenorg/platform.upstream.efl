@@ -3956,9 +3956,14 @@ skip:
 
              if (cur_fi)
                {
+                  // TIZEN_ONLY(20150813): Add glyphs shaping exception with checking language script.
+                  //ENFN->font_text_props_info_create(ENDT,
+                  //      cur_fi, str, &ti->text_props, c->par->bidi_props,
+                  //      ti->parent.text_pos, run_len, EVAS_TEXT_PROPS_MODE_SHAPE);
                   ENFN->font_text_props_info_create(ENDT,
                         cur_fi, str, &ti->text_props, c->par->bidi_props,
-                        ti->parent.text_pos, run_len, EVAS_TEXT_PROPS_MODE_SHAPE);
+                        ti->parent.text_pos, run_len, EVAS_TEXT_PROPS_MODE_CHECK(script));
+                  //
                }
 
              while ((queue->start + queue->off) < (run_start + run_len))
@@ -4465,9 +4470,14 @@ _layout_ellipsis_item_new(Ctxt *c, const Evas_Object_Textblock_Item *cur_it)
               ellip_ti->parent.format->font.font, &script_fi, &cur_fi,
               script, _ellip_str, len);
 
+        // TIZEN_ONLY(20150813): Add glyphs shaping exception with checking language script.
+        //ENFN->font_text_props_info_create(ENDT,
+        //      cur_fi, _ellip_str, &ellip_ti->text_props,
+        //      c->par->bidi_props, ellip_ti->parent.text_pos, len, EVAS_TEXT_PROPS_MODE_CHECK(script));
         ENFN->font_text_props_info_create(ENDT,
               cur_fi, _ellip_str, &ellip_ti->text_props,
-              c->par->bidi_props, ellip_ti->parent.text_pos, len, EVAS_TEXT_PROPS_MODE_SHAPE);
+              c->par->bidi_props, ellip_ti->parent.text_pos, len, EVAS_TEXT_PROPS_MODE_CHECK(script));
+        //
      }
 
    _text_item_update_sizes(c, ellip_ti);

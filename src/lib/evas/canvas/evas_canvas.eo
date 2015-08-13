@@ -692,6 +692,25 @@ class Evas.Canvas (Eo.Base, Evas.Common_Interface)
             Eina_Bool iconified;
          }
       }
+      paragraph_direction {
+         set {
+            // TIZEN_ONLY
+            /*@
+            @internal
+            @brief Sets paragraph direction to the given evas.
+            */
+         }
+         get {
+            // TIZEN_ONLY
+            /*@
+            @internal
+            @brief Gets paragraph direction from the given evas.
+            */
+         }
+         values {
+            Evas_BiDi_Direction dir;
+         }
+      }
    }
    methods {
       tree_objects_at_xy_get {

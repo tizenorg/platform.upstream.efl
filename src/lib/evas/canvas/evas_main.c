@@ -704,4 +704,19 @@ evas_ector_get(Evas_Public_Data *e)
    return e->engine.ector;
 }
 
+// TIZEN_ONLY(20150813): Add evas_paragraph_direction_set, get APIs and applied to textblock, text.
+EOLIAN void
+_evas_canvas_paragraph_direction_set(Eo *eo_e EINA_UNUSED, Evas_Public_Data *e, Evas_BiDi_Direction dir)
+{
+   if (e->paragraph_direction != dir)
+     e->paragraph_direction = dir;
+}
+
+EOLIAN Evas_BiDi_Direction
+_evas_canvas_paragraph_direction_get(Eo *eo_e EINA_UNUSED, Evas_Public_Data *e)
+{
+   return e->paragraph_direction;
+}
+//
+
 #include "canvas/evas_canvas.eo.c"

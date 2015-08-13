@@ -142,8 +142,12 @@ evas_bidi_end_of_run_get(const Evas_BiDi_Paragraph_Props *bidi_props, size_t sta
 Eina_Bool
 evas_bidi_props_reorder_line(Eina_Unicode *eina_ustr, size_t start, size_t len, const Evas_BiDi_Paragraph_Props *props, EvasBiDiStrIndex **_v_to_l);
 
+// TIZEN_ONLY(20150813): Add evas_paragraph_direction_set, get APIs and applied to textblock, text.
+//Evas_BiDi_Paragraph_Props *
+//evas_bidi_paragraph_props_get(const Eina_Unicode *eina_ustr, size_t len, int *segment_idxs) EINA_ARG_NONNULL(1) EINA_MALLOC EINA_WARN_UNUSED_RESULT;
 Evas_BiDi_Paragraph_Props *
-evas_bidi_paragraph_props_get(const Eina_Unicode *eina_ustr, size_t len, int *segment_idxs) EINA_ARG_NONNULL(1) EINA_MALLOC EINA_WARN_UNUSED_RESULT;
+evas_bidi_paragraph_props_get(const Eina_Unicode *eina_ustr, size_t len, int *segment_idxs, EvasBiDiParType base_bidi) EINA_ARG_NONNULL(1) EINA_MALLOC EINA_WARN_UNUSED_RESULT;
+//
 
 void
 evas_bidi_props_copy_and_ref(const Evas_BiDi_Props *src, Evas_BiDi_Props *dst);

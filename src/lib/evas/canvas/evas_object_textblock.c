@@ -2887,14 +2887,41 @@ _layout_update_bidi_props(const Evas_Textblock_Data *o,
         const Eina_Unicode *text;
         int *segment_idxs = NULL;
         text = eina_ustrbuf_string_get(par->text_node->unicode);
+        // TIZEN_ONLY(20150813): Add evas_paragraph_direction_set, get APIs and applied to textblock, text.
+        Evas_BiDi_Direction par_dir;
+        EvasBiDiParType bidi_par_type;
+        //
 
         if (o->bidi_delimiters)
            segment_idxs = evas_bidi_segment_idxs_get(text, o->bidi_delimiters);
 
+        // TIZEN_ONLY(20150813): Add evas_paragraph_direction_set, get APIs and applied to textblock, text.
+        par_dir = evas_paragraph_direction_get(evas_object_evas_get(o->cursor->obj));
+
+        switch (par_dir)
+          {
+           case EVAS_BIDI_DIRECTION_LTR:
+              bidi_par_type = EVAS_BIDI_PARAGRAPH_WLTR;
+              break;
+           case EVAS_BIDI_DIRECTION_RTL:
+              bidi_par_type = EVAS_BIDI_PARAGRAPH_WRTL;
+              break;
+           case EVAS_BIDI_DIRECTION_NEUTRAL:
+           default:
+              bidi_par_type = EVAS_BIDI_PARAGRAPH_NEUTRAL;
+              break;
+          }
+        //
+
         evas_bidi_paragraph_props_unref(par->bidi_props);
+        // TIZEN_ONLY(20150813): Add evas_paragraph_direction_set, get APIs and applied to textblock, text.
+        //par->bidi_props = evas_bidi_paragraph_props_get(text,
+        //      eina_ustrbuf_length_get(par->text_node->unicode),
+        //      segment_idxs);
         par->bidi_props = evas_bidi_paragraph_props_get(text,
               eina_ustrbuf_length_get(par->text_node->unicode),
-              segment_idxs);
+              segment_idxs, bidi_par_type);
+        //
         par->direction = EVAS_BIDI_PARAGRAPH_DIRECTION_IS_RTL(par->bidi_props) ?
            EVAS_BIDI_DIRECTION_RTL : EVAS_BIDI_DIRECTION_LTR;
         par->is_bidi = !!par->bidi_props;
@@ -3161,6 +3188,14 @@ _layout_line_align_get(Ctxt *c)
 #ifdef BIDI_SUPPORT
    if (c->align_auto && c->ln)
      {
+        // TIZEN_ONLY(20150813): Added evas_paragraph_direction_set, get APIs and applied to textblock, text.
+        Evas_BiDi_Direction par_dir = evas_paragraph_direction_get(evas_object_evas_get(c->obj));
+
+        if (par_dir == EVAS_BIDI_DIRECTION_LTR)
+          return 0.0;
+        else if (par_dir == EVAS_BIDI_DIRECTION_RTL)
+          return 1.0;
+        //
         if (c->ln->items && c->ln->items->text_node &&
               (c->ln->par->direction == EVAS_BIDI_DIRECTION_RTL))
           {

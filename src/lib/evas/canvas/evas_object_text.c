@@ -716,7 +716,30 @@ _evas_object_text_layout(Evas_Object *eo_obj, Evas_Text_Data *o, Eina_Unicode *t
      }
    evas_bidi_paragraph_props_unref(o->bidi_par_props);
    if (text)
-     o->bidi_par_props = evas_bidi_paragraph_props_get(text, len, segment_idxs);
+     {
+        // TIZEN_ONLY(20150813): Added evas_paragraph_direction_set, get APIs and applied to textblock, text.
+        //o->bidi_par_props = evas_bidi_paragraph_props_get(text, len, segment_idxs);
+        Evas_BiDi_Direction par_dir;
+        EvasBiDiParType bidi_par_type;
+
+        par_dir = evas_paragraph_direction_get(evas_object_evas_get(eo_obj));
+
+        switch (par_dir)
+          {
+           case EVAS_BIDI_DIRECTION_LTR:
+              bidi_par_type = EVAS_BIDI_PARAGRAPH_WLTR;
+              break;
+           case EVAS_BIDI_DIRECTION_RTL:
+              bidi_par_type = EVAS_BIDI_PARAGRAPH_WRTL;
+              break;
+           case EVAS_BIDI_DIRECTION_NEUTRAL:
+           default:
+              bidi_par_type = EVAS_BIDI_PARAGRAPH_NEUTRAL;
+              break;
+          }
+
+        o->bidi_par_props = evas_bidi_paragraph_props_get(text, len, segment_idxs, bidi_par_type);
+     }
 
    if (o->bidi_par_props)
       o->bidi_dir = EVAS_BIDI_PAR_TYPE_TO_DIRECTION(o->bidi_par_props->direction);
@@ -1043,8 +1066,14 @@ _evas_text_efl_text_text_get(Eo *eo_obj EINA_UNUSED, Evas_Text_Data *o)
 }
 
 EOLIAN static Evas_BiDi_Direction
-_evas_text_direction_get(Eo *eo_obj EINA_UNUSED, Evas_Text_Data *o)
+_evas_text_direction_get(Eo *eo_obj, Evas_Text_Data *o)
 {
+   // TIZEN_ONLY(20150813): Added evas_paragraph_direction_set, get APIs and applied to textblock, text.
+   Evas_BiDi_Direction par_dir = evas_paragraph_direction_get(evas_object_evas_get(eo_obj));
+
+   if ((par_dir == EVAS_BIDI_DIRECTION_LTR) || (par_dir == EVAS_BIDI_DIRECTION_RTL))
+     return par_dir;
+   //
    return o->bidi_dir;
 }
 

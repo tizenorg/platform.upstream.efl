@@ -1542,7 +1542,7 @@ evas_render_mapped(Evas_Public_Data *e, Evas_Object *eo_obj,
              if (obj->is_smart)
                {
                   /* Clipper masks */
-                  if (obj->cur->clipper &&
+                  if (obj->cur->clipper && (mapped > 1) &&
                       _evas_render_object_is_mask(obj->cur->clipper))
                     {
                        // This path can be hit when we're multiplying masks on top of each other...
@@ -1594,7 +1594,7 @@ evas_render_mapped(Evas_Public_Data *e, Evas_Object *eo_obj,
                {
                   RDI(level);
 
-                  if (obj->cur->clipper)
+                  if (obj->cur->clipper && (mapped > 1))
                     {
                        if (_evas_render_has_map(eo_obj, obj) ||
                            _evas_render_object_is_mask(obj->cur->clipper))
@@ -1750,7 +1750,7 @@ evas_render_proxy_subrender(Evas *eo_e, Evas_Object *eo_source, Evas_Object *eo_
         evas_render_mapped(evas, eo_source, source, ctx, proxy_write->surface,
                            -source->cur->geometry.x,
                            -source->cur->geometry.y,
-                           1, 0, 0, evas->output.w, evas->output.h,
+                           2, 0, 0, evas->output.w, evas->output.h,
                            &proxy_render_data, 1, EINA_TRUE, do_async);
 
         ENFN->context_free(ENDT, ctx);
@@ -1858,7 +1858,7 @@ evas_render_mask_subrender(Evas_Public_Data *evas,
                                        prev_mask->cur->geometry.y - y);
        }
      evas_render_mapped(evas, mask->object, mask, ctx, mdata->surface,
-                        -x, -y, 1, 0, 0, evas->output.w, evas->output.h,
+                        -x, -y, 2, 0, 0, evas->output.w, evas->output.h,
                         NULL, 1, EINA_TRUE, EINA_FALSE);
      ENFN->context_free(ENDT, ctx);
 

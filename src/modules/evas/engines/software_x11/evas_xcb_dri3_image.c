@@ -152,7 +152,7 @@ evas_xcb_image_dri3_native_set(void *data, void *image, void *native)
    if (evas_xcb_image_dri3_init(d)) evas_xcb_image_get_buffers(im);
    else
       {
-         ERR("evas_xcb_image_dri3_init failed. return false");
+         INF("evas_xcb_image_dri3_init failed. return false");
          return EINA_FALSE;
       }
 

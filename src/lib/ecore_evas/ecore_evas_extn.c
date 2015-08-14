@@ -22,18 +22,3 @@ _ecore_evas_extn_shutdown(void)
    ECORE_EVAS_EXTN_CLIENT_DEL = 0;
 }
 
-/////////////////////////////////////////////////////////////////
-// TIZEN_ONLY(20150113): Add dummy APIs to fix build failure.
-/////////////////////////////////////////////////////////////////
-EAPI void
-ecore_evas_extn_socket_lock(Ecore_Evas *ee)
-{
-   (void) ee;
-}
-
-EAPI void
-ecore_evas_extn_socket_unlock(Ecore_Evas *ee)
-{
-   (void) ee;
-}
-/////////////////////////////////////////////////////////////////

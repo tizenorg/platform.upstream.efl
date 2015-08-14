@@ -1171,7 +1171,7 @@ struct _Evas_Func
    Eina_Bool (*canvas_alpha_get)           (void *data, void *context);
    void (*context_free)                    (void *data, void *context);
    void (*context_clip_set)                (void *data, void *context, int x, int y, int w, int h);
-   void (*context_clip_image_set)          (void *data, void *context, void *surface, int x, int y);
+   void (*context_clip_image_set)          (void *data, void *context, void *surface, int x, int y, Evas_Public_Data *evas, Eina_Bool do_async);
    void (*context_clip_image_unset)        (void *data, void *context);
    void (*context_clip_image_get)          (void *data, void *context, void **surface, int *x, int *y);
    void (*context_clip_clip)               (void *data, void *context, int x, int y, int w, int h);
@@ -1275,7 +1275,7 @@ struct _Evas_Func
    void *(*gl_surface_create)            (void *data, void *config, int w, int h);
    void *(*gl_pbuffer_surface_create)    (void *data, void *config, int w, int h, int const *attrib_list);
    int  (*gl_surface_destroy)            (void *data, void *surface);
-   void *(*gl_context_create)            (void *data, void *share_context, int version);
+   void *(*gl_context_create)            (void *data, void *share_context, int version, void *(*native_context_get)(void *ctx), void *(*engine_data_get)(void *evasgl));
    int  (*gl_context_destroy)            (void *data, void *context);
    int  (*gl_make_current)               (void *data, void *surface, void *context);
    const char *(*gl_string_query)        (void *data, int name);
@@ -1295,6 +1295,8 @@ struct _Evas_Func
    Eina_Bool (*gl_surface_direct_renderable_get) (void *data, Evas_Native_Surface *ns, Eina_Bool *direct_override);
    void (*gl_image_direct_set)           (void *data, void *image, Eina_Bool direct);
    int  (*gl_image_direct_get)           (void *data, void *image);
+   void (*gl_get_pixels_pre)             (void *data);
+   void (*gl_get_pixels_post)            (void *data);
 
    int  (*image_load_error_get)          (void *data, void *image);
    int  (*font_run_end_get)              (void *data, Evas_Font_Set *font, Evas_Font_Instance **script_fi, Evas_Font_Instance **cur_fi, Evas_Script_Type script, const Eina_Unicode *text, int run_len);

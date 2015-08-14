@@ -150,13 +150,6 @@ typedef enum _Ecore_Evas_Object_Associate_Flags
   ECORE_EVAS_OBJECT_ASSOCIATE_DEL = 1 << 2
 } Ecore_Evas_Object_Associate_Flags;
 
-/////////////////////////////////////////////////////////////////
-// TIZEN_ONLY(20151213): Add dummy APIs to fix build failure.
-/////////////////////////////////////////////////////////////////
-EAPI void ecore_evas_extn_socket_lock(Ecore_Evas *ee);
-EAPI void ecore_evas_extn_socket_unlock(Ecore_Evas *ee);
-/////////////////////////////////////////////////////////////////
-
 /* module setup/shutdown calls */
 
 EAPI int         ecore_evas_engine_type_supported_get(Ecore_Evas_Engine_Type engine);
@@ -2579,6 +2572,30 @@ EAPI Ecore_Evas *ecore_evas_extn_socket_new(int w, int h);
  * @since 1.2
  */
 EAPI Eina_Bool ecore_evas_extn_socket_listen(Ecore_Evas *ee, const char *svcname, int svcnum, Eina_Bool svcsys);
+
+/**
+ * @brief Lock the pixel data so the plug cannot change it
+ *
+ * @param[in] ee The Ecore_Evas.
+ *
+ * @see ecore_evas_extn_socket_new()
+ * @see ecore_evas_extn_socket_unlock()
+ *
+ * @since 1.8
+ */
+EAPI void ecore_evas_extn_socket_lock(Ecore_Evas *ee);
+
+/**
+ * @brief Unlock the pixel data so the plug can change it again
+ *
+ * @param[in] ee The Ecore_Evas.
+ *
+ * @see ecore_evas_extn_socket_new()
+ * @see ecore_evas_extn_socket_lock()
+ *
+ * @since 1.8
+ */
+EAPI void ecore_evas_extn_socket_unlock(Ecore_Evas *ee);
 
 /**
  * @brief Set the blocking about mouse events to Ecore Evas.

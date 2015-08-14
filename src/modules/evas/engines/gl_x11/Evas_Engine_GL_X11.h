@@ -26,12 +26,14 @@ struct _Evas_Engine_Info_GL_X11
    struct {
       void          *display;
       unsigned long  drawable;
+      unsigned long  drawable_back;
       void          *visual;
       unsigned long  colormap;
       int            depth;
       int            screen;
       int            rotation;
       unsigned int   destination_alpha  : 1;
+      unsigned int   offscreen : 1;
    } info;
    /* engine specific function calls to query stuff about the destination */
    /* engine (what visual & colormap & depth to use, performance info etc. */

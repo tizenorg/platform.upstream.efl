@@ -22,12 +22,17 @@
 #include <string.h>
 #include <sys/file.h>
 #include <unistd.h>
+#include <dlfcn.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <Evas.h>
 #include <Evas_Engine_Buffer.h>
+#include <Evas_Engine_GL_X11.h>
 #include <Ecore.h>
 #include <Ecore_Evas.h>
 #include <Ecore_Input.h>
 #include <Ecore_Ipc.h>
+#include <Ecore_X.h>
 
 #include "ecore_private.h" // FIXME: Because of ECORE_MAGIC
 #include "ecore_evas_private.h"
@@ -36,15 +41,17 @@
 
 typedef struct _Extnbuf Extnbuf;
 
-Extnbuf    *_extnbuf_new(const char *base, int id, Eina_Bool sys, int num,
-                         int w, int h, Eina_Bool owner);
-void        _extnbuf_free(Extnbuf *b);
-void       *_extnbuf_data_get(Extnbuf *b, int *w, int *h, int *stride);
-void       *_extnbuf_lock(Extnbuf *b, int *w, int *h, int *stride);
-void        _extnbuf_unlock(Extnbuf *b);
-const char *_extnbuf_lock_file_get(const Extnbuf *b);
-Eina_Bool   _extnbuf_lock_file_set(Extnbuf *b, const char *file);
-Eina_Bool   _extnbuf_lock_get(const Extnbuf *b);
+Extnbuf       *_extnbuf_new(const char *base, int id, Eina_Bool sys, int num,
+                                   int w, int h, Eina_Bool owner, int type);
+void           _extnbuf_free(Extnbuf *b);
+void          *_extnbuf_data_get(Extnbuf *b, int *w, int *h, int *stride);
+void          *_extnbuf_lock(Extnbuf *b, int *w, int *h, int *stride);
+void           _extnbuf_unlock(Extnbuf *b);
+const char    *_extnbuf_lock_file_get(const Extnbuf *b);
+Eina_Bool      _extnbuf_lock_file_set(Extnbuf *b, const char *file);
+Eina_Bool      _extnbuf_lock_get(const Extnbuf *b);
+Ecore_X_Pixmap _extnbuf_pixmap_get(const Extnbuf *b);
+void           _extnbuf_pixmap_set(Extnbuf *b, Ecore_X_Pixmap pixmap);
 
 // procotol version - change this as needed
 #define MAJOR 0x2011
@@ -76,7 +83,8 @@ enum // opcodes
    OP_EV_KEY_DOWN,
    OP_EV_HOLD,
    OP_MSG_PARENT,
-   OP_MSG
+   OP_MSG,
+   OP_PIXMAP_REF,
 };
 
 enum
@@ -90,6 +98,13 @@ enum
    MOD_CAPS   = (1 << 6),
    MOD_NUM    = (1 << 7),
    MOD_SCROLL = (1 << 8),
+};
+
+enum {
+   BUFFER_TYPE_SHM = 0, /* shared memory-based buffer backend */
+   BUFFER_TYPE_DRI2_PIXMAP,  /* dri2 pixmap-based buffer backend */
+   BUFFER_TYPE_EVASGL_PIXMAP,  /* pixmap backend for Evas GL only (DEPRECATED) */
+   BUFFER_TYPE_GL_PIXMAP,      /* double buffered GL pixmap backend */
 };
 
 typedef struct _Ipc_Data_Resize Ipc_Data_Resize;

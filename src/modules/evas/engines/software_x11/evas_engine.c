@@ -592,6 +592,7 @@ eng_setup(Evas *eo_e, void *in)
                                             info->info.mask, info->info.shape_dither,
                                             info->info.destination_alpha);
                     re->outbuf_alpha_get = evas_software_xlib_outbuf_alpha_get;
+                    re->generic.swap_mode = info->swap_mode;
                  }
           }
 #endif

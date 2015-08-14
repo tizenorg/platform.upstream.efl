@@ -9,6 +9,16 @@ typedef enum
 
 typedef struct _Evas_Engine_Info_Software_X11 Evas_Engine_Info_Software_X11;
 
+typedef enum _Evas_Engine_Info_Software_X11_Swap_Mode
+{
+   EVAS_ENGINE_SOFTWARE_X11_SWAP_MODE_FULL      = 0,
+   EVAS_ENGINE_SOFTWARE_X11_SWAP_MODE_COPY      = 1,
+   EVAS_ENGINE_SOFTWARE_X11_SWAP_MODE_DOUBLE    = 2,
+   EVAS_ENGINE_SOFTWARE_X11_SWAP_MODE_TRIPLE    = 3,
+   EVAS_ENGINE_SOFTWARE_X11_SWAP_MODE_QUADRUPLE = 4,
+   EVAS_ENGINE_SOFTWARE_X11_SWAP_MODE_AUTO      = 5
+} Evas_Engine_Info_Software_X11_Swap_Mode;
+
 struct _Evas_Engine_Info_Software_X11
 {
    /* PRIVATE - don't mess with this baby or evas will poke its tongue out */
@@ -44,6 +54,7 @@ struct _Evas_Engine_Info_Software_X11
      } func;
 
    unsigned char mask_changed : 1;
+   unsigned char swap_mode : 4; // what swap mode to assume
 
    /* non-blocking or blocking mode */
    Evas_Engine_Render_Mode render_mode;

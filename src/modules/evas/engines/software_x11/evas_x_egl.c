@@ -18,6 +18,7 @@
 #include "evas_x_egl.h"
 
 #define EGL_SURFACE_TYPE                0x3033
+#define EGL_PIXMAP_BIT                  0x0002
 #define EGL_WINDOW_BIT                  0x0004
 #define EGL_RENDERABLE_TYPE             0x3040
 #define EGL_ALPHA_SIZE                  0x3021

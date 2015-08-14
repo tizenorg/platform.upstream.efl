@@ -65,7 +65,7 @@ Evas_GL_Preload glsym_evas_gl_preload_shutdown = NULL;
 EVGL_Engine_Call glsym_evgl_engine_shutdown = NULL;
 EVGL_Native_Surface_Call glsym_evgl_native_surface_buffer_get = NULL;
 EVGL_Native_Surface_Yinvert_Call glsym_evgl_native_surface_yinvert_get = NULL;
-EVGL_Direct_Rendered glsym_evgl_direct_rendered = NULL;
+EVGL_Current_Native_Context_Get_Call glsym_evgl_current_native_context_get = NULL;
 Evas_Gl_Symbols glsym_evas_gl_symbols = NULL;
 
 Evas_GL_Common_Context_New glsym_evas_gl_common_context_new = NULL;
@@ -212,7 +212,7 @@ evgl_eng_evas_surface_get(void *data)
 
 #ifdef GL_GLES
    if (eng_get_ob(re))
-      return (void*)eng_get_ob(re)->egl_surface[0];
+      return (void*)eng_get_ob(re)->egl_surface[eng_get_ob(re)->offscreen];
 #else
    if (eng_get_ob(re))
       return (void*)eng_get_ob(re)->win;
@@ -1324,7 +1324,7 @@ gl_symbols(void)
    LINK2GENERIC(evgl_engine_shutdown);
    LINK2GENERIC(evgl_native_surface_buffer_get);
    LINK2GENERIC(evgl_native_surface_yinvert_get);
-   LINK2GENERIC(evgl_direct_rendered);
+   LINK2GENERIC(evgl_current_native_context_get);
    LINK2GENERIC(evas_gl_symbols);
    LINK2GENERIC(evas_gl_common_error_get);
    LINK2GENERIC(evas_gl_common_error_set);
@@ -1693,6 +1693,7 @@ eng_setup(Evas *eo_e, void *in)
         ob = eng_window_new(info, eo_e,
                             info->info.display,
                             info->info.drawable,
+                            info->info.drawable_back,
                             info->info.screen,
                             info->info.visual,
                             info->info.colormap,
@@ -1765,6 +1766,7 @@ eng_setup(Evas *eo_e, void *in)
           {
              if ((info->info.display != eng_get_ob(re)->disp) ||
                  (info->info.drawable != eng_get_ob(re)->win) ||
+                 (info->info.drawable_back != eng_get_ob(re)->win_back) ||
                  (info->info.screen != eng_get_ob(re)->screen) ||
                  (info->info.visual != eng_get_ob(re)->visual) ||
                  (info->info.colormap != eng_get_ob(re)->colormap) ||
@@ -1777,12 +1779,15 @@ eng_setup(Evas *eo_e, void *in)
                   Outbuf *ob, *ob_old;
 
                   ob_old = re->generic.software.ob;
+                  ob_old->gl_context->references++;
+                  if (ob_old) eng_window_free(ob_old);
                   re->generic.software.ob = NULL;
                   gl_wins--;
 
                   ob = eng_window_new(info, eo_e,
                                       info->info.display,
                                       info->info.drawable,
+                                      info->info.drawable_back,
                                       info->info.screen,
                                       info->info.visual,
                                       info->info.colormap,
@@ -1797,16 +1802,16 @@ eng_setup(Evas *eo_e, void *in)
                                       info->msaa_bits);
                   if (!ob)
                     {
-                       if (ob_old) eng_window_free(ob_old);
                        free(re);
                        return 0;
                     }
                   eng_window_use(ob);
-                  if (ob_old) eng_window_free(ob_old);
                   evas_render_engine_software_generic_update(&re->generic.software, ob,
                                                              e->output.w, e->output.h);
+                  eng_get_ob(re)->offscreen = info->info.offscreen;
 
                   gl_wins++;
+                  ob->gl_context->references--;
                }
              else if ((eng_get_ob(re)->w != e->output.w) ||
                       (eng_get_ob(re)->h != e->output.h) ||
@@ -1819,6 +1824,12 @@ eng_setup(Evas *eo_e, void *in)
                   if (re->generic.software.tb)
                     evas_common_tilebuf_set_tile_size(re->generic.software.tb,
                                                       EVAS_GL_UPDATE_TILE_SIZE, EVAS_GL_UPDATE_TILE_SIZE);
+               }
+             else if ((info->info.drawable_back) &&
+                      (info->info.offscreen != eng_get_ob(re)->offscreen))
+               {
+                  eng_get_ob(re)->offscreen = info->info.offscreen;
+                  eng_window_use(eng_get_ob(re));
                }
           }
      }
@@ -1912,7 +1923,7 @@ eng_preload_make_current(void *data, void *doit)
    if (doit)
      {
 #ifdef GL_GLES
-        if (!eglMakeCurrent(ob->egl_disp, ob->egl_surface[0], ob->egl_surface[0], ob->egl_context[0]))
+        if (!eglMakeCurrent(ob->egl_disp, ob->egl_surface[ob->offscreen], ob->egl_surface[ob->offscreen], ob->egl_context[0]))
           return EINA_FALSE;
 #else
         if (!__glXMakeContextCurrent(ob->info->info.display, ob->glxwin, ob->context))
@@ -1971,16 +1982,13 @@ eng_gl_current_context_get(void *data EINA_UNUSED)
    if (!ctx)
      return NULL;
 
-   context = ctx->context;
+   context = glsym_evgl_current_native_context_get(ctx);
 
 #ifdef GL_GLES
-   if ((ctx->pixmap_image_supported) && (!glsym_evgl_direct_rendered()))
-      context = ctx->indirect_context;
-
    if (eglGetCurrentContext() == context)
-      return ctx;
+     return ctx;
 #else
-   if (glXGetCurrentContext() == (ctx->context))
+   if (glXGetCurrentContext() == context)
      return ctx;
 #endif
 

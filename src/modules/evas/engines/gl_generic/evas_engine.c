@@ -844,7 +844,7 @@ eng_image_data_preload_request(void *data, void *image, const Eo *target)
 
         re->window_use(re->software.ob);
         gl_context = re->window_gl_context_get(re->software.ob);
-        gim->tex = evas_gl_common_texture_new(gl_context, gim->im);
+        gim->tex = evas_gl_common_texture_new(gl_context, gim->im, EINA_FALSE);
      }
    evas_gl_preload_target_register(gim->tex, (Eo*) target);
 }
@@ -1207,12 +1207,14 @@ eng_gl_surface_destroy(void *data, void *surface)
 }
 
 static void *
-eng_gl_context_create(void *data, void *share_context, int version)
+eng_gl_context_create(void *data, void *share_context, int version,
+                      void *(*native_context_get)(void *),
+                      void *(*engine_data_get)(void *))
 {
    EVGL_Context  *sctx = (EVGL_Context *)share_context;
 
    EVGLINIT(data, NULL);
-   return evgl_context_create(data, sctx, version);
+   return evgl_context_create(data, sctx, version, native_context_get, engine_data_get);
 }
 
 static int
@@ -1375,10 +1377,21 @@ eng_gl_get_pixels_set(void *data, void *get_pixels, void *get_pixels_data, void 
 {
    Render_Engine_GL_Generic *re = data;
 
-   EVGLINIT(data, );
    re->func.get_pixels = get_pixels;
    re->func.get_pixels_data = get_pixels_data;
    re->func.obj = (Evas_Object*)obj;
+}
+
+static void
+eng_gl_get_pixels_pre(void *data EINA_UNUSED)
+{
+   evgl_get_pixels_pre();
+}
+
+static void
+eng_gl_get_pixels_post(void *data EINA_UNUSED)
+{
+   evgl_get_pixels_post();
 }
 
 static Eina_Bool
@@ -1835,7 +1848,8 @@ eng_context_clip_image_unset(void *data EINA_UNUSED, void *context)
 }
 
 static void
-eng_context_clip_image_set(void *data, void *context, void *surface, int x, int y)
+eng_context_clip_image_set(void *data, void *context, void *surface, int x, int y,
+                           Evas_Public_Data *evas, Eina_Bool do_async)
 {
    RGBA_Draw_Context *ctx = context;
    Evas_GL_Image *im = surface;
@@ -1852,6 +1866,10 @@ eng_context_clip_image_set(void *data, void *context, void *surface, int x, int 
    ctx->clip.mask = surface;
    ctx->clip.mask_x = x;
    ctx->clip.mask_y = y;
+
+   // useless in gl since the engines are sync only
+   ctx->clip.evas = evas;
+   ctx->clip.async = do_async;
 
    if (im)
      {
@@ -2273,6 +2291,8 @@ module_open(Evas_Module *em)
    ORD(gl_direct_override_get);
    ORD(gl_surface_direct_renderable_get);
    ORD(gl_get_pixels_set);
+   ORD(gl_get_pixels_pre);
+   ORD(gl_get_pixels_post);
    ORD(gl_surface_lock);
    ORD(gl_surface_read_pixels);
    ORD(gl_surface_unlock);

@@ -3956,9 +3956,14 @@ skip:
 
              if (cur_fi)
                {
+                  // TIZEN_ONLY(20150813): Add glyphs shaping exception with checking language script.
+                  //ENFN->font_text_props_info_create(ENDT,
+                  //      cur_fi, str, &ti->text_props, c->par->bidi_props,
+                  //      ti->parent.text_pos, run_len, EVAS_TEXT_PROPS_MODE_SHAPE);
                   ENFN->font_text_props_info_create(ENDT,
                         cur_fi, str, &ti->text_props, c->par->bidi_props,
-                        ti->parent.text_pos, run_len, EVAS_TEXT_PROPS_MODE_SHAPE);
+                        ti->parent.text_pos, run_len, EVAS_TEXT_PROPS_MODE_CHECK(script));
+                  //
                }
 
              while ((queue->start + queue->off) < (run_start + run_len))
@@ -4465,9 +4470,14 @@ _layout_ellipsis_item_new(Ctxt *c, const Evas_Object_Textblock_Item *cur_it)
               ellip_ti->parent.format->font.font, &script_fi, &cur_fi,
               script, _ellip_str, len);
 
+        // TIZEN_ONLY(20150813): Add glyphs shaping exception with checking language script.
+        //ENFN->font_text_props_info_create(ENDT,
+        //      cur_fi, _ellip_str, &ellip_ti->text_props,
+        //      c->par->bidi_props, ellip_ti->parent.text_pos, len, EVAS_TEXT_PROPS_MODE_CHECK(script));
         ENFN->font_text_props_info_create(ENDT,
               cur_fi, _ellip_str, &ellip_ti->text_props,
-              c->par->bidi_props, ellip_ti->parent.text_pos, len, EVAS_TEXT_PROPS_MODE_SHAPE);
+              c->par->bidi_props, ellip_ti->parent.text_pos, len, EVAS_TEXT_PROPS_MODE_CHECK(script));
+        //
      }
 
    _text_item_update_sizes(c, ellip_ti);
@@ -11197,6 +11207,7 @@ evas_textblock_cursor_range_simple_geometry_get(const Evas_Textblock_Cursor *cur
         Evas_Coord w;
         Evas_Textblock_Cursor *tc;
         Evas_Textblock_Rectangle *tr;
+        Evas_Coord cy;
 
         if (ln1->items)
           {
@@ -11212,20 +11223,45 @@ evas_textblock_cursor_range_simple_geometry_get(const Evas_Textblock_Cursor *cur
         rects = _evas_textblock_cursor_range_in_line_geometry_get(ln1, cur1, NULL);
 
         /* Extend selection rectangle in first line */
+        evas_textblock_cursor_pen_geometry_get(cur1, NULL, &cy, NULL, NULL);
         tc = evas_object_textblock_cursor_new(cur1->obj);
         evas_textblock_cursor_copy(cur1, tc);
         evas_textblock_cursor_line_char_last(tc);
         tr = calloc(1, sizeof(Evas_Textblock_Rectangle));
         evas_textblock_cursor_pen_geometry_get(tc, &tr->x, &tr->y, &tr->w, &tr->h);
-        if (ln1->par->direction == EVAS_BIDI_DIRECTION_RTL)
+        // TIZEN ONLY (20150813): handle wrapping case
+        if (tr->y == cy)
           {
-             tr->w = tr->x + tr->w - rm;
-             tr->x = lm;
+             if (ln1->par->direction == EVAS_BIDI_DIRECTION_RTL)
+               {
+                  tr->w = tr->x + tr->w - rm;
+                  tr->x = lm;
+               }
+             else
+               {
+                  tr->w = w - tr->x - rm;
+               }
           }
         else
           {
-             tr->w = w - tr->x - rm;
+             Evas_Textblock_Rectangle *lr = eina_list_last_data_get(rects);
+             if (lr)
+               {
+                  if (ln1->par->direction == EVAS_BIDI_DIRECTION_RTL)
+                    {
+                       tr->x = lm;
+                       tr->w = lr->x - tr->x;
+                    }
+                  else
+                    {
+                       tr->x = lr->x + lr->w;
+                       tr->w = w - tr->x - rm;
+                    }
+                  tr->y = lr->y;
+                  tr->h = ln1->h;
+               }
           }
+        //
         rects = eina_list_append(rects, tr);
         evas_textblock_cursor_free(tc);
 

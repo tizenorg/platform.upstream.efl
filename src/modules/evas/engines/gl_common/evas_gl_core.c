@@ -20,6 +20,7 @@ int _evas_gl_log_level = -1;
 
 typedef void           *(*glsym_func_void_ptr) ();
 glsym_func_void_ptr glsym_evas_gl_native_context_get = NULL;
+glsym_func_void_ptr glsym_evas_gl_engine_data_get = NULL;
 
 static void _surface_cap_print(int error);
 static void _surface_context_list_print();
@@ -1499,46 +1500,43 @@ evas_gl_common_current_context_get(void)
      return rsc->current_ctx;
 }
 
+EAPI void *
+evgl_current_native_context_get(EVGL_Context *ctx)
+{
+   EVGLNative_Context context;
+
+   if (!ctx)
+     return NULL;
+
+   context = ctx->context;
+
+   if ((ctx->pixmap_image_supported) && evgl_direct_rendered())
+     context = ctx->indirect_context;
+
+   return context;
+}
+
 int
 _evgl_not_in_pixel_get(void)
 {
    EVGL_Resource *rsc;
+   EVGL_Context *ctx;
 
-   if (!(rsc=_evgl_tls_resource_get())) return 1;
-
-   EVGL_Context *ctx = rsc->current_ctx;
-
-   if (evgl_engine->direct_force_off)
-     return 0;
+   if (!(rsc=_evgl_tls_resource_get()))
+     return 1;
 
    if (rsc->id != evgl_engine->main_tid)
      return 0;
 
+   ctx = rsc->current_ctx;
    if (!ctx || !ctx->current_sfc)
      return 0;
 
+   // if indirect rendering, we don't care. eg. elm_glview's init cb
    if (!ctx->current_sfc->direct_fb_opt)
      return 0;
 
-   if (rsc->direct.rot == 0)
-     return !rsc->direct.enabled;
-
-   if (!ctx->current_sfc->client_side_rotation)
-     return 0;
-
-   return !rsc->direct.enabled;
-
-   /* was:
-   if ((!evgl_engine->direct_force_off) &&
-       (rsc->id == evgl_engine->main_tid) &&
-       (ctx) &&
-       (ctx->current_sfc) &&
-       (ctx->current_sfc->direct_fb_opt) &&
-       (!rsc->direct.enabled))
-      return 1;
-   else
-      return 0;
-   */
+   return !rsc->direct.in_get_pixels;
 }
 
 int
@@ -1595,7 +1593,19 @@ _evgl_native_context_get(Evas_GL_Context *ctx)
 
    evglctx = glsym_evas_gl_native_context_get(ctx);
    if (!evglctx) return NULL;
-   return evglctx->context;
+   return evgl_current_native_context_get(evglctx);
+}
+
+void *
+_evgl_engine_data_get(Evas_GL *evasgl)
+{
+   if (!glsym_evas_gl_engine_data_get)
+     {
+        ERR("Engine can't get a pointer to the native display");
+        return NULL;
+     }
+
+   return glsym_evas_gl_engine_data_get(evasgl);
 }
 
 //---------------------------------------------------------------//
@@ -1660,9 +1670,6 @@ evgl_engine_init(void *eng_data, const EVGL_Interface *efunc)
         goto error;
      }
    DBG("TLS KEY created: %d", evgl_engine->resource_key);
-
-   // Link to evas_gl.c (this doesn't look great)
-   glsym_evas_gl_native_context_get = dlsym(RTLD_DEFAULT, "_evas_gl_native_context_get");
 
    evgl_engine->safe_extensions = eina_hash_string_small_new(NULL);
 
@@ -2087,10 +2094,16 @@ ret_success:
 
 void *
 evgl_context_create(void *eng_data, EVGL_Context *share_ctx,
-                    Evas_GL_Context_Version version)
+                    Evas_GL_Context_Version version,
+                    void *(*native_context_get)(void *),
+                    void *(*engine_data_get)(void *))
 {
    EVGL_Context *ctx   = NULL;
    EVGL_Resource *rsc  = NULL;
+
+   // A little bit ugly. But it works even when dlsym(DEFAULT) doesn't work.
+   glsym_evas_gl_native_context_get = native_context_get;
+   glsym_evas_gl_engine_data_get = engine_data_get;
 
    // Check the input
    if (!evgl_engine)
@@ -2667,8 +2680,8 @@ evgl_native_surface_get(EVGL_Surface *sfc, Evas_Native_Surface *ns)
    return 1;
 }
 
-EAPI int
-evgl_direct_rendered()
+int
+evgl_direct_rendered(void)
 {
    EVGL_Resource *rsc;
 
@@ -2774,13 +2787,33 @@ evgl_direct_info_set(int win_w, int win_h, int rot,
 }
 
 void
-evgl_direct_info_clear()
+evgl_direct_info_clear(void)
 {
    EVGL_Resource *rsc;
 
    if (!(rsc=_evgl_tls_resource_get())) return;
 
    rsc->direct.enabled = EINA_FALSE;
+}
+
+void
+evgl_get_pixels_pre(void)
+{
+   EVGL_Resource *rsc;
+
+   if (!(rsc=_evgl_tls_resource_get())) return;
+
+   rsc->direct.in_get_pixels = EINA_TRUE;
+}
+
+void
+evgl_get_pixels_post(void)
+{
+   EVGL_Resource *rsc;
+
+   if (!(rsc=_evgl_tls_resource_get())) return;
+
+   rsc->direct.in_get_pixels = EINA_FALSE;
 }
 
 Evas_GL_API *
@@ -2826,7 +2859,7 @@ evgl_direct_partial_info_set(int pres)
 }
 
 void
-evgl_direct_partial_info_clear()
+evgl_direct_partial_info_clear(void)
 {
    EVGL_Resource *rsc;
 
@@ -2844,7 +2877,7 @@ evgl_direct_override_get(int *override, int *force_off)
 }
 
 void
-evgl_direct_partial_render_start()
+evgl_direct_partial_render_start(void)
 {
    EVGL_Resource *rsc;
 
@@ -2865,7 +2898,7 @@ evgl_direct_partial_render_start()
 }
 
 void
-evgl_direct_partial_render_end()
+evgl_direct_partial_render_end(void)
 {
    EVGL_Context *ctx;
    ctx = evas_gl_common_current_context_get();

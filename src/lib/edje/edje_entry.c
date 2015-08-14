@@ -3956,7 +3956,10 @@ _edje_entry_cursor_pos_set(Edje_Real_Part *rp, Edje_Cursor cur, int pos)
    _edje_emit(en->ed, "cursor,changed", rp->part->name);
    if (!en->freeze)
      {
-        _edje_entry_imf_cursor_info_set(en);
+        if (!en->have_selection)
+          {
+             _edje_entry_imf_cursor_info_set(en);
+          }
         _edje_entry_real_part_configure(en->ed, rp);
      }
    //

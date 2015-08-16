@@ -162,7 +162,7 @@ evas_object_vg_render(Evas_Object *eo_obj EINA_UNUSED,
 {
    Evas_VG_Data *vd = type_private_data;
 
-   if (vd->content_changed)
+   if (vd->content_changed || !vd->backing_store)
      vd->backing_store = obj->layer->evas->engine.func->ector_surface_create(output,
                                                                              vd->backing_store,
                                                                              obj->cur->geometry.w,

@@ -140,21 +140,29 @@ _extnbuf_new(const char *base, int id, Eina_Bool sys, int num,
         b->file = eina_stringshare_add(file);
         if (!b->file) goto err;
 
-        if (sys) mode |= S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+        if (sys) mode |= S_IRGRP | S_IROTH;
+
+        if (owner)
+          {
+             mode |= S_IWUSR;
+             prot |= PROT_WRITE;
+          }
 
         if (b->am_owner)
           {
-             b->fd = shm_open(b->file, O_RDWR | O_CREAT | O_EXCL, mode);
+             //TIZEN ONLY (150702): support indicator_shm in efl-extension
+             //b->fd = shm_open(b->file, O_RDWR | O_CREAT | O_EXCL, mode);
+             b->fd = shm_open(b->file, O_RDWR | O_CREAT, mode);
+             //
              if (b->fd < 0) goto err;
              if (ftruncate(b->fd, b->size) < 0) goto err;
           }
         else
           {
-             b->fd = shm_open(b->file, O_RDWR, mode);
+             b->fd = shm_open(b->file, O_RDONLY, mode);
              if (b->fd < 0) goto err;
           }
-        b->addr = mmap(NULL, b->size, PROT_READ | PROT_WRITE, MAP_SHARED,
-                       b->fd, 0);
+        b->addr = mmap(NULL, b->size, prot, MAP_SHARED, b->fd, 0);
         if (b->addr == MAP_FAILED) goto err;
      }
    else if (b->type == BUFFER_TYPE_DRI2_PIXMAP)

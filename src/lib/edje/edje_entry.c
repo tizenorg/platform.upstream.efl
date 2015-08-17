@@ -4126,6 +4126,9 @@ _edje_entry_imf_cursor_info_set(Entry *en)
 }
 
 #ifdef HAVE_ECORE_IMF
+// TIZEN_ONLY (20150814): Pass correct cursor position and correct text to imf when selection is there
+// FIXME: Need to be pushed in upstream
+/*
 static Eina_Bool
 _edje_entry_imf_retrieve_surrounding_cb(void *data, Ecore_IMF_Context *ctx EINA_UNUSED, char **text, int *cursor_pos)
 {
@@ -4174,7 +4177,74 @@ _edje_entry_imf_retrieve_surrounding_cb(void *data, Ecore_IMF_Context *ctx EINA_
      }
 
    return EINA_TRUE;
+}*/
+
+static Eina_Bool
+_edje_entry_imf_retrieve_surrounding_cb(void *data, Ecore_IMF_Context *ctx EINA_UNUSED, char **text, int *cursor_pos)
+{
+   Edje *ed = data;
+   Edje_Real_Part *rp = ed->focused_part;
+   Entry *en = NULL;
+   const char *str;
+   char *plain_text;
+   Eina_Strbuf *buf = NULL;
+
+   if (!rp) return EINA_FALSE;
+   if ((rp->type != EDJE_RP_TYPE_TEXT) ||
+       (!rp->typedata.text)) return EINA_FALSE;
+   else
+     en = rp->typedata.text->entry_data;
+   if ((!en) || (rp->part->type != EDJE_PART_TYPE_TEXTBLOCK) ||
+       (rp->part->entry_mode < EDJE_ENTRY_EDIT_MODE_SELECTABLE))
+     return EINA_FALSE;
+
+   if (text)
+     {
+        str = _edje_entry_text_get(rp);
+        if (str)
+          {
+             plain_text = evas_textblock_text_markup_to_utf8(NULL, str);
+
+             if (plain_text)
+               {
+                  if (en->have_selection)
+                    {
+                       buf = eina_strbuf_new();
+
+                       if (en->sel_start)
+                         eina_strbuf_append_n(buf, plain_text, evas_textblock_cursor_pos_get(en->sel_start));
+                       else
+                         eina_strbuf_append(buf, plain_text);
+
+                       *text = strdup(eina_strbuf_string_get(buf));
+                       eina_strbuf_free(buf);
+                    }
+                  else
+                    *text = strdup(plain_text);
+
+                  free(plain_text);
+                  plain_text = NULL;
+               }
+             else
+               *text = strdup("");
+          }
+        else
+          *text = strdup("");
+     }
+
+   if (cursor_pos)
+     {
+        if (en->have_selection && en->sel_start)
+          *cursor_pos = evas_textblock_cursor_pos_get(en->sel_start);
+        else if (en->cursor)
+          *cursor_pos = evas_textblock_cursor_pos_get(en->cursor);
+        else
+          *cursor_pos = 0;
+     }
+
+   return EINA_TRUE;
 }
+//
 
 static void
 _edje_entry_imf_event_commit_cb(void *data, Ecore_IMF_Context *ctx EINA_UNUSED, void *event_info)

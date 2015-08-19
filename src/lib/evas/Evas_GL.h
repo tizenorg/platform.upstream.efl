@@ -3519,6 +3519,7 @@ typedef struct __GLsync*   GLsync;
 #ifndef __gl3_h_
 # define __gl3_h_ 1
 
+#define GL_ES_VERSION_3_0 1
 
 #define GL_READ_BUFFER                    0x0C02
 #define GL_UNPACK_ROW_LENGTH              0x0CF2

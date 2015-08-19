@@ -5,7 +5,7 @@
 static int blank = 0x00000000;
 static const char *interface_extn_name = "extn";
 static const int   interface_extn_version = 1;
-
+static Eina_List *visible_clients;
 static Ecore_Evas_Interface_Extn *_ecore_evas_extn_interface_new(void);
 static void *_ecore_evas_socket_switch(void *data, void *dest_buf);
 
@@ -1805,6 +1805,8 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
       case OP_SHOW:
          if (!ee->visible)
            {
+              if (!eina_list_data_find(visible_clients, e->client))
+                visible_clients = eina_list_append(visible_clients,e->client);
               ee->prop.withdrawn = EINA_FALSE;
               if (ee->func.fn_state_change) ee->func.fn_state_change(ee);
               ee->visible = 1;
@@ -1814,10 +1816,21 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
       case OP_HIDE:
          if (ee->visible)
            {
-              ee->prop.withdrawn = EINA_TRUE;
-              if (ee->func.fn_state_change) ee->func.fn_state_change(ee);
-              ee->visible = 0;
-              if (ee->func.fn_hide) ee->func.fn_hide(ee);
+              Ecore_Ipc_Client *client;
+              Eina_List *l;
+              EINA_LIST_FOREACH(visible_clients, l, client)
+                 if (client == e->client)
+                   {
+                      visible_clients = eina_list_remove(visible_clients, client);
+                      break;
+                   }
+              if (!eina_list_count(visible_clients))
+                {
+                   ee->prop.withdrawn = EINA_TRUE;
+                   if (ee->func.fn_state_change) ee->func.fn_state_change(ee);
+                   ee->visible = 0;
+                   if (ee->func.fn_hide) ee->func.fn_hide(ee);
+                }
            }
          break;
       case OP_FOCUS:

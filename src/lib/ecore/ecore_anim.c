@@ -60,7 +60,14 @@ struct _Ecore_Animator_Data
    Eina_Bool         just_added : 1;
 };
 
+struct _Ecore_Anim_Noti_Data
+{
+   double tim;
+   int update_flag;
+} ;
+
 typedef struct _Ecore_Animator_Data Ecore_Animator_Data;
+typedef struct _Ecore_Anim_Noti_Data Ecore_Anim_Noti_Data;
 
 static Eina_Bool _do_tick(void);
 static Eina_Bool _ecore_animator_run(void *data);
@@ -94,14 +101,16 @@ _tick_send(char val)
 }
 
 static void
-_timer_send_time(double t)
+_timer_send_time(double t, int update)
 {
-   double *tim = malloc(sizeof(*tim));
-   if (tim)
+   //TIZEN_ONLY
+   Ecore_Anim_Noti_Data* anim_noti = malloc(sizeof(Ecore_Anim_Noti_Data));
+   if (anim_noti)
      {
-        *tim = t;
+        anim_noti->tim = t;
+        anim_noti->update_flag = update;
         DBG("   ... send %1.8f", t);
-        ecore_thread_feedback(timer_thread, tim);
+        ecore_thread_feedback(timer_thread, anim_noti);
      }
 }
 
@@ -149,11 +158,11 @@ _timer_tick_core(void *data EINA_UNUSED, Ecore_Thread *thread)
              DBG("tick = %i", tick);
              if (tick == -1) goto done;
              else if (immediately_send && tick == 1) //TIZEN_ONLY
-                _timer_send_time(t0 - d + animators_frametime);
+               _timer_send_time(t0 - d + animators_frametime, 0);
           }
         else
           {
-             if (tick) _timer_send_time(t0 - d + animators_frametime);
+             if (tick) _timer_send_time(t0 - d + animators_frametime, 1);
           }
      }
 done:
@@ -166,16 +175,19 @@ done:
 static void
 _timer_tick_notify(void *data EINA_UNUSED, Ecore_Thread *thread EINA_UNUSED, void *msg)
 {
-   DBG("notify.... %3.3f %i", *((double *)msg), timer_event_is_busy);
-   if (timer_event_is_busy)
+   // TIZEN_ONLY
+   Ecore_Anim_Noti_Data *anim_noti = (Ecore_Anim_Noti_Data*)msg;
+   if (anim_noti) DBG("notify.... %3.3f %i", anim_noti->tim, timer_event_is_busy);
+   if (timer_event_is_busy && anim_noti)
      {
-        double *t = msg;
         static double pt = 0.0;
 
-        DBG("VSYNC %1.8f = delt %1.8f", *t, *t - pt);
-        ecore_loop_time_set(*t);
+        DBG("VSYNC %1.8f = delt %1.8f", anim_noti->tim, anim_noti->tim - pt);
+        if (anim_noti->update_flag)
+           ecore_loop_time_set(anim_noti->tim);
+
         _do_tick();
-        pt = *t;
+        pt = anim_noti->tim;
      }
    free(msg);
 }

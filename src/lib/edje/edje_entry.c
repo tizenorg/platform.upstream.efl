@@ -2977,6 +2977,11 @@ _edje_entry_select_none(Edje_Real_Part *rp)
    en = rp->typedata.text->entry_data;
    if (!en) return;
    _sel_clear(en->ed, en->cursor, rp->object, en);
+   //TIZEN_ONLY (20150821): Selection is being handled in elm so on mouse up
+   //selection is clear so cursor info is not sent to imf,
+   //h/w mouse does not need this.
+   _edje_entry_imf_cursor_info_set(en);
+   //
 }
 
 void

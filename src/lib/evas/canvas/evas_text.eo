@@ -409,6 +409,15 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             return: Evas_Coord;
          }
       }
+      horiz_advance_without_ellipsis {
+         get {
+            /*@
+            // TIZEN_ONLY(20150821): Add evas_object_text_horiz_advance_without_ellipsis_get() internal API.
+            @internal
+             */
+            return: Evas_Coord;
+         }
+      }
       inset {
          get {
             return: Evas_Coord;

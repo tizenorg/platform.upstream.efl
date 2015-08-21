@@ -1084,6 +1084,19 @@ _evas_text_inset_get(Eo *eo_obj, Evas_Text_Data *o)
    return inset;
 }
 
+// TIZEN_ONLY(20150821): Add evas_object_text_horiz_advance_without_ellipsis_get() internal API.
+EOLIAN static Evas_Coord
+_evas_text_horiz_advance_without_ellipsis_get(Eo *eo_obj EINA_UNUSED, Evas_Text_Data *o)
+{
+   Evas_Coord horiz = 0;
+   if (!o->font) return horiz;
+   if (!o->items) return horiz;
+   horiz = _evas_object_text_horiz_advance_without_ellipsis_get(o);
+
+   return horiz;
+}
+//
+
 EOLIAN static Evas_Coord
 _evas_text_horiz_advance_get(Eo *eo_obj EINA_UNUSED, Evas_Text_Data *o)
 {

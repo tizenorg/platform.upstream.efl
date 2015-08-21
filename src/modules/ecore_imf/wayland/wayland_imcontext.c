@@ -88,6 +88,8 @@ struct _WaylandIMContext
    uint32_t content_purpose;
    uint32_t content_hint;
    uint32_t return_key_type;
+
+   Eina_Bool return_key_disabled;
 };
 
 // TIZEN_ONLY(20150708): Support back key
@@ -397,6 +399,9 @@ show_input_panel(Ecore_IMF_Context *ctx)
 
         wl_text_input_set_return_key_type(imcontext->text_input,
                                           imcontext->return_key_type);
+
+        wl_text_input_set_return_key_disabled(imcontext->text_input,
+                                              imcontext->return_key_disabled);
      }
 
    return EINA_TRUE;
@@ -1100,6 +1105,15 @@ wayland_im_context_input_panel_return_key_type_set(Ecore_IMF_Context *ctx,
    WaylandIMContext *imcontext = (WaylandIMContext *)ecore_imf_context_data_get(ctx);
 
    imcontext->return_key_type = return_key_type;
+}
+
+EAPI void
+wayland_im_context_input_panel_return_key_disabled_set(Ecore_IMF_Context *ctx,
+                                                       Eina_Bool disabled)
+{
+   WaylandIMContext *imcontext = (WaylandIMContext *)ecore_imf_context_data_get(ctx);
+
+   imcontext->return_key_disabled = disabled;
 }
 
 EAPI void

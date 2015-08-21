@@ -395,6 +395,10 @@ struct _Evas_Object_Textblock_Line
    Evas_Coord                         x, y, w, h;  /**< Text block line co-ordinates. */
    int                                baseline;  /**< Baseline of the textblock. */
    int                                line_no;  /**< Line no of this line. */
+   // TIZEN_ONLY(20150821): Use a common line thickness and position at a line.
+   int                                underline_position;  /**< Position of underline. */
+   int                                underline_thickness;  /**< Thickness of underline. */
+   //
 };
 
 typedef enum _Evas_Textblock_Item_Type
@@ -3434,6 +3438,12 @@ _layout_line_finalize(Ctxt *c, Evas_Object_Textblock_Format *fmt)
 #ifdef BIDI_SUPPORT
    _layout_line_reorder(c->ln);
 #endif
+   // TIZEN_ONLY(20150821): Use a common line thickness and position at a line.
+   c->ln->underline_thickness =
+           evas_common_font_instance_underline_thickness_get(NULL);
+   c->ln->underline_position =
+           evas_common_font_instance_underline_position_get(NULL);
+   //
 
    /* Adjust all the item sizes according to the final line size,
     * and update the x positions of all the items of the line. */
@@ -3451,6 +3461,20 @@ _layout_line_finalize(Ctxt *c, Evas_Object_Textblock_Format *fmt)
           {
              Evas_Coord asc = 0, desc = 0;
              Evas_Coord maxasc = 0, maxdesc = 0;
+             // TIZEN_ONLY(20150821): Use a common line thickness and position at a line.
+             int underline_thickness, underline_position;
+             void *fi = _ITEM_TEXT(it)->text_props.font_instance;
+
+             underline_thickness =
+                evas_common_font_instance_underline_thickness_get(fi);
+             underline_position =
+                evas_common_font_instance_underline_position_get(fi);
+             if (underline_thickness > c->ln->underline_thickness)
+               c->ln->underline_thickness = underline_thickness;
+             if (underline_position > c->ln->underline_position)
+               c->ln->underline_position = underline_position;
+             //
+
              _layout_item_ascent_descent_adjust(c->obj, &asc, &desc,
                    it, it->format);
              _layout_item_max_ascent_descent_calc(c->obj, &maxasc, &maxdesc,
@@ -12311,8 +12335,11 @@ evas_object_textblock_render(Evas_Object *eo_obj EINA_UNUSED,
    /* Get the thickness and position, and save them for non-text items. */
    int line_thickness =
            evas_common_font_instance_underline_thickness_get(NULL);
+   // TIZEN_ONLY(20150821): Use a common line thickness and position at a line.
+   /*
    int line_position =
            evas_common_font_instance_underline_position_get(NULL);
+    */
    ENFN->context_multiplier_unset(output, context);
 
    if (obj->cur->clipper)
@@ -12334,25 +12361,42 @@ evas_object_textblock_render(Evas_Object *eo_obj EINA_UNUSED,
              DRAW_TEXT(0, 0);
              line_thickness =
                 evas_common_font_instance_underline_thickness_get(fi);
+             // TIZEN_ONLY(20150821): Use a common line thickness and position at a line.
+             /*
              line_position =
                 evas_common_font_instance_underline_position_get(fi);
+              */
+             //
           }
 
         /* STRIKETHROUGH */
         DRAW_FORMAT(strikethrough, (ln->h / 2), line_thickness);
 
         /* UNDERLINE */
-        DRAW_FORMAT(underline, ln->baseline + line_position, line_thickness);
+        // TIZEN_ONLY(20150821): Use a common line thickness and position at a line.
+        //DRAW_FORMAT(underline, ln->baseline + line_position, line_thickness);
+        DRAW_FORMAT(underline, ln->baseline + ln->underline_position, ln->underline_thickness);
+        //
 
         /* UNDERLINE DASHED */
-        DRAW_FORMAT_DASHED(underline_dash, ln->baseline + line_position,
-                         line_thickness,
+        // TIZEN_ONLY(20150821): Use a common line thickness and position at a line.
+        //DRAW_FORMAT_DASHED(underline_dash, ln->baseline + line_position,
+        //                 line_thickness,
+        //                 itr->format->underline_dash_width,
+        //                 itr->format->underline_dash_gap);
+        DRAW_FORMAT_DASHED(underline_dash, ln->baseline + ln->underline_position,
+                         ln->underline_thickness,
                          itr->format->underline_dash_width,
                          itr->format->underline_dash_gap);
+        //
 
         /* UNDERLINE2 */
-        DRAW_FORMAT(underline2, ln->baseline + line_position + line_thickness +
-              line_position, line_thickness);
+        // TIZEN_ONLY(20150821): Use a common line thickness and position at a line.
+        //DRAW_FORMAT(underline2, ln->baseline + line_position + line_thickness +
+        //      line_position, line_thickness);
+        DRAW_FORMAT(underline2, ln->baseline + ln->underline_position + ln->underline_thickness +
+              ln->underline_position, ln->underline_thickness);
+        //
      }
    ITEM_WALK_END();
    ENFN->context_multiplier_unset(output, context);

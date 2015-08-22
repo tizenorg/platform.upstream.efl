@@ -33,8 +33,6 @@
 extern "C" {
 #endif
 
-#include <Ecore.h>
-
 typedef enum _Ecore_Drm_Evdev_Capabilities
 {
    EVDEV_KEYBOARD = (1 << 0),

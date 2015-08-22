@@ -2725,7 +2725,9 @@ EFL_INTERNAL_DEPEND_PKG([ECORE_INPUT], [ecore])
 EFL_INTERNAL_DEPEND_PKG([ECORE_INPUT], [eo])
 EFL_INTERNAL_DEPEND_PKG([ECORE_INPUT], [eina])
 
-EFL_ADD_LIBS([ECORE_INPUT], [-ludev])
+if test "${have_linux}" = "yes"; then
+   EFL_ADD_LIBS([ECORE_INPUT], [-ludev])
+fi
 ### Checks for header files
 
 ### Checks for types

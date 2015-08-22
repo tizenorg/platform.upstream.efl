@@ -241,6 +241,7 @@ tests/edje/data/test_layout.edc \
 tests/edje/data/test_parens.edc
 
 ### TIZEN_ONLY(20150404): Apply ASLR to executable files.
+if ! HAVE_WIN32
 bin_edje_edje_cc_LDFLAGS = -pie
 bin_edje_edje_cc_CFLAGS = -fPIE
 bin_edje_edje_cc_CPPFLAGS += -fPIE
@@ -268,6 +269,7 @@ bin_edje_edje_watch_CPPFLAGS += -fPIE
 bin_edje_epp_epp_LDFLAGS = -pie
 bin_edje_epp_epp_CFLAGS = -fPIE
 bin_edje_epp_epp_CPPFLAGS += -fPIE
+endif
 
 bin_SCRIPTS += bin/edje/edje_recc
 

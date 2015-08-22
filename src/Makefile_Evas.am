@@ -1334,6 +1334,7 @@ bin_evas_dummy_slave_LDADD = \
 @EVAS_CSERVE2_SLAVE_LIBS@
 
 ### TIZEN_ONLY(20150404): Apply ASLR to executable files.
+if ! HAVE_WIN32
 bin_evas_evas_cserve2_LDFLAGS = -pie
 bin_evas_evas_cserve2_CFLAGS = -fPIE
 bin_evas_evas_cserve2_CPPFLAGS += -fPIE
@@ -1355,6 +1356,7 @@ bin_evas_evas_cserve2_slave_CPPFLAGS += -fPIE
 bin_evas_dummy_slave_LDFLAGS = -pie
 bin_evas_dummy_slave_CFLAGS = -fPIE
 bin_evas_dummy_slave_CPPFLAGS += -fPIE
+endif
 
 endif
 

@@ -73,9 +73,11 @@ endif
 bin_eet_eet_DEPENDENCIES = @USE_EET_INTERNAL_LIBS@
 
 ### TIZEN_ONLY(20150404): Apply ASLR to executable files.
+if ! HAVE_WIN32
 bin_eet_eet_LDFLAGS = -pie
 bin_eet_eet_CFLAGS = -fPIE
 bin_eet_eet_CPPFLAGS += -fPIE
+endif
 
 ### Unit tests
 

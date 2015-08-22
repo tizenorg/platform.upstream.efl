@@ -223,9 +223,11 @@ emotiondatafiles_DATA = tests/emotion/data/theme.edj
 CLEANFILES += tests/emotion/data/theme.edj
 
 ### TIZEN_ONLY(20150404): Apply ASLR to executable files.
+if ! HAVE_WIN32
 tests_emotion_emotion_test_LDFLAGS = -pie
 tests_emotion_emotion_test_CFLAGS = -fPIE
 tests_emotion_emotion_test_CPPFLAGS += -fPIE
+endif
 
 endif
 endif

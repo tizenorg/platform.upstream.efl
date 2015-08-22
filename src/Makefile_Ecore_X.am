@@ -15,9 +15,11 @@ lib_ecore_x_ecore_x_vsync_LDADD = @USE_EINA_LIBS@ @USE_ECORE_LIBS@ @USE_ECORE_CO
 lib_ecore_x_ecore_x_vsync_DEPENDENCIES = @USE_EINA_INTERNAL_LIBS@ @USE_ECORE_INTERNAL_LIBS@ @USE_ECORE_CON_INTERNAL_LIBS@
 
 ### TIZEN_ONLY(20150404): Apply ASLR to executable files.
+if ! HAVE_WIN32
 lib_ecore_x_ecore_x_vsync_LDFLAGS = -pie
 lib_ecore_x_ecore_x_vsync_CFLAGS = -fPIE
 lib_ecore_x_ecore_x_vsync_CPPFLAGS += -fPIE
+endif
 
 ### Library
 

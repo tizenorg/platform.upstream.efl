@@ -57,6 +57,7 @@ bin_ethumb_client_ethumbd_slave_LDADD = $(USE_ETHUMB_CLIENT_BIN_LIBS)
 bin_ethumb_client_ethumbd_slave_DEPENDENCIES = @USE_ETHUMB_CLIENT_INTERNAL_LIBS@ @USE_ETHUMB_INTERNAL_LIBS@
 
 ### TIZEN_ONLY(20150404): Apply ASLR to executable files.
+if ! HAVE_WIN32
 bin_ethumb_client_ethumbd_LDFLAGS = -pie
 bin_ethumb_client_ethumbd_CFLAGS = -fPIE
 bin_ethumb_client_ethumbd_CPPFLAGS += -fPIE
@@ -66,3 +67,4 @@ bin_ethumb_client_ethumbd_client_CPPFLAGS += -fPIE
 bin_ethumb_client_ethumbd_slave_LDFLAGS = -pie
 bin_ethumb_client_ethumbd_slave_CFLAGS = -fPIE
 bin_ethumb_client_ethumbd_slave_CPPFLAGS += -fPIE
+endif

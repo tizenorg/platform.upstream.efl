@@ -245,9 +245,11 @@ bin_ecore_evas_ecore_evas_svg_LDADD = @USE_ECORE_EVAS_LIBS@
 bin_ecore_evas_ecore_evas_svg_DEPENDENCIES = @USE_ECORE_EVAS_INTERNAL_LIBS@
 
 ### TIZEN_ONLY(20150404): Apply ASLR to executable files.
+if ! HAVE_WIN32
 bin_ecore_evas_ecore_evas_convert_LDFLAGS = -pie
 bin_ecore_evas_ecore_evas_convert_CFLAGS = -fPIE
 bin_ecore_evas_ecore_evas_convert_CPPFLAGS += -fPIE
 bin_ecore_evas_ecore_evas_svg_LDFLAGS = -pie
 bin_ecore_evas_ecore_evas_svg_CFLAGS = -fPIE
 bin_ecore_evas_ecore_evas_svg_CPPFLAGS += -fPIE
+endif

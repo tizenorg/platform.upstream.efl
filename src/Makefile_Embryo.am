@@ -61,9 +61,11 @@ endif
 bin_embryo_embryo_cc_DEPENDENCIES = @USE_EMBRYO_INTERNAL_LIBS@
 
 ### TIZEN_ONLY(20150404): Apply ASLR to executable files.
+if ! HAVE_WIN32
 bin_embryo_embryo_cc_LDFLAGS = -pie
 bin_embryo_embryo_cc_CFLAGS = -fPIE
 bin_embryo_embryo_cc_CPPFLAGS += -fPIE
+endif
 
 EXTRA_DIST += \
 bin/embryo/embryo_cc_sc5.scp \

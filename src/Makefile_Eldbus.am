@@ -65,9 +65,11 @@ endif
 bin_eldbus_eldbus_codegen_DEPENDENCIES = @USE_ELDBUS_INTERNAL_LIBS@
 
 ### TIZEN_ONLY(20150404): Apply ASLR to executable files.
+if ! HAVE_WIN32
 bin_eldbus_eldbus_codegen_LDFLAGS = -pie
 bin_eldbus_eldbus_codegen_CFLAGS = -fPIE
 bin_eldbus_eldbus_codegen_CPPFLAGS += -fPIE
+endif
 
 ### Unit tests
 

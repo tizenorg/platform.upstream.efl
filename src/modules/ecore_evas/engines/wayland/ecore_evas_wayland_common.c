@@ -1454,6 +1454,8 @@ _ecore_evas_wl_common_iconified_set(Ecore_Evas *ee, Eina_Bool on)
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!ee) return;
+
+   if (ee->prop.iconified == on) return;
    ee->prop.iconified = on;
 
    wdata = ee->engine.data;

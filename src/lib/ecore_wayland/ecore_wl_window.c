@@ -967,7 +967,12 @@ ecore_wl_window_iconified_set(Ecore_Wl_Window *win, Eina_Bool iconified)
 
    if (iconified)
      {
-        if (win->xdg_surface)
+        if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
+          {
+             tizen_policy_iconify(_ecore_wl_disp->wl.tz_policy, win->surface);
+             win->iconified = EINA_TRUE;
+          }
+        else if (win->xdg_surface)
           {
              xdg_surface_set_minimized(win->xdg_surface);
              win->minimized = iconified;
@@ -979,7 +984,12 @@ ecore_wl_window_iconified_set(Ecore_Wl_Window *win, Eina_Bool iconified)
      }
    else
      {
-        if (win->xdg_surface)
+        if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
+          {
+             tizen_policy_uniconify(_ecore_wl_disp->wl.tz_policy, win->surface);
+             win->iconified = EINA_FALSE;
+          }
+        else if (win->xdg_surface)
           {
              win->type = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
              wl_array_init(&states);
@@ -1005,7 +1015,11 @@ ecore_wl_window_iconified_get(Ecore_Wl_Window *win)
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!win) return EINA_FALSE;
-   return win->minimized;
+
+   if (_ecore_wl_disp->wl.tz_policy)
+     return win->iconified;
+   else
+     return win->minimized;
 }
 
 EAPI Ecore_Wl_Window *

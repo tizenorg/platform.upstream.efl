@@ -30,15 +30,26 @@
 #include <errno.h>
 
 /*--- TIZEN_ONLY : begin ---*/
+#ifdef HAVE_DLOG
 #include <syslog.h>
 
-#ifdef HAVE_DLOG
 # include <dlog.h>
 #  ifdef LOG_TAG
 #   undef LOG_TAG
 #  endif
 # define LOG_TAG "EFL"
 # define _SECURE_LOG
+#else
+#define LOG_CRIT 0
+#define LOG_ERR 1
+#define LOG_WARNING 2
+#define LOG_INFO 3
+#define LOG_DEBUG 4
+static void
+syslog(int priority, const char *fmt, ...)
+{
+   printf("no use syslog\n");
+}
 #endif
 /*--- TIZEN_ONLY : end ---*/
 

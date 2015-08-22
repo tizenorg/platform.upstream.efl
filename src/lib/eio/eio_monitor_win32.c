@@ -389,10 +389,6 @@ void eio_monitor_backend_add(Eio_Monitor *monitor)
 
    backend->watcher_file = _eio_monitor_win32_watcher_new(monitor, current, file, EINA_TRUE, EINA_FALSE);
    if (!backend->watcher_file)
-     goto free_backend;
-
-   backend->watcher_dir = _eio_monitor_win32_watcher_new(monitor, current, file, EINA_FALSE, EINA_FALSE);
-   if (!backend->watcher_dir)
      goto free_backend_file;
 
    backend->watcher_parent = _eio_monitor_win32_watcher_new(monitor, current, file, EINA_FALSE, EINA_TRUE);

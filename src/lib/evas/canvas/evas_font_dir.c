@@ -578,6 +578,7 @@ evas_font_load(Evas *eo_evas, Evas_Font_Description *fdesc, const char *source, 
       wanted_rend |= FONT_REND_WEIGHT;
 
    // TIZEN_ONLY(20150629): get the locale string for language information.
+#ifndef _WIN32
    if (!fdesc->lang)
      {
         char *locale = (char *)setlocale(LC_MESSAGES, NULL);
@@ -585,6 +586,7 @@ evas_font_load(Evas *eo_evas, Evas_Font_Description *fdesc, const char *source, 
         if (locale)
           fdesc->lang = eina_stringshare_add(locale);
      }
+#endif
    //
 
    evas_font_init();

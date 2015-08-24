@@ -318,8 +318,10 @@ typedef struct _Eo_Event_Description Eo_Event_Description;
  *
  * You must use this macro if you want thread safety in class creation.
  */
+// TIZEN ONLY (20150825): Fix undefined eo_base_class build error on windows.
+#ifdef _WIN32
 #define EO_DEFINE_CLASS(class_get_func_name, class_desc, parent_class, ...) \
-EAPI const Eo_Class * \
+__declspec(dllexport) const Eo_Class * \
 class_get_func_name(void) \
 { \
    const Eo_Class *_tmp_parent_class; \
@@ -351,7 +353,42 @@ class_get_func_name(void) \
    eina_spinlock_release(&_eo_class_creation_lock); \
    return _my_class; \
 }
-
+#else
+#define EO_DEFINE_CLASS(class_get_func_name, class_desc, parent_class, ...) \
+__attribute__ ((visibility("default"))) const Eo_Class * \
+class_get_func_name(void) \
+{ \
+   const Eo_Class *_tmp_parent_class; \
+   static volatile char lk_init = 0; \
+   static Eina_Spinlock _my_lock; \
+   static const Eo_Class * volatile _my_class = NULL; \
+   if (EINA_LIKELY(!!_my_class)) return _my_class; \
+   \
+   eina_spinlock_take(&_eo_class_creation_lock); \
+   if (!lk_init) \
+      eina_spinlock_new(&_my_lock); \
+   if (lk_init < 2) eina_spinlock_take(&_my_lock); \
+   if (!lk_init) \
+      lk_init = 1; \
+   else \
+     { \
+        if (lk_init < 2) eina_spinlock_release(&_my_lock); \
+        eina_spinlock_release(&_eo_class_creation_lock); \
+        return _my_class; \
+     } \
+   eina_spinlock_release(&_eo_class_creation_lock); \
+   _tmp_parent_class = parent_class; \
+   _my_class = eo_class_new(class_desc, _tmp_parent_class, __VA_ARGS__); \
+   eina_spinlock_release(&_my_lock); \
+   \
+   eina_spinlock_take(&_eo_class_creation_lock); \
+   eina_spinlock_free(&_my_lock); \
+   lk_init = 2; \
+   eina_spinlock_release(&_eo_class_creation_lock); \
+   return _my_class; \
+}
+#endif
+//
 
 /**
  * An enum representing the possible types of an Eo class.

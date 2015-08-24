@@ -2,6 +2,7 @@
 # include <config.h>
 #endif
 
+#include <assert.h>
 #include <fcntl.h>
 #include "ecore_wl_private.h"
 
@@ -144,8 +145,13 @@ _ecore_wl_init_callback(void *data, struct wl_callback *callback, uint32_t seria
 static void
 _ecore_wl_init_wait(void)
 {
+   int ret;
+
    while (!_ecore_wl_disp->init_done)
-     wl_display_dispatch(_ecore_wl_disp->wl.display);
+     {
+        ret = wl_display_dispatch(_ecore_wl_disp->wl.display);
+        assert(ret != -1);
+     }
 }
 
 EAPI int
@@ -291,10 +297,15 @@ ecore_wl_flush(void)
 EAPI void
 ecore_wl_sync(void)
 {
+   int ret = 0;
    if ((!_ecore_wl_disp) || (!_ecore_wl_disp->wl.display)) return;
    _ecore_wl_sync_wait(_ecore_wl_disp);
-   while (_ecore_wl_disp->sync_ref_count > 0)
-     wl_display_dispatch(_ecore_wl_disp->wl.display);
+   while (_ecore_wl_disp->sync_ref_count > 0 && ret != -1)
+     {
+        ret = wl_display_dispatch(_ecore_wl_disp->wl.display);
+        if (ret == -1)
+          CRI("dispatch failed: %s(%d)", strerror(errno), errno);
+     }
 }
 
 EAPI struct wl_shm *

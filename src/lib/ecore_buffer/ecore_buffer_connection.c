@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "ecore_buffer_connection.h"
 
 struct _Ecore_Buffer_Connection
@@ -169,6 +170,8 @@ _ecore_buffer_connection_consumer_create(const char *name, int queue_size, int w
 void
 _ecore_buffer_connection_init_wait(void)
 {
+   int ret;
+
    if (!_ecore_buffer_connection)
      return;
 
@@ -176,7 +179,10 @@ _ecore_buffer_connection_init_wait(void)
      return;
 
    while (!_ecore_buffer_connection->init_done)
-     wl_display_dispatch(_ecore_buffer_connection->display);
+     {
+        ret = wl_display_dispatch(_ecore_buffer_connection->display);
+        assert(ret != -1);
+     }
 }
 
 static void

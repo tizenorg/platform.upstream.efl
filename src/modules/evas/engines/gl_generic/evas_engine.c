@@ -2109,7 +2109,7 @@ _evas_render_op_to_ector_rop(Evas_Render_Op op)
 }
 
 static void
-eng_ector_renderer_draw(void *data, void *context EINA_UNUSED, void *surface, Ector_Renderer *renderer, Eina_Array *clips EINA_UNUSED, Eina_Bool do_async EINA_UNUSED)
+eng_ector_renderer_draw(void *data, void *context, void *surface, Ector_Renderer *renderer, Eina_Array *clips EINA_UNUSED, Eina_Bool do_async EINA_UNUSED)
 {
    Evas_GL_Image *glimg = surface;
    RGBA_Image *img = glimg->im;
@@ -2123,6 +2123,7 @@ eng_ector_renderer_draw(void *data, void *context EINA_UNUSED, void *surface, Ec
    eina_array_push(c, eina_rectangle_new(0, 0, img->cache_entry.w, img->cache_entry.h));
 
    gc = re->window_gl_context_get(re->software.ob);
+   gc->dc = context;
    eo_do(renderer,
          ector_renderer_draw(_evas_render_op_to_ector_rop(gc->dc->render_op),
                              c,

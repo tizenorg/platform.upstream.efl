@@ -4343,7 +4343,7 @@ _edje_entry_imf_event_preedit_changed_cb(void *data, Ecore_IMF_Context *ctx EINA
    int preedit_start_pos, preedit_end_pos;
    char *preedit_string;
    char *markup_txt = NULL;
-   char *tagname[] = {NULL, "preedit", "preedit_sel", "preedit_sel",
+   char *tagname[] = {NULL, "preedit", "preedit_sel", "preedit_highlight",
                       "preedit_sub1", "preedit_sub2", "preedit_sub3", "preedit_sub4"};
    int i;
    size_t preedit_type_size = sizeof(tagname) / sizeof(tagname[0]);

@@ -1460,6 +1460,7 @@ _ecore_evas_wl_common_iconified_set(Ecore_Evas *ee, Eina_Bool on)
 
    wdata = ee->engine.data;
    ecore_wl_window_iconified_set(wdata->win, on);
+   _ecore_evas_wl_common_state_update(ee);
 }
 
 static void

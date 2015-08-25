@@ -5,6 +5,11 @@
 #include "evas_cs2_private.h"
 #endif
 
+#include "cairo/Ector_Cairo.h"
+#include "software/Ector_Software.h"
+
+#include "ector_cairo_software_surface.eo.h"
+
 #ifdef HAVE_DLSYM
 # include <dlfcn.h>      /* dlopen,dlclose,etc */
 
@@ -17,11 +22,6 @@
 #endif
 
 #include "Evas_Engine_Software_Generic.h"
-
-#include "cairo/Ector_Cairo.h"
-#include "software/Ector_Software.h"
-
-#include "ector_cairo_software_surface.eo.h"
 
 #ifdef EVAS_GL
 //----------------------------------//

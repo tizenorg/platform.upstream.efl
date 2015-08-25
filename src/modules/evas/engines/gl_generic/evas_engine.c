@@ -1,4 +1,5 @@
 #include "evas_common_private.h"
+#include "evas_private.h"
 #include "evas_gl_core_private.h"
 
 //#define TIMDBG 1

@@ -3309,12 +3309,6 @@ EFL_LIB_END_OPTIONAL([Ecore_Win32])
 
 #### Ecore_Avahi
 
-EFL_LIB_START([Ecore_Avahi])
-
-### Default values
-
-### Additional options to configure
-
 want_avahi="yes"
 
 AC_ARG_ENABLE([avahi],
@@ -3328,6 +3322,12 @@ AC_ARG_ENABLE([avahi],
    ], [
     want_avahi="yes"
    ])
+
+EFL_LIB_START_OPTIONAL([Ecore_Avahi], [test "${want_avahi}" = "yes"])
+
+### Default values
+
+### Additional options to configure
 
 ### Checks for programs
 
@@ -3362,7 +3362,7 @@ EFL_EVAL_PKGS([ECORE_AVAHI])
 
 ### Checks for library functions
 
-EFL_LIB_END([Ecore_Avahi])
+EFL_LIB_END_OPTIONAL([Ecore_Avahi])
 
 #### End of Ecore_Avahi
 
@@ -4898,7 +4898,7 @@ elif test "${have_windows}" = "yes"; then
 echo "Ecore_Win32.....: $have_win32"
 fi
 echo "Ecore_Audio.....: ${efl_lib_optional_ecore_audio} (${features_ecore_audio})"
-echo "Ecore_Avahi.....: yes (${features_ecore_avahi})"
+echo "Ecore_Avahi.....: ${efl_lib_optional_ecore_avahi} (${features_ecore_avahi})"
 echo "Ecore_Evas......: ${efl_lib_optional_ecore_evas} (${features_ecore_evas})"
 #echo "Ector...........: yes"
 echo "Eeze............: ${efl_lib_optional_eeze} (${features_eeze})"

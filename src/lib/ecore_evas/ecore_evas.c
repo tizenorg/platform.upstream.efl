@@ -43,7 +43,8 @@ static Ecore_Idle_Enterer *ecore_evas_idle_enterer = NULL;
 static Ecore_Evas *ecore_evases = NULL;
 static int _ecore_evas_fps_debug = 0;
 
-#define RENDER_SYNC 1
+/* disable render sync because of performance issue */
+//#define RENDER_SYNC 1
 
 #ifdef RENDER_SYNC
 static Ecore_Animator *ecore_evas_animator = NULL;

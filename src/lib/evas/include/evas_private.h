@@ -743,7 +743,7 @@ struct _Evas_Public_Data
    struct {
       Evas_Module *module;
       Evas_Func *func;
-      Ector_Surface *surface;
+      Ector_Surface *ector;
       struct {
          void *output;
 
@@ -1365,11 +1365,12 @@ struct _Evas_Func
    void  (*texture_filter_get)           (void *data, void *texture, Evas_3D_Texture_Filter *min, Evas_3D_Texture_Filter *mag);
    void  (*texture_image_set)            (void *data, void *texture, void *image);
 
-   Ector_Surface *(*ector_get)           (void *data);
-   void  (*ector_begin)                  (void *data, void *context, void *surface, int x, int y, Eina_Bool do_async);
-   void  (*ector_renderer_draw)          (void *data, void *context, void *surface, Ector_Renderer *r, Eina_Array *clips, Eina_Bool do_async);
-   void  *(*ector_end)                   (void *data, void *context, void *surface, Eina_Bool do_async);
-   void *(*ector_surface_create)         (void *data, void *surface, int w, int h);
+   Ector_Surface *(*ector_create)         (void *data);
+   void  (*ector_destroy)                 (void *data, Ector_Surface *surface);
+   void  (*ector_begin)                   (void *data, void *context, Ector_Surface *ector, void *surface, int x, int y, Eina_Bool do_async);
+   void  (*ector_renderer_draw)           (void *data, void *context, void *surface, Ector_Renderer *r, Eina_Array *clips, Eina_Bool do_async);
+   void* (*ector_end)                     (void *data, void *context, Ector_Surface *ector, void *surface, Eina_Bool do_async);
+   void *(*ector_surface_create)          (void *data, void *surface, int w, int h);
 };
 
 struct _Evas_Image_Save_Func
@@ -1700,6 +1701,9 @@ Evas_3D_File_Eet *_evas_3d_eet_file_new(void);
 void _evas_3d_eet_file_init(void);
 void _evas_3d_eet_descriptor_shutdown(void);
 void _evas_3d_eet_file_free(void);
+
+/* Ector */
+Ector_Surface *evas_ector_get(Evas_Public_Data *evas);
 
 /* Temporary save/load functions */
 void evas_common_load_model_from_file(Evas_3D_Mesh *model, const char *file);

@@ -2019,6 +2019,10 @@ _edje_part_mouse_down_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_
    Evas_Coord x, y, w, h;
    //   Eina_Bool multiline;
    Evas_Textblock_Cursor *tc = NULL;
+   // TIZEN_ONLY (20150825): For cursor positioning when mouse down
+   Evas_Coord fh = 0, cly = 0;
+   Evas_Textblock_Cursor *line_cur;
+   //
    Eina_Bool dosel = EINA_FALSE;
    Eina_Bool shift;
    if ((!rp) || (!ev)) return;
@@ -2121,6 +2125,22 @@ _edje_part_mouse_down_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_
    evas_object_geometry_get(rp->object, &x, &y, &w, &h);
    cx = ev->canvas.x - x;
    cy = ev->canvas.y - y;
+   // TIZEN_ONLY (20150825): For cursor positioning when down up
+   evas_object_textblock_size_formatted_get(rp->object, NULL, &fh);
+   if (cy > fh)
+     {
+        cy = fh - 1;
+     }
+   line_cur = evas_object_textblock_cursor_new(rp->object);
+   evas_textblock_cursor_paragraph_first(line_cur);
+   evas_textblock_cursor_line_geometry_get(line_cur, NULL, &cly, NULL, NULL);
+
+   if (cy < cly)
+     {
+        cy = cly;
+     }
+   evas_textblock_cursor_free(line_cur);
+   //
    if (!evas_textblock_cursor_char_coord_set(en->cursor, cx, cy))
      {
         Evas_Coord lx, ly, lw, lh;

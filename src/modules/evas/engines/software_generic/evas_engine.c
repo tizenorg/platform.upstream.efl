@@ -3306,6 +3306,13 @@ eng_ector_renderer_draw(void *data EINA_UNUSED, void *context, void *surface, Ec
         clip.y = dc->clip.y;
         clip.w = dc->clip.w;
         clip.h = dc->clip.h;
+        //FIXME why clip is not clipped into dc ??
+        //restrict clip to dc boundary.
+        RECTS_CLIP_TO_RECT(clip.x, clip.y, clip.w, clip.h, 0, 0, dst->cache_entry.w, dst->cache_entry.h);
+        if ((clip.w < 1) || (clip.h < 1))
+          {
+             return;
+          }
      }
    else
      {

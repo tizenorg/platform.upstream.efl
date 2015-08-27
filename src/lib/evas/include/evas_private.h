@@ -804,6 +804,9 @@ struct _Evas_Public_Data
 
    Eina_List     *outputs;
 
+   // TIZEN_ONLY(20150813): Added evas_paragraph_direction_set, get APIs and applied to textblock, text.
+   Evas_BiDi_Direction paragraph_direction : 2;
+   //
    unsigned char  changed : 1;
    unsigned char  delete_me : 1;
    unsigned char  invalidate : 1;

@@ -816,8 +816,8 @@ typedef struct _Bezier
 
 typedef struct _Point
 {
-   int x;
-   int y;
+   double x;
+   double y;
 }Point;
 
 static
@@ -931,8 +931,8 @@ _efl_gfx_t_for_arc_angle(double angle)
 }
 
 static void
-_find_ellipse_coords(int x, int y, int w, int h, double angle, double length,
-                            Point* start_point, Point *end_point)
+_find_ellipse_coords(double x, double y, double w, double h, double angle, double length,
+                     Point* start_point, Point *end_point)
 {
    if (!w || !h )
      {
@@ -943,8 +943,8 @@ _find_ellipse_coords(int x, int y, int w, int h, double angle, double length,
         return;
      }
 
-   int w2 = w / 2;
-   int h2 = h / 2;
+   double w2 = w / 2;
+   double h2 = h / 2;
 
    double angles[2] = { angle, angle + length };
    Point *points[2] = { start_point, end_point };
@@ -978,8 +978,8 @@ _find_ellipse_coords(int x, int y, int w, int h, double angle, double length,
         // top quadrants
         if (quadrant == 0 || quadrant == 1)
           py = -py;
-        int cx = x+w/2;
-        int cy = y+h/2;
+        double cx = x+w/2;
+        double cy = y+h/2;
         points[i]->x = cx + w2 * px;
         points[i]->y = cy + h2 * py;
      }
@@ -987,16 +987,16 @@ _find_ellipse_coords(int x, int y, int w, int h, double angle, double length,
 
 //// The return value is the starting point of the arc
 static
-Point _curves_for_arc(int x, int y, int w, int h,
+Point _curves_for_arc(double x, double y, double w, double h,
                       double start_angle, double sweep_length,
                       Point *curves, int *point_count)
 {
    *point_count = 0;
-   int w2 = w / 2;
-   int w2k = w2 * PATH_KAPPA;
+   double w2 = w / 2;
+   double w2k = w2 * PATH_KAPPA;
 
-   int h2 = h / 2;
-   int h2k = h2 * PATH_KAPPA;
+   double h2 = h / 2;
+   double h2k = h2 * PATH_KAPPA;
 
    Point points[16] =
    {
@@ -1140,11 +1140,6 @@ _efl_gfx_shape_append_arc(Eo *obj, Efl_Gfx_Shape_Data *pd,
 {
    int point_count;
    Point pts[15];
-   // FIXME: make the radius even, as the default
-   // renderer unable to generate a perfect arc in case of odd radius.
-   // remove the below line once the rle generation is fixed for the same.
-   if (((int)w & 1)) w = w-1;
-   if (((int)h & 1)) h = h-1;
 
    Point curve_start = _curves_for_arc(x, y, w, h, start_angle, sweep_length, pts, &point_count);
    int i;

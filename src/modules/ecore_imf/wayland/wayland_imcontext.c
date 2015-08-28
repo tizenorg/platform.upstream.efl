@@ -99,7 +99,8 @@ key_down_cb(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
    Ecore_Event_Key *ev = (Ecore_Event_Key *)event;
    if (!ev || !ev->keyname || !_active_ctx) return ECORE_CALLBACK_PASS_ON;
 
-   if (_input_panel_state == ECORE_IMF_INPUT_PANEL_STATE_SHOW &&
+   if ((_input_panel_state == ECORE_IMF_INPUT_PANEL_STATE_SHOW ||
+        _input_panel_state == ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW) &&
        strcmp(ev->keyname, BACK_KEY) == 0)
      return ECORE_CALLBACK_DONE;
 
@@ -113,7 +114,7 @@ key_up_cb(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
    WaylandIMContext *imcontext = NULL;
    if (!ev || !ev->keyname || !_active_ctx) return ECORE_CALLBACK_PASS_ON;
 
-   if (_input_panel_state != ECORE_IMF_INPUT_PANEL_STATE_SHOW ||
+   if (_input_panel_state == ECORE_IMF_INPUT_PANEL_STATE_HIDE ||
        strcmp(ev->keyname, BACK_KEY) != 0)
      return ECORE_CALLBACK_PASS_ON;
 
@@ -389,6 +390,7 @@ show_input_panel(Ecore_IMF_Context *ctx)
 
    if (ecore_imf_context_input_panel_enabled_get(ctx))
      {
+        _input_panel_state = ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW;
         wl_text_input_show_input_panel(imcontext->text_input);
         wl_text_input_activate(imcontext->text_input, seat,
                                ecore_wl_window_surface_get(imcontext->window));

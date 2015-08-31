@@ -1140,6 +1140,16 @@ wayland_im_context_prediction_allow_set(Ecore_IMF_Context *ctx,
      imcontext->content_hint &= ~WL_TEXT_INPUT_CONTENT_HINT_AUTO_COMPLETION;
 }
 
+EAPI void
+wayland_im_context_input_panel_geometry_get(Ecore_IMF_Context *ctx,
+                                            int *x, int *y, int *w, int *h)
+{
+   WaylandIMContext *imcontext = (WaylandIMContext *)ecore_imf_context_data_get(ctx);
+
+   if (imcontext->window)
+     ecore_wl_window_keyboard_geometry_get(imcontext->window, x, y, w, h);
+}
+
 WaylandIMContext *wayland_im_context_new (struct wl_text_input_manager *text_input_manager)
 {
    WaylandIMContext *context = calloc(1, sizeof(WaylandIMContext));

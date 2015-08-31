@@ -35,7 +35,7 @@ extern "C" {
 
 /**
  * @defgroup Ecore_IMF_Lib_Group Ecore_IMF - Ecore Input Method Library Functions
- * @ingroup Ecore_Group
+ * @ingroup Ecore
  *
  * Utility functions that set up and shut down the Ecore Input Method
  * library.
@@ -1805,6 +1805,8 @@ EAPI void                          ecore_imf_context_input_panel_enabled_set(Eco
 
 /**
  * Get whether the Input Method Context requests to show the input panel automatically.
+ *
+ * @since_tizen 2.3.1
  *
  * @param ctx An #Ecore_IMF_Context.
  * @return Return the attribute to show the input panel automatically

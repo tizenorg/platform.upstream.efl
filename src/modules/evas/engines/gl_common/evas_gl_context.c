@@ -3315,12 +3315,8 @@ shader_array_flush(Evas_Engine_GL_Context *gc)
 
                             if (!gc->preserve_bit)
                                gc->preserve_bit = GL_COLOR_BUFFER_BIT0_QCOM;
+                            gc->master_clip.used = EINA_TRUE;
                          }
-                       else
-                         start_tiling(gc, 0, gw, gh,
-                                      gc->master_clip.x, gc->master_clip.y,
-                                      gc->master_clip.w, gc->master_clip.h, 0);
-                       gc->master_clip.used = EINA_TRUE;
                     }
                }
              if ((gc->pipe[i].shader.clip) ||

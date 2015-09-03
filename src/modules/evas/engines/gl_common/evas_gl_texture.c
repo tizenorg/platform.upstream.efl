@@ -773,7 +773,7 @@ _pool_tex_dynamic_new(Evas_Engine_GL_Context *gc, int w, int h, int intformat, i
            case GL_RGBA: buffer_format = TBM_FORMAT_RGBA8888; break;
            case GL_BGRA: buffer_format = TBM_FORMAT_BGRA8888; break;
            case GL_RGB: buffer_format = TBM_FORMAT_RGB888; break;
-           default: ERR("TBM: unknown format"); return NULL;
+           default: ERR("TBM: unknown format"); goto error;
           }
 
         pt->dyn.buffer = (void *)secsym_tbm_surface_create(pt->w, pt->h,
@@ -817,7 +817,7 @@ _pool_tex_dynamic_new(Evas_Engine_GL_Context *gc, int w, int h, int intformat, i
 #endif
             case GL_RGBA: attr[5] = EGL_MAP_GL_TEXTURE_RGBA_SEC; break;
             case GL_BGRA: attr[5] = EGL_MAP_GL_TEXTURE_BGRA_SEC; break;
-            default: ERR("SEC map: unknown format"); return NULL;
+            default: ERR("SEC map: unknown format"); goto error;
          }
 
          attr[1] = pt->w;
@@ -830,17 +830,7 @@ _pool_tex_dynamic_new(Evas_Engine_GL_Context *gc, int w, int h, int intformat, i
                                              EGL_MAP_GL_TEXTURE_2D_SEC,
                                              0, attr);
          GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-         if (!pt->dyn.img)
-            {
-               glBindTexture(GL_TEXTURE_2D, 0);
-               GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-               glDeleteTextures(1, &(pt->texture));
-               GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-               if (pt->eina_pool)
-                  eina_rectangle_pool_free(pt->eina_pool);
-               free(pt);
-               return NULL;
-            }
+         if (!pt->dyn.img) goto error;
          if (secsym_eglGetImageAttribSEC(egldisplay,
                                          pt->dyn.img,
                                          EGL_MAP_GL_TEXTURE_WIDTH_SEC,

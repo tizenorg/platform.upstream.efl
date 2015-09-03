@@ -2161,8 +2161,6 @@ eng_ector_surface_create(void *data, void *surface, int width, int height)
       }
    // clear the buffer
    glim = surface;
-   // disable atlas
-   glim->disable_atlas = EINA_TRUE;
    void *pixels = evas_cache_image_pixels(&glim->im->cache_entry);
    memset(pixels, 0, width * height *4);
    return surface;

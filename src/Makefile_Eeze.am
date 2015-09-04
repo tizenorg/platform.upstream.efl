@@ -69,15 +69,6 @@ modules_eeze_sensor_tizen_module_la_LIBADD = \
 modules_eeze_sensor_tizen_module_la_DEPENDENCIES = @USE_EEZE_INTERNAL_LIBS@
 modules_eeze_sensor_tizen_module_la_LDFLAGS = -module @EFL_LTMODULE_FLAGS@
 modules_eeze_sensor_tizen_module_la_LIBTOOLFLAGS = --tag=disable-static
-else
-eezemodulesensorfakedir = $(libdir)/eeze/modules/sensor/fake/$(MODULE_ARCH)
-eezemodulesensorfake_LTLIBRARIES = modules/eeze/sensor/fake/module.la
-modules_eeze_sensor_fake_module_la_SOURCES = modules/eeze/sensor/fake/fake.c
-modules_eeze_sensor_fake_module_la_CPPFLAGS = -I$(top_builddir)/src/lib/efl @EEZE_CFLAGS@
-modules_eeze_sensor_fake_module_la_LIBADD = @USE_EEZE_LIBS@
-modules_eeze_sensor_fake_module_la_DEPENDENCIES = @USE_EEZE_INTERNAL_LIBS@
-modules_eeze_sensor_fake_module_la_LDFLAGS = -module @EFL_LTMODULE_FLAGS@
-modules_eeze_sensor_fake_module_la_LIBTOOLFLAGS = --tag=disable-static
 endif
 eezemodulesensorudevdir = $(libdir)/eeze/modules/sensor/udev/$(MODULE_ARCH)
 eezemodulesensorudev_LTLIBRARIES = modules/eeze/sensor/udev/module.la

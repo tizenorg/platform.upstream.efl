@@ -301,16 +301,6 @@ _ecore_evas_wl_common_cb_window_configure(void *data EINA_UNUSED, int type EINA_
                nh = (minh + (((nh - minh) / ee->prop.step.h) * ee->prop.step.h));
           }
 
-        if ((maxw > 0) && (nw > maxw)) 
-          nw = maxw;
-        else if (nw < minw) 
-          nw = minw;
-
-        if ((maxh > 0) && (nh > maxh)) 
-          nh = maxh;
-        else if (nh < minh) 
-          nh = minh;
-
         orig_w = nw;
         orig_h = nh;
 
@@ -324,6 +314,16 @@ _ecore_evas_wl_common_cb_window_configure(void *data EINA_UNUSED, int type EINA_
              nw -= fh;
              nh -= fw;
           }
+
+        if ((maxw > 0) && (nw > maxw))
+          nw = maxw;
+        else if (nw < minw)
+          nw = minw;
+
+        if ((maxh > 0) && (nh > maxh))
+          nh = maxh;
+        else if (nh < minh)
+          nh = minh;
      }
 
    if (prev_full != ee->prop.fullscreen)
@@ -343,7 +343,7 @@ _ecore_evas_wl_common_cb_window_configure(void *data EINA_UNUSED, int type EINA_
    if ((ee->x != ev->x) || (ee->y != ev->y))
      _ecore_evas_wl_common_move(ee, ev->x, ev->y);
 
-   if ((ee->req.w != orig_w) || (ee->req.h != orig_h))
+   if ((ee->req.w != nw) || (ee->req.h != nh))
      _ecore_evas_wl_common_resize(ee, nw, nh);
 
    if ((prev_max != ee->prop.maximized) ||

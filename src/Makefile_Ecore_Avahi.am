@@ -1,3 +1,4 @@
+if HAVE_ECORE_AVAHI
 
 ### Library
 
@@ -14,3 +15,5 @@ lib_ecore_avahi_libecore_avahi_la_CPPFLAGS = -I$(top_builddir)/src/lib/efl @ECOR
 lib_ecore_avahi_libecore_avahi_la_LIBADD = @ECORE_AVAHI_LIBS@
 lib_ecore_avahi_libecore_avahi_la_DEPENDENCIES = @ECORE_AVAHI_INTERNAL_LIBS@
 lib_ecore_avahi_libecore_avahi_la_LDFLAGS = @EFL_LTLIBRARY_FLAGS@
+
+endif

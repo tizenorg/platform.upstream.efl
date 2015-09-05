@@ -2584,7 +2584,10 @@ struct _Ctxt
    Eina_Bool width_changed : 1;
 };
 
-static void _layout_text_add_logical_item(Ctxt *c, Evas_Object_Textblock_Text_Item *ti, Eina_List *rel);
+// TIZEN_ONLY(20150905): Fix text disappear issue when text is made up with multiple items.
+//static void _layout_text_add_logical_item(Ctxt *c, Evas_Object_Textblock_Text_Item *ti, Eina_List *rel);
+static void _layout_text_add_logical_item(Ctxt *c, Evas_Object_Textblock_Text_Item *ti);
+//
 static void _text_item_update_sizes(Ctxt *c, Evas_Object_Textblock_Text_Item *ti);
 static Evas_Object_Textblock_Format_Item *_layout_do_format(const Evas_Object *obj EINA_UNUSED, Ctxt *c, Evas_Object_Textblock_Format **_fmt, Evas_Object_Textblock_Node_Format *n, int *style_pad_l, int *style_pad_r, int *style_pad_t, int *style_pad_b, Eina_Bool create_item);
 
@@ -3686,7 +3689,10 @@ _layout_item_text_split_strip_white(Ctxt *c,
 
         evas_common_text_props_split(&ti->text_props,
                                      &new_ti->text_props, cut);
-        _layout_text_add_logical_item(c, new_ti, lti);
+        // TIZEN_ONLY(20150905): Fix text disappear issue when text is made up with multiple items.
+        //_layout_text_add_logical_item(c, new_ti, lti);
+        _layout_text_add_logical_item(c, new_ti);
+        //
      }
 
    /* Strip the previous white if needed */
@@ -3703,7 +3709,10 @@ _layout_item_text_split_strip_white(Ctxt *c,
 
              evas_common_text_props_split(&ti->text_props,
                    &white_ti->text_props, white_cut);
-             _layout_text_add_logical_item(c, white_ti, lti);
+             // TIZEN_ONLY(20150905): Fix text disappear issue when text is made up with multiple items.
+             //_layout_text_add_logical_item(c, white_ti, lti);
+             _layout_text_add_logical_item(c, white_ti);
+             //
           }
         else
           {
@@ -3852,14 +3861,34 @@ _text_item_update_sizes(Ctxt *c, Evas_Object_Textblock_Text_Item *ti)
  * @param it the item itself.
  * @param rel item ti will be appened after, NULL = last.
  */
+// TIZEN_ONLY(20150905): Fix text disappear issue when text is made up with multiple items.
+//static void
+//_layout_text_add_logical_item(Ctxt *c, Evas_Object_Textblock_Text_Item *ti,
+//      Eina_List *rel)
 static void
-_layout_text_add_logical_item(Ctxt *c, Evas_Object_Textblock_Text_Item *ti,
-      Eina_List *rel)
+_layout_text_add_logical_item(Ctxt *c, Evas_Object_Textblock_Text_Item *ti)
 {
+   // TIZEN_ONLY(20150905): Fix text disappear issue when text is made up with multiple items.
+   Eina_List *l;
+   Evas_Object_Textblock_Item *it;
+   //
+
    _text_item_update_sizes(c, ti);
 
-   c->par->logical_items = eina_list_append_relative_list(
-         c->par->logical_items, ti, rel);
+   // TIZEN_ONLY(20150905): Fix text disappear issue when text is made up with multiple items.
+   //c->par->logical_items = eina_list_append_relative_list(
+   //      c->par->logical_items, ti, rel);
+   EINA_LIST_REVERSE_FOREACH(c->par->logical_items, l, it)
+     {
+        if (it->text_pos <= ti->parent.text_pos)
+          {
+             c->par->logical_items = eina_list_append_relative_list(
+                c->par->logical_items, ti, l);
+             return;
+          }
+     }
+   c->par->logical_items = eina_list_prepend(c->par->logical_items, ti);
+   //
 }
 
 static void
@@ -4870,9 +4899,15 @@ _layout_par(Ctxt *c)
              _paragraph_clear(c->obj, c->par);
              EINA_LIST_FOREACH_SAFE(c->par->logical_items, itr, itr_next, ititr)
                {
+                  // TIZEN_ONLY(20150905): Fix text disappear issue when text is made up with multiple items.
+                  //if (ititr->merge && prev_it &&
+                  //      (prev_it->type == EVAS_TEXTBLOCK_ITEM_TEXT) &&
+                  //      (ititr->type == EVAS_TEXTBLOCK_ITEM_TEXT))
                   if (ititr->merge && prev_it &&
                         (prev_it->type == EVAS_TEXTBLOCK_ITEM_TEXT) &&
-                        (ititr->type == EVAS_TEXTBLOCK_ITEM_TEXT))
+                        (ititr->type == EVAS_TEXTBLOCK_ITEM_TEXT) &&
+                        (_ITEM_TEXT(prev_it)->text_props.info == _ITEM_TEXT(ititr)->text_props.info))
+                  //
                     {
                        _layout_item_merge_and_free(c, _ITEM_TEXT(prev_it),
                              _ITEM_TEXT(ititr));
@@ -5661,7 +5696,10 @@ _layout(const Evas_Object *eo_obj, int w, int h, int *w_ret, int *h_ret)
         ti = _layout_text_item_new(c, c->fmt);
         ti->parent.text_node = c->par->text_node;
         ti->parent.text_pos = 0;
-        _layout_text_add_logical_item(c, ti, NULL);
+        // TIZEN_ONLY(20150905): Fix text disappear issue when text is made up with multiple items.
+        //_layout_text_add_logical_item(c, ti, NULL);
+        _layout_text_add_logical_item(c, ti);
+        //
      }
 
    /* End of logical layout creation */

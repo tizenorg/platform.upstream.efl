@@ -49,7 +49,11 @@ struct _Evas_Text_Data
       Evas_Object_Text_Item    *ellipsis_end;
       Evas_Coord                w, h;
       int                       advance;
-      int                       advance_without_ellipsis;
+      // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+      //int                       advance_without_ellipsis;
+      int                       width;
+      int                       width_without_ellipsis;
+      //
       Eina_Bool                 ellipsis;
    } last_computed;
 
@@ -336,17 +340,34 @@ _evas_object_text_char_at_coords(const Evas_Object *eo_obj,
    return -1;
 }
 
+// TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+/*
 static Evas_Coord
 _evas_object_text_horiz_advance_without_ellipsis_get(const Evas_Text_Data *o)
 {
    return o->last_computed.advance_without_ellipsis;
 }
+*/
+static Evas_Coord
+_evas_object_text_horiz_width_without_ellipsis_get(const Evas_Text_Data *o)
+{
+   return o->last_computed.width_without_ellipsis;
+}
+//
 
 static Evas_Coord
 _evas_object_text_horiz_advance_get(const Evas_Text_Data *o)
 {
    return o->last_computed.advance;
 }
+
+// TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+static Evas_Coord
+_evas_object_text_horiz_width_get(const Evas_Text_Data *o)
+{
+   return o->last_computed.width;
+}
+//
 
 static Evas_Coord
 _evas_object_text_vert_advance_get(const Evas_Object *obj EINA_UNUSED,
@@ -681,7 +702,10 @@ _evas_object_text_layout(Evas_Object *eo_obj, Evas_Text_Data *o, Eina_Unicode *t
 {
    Evas_Object_Protected_Data *obj = eo_data_scope_get(eo_obj, EVAS_OBJECT_CLASS);
    EvasBiDiStrIndex *v_to_l = NULL;
-   Evas_Coord advance = 0;
+   // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+   //Evas_Coord advance = 0;
+   Evas_Coord advance = 0, width = 0;
+   //
    size_t pos, visual_pos;
    int len = eina_unicode_strlen(text);
    int l = 0, r = 0;
@@ -690,6 +714,8 @@ _evas_object_text_layout(Evas_Object *eo_obj, Evas_Text_Data *o, Eina_Unicode *t
    int *segment_idxs = NULL;
 #endif
 
+   // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+   /*
    if (o->items &&
        !memcmp(&o->cur, &o->prev, sizeof (o->cur)) &&
        o->cur.text == text &&
@@ -697,6 +723,15 @@ _evas_object_text_layout(Evas_Object *eo_obj, Evas_Text_Data *o, Eina_Unicode *t
        ((o->last_computed.advance <= obj->cur->geometry.w && !o->last_computed.ellipsis) ||
         o->last_computed.w == obj->cur->geometry.w))
      return;
+     */
+   if (o->items &&
+       !memcmp(&o->cur, &o->prev, sizeof (o->cur)) &&
+       o->cur.text == text &&
+       obj->cur->scale == obj->prev->scale &&
+       ((o->last_computed.width <= obj->cur->geometry.w && !o->last_computed.ellipsis) ||
+        o->last_computed.w == obj->cur->geometry.w))
+     return;
+   //
 
    o->last_computed.ellipsis = EINA_FALSE;
    evas_object_content_change(eo_obj, obj);
@@ -751,6 +786,10 @@ _evas_object_text_layout(Evas_Object *eo_obj, Evas_Text_Data *o, Eina_Unicode *t
 
    if (text)
      {
+        // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+        const Evas_Object_Text_Item *last_it = NULL;
+        //
+
         while (len > 0)
           {
              Evas_Font_Instance *script_fi = NULL;
@@ -788,10 +827,24 @@ _evas_object_text_layout(Evas_Object *eo_obj, Evas_Text_Data *o, Eina_Unicode *t
                   pos += run_len;
                   script_len -= run_len;
                   len -= run_len;
+
+                  // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+                  if (it->w > 0)
+                    last_it = it;
+                  //
                }
           }
+
+        // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+        width = advance;
+        if (last_it)
+          width += last_it->w - last_it->adv;
+        //
      }
-   o->last_computed.advance_without_ellipsis = advance;
+   // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+   //o->last_computed.advance_without_ellipsis = width;
+   o->last_computed.width_without_ellipsis = width;
+   //
 
    if (!o->cur.filter || !o->cur.filter->chain)
      evas_text_style_pad_get(o->cur.style, &l, &r, NULL, NULL);
@@ -799,7 +852,10 @@ _evas_object_text_layout(Evas_Object *eo_obj, Evas_Text_Data *o, Eina_Unicode *t
      evas_filter_program_padding_get(o->cur.filter->chain, &l, &r, NULL, NULL);
 
    /* Handle ellipsis */
-   if (pos && (o->cur.ellipsis >= 0.0) && (advance + l + r > obj->cur->geometry.w) && (obj->cur->geometry.w > 0))
+   // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+   //if (pos && (o->cur.ellipsis >= 0.0) && (advance + l + r > obj->cur->geometry.w) && (obj->cur->geometry.w > 0))
+   if (pos && (o->cur.ellipsis >= 0.0) && (width + l + r > obj->cur->geometry.w) && (obj->cur->geometry.w > 0))
+   //
      {
         Evas_Coord ellip_frame = obj->cur->geometry.w;
         Evas_Object_Text_Item *start_ellip_it = NULL, *end_ellip_it = NULL;
@@ -821,7 +877,10 @@ _evas_object_text_layout(Evas_Object *eo_obj, Evas_Text_Data *o, Eina_Unicode *t
                   start_ellip_it = _layout_ellipsis_item_new(obj, o);
                }
              o->last_computed.ellipsis_start = start_ellip_it;
-             ellip_frame -= start_ellip_it->adv;
+             // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+             //ellip_frame -= start_ellip_it->adv;
+             ellip_frame -= start_ellip_it->w;
+             //
           }
         if (o->cur.ellipsis != 1)
           {
@@ -837,18 +896,27 @@ _evas_object_text_layout(Evas_Object *eo_obj, Evas_Text_Data *o, Eina_Unicode *t
                   end_ellip_it = _layout_ellipsis_item_new(obj, o);
                }
              o->last_computed.ellipsis_end = end_ellip_it;
-             ellip_frame -= end_ellip_it->adv;
+             // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+             //ellip_frame -= end_ellip_it->adv;
+             ellip_frame -= end_ellip_it->w;
+             //
           }
 
         /* The point where we should start from, going for the full
          * ellip frame. */
-        Evas_Coord ellipsis_coord = o->cur.ellipsis * (advance - ellip_frame);
+        // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+        //Evas_Coord ellipsis_coord = o->cur.ellipsis * (advance - ellip_frame);
+        Evas_Coord ellipsis_coord = o->cur.ellipsis * (width - ellip_frame);
+        //
         if (start_ellip_it)
           {
              Evas_Object_Text_Item *itr = o->items;
              advance = 0;
 
-             while (itr && (advance + l + r + itr->adv < ellipsis_coord))
+             // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+             //while (itr && (advance + l + r + itr->adv < ellipsis_coord))
+             while (itr && (advance + l + r + itr->w < ellipsis_coord))
+             //
                {
                   Eina_Inlist *itrn = EINA_INLIST_GET(itr)->next;
                   if ((itr != start_ellip_it) && (itr != end_ellip_it))
@@ -890,7 +958,10 @@ _evas_object_text_layout(Evas_Object *eo_obj, Evas_Text_Data *o, Eina_Unicode *t
                {
                   if (itr != end_ellip_it) /* was start_ellip_it */
                     {
-                       if (advance + l + r + itr->adv >= ellip_frame)
+                       // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+                       //if (advance + l + r + itr->adv >= ellip_frame)
+                       if (advance + l + r + itr->w >= ellip_frame)
+                       //
                          {
                             break;
                          }
@@ -935,14 +1006,29 @@ _evas_object_text_layout(Evas_Object *eo_obj, Evas_Text_Data *o, Eina_Unicode *t
 
    {
       Evas_Object_Text_Item *itr = o->items;
+      // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+      Evas_Object_Text_Item *last_itr = NULL;
+      //
       advance = 0;
 
       while (itr)
         {
            advance += itr->adv;
+
+           // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+           if (itr->w > 0)
+             last_itr = itr;
+           //
+
            itr = (Evas_Object_Text_Item *) EINA_INLIST_GET(itr)->next;
         }
       o->last_computed.advance = advance;
+      // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+      o->last_computed.width = advance;
+
+      if (last_itr)
+        o->last_computed.width += last_itr->w - last_itr->adv;
+      //
    }
 
    _evas_object_text_item_order(eo_obj, o);
@@ -1113,14 +1199,15 @@ _evas_text_inset_get(Eo *eo_obj, Evas_Text_Data *o)
    return inset;
 }
 
-// TIZEN_ONLY(20150821): Add evas_object_text_horiz_advance_without_ellipsis_get() internal API.
+// TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+// horiz_advance_without_ellipsis is changed to horiz_width_without_ellipsis.
 EOLIAN static Evas_Coord
-_evas_text_horiz_advance_without_ellipsis_get(Eo *eo_obj EINA_UNUSED, Evas_Text_Data *o)
+_evas_text_horiz_width_without_ellipsis_get(Eo *eo_obj EINA_UNUSED, Evas_Text_Data *o)
 {
    Evas_Coord horiz = 0;
    if (!o->font) return horiz;
    if (!o->items) return horiz;
-   horiz = _evas_object_text_horiz_advance_without_ellipsis_get(o);
+   horiz = _evas_object_text_horiz_width_without_ellipsis_get(o);
 
    return horiz;
 }
@@ -1136,6 +1223,19 @@ _evas_text_horiz_advance_get(Eo *eo_obj EINA_UNUSED, Evas_Text_Data *o)
 
    return horiz;
 }
+
+// TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+EOLIAN static Evas_Coord
+_evas_text_horiz_width_get(Eo *eo_obj EINA_UNUSED, Evas_Text_Data *o)
+{
+   Evas_Coord horiz = 0;
+   if (!o->font) return horiz;
+   if (!o->items) return horiz;
+   horiz = _evas_object_text_horiz_width_get(o);
+
+   return horiz;
+}
+//
 
 EOLIAN static Evas_Coord
 _evas_text_vert_advance_get(Eo *eo_obj, Evas_Text_Data *o)
@@ -2371,7 +2471,10 @@ _evas_object_text_recalc(Evas_Object *eo_obj, Eina_Unicode *text)
         int w, h;
         int l = 0, r = 0, t = 0, b = 0;
 
-        w = _evas_object_text_horiz_advance_without_ellipsis_get(o);
+        // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+        //w = _evas_object_text_horiz_advance_without_ellipsis_get(o);
+        w = _evas_object_text_horiz_width_without_ellipsis_get(o);
+        //
         h = _evas_object_text_vert_advance_get(eo_obj, o);
         if (!o->cur.filter->chain)
           evas_text_style_pad_get(o->cur.style, &l, &r, &t, &b);

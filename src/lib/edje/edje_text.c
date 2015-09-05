@@ -21,7 +21,10 @@ part_get_geometry(Edje_Real_Part *rp, Evas_Coord *w, Evas_Coord *h)
      eo_do(rp->object, efl_gfx_size_get(w, h));
    else
      {
-        if (w) *w = evas_object_text_horiz_advance_get(rp->object);
+        // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+        //if (w) *w = evas_object_text_horiz_advance_get(rp->object);
+        if (w) *w = evas_object_text_horiz_width_get(rp->object);
+        //
         if (h) *h = evas_object_text_vert_advance_get(rp->object);
      }
 }
@@ -297,10 +300,12 @@ _edje_text_recalc_apply(Edje *ed, Edje_Real_Part *ep,
               efl_text_properties_font_set(font, size);
               efl_text_set(text));
 
+        // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+        // horiz_advance_without_ellipsis is changed to horiz_width_without_ellipsis.
         //TIZEN_ONLY(20150821): For fit option works well. the tw value should
         //                      get a value that without ellipsis.
         //part_get_geometry(ep, &tw, &th);
-        tw = evas_object_text_horiz_advance_without_ellipsis_get(ep->object);
+        tw = evas_object_text_horiz_width_without_ellipsis_get(ep->object);
         //
         /* Find the wanted font size */
         if ((tw != sw) && (size > 0) && (tw != 0))

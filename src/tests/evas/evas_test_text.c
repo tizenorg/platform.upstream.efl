@@ -141,6 +141,25 @@ START_TEST(evas_text_geometries)
    pos = evas_object_text_last_up_to_pos(to, -50, 0);
    ck_assert_int_eq(pos, -1);
 
+   /* Horizontal Width */
+   Evas_Coord width;
+
+   /* Obviously, adv > width case */
+   evas_object_text_text_set(to, "こんにちは。");
+   adv = evas_object_text_horiz_advance_get(to);
+   width = evas_object_text_horiz_width_get(to);
+   evas_object_geometry_get(to, NULL, NULL, &w, NULL);
+   fail_if(adv <= width);
+   fail_if(w != width);
+
+   /* Obviously, adv < width case */
+   evas_object_text_text_set(to, "ନୂଁ");
+   adv = evas_object_text_horiz_advance_get(to);
+   width = evas_object_text_horiz_width_get(to);
+   evas_object_geometry_get(to, NULL, NULL, &w, NULL);
+   fail_if(adv >= width);
+   fail_if(w != width);
+
    END_TEXT_TEST();
 }
 END_TEST
@@ -172,20 +191,36 @@ END_TEST
 static void
 _test_ellipsis(Evas_Object *to, const char *buf, const char *font, Evas_Font_Size size, double ellipsis)
 {
+   Evas_Coord text_width;
+   Evas_Coord w, h;
+
    evas_object_text_ellipsis_set(to, ellipsis);
    evas_object_move(to, 0, 0);
-   evas_object_resize(to, 500, 500);
    evas_object_text_font_set(to, font, size);
    evas_object_text_text_set(to, buf);
+   /* Besure to give a enough width for text. */
+   evas_object_resize(to, 500, 500);
+   /* Because of the way text object behaves, this will actually force
+    * a resize. */
+   evas_object_geometry_get(to, NULL, NULL, &w, NULL);
+
+   /* Check the text's width is fit for ellipsis calculation. */
+   text_width = evas_object_text_horiz_width_get(to);
+   evas_object_resize(to, text_width, 500);
+   /* Force a resize. */
+   evas_object_geometry_get(to, NULL, NULL, &w, NULL);
+   fail_if(text_width != evas_object_text_horiz_width_get(to));
+
+   evas_object_resize(to, text_width - 1, 500);
+   evas_object_geometry_get(to, NULL, NULL, &w, NULL);
+   fail_if(text_width == evas_object_text_horiz_width_get(to));
 
    /* Make it smaller to force ellipsis and check the resulting size. */
      {
-        Evas_Coord w, h;
         evas_object_geometry_get(to, NULL, NULL, NULL, &h);
         evas_object_resize(to, 140, h);
 
-        /* Because of the way text object behaves, this will actually force
-         * a resize. */
+        /* Force a resize. */
         evas_object_geometry_get(to, NULL, NULL, &w, NULL);
         /* If it's gotten way too small, it means we have an issue. */
         fail_if(w < 100);
@@ -224,6 +259,18 @@ START_TEST(evas_text_ellipsis)
    /* Ligatures */
    buf = "Fffffffffffffffffffffffffffffffffff";
    _test_ellipsis(to, buf, font, size, 0.0);
+
+   /* Obviously, adv > width case */
+   buf = "This is a test for adv > width case. こんにちは。";
+   _test_ellipsis(to, buf, font, size, 0.0);
+   _test_ellipsis(to, buf, font, size, 0.5);
+   _test_ellipsis(to, buf, font, size, 1.0);
+
+   /* Obviously, adv < width case */
+   buf = "This is a test for adv < width case. ନୂଁ";
+   _test_ellipsis(to, buf, font, size, 0.0);
+   _test_ellipsis(to, buf, font, size, 0.5);
+   _test_ellipsis(to, buf, font, size, 1.0);
 
    /* Check ellipsis value with NULL */
    fail_if(evas_object_text_ellipsis_get(NULL) != -1.0);

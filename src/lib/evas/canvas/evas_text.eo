@@ -409,10 +409,20 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             return: Evas_Coord;
          }
       }
-      horiz_advance_without_ellipsis {
+      horiz_width {
          get {
             /*@
-            // TIZEN_ONLY(20150821): Add evas_object_text_horiz_advance_without_ellipsis_get() internal API.
+            // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+            @internal
+             */
+            return: Evas_Coord;
+         }
+      }
+      horiz_width_without_ellipsis {
+         get {
+            /*@
+            // TIZEN_ONLY(20150905): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+            // horiz_advance_without_ellipsis is changed to horiz_width_without_ellipsis.
             @internal
              */
             return: Evas_Coord;

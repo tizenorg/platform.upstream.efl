@@ -119,6 +119,7 @@ EAPI int ECORE_WL_EVENT_WINDOW_DEACTIVATE = 0;
 EAPI int ECORE_WL_EVENT_WINDOW_VISIBILITY_CHANGE = 0;
 EAPI int ECORE_WL_EVENT_WINDOW_SHOW = 0;
 EAPI int ECORE_WL_EVENT_WINDOW_HIDE = 0;
+EAPI int ECORE_WL_EVENT_WINDOW_LOWER = 0;
 EAPI int ECORE_WL_EVENT_WINDOW_ROTATE = 0;
 EAPI int ECORE_WL_EVENT_DND_ENTER = 0;
 EAPI int ECORE_WL_EVENT_DND_POSITION = 0;
@@ -196,6 +197,7 @@ ecore_wl_init(const char *name)
         ECORE_WL_EVENT_WINDOW_VISIBILITY_CHANGE = ecore_event_type_new();
         ECORE_WL_EVENT_WINDOW_SHOW = ecore_event_type_new();
         ECORE_WL_EVENT_WINDOW_HIDE = ecore_event_type_new();
+        ECORE_WL_EVENT_WINDOW_LOWER = ecore_event_type_new();
         ECORE_WL_EVENT_WINDOW_ROTATE = ecore_event_type_new();
         ECORE_WL_EVENT_DND_ENTER = ecore_event_type_new();
         ECORE_WL_EVENT_DND_POSITION = ecore_event_type_new();

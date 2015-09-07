@@ -61,6 +61,7 @@ typedef struct _Ecore_Wl_Event_Window_Visibility_Change Ecore_Wl_Event_Window_Vi
 typedef struct _Ecore_Wl_Event_Window_Rotate Ecore_Wl_Event_Window_Rotate;
 typedef struct _Ecore_Wl_Event_Window_Show Ecore_Wl_Event_Window_Show;
 typedef struct _Ecore_Wl_Event_Window_Hide Ecore_Wl_Event_Window_Hide;
+typedef struct _Ecore_Wl_Event_Window_Lower Ecore_Wl_Event_Window_Lower;
 typedef struct _Ecore_Wl_Event_Dnd_Enter Ecore_Wl_Event_Dnd_Enter;
 typedef struct _Ecore_Wl_Event_Dnd_Position Ecore_Wl_Event_Dnd_Position;
 typedef struct _Ecore_Wl_Event_Dnd_Leave Ecore_Wl_Event_Dnd_Leave;
@@ -248,6 +249,12 @@ struct _Ecore_Wl_Event_Window_Hide
    unsigned int event_win;
 };
 
+struct _Ecore_Wl_Event_Window_Lower
+{
+   unsigned int win;
+   unsigned int timestamp;
+};
+
 struct _Ecore_Wl_Event_Dnd_Enter
 {
    unsigned int win, source;
@@ -366,6 +373,7 @@ EAPI extern int ECORE_WL_EVENT_WINDOW_DEACTIVATE;
 EAPI extern int ECORE_WL_EVENT_WINDOW_VISIBILITY_CHANGE;
 EAPI extern int ECORE_WL_EVENT_WINDOW_SHOW;
 EAPI extern int ECORE_WL_EVENT_WINDOW_HIDE;
+EAPI extern int ECORE_WL_EVENT_WINDOW_LOWER;
 EAPI extern int ECORE_WL_EVENT_WINDOW_ROTATE;
 EAPI extern int ECORE_WL_EVENT_DND_ENTER;
 EAPI extern int ECORE_WL_EVENT_DND_POSITION;

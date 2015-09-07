@@ -597,12 +597,21 @@ ecore_wl_window_raise(Ecore_Wl_Window *win)
 EAPI void 
 ecore_wl_window_lower(Ecore_Wl_Window *win)
 {
+   Ecore_Wl_Event_Window_Lower *ev;
+
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!win) return;
    /* FIXME: This should lower the xdg surface also */
    if (_ecore_wl_disp->wl.tz_policy)
-     tizen_policy_lower(_ecore_wl_disp->wl.tz_policy, win->surface);
+     {
+        tizen_policy_lower(_ecore_wl_disp->wl.tz_policy, win->surface);
+
+        if (!(ev = calloc(1, sizeof(Ecore_Wl_Event_Window_Lower)))) return;
+
+        ev->win = win->id;
+        ecore_event_add(ECORE_WL_EVENT_WINDOW_LOWER, ev, NULL, NULL);
+     }
 }
 
 EAPI void 

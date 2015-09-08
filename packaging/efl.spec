@@ -59,9 +59,8 @@ BuildRequires:  pkgconfig(sndfile)
 BuildRequires:  pkgconfig(libpulse)
 
 #emotion
-#BuildRequires:  pkgconfig(gstreamer-1.0)
-BuildRequires:  gstreamer-devel
-#BuildRequires:  pkgconfig(gstreamer-plugins-base-1.0)
+BuildRequires:  pkgconfig(gstreamer-1.0)
+BuildRequires:  pkgconfig(gstreamer-plugins-base-1.0)
 
 #evas
 BuildRequires:  libexif-devel
@@ -667,7 +666,6 @@ export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed "
     --enable-gesture \
     --enable-xinput22 \
     --disable-tslib \
-    --disable-gstreamer1 \
     --disable-physics \
     --disable-cxx-bindings \
     --disable-audio \
@@ -1084,7 +1082,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 #%license %{_builddir}/%{buildsubdir}/COPYING
 %{_libdir}/libemotion.so.*
 %{_libdir}/edje/modules/emotion/*/module.so
-#%{_libdir}/emotion/modules/*/*/module.so
+%{_libdir}/emotion/modules/*/*/module.so
 %{_datadir}/emotion/*
 %{_bindir}/emotion_test
 

@@ -2898,10 +2898,7 @@ _edje_object_part_unswallow(Eo *obj EINA_UNUSED, Edje *ed, Evas_Object *obj_swal
 #ifdef EDJE_CALC_CACHE
         rp->invalidate = EINA_TRUE;
 #endif
-        /* this seems to be as unnecessary as the calc in part_swallow()
-         * -zmike, 6 April 2015
-         */
-        //_edje_recalc_do(ed);
+        _edje_recalc_do(ed);
         return;
      }
 }

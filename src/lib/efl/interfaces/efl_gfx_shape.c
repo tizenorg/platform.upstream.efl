@@ -5,6 +5,7 @@
 #include <math.h>
 #include <float.h>
 #include <ctype.h>
+#include <locale.h>
 
 #include <Efl.h>
 
@@ -1526,8 +1527,11 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
 {
    double current_x = 0, current_y = 0;
    char *content = (char*) svg_path_data;
-
+   char *cur_locale;
    if (!content) return ;
+
+   cur_locale = setlocale(LC_NUMERIC, NULL);
+   setlocale(LC_NUMERIC, "POSIX");
 
    while (content[0] != '\0')
      {
@@ -1542,7 +1546,7 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                                &current_x, &current_y,
                                                _efl_gfx_shape_append_move_to,
                                                EINA_FALSE))
-                return ;
+                goto error;
               break;
            case 'm':
               if (!_efl_gfx_path_parse_pair_to(&content[1],
@@ -1551,7 +1555,7 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                                &current_x, &current_y,
                                                _efl_gfx_shape_append_move_to,
                                                EINA_TRUE))
-                return ;
+                goto error;
               break;
            case 'z':
            case 'Z':
@@ -1565,7 +1569,7 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                                &current_x, &current_y,
                                                _efl_gfx_shape_append_line_to,
                                                EINA_FALSE))
-                return ;
+                goto error;
               break;
            case 'l':
               if (!_efl_gfx_path_parse_pair_to(&content[1],
@@ -1574,7 +1578,7 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                                &current_x, &current_y,
                                                _efl_gfx_shape_append_line_to,
                                                EINA_TRUE))
-                return ;
+                goto error;
               break;
            case 'H':
               if (!_efl_gfx_path_parse_double_to(&content[1],
@@ -1583,7 +1587,7 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                                  &current_x, current_x, current_y,
                                                  _efl_gfx_path_append_horizontal_to,
                                                  EINA_FALSE))
-                return ;
+                goto error;
               break;
            case 'h':
               if (!_efl_gfx_path_parse_double_to(&content[1],
@@ -1592,7 +1596,7 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                                  &current_x, current_x, current_y,
                                                  _efl_gfx_path_append_horizontal_to,
                                                  EINA_TRUE))
-                return ;
+                goto error;
               break;
            case 'V':
               if (!_efl_gfx_path_parse_double_to(&content[1],
@@ -1601,7 +1605,7 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                                  &current_y, current_x, current_y,
                                                  _efl_gfx_path_append_vertical_to,
                                                  EINA_FALSE))
-                return ;
+                goto error;
               break;
            case 'v':
               if (!_efl_gfx_path_parse_double_to(&content[1],
@@ -1610,7 +1614,7 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                                  &current_y, current_x, current_y,
                                                  _efl_gfx_path_append_vertical_to,
                                                  EINA_TRUE))
-                return ;
+                goto error;
               break;
            case 'C':
               if (!_efl_gfx_path_parse_six_to(&content[1],
@@ -1619,7 +1623,7 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                               &current_x, &current_y,
                                               _efl_gfx_shape_append_cubic_to,
                                               EINA_FALSE))
-                return ;
+                goto error;
               break;
            case 'c':
               if (!_efl_gfx_path_parse_six_to(&content[1],
@@ -1628,7 +1632,7 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                               &current_x, &current_y,
                                               _efl_gfx_shape_append_cubic_to,
                                               EINA_TRUE))
-                return ;
+                goto error;
               break;
            case 'S':
               if (!_efl_gfx_path_parse_quad_to(&content[1],
@@ -1637,7 +1641,7 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                                &current_x, &current_y,
                                                _efl_gfx_shape_append_scubic_to,
                                                EINA_FALSE))
-                return ;
+                goto error;
               break;
            case 's':
               if (!_efl_gfx_path_parse_quad_to(&content[1],
@@ -1646,7 +1650,7 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                                &current_x, &current_y,
                                                _efl_gfx_shape_append_scubic_to,
                                                EINA_TRUE))
-                return ;
+                goto error;
               break;
            case 'Q':
               if (!_efl_gfx_path_parse_quad_to(&content[1],
@@ -1655,7 +1659,7 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                                &current_x, &current_y,
                                                _efl_gfx_shape_append_quadratic_to,
                                                EINA_FALSE))
-                return ;
+                goto error;
               break;
            case 'q':
               if (!_efl_gfx_path_parse_quad_to(&content[1],
@@ -1664,7 +1668,7 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                                &current_x, &current_y,
                                                _efl_gfx_shape_append_quadratic_to,
                                                EINA_TRUE))
-                return ;
+                goto error;
               break;
            case 'T':
               if (!_efl_gfx_path_parse_pair_to(&content[1],
@@ -1673,7 +1677,7 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                                &current_x, &current_y,
                                                _efl_gfx_shape_append_squadratic_to,
                                                EINA_FALSE))
-                return ;
+                goto error;
               break;
            case 't':
               if (!_efl_gfx_path_parse_pair_to(&content[1],
@@ -1682,7 +1686,7 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                                &current_x, &current_y,
                                                _efl_gfx_shape_append_squadratic_to,
                                                EINA_TRUE))
-                return ;
+                goto error;
               break;
            case 'A':
               if (!_efl_gfx_path_parse_arc_to(&content[1],
@@ -1691,7 +1695,7 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                               &current_x, &current_y,
                                               _efl_gfx_shape_append_arc_to,
                                               EINA_FALSE))
-                return ;
+                goto error;
               break;
            case 'a':
               if (!_efl_gfx_path_parse_arc_to(&content[1],
@@ -1700,12 +1704,14 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                                               &current_x, &current_y,
                                               _efl_gfx_shape_append_arc_to,
                                               EINA_TRUE))
-                return ;
+                goto error;
               break;
            default:
-              return;
+              goto error;
           }
      }
+error:
+   setlocale(LC_NUMERIC, cur_locale);
 }
 
 #include "interfaces/efl_gfx_shape.eo.c"

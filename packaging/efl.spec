@@ -9,6 +9,7 @@ Summary:        Enlightenment Foundation Libraries - set of libraries used (not 
 Url:            http://enlightenment.org/
 Group:          Graphics & UI Framework/API
 Source:         %{name}-%{version}.tar.bz2
+Source100:      efl.conf
 Source1001:     efl.manifest
 
 BuildRequires:  pkgconfig(check)
@@ -641,6 +642,8 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
 #make datadir=%{buildroot}%{_datadir} install-examples
 rm -rf %{buildroot}%{_libdir}/ecore/system/upower
 
+mkdir -p %{buildroot}%{_tmpfilesdir}
+install -m 0644 %SOURCE100 %{buildroot}%{_tmpfilesdir}/efl.conf
 
 %post -n eina -p /sbin/ldconfig
 %postun -n eina -p /sbin/ldconfig
@@ -868,6 +871,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/ecore_buffer/modules/*/*/module.so
 %{_datadir}/ecore/checkme
 %{_datadir}/ecore_*/checkme
+%{_tmpfilesdir}/efl.conf
 
 #%files -n ecore-examples
 #%manifest %{name}.manifest

@@ -49,7 +49,10 @@ _extnbuf_new(const char *base, int id, Eina_Bool sys, int num,
              s = getenv("XDG_RUNTIME_DIR");
              if (!s) s = getenv("TMPDIR");
           }
-        if (!s) s = "/tmp";
+        //TIZEN ONLY (150908): security issue. To access any application, it needs smack rule.
+        //if (!s) s = "/tmp";
+        s = "/run/.ecore";
+        //
         snprintf(file, sizeof(file), "%s/ee-lock-XXXXXX", s);
         b->lockfd = mkstemp(file);
         if (b->lockfd < 0) goto err;

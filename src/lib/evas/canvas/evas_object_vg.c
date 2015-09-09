@@ -102,6 +102,7 @@ _evas_vg_eo_base_destructor(Eo *eo_obj, Evas_VG_Data *pd)
                                                   pd->backing_store);
    }
    eo_unref(pd->root);
+   pd->root = NULL;
    eo_do_super(eo_obj, MY_CLASS, eo_destructor());
 }
 
@@ -250,38 +251,42 @@ evas_object_vg_render_pre(Evas_Object *eo_obj,
                                             obj->cur->clipper->private_data);
      }
 
-   // FIXME: handle damage only on changed renderer.
-   s = evas_ector_get(obj->layer->evas);
-   if (vd->root && s)
-     _evas_vg_render_pre(vd->root, s, NULL);
+   // handle the vg root node tree.
+   if (vd->root)
+     {
+        // FIXME: handle damage only on changed renderer.
+        s = evas_ector_get(obj->layer->evas);
+        if (s)
+          _evas_vg_render_pre(vd->root, s, NULL);
+
+        // FIXME: for now the walking Evas_VG_Node tree doesn't trigger any damage
+        // So just forcing it here if necessary
+        rnd = eo_data_scope_get(vd->root, EFL_VG_BASE_CLASS);
+
+        //FIXME find the reason for NULL Base Class in some case?
+        if (!rnd) return;
+
+        if (rnd->changed)
+          {
+             vd->content_changed = EINA_TRUE;
+             rnd->changed = EINA_FALSE;
+             evas_object_render_pre_prev_cur_add(&obj->layer->evas->clip_changes, eo_obj, obj);
+             goto done;
+          }
+         else
+           {
+              // if size got changed , force a redraw.
+              if ((obj->cur->geometry.w != obj->prev->geometry.w) ||
+                  (obj->cur->geometry.h != obj->prev->geometry.h))
+                vd->content_changed = EINA_TRUE;
+           }
+     }
 
    /* now figure what changed and add draw rects */
    /* if it just became visible or invisible */
    is_v = evas_object_is_visible(eo_obj, obj);
    was_v = evas_object_was_visible(eo_obj,obj);
    if (!(is_v | was_v)) goto done;
-
-   // FIXME: for now the walking Evas_VG_Node tree doesn't trigger any damage
-   // So just forcing it here if necessary
-   rnd = eo_data_scope_get(vd->root, EFL_VG_BASE_CLASS);
-
-   //FIXME find the reason for NULL Base Class in some case?
-   if (!rnd) return;
-
-   if (rnd->changed)
-     {
-        vd->content_changed = EINA_TRUE;
-        rnd->changed = EINA_FALSE;
-        evas_object_render_pre_prev_cur_add(&obj->layer->evas->clip_changes, eo_obj, obj);
-        goto done;
-     }
-   else
-     {
-        // if size got changed , force a redraw.
-        if ((obj->cur->geometry.w != obj->prev->geometry.w) ||
-            (obj->cur->geometry.h != obj->prev->geometry.h))
-          vd->content_changed = EINA_TRUE;
-     }
 
    if (is_v != was_v)
      {

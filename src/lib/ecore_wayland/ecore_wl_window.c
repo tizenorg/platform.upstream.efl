@@ -6,14 +6,6 @@
 #include <xdg-shell-client-protocol.h>
 #include <tizen-extension-client-protocol.h>
 
-typedef struct _Rotation_Geometry Rotation_Geometry;
-
-struct _Rotation_Geometry
-{
-   enum tizen_rotation_angle angle;
-   int x, y, w, h;
-};
-
 /* local function prototypes */
 static void _ecore_wl_window_cb_ping(void *data EINA_UNUSED, struct wl_shell_surface *shell_surface, unsigned int serial);
 static void _ecore_wl_window_cb_configure(void *data, struct wl_shell_surface *shell_surface EINA_UNUSED, unsigned int edges, int w, int h);
@@ -31,7 +23,7 @@ static void _ecore_wl_window_cb_visibility_change(void *data, struct tizen_visib
 static void _ecore_wl_window_cb_position_change(void *data, struct tizen_position *tizen_position, int32_t x, int32_t y);
 static void _ecore_wl_window_cb_available_angles_done(void *data, struct tizen_rotation *tizen_rotation, uint32_t angles);
 static void _ecore_wl_window_cb_preferred_angle_done(void *data, struct tizen_rotation *tizen_rotation, uint32_t angle);
-static void _ecore_wl_window_cb_angle_change(void *data, struct tizen_rotation *tizen_rotation, uint32_t angle, int32_t width, int32_t height, uint32_t serial);
+static void _ecore_wl_window_cb_angle_change(void *data, struct tizen_rotation *tizen_rotation, uint32_t angle, uint32_t serial);
 static void _ecore_wl_window_cb_resource_id(void *data, struct tizen_resource *tizen_resource, uint32_t id);
 
 /* local variables */
@@ -1294,49 +1286,18 @@ ecore_wl_window_rotation_change_done_send(Ecore_Wl_Window *win)
 EAPI void
 ecore_wl_window_rotation_geometry_set(Ecore_Wl_Window *win, int rot, int x, int y, int w, int h)
 {
-   struct wl_array geometry;
-   Rotation_Geometry *rot_geo;
-
+   int i = 0;
    if (!win) return;
    if (!win->tz_rotation) return;
 
    if ((rot % 90 != 0) || (rot / 90 > 3) || (rot < 0)) return;
 
-   wl_array_init(&geometry);
-   rot_geo = (Rotation_Geometry *)wl_array_add(&geometry, sizeof(Rotation_Geometry));
-
-   if (!rot_geo)
-     {
-        wl_array_release(&geometry);
-        return;
-     }
-
-   switch (rot)
-     {
-        case 0:
-           rot_geo->angle = TIZEN_ROTATION_ANGLE_0;
-           break;
-        case 90:
-           rot_geo->angle = TIZEN_ROTATION_ANGLE_90;
-           break;
-        case 180:
-           rot_geo->angle = TIZEN_ROTATION_ANGLE_180;
-           break;
-        case 270:
-           rot_geo->angle = TIZEN_ROTATION_ANGLE_270;
-           break;
-        default:
-           break;
-     }
-
-   rot_geo->x = x;
-   rot_geo->y = y;
-   rot_geo->w = w;
-   rot_geo->h = h;
-
-   tizen_rotation_set_geometry_hints(win->tz_rotation, &geometry);
-
-   wl_array_release(&geometry);
+   i = rot / 90;
+   win->rotation_geometry_hints[i].x = x;
+   win->rotation_geometry_hints[i].y = y;
+   win->rotation_geometry_hints[i].w = w;
+   win->rotation_geometry_hints[i].h = h;
+   win->rotation_geometry_hints[i].valid = EINA_TRUE;
 }
 
 /* local functions */
@@ -1519,10 +1480,11 @@ _ecore_wl_window_cb_preferred_angle_done(void *data EINA_UNUSED, struct tizen_ro
 }
 
 static void
-_ecore_wl_window_cb_angle_change(void *data, struct tizen_rotation *tizen_rotation EINA_UNUSED, uint32_t angle, int32_t width, int32_t height, uint32_t serial)
+_ecore_wl_window_cb_angle_change(void *data, struct tizen_rotation *tizen_rotation EINA_UNUSED, uint32_t angle, uint32_t serial)
 {
    Ecore_Wl_Window *win;
    Ecore_Wl_Event_Window_Rotate *ev;
+   int i = 0;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
@@ -1532,8 +1494,8 @@ _ecore_wl_window_cb_angle_change(void *data, struct tizen_rotation *tizen_rotati
    win->tz_rotation_serial = serial;
 
    ev->win = win->id;
-   ev->w = width;
-   ev->h = height;
+   ev->w = win->allocation.w;
+   ev->h = win->allocation.h;
 
    switch (angle)
      {
@@ -1552,6 +1514,13 @@ _ecore_wl_window_cb_angle_change(void *data, struct tizen_rotation *tizen_rotati
        default:
          ev->angle = 0;
          break;
+     }
+
+   i = ev->angle / 90;
+   if (win->rotation_geometry_hints[i].valid)
+     {
+        ev->w = win->rotation_geometry_hints[i].w;
+        ev->h = win->rotation_geometry_hints[i].h;
      }
 
    ecore_event_add(ECORE_WL_EVENT_WINDOW_ROTATE, ev, NULL, NULL);

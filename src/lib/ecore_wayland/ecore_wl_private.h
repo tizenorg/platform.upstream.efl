@@ -189,6 +189,12 @@ struct _Ecore_Wl_Window
         int x, y, w, h;
      } opaque, input;
 
+   struct
+     {
+        int x, y, w, h;
+        Eina_Bool valid : 1;
+     } rotation_geometry_hints[4];
+
    /* Eina_Bool redraw_scheduled : 1; */
    /* Eina_Bool resize_scheduled : 1; */
    Eina_Bool alpha : 1;

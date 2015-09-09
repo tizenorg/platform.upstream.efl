@@ -2141,7 +2141,10 @@ _edje_part_mouse_down_cb(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_
      }
    evas_textblock_cursor_free(line_cur);
    //
-   if (!evas_textblock_cursor_char_coord_set(en->cursor, cx, cy))
+   // TIZEN ONLY (20150909): only change cursor position in mouse up
+   //if (!evas_textblock_cursor_char_coord_set(en->cursor, cx, cy))
+   if (dosel && !evas_textblock_cursor_char_coord_set(en->cursor, cx, cy))
+   //
      {
         Evas_Coord lx, ly, lw, lh;
         int line;

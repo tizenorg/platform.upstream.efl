@@ -36,45 +36,45 @@ _ecore_drm_output_property_get(int fd, drmModeConnectorPtr conn, const char *nam
    return NULL;
 }
 
-static Eina_Bool 
-_ecore_drm_output_software_setup(Ecore_Drm_Device *dev, Ecore_Drm_Output *output)
-{
-   unsigned int i = 0;
-   int w = 0, h = 0;
-
-   if ((!dev) || (!output)) return EINA_FALSE;
-
-   if (output->current_mode)
-     {
-        w = output->current_mode->width;
-        h = output->current_mode->height;
-     }
-   else
-     {
-        w = 1024;
-        h = 768;
-     }
-
-   for (i = 0; i < NUM_FRAME_BUFFERS; i++)
-     {
-        if (!(output->dumb[i] = ecore_drm_fb_create(dev, w, h)))
-          {
-             ERR("Could not create dumb framebuffer %d", i);
-             goto err;
-          }
-     }
-
-   return EINA_TRUE;
-
-err:
-   for (i = 0; i < NUM_FRAME_BUFFERS; i++)
-     {
-        if (output->dumb[i]) ecore_drm_fb_destroy(output->dumb[i]);
-        output->dumb[i] = NULL;
-     }
-
-   return EINA_FALSE;
-}
+//static Eina_Bool 
+//_ecore_drm_output_software_setup(Ecore_Drm_Device *dev, Ecore_Drm_Output *output)
+//{
+//   unsigned int i = 0;
+//   int w = 0, h = 0;
+//
+//   if ((!dev) || (!output)) return EINA_FALSE;
+//
+//   if (output->current_mode)
+//     {
+//        w = output->current_mode->width;
+//        h = output->current_mode->height;
+//     }
+//   else
+//     {
+//        w = 1024;
+//        h = 768;
+//     }
+//
+//   for (i = 0; i < NUM_FRAME_BUFFERS; i++)
+//     {
+//        if (!(output->dumb[i] = ecore_drm_fb_create(dev, w, h)))
+//          {
+//             ERR("Could not create dumb framebuffer %d", i);
+//             goto err;
+//          }
+//     }
+//
+//   return EINA_TRUE;
+//
+//err:
+//   for (i = 0; i < NUM_FRAME_BUFFERS; i++)
+//     {
+//        if (output->dumb[i]) ecore_drm_fb_destroy(output->dumb[i]);
+//        output->dumb[i] = NULL;
+//     }
+//
+//   return EINA_FALSE;
+//}
 
 static void 
 _ecore_drm_output_software_render(Ecore_Drm_Output *output)

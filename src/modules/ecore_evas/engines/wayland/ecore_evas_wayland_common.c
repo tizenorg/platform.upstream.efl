@@ -187,7 +187,6 @@ _ecore_evas_wl_common_cb_window_configure(void *data EINA_UNUSED, int type EINA_
    Ecore_Evas_Engine_Wl_Data *wdata;
    Ecore_Wl_Event_Window_Configure *ev;
    int nw = 0, nh = 0;
-   int orig_w = 0, orig_h = 0;
    Eina_Bool prev_max, prev_full;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -302,9 +301,6 @@ _ecore_evas_wl_common_cb_window_configure(void *data EINA_UNUSED, int type EINA_
              else
                nh = (minh + (((nh - minh) / ee->prop.step.h) * ee->prop.step.h));
           }
-
-        orig_w = nw;
-        orig_h = nh;
 
         if (ECORE_EVAS_PORTRAIT(ee))
           {

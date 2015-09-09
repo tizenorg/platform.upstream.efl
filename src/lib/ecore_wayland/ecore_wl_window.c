@@ -929,7 +929,7 @@ ecore_wl_window_parent_set(Ecore_Wl_Window *win, Ecore_Wl_Window *parent)
 }
 
 EAPI void
-ecore_wl_window_position_set(Ecore_Wl_Window *win, int x, int y)
+ecore_wl_window_position_set(Ecore_Wl_Window *win, int x EINA_UNUSED, int y EINA_UNUSED)
 {
    if ((win->surface) && (win->tz_position))
      {
@@ -1251,7 +1251,7 @@ EAPI void
 ecore_wl_window_rotation_available_rotations_set(Ecore_Wl_Window *win, const int *rots, unsigned int count)
 {
    uint32_t angles = 0;
-   int i = 0;
+   unsigned int i = 0;
 
    if (!win) return;
    if (!win->tz_rotation) return;
@@ -1421,54 +1421,52 @@ _ecore_xdg_handle_surface_configure(void *data, struct xdg_surface *xdg_surface 
      xdg_surface_ack_configure(win->xdg_surface, serial);
 }
 
+//static void
+//_ecore_wl_window_cb_xdg_surface_activate(void *data, struct xdg_surface *xdg_surface)
+//{
+//   Ecore_Wl_Window *win;
+//   Ecore_Wl_Event_Window_Activate *ev;
+//
+//   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+//
+//   if (!xdg_surface) return;
+//   if (!(win = data)) return;
+//
+//   if (!(ev = calloc(1, sizeof(Ecore_Wl_Event_Window_Activate)))) return;
+//   ev->win = win->id;
+//   if (win->parent)
+//       ev->parent_win = win->parent->id;
+//   else
+//       ev->parent_win = 0;
+//   ev->event_win = win->id;
+//   ev->fobscured = EINA_FALSE;
+//   ecore_event_add(ECORE_WL_EVENT_WINDOW_ACTIVATE, ev, NULL, NULL);
+//}
+//
+//static void
+//_ecore_wl_window_cb_xdg_surface_deactivate(void *data, struct xdg_surface *xdg_surface)
+//{
+//   Ecore_Wl_Window *win;
+//   Ecore_Wl_Event_Window_Deactivate *ev;
+//
+//   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+//
+//   if (!xdg_surface) return;
+//   if (!(win = data)) return;
+//
+//   if (!(ev = calloc(1, sizeof(Ecore_Wl_Event_Window_Deactivate)))) return;
+//   ev->win = win->id;
+//   if (win->parent)
+//       ev->parent_win = win->parent->id;
+//   else
+//       ev->parent_win = 0;
+//   ev->event_win = win->id;
+//   ev->fobscured = EINA_FALSE;
+//   ecore_event_add(ECORE_WL_EVENT_WINDOW_DEACTIVATE, ev, NULL, NULL);
+//}
+
 static void
-_ecore_wl_window_cb_xdg_surface_activate(void *data, struct xdg_surface *xdg_surface)
-{
-   Ecore_Wl_Window *win;
-   Ecore_Wl_Event_Window_Activate *ev;
-
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   if (!xdg_surface) return;
-   if (!(win = data)) return;
-
-   if (!(ev = calloc(1, sizeof(Ecore_Wl_Event_Window_Activate)))) return;
-   ev->win = win->id;
-   if (win->parent)
-       ev->parent_win = win->parent->id;
-   else
-       ev->parent_win = 0;
-   ev->event_win = win->id;
-   ev->fobscured = EINA_FALSE;
-   ecore_event_add(ECORE_WL_EVENT_WINDOW_ACTIVATE, ev, NULL, NULL);
-}
-
-static void
-_ecore_wl_window_cb_xdg_surface_deactivate(void *data, struct xdg_surface *xdg_surface)
-{
-   Ecore_Wl_Window *win;
-   Ecore_Wl_Event_Window_Deactivate *ev;
-
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   if (!xdg_surface) return;
-   if (!(win = data)) return;
-
-   if (!(ev = calloc(1, sizeof(Ecore_Wl_Event_Window_Deactivate)))) return;
-   ev->win = win->id;
-   if (win->parent)
-       ev->parent_win = win->parent->id;
-   else
-       ev->parent_win = 0;
-   ev->event_win = win->id;
-   ev->fobscured = EINA_FALSE;
-   ecore_event_add(ECORE_WL_EVENT_WINDOW_DEACTIVATE, ev, NULL, NULL);
-}
-
-static void
-_ecore_wl_window_cb_position_change(void *data,
-                                    struct tizen_position *tizen_position,
-                                    int32_t x, int32_t y)
+_ecore_wl_window_cb_position_change(void *data, struct tizen_position *tizen_position EINA_UNUSED, int32_t x, int32_t y)
 {
    Ecore_Wl_Window *win;
 
@@ -1489,9 +1487,7 @@ _ecore_wl_window_cb_position_change(void *data,
 }
 
 static void
-_ecore_wl_window_cb_visibility_change(void *data,
-                                      struct tizen_visibility *tizen_visibility,
-                                      uint32_t visibility)
+_ecore_wl_window_cb_visibility_change(void *data, struct tizen_visibility *tizen_visibility EINA_UNUSED, uint32_t visibility)
 {
    Ecore_Wl_Window *win;
    Ecore_Wl_Event_Window_Visibility_Change *ev;
@@ -1511,28 +1507,19 @@ _ecore_wl_window_cb_visibility_change(void *data,
 }
 
 static void
-_ecore_wl_window_cb_available_angles_done(void *data,
-                                          struct tizen_rotation *tizen_rotation,
-                                          uint32_t angles)
+_ecore_wl_window_cb_available_angles_done(void *data EINA_UNUSED, struct tizen_rotation *tizen_rotation EINA_UNUSED, uint32_t angles EINA_UNUSED)
 {
    return;
 }
 
 static void
-_ecore_wl_window_cb_preferred_angle_done(void *data,
-                                         struct tizen_rotation *tizen_rotation,
-                                         uint32_t angle)
+_ecore_wl_window_cb_preferred_angle_done(void *data EINA_UNUSED, struct tizen_rotation *tizen_rotation EINA_UNUSED, uint32_t angle EINA_UNUSED)
 {
    return;
 }
 
 static void
-_ecore_wl_window_cb_angle_change(void *data,
-                                 struct tizen_rotation *tizen_rotation,
-                                 uint32_t angle,
-                                 int32_t width,
-                                 int32_t height,
-                                 uint32_t serial)
+_ecore_wl_window_cb_angle_change(void *data, struct tizen_rotation *tizen_rotation EINA_UNUSED, uint32_t angle, int32_t width, int32_t height, uint32_t serial)
 {
    Ecore_Wl_Window *win;
    Ecore_Wl_Event_Window_Rotate *ev;
@@ -1571,9 +1558,7 @@ _ecore_wl_window_cb_angle_change(void *data,
 }
 
 static void
-_ecore_wl_window_cb_resource_id(void *data,
-                                struct tizen_resource *tizen_resource,
-                                uint32_t id)
+_ecore_wl_window_cb_resource_id(void *data, struct tizen_resource *tizen_resource EINA_UNUSED, uint32_t id)
 {
    Ecore_Wl_Window *win;
    Ecore_Wl_Event_Window_Show *ev;
@@ -1593,10 +1578,10 @@ _ecore_wl_window_cb_resource_id(void *data,
    ecore_event_add(ECORE_WL_EVENT_WINDOW_SHOW, ev, NULL, NULL);
 }
 
-static void
-_ecore_wl_window_cb_xdg_surface_delete(void *data EINA_UNUSED, struct xdg_surface *xdg_surface EINA_UNUSED)
-{
-}
+//static void
+//_ecore_wl_window_cb_xdg_surface_delete(void *data EINA_UNUSED, struct xdg_surface *xdg_surface EINA_UNUSED)
+//{
+//}
 
 static void 
 _ecore_xdg_handle_surface_delete(void *data, struct xdg_surface *xdg_surface EINA_UNUSED)

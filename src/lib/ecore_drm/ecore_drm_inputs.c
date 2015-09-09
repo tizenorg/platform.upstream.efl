@@ -151,7 +151,7 @@ _device_added(Ecore_Drm_Input *input, struct libinput_device *device)
 }
 
 static void 
-_device_removed(Ecore_Drm_Input *input, struct libinput_device *device)
+_device_removed(Ecore_Drm_Input *input EINA_UNUSED, struct libinput_device *device)
 {
    Ecore_Drm_Evdev *edev;
    Ecore_Drm_Event_Input_Device_Del *ev;

@@ -59,8 +59,8 @@ BuildRequires:  pkgconfig(sndfile)
 BuildRequires:  pkgconfig(libpulse)
 
 #emotion
-BuildRequires:  pkgconfig(gstreamer-1.0)
-BuildRequires:  pkgconfig(gstreamer-plugins-base-1.0)
+#BuildRequires:  pkgconfig(gstreamer-1.0)
+#BuildRequires:  pkgconfig(gstreamer-plugins-base-1.0)
 
 #evas
 BuildRequires:  libexif-devel
@@ -675,6 +675,7 @@ export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed "
     --enable-lua-old \
     --enable-harfbuzz \
     --enable-ecore-buffer \
+    --disable-gstreamer1 \
     --enable-i-really-know-what-i-am-doing-and-that-this-will-probably-break-things-and-i-will-fix-them-myself-and-send-patches-aba
 #    --enable-always-build-examples \
 
@@ -1083,7 +1084,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 #%license %{_builddir}/%{buildsubdir}/COPYING
 %{_libdir}/libemotion.so.*
 %{_libdir}/edje/modules/emotion/*/module.so
-%{_libdir}/emotion/modules/*/*/module.so
+#%{_libdir}/emotion/modules/*/*/module.so
 %{_datadir}/emotion/*
 %{_bindir}/emotion_test
 

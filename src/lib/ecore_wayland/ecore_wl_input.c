@@ -768,6 +768,7 @@ _ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard EINA_UN
 
    /* xkb rules reflect X broken keycodes, so offset by 8 */
    code = keycode + 8;
+   INF("Key[%d] event occurs", code);
 
    if (!win)
      {
@@ -782,8 +783,7 @@ _ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard EINA_UN
           {
              //key event callback can be called even though surface is not exist.
              //TODO: Ecore_Event_Key have event_window info, so if (surface == NULL), we should generate proper window info
-             WRN("surface is not exist");
-             return;
+             INF("surface is not exist");
           }
      }
    else
@@ -844,8 +844,20 @@ _ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard EINA_UN
    strcpy((char *)e->key, key);
    if (strlen(compose)) strcpy((char *)e->compose, compose);
 
-   e->window = win->id;
-   e->event_window = win->id;
+   // TIZEN_ONLY(20150911): Deal with key event if window is not exist.
+   if (win)
+     {
+   //
+        e->window = win->id;
+        e->event_window = win->id;
+   // TIZEN_ONLY(20150911): Deal with key event if window is not exist.
+     }
+   else
+     {
+        e->window = NULL;
+        e->event_window = NULL;
+     }
+   //
    e->timestamp = timestamp;
    e->modifiers = input->modifiers;
 

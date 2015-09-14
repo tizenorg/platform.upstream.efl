@@ -286,8 +286,13 @@ GLenum
 _evgl_glGetError(void)
 {
    GLenum ret;
-   EVGL_Context *ctx = NULL;
-   ctx = evas_gl_common_current_context_get();
+   EVGL_Context *ctx = evas_gl_common_current_context_get();
+
+   if (!ctx)
+     {
+        ERR("No current context set.");
+        return GL_NO_ERROR;
+     }
 
    if (ctx->gl_error != GL_NO_ERROR)
      {

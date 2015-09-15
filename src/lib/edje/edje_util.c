@@ -3154,7 +3154,7 @@ _edje_object_size_min_restricted_calc(Eo *obj EINA_UNUSED, Edje *ed, Evas_Coord 
              ed->h += maxh;
              if (ed->h < restrictedh) ed->h = restrictedh;
           }
-        if ((ed->w > 4000) || (ed->h > 4000))
+        if ((ed->w > 8000) || (ed->h > 8000))
           {
              /* Only print it if we have a non-fixed textblock.
               * We should possibly avoid all of this if in this case, but in
@@ -3165,7 +3165,7 @@ _edje_object_size_min_restricted_calc(Eo *obj EINA_UNUSED, Edje *ed, Evas_Coord 
                     ERR("file %s, group %s has a non-fixed part '%s'. Adding 'fixed: 1 1;' to source EDC may help. Continuing discarding faulty part.",
                         ed->path, ed->group, pep->part->name);
                   else
-                    ERR("file %s, group %s overflowed 4000x4000 with minimum size of %dx%d. Continuing discarding faulty parts.",
+                    ERR("file %s, group %s overflowed 8000x8000 with minimum size of %dx%d. Continuing discarding faulty parts.",
                         ed->path, ed->group, ed->w, ed->h);
                }
 

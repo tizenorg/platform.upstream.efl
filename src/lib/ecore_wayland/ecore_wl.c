@@ -1063,6 +1063,33 @@ ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key, int mod EINA_
      }
 
    //We have to find the way to get keycode from keysym before keymap notify
+   //keymap event occurs after minimum 3 roundtrips
+   //1. ecore_wl_init: wl_registry_add_listener
+   //2. _ecore_wl_cb_handle_global: wl_seat_add_listener
+   //3. _ecore_wl_input_seat_handle_capabilities: wl_keyboard_add_listener
+   if (!_ecore_wl_disp->input)
+     {
+        INF("Wait wl_registry_add_listener reply");
+        wl_display_roundtrip(_ecore_wl_disp->wl.display);
+     }
+
+   if (!_ecore_wl_disp->input->xkb.keymap)
+     {
+        int loop_count = 5;
+        INF("Wait until keymap event occurs");
+        while((!_ecore_wl_disp->input->xkb.keymap) && (loop_count > 0))
+          {
+             wl_display_roundtrip(_ecore_wl_disp->wl.display);
+             loop_count--;
+          }
+        if (!_ecore_wl_disp->input->xkb.keymap)
+          {
+             ERR("Fail to keymap, conut:[%d]", loop_count);
+             return EINA_FALSE;
+          }
+        INF("Finish keymap event");
+     }
+
    if (_ecore_wl_disp->input->xkb.keymap)
      num_keycodes = _ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap, keysym, &keycodes);
    else

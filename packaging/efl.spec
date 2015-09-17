@@ -665,7 +665,6 @@ export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed "
     --with-opengl=es \
     --enable-gesture \
     --enable-xinput22 \
-    --enable-fb \
     --disable-tslib \
     --disable-physics \
     --disable-cxx-bindings \
@@ -898,7 +897,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/libecore_input.so.*
 %{_libdir}/libecore_input_evas.so.*
 %{_libdir}/libecore_ipc.so.*
-%{_libdir}/libecore_fb.so.*
+#%{_libdir}/libecore_fb.so.*
 %if %{with wayland}
 %{_libdir}/libecore_wayland.so.*
 %{_libdir}/libecore_drm.so.*
@@ -940,7 +939,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/libecore_input.so
 %{_libdir}/libecore_input_evas.so
 %{_libdir}/libecore_ipc.so
-%{_libdir}/libecore_fb.so
+#%{_libdir}/libecore_fb.so
 %if %{with wayland}
 %{_libdir}/libecore_wayland.so
 %{_libdir}/libecore_drm.so

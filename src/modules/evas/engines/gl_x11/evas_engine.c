@@ -493,9 +493,10 @@ evgl_eng_context_create(void *data, void *share_ctx, Evas_GL_Context_Version ver
      }
    else if (version == EVAS_GL_GLES_1_X)
      {
+        //This context will be used for DR only
         context = eglCreateContext(eng_get_ob(re)->egl_disp,
                                    eng_get_ob(re)->egl_config,
-                                   NULL,
+                                   NULL,// no sharing between GLES1 and GLES2
                                    context_attrs);
      }
    else
@@ -1073,6 +1074,8 @@ try_again:
    evgl_sfc->gles1_sfc = egl_sfc;
    evgl_sfc->gles1_sfc_native = (void *)(intptr_t) px;
    evgl_sfc->gles1_sfc_visual = visual;
+   evgl_sfc->gles1_sfc_config = egl_cfg;
+   DBG("Successfully created GLES1 surface: Pixmap %p EGLSurface %p", px, egl_sfc);
    return evgl_sfc;
 
 #else
@@ -1125,6 +1128,49 @@ evgl_eng_gles1_surface_destroy(void *data, EVGL_Surface *evgl_sfc)
    return 1;
 }
 
+static void *
+evgl_eng_gles1_context_create(void *data,
+                              EVGL_Context *share_ctx, EVGL_Surface *sfc)
+{
+   Render_Engine *re = data;
+   if (!re) return NULL;
+
+#ifdef GL_GLES
+   EGLContext context = EGL_NO_CONTEXT;
+   int context_attrs[3];
+   EGLConfig config;
+
+   context_attrs[0] = EGL_CONTEXT_CLIENT_VERSION;
+   context_attrs[1] = 1;
+   context_attrs[2] = EGL_NONE;
+
+   if (!sfc || !sfc->gles1_sfc_config)
+     {
+        ERR("Surface is not set! Creating context anyways but eglMakeCurrent "
+            "might very well fail with EGL_BAD_MATCH (0x3009)");
+        config = eng_get_ob(re)->egl_config;
+     }
+   else config = sfc->gles1_sfc_config;
+
+   context = eglCreateContext(eng_get_ob(re)->egl_disp, config,
+                              share_ctx ? share_ctx->context : NULL,
+                              context_attrs);
+   if (!context)
+     {
+        int err = eglGetError();
+        ERR("eglCreateContext failed with error 0x%x", err);
+        glsym_evas_gl_common_error_set(err - EGL_SUCCESS);
+        return NULL;
+     }
+
+   DBG("Successfully created context for GLES1 indirect rendering.");
+   return context;
+#else
+   CRIT("Support for GLES1 indirect rendering contexts is not implemented for GLX");
+   return NULL;
+#endif
+}
+
 static const EVGL_Interface evgl_funcs =
 {
    evgl_eng_display_get,
@@ -1143,6 +1189,7 @@ static const EVGL_Interface evgl_funcs =
    evgl_eng_pbuffer_surface_destroy,
    evgl_eng_gles1_surface_create,
    evgl_eng_gles1_surface_destroy,
+   evgl_eng_gles1_context_create,
 };
 
 //----------------------------------------------------------//

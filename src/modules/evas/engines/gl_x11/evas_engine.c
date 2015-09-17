@@ -868,7 +868,7 @@ evgl_eng_pbuffer_surface_destroy(void *data, void *surface)
 // FIXME: Avoid passing evgl_engine around like that.
 static void *
 evgl_eng_gles1_surface_create(void *data, EVGL_Surface *evgl_sfc,
-                              Evas_GL_Config *cfg, int w, int h, int evgl_msaa)
+                              Evas_GL_Config *cfg, int w, int h)
 {
    Render_Engine *re = (Render_Engine *)data;
    Eina_Bool alpha = EINA_FALSE;
@@ -1171,6 +1171,25 @@ evgl_eng_gles1_context_create(void *data,
 #endif
 }
 
+static int
+evgl_eng_native_win_surface_config_check(void *data,
+                              int evgl_depth, int evgl_stencil, int evgl_msaa)
+{
+   Render_Engine *re = data;
+   if (!re) return 0;
+
+   if ((eng_get_ob(re)->detected.depth_buffer_size >= evgl_depth)
+       && (eng_get_ob(re)->detected.stencil_buffer_size >= evgl_stencil)
+       && (eng_get_ob(re)->detected.msaa >= evgl_msaa))
+     {
+        DBG("Win cfg can support the Req Evas GL's config successfully");
+        return 1;
+     }
+   DBG("Win cfg can'n  support.win depth %d, stencil %d, msaa %d",
+                   eng_get_ob(re)->detected.depth_buffer_size, eng_get_ob(re)->detected.stencil_buffer_size,eng_get_ob(re)->detected.msaa);
+   return 0;
+}
+
 static const EVGL_Interface evgl_funcs =
 {
    evgl_eng_display_get,
@@ -1190,6 +1209,7 @@ static const EVGL_Interface evgl_funcs =
    evgl_eng_gles1_surface_create,
    evgl_eng_gles1_surface_destroy,
    evgl_eng_gles1_context_create,
+   evgl_eng_native_win_surface_config_check,
 };
 
 //----------------------------------------------------------//
@@ -1587,7 +1607,10 @@ eng_setup(Evas *eo_e, void *in)
                             info->indirect,
                             info->info.destination_alpha,
                             info->info.rotation,
-                            swap_mode);
+                            swap_mode,
+                            info->depth_bits,
+                            info->stencil_bits,
+                            info->msaa_bits);
         if (!ob)
           {
              free(re);
@@ -1652,6 +1675,9 @@ eng_setup(Evas *eo_e, void *in)
                  (info->info.visual != eng_get_ob(re)->visual) ||
                  (info->info.colormap != eng_get_ob(re)->colormap) ||
                  (info->info.depth != eng_get_ob(re)->depth) ||
+                 (info->depth_bits != eng_get_ob(re)->depth_bits) ||
+                 (info->stencil_bits != eng_get_ob(re)->stencil_bits) ||
+                 (info->msaa_bits != eng_get_ob(re)->msaa_bits) ||
                  (info->info.destination_alpha != eng_get_ob(re)->alpha))
                {
                   Outbuf *ob, *ob_old;
@@ -1671,7 +1697,10 @@ eng_setup(Evas *eo_e, void *in)
                                       info->indirect,
                                       info->info.destination_alpha,
                                       info->info.rotation,
-                                      swap_mode);
+                                      swap_mode,
+                                      info->depth_bits,
+                                      info->stencil_bits,
+                                      info->msaa_bits);
                   if (!ob)
                     {
                        if (ob_old) eng_window_free(ob_old);

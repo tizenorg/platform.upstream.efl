@@ -674,6 +674,7 @@ static const EVGL_Interface evgl_funcs =
    evgl_eng_pbuffer_surface_destroy,
    NULL, //gles1_surface_create
    NULL, // gles1_surface_destroy
+   NULL, //native_win_surface_config_check
 };
 
 /* engine functions */

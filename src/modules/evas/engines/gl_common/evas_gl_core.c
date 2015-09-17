@@ -1547,6 +1547,8 @@ void *
 evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
 {
    EVGL_Surface *sfc = NULL;
+   char *s = NULL;
+   int direct_override = 0, direct_mem_opt = 0, evgl_msaa = 0;
    Eina_Bool need_reconfigure = EINA_FALSE;
    Eina_Bool dbg;
 
@@ -1615,7 +1617,8 @@ evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
           }
 
         INF("Creating special surface for GLES 1.x rendering");
-        evgl_engine->funcs->gles1_surface_create(evgl_engine, eng_data, sfc, cfg, w, h);
+        evgl_msaa = evgl_engine->caps.msaa_samples[(int) cfg->multisample_bits - 1];
+        evgl_engine->funcs->gles1_surface_create(eng_data, sfc, cfg, w, h, evgl_msaa);
      }
 
    // Create internal buffers

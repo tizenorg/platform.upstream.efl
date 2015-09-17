@@ -140,7 +140,10 @@ _socket_path_set(char *path)
           }
      }
 
-   snprintf(buf, sizeof(buf), "/tmp/.evas-cserve2-%x.socket", (int)getuid());
+   //TIZEN ONLY (150917): security issue. To access any application, it needs smack rule.
+   //snprintf(buf, sizeof(buf), "/tmp/.evas-cserve2-%x.socket", (int)getuid());
+   snprintf(buf, sizeof(buf), "/run/.efl/.evas-cserve2-%x.socket", (int)getuid());
+   //
    /* FIXME: check we can actually create this socket */
    strcpy(path, buf);
 #if 0   

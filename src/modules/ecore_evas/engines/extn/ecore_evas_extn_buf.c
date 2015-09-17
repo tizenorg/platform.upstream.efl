@@ -51,7 +51,7 @@ _extnbuf_new(const char *base, int id, Eina_Bool sys, int num,
           }
         //TIZEN ONLY (150908): security issue. To access any application, it needs smack rule.
         //if (!s) s = "/tmp";
-        s = "/run/.ecore";
+        s = "/run/.efl";
         //
         snprintf(file, sizeof(file), "%s/ee-lock-XXXXXX", s);
         b->lockfd = mkstemp(file);

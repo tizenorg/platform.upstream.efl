@@ -488,7 +488,7 @@ typedef enum _Evas_Native_Surface_Type
    EVAS_NATIVE_SURFACE_OPENGL, /**< OpenGL system based type. texture or framebuffer id*/
    EVAS_NATIVE_SURFACE_WL, /**< Wayland system based type. buffer of surface */
    // TIZEN ONLY (20150112) : NOT FIXED
-   EVAS_NATIVE_SURFACE_TIZEN,
+   EVAS_NATIVE_SURFACE_TIZEN,  /** deprecated **/
    EVAS_NATIVE_SURFACE_TBM,    /**< Tizen system based type. This is used for tizen buffer manager. */
    EVAS_NATIVE_SURFACE_EVASGL, /**< Evas GL based type. evas gl surface */
    //

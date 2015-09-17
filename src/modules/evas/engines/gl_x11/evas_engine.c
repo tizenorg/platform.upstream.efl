@@ -1954,7 +1954,7 @@ _native_bind_cb(void *data EINA_UNUSED, void *image)
           if (glsym_glEGLImageTargetTexture2DOES)
             {
               glsym_glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, n->egl_surface);
-              if (eglGetError() != EGL_SUCCESS)
+              if (glGetError() != GL_NO_ERROR)
                 ERR("glEGLImageTargetTexture2DOES() failed.");
             }
           else

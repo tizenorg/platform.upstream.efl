@@ -2819,10 +2819,7 @@ evas_process_dirty_pixels(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, 
                {
                   Evas_Native_Surface *ns;
                   ns = ENFN->image_native_get(ENDT, o->engine_data);
-                  if ( (ns) &&
-                       (ns->type == EVAS_NATIVE_SURFACE_OPENGL) &&
-                       (ns->data.opengl.texture_id) &&
-                       (!ns->data.opengl.framebuffer_id) )
+                  if (ns)
                     {
                        Eina_Bool direct_renderable = EINA_FALSE;
 
@@ -2845,6 +2842,8 @@ evas_process_dirty_pixels(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, 
                          {
                             if ((ENFN->gl_get_pixels_set) && (o->pixels->func.get_pixels))
                               ENFN->gl_get_pixels_set(output, o->pixels->func.get_pixels, o->pixels->func.get_pixels_data, eo_obj);
+                            if (ENFN->gl_image_direct_set)
+                              ENFN->gl_image_direct_set(output, o->engine_data, EINA_TRUE);
                             o->direct_render = EINA_TRUE;
                          }
                        else
@@ -2885,9 +2884,31 @@ evas_process_dirty_pixels(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, 
    else
      {
         // Check if the it's not dirty but it has direct rendering
-        if (o->direct_render)
+        if (o->direct_render && ENFN->image_native_get)
           {
-             ENFN->gl_get_pixels_set(output, o->pixels->func.get_pixels, o->pixels->func.get_pixels_data, eo_obj);
+             Evas_Native_Surface *ns;
+             ns = ENFN->image_native_get(output, o->engine_data);
+             if (ENFN->gl_direct_override_get)
+               ENFN->gl_direct_override_get(output, &direct_override, &direct_force_off);
+             if (ENFN->gl_surface_direct_renderable_get)
+               ENFN->gl_surface_direct_renderable_get(output, ns, &direct_override);
+
+             if (direct_override && !direct_force_off)
+               {
+                  // always use direct rendering
+                  if (ENFN->gl_get_pixels_set)
+                    ENFN->gl_get_pixels_set(output, o->pixels->func.get_pixels, o->pixels->func.get_pixels_data, eo_obj);
+                  if (ENFN->gl_image_direct_set)
+                    ENFN->gl_image_direct_set(output, o->engine_data, EINA_TRUE);
+               }
+             else
+               {
+                  // Auto-fallback to FBO rendering (for perf & power consumption)
+                  o->pixels->func.get_pixels(o->pixels->func.get_pixels_data, obj->object);
+                  //if (ENFN->get_pixels_render_post)
+                    //ENFN->get_pixels_render_post(output);
+                  o->direct_render = EINA_FALSE;
+               }
           }
      }
 
@@ -2984,10 +3005,10 @@ evas_object_image_render(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, v
    ENFN->context_render_op_set(output, context, obj->cur->render_op);
 
    // Clear out the pixel get stuff..
-   if ((ENFN->gl_get_pixels_set) && (o->pixels->func.get_pixels))
-     {
-        ENFN->gl_get_pixels_set(output, NULL, NULL, NULL);
-     }
+   if (ENFN->gl_get_pixels_set)
+     ENFN->gl_get_pixels_set(output, NULL, NULL, NULL);
+   if (ENFN->gl_image_direct_set)
+     ENFN->gl_image_direct_set(output, o->engine_data, EINA_FALSE);
 
    Evas_Object_Protected_Data *source =
       (o->cur->source ?

@@ -478,7 +478,12 @@ typedef enum _Evas_Native_Surface_Type
    EVAS_NATIVE_SURFACE_NONE, /**< No surface type */
    EVAS_NATIVE_SURFACE_X11,  /**< X Window system based type. pixmap id or visual of the pixmap */
    EVAS_NATIVE_SURFACE_OPENGL, /**< OpenGL system based type. texture or framebuffer id*/
-   EVAS_NATIVE_SURFACE_WL /**< Wayland system based type. buffer of surface */
+   EVAS_NATIVE_SURFACE_WL, /**< Wayland system based type. buffer of surface */
+   // TIZEN ONLY (20150112) : NOT FIXED
+   EVAS_NATIVE_SURFACE_TIZEN,
+   EVAS_NATIVE_SURFACE_TBM,    /**< Tizen system based type. This is used for tizen buffer manager. */
+   EVAS_NATIVE_SURFACE_EVASGL, /**< Evas GL based type. evas gl surface */
+   //
 } Evas_Native_Surface_Type;
 
 /**
@@ -529,6 +534,19 @@ struct _Evas_Native_Surface
       {
          void *legacy_buffer; /**< wayland client buffer to use */
       } wl; /**< Set this struct fields if surface data is Wayland based. */
+
+      struct
+      {
+         void *buffer; /**< tbm surface */
+         int   rot; /**< rotation (0, 90, 180, 270) */
+         float ratio; /**< width/height ratio of the source image */
+         int   flip; /**< flip (0:none, 1:horizontal, 2:vertical, 3:both) */
+      } tbm; /**< Set this struct fields if your surface data is Tizen based. */
+      struct
+      {
+         void *surface; /**< evas gl surface to use */
+      } evasgl; /**< Set this struct fields if surface data is Evas GL based. */
+      //
    } data; /**< Choose one union data according to your surface. */
 };
 

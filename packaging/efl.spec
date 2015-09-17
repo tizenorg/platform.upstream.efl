@@ -1,7 +1,7 @@
 %bcond_with wayland
 
 Name:           efl
-Version:        1.13.22
+Version:        1.13.23
 Release:        0
 License:        LGPL-2.1+
 Summary:        Enlightenment Foundation Libraries - set of libraries used (not only) by E17

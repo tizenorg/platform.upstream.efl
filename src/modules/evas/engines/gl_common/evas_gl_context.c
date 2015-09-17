@@ -288,13 +288,14 @@ matrix_ortho(GLfloat *m,
 }
 
 static int
-_evas_gl_common_version_check()
+_evas_gl_common_version_check(int *gles_ver)
 {
    char *version;
    char *tmp;
    char *tmp2;
    int major = 0;
    int minor = 0;
+   *gles_ver = 0;
 
   /*
    * glGetString returns a string describing the current GL connection.
@@ -326,11 +327,21 @@ _evas_gl_common_version_check()
         return 0;
      }
 
+   /* OpenGL ES 3.*  */
+
+   if (strstr(version, "OpenGL ES 3"))
+     {
+        /* Supported */
+        *gles_ver = 3;
+        return 1;
+     }
+
    /* OpenGL ES 2.* ? */
 
    if (strstr(version, "OpenGL ES "))
      {
         /* Supported */
+        *gles_ver = 2;
         return 1;
      }
 
@@ -372,8 +383,16 @@ _evas_gl_common_version_check()
  fail:
    free(version);
 
-   if (((major == 1) && (minor >= 4)) || (major >= 2))
+   if (((major == 1) && (minor >= 4)) || (major >= 2)) {
+
+     /* Map GL to GLES version: Refer http://en.wikipedia.org/wiki/OpenGL_ES */
+     if ((major >=4 ) && (minor >= 3))
+       *gles_ver = 3;
+     else
+       *gles_ver = 2;
+
      return 1;
+   }
 
    return 0;
 }
@@ -537,6 +556,7 @@ evas_gl_common_context_new(void)
    Evas_Engine_GL_Context *gc;
    const char *s;
    int i;
+   int gles_version;
 
 #if 1
    if (_evas_gl_common_context)
@@ -545,10 +565,11 @@ evas_gl_common_context_new(void)
         return _evas_gl_common_context;
      }
 #endif
-   if (!_evas_gl_common_version_check())
+   if (!_evas_gl_common_version_check(&gles_version))
      return NULL;
    gc = calloc(1, sizeof(Evas_Engine_GL_Context));
    if (!gc) return NULL;
+   gc->gles_version = gles_version;
 
    gc->references = 1;
 

@@ -34,6 +34,8 @@ struct _Native
 {
    Evas_Native_Surface ns;
    void *egl_surface;
+
+   void *surface;
 };
 
 /* Evas GL wl_surface & wl_egl_window */
@@ -63,7 +65,8 @@ Evas_GL_Common_Context_Call glsym_evas_gl_common_image_all_unload = NULL;
 Evas_GL_Preload glsym_evas_gl_preload_init = NULL;
 Evas_GL_Preload glsym_evas_gl_preload_shutdown = NULL;
 EVGL_Engine_Call glsym_evgl_engine_shutdown = NULL;
-EVGL_Native_Surface_Call glsym_evgl_native_surface_egl_image_get = NULL;
+EVGL_Native_Surface_Call glsym_evgl_native_surface_buffer_get = NULL;
+EVGL_Native_Surface_Yinvert_Call glsym_evgl_native_surface_yinvert_get = NULL;
 Evas_Gl_Symbols glsym_evas_gl_symbols = NULL;
 
 Evas_GL_Common_Context_New glsym_evas_gl_common_context_new = NULL;
@@ -144,7 +147,8 @@ gl_symbols(void)
    LINK2GENERIC(evas_gl_preload_render_relax);
    LINK2GENERIC(evas_gl_preload_init);
    LINK2GENERIC(evas_gl_preload_shutdown);
-   LINK2GENERIC(evgl_native_surface_egl_image_get);
+   LINK2GENERIC(evgl_native_surface_buffer_get);
+   LINK2GENERIC(evgl_native_surface_yinvert_get);
    LINK2GENERIC(evgl_engine_shutdown);
    LINK2GENERIC(evas_gl_symbols);
    LINK2GENERIC(evas_gl_common_error_get);
@@ -363,14 +367,8 @@ evgl_eng_context_create(void *data, void *ctxt, Evas_GL_Context_Version version)
    if (!(re = (Render_Engine *)data)) return NULL;
    if (!(ob = eng_get_ob(re))) return NULL;
 
-   if (version != EVAS_GL_GLES_2_X)
-     {
-        ERR("This engine only supports OpenGL-ES 2.0 contexts for now!");
-        return NULL;
-     }
-
    attrs[0] = EGL_CONTEXT_CLIENT_VERSION;
-   attrs[1] = 2;
+   attrs[1] = version;
    attrs[2] = EGL_NONE;
 
    if (ctxt)
@@ -378,6 +376,13 @@ evgl_eng_context_create(void *data, void *ctxt, Evas_GL_Context_Version version)
         context =
           eglCreateContext(ob->egl_disp, ob->egl_config,
                            (EGLContext)ctxt, attrs);
+     }
+
+   else if (version == EVAS_GL_GLES_1_X || version == EVAS_GL_GLES_3_X)
+     {
+        context =
+          eglCreateContext(ob->egl_disp, ob->egl_config,
+                           NULL, attrs);
      }
    else
      {
@@ -1021,7 +1026,7 @@ _native_cb_bind(void *data EINA_UNUSED, void *image)
     {
         if (n->egl_surface)
           {
-            void *surface = glsym_evgl_native_surface_egl_image_get(n->egl_surface);
+            void *surface = glsym_evgl_native_surface_buffer_get(n->egl_surface);
             if (glsym_glEGLImageTargetTexture2DOES)
               {
                 glsym_glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, surface);
@@ -1084,6 +1089,35 @@ _native_cb_free(void *data, void *image)
    img->native.func.free = NULL;
 
    free(n);
+}
+
+static int
+_native_cb_yinvert(void *data, void *image)
+{
+   Render_Engine *re = data;
+   Evas_GL_Image *im = image;
+   Native *n = im->native.data;
+   int yinvert = 0, val;
+
+   // Yinvert callback should only be used for EVAS_NATIVE_SURFACE_EVASGL type now,
+   // as yinvert value is not changed for other types.
+   if (n->ns.type == EVAS_NATIVE_SURFACE_WL)
+     {
+     }
+   else if (n->ns.type == EVAS_NATIVE_SURFACE_OPENGL)
+     {
+        yinvert = 0;
+     }
+   else if (n->ns.type == EVAS_NATIVE_SURFACE_TBM)
+     {
+        yinvert = 1;
+     }
+   else if (n->ns.type == EVAS_NATIVE_SURFACE_EVASGL)
+     {
+        yinvert = glsym_evgl_native_surface_yinvert_get(n->surface);
+     }
+
+   return yinvert;
 }
 
 static void *
@@ -1212,6 +1246,7 @@ eng_image_native_set(void *data, void *image, void *native)
                   img->native.func.bind = _native_cb_bind;
                   img->native.func.unbind = _native_cb_unbind;
                   img->native.func.free = _native_cb_free;
+                  img->native.func.yinvert = _native_cb_yinvert;
                   img->native.target = GL_TEXTURE_2D;
                   img->native.mipmap = 0;
 

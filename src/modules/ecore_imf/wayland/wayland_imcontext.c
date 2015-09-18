@@ -730,6 +730,23 @@ text_input_text_direction(void                 *data EINA_UNUSED,
 {
 }
 
+static void
+text_input_selection_region(void                 *data,
+                            struct wl_text_input *text_input EINA_UNUSED,
+                            uint32_t              serial EINA_UNUSED,
+                            int32_t               start,
+                            int32_t               end)
+{
+    WaylandIMContext *imcontext = (WaylandIMContext *)data;
+    if (!imcontext || !imcontext->ctx) return;
+
+    Ecore_IMF_Event_Selection ev;
+    ev.ctx = imcontext->ctx;
+    ev.start = start;
+    ev.end = end;
+    ecore_imf_context_event_callback_call(imcontext->ctx, ECORE_IMF_CALLBACK_SELECTION_SET, &ev);
+}
+
 static const struct wl_text_input_listener text_input_listener =
 {
    text_input_enter,
@@ -744,7 +761,8 @@ static const struct wl_text_input_listener text_input_listener =
    text_input_delete_surrounding_text,
    text_input_keysym,
    text_input_language,
-   text_input_text_direction
+   text_input_text_direction,
+   text_input_selection_region
 };
 
 EAPI void

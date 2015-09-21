@@ -4356,6 +4356,7 @@ FUNC_CONTAINER_INT(padding, y)
 
 #undef FUNC_CONTAINER_INT
 
+
 #define FUNC_CONTAINER_DOUBLE(CLASS, VALUE) \
 EAPI double \
 edje_edit_state_container_##CLASS##_##VALUE##_get(Evas_Object *obj, const char *part, const char *state, double value) \

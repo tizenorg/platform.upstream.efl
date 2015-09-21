@@ -565,7 +565,7 @@ _dri_drm_shutdown(Drm_Pixmap *dp)
      {
         if (dp->bo) sym_tbm_bo_unref(dp->bo);
         if (dp->bufmgr) sym_tbm_bufmgr_deinit(dp->bufmgr);
-        if (dp->fd) close(dp->fd);
+        if (dp->fd >= 0) close(dp->fd);
         if (dp) free(dp);
      }
 

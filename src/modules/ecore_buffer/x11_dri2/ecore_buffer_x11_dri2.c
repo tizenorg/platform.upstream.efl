@@ -222,8 +222,8 @@ _ecore_buffer_x11_dri2_init(const char *context EINA_UNUSED, const char *options
    Ecore_X_Window root;
    int eb, ee;
    int major, minor;
-   char *driver_name;
-   char *device_name;
+   char *driver_name = NULL;
+   char *device_name = NULL;
    int fd = 0;
    drm_magic_t magic;
    Ecore_Buffer_Module_X11_Dri2_Data *mdata = NULL;
@@ -253,14 +253,14 @@ _ecore_buffer_x11_dri2_init(const char *context EINA_UNUSED, const char *options
      goto on_error;
 
    if (drmGetMagic(fd, &magic) < 0)
-     goto on_error;
+     goto on_fd_error;
 
    if (!(DRI2Authenticate(xdpy, root, magic)))
-     goto on_error;
+     goto on_fd_error;
 
    mdata->tbm_mgr = tbm_bufmgr_init(fd);
    if (!mdata->tbm_mgr)
-     goto on_error;
+     goto on_fd_error;
 
    free(driver_name);
    free(device_name);
@@ -268,8 +268,10 @@ _ecore_buffer_x11_dri2_init(const char *context EINA_UNUSED, const char *options
 
    return mdata;
 
+on_fd_error:
+   close(fd);
+
 on_error:
-   if (fd > 0) close(fd);
    if (driver_name) free(driver_name);
    if (device_name) free(device_name);
    if (mdata) free(mdata);

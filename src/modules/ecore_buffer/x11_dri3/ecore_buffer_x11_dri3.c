@@ -325,8 +325,8 @@ _dri3_open(Ecore_X_Display *dpy, Ecore_X_Window root, unsigned provider)
 static Ecore_X_Pixmap
 _dri3_pixmap_from_fd(Ecore_X_Display *dpy, Ecore_X_Drawable draw, int width, int height, int depth, int fd, int bpp, int stride, int size)
 {
-   xcb_connection_t *c = XGetXCBConnection(dpy);
-   Ecore_X_Pixmap pixmap = xcb_generate_id(c);
+   xcb_connection_t *c;
+   Ecore_X_Pixmap pixmap;
 
    if (!dpy)
      return 0;

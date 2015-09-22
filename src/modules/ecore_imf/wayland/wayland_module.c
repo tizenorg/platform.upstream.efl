@@ -69,7 +69,7 @@ static Ecore_IMF_Context_Class wayland_imf_class =
    wayland_im_context_input_panel_language_set,/* input_panel_language_set, */
    NULL,                                      /* input_panel_language_get, */
    wayland_im_context_cursor_location_set,    /* cursor_location_set */
-   NULL,                                      /* input_panel_imdata_set */
+   wayland_im_context_input_panel_imdata_set, /* input_panel_imdata_set */
    NULL,                                      /* input_panel_imdata_get */
    wayland_im_context_input_panel_return_key_type_set, /* input_panel_return_key_type_set */
    wayland_im_context_input_panel_return_key_disabled_set, /* input_panel_return_key_disabled_set */

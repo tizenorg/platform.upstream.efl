@@ -103,6 +103,9 @@ EAPI void
 wayland_im_context_input_panel_geometry_get(Ecore_IMF_Context *ctx,
                                             int *x, int *y, int *w, int *h);
 
+EAPI void
+wayland_im_context_input_panel_imdata_set(Ecore_IMF_Context *ctx, const void *data, int length);
+
 WaylandIMContext *wayland_im_context_new        (struct wl_text_input_manager *text_input_manager);
 
 extern int _ecore_imf_wayland_log_dom;

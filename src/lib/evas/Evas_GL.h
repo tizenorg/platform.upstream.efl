@@ -3810,6 +3810,14 @@ typedef unsigned long long EvasGLTime;
 #define EVAS_GL_TEXTURE_TARGET                  0x3081 /**< @brief Attribute for @ref evas_gl_surface_query, returns @ref EVAS_GL_TEXTURE_2D (if format is @c EVAS_GL_RGB_888 or @c EVAS_GL_RGBA_8888) or 0 (meaning @c NO_TEXTURE, from @c EVAS_GL_NO_FBO) (@c value should be an @c int) */
 /** @} */
 
+/* EGL_WL_bind_wayland_display */
+#define EVAS_GL_WAYLAND_BUFFER_WL               0x31D5 /**< @brief A target for @ref evasglCreateImage */
+#define EVAS_GL_WAYLAND_PLANE_WL                0x31D6 /**< @brief A attribute for @ref evasglCreateImage */
+#define EVAS_GL_TEXTURE_Y_U_V_WL                0x31D7 /**< @brief A return value of @ref evasglQueryWaylandBuffer with EVAS_GL_TEXTURE_FORMAT */
+#define EVAS_GL_TEXTURE_Y_UV_WL                 0x31D8 /**< @brief A return value of @ref evasglQueryWaylandBuffer with EVAS_GL_TEXTURE_FORMAT */
+#define EVAS_GL_TEXTURE_Y_XUXV_WL               0x31D9 /**< @brief A return value of @ref evasglQueryWaylandBuffer with EVAS_GL_TEXTURE_FORMAT */
+#define EVAS_GL_WAYLAND_Y_INVERTED_WL           0x31DB /**< @brief A attribute for @ref evasglQueryWaylandBuffer */
+/** @} */
 
 /**
  * @brief Defines the version of the API structure.

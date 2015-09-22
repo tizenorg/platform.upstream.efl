@@ -2177,8 +2177,13 @@ evgl_context_create(void *eng_data, EVGL_Context *share_ctx,
 
    if (!(rsc = _evgl_tls_resource_get()))
      {
-        ERR("Error creating resources in tls.");
-        return NULL;
+        DBG("Creating new TLS for this thread: %lu", (unsigned long)eina_thread_self());
+        rsc = _evgl_tls_resource_create(eng_data);
+        if (!rsc)
+          {
+             ERR("Error creating resources in tls.");
+             return NULL;
+          }
      }
 
    // Allocate context object

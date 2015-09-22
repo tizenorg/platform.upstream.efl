@@ -1807,6 +1807,10 @@ struct _Edje_Real_Part_Text
       const char         *in_font; // 4
       FLOAT_T             align_x, align_y; // 16
    } cache;
+
+   // TIZEN_ONLY(20150921): Skip calculation for Evas Textblock when text is never set.
+   Eina_Bool              text_enabled : 1;
+   //
 }; // 88
 // FIXME make text a potiner to struct and alloc at end
 // if part type is TEXT move common members textblock +

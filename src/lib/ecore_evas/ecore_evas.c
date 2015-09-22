@@ -2222,18 +2222,31 @@ ecore_evas_aux_hint_add(Ecore_Evas *ee, const char *hint, const char *val)
                   aux->val = eina_stringshare_add(val);
 
                   ee->prop.aux_hint.hints = eina_list_append(ee->prop.aux_hint.hints, aux);
+                  ee->prop.aux_hint.id++;
 
-                  Eina_Strbuf *buf = _ecore_evas_aux_hints_string_get(ee);
-                  if (buf)
+                  if (!strncmp(ee->driver, "wayland", 7))
                     {
-                       if (ee->engine.func->fn_aux_hints_set)
-                         ee->engine.func->fn_aux_hints_set(ee, eina_strbuf_string_get(buf));
+                       Ecore_Evas_Interface_Wayland *iface;
+                       iface = (Ecore_Evas_Interface_Wayland *)_ecore_evas_interface_get(ee, "wayland");
+                       EINA_SAFETY_ON_NULL_RETURN_VAL(iface, -1);
 
-                       eina_strbuf_free(buf);
-
-                       ee->prop.aux_hint.id++;
+                       if (iface->aux_hint_add)
+                         iface->aux_hint_add(ee, aux->id, hint, val);
 
                        return aux->id;
+                    }
+                  else
+                    {
+                       Eina_Strbuf *buf = _ecore_evas_aux_hints_string_get(ee);
+                       if (buf)
+                         {
+                            if (ee->engine.func->fn_aux_hints_set)
+                              ee->engine.func->fn_aux_hints_set(ee, eina_strbuf_string_get(buf));
+
+                            eina_strbuf_free(buf);
+
+                            return aux->id;
+                         }
                     }
 
                   eina_stringshare_del(aux->hint);
@@ -2269,15 +2282,29 @@ ecore_evas_aux_hint_del(Ecore_Evas *ee, const int id)
              eina_stringshare_del(aux->val);
              free(aux);
 
-             Eina_Strbuf *buf = _ecore_evas_aux_hints_string_get(ee);
-             if (buf)
+             if (!strncmp(ee->driver, "wayland", 7))
                {
-                  if (ee->engine.func->fn_aux_hints_set)
-                    ee->engine.func->fn_aux_hints_set(ee, eina_strbuf_string_get(buf));
+                  Ecore_Evas_Interface_Wayland *iface;
+                  iface = (Ecore_Evas_Interface_Wayland *)_ecore_evas_interface_get(ee, "wayland");
+                  EINA_SAFETY_ON_NULL_RETURN_VAL(iface, -1);
 
-                  eina_strbuf_free(buf);
+                  if (iface->aux_hint_del)
+                    iface->aux_hint_del(ee, id);
 
                   return EINA_TRUE;
+               }
+             else
+               {
+                  Eina_Strbuf *buf = _ecore_evas_aux_hints_string_get(ee);
+                  if (buf)
+                    {
+                       if (ee->engine.func->fn_aux_hints_set)
+                         ee->engine.func->fn_aux_hints_set(ee, eina_strbuf_string_get(buf));
+
+                       eina_strbuf_free(buf);
+
+                       return EINA_TRUE;
+                    }
                }
              break;
           }
@@ -2307,15 +2334,29 @@ ecore_evas_aux_hint_val_set(Ecore_Evas *ee, const int id, const char *val)
 			 aux->allowed = 0;
 			 aux->notified = 0;
 
-             Eina_Strbuf *buf = _ecore_evas_aux_hints_string_get(ee);
-             if (buf)
+             if (!strncmp(ee->driver, "wayland", 7))
                {
-                  if (ee->engine.func->fn_aux_hints_set)
-                    ee->engine.func->fn_aux_hints_set(ee, eina_strbuf_string_get(buf));
+                  Ecore_Evas_Interface_Wayland *iface;
+                  iface = (Ecore_Evas_Interface_Wayland *)_ecore_evas_interface_get(ee, "wayland");
+                  EINA_SAFETY_ON_NULL_RETURN_VAL(iface, -1);
 
-                  eina_strbuf_free(buf);
+                  if (iface->aux_hint_change)
+                    iface->aux_hint_change(ee, id, val);
 
                   return EINA_TRUE;
+               }
+             else
+               {
+                  Eina_Strbuf *buf = _ecore_evas_aux_hints_string_get(ee);
+                  if (buf)
+                    {
+                       if (ee->engine.func->fn_aux_hints_set)
+                         ee->engine.func->fn_aux_hints_set(ee, eina_strbuf_string_get(buf));
+
+                       eina_strbuf_free(buf);
+
+                       return EINA_TRUE;
+                    }
                }
              break;
           }

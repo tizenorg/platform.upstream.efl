@@ -195,6 +195,8 @@ struct _Ecore_Wl_Window
         Eina_Bool valid : 1;
      } rotation_geometry_hints[4];
 
+      Eina_List      *supported_aux_hints;
+
    /* Eina_Bool redraw_scheduled : 1; */
    /* Eina_Bool resize_scheduled : 1; */
    Eina_Bool alpha : 1;

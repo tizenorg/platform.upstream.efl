@@ -34,7 +34,7 @@ EVAS_SMART_SUBCLASS_NEW(_smart_frame_type, _ecore_evas_wl_frame,
 
 /* local variables */
 static int _ecore_evas_wl_init_count = 0;
-static Ecore_Event_Handler *_ecore_evas_wl_event_hdls[7];
+static Ecore_Event_Handler *_ecore_evas_wl_event_hdls[8];
 
 static void _ecore_evas_wayland_resize(Ecore_Evas *ee, int location);
 
@@ -375,6 +375,35 @@ _ecore_evas_wl_common_cb_conformant_change(void *data EINA_UNUSED, int type EINA
 }
 
 static Eina_Bool
+_ecore_evas_wl_common_cb_aux_hint_allowed(void *data  EINA_UNUSED, int type EINA_UNUSED, void *event)
+{
+   Ecore_Evas *ee;
+   Ecore_Wl_Event_Aux_Hint_Allowed *ev;
+   Eina_List *l;
+   Ecore_Evas_Aux_Hint *aux;
+
+   ev = event;
+   ee = ecore_event_window_match(ev->win);
+   if (!ee) return ECORE_CALLBACK_PASS_ON;
+   if (ev->win != ee->prop.window) return ECORE_CALLBACK_PASS_ON;
+
+   EINA_LIST_FOREACH(ee->prop.aux_hint.hints, l, aux)
+     {
+        if (aux->id == ev->id)
+          {
+             aux->allowed = 1;
+             if (!aux->notified)
+               {
+                  _ecore_evas_wl_common_state_update(ee);
+                  aux->notified = 1;
+                }
+             break;
+          }
+     }
+   return ECORE_CALLBACK_PASS_ON;
+}
+
+static Eina_Bool
 _ecore_evas_wl_common_cb_window_rotate(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
    Ecore_Evas *ee;
@@ -626,6 +655,9 @@ _ecore_evas_wl_common_init(void)
    _ecore_evas_wl_event_hdls[6] =
      ecore_event_handler_add(ECORE_WL_EVENT_WINDOW_ROTATE,
                              _ecore_evas_wl_common_cb_window_rotate, NULL);
+   _ecore_evas_wl_event_hdls[7] =
+     ecore_event_handler_add(ECORE_WL_EVENT_AUX_HINT_ALLOWED,
+                             _ecore_evas_wl_common_cb_aux_hint_allowed, NULL);
 
    ecore_event_evas_init();
 
@@ -1281,6 +1313,18 @@ _ecore_evas_wl_common_wm_rot_manual_rotation_done(Ecore_Evas *ee)
                (_ecore_evas_wl_common_wm_rot_manual_rotation_done_job, ee);
           }
      }
+}
+
+void
+_ecore_evas_wl_common_aux_hints_supported_update(Ecore_Evas *ee)
+{
+   Ecore_Evas_Engine_Wl_Data *wdata;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!ee) return;
+   wdata = ee->engine.data;
+   ee->prop.aux_hint.supported_list = ecore_wl_window_aux_hints_supported_get(wdata->win);
 }
 
 void
@@ -1949,6 +1993,36 @@ _ecore_evas_wayland_pointer_set(Ecore_Evas *ee EINA_UNUSED, int hot_x EINA_UNUSE
 
 }
 
+static void
+_ecore_evas_wayland_aux_hint_add(Ecore_Evas *ee EINA_UNUSED, int id, const char *hint, const char *val)
+{
+   Ecore_Evas_Engine_Wl_Data *wdata;
+
+   if (!ee) return;
+   wdata = ee->engine.data;
+   ecore_wl_window_aux_hint_add(wdata->win, id, hint, val);
+}
+
+static void
+_ecore_evas_wayland_aux_hint_change(Ecore_Evas *ee EINA_UNUSED, int id, const char *val)
+{
+   Ecore_Evas_Engine_Wl_Data *wdata;
+
+   if (!ee) return;
+   wdata = ee->engine.data;
+   ecore_wl_window_aux_hint_change(wdata->win, id, val);
+}
+
+static void
+_ecore_evas_wayland_aux_hint_del(Ecore_Evas *ee EINA_UNUSED, int id)
+{
+   Ecore_Evas_Engine_Wl_Data *wdata;
+
+   if (!ee) return;
+   wdata = ee->engine.data;
+   ecore_wl_window_aux_hint_del(wdata->win, id);
+}
+
 Ecore_Evas_Interface_Wayland *
 _ecore_evas_wl_interface_new(void)
 {
@@ -1965,6 +2039,9 @@ _ecore_evas_wl_interface_new(void)
    iface->pointer_set = _ecore_evas_wayland_pointer_set;
    iface->type_set = _ecore_evas_wayland_type_set;
    iface->window_get = _ecore_evas_wayland_window_get;
+   iface->aux_hint_add = _ecore_evas_wayland_aux_hint_add;
+   iface->aux_hint_change = _ecore_evas_wayland_aux_hint_change;
+   iface->aux_hint_del = _ecore_evas_wayland_aux_hint_del;
 
 #ifdef BUILD_ECORE_EVAS_WAYLAND_EGL
    iface->pre_post_swap_callback_set = 

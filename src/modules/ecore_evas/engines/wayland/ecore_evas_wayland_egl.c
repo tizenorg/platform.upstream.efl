@@ -257,6 +257,8 @@ ecore_evas_wayland_egl_new_internal(const char *disp_name, unsigned int parent,
         evas_object_layer_set(wdata->frame, EVAS_LAYER_MAX - 1);
      }
 
+   _ecore_evas_wl_common_aux_hints_supported_update(ee);
+
    ee->engine.func->fn_render = _ecore_evas_wl_common_render;
 
    _ecore_evas_register(ee);

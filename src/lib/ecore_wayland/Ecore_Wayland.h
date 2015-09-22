@@ -49,6 +49,7 @@ typedef struct _Ecore_Wl_Dnd Ecore_Wl_Dnd;
 
 typedef struct _Ecore_Wl_Dnd_Source Ecore_Wl_Dnd_Source;
 typedef struct _Ecore_Wl_Dnd_Target Ecore_Wl_Dnd_Target;
+typedef struct _Ecore_Wl_Aux_Hint Ecore_Wl_Aux_Hint;
 
 typedef struct _Ecore_Wl_Event_Mouse_In Ecore_Wl_Event_Mouse_In;
 typedef struct _Ecore_Wl_Event_Mouse_Out Ecore_Wl_Event_Mouse_Out;
@@ -73,6 +74,7 @@ typedef struct _Ecore_Wl_Event_Data_Source_Target  Ecore_Wl_Event_Data_Source_Ta
 typedef struct _Ecore_Wl_Event_Selection_Data_Ready Ecore_Wl_Event_Selection_Data_Ready; /** @since 1.7 */
 typedef struct _Ecore_Wl_Event_Interfaces_Bound Ecore_Wl_Event_Interfaces_Bound;
 typedef struct _Ecore_Wl_Event_Conformant_Change Ecore_Wl_Event_Conformant_Change;
+typedef struct _Ecore_Wl_Event_Aux_Hint_Allowed Ecore_Wl_Event_Aux_Hint_Allowed;
 
 enum _Ecore_Wl_Window_Type
 {
@@ -344,6 +346,12 @@ struct _Ecore_Wl_Event_Conformant_Change
    Eina_Bool state;
 };
 
+struct _Ecore_Wl_Event_Aux_Hint_Allowed
+{
+   unsigned int win;
+   int id;
+};
+
 /**
  * @file
  * @brief Ecore functions for dealing with the Wayland window system
@@ -388,6 +396,7 @@ EAPI extern int ECORE_WL_EVENT_DATA_SOURCE_CANCELLED; /** @since 1.7 */
 EAPI extern int ECORE_WL_EVENT_SELECTION_DATA_READY; /** @since 1.7 */
 EAPI extern int ECORE_WL_EVENT_INTERFACES_BOUND;
 EAPI extern int ECORE_WL_EVENT_CONFORMANT_CHANGE;
+EAPI extern int ECORE_WL_EVENT_AUX_HINT_ALLOWED;
 
 /**
  * @defgroup Ecore_Wl_Init_Group Wayland Library Init and Shutdown Functions
@@ -1032,6 +1041,11 @@ EAPI void ecore_wl_window_rotation_preferred_rotation_set(Ecore_Wl_Window *win, 
 EAPI void ecore_wl_window_rotation_available_rotations_set(Ecore_Wl_Window *win, const int *rots, unsigned int count);
 EAPI void ecore_wl_window_rotation_change_done_send(Ecore_Wl_Window *win);
 EAPI void ecore_wl_window_rotation_geometry_set(Ecore_Wl_Window *win, int rot, int x, int y, int w, int h);
+
+EAPI Eina_List * ecore_wl_window_aux_hints_supported_get(Ecore_Wl_Window *win);
+EAPI void ecore_wl_window_aux_hint_add(Ecore_Wl_Window *win, int id, const char *hint, const char *val);
+EAPI void ecore_wl_window_aux_hint_change(Ecore_Wl_Window *win, int id, const char *val);
+EAPI void ecore_wl_window_aux_hint_del(Ecore_Wl_Window *win, int id);
 
 #ifdef __cplusplus
 }

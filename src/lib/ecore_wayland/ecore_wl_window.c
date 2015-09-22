@@ -146,6 +146,14 @@ ecore_wl_window_new(Ecore_Wl_Window *parent, int x, int y, int w, int h, int buf
    return win;
 }
 
+void
+_ecore_wl_window_aux_hint_free(Ecore_Wl_Window *win)
+{
+   char *supported;
+   EINA_LIST_FREE(win->supported_aux_hints, supported)
+     if (supported) eina_stringshare_del(supported);
+}
+
 EAPI void 
 ecore_wl_window_free(Ecore_Wl_Window *win)
 {
@@ -205,6 +213,8 @@ ecore_wl_window_free(Ecore_Wl_Window *win)
    if (win->title) eina_stringshare_del(win->title);
    if (win->class_name) eina_stringshare_del(win->class_name);
    if (win->role) eina_stringshare_del(win->role);
+
+   _ecore_wl_window_aux_hint_free(win);
 
    /* HMMM, why was this disabled ? */
    free(win);
@@ -1874,4 +1884,56 @@ ecore_wl_window_conformant_get(Ecore_Wl_Window *win)
    ecore_wl_sync();
 
    return win->conformant;
+}
+
+EAPI Eina_List *
+ecore_wl_window_aux_hints_supported_get(Ecore_Wl_Window *win)
+{
+   Eina_List *res = NULL;
+   Eina_List *ll;
+   char *supported_hint = NULL;
+   const char *hint = NULL;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return 0;
+   if (!win->surface) return 0;
+   if (!_ecore_wl_disp->wl.tz_policy) return 0;
+
+   tizen_policy_get_supported_aux_hints(_ecore_wl_disp->wl.tz_policy, win->surface);
+
+   ecore_wl_sync();
+
+   EINA_LIST_FOREACH(win->supported_aux_hints, ll, supported_hint)
+     {
+        hint = eina_stringshare_add(supported_hint);
+        res = eina_list_append(res, hint);
+     }
+   return res;
+}
+
+EAPI void
+ecore_wl_window_aux_hint_add(Ecore_Wl_Window *win, int id, const char *hint, const char *val)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return;
+   if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
+     tizen_policy_add_aux_hint(_ecore_wl_disp->wl.tz_policy, win->surface, id, hint, val);
+}
+
+EAPI void
+ecore_wl_window_aux_hint_change(Ecore_Wl_Window *win, int id, const char *val)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return;
+   if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
+     tizen_policy_change_aux_hint(_ecore_wl_disp->wl.tz_policy, win->surface, id, val);
+}
+
+EAPI void
+ecore_wl_window_aux_hint_del(Ecore_Wl_Window *win, int id)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return;
+   if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
+     tizen_policy_del_aux_hint(_ecore_wl_disp->wl.tz_policy, win->surface, id);
 }

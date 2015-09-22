@@ -46,6 +46,8 @@ static void _ecore_wl_cb_conformant_area(void *data EINA_UNUSED, struct tizen_po
 static void _ecore_wl_cb_notification_done(void *data, struct tizen_policy *tizen_policy, struct wl_surface *surface, int32_t level, uint32_t state);
 static void _ecore_wl_cb_transient_for_done(void *data, struct tizen_policy *tizen_policy, uint32_t child_id);
 static void _ecore_wl_cb_scr_mode_done(void *data, struct tizen_policy *tizen_policy, struct wl_surface *surface, uint32_t mode, uint32_t state);
+static void _ecore_wl_cb_supported_aux_hints(void *data  EINA_UNUSED, struct tizen_policy *tizen_policy  EINA_UNUSED, struct wl_surface *surface_resource, struct wl_array *hints, uint32_t num_hints);
+static void _ecore_wl_cb_allowed_aux_hint(void *data  EINA_UNUSED, struct tizen_policy *tizen_policy  EINA_UNUSED, struct wl_surface *surface_resource, int id);
 static void _ecore_wl_window_conformant_area_send(Ecore_Wl_Window *win, uint32_t conformant_part, uint32_t state);
 
 /* local variables */
@@ -93,6 +95,8 @@ static const struct tizen_policy_listener _ecore_tizen_policy_listener =
    _ecore_wl_cb_notification_done,
    _ecore_wl_cb_transient_for_done,
    _ecore_wl_cb_scr_mode_done,
+   _ecore_wl_cb_supported_aux_hints,
+   _ecore_wl_cb_allowed_aux_hint,
 };
 static void 
 xdg_shell_ping(void *data EINA_UNUSED, struct xdg_shell *shell, uint32_t serial)
@@ -133,6 +137,7 @@ EAPI int ECORE_WL_EVENT_SELECTION_DATA_READY = 0;
 EAPI int ECORE_WL_EVENT_DATA_SOURCE_CANCELLED = 0;
 EAPI int ECORE_WL_EVENT_INTERFACES_BOUND = 0;
 EAPI int ECORE_WL_EVENT_CONFORMANT_CHANGE = 0;
+EAPI int ECORE_WL_EVENT_AUX_HINT_ALLOWED = 0;
 
 static void
 _ecore_wl_init_callback(void *data, struct wl_callback *callback, uint32_t serial EINA_UNUSED)
@@ -211,6 +216,7 @@ ecore_wl_init(const char *name)
         ECORE_WL_EVENT_DATA_SOURCE_CANCELLED = ecore_event_type_new();
         ECORE_WL_EVENT_INTERFACES_BOUND = ecore_event_type_new();
         ECORE_WL_EVENT_CONFORMANT_CHANGE = ecore_event_type_new();
+        ECORE_WL_EVENT_AUX_HINT_ALLOWED = ecore_event_type_new();
      }
 
    if (!(_ecore_wl_disp = malloc(sizeof(Ecore_Wl_Display))))
@@ -1313,4 +1319,69 @@ _ecore_wl_cb_transient_for_done(void *data EINA_UNUSED, struct tizen_policy *tiz
 static void
 _ecore_wl_cb_scr_mode_done(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface EINA_UNUSED, uint32_t mode EINA_UNUSED, uint32_t state EINA_UNUSED)
 {
+}
+
+static void
+_ecore_wl_cb_supported_aux_hints(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface_resource, struct wl_array *hints, uint32_t num_hints)
+{
+   struct wl_surface *surface = surface_resource;
+   Ecore_Wl_Window *win = NULL;
+   char *p = NULL;
+   char **str = NULL;
+   const char *hint = NULL;
+   unsigned int i = 0;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!surface) return;
+   win = ecore_wl_window_surface_find(surface);
+   if (!win) return;
+
+   p = hints->data;
+   str = calloc(num_hints, sizeof(char *));
+   if (!str) return;
+
+   while ((const char *)p < ((const char *)hints->data + hints->size))
+     {
+        str[i] = (char *)eina_stringshare_add(p);
+        p += strlen(p) + 1;
+        i++;
+     }
+   for (i = 0; i < num_hints; i++)
+     {
+        hint = eina_stringshare_add(str[i]);
+        win->supported_aux_hints =
+               eina_list_append(win->supported_aux_hints, hint);
+     }
+   if (str)
+     {
+        for (i = 0; i < num_hints; i++)
+          {
+             if (str[i])
+               {
+                  eina_stringshare_del(str[i]);
+                  str[i] = NULL;
+               }
+          }
+        free(str);
+     }
+}
+
+static void
+_ecore_wl_cb_allowed_aux_hint(void *data  EINA_UNUSED, struct tizen_policy *tizen_policy  EINA_UNUSED, struct wl_surface *surface_resource, int id)
+{
+   struct wl_surface *surface = surface_resource;
+   Ecore_Wl_Window *win = NULL;
+   Ecore_Wl_Event_Aux_Hint_Allowed *ev;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!surface) return;
+   win = ecore_wl_window_surface_find(surface);
+   if (!win) return;
+
+   if (!(ev = calloc(1, sizeof(Ecore_Wl_Event_Aux_Hint_Allowed)))) return;
+   ev->win = win->id;
+   ev->id = id;
+   ecore_event_add(ECORE_WL_EVENT_AUX_HINT_ALLOWED, ev, NULL, NULL);
 }

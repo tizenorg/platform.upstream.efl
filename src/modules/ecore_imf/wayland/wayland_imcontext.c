@@ -90,6 +90,9 @@ struct _WaylandIMContext
    uint32_t return_key_type;
 
    Eina_Bool return_key_disabled;
+
+   void *imdata;
+   uint32_t imdata_size;
 };
 
 // TIZEN_ONLY(20150708): Support back key
@@ -404,6 +407,9 @@ show_input_panel(Ecore_IMF_Context *ctx)
 
         wl_text_input_set_return_key_disabled(imcontext->text_input,
                                               imcontext->return_key_disabled);
+
+        if (imcontext->imdata_size > 0)
+          wl_text_input_set_input_panel_data(imcontext->text_input, (const char *)imcontext->imdata, imcontext->imdata_size);
      }
 
    return EINA_TRUE;
@@ -799,6 +805,13 @@ wayland_im_context_del(Ecore_IMF_Context *ctx)
         imcontext->language = NULL;
      }
 
+   if (imcontext->imdata)
+     {
+        free(imcontext->imdata);
+        imcontext->imdata = NULL;
+        imcontext->imdata_size = 0;
+     }
+
    if (imcontext->text_input)
      wl_text_input_destroy(imcontext->text_input);
 
@@ -1166,6 +1179,19 @@ wayland_im_context_input_panel_geometry_get(Ecore_IMF_Context *ctx,
 
    if (imcontext->window)
      ecore_wl_window_keyboard_geometry_get(imcontext->window, x, y, w, h);
+}
+
+EAPI void
+wayland_im_context_input_panel_imdata_set(Ecore_IMF_Context *ctx, const void *data, int length)
+{
+   WaylandIMContext *imcontext = (WaylandIMContext *)ecore_imf_context_data_get(ctx);
+
+   if (imcontext->imdata)
+     free(imcontext->imdata);
+
+   imcontext->imdata = calloc(1, length);
+   memcpy(imcontext->imdata, data, length);
+   imcontext->imdata_size = length;
 }
 
 WaylandIMContext *wayland_im_context_new (struct wl_text_input_manager *text_input_manager)

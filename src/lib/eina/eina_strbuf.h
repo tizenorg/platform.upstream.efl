@@ -484,6 +484,10 @@ EAPI Eina_Bool eina_strbuf_insert_vprintf(Eina_Strbuf *buf, const char *fmt, siz
  * @def eina_strbuf_prepend(buf, str)
  * @brief Prepend the given string to the given buffer
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * @param buf The string buffer to prepend to.
  * @param str The string to prepend.
  * @return #EINA_TRUE on success, #EINA_FALSE on failure.
@@ -498,6 +502,10 @@ EAPI Eina_Bool eina_strbuf_insert_vprintf(Eina_Strbuf *buf, const char *fmt, siz
  * @def eina_strbuf_prepend_escaped(buf, str)
  * @brief Prepend the given escaped string to the given buffer
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * @param buf The string buffer to prepend to.
  * @param str The string to prepend.
  * @return #EINA_TRUE on success, #EINA_FALSE on failure.
@@ -511,6 +519,10 @@ EAPI Eina_Bool eina_strbuf_insert_vprintf(Eina_Strbuf *buf, const char *fmt, siz
 /**
  * @def eina_strbuf_prepend_n(buf, str)
  * @brief Prepend the given escaped string to the given buffer
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  *
  * @param buf The string buffer to prepend to.
  * @param str The string to prepend.
@@ -527,6 +539,10 @@ EAPI Eina_Bool eina_strbuf_insert_vprintf(Eina_Strbuf *buf, const char *fmt, siz
  * @def eina_strbuf_prepend_length(buf, str)
  * @brief Prepend the given escaped string to the given buffer
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * @param buf The string buffer to prepend to.
  * @param str The string to prepend.
  * @param length The exact length to use.
@@ -542,6 +558,10 @@ EAPI Eina_Bool eina_strbuf_insert_vprintf(Eina_Strbuf *buf, const char *fmt, siz
  * @def eina_strbuf_prepend_char(buf, str)
  * @brief Prepend the given character to the given buffer
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * @param buf The string buffer to prepend to.
  * @param c The character to prepend.
  * @return #EINA_TRUE on success, #EINA_FALSE on failure.
@@ -556,6 +576,10 @@ EAPI Eina_Bool eina_strbuf_insert_vprintf(Eina_Strbuf *buf, const char *fmt, siz
  * @def eina_strbuf_prepend_printf(buf, fmt, ...)
  * @brief Prepend the given string to the given buffer
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * @param buf The string buffer to prepend to.
  * @param fmt The string to prepend.
  * @return #EINA_TRUE on success, #EINA_FALSE on failure.
@@ -569,6 +593,10 @@ EAPI Eina_Bool eina_strbuf_insert_vprintf(Eina_Strbuf *buf, const char *fmt, siz
 /**
  * @def eina_strbuf_prepend_vprintf(buf, fmt, args)
  * @brief Prepend the given string to the given buffer
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  *
  * @param buf The string buffer to prepend to.
  * @param fmt The string to prepend.
@@ -691,6 +719,10 @@ EAPI Eina_Bool eina_strbuf_replace(Eina_Strbuf *buf, const char *str, const char
 /**
  * @def eina_strbuf_replace_first(buf, str, with)
  * @brief Prepend the given character to the given buffer
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  *
  * @param buf The string buffer to work with.
  * @param str The string to replace.

@@ -1226,6 +1226,10 @@ EAPI void eina_hash_list_remove(Eina_Hash *hash, const void *key, const void *da
  * @brief
  * Paul Hsieh (http://www.azillionmonkeys.com/qed/hash.html) hash function used by WebCore (http://webkit.org/blog/8/hashtables-part-2/)
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * @param[in] key The key to hash
  * @param[in] len The length of the key
  * @return The hash value

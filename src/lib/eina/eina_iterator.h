@@ -271,6 +271,10 @@ EAPI void eina_iterator_foreach(Eina_Iterator *iterator,
 /**
  * @brief Lock the container of the iterator.
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * @param iterator The iterator.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.
  *
@@ -286,6 +290,10 @@ EAPI Eina_Bool eina_iterator_lock(Eina_Iterator *iterator) EINA_ARG_NONNULL(1);
 
 /**
  * @brief Unlock the container of the iterator.
+ *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  *
  * @param iterator The iterator.
  * @return #EINA_TRUE on success, #EINA_FALSE otherwise.

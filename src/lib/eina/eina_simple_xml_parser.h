@@ -357,6 +357,10 @@ EAPI Eina_Simple_XML_Node_Tag * eina_simple_xml_node_tag_new(Eina_Simple_XML_Nod
 /**
  * Remove tag from parent and delete it.
  *
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
+ *
  * @param tag to release memory.
  */
 EAPI void eina_simple_xml_node_tag_free(Eina_Simple_XML_Node_Tag *tag);

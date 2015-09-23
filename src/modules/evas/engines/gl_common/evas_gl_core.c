@@ -2791,6 +2791,10 @@ evgl_native_surface_direct_opts_get(Evas_Native_Surface *ns,
      {
         sfc = ns->data.evasgl.surface;
      }
+   else if (ns->type == EVAS_NATIVE_SURFACE_WL)
+     {
+        return EINA_FALSE;
+     }
    else
      {
         ERR("Only EVAS_NATIVE_SURFACE_OPENGL or EVAS_NATIVE_SURFACE_X11 can be used for direct rendering");

@@ -82,26 +82,33 @@
 static const char o_type[] = "textblock";
 
 /* The char to be inserted instead of visible formats */
+#define _REPLACEMENT_CHAR 0xFFFC
 // TIZEN_ONLY(20150709): Replace the replacement character to 0x00A0 which is empty character.
-//#define _REPLACEMENT_CHAR 0xFFFC
-#define _REPLACEMENT_CHAR 0x00A0
+#define _TIZEN_REPLACEMENT_CHAR 0x00A0
 //
 #define _PARAGRAPH_SEPARATOR 0x2029
 #define _NEWLINE '\n'
 #define _TAB '\t'
 
+#define _REPLACEMENT_CHAR_UTF8 "\xEF\xBF\xBC"
 // TIZEN_ONLY(20150811): Replace the replacement character to 0x00A0 which is empty character.
-//#define _REPLACEMENT_CHAR_UTF8 "\xEF\xBF\xBC"
-#define _REPLACEMENT_CHAR_UTF8 "\xC2\xA0"
+#define _TIZEN_REPLACEMENT_CHAR_UTF8 "\xC2\xA0"
 //
 #define _PARAGRAPH_SEPARATOR_UTF8 "\xE2\x80\xA9"
 #define _NEWLINE_UTF8 "\n"
 #define _TAB_UTF8 "\t"
+// TIZEN_ONLY(20150924): Fix misuse of 0x00A0 as replacement character.
+//#define EVAS_TEXTBLOCK_IS_VISIBLE_FORMAT_CHAR(ch)
+//   (((ch) == _REPLACEMENT_CHAR) ||
+//    ((ch) ==  _NEWLINE) ||
+//    ((ch) == _TAB) ||
+//    ((ch) == _PARAGRAPH_SEPARATOR))
 #define EVAS_TEXTBLOCK_IS_VISIBLE_FORMAT_CHAR(ch) \
-   (((ch) == _REPLACEMENT_CHAR) || \
+   (((ch) == _TIZEN_REPLACEMENT_CHAR) || \
     ((ch) ==  _NEWLINE) || \
     ((ch) == _TAB) || \
     ((ch) == _PARAGRAPH_SEPARATOR))
+//
 
 #ifdef CRI
 #undef CRI
@@ -6913,7 +6920,10 @@ evas_textblock_text_markup_to_utf8(const Evas_Object *eo_obj, const char *text)
                        else if (_IS_TAB(match))
                           eina_strbuf_append(sbuf, _TAB_UTF8);
                        else if (!strncmp(match, "item", 4))
-                          eina_strbuf_append(sbuf, _REPLACEMENT_CHAR_UTF8);
+                          // TIZEN_ONLY(20150924): Fix misuse of 0x00A0 as replacement character.
+                          //eina_strbuf_append(sbuf, _REPLACEMENT_CHAR_UTF8);
+                          eina_strbuf_append(sbuf, _TIZEN_REPLACEMENT_CHAR_UTF8);
+                          //
 
                        free(ttag);
                     }
@@ -9250,7 +9260,10 @@ evas_textblock_cursor_format_append(Evas_Textblock_Cursor *cur, const char *form
         else if (_IS_TAB(format))
            insert_char = _TAB;
         else
-           insert_char = _REPLACEMENT_CHAR;
+           // TIZEN_ONLY(20150924): Fix misuse of 0x00A0 as replacement character.
+           //insert_char = _REPLACEMENT_CHAR;
+           insert_char = _TIZEN_REPLACEMENT_CHAR;
+           //
 
         eina_ustrbuf_insert_char(cur->node->unicode, insert_char, cur->pos);
 

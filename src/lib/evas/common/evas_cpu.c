@@ -243,6 +243,18 @@ evas_common_cpu_init(void)
      }
 # endif
 #endif
+#if defined(__aarch64__)
+# ifdef BUILD_NEON
+   if (getenv("EVAS_CPU_NO_NEON"))
+     cpu_feature_mask &= ~CPU_FEATURE_NEON;
+   else
+     {
+        cpu_feature_mask |= CPU_FEATURE_NEON *
+          evas_common_cpu_feature_test(evas_common_cpu_neon_test);
+        evas_common_cpu_end_opt();
+     }
+# endif
+#endif
 }
 
 int

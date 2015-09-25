@@ -87,6 +87,16 @@ struct _EVGL_Interface
 
    // partial rendering disable
    void        (*partial_rendering_disable)(void *data);
+
+   // If changed evgl config then recreate surface and context
+   int       (*check_egl_config)(void *data, EVGL_Engine *evgl_engine, EVGL_Surface *sfc, EVGL_Context *ctx, EVGL_Resource *rsc);
+
+   // create eina tls new
+   void       (*context_eina_tls_new)(EVGL_Engine *evgl_engine);
+
+   // destory eina tls context
+   void       (*context_eina_tls_destroy)(void *data, EVGL_Engine *evgl_engine);
+
 };
 
 struct _EVGL_Surface
@@ -160,6 +170,8 @@ struct _EVGL_Surface
    //-------------------------//
 
    EVGL_Context *current_ctx;
+   // TIZEN_ONLY
+   unsigned int     egl_reconfig : 1;
 };
 
 
@@ -331,6 +343,9 @@ struct _EVGL_Engine
    int                resource_count;
    int                main_tid;
 
+   //TIZEN_ONLY
+   Eina_TLS           context_key;
+
    // Add more debug logs (DBG levels 4 and 6)
    int                api_debug_mode;
 
@@ -348,7 +363,7 @@ struct _EVGL_Engine
    Eina_List         *surfaces;
    Eina_List         *contexts;
 
-   //void              *engine_data;  
+   //void              *engine_data;
    Eina_Hash         *safe_extensions;
 };
 

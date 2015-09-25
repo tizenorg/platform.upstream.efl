@@ -1342,6 +1342,8 @@ try_again:
              sfc->depth_stencil_fmt = evgl_engine->caps.fbo_fmts[i].depth_stencil_fmt;
              sfc->msaa_samples      = evgl_engine->caps.fbo_fmts[i].samples;
 
+             // TIZEN_ONLY
+             /*
              if (evgl_engine->funcs->native_win_surface_config_get)
                evgl_engine->funcs->native_win_surface_config_get(eng_data, &native_win_depth, &native_win_stencil, &native_win_msaa);
              if ((native_win_depth >= depth_size)
@@ -1357,6 +1359,8 @@ try_again:
                       native_win_depth, native_win_stencil, native_win_msaa);
                   support_win_cfg = EINA_FALSE;
                }
+               */
+             support_win_cfg = EINA_TRUE;
 
              if ((sfc->direct_override) || support_win_cfg)
                sfc->direct_fb_opt = !!(cfg->options_bits & EVAS_GL_OPTIONS_DIRECT);
@@ -1723,6 +1727,11 @@ evgl_engine_init(void *eng_data, const EVGL_Interface *efunc)
      }
    DBG("TLS KEY created: %d", evgl_engine->resource_key);
 
+   // TIZEN_ONLY
+   // Initialize context TLS
+   if (evgl_engine->funcs->context_eina_tls_new)
+      evgl_engine->funcs->context_eina_tls_new(evgl_engine);
+
    evgl_engine->safe_extensions = eina_hash_string_small_new(NULL);
 
    // Initialize Extensions
@@ -1793,6 +1802,9 @@ error:
         eina_hash_free(evgl_engine->safe_extensions);
         if (evgl_engine->resource_key)
           eina_tls_free(evgl_engine->resource_key);
+        // TIZEN_ONLY
+        if (evgl_engine->context_key)
+           eina_tls_free(evgl_engine->context_key);
         LKD(evgl_engine->resource_lock);
         free(evgl_engine);
      }
@@ -1819,6 +1831,10 @@ evgl_engine_shutdown(void *eng_data)
 
    // Destroy internal resources
    _evgl_tls_resource_destroy(eng_data);
+
+   // TIZEN_ONLY
+   if (evgl_engine->funcs->context_eina_tls_destroy)
+      evgl_engine->funcs->context_eina_tls_destroy(eng_data, evgl_engine);
 
    LKD(evgl_engine->resource_lock);
 
@@ -1907,6 +1923,15 @@ evgl_surface_create(void *eng_data, Evas_GL_Config *cfg, int w, int h)
    //TIZEN ONLY
    if (evgl_engine->funcs->partial_rendering_disable)
      evgl_engine->funcs->partial_rendering_disable(eng_data);
+
+   //TIZEN ONLY
+   if (sfc->direct_fb_opt)
+      {
+         EVGL_Resource *rsc = _evgl_tls_resource_get();
+         if (evgl_engine->funcs->check_egl_config)
+            evgl_engine->funcs->check_egl_config(eng_data, evgl_engine, sfc, NULL, rsc);
+      }
+
    return sfc;
 
 error:
@@ -2390,6 +2415,10 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
         evas_gl_common_tiling_done(NULL);
         rsc->current_ctx->partial_render = 0;
      }
+
+   // TIZEN_ONLY
+   if (sfc->direct_fb_opt && evgl_engine->funcs->check_egl_config)
+      evgl_engine->funcs->check_egl_config(eng_data, evgl_engine, sfc, ctx, rsc);
 
    // Do a make current
    if (!_internal_resource_make_current(eng_data, ctx))

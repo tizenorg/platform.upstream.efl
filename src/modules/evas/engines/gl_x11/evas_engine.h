@@ -65,6 +65,7 @@ struct _Outbuf
    EGLSurface       egl_surface[2];
    EGLConfig        egl_config;
    EGLDisplay       egl_disp;
+   unsigned int     egl_reconfig : 1; // TIZEN_ONLY
 #else
    GLXContext       context;
    GLXWindow        glxwin;

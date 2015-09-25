@@ -1264,6 +1264,202 @@ evgl_eng_partial_rendering_disable(void *data EINA_UNUSED)
    extn_have_buffer_age = 0;
 }
 
+// TIZEN_ONLY
+void
+evgl_eng_context_eina_tls_new(EVGL_Engine *evgl_engine)
+{
+   if (!evgl_engine)
+      return;
+   // Initialize Context TLS
+   evgl_engine->context_key = 0;
+   if (!eina_tls_new(&evgl_engine->context_key))
+     {
+        ERR("Error creating context_key ");
+        return;
+     }
+   eina_tls_set(evgl_engine->context_key, NULL);
+}
+
+// TIZEN_ONLY
+EVGLNative_Context *
+_evgl_tls_context_get(EVGL_Engine *evgl_engine)
+{
+   if (!evgl_engine)
+      return NULL;
+
+   EVGLNative_Context *ctx = NULL;
+
+   ctx = eina_tls_get(evgl_engine->context_key);
+
+   if (!ctx)
+      return NULL;
+   else
+      return ctx;
+}
+
+// TIZEN_ONLY
+void
+_evgl_tls_context_set(EVGL_Engine *evgl_engine, EVGLNative_Context *ctx)
+{
+   if (!evgl_engine)
+      return;
+   eina_tls_set(evgl_engine->context_key, ctx);
+}
+
+// TIZEN_ONLY
+void
+evgl_eng_context_eina_tls_destroy(void *eng_data, EVGL_Engine *evgl_engine)
+{
+   if (!evgl_engine)
+      return;
+   Render_Engine *re = (Render_Engine *)eng_data;
+   EVGLNative_Context *ctx;
+
+   ctx = _evgl_tls_context_get(evgl_engine);
+   if (ctx)
+      evgl_eng_context_destroy(eng_data, ctx);
+
+   if (evgl_engine->context_key)
+      eina_tls_free(evgl_engine->context_key);
+   evgl_engine->context_key = 0;
+}
+
+
+// TIZEN_ONLY
+static int
+evgl_eng_check_egl_config(void *data, EVGL_Engine *evgl_engine, EVGL_Surface *sfc, EVGL_Context *ctx, EVGL_Resource *rsc)
+{
+#ifdef GL_GLES
+
+    Render_Engine *re = (Render_Engine *)data;
+
+    if (!re || !sfc) return 0;
+
+    Evas_GL_Config *cfg = sfc->cfg;
+
+    // recreate EvasGL context
+    if (ctx && ctx->context)
+       {
+          if (sfc->egl_reconfig == 1)
+             {
+                EVGLNative_Context *context = _evgl_tls_context_get(evgl_engine);
+                if (!context)
+                   _evgl_tls_context_set(evgl_engine, ctx->context);
+
+                if (context && context != ctx->context)
+                   evgl_eng_context_destroy(data, ctx->context);
+
+                ctx->context = evgl_eng_context_create(data, context, ctx->version);
+
+                sfc->egl_reconfig  = 0;
+             }
+          return 0;
+       }
+
+    int i, num_config = 0;
+    int config_attrs[40];
+    int depth_bit = 0, stencil_bit = 0, msaa = 0;
+    int depth_size = 0;
+    int check_depth_size = 0, check_stencil_bit = 0, check_msaa = 0;
+    int need_reconfig = 0;
+
+    i = 0;
+    config_attrs[i++] = EGL_SURFACE_TYPE;
+    config_attrs[i++] = EGL_WINDOW_BIT | EGL_PIXMAP_BIT;
+    config_attrs[i++] = EGL_RENDERABLE_TYPE;
+    config_attrs[i++] = EGL_OPENGL_ES2_BIT | EGL_OPENGL_ES_BIT;
+
+    int val;
+    eglGetConfigAttrib(eng_get_ob(re)->egl_disp, eng_get_ob(re)->egl_config, EGL_ALPHA_SIZE, &val);
+    if (!val && (cfg && (cfg->color_format == EVAS_GL_RGBA_8888)))
+       {
+          config_attrs[i++] = EGL_ALPHA_SIZE;
+          config_attrs[i++] = 1;
+          need_reconfig = 1;
+       }
+    else
+       {
+          config_attrs[i++] = EGL_ALPHA_SIZE;
+          config_attrs[i++] = val;
+       }
+
+    // check eglConfig old and new
+    // check depth size;
+    depth_size = eng_get_ob(re)->detected.depth_buffer_size;
+    check_depth_size = depth_size;
+    if (cfg && cfg->depth_bits)
+       {
+          depth_bit = (1 << (cfg->depth_bits-1));
+          depth_size = 8 * cfg->depth_bits;
+          if (check_depth_size < depth_size)
+             need_reconfig = 1;
+       }
+    config_attrs[i++] = EGL_DEPTH_SIZE;
+    config_attrs[i++] = depth_size;
+
+    // check stencil bit
+    stencil_bit = eng_get_ob(re)->detected.stencil_buffer_size;
+    check_stencil_bit = stencil_bit;
+    if (cfg && cfg->stencil_bits)
+       {
+          stencil_bit = (1 << (cfg->stencil_bits-1));
+          if (check_stencil_bit < stencil_bit)
+             need_reconfig = 1;
+       }
+    config_attrs[i++] = EGL_STENCIL_SIZE;
+    config_attrs[i++] = stencil_bit;
+
+    // check msaa
+    msaa = eng_get_ob(re)->detected.msaa;
+    check_msaa = msaa;
+    if (cfg && (cfg->multisample_bits > EVAS_GL_MULTISAMPLE_NONE) &&
+          (cfg->multisample_bits <= EVAS_GL_MULTISAMPLE_HIGH))
+       {
+          msaa = evgl_engine->caps.msaa_samples[(int) cfg->multisample_bits - 1];
+          if (check_msaa != msaa)
+             need_reconfig = 1;
+       }
+    config_attrs[i++] = EGL_SAMPLE_BUFFERS;
+    config_attrs[i++] = 1;
+    config_attrs[i++] = EGL_SAMPLES;
+    config_attrs[i++] = msaa;
+
+    config_attrs[i++] = EGL_NONE;
+    config_attrs[i++] = 0;
+
+    if (!need_reconfig)
+       {
+          // already reconfigured
+          if (eng_get_ob(re)->egl_reconfig)
+             sfc->egl_reconfig  = 1;
+          return 0;
+       }
+
+    if (!eglChooseConfig(eng_get_ob(re)->egl_disp, config_attrs,
+                         &eng_get_ob(re)->egl_config, 1, &num_config))
+       {
+          int err = eglGetError();
+          ERR("eglChooseConfig() can't find any configs, error: %d", err);
+          return 1;
+       }
+
+    // window recontext
+    eng_window_recontext(eng_get_ob(re), eng_get_ob(re)->egl_config);
+
+    // for internal_make_current
+    evgl_eng_context_destroy(data, rsc->context);
+    rsc->context = evgl_eng_context_create(data, NULL, EVAS_GL_GLES_2_X);
+
+    sfc->egl_reconfig  = 1;
+    eng_get_ob(re)->egl_reconfig = 1;
+
+    return 1;
+#else
+    eng_get_ob(re)->egl_reconfig = 1;
+    return 0;
+#endif
+}
+
 static const EVGL_Interface evgl_funcs =
 {
    evgl_eng_display_get,
@@ -1286,6 +1482,9 @@ static const EVGL_Interface evgl_funcs =
    evgl_eng_native_win_surface_config_get,
    evgl_eng_partial_rendering_enable,    // TIZEN_ONLY
    evgl_eng_partial_rendering_disable,     // TIZEN_ONLY
+   evgl_eng_check_egl_config, // TIZEN_ONLY
+   evgl_eng_context_eina_tls_new, // TIZEN_ONLY
+   evgl_eng_context_eina_tls_destroy, // TIZEN_ONLY
 };
 
 //----------------------------------------------------------//
@@ -1918,7 +2117,7 @@ eng_output_free(void *data)
 #endif
 
         if ((gl_wins == 1) &&(re->generic.evgl_initted))
-          glsym_evgl_engine_shutdown(re);
+           glsym_evgl_engine_shutdown(re);
 
         evas_render_engine_software_generic_clean(&re->generic.software);
 

@@ -623,24 +623,36 @@ typedef enum _Evas_Video_Surface_Caps
 
 /**
  * @brief Convenience macro to make it easier to understand that align is also used for fill properties (as fill is mutually exclusive to align)
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  * @ingroup Evas_Object_Group_Size_Hints
  */
 #define evas_object_size_hint_fill_set   evas_object_size_hint_align_set
 
 /**
  * @brief Convenience macro to make it easier to understand that align is also used for fill properties (as fill is mutually exclusive to align)
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  * @ingroup Evas_Object_Group_Size_Hints
  */
 #define evas_object_size_hint_fill_get   evas_object_size_hint_align_get
 
 /**
  * @brief Convenience macro to make it easier to understand that weight is also used for expand properties
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  * @ingroup Evas_Object_Group_Size_Hints
  */
 #define evas_object_size_hint_expand_set evas_object_size_hint_weight_set
 
 /**
  * @brief Convenience macro to make it easier to understand that weight is also used for expand properties
+ * @if MOBILE @since_tizen 2.3
+ * @elseif WEARABLE @since_tizen 2.3.1
+ * @endif
  * @ingroup Evas_Object_Group_Size_Hints
  */
 #define evas_object_size_hint_expand_get evas_object_size_hint_weight_get
@@ -3274,7 +3286,7 @@ typedef void (*Evas_Object_Intercept_Clip_Unset_Cb)(void *data, Evas_Object *obj
  * treated specially -- as "borders". This will make those regions be
  * treated specially on resizing scales, by keeping their aspect. This
  * makes setting frames around other objects on UIs easy.
- * See the following figures for a visual explanation:\n
+ * See the following figures for a visual explanation:
  * @htmlonly
  * <img src="image-borders.png" style="max-width: 100%;" />
  * <a href="image-borders.png">Full-size</a>
@@ -3311,13 +3323,10 @@ typedef void (*Evas_Object_Intercept_Clip_Unset_Cb)(void *data, Evas_Object *obj
  *   being alpha and the low byte being blue in the format ARGB. Alpha
  *   may or may not be used by evas depending on the alpha flag of the
  *   image, but if not used, should be set to 0xff anyway.
- *   \n\n
  *   This colorspace uses premultiplied alpha. That means that R, G
  *   and B cannot exceed A in value. The conversion from
  *   non-premultiplied colorspace is:
- *   \n\n
  *   R = (r * a) / 255; G = (g * a) / 255; B = (b * a) / 255;
- *   \n\n
  *   So 50% transparent blue will be: 0x80000080. This will not be
  *   "dark" - just 50% transparent. Values are 0 == black, 255 ==
  *   solid or full red, green or blue.
@@ -3333,17 +3342,14 @@ typedef void (*Evas_Object_Intercept_Clip_Unset_Cb)(void *data, Evas_Object *obj
  *   pointers will point to rows in the U plane, and the next N / 2
  *   pointers will point to the V plane rows. U and V planes are half
  *   the horizontal and vertical resolution of the Y plane.
- *   \n\n
  *   Row order is top to bottom and row pixels are stored left to
  *   right.
- *   \n\n
  *   There is a limitation that these images MUST be a multiple of 2
  *   pixels in size horizontally or vertically. This is due to the U
  *   and V planes being half resolution. Also note that this assumes
  *   the itu601 YUV colorspace specification. This is defined for
  *   standard television and mpeg streams. HDTV may use the itu709
  *   specification.
- *   \n\n
  *   Values are 0 to 255, indicating full or no signal in that plane
  *   respectively.
  * .
@@ -3353,13 +3359,11 @@ typedef void (*Evas_Object_Intercept_Clip_Unset_Cb)(void *data, Evas_Object *obj
  * - #EVAS_COLORSPACE_RGB565_A5P:
  *   In the process of being implemented in 1 engine only. This may
  *   change.
- *   \n\n
  *   This is a pointer to image data for 16-bit half-word pixel data
  *   in 16bpp RGB 565 format (5 bits red, 6 bits green, 5 bits blue),
  *   with the high-byte containing red and the low byte containing
  *   blue, per pixel. This data is packed row by row from the top-left
  *   to the bottom right.
- *   \n\n
  *   If the image has an alpha channel enabled there will be an extra
  *   alpha plane after the color pixel plane. If not, then this data
  *   will not exist and should not be accessed in any way. This plane
@@ -3368,12 +3372,10 @@ typedef void (*Evas_Object_Intercept_Clip_Unset_Cb)(void *data, Evas_Object *obj
  *   right of the image, row by row. Even though the values of the
  *   alpha pixels can be 0 to 255, only values 0 through to 32 are
  *   used, 32 being solid and 0 being transparent.
- *   \n\n
  *   RGB values can be 0 to 31 for red and blue and 0 to 63 for green,
  *   with 0 being black and 31 or 63 being full red, green or blue
  *   respectively. This colorspace is also pre-multiplied like
  *   EVAS_COLORSPACE_ARGB8888 so:
- *   \n\n
  *   R = (r * a) / 32; G = (g * a) / 32; B = (b * a) / 32;
  * .
  * - #EVAS_COLORSPACE_GRY8:
@@ -3403,6 +3405,8 @@ typedef void (*Evas_Object_Image_Pixels_Get_Cb)(void *data, Evas_Object *o);
 /**
  * Check if a file extension may be supported by @ref Evas_Object_Image.
  *
+ * @since_tizen 2.4
+ *
  * @param file The file to check
  * @return @c EINA_TRUE if we may be able to open it, @c EINA_FALSE if it's
  * unlikely.
@@ -3416,6 +3420,8 @@ EAPI Eina_Bool                     evas_object_image_extension_can_load_get(cons
 
 /**
  * Check if a file extension may be supported by @ref Evas_Object_Image.
+ *
+ * @since_tizen 2.4
  *
  * @param file The file to check, it should be an Eina_Stringshare.
  * @return @c EINA_TRUE if we may be able to open it, @c EINA_FALSE if it's

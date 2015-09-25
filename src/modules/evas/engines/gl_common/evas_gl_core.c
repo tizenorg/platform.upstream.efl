@@ -1976,6 +1976,13 @@ evgl_pbuffer_surface_create(void *eng_data, Evas_GL_Config *cfg,
    else if (evgl_engine->direct_override == 1)
      sfc->direct_override = EINA_TRUE;
 
+   // Set the context current with resource context/surface
+   if (!_internal_resource_make_current(eng_data, NULL))
+     {
+        ERR("Error doing an internal resource make current");
+        goto error;
+     }
+
    // If the surface is defined as RGB or RGBA, then create an FBO
    if (sfc->pbuffer.color_fmt != EVAS_GL_NO_FBO)
      {
@@ -2177,8 +2184,13 @@ evgl_context_create(void *eng_data, EVGL_Context *share_ctx,
 
    if (!(rsc = _evgl_tls_resource_get()))
      {
-        ERR("Error creating resources in tls.");
-        return NULL;
+        DBG("Creating new TLS for this thread: %lu", (unsigned long)eina_thread_self());
+        rsc = _evgl_tls_resource_create(eng_data);
+        if (!rsc)
+          {
+             ERR("Error creating resources in tls.");
+             return NULL;
+          }
      }
 
    // Allocate context object

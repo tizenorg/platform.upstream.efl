@@ -146,7 +146,7 @@ EAPI void        eina_binshare_del(const void *obj);
  * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
- * @param[in] obj The shared object to know the length \n
+ * @param[in] obj The shared object to know the length
  *            It is safe to give @c NULL, in which case @c -1 is returned
  * @return    The length of the shared object
  *

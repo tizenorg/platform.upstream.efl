@@ -753,6 +753,18 @@ text_input_selection_region(void                 *data,
     ecore_imf_context_event_callback_call(imcontext->ctx, ECORE_IMF_CALLBACK_SELECTION_SET, &ev);
 }
 
+static void
+text_input_private_command(void                 *data,
+                           struct wl_text_input *text_input EINA_UNUSED,
+                           uint32_t              serial EINA_UNUSED,
+                           const char           *command)
+{
+    WaylandIMContext *imcontext = (WaylandIMContext *)data;
+    if (!imcontext || !imcontext->ctx) return;
+
+    ecore_imf_context_event_callback_call(imcontext->ctx, ECORE_IMF_CALLBACK_PRIVATE_COMMAND_SEND, (void *)command);
+}
+
 static const struct wl_text_input_listener text_input_listener =
 {
    text_input_enter,
@@ -768,7 +780,8 @@ static const struct wl_text_input_listener text_input_listener =
    text_input_keysym,
    text_input_language,
    text_input_text_direction,
-   text_input_selection_region
+   text_input_selection_region,
+   text_input_private_command
 };
 
 EAPI void

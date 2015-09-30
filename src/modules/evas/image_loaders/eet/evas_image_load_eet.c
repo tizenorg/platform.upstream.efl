@@ -57,6 +57,14 @@ evas_image_load_file_close_eet(void *loader_data)
    free(loader);
 }
 
+static int
+roundup(int val, int rup)
+{
+   if (val >= 0 && rup > 0)
+     return (val + rup - 1) - ((val + rup - 1) % rup);
+   return 0;
+}
+
 static inline Eina_Bool
 _evas_image_load_return_error(int err, int *error)
 {
@@ -85,15 +93,16 @@ static const Evas_Colorspace cspaces_etc2_rgba[] = {
 };
 
 static Eina_Bool
-evas_image_load_file_head_eet(void *loader_data,
-			      Evas_Image_Property *prop,
-			      int *error)
+evas_image_load_file_head_eet(void *loader_data, 
+                             Evas_Image_Property *prop,
+                             int *error)
 {
    Evas_Loader_Internal *loader = loader_data;
    int       a, compression, quality;
    Eet_Image_Encoding lossy;
    const Eet_Colorspace *cspaces = NULL;
    int       ok;
+   int       border = 0;
 
    ok = eet_data_image_header_read(loader->ef, loader->key,
                                    &prop->w, &prop->h, &a, &compression, &quality, &lossy);
@@ -106,35 +115,48 @@ evas_image_load_file_head_eet(void *loader_data,
      {
         unsigned int i;
 
-	if (cspaces != NULL)
-	  {
-	    for (i = 0; cspaces[i] != EET_COLORSPACE_ARGB8888; i++)
+        if (cspaces != NULL)
+          {
+            for (i = 0; cspaces[i] != EET_COLORSPACE_ARGB8888; i++)
               {
                  if (cspaces[i] == EET_COLORSPACE_ETC1)
                    {
                       prop->cspaces = cspaces_etc1;
+                      border = 1;
                       break;
                    }
                  else if (cspaces[i] == EET_COLORSPACE_ETC1_ALPHA)
                    {
                       prop->cspaces = cspaces_etc1_alpha;
+                      border = 1;
                       break;
                    }
                  else if (cspaces[i] == EET_COLORSPACE_RGB8_ETC2)
                    {
                       prop->cspaces = cspaces_etc2_rgb;
+                      border = 1;
                       break;
                    }
                  else if (cspaces[i] == EET_COLORSPACE_RGBA8_ETC2_EAC)
                    {
                       prop->cspaces = cspaces_etc2_rgba;
+                      border = 1;
                       break;
                    }
               }
-	  }
+          }
      }
 
    prop->alpha = !!a;
+   // set boader for openGL
+   if (border)
+     {
+         prop->borders.l = 1;
+         prop->borders.t = 1;
+         prop->borders.r = roundup(prop->w + 2, 4) - prop->w - 1;
+         prop->borders.b = roundup(prop->h + 2, 4) - prop->h - 1;
+     }
+
    *error = EVAS_LOAD_ERROR_NONE;
 
    return EINA_TRUE;
@@ -144,7 +166,7 @@ Eina_Bool
 evas_image_load_file_data_eet(void *loader_data,
                               Evas_Image_Property *prop,
                               void *pixels,
-			      int *error)
+                              int *error)
 {
    Evas_Loader_Internal *loader = loader_data;
    int       alpha, compression, quality, ok;
@@ -174,25 +196,29 @@ evas_image_load_file_data_eet(void *loader_data,
    if (alpha)
      {
         prop->alpha = 1;
-	body = pixels;
 
-	end = body + (prop->w * prop->h);
-	for (p = body; p < end; p++)
-	  {
-	     DATA32 r, g, b, a;
+        if(cspace == EET_COLORSPACE_ARGB8888)
+          {
+             body = pixels;
 
-	     a = A_VAL(p);
-	     r = R_VAL(p);
-	     g = G_VAL(p);
-	     b = B_VAL(p);
-	     if ((a == 0) || (a == 255)) nas++;
-	     if (r > a) r = a;
-	     if (g > a) g = a;
-	     if (b > a) b = a;
-	     *p = ARGB_JOIN(a, r, g, b);
-	  }
-	if ((ALPHA_SPARSE_INV_FRACTION * nas) >= (prop->w * prop->h))
-	  prop->alpha_sparse = 1;
+             end = body + (prop->w * prop->h);
+             for (p = body; p < end; p++)
+               {
+                  DATA32 r, g, b, a;
+
+                  a = A_VAL(p);
+                  r = R_VAL(p);
+                  g = G_VAL(p);
+                  b = B_VAL(p);
+                  if ((a == 0) || (a == 255)) nas++;
+                  if (r > a) r = a;
+                  if (g > a) g = a;
+                  if (b > a) b = a;
+                  *p = ARGB_JOIN(a, r, g, b);
+               }
+        if ((ALPHA_SPARSE_INV_FRACTION * nas) >= (prop->w * prop->h))
+          prop->alpha_sparse = 1;
+          }
      }
 // result is already premultiplied now if u compile with edje
 //   evas_common_image_premul(im);

@@ -15,6 +15,10 @@ char _gl_ext_string_official[MAX_EXTENSION_STRING_BUFFER] = { 0 };
 static char *_gles1_ext_string = NULL;
 // list of gles 3.1 exts by official name
 static char *_gles3_ext_string = NULL;
+// string for glGetStringi
+static char *_gles_ext_stringi = NULL;
+// num for GL_NUM_EXTENSIONS
+static GLuint _gles_num_extensions;
 
 typedef void (*_getproc_fn) (void);
 typedef _getproc_fn (*fp_getproc)(const char *);
@@ -1026,6 +1030,12 @@ _evgl_api_gles3_ext_init(void)
 
    _gles3_ext_string[0] = '\0';
 
+   if (!_gles_ext_stringi)
+     {
+        _gles_ext_stringi = calloc(100, 1);
+        if (!_gles_ext_stringi) return EINA_FALSE;
+     }
+
    /////////////////////////////////////////////////////////////////////////////////////////////////////
    // Scanning supported extensions, sets the variables
    /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1117,7 +1127,9 @@ _evgl_api_gles3_ext_init(void)
 #define _EVASGL_EXT_DRVNAME_PRINT(name) \
      { \
         if ((strncmp(name, "GL", 2) == 0) && (strstr(_gles3_ext_string, name) == NULL)) \
-          strcat(_gles3_ext_string, name" "); \
+          { strcat(_gles3_ext_string, name" "); \
+            _gles_num_extensions += 1; \
+          } \
      }
 #define _EVASGL_EXT_DRVNAME(name) \
    if (_curext_supported) \
@@ -1248,4 +1260,22 @@ evgl_api_ext_string_get(Eina_Bool official, int version)
      return _gl_ext_string_official;
 
    return _gl_ext_string;
+}
+
+const char *
+evgl_api_ext_stringi_get(int version)
+{
+   if (version == EVAS_GL_GLES_3_X)
+     return _gles_ext_stringi;
+
+   return NULL;
+}
+
+const GLint
+evgl_api_ext_num_extensions_get(int version)
+{
+   if (version == EVAS_GL_GLES_3_X)
+     return _gles_num_extensions;
+
+   return 0;
 }

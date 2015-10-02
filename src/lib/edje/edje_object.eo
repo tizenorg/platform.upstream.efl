@@ -207,9 +207,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             scaling set, for the object @p obj's parts. Put it back to zero to
             get the effects of the global scaling again.
 
-            @warning Only parts which, at EDC level, had the @c "scale"
+            @warning Only parts which, at EDC level, had the @c scale
             property set to @c 1, will be affected by this function. Check the
-            complete @ref edcref "syntax reference" for EDC files.
+            complete @ref edcref syntax reference for EDC files.
 
             @see edje_object_scale_get()
             @see edje_scale_get() for more details */
@@ -336,7 +336,7 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             @ingroup Edje_Part_Text
 
             @remark This converts the given string @p text to UTF8 assuming it contains HTML
-            style escapes like "&amp;" and "&copy;" etc. IF the part is of type TEXT,
+            style escapes like &amp; and &copy; etc. IF the part is of type TEXT,
             as opposed to TEXTBLOCK.
 
             @return @c EINA_TRUE on success, @c EINA_FALSE otherwise
@@ -387,7 +387,7 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             @remark For scriptable programs on an Edje object's defining EDC file which
             send messages with the @c send_message() primitive, one can attach
             <b>handler functions</b>, to be called in the code which creates
-            that object (see @ref edcref "the syntax" for EDC files).
+            that object (see @ref edcref the syntax for EDC files).
 
             @remark This function associates a message handler function and the
             attached data pointer to the object @p obj.
@@ -426,9 +426,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             @remark where one declares a minimum size of 100 pixels both for width and
             height. Those are (hint) values which should be respected when the
             given object/group is to be controlled by a given container object
-            (e.g. an Edje object being "swallowed" into a given @c SWALLOW
+            (e.g. an Edje object being swallowed into a given @c SWALLOW
             typed part, as in edje_object_part_swallow()). Check the complete
-            @ref edcref "syntax reference" for EDC files.
+            @ref edcref syntax reference for EDC files.
 
             @remark If the @c min EDC property was not declared for @p obj, this
             call will return the value 0, for each axis.
@@ -518,9 +518,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             @remark where one declares a maximum size of 100 pixels both for width and
             height. Those are (hint) values which should be respected when the
             given object/group is to be controlled by a given container object
-            (e.g. an Edje object being "swallowed" into a given @c SWALLOW
+            (e.g. an Edje object being swallowed into a given @c SWALLOW
             typed part, as in edje_object_part_swallow()). Check the complete
-            @ref edcref "syntax reference" for EDC files.
+            @ref edcref syntax reference for EDC files.
 
             @remark If the @c max EDC property was not declared for @p obj, this
             call will return the maximum size a given Edje object may have, for
@@ -594,8 +594,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
 
          @ingroup Edje_Object_Animation
 
-         @return The part state:\n
-         "default" for the default state\n
+         @return The part state:
+         "default" for the default state
          "" for other states */
          return: const(char)*;
          params {
@@ -1266,7 +1266,7 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          @brief Get the object created by this external part.
 
          Parts of type external creates the part object using information
-         provided by external plugins. It's somehow like "swallow"
+         provided by external plugins. It's somehow like swallow
          (edje_object_part_swallow()), but it's all set automatically.
 
          This function returns the part created by such external plugins and
@@ -1362,7 +1362,7 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
 
          @ingroup Edje_Part_Box
 
-         @return @c EINA_TRUE: Successfully added.\n
+         @return @c EINA_TRUE: Successfully added.
          @c EINA_FALSE: An error occurred.
 
          @remark Adds child to the box indicated by part, in the position given by
@@ -1465,7 +1465,7 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
 
          @ingroup Edje_Part_Box
 
-         @return @c EINA_TRUE: Successfully added.\n
+         @return @c EINA_TRUE: Successfully added.
          @c EINA_FALSE: An error occurred.
 
          @remark Prepends child to the box indicated by part.
@@ -1493,7 +1493,7 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          @remark This function sends a signal to the object @a obj. An Edje program,
          at @p obj's EDC specification level, can respond to a signal by
          having declared matching @c 'signal' and @c 'source' fields on its
-         block (see @ref edcref "the syntax" for EDC files).
+         block (see @ref edcref the syntax for EDC files).
 
          @remark As an example,
          @code
@@ -1562,7 +1562,7 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
 
          @remark The @p id argument as a form of code and theme defining a common
          interface on message communication. One should define the same IDs
-         on both code and EDC declaration (see @ref edcref "the syntax" for
+         on both code and EDC declaration (see @ref edcref the syntax for
          EDC files), to individualize messages (binding them to a given
          context).
 
@@ -1688,9 +1688,9 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          section, by the attributes @c x and @c y. See the @ref edcref for more
          information.
 
-         @return #EDJE_DRAG_DIR_NONE: Not dragable\n
-         #EDJE_DRAG_DIR_X: Dragable in X direction\n
-         #EDJE_DRAG_DIR_Y: Dragable in Y direction\n
+         @return #EDJE_DRAG_DIR_NONE: Not dragable
+         #EDJE_DRAG_DIR_X: Dragable in X direction
+         #EDJE_DRAG_DIR_Y: Dragable in Y direction
          #EDJE_DRAG_DIR_XY: Dragable in X & Y directions */
          return: Edje_Drag_Dir;
          params {
@@ -1775,7 +1775,7 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
 
          @remark Signal callback registration is powerful, in the way that @b blobs
          may be used to match <b>multiple signals at once</b>. All the @c
-         "*?[\" set of @c fnmatch() operators can be used, both for @p
+         *?[\ set of @c fnmatch() operators can be used, both for @p
          emission and @p source.
 
          @remark Edje has @b internal signals it will emit, automatically, on
@@ -1797,7 +1797,7 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          and @a source parameters of the callback function (e.g. @c
          "mouse,down,2" and @c "button.close"), for each of those events.
 
-         @remark See @ref edcref "the syntax" for EDC files
+         @remark See @ref edcref the syntax for EDC files
          @see edje_object_signal_emit() on how to emits Edje signals from
          code to a an object
          @see edje_object_signal_callback_del_full() */
@@ -1938,7 +1938,7 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          @endcode
 
          @remark EDC data fields always hold @b strings as values, hence the return
-         type of this function. Check the complete @ref edcref "syntax reference"
+         type of this function. Check the complete @ref edcref syntax reference
          for EDC files.
 
          @warning Do not confuse this call with edje_file_data_get(), which
@@ -2072,7 +2072,7 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_text_input_panel_return_key_type_set {
          /*@
-         Set the "return" key type. This type is used to set string or icon on the "return" key of the input panel.
+         Set the return key type. This type is used to set string or icon on the return key of the input panel.
 
          An input panel displays the string or icon associated with this type
 
@@ -2080,16 +2080,16 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
 
          params {
             @in const(char)* part; /*@ The part name */
-            @in Edje_Input_Panel_Return_Key_Type return_key_type; /*@ The type of "return" key on the input panel */
+            @in Edje_Input_Panel_Return_Key_Type return_key_type; /*@ The type of return key on the input panel */
          }
       }
       part_text_input_panel_return_key_type_get @const {
          /*@
-         Get the "return" key type.
+         Get the return key type.
 
          @see edje_object_part_text_input_panel_return_key_type_set() for more details
 
-         @return The type of "return" key on the input panel
+         @return The type of return key on the input panel
          @since 1.2.0 */
          return: Edje_Input_Panel_Return_Key_Type;
          params {
@@ -2124,7 +2124,7 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
 
          @ingroup Edje_Part_Box
 
-         @return @c EINA_TRUE: Successfully added.\n
+         @return @c EINA_TRUE: Successfully added.
          @c EINA_FALSE: An error occurred.
 
          @remark Inserts child in the box given by part, in the position marked by
@@ -2234,7 +2234,7 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
 
          @ingroup Edje_Part_Box
 
-         @return @c EINA_TRUE: Successfully added.\n
+         @return @c EINA_TRUE: Successfully added.
          @c EINA_FALSE: An error occurred.
 
          @remark Appends child to the box indicated by part.
@@ -2294,7 +2294,7 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
 
          @ingroup Edje_Part_Box
 
-         @return 1: Successfully cleared.\n
+         @return 1: Successfully cleared.
          0: An error occurred.
 
          @remark Removes all the external objects from the box indicated by part.
@@ -2787,7 +2787,7 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       }
       part_swallow {
          /*@
-         @brief "Swallows" an object into one of the Edje object @c SWALLOW
+         @brief Swallows an object into one of the Edje object @c SWALLOW
          parts.
 
          @if MOBILE @since_tizen 2.3
@@ -2821,8 +2821,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          @remark @a obj @b won't delete the swallowed object once it is
          deleted -- @a obj_swallow will get to an unparented state again.
 
-         For more details on EDC @c SWALLOW parts, see @ref edcref "syntax
-         reference". */
+         For more details on EDC @c SWALLOW parts, see @ref edcref syntax
+         reference. */
 
          return: bool;
          params {

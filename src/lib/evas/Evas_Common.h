@@ -705,7 +705,7 @@ typedef enum _Evas_Device_Class
    EVAS_DEVICE_CLASS_MOUSE, /**< A mouse, trackball or touchpad relative motion device @since 1.8 */
    EVAS_DEVICE_CLASS_TOUCH, /**< A touchscreen with fingers or stylus @since 1.8 */
    EVAS_DEVICE_CLASS_PEN, /**< A special pen device @since 1.8 */
-   EVAS_DEVICE_CLASS_POINTER, /**< A laser pointer, wii-style or "minority report" pointing device @since 1.8 */
+   EVAS_DEVICE_CLASS_POINTER, /**< A laser pointer, wii-style or minority report pointing device @since 1.8 */
    EVAS_DEVICE_CLASS_GAMEPAD /**<  A gamepad controller or joystick @since 1.8 */
 } Evas_Device_Class; /**< A general class of device @since 1.8 */
 
@@ -941,7 +941,7 @@ typedef enum _Evas_Axis_Label
    EVAS_AXIS_LABEL_DISTANCE,      /**< Relative distance along physical Z axis. Range: [0.0, 1.0]. Unit: Unitless @since 1.13 */
    EVAS_AXIS_LABEL_AZIMUTH,       /**< Angle of tool about the Z axis from positive X axis. Range: [-PI, PI]. Unit: Radians. @since 1.13 */
    EVAS_AXIS_LABEL_TILT,          /**< Angle of tool about plane of sensor from positive Z axis. Range: [0.0, PI]. Unit: Radians. @since 1.13 */
-   EVAS_AXIS_LABEL_TWIST,         /**< Rotation of tool about its major axis from its "natural" position. Range: [-PI, PI] Unit: Radians. @since 1.13 */
+   EVAS_AXIS_LABEL_TWIST,         /**< Rotation of tool about its major axis from its natural position. Range: [-PI, PI] Unit: Radians. @since 1.13 */
    EVAS_AXIS_LABEL_TOUCH_WIDTH_MAJOR,   /**< Length of contact ellipse along AZIMUTH. Range: Unbounded: Unit: Same as EVAS_AXIS_LABEL_{X,Y}. @since 1.13 */
    EVAS_AXIS_LABEL_TOUCH_WIDTH_MINOR,   /**< Length of contact ellipse perpendicular to AZIMUTH. Range: Unbounded. Unit: Same as EVAS_AXIS_LABEL_{X,Y}. @since 1.13 */
    EVAS_AXIS_LABEL_TOOL_WIDTH_MAJOR,    /**< Length of tool ellipse along AZIMUTH. Range: Unbounded. Unit: Same as EVAS_AXIS_LABEL_{X,Y}. @since 1.13 */
@@ -986,11 +986,11 @@ typedef enum _Evas_Object_Pointer_Mode
 {
    EVAS_OBJECT_POINTER_MODE_AUTOGRAB, /**< default, X11-like */
    EVAS_OBJECT_POINTER_MODE_NOGRAB, /**< pointer always bound to the object right below it */
-   EVAS_OBJECT_POINTER_MODE_NOGRAB_NO_REPEAT_UPDOWN /**< useful on object with "repeat events" enabled, where mouse/touch up and down events WONT be repeated to objects and these objects wont be auto-grabbed. @since 1.2 */
+   EVAS_OBJECT_POINTER_MODE_NOGRAB_NO_REPEAT_UPDOWN /**< useful on object with repeat events enabled, where mouse/touch up and down events WONT be repeated to objects and these objects wont be auto-grabbed. @since 1.2 */
 } Evas_Object_Pointer_Mode; /**< How the mouse pointer should be handled by Evas. */
 
 /**
- * @brief Evas smart objects' "smart callback" function signature
+ * @brief Evas smart objects' smart callback function signature
  * @if MOBILE @since_tizen 2.3
  * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
@@ -1095,7 +1095,7 @@ EAPI const char *evas_cserve_path_get(void);
  * Note that this is code creating an Evas canvas with no usage of
  * Ecore helpers at all -- no linkage with Ecore on this scenario,
  * thus. Again, this wouldn't be on Evas common usage for most
- * developers. See the full @ref Example_Evas_Buffer_Simple "example".
+ * developers. See the full @ref Example_Evas_Buffer_Simple example.
  *
  * @ingroup Evas_Main_Group
  */
@@ -1130,7 +1130,7 @@ EAPI int               evas_init(void);
  *
  * Most users would be using ecore_evas_shutdown() instead, like told
  * in evas_init(). See the full @ref Example_Evas_Buffer_Simple
- * "example".
+ * example.
  *
  * @ingroup Evas_Main_Group
  */
@@ -1287,7 +1287,7 @@ EAPI Eina_Bool         evas_async_events_put(const void *target, Evas_Callback_T
  * functions you need to use at a minimum to get a working canvas.
  *
  * Some of the functions in this group are exemplified @ref
- * Example_Evas_Events "here".
+ * Example_Evas_Events here.
  */
 /**
  * @}
@@ -1438,7 +1438,7 @@ EAPI void              evas_render_method_list_free(Eina_List *list);
  * is updated, etc).
  *
  * Some of the functions in this group are exemplified @ref
- * Example_Evas_Events "here".
+ * Example_Evas_Events here.
  *
  * @ingroup Evas_Canvas
  *
@@ -1490,7 +1490,7 @@ EAPI void              evas_render_updates_free(Eina_List *updates);
  * @endcode
  *
  * Some of the functions in this group are exemplified @ref
- * Example_Evas_Events "here".
+ * Example_Evas_Events here.
  *
  * @ingroup Evas_Canvas_Events
  */
@@ -1514,7 +1514,7 @@ EAPI void              evas_render_updates_free(Eina_List *updates);
  * you.
  *
  * Some of the functions in this group are exemplified @ref
- * Example_Evas_Events "here".
+ * Example_Evas_Events here.
  *
  * @ingroup Evas_Canvas_Events
  */
@@ -1641,8 +1641,8 @@ EAPI void evas_device_name_set(Evas_Device *dev, const char *name);
  * This gets the name set by evas_device_name_set(). This is a readable UTF8
  * C string, or NULL if no name is set.
  *
- * The name should be a short name like "Wireless Mouse", "Joystick",
- * "Finger", "Keyboard" or "Numberpad" etc.
+ * The name should be a short name like Wireless Mouse, Joystick,
+ * Finger, Keyboard or Numberpad etc.
  *
  * @since 1.8
  */
@@ -1668,8 +1668,8 @@ EAPI void evas_device_description_set(Evas_Device *dev, const char *desc);
  * a readable UTF8 C string, or NULL if no description is set.
  *
  * A description is meant to be a longer string describing the device so a
- * human may make sense of it. For example "Wireless 6 button mouse in Black
- * with red buttons" would be a good description, so a user may identify
+ * human may make sense of it. For example Wireless 6 button mouse in Black
+ * with red buttons would be a good description, so a user may identify
  * precisely which device is being talked about.
  *
  * @since 1.8
@@ -1717,7 +1717,7 @@ EAPI const Evas_Device *evas_device_parent_get(const Evas_Device *dev);
  * @param dev The device whose class to set
  * @param clas The class to set it to
  *
- * This sets the "primary" class of device (a broad thing like mouse, keyboard,
+ * This sets the primary class of device (a broad thing like mouse, keyboard,
  * touch, pen etc.).
  *
  * @since 1.8
@@ -1882,7 +1882,7 @@ EAPI const Evas_Device *evas_device_emulation_source_get(const Evas_Device *dev)
  * @ref Evas_Canvas_Events ).
  *
  * Examples on this group of functions can be found @ref
- * Example_Evas_Stacking "here" and @ref Example_Evas_Events "here".
+ * Example_Evas_Stacking here and @ref Example_Evas_Events here.
  *
  * @ingroup Evas_Object_Group
  */
@@ -2348,8 +2348,8 @@ EAPI void            evas_map_util_rotate(Evas_Map *m, double degrees, Evas_Coor
  * @remark Like evas_map_util_rotate(), this zooms the points of the map from a center
  * point. That center is defined by @p cx and @p cy. The @p zoomx and @p zoomy
  * parameters specify how much to zoom in the X and Y direction respectively.
- * A value of 1.0 means "don't zoom". 2.0 means "double the size". 0.5 is
- * "half the size" etc. All coordinates are canvas global coordinates.
+ * A value of 1.0 means don't zoom. 2.0 means double the size. 0.5 is
+ * half the size etc. All coordinates are canvas global coordinates.
  *
  * @param[in] m map to change.
  * @param[in] zoomx horizontal zoom to use.
@@ -2369,9 +2369,9 @@ EAPI void            evas_map_util_zoom(Evas_Map *m, double zoomx, double zoomy,
  * @elseif WEARABLE @since_tizen 2.3.1
  * @endif
  *
- * @remark This will rotate not just around the "Z" axis as in evas_map_util_rotate()
+ * @remark This will rotate not just around the Z axis as in evas_map_util_rotate()
  * (which is a convenience call for those only wanting 2D). This will rotate
- * around the X, Y and Z axes. The Z axis points "into" the screen with low
+ * around the X, Y and Z axes. The Z axis points into the screen with low
  * values at the screen and higher values further away. The X axis runs from
  * left to right on the screen and the Y axis from top to bottom. Like with
  * evas_map_util_rotate() you provide a center point to rotate around (in 3D).
@@ -2426,8 +2426,8 @@ EAPI void            evas_map_util_quat_rotate(Evas_Map *m, double qx, double qy
  * reflect the lighting based on the lixth point coordinates, the light
  * color and the ambient color, and at what angle the map is facing the
  * light source. A surface should have its points be declared in a
- * clockwise fashion if the face is "facing" towards you (as opposed to
- * away from you) as faces have a "logical" side for lighting.
+ * clockwise fashion if the face is facing towards you (as opposed to
+ * away from you) as faces have a logical side for lighting.
  *
  * @image html map-light3.png
  * @image rtf map-light3.png
@@ -2482,22 +2482,22 @@ EAPI void            evas_map_util_3d_lighting(Evas_Map *m, Evas_Coord lx, Evas_
  * @endif
  *
  * @remark This applies a given perspective (3D) to the map coordinates. X, Y and Z
- * values are used. The px and py points specify the "infinite distance" point
+ * values are used. The px and py points specify the infinite distance point
  * in the 3D conversion (where all lines converge to like when artists draw
  * 3D by hand). The @p z0 value specifies the z value at which there is a 1:1
  * mapping between spatial coordinates and screen coordinates. Any points
  * on this z value will not have their X and Y values modified in the transform.
  * Those further away (Z value higher) will shrink into the distance, and
  * those less than this value will expand and become bigger. The @p foc value
- * determines the "focal length" of the camera. This is in reality the distance
+ * determines the focal length of the camera. This is in reality the distance
  * between the camera lens plane itself (at or closer than this rendering
- * results are undefined) and the "z0" z value. This allows for some "depth"
+ * results are undefined) and the z0 z value. This allows for some depth
  * control and @p foc must be greater than 0.
  *
  * @param[in] m map to change.
  * @param[in] px The perspective distance X coordinate
  * @param[in] py The perspective distance Y coordinate
- * @param[in] z0 The "0" z plane value
+ * @param[in] z0 The 0 z plane value
  * @param[in] foc The focal distance
  */
 EAPI void            evas_map_util_3d_perspective(Evas_Map *m, Evas_Coord px, Evas_Coord py, Evas_Coord z0, Evas_Coord foc);
@@ -2510,8 +2510,8 @@ EAPI void            evas_map_util_3d_perspective(Evas_Map *m, Evas_Coord px, Ev
  * @endif
  *
  * @remark This determines if the output points (X and Y. Z is not used) are
- * clockwise or counter-clockwise. This can be used for "back-face culling". This
- * is where you hide objects that "face away" from you. In this case objects
+ * clockwise or counter-clockwise. This can be used for back-face culling. This
+ * is where you hide objects that face away from you. In this case objects
  * that are not clockwise.
  *
  * @param[in] m map to query.
@@ -2781,7 +2781,7 @@ EAPI void            evas_map_point_image_uv_get(const Evas_Map *m, int idx, dou
  *
  * @remark This sets the color of the vertex in the map. Colors will be linearly
  * interpolated between vertex points through the map. Color will multiply
- * the "texture" pixels (like GL_MODULATE in OpenGL). The default color of
+ * the texture pixels (like GL_MODULATE in OpenGL). The default color of
  * a vertex in a map is white solid (255, 255, 255, 255) which means it will
  * have no affect on modifying the texture pixels.
  *
@@ -2837,8 +2837,8 @@ EAPI void            evas_map_point_color_get(const Evas_Map *m, int idx, int *r
  * padding between each individual child, etc.
  *
  * Examples on their usage:
- * - @ref Example_Evas_Size_Hints "evas-hints.c"
- * - @ref Example_Evas_Aspect_Hints "evas-aspect-hints.c"
+ * - @ref Example_Evas_Size_Hints evas-hints.c
+ * - @ref Example_Evas_Aspect_Hints evas-aspect-hints.c
  *
  * @ingroup Evas_Object_Group
  */
@@ -2850,7 +2850,7 @@ EAPI void            evas_map_point_color_get(const Evas_Map *m, int idx, int *r
  * used or not implemented by all objects.
  *
  * Examples on this group of functions can be found @ref
- * Example_Evas_Stacking "here" and @ref Example_Evas_Events "here".
+ * Example_Evas_Stacking here and @ref Example_Evas_Events here.
  *
  * @ingroup Evas_Object_Group
  */
@@ -3073,7 +3073,7 @@ typedef void (*Evas_Object_Intercept_Clip_Unset_Cb)(void *data, Evas_Object *obj
  * There is only one function to deal with rectangle objects, this may make this
  * function seem useless given there are no functions to manipulate the created
  * rectangle, however the rectangle is actually very useful and should be
- * manipulated using the generic @ref Evas_Object_Group "evas object functions".
+ * manipulated using the generic @ref Evas_Object_Group evas object functions.
  *
  * The evas rectangle serves a number of key functions when working on evas
  * programs:
@@ -3201,7 +3201,7 @@ typedef void (*Evas_Object_Intercept_Clip_Unset_Cb)(void *data, Evas_Object *obj
  * @section Evas_Object_Image_Scale Scale and resizing
  *
  * Resizing of image objects will scale their respective source images
- * to their areas, if they are set to "fill" the object's area
+ * to their areas, if they are set to fill the object's area
  * (evas_object_image_filled_set()). If the user wants any control on
  * the aspect ratio of an image for different sizes, he/she has to
  * take care of that themselves. There are functions to make images to
@@ -3283,7 +3283,7 @@ typedef void (*Evas_Object_Intercept_Clip_Unset_Cb)(void *data, Evas_Object *obj
  * @section Evas_Object_Image_Borders Borders
  *
  * Evas provides facilities for one to specify an image's region to be
- * treated specially -- as "borders". This will make those regions be
+ * treated specially -- as borders. This will make those regions be
  * treated specially on resizing scales, by keeping their aspect. This
  * makes setting frames around other objects on UIs easy.
  * See the following figures for a visual explanation:
@@ -3312,7 +3312,7 @@ typedef void (*Evas_Object_Intercept_Clip_Unset_Cb)(void *data, Evas_Object *obj
  *
  * @section Evas_Object_Image_Color_Spaces Color spaces
  *
- * Image objects may return or accept "image data" in multiple
+ * Image objects may return or accept image data in multiple
  * formats. This is based on the color space of an object. Here is a
  * rundown on formats:
  *
@@ -3328,7 +3328,7 @@ typedef void (*Evas_Object_Intercept_Clip_Unset_Cb)(void *data, Evas_Object *obj
  *   non-premultiplied colorspace is:
  *   R = (r * a) / 255; G = (g * a) / 255; B = (b * a) / 255;
  *   So 50% transparent blue will be: 0x80000080. This will not be
- *   "dark" - just 50% transparent. Values are 0 == black, 255 ==
+ *   dark - just 50% transparent. Values are 0 == black, 255 ==
  *   solid or full red, green or blue.
  * .
  * - #EVAS_COLORSPACE_YCBCR422P601_PL:
@@ -3386,7 +3386,7 @@ typedef void (*Evas_Object_Intercept_Clip_Unset_Cb)(void *data, Evas_Object *obj
  * without setting the evas engine.
  *
  * Some examples on this group of functions can be found @ref
- * Example_Evas_Images "here".
+ * Example_Evas_Images here.
  *
  * @ingroup Evas_Object_Specific
  * @{
@@ -3442,7 +3442,7 @@ EAPI Eina_Bool                     evas_object_image_extension_can_load_fast_get
  *
  * For multiline and multiple style text, see @ref Evas_Object_Textblock.
  *
- * See some @ref Example_Evas_Text "examples" on this group of functions.
+ * See some @ref Example_Evas_Text examples on this group of functions.
  *
  * @warning We don't guarantee any proper results if you create a Text object
  * without setting the evas engine.
@@ -3530,7 +3530,7 @@ typedef enum _Evas_Text_Style_Type
  * You can use markup to format text, for example: "<font_size=50>Big!</font_size>".
  * You can also put more than one style directive in one tag:
  * "<font_size=50 color=#F00>Big and Red!</font_size>".
- * Please notice that we used "</font_size>" although the format also included
+ * Please notice that we used </font_size> although the format also included
  * color, this is because the first format determines the matching closing tag's
  * name. You can also use anonymous tags, like: "<font_size=30>Big</>" which
  * just pop any type of format, but it's advised to use the named alternatives
@@ -3542,7 +3542,7 @@ typedef enum _Evas_Text_Style_Type
  * paragraph it points to, the position in that paragraph and the object itself.
  * Cursors register to textblock objects upon creation, this means that once
  * you created a cursor, it belongs to a specific obj and you can't for example
- * copy a cursor "into" a cursor of a different object. Registered cursors
+ * copy a cursor into a cursor of a different object. Registered cursors
  * also have the added benefit of updating automatically upon textblock changes,
  * this means that if you have a cursor pointing to a specific character, it'll
  * still point to it even after you change the whole object completely (as long
@@ -3570,59 +3570,59 @@ typedef enum _Evas_Text_Style_Type
  * A closing tag (i.e a \</tag\> tag) should NEVER be visible.
  * Invisible: formats that don't occupy space, for example: bold and underline.
  * Being able to access format nodes is very important for some uses. For
- * example, edje uses the "<a>" format to create links in the text (and pop
+ * example, edje uses the <a> format to create links in the text (and pop
  * popups above them when clicked). For the textblock object a is just a
  * formatting instruction (how to color the text), but edje utilizes the access
  * to the format nodes to make it do more.
  * For more information, take a look at all the evas_textblock_node_format_*
  * functions.
- * The translation of "<tag>" tags to actual format is done according to the
+ * The translation of <tag> tags to actual format is done according to the
  * tags defined in the style, see @ref evas_textblock_style_set
  *
  * @subsection textblock_special_formats Special Formats
  * Textblock supports various format directives that can be used in markup. In
  * addition to the mentioned format directives, textblock allows creating
- * additional format directives using "tags" that can be set in the style see
+ * additional format directives using tags that can be set in the style see
  * @ref evas_textblock_style_set .
  *
  * For more details see @ref evas_textblock_style_page
  *
  * Textblock supports the following formats:
- * @li font - Font description in fontconfig like format, e.g: "Sans:style=Italic:lang=hi". or "Serif:style=Bold".
- * @li font_weight - Overrides the weight defined in "font". E.g: "font_weight=Bold" is the same as "font=:style=Bold". Supported weights: "normal", "thin", "ultralight", "light", "book", "medium", "semibold", "bold", "ultrabold", "black", and "extrablack".
- * @li font_style - Overrides the style defined in "font". E.g: "font_style=Italic" is the same as "font=:style=Italic". Supported styles: "normal", "oblique", and "italic".
- * @li font_width - Overrides the width defined in "font". E.g: "font_width=Condensed" is the same as "font=:style=Condensed". Supported widths: "normal", "ultracondensed", "extracondensed", "condensed", "semicondensed", "semiexpanded", "expanded", "extraexpanded", and "ultraexpanded".
- * @li lang - Overrides the language defined in "font". E.g: "lang=he" is the same as "font=:lang=he".
+ * @li font - Font description in fontconfig like format, e.g: Sans:style=Italic:lang=hi. or Serif:style=Bold.
+ * @li font_weight - Overrides the weight defined in font. E.g: font_weight=Bold is the same as font=:style=Bold. Supported weights: normal, thin, ultralight, light, book, medium, semibold, bold, ultrabold, black, and extrablack.
+ * @li font_style - Overrides the style defined in font. E.g: font_style=Italic is the same as font=:style=Italic. Supported styles: normal, oblique, and italic.
+ * @li font_width - Overrides the width defined in font. E.g: font_width=Condensed is the same as font=:style=Condensed. Supported widths: normal, ultracondensed, extracondensed, condensed, semicondensed, semiexpanded, expanded, extraexpanded, and ultraexpanded.
+ * @li lang - Overrides the language defined in font. E.g: lang=he is the same as font=:lang=he.
  * @li font_fallbacks - A comma delimited list of fonts to try if finding the main font fails.
  * @li font_size - The font size in points.
  * @li font_source - The source of the font, e.g an eet file.
- * @li color - Text color in one of the following formats: "#RRGGBB", "#RRGGBBAA", "#RGB", and "#RGBA".
- * @li underline_color - color in one of the following formats: "#RRGGBB", "#RRGGBBAA", "#RGB", and "#RGBA".
- * @li underline2_color - color in one of the following formats: "#RRGGBB", "#RRGGBBAA", "#RGB", and "#RGBA".
- * @li outline_color - color in one of the following formats: "#RRGGBB", "#RRGGBBAA", "#RGB", and "#RGBA".
- * @li shadow_color - color in one of the following formats: "#RRGGBB", "#RRGGBBAA", "#RGB", and "#RGBA".
- * @li glow_color - color in one of the following formats: "#RRGGBB", "#RRGGBBAA", "#RGB", and "#RGBA".
- * @li glow2_color - color in one of the following formats: "#RRGGBB", "#RRGGBBAA", "#RGB", and "#RGBA".
- * @li strikethrough_color - color in one of the following formats: "#RRGGBB", "#RRGGBBAA", "#RGB", and "#RGBA".
- * @li align - Either "auto" (meaning according to text direction), "left", "right", "center", "middle", a value between 0.0 and 1.0, or a value between 0% to 100%.
- * @li valign - Either "top", "bottom", "middle", "center", "baseline", "base", a value between 0.0 and 1.0, or a value between 0% to 100%.
- * @li wrap - "word", "char", "mixed", or "none".
- * @li left_margin - Either "reset", or a pixel value indicating the margin.
- * @li right_margin - Either "reset", or a pixel value indicating the margin.
- * @li underline - "on", "off", "single", or "double".
- * @li strikethrough - "on" or "off"
- * @li backing_color - Background color in one of the following formats: "#RRGGBB", "#RRGGBBAA", "#RGB", and "#RGBA".
- * @li backing - Enable/disable background color. ex) "on" or "off"
- * @li style - Either "off", "none", "plain", "shadow", "outline", "soft_outline", "outline_shadow", "outline_soft_shadow", "glow", "far_shadow", "soft_shadow", or "far_soft_shadow". Direction can be selected by adding "bottom_right", "bottom", "bottom_left", "left", "top_left", "top", "top_right", or "right". E.g: "style=shadow,bottom_right".
+ * @li color - Text color in one of the following formats: #RRGGBB, #RRGGBBAA, #RGB, and #RGBA.
+ * @li underline_color - color in one of the following formats: #RRGGBB, #RRGGBBAA, #RGB, and #RGBA.
+ * @li underline2_color - color in one of the following formats: #RRGGBB, #RRGGBBAA, #RGB, and #RGBA.
+ * @li outline_color - color in one of the following formats: #RRGGBB, #RRGGBBAA, #RGB, and #RGBA.
+ * @li shadow_color - color in one of the following formats: #RRGGBB, #RRGGBBAA, #RGB, and #RGBA.
+ * @li glow_color - color in one of the following formats: #RRGGBB, #RRGGBBAA, #RGB, and #RGBA.
+ * @li glow2_color - color in one of the following formats: #RRGGBB, #RRGGBBAA, #RGB, and #RGBA.
+ * @li strikethrough_color - color in one of the following formats: #RRGGBB, #RRGGBBAA, #RGB, and #RGBA.
+ * @li align - Either auto (meaning according to text direction), left, right, center, middle, a value between 0.0 and 1.0, or a value between 0% to 100%.
+ * @li valign - Either top, bottom, middle, center, baseline, base, a value between 0.0 and 1.0, or a value between 0% to 100%.
+ * @li wrap - word, char, mixed, or none.
+ * @li left_margin - Either reset, or a pixel value indicating the margin.
+ * @li right_margin - Either reset, or a pixel value indicating the margin.
+ * @li underline - on, off, single, or double.
+ * @li strikethrough - on or off
+ * @li backing_color - Background color in one of the following formats: #RRGGBB, #RRGGBBAA, #RGB, and #RGBA.
+ * @li backing - Enable/disable background color. ex) on or off
+ * @li style - Either off, none, plain, shadow, outline, soft_outline, outline_shadow, outline_soft_shadow, glow, far_shadow, soft_shadow, or far_soft_shadow. Direction can be selected by adding bottom_right, bottom, bottom_left, left, top_left, top, top_right, or right. E.g: style=shadow,bottom_right.
  * @li tabstops - Pixel value for tab width.
  * @li linesize - Force a line size in pixels.
  * @li linerelsize - Either a floating point value or a percentage indicating the wanted size of the line relative to the calculated size.
  * @li linegap - Force a line gap in pixels.
  * @li linerelgap - Either a floating point value or a percentage indicating the wanted size of the line relative to the calculated size.
- * @li item - Creates an empty space that should be filled by an upper layer. Use "size", "abssize", or "relsize". To define the items size, and an optional: vsize=full/ascent to define the item's position in the line.
+ * @li item - Creates an empty space that should be filled by an upper layer. Use size, abssize, or relsize. To define the items size, and an optional: vsize=full/ascent to define the item's position in the line.
  * @li linefill - Either a float value or percentage indicating how much to fill the line.
  * @li ellipsis - Value between 0.0-1.0 to indicate the type of ellipsis, or -1.0 to indicate ellipsis isn't wanted.
- * @li password - "on" or "off". This is used to specifically turn replacing chars with the replacement char (i.e password mode) on and off.
+ * @li password - on or off. This is used to specifically turn replacing chars with the replacement char (i.e password mode) on and off.
  *
  * @warning We don't guarantee any proper results if you create a Textblock
  * object
@@ -4362,7 +4362,7 @@ EAPI char                                    *evas_textblock_cursor_range_text_v
 EAPI char                                    *evas_textblock_cursor_content_get(const Evas_Textblock_Cursor *cur) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1) EINA_MALLOC;
 
 /**
- * @brief Returns the geometry of two cursors ("split cursor"), if logical cursor is
+ * @brief Returns the geometry of two cursors (split cursor), if logical cursor is
  * between LTR/RTL text, also considering paragraph direction.
  * Upper cursor is shown for the text of the same direction as paragraph,
  * lower cursor - for opposite.
@@ -4405,7 +4405,7 @@ evas_textblock_cursor_geometry_bidi_get(const Evas_Textblock_Cursor *cur, Evas_C
  *
  * @remark in '|' cursor mode (i.e a line between two chars) it is very variable.
  * For example consider the following visual string:
- * "abcCBA" (ABC are rtl chars), a cursor pointing on A should actually draw
+ * abcCBA (ABC are rtl chars), a cursor pointing on A should actually draw
  * a '|' between the c and the C.
  *
  * @param[in] cur the cursor.
@@ -4678,7 +4678,7 @@ struct _Evas_Textgrid_Cell
  * objects in Evas itself (see @ref Evas_Object_Box, @ref
  * Evas_Object_Table and @ref Evas_Smart_Object_Clipped).
  *
- * See also some @ref Example_Evas_Smart_Objects "examples" of this
+ * See also some @ref Example_Evas_Smart_Objects examples of this
  * group of functions.
  *
  * @{
@@ -4736,7 +4736,7 @@ struct _Evas_Smart_Class
  * function pointers must be defined, too, which will be called at
  * object creation and deletion times.
  *
- * See also some @ref Example_Evas_Smart_Interfaces "examples" on
+ * See also some @ref Example_Evas_Smart_Interfaces examples on
  * smart interfaces.
  *
  * @since 1.7
@@ -4776,16 +4776,16 @@ struct _Evas_Smart_Cb_Description
     * brackets preceding types. Example:
     *
     * @li Structure with two integers:
-    *     @c "(ii)"
+    *     @c (ii)
     *
     * @li Structure called 'x' with two integers named 'a' and 'b':
-    *     @c "[x]([a]i[b]i)"
+    *     @c [x]([a]i[b]i)
     *
     * @li Array of integers:
-    *     @c "ai"
+    *     @c ai
     *
     * @li Array called 'x' of struct with two integers:
-    *     @c "[x]a(ii)"
+    *     @c [x]a(ii)
     *
     * @note This type string is used as a hint and is @b not validated
     *       or enforced in any way. Implementors should make the best
@@ -4830,7 +4830,7 @@ struct _Evas_Smart_Cb_Description
  * Similar to EVAS_SMART_CLASS_INIT_NULL, but will set version field to
  * latest EVAS_SMART_CLASS_VERSION and name to the specified value.
  *
- * It will keep a reference to name field as a "const char *", that is,
+ * It will keep a reference to name field as a const char *, that is,
  * name must be available while the structure is used (hint: static or global!)
  * and will not be modified.
  *
@@ -4851,7 +4851,7 @@ struct _Evas_Smart_Cb_Description
  * latest EVAS_SMART_CLASS_VERSION, name to the specified value and
  * parent class.
  *
- * It will keep a reference to name field as a "const char *", that is,
+ * It will keep a reference to name field as a const char *, that is,
  * name must be available while the structure is used (hint: static or global!)
  * and will not be modified. Similarly, parent reference will be kept.
  *
@@ -4872,7 +4872,7 @@ struct _Evas_Smart_Cb_Description
  * latest EVAS_SMART_CLASS_VERSION, name to the specified value, parent
  * class and callbacks at this level.
  *
- * It will keep a reference to name field as a "const char *", that is,
+ * It will keep a reference to name field as a const char *, that is,
  * name must be available while the structure is used (hint: static or global!)
  * and will not be modified. Similarly, parent and callbacks reference
  * will be kept.
@@ -4891,7 +4891,7 @@ struct _Evas_Smart_Cb_Description
  * Convenience macro to subclass a given Evas smart class.
  *
  * @param smart_name The name used for the smart class. e.g:
- * @c "Evas_Object_Box".
+ * @c Evas_Object_Box.
  * @param prefix Prefix used for all variables and functions defined
  * and referenced by this macro.
  * @param api_type Type of the structure used as API for the smart
@@ -4970,7 +4970,7 @@ struct _Evas_Smart_Cb_Description
  * interfaces</b> besides the smart callbacks.
  *
  * @param smart_name The name used for the smart class. e.g:
- *                   @c "Evas_Object_Box".
+ *                   @c Evas_Object_Box.
  * @param prefix Prefix used for all variables and functions defined
  *               and referenced by this macro.
  * @param api_type Type of the structure used as API for the smart
@@ -5272,7 +5272,7 @@ EAPI int                               evas_smart_usage_get(const Evas_Smart *s)
  * callbacks description array, so that the users of the smart object
  * can have introspection on its events API <b>at run time</b>.
  *
- * See some @ref Example_Evas_Smart_Objects "examples" of this group
+ * See some @ref Example_Evas_Smart_Objects examples of this group
  * of functions.
  *
  * @see @ref Evas_Smart_Group for class definitions.
@@ -5321,7 +5321,7 @@ EAPI void evas_smart_legacy_type_register(const char *type, const Eo_Class *klas
  * to the parent, and delete them when parent is deleted. In other
  * words, it is the base for simple object grouping.
  *
- * See some @ref Example_Evas_Smart_Objects "examples" of this group
+ * See some @ref Example_Evas_Smart_Objects examples of this group
  * of functions.
  *
  * @see evas_object_smart_clipped_smart_set()
@@ -5344,13 +5344,13 @@ struct _Evas_Object_Smart_Clipped_Data
 
 /**
  * Set a given smart class' callbacks so it implements the <b>clipped smart
- * object"</b>'s interface.
+ * object </b>'s interface.
  *
  * @param sc The smart class handle to operate on
  *
  * This call will assign all the required methods of the @p sc
  * #Evas_Smart_Class instance to the implementations set for clipped
- * smart objects. If one wants to "subclass" it, call this function
+ * smart objects. If one wants to subclass it, call this function
  * and then override desired values. If one wants to call any original
  * method, save it somewhere. Example:
  *
@@ -5379,7 +5379,7 @@ struct _Evas_Object_Smart_Clipped_Data
  *
  * Default behavior for each of #Evas_Smart_Class functions on a
  * clipped smart object are:
- * - @c add: creates a hidden clipper with "infinite" size, to clip
+ * - @c add: creates a hidden clipper with infinite size, to clip
  *    any incoming members;
  * - @c del: delete all children objects;
  * - @c move: move all objects relative relatively;
@@ -5531,7 +5531,7 @@ struct _Evas_Object_Box_Api
  * Initializer for a whole #Evas_Object_Box_Api structure, with
  * @c NULL values on its specific fields.
  *
- * @param smart_class_init initializer to use for the "base" field
+ * @param smart_class_init initializer to use for the base field
  * (#Evas_Smart_Class).
  *
  * @see EVAS_SMART_CLASS_INIT_NULL
@@ -5583,7 +5583,7 @@ struct _Evas_Object_Box_Api
  * set the version field of #Evas_Smart_Class (base field) to the
  * latest #EVAS_SMART_CLASS_VERSION and name it to the specific value.
  *
- * It will keep a reference to the name field as a <c>"const char *"</c>,
+ * It will keep a reference to the name field as a <c>const char *</c>,
  * i.e., the name must be available while the structure is
  * used (hint: static or global variable!) and must not be modified.
  *
@@ -5872,7 +5872,7 @@ EAPI void        evas_cserve_disconnect(void);
  *
  * @param[in] error the error code, a value in ::Evas_Load_Error.
  * @return Always returns a valid string. If the given @p error is not
- *         supported, <code>"Unknown error"</code> is returned.
+ *         supported, <code>Unknown error</code> is returned.
  *
  * @remark Mostly evas_object_image_file_set() would be the function setting
  * that error value afterwards, but also evas_object_image_load(),
@@ -5889,9 +5889,9 @@ EAPI void        evas_cserve_disconnect(void);
  * @remark Here, being @c valid_path the path to a valid image and @c
  * bogus_path a path to a file which does not exist, the two outputs
  * of evas_load_error_str() would be (if no other errors occur):
- * <code>"No error on load"</code> and <code>"File (or file path) does
- * not exist"</code>, respectively. See the full @ref
- * Example_Evas_Images "example".
+ * <code>No error on load</code> and <code>File (or file path) does
+ * not exist</code>, respectively. See the full @ref
+ * Example_Evas_Images example.
  *
  * @ingroup Evas_Utils
  */
@@ -6118,7 +6118,7 @@ EAPI int  evas_string_char_len_get(const char *str) EINA_WARN_UNUSED_RESULT EINA
  * @until {
  *
  * All the other @c evas_key functions behave on the same manner. See
- * the full @ref Example_Evas_Events "example".
+ * the full @ref Example_Evas_Events example.
  *
  * @ingroup Evas_Canvas
  */

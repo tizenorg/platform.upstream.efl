@@ -46,7 +46,7 @@
  * @until free(str
  *
  * Finally we see strlcat in action:
- * @until printf("
+ * @until printf(
  *
  * And then shut eina down and exit:
  * @until }
@@ -63,13 +63,13 @@
  * @warning Since these functions modify the strings they can't be used with
  * shared strings(eina_stringshare).
  *
- * See an example @ref tutorial_eina_string "here".
+ * See an example @ref tutorial_eina_string here.
  */
 
 /**
  * @addtogroup Eina_Tools_Group Tools
  *
- * For more information refer to the @ref tutorial_eina_string "string example".
+ * For more information refer to the @ref tutorial_eina_string string example.
  *
  * @{
  */
@@ -334,8 +334,8 @@ EAPI char           *eina_str_convert_len(const char *enc_from, const char *enc_
  * @param[in] str The string to escape.
  * @return The escaped string.
  *
- * @remark Escaping is done by adding a slash "\" before any occurrence of slashes "\",
- * spaces " " or apostrophes "'". This function returns a newly allocated
+ * @remark Escaping is done by adding a slash '\' before any occurrence of slashes '\',
+ * spaces ' ' or apostrophes '''. This function returns a newly allocated
  * escaped string on success, @c NULL on failure. When not used anymore, the
  * returned value must be freed.
  */

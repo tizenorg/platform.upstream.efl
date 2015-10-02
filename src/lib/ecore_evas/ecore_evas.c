@@ -2689,6 +2689,9 @@ ecore_evas_manual_render_set(Ecore_Evas *ee, Eina_Bool manual_render)
                          "ecore_evas_manual_render_set");
         return;
      }
+//TIZEN_ONLY(20150930) : add manual render code
+   INF("[manual_render_dbg] ecore_evas=%p manual render set=%d", ee, manual_render);
+//
    ee->manual_render = manual_render;
 }
 

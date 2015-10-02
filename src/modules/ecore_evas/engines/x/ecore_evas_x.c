@@ -131,6 +131,14 @@ struct _Ecore_Evas_Engine_Data_X11 {
         unsigned long colormap; // store colormap used to create pixmap
      } pixmap;
    Eina_Bool destroyed : 1; // X window has been deleted and cannot be used
+//TIZEN_ONLY(20150930) : add manual render code
+   struct {
+     Eina_Bool manual_mode; //manual render was set by ecore_evas
+     Eina_Bool approve_send; //need to send ECORE_X_ATOM_E_DEICONIFY_APPROVE message
+     Ecore_Job *deiconify_job;
+     Ecore_Idle_Enterer *idle_enterer;
+   } manual_render;
+//
 };
 
 static Ecore_Evas_Interface_X11 * _ecore_evas_x_interface_x11_new(void);
@@ -151,6 +159,100 @@ static void _alpha_do(Ecore_Evas *, int);
 static void _transparent_do(Ecore_Evas *, int);
 static void _avoid_damage_do(Ecore_Evas *, int);
 static void _rotation_do(Ecore_Evas *, int, int);
+
+//TIZEN_ONLY(20150930) : add manual render code
+
+// WE SHOULD SET/UNSET manual render using elm_window
+// for example, below case make problem even though we check manual render using manual mode value.
+// 1. ecore_evas_x set manual render EINA_TRUE
+// 2. other set manual render EINA_TRUE
+// 3. ecore_evas_x set manual render EINA_FALSE
+// after three, OTHER LOST MANUAL RENDER!!!
+
+// THIS IS ONLY HOTFIX
+
+/*  idle enterer for manual render on
+ *  1. ECORE_X_ATOM_E_COMP_SYNC_BEGIN
+ *  2. ECORE_X_EVENT_WINDOW_CONFIGURE
+ *  3. rotation
+ *  4. deiconify
+ **/
+
+static Eina_Bool
+_ecore_evas_x_manual_render_cb_idle_enterer(void *data)
+{
+   Ecore_Evas *ee = (Ecore_Evas *)data;
+   INF("[manual_render_dbg] ee=%p", ee);
+   Ecore_Evas_Engine_Data_X11 *edata = ee->engine.data;
+   int w, h;
+
+   edata->manual_render.idle_enterer = NULL;
+
+   // first manual render
+   ecore_evas_manual_render(ee);
+
+   // second manual render
+   evas_output_viewport_get(ecore_evas_get(ee), NULL, NULL, &w, &h);
+   evas_obscured_clear(ecore_evas_get(ee));
+   evas_damage_rectangle_add(ecore_evas_get(ee), 0, 0, w, h);
+   ecore_evas_manual_render(ee);
+
+   if (edata->manual_render.manual_mode)
+     {
+        INF("[manual_render_dbg] ecore_evas_x=%p is set manual render false", ee);
+        edata->manual_render.manual_mode= EINA_FALSE;
+        ecore_evas_manual_render_set(ee, EINA_FALSE);
+     }
+
+   //If need, send ECORE_X_ATOM_E_DEICONIFY_APPROVE
+   if (edata->manual_render.approve_send)
+     {
+        edata->manual_render.approve_send= EINA_FALSE;
+
+        /* client sends immediately reply message using value 1 */
+        ecore_x_client_message32_send(ee->prop.window,
+                                    ECORE_X_ATOM_E_DEICONIFY_APPROVE,
+                                    ECORE_X_EVENT_MASK_WINDOW_CONFIGURE,
+                                    ee->prop.window, 1,
+                                    0, 0, 0);
+        ecore_x_flush();
+     }
+   return ECORE_CALLBACK_CANCEL;
+}
+
+static void
+_ecore_evas_x_manual_render_set(Ecore_Evas *ee)
+{
+   Ecore_Evas_Engine_Data_X11 *edata = ee->engine.data;
+   INF("[manual_render_dbg] ee=%p", ee);
+
+   if (!ecore_evas_manual_render_get(ee))
+     {
+        INF("[manual_render_dbg] ecore_evas_x=%p is set manual render true", ee);
+        edata->manual_render.manual_mode = EINA_TRUE;
+        ecore_evas_manual_render_set(ee, EINA_TRUE);
+     }
+
+   // queue an idle enterer to render manually until each object finished changing its size
+   if (edata->manual_render.idle_enterer)
+    ecore_idle_enterer_del(edata->manual_render.idle_enterer);
+
+   edata->manual_render.idle_enterer =
+     ecore_idle_enterer_add(_ecore_evas_x_manual_render_cb_idle_enterer, ee);
+}
+
+static void
+_ecore_evas_x_deiconify_job(void *data)
+{
+   Ecore_Evas *ee = (Ecore_Evas *)data;
+   Ecore_Evas_Engine_Data_X11 *edata = ee->engine.data;
+
+   INF("[manual_render_dbg] ee=%p", ee);
+   edata->manual_render.deiconify_job = NULL;
+   edata->manual_render.approve_send= EINA_TRUE;
+   _ecore_evas_x_manual_render_set(ee);
+}
+//
 
 //Tizen Only: Need to contribute.
 static void
@@ -1095,6 +1197,11 @@ _ecore_evas_x_event_client_message(void *data EINA_UNUSED, int type EINA_UNUSED,
           {
              // qeue a damage + draw. work around an event re-ordering thing.
              evas_damage_rectangle_add(ee->evas, 0, 0, ee->w, ee->h);
+
+//TIZEN_ONLY(20150930) : add manual render code
+             INF("[manual_render_dbg] ee=%p :ECORE_X_ATOM_E_COMP_SYNC_BEGIN", ee);
+             _ecore_evas_x_manual_render_set(ee);
+//
           }
         edata->sync_began = 1;
         edata->sync_cancel = 0;
@@ -1166,15 +1273,18 @@ _ecore_evas_x_event_client_message(void *data EINA_UNUSED, int type EINA_UNUSED,
         if (e->data.l[1] != 0) //wm sends request message using value 0
           return ECORE_CALLBACK_PASS_ON;
 
-        evas_iconified_set(ee->evas, EINA_FALSE); // TIZEN_ONLY
+//TIZEN_ONLY(20150930) : add manual render code
+        INF("[manual_render_dbg] ee=%p :ECORE_X_ATOM_E_DEICONIFY_APPROVE", ee);
+        edata = ee->engine.data;
 
-        if (ecore_evas_manual_render_get(ee))
-          ecore_evas_manual_render(ee);
-        //client sends reply message using value 1
-        ecore_x_client_message32_send(e->win, ECORE_X_ATOM_E_DEICONIFY_APPROVE,
-                                      ECORE_X_EVENT_MASK_WINDOW_CONFIGURE,
-                                      e->win, 1,
-                                      0, 0, 0);
+        //Deal with deiconify using ecore_job for simplicity,
+        //But deiconify job is also handled like rotation.
+        if (edata->manual_render.deiconify_job)
+          ecore_job_del(edata->manual_render.deiconify_job);
+
+        /* queue a deiconify job to give the chance to other jobs */
+        edata->manual_render.deiconify_job = ecore_job_add(_ecore_evas_x_deiconify_job, ee);
+//
      }
    else if (e->message_type == ECORE_X_ATOM_E_WINDOW_ROTATION_CHANGE_PREPARE)
      {
@@ -1608,7 +1718,13 @@ _ecore_evas_x_event_window_configure(void *data EINA_UNUSED, int type EINA_UNUSE
      {
         // Tizen Only :: Add log for checking window configure notify
         INF("[ evas_dbg]: Window configure Notify  (%ix%i) -> (%ix%i) \n", ee->w,ee->h,e->w,e->h);
-
+//TIZEN_ONLY(20150930) : add manual render code
+        if(!ee->prop.iconified)
+          {
+             INF("[manual_render_dbg] ee=%p : ECORE_X_EVENT_WINDOW_CONFIGURE (%ix%i) -> (%ix%i)", ee, ee->w,ee->h,e->w,e->h);
+             _ecore_evas_x_manual_render_set(ee);
+          }
+//
         ee->w = e->w;
         ee->h = e->h;
         ee->req.w = ee->w;
@@ -2005,7 +2121,18 @@ _ecore_evas_x_free(Ecore_Evas *ee)
         ecore_job_del(edata->wm_rot.manual_mode_job);
         edata->wm_rot.manual_mode_job = NULL;
      }
-
+//TIZEN_ONLY(20150930) : add manual render code
+   if (edata->manual_render.deiconify_job)
+     {
+        ecore_job_del(edata->manual_render.deiconify_job);
+        edata->manual_render.deiconify_job = NULL;
+     }
+   if (edata->manual_render.idle_enterer)
+     {
+        ecore_idle_enterer_del(edata->manual_render.idle_enterer);
+        edata->manual_render.idle_enterer = NULL;
+     }
+//
    _ecore_evas_x_group_leader_unset(ee);
    if (edata->sync_counter)
      ecore_x_sync_counter_free(edata->sync_counter);
@@ -2376,6 +2503,10 @@ _ecore_evas_x_rotation_set_internal(Ecore_Evas *ee, int rotation, int resize,
         else
           evas_damage_rectangle_add(ee->evas, 0, 0, ee->h, ee->w);
      }
+//TIZEN_ONLY(20150930) : add manual render code
+   INF("[manual_render_dbg] ee=%p :rotation", ee);
+   _ecore_evas_x_manual_render_set(ee);
+//
 }
 
 static Eina_Bool

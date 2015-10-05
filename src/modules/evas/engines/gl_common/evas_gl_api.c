@@ -1327,7 +1327,19 @@ _evgl_glGetStringi(GLenum name, GLuint index)
              {
                 int ndx, length;
                 char * nth_string = evgl_api_ext_stringi_get(ctx->version);
+                if (!nth_string)
+                  {
+                     ERR("EvasGL extension Stringi is NULL.");
+                     return NULL;
+                  }
+
                 char * nth_start = evgl_api_ext_string_get(EINA_TRUE, ctx->version);
+                if (!nth_start)
+                  {
+                     ERR("EvasGL extension String is NULL.");
+                     return NULL;
+                  }
+
                 char * nth_end = NULL;
 
                 for (ndx = 0; ndx < index; ndx++)

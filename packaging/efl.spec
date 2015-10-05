@@ -1018,12 +1018,12 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %exclude %{_datadir}/dbus-1/services/org.enlightenment.Efreet.service
 %exclude %{_userunitdir}/efreet.service
 %exclude %{_bindir}/efreetd
-%exclude %{_libdir}/debug/usr/bin/efreetd.debug
+%exclude /usr/lib/debug/usr/bin/efreetd.debug
 %exclude %{_libdir}/efreet/*/efreet_desktop_cache_create
 %exclude %{_libdir}/efreet/*/efreet_icon_cache_create
-%exclude %{_libdir}/debug/usr/lib/efreet/*/efreet_desktop_cache_create.debug
-%exclude %{_libdir}/debug/usr/lib/efreet/*/efreet_icon_cache_create.debug
-%exclude %{_libdir}/debug/.build-id/*/*
+%exclude /usr/lib/debug/%{_libdir}/efreet/*/efreet_desktop_cache_create.debug
+%exclude /usr/lib/debug/%{_libdir}/efreet/*/efreet_icon_cache_create.debug
+%exclude /usr/lib/debug/.build-id/*/*
 %{_libdir}/libefreet.so.*
 %{_libdir}/libefreet_mime.so.*
 %{_libdir}/libefreet_trash.so.*
@@ -1077,14 +1077,14 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/ethumb/modules/*/*/module.so
 %{_libdir}/ethumb/modules/*/*/template.edj
 %exclude %{_libdir}/ethumb_client/utils/*/ethumbd_slave
-%exclude %{_libdir}/debug/usr/lib/ethumb_client/utils/*/ethumbd_slave.debug
+%exclude /usr/lib/debug/%{_libdir}/ethumb_client/utils/*/ethumbd_slave.debug
 %exclude %{_bindir}/ethumb
 %exclude %{_bindir}/ethumbd
 %exclude %{_bindir}/ethumbd_client
-%exclude %{_libdir}/debug/usr/bin/ethumb.debug
-%exclude %{_libdir}/debug/usr/bin/ethumbd.debug
-%exclude %{_libdir}/debug/usr/bin/ethumbd_client.debug
-%exclude %{_libdir}/debug/.build-id/*/*
+%exclude /usr/lib/debug/usr/bin/ethumb.debug
+%exclude /usr/lib/debug/usr/bin/ethumbd.debug
+%exclude /usr/lib/debug/usr/bin/ethumbd_client.debug
+%exclude /usr/lib/debug/.build-id/*/*
 
 #%files -n ethumb-examples
 #%manifest %{name}.manifest

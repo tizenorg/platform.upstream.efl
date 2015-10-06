@@ -1140,6 +1140,13 @@ _EVASGL_EXT_BEGIN(shader_texture_lod)
         _EVASGL_EXT_DRVNAME(GL_EXT_shader_texture_lod)
 _EVASGL_EXT_END()
 
+_EVASGL_EXT_BEGIN(color_buffer_float)
+        _EVASGL_EXT_DRVNAME(GL_EXT_color_buffer_float)
+_EVASGL_EXT_END()
+
+_EVASGL_EXT_BEGIN(color_buffer_half_float)
+        _EVASGL_EXT_DRVNAME(GL_EXT_color_buffer_half_float)
+_EVASGL_EXT_END()
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////

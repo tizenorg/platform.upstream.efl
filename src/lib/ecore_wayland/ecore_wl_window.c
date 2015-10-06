@@ -1297,6 +1297,7 @@ EAPI void
 ecore_wl_window_rotation_geometry_set(Ecore_Wl_Window *win, int rot, int x, int y, int w, int h)
 {
    int i = 0;
+   int rotation = 0;
    if (!win) return;
    if (!win->tz_rotation) return;
 
@@ -1308,6 +1309,16 @@ ecore_wl_window_rotation_geometry_set(Ecore_Wl_Window *win, int rot, int x, int 
    win->rotation_geometry_hints[i].w = w;
    win->rotation_geometry_hints[i].h = h;
    win->rotation_geometry_hints[i].valid = EINA_TRUE;
+
+   rotation = ecore_wl_window_rotation_get(win);
+   if ((rotation % 90 != 0) || (rotation / 90 > 3) || (rotation < 0)) return;
+   if ((i == (rotation / 90)) &&
+       ((win->allocation.w != w) || (win->allocation.h != h)))
+     {
+        _ecore_wl_window_configure_send(win,
+                                        win->allocation.x, win->allocation.y,
+                                        w, h, 0);
+     }
 }
 
 /* local functions */
@@ -1534,6 +1545,7 @@ _ecore_wl_window_cb_angle_change(void *data, struct tizen_rotation *tizen_rotati
      }
 
    ecore_event_add(ECORE_WL_EVENT_WINDOW_ROTATE, ev, NULL, NULL);
+   ecore_wl_window_rotation_set(win, ev->angle);
 }
 
 static void

@@ -482,12 +482,29 @@ ecore_wl_window_show(Ecore_Wl_Window *win)
      }
    if ((!win->tz_rotation) && (_ecore_wl_disp->wl.tz_policy_ext))
      {
+        int i = 0, w, h, rot;
         win->tz_rotation =
         tizen_policy_ext_get_rotation(_ecore_wl_disp->wl.tz_policy_ext,
                                       win->surface);
         if (!win->tz_rotation) return;
-          tizen_rotation_add_listener(win->tz_rotation,
-                                      &_ecore_tizen_rotation_listener, win);
+        tizen_rotation_add_listener(win->tz_rotation,
+                                    &_ecore_tizen_rotation_listener, win);
+
+        rot = ecore_wl_window_rotation_get(win);
+        if ((rot % 90 == 0) && (rot / 90 <= 3) && (rot >= 0))
+          {
+             i = rot / 90;
+             w = win->rotation_geometry_hints[i].w;
+             h = win->rotation_geometry_hints[i].h;
+
+             if ((win->rotation_geometry_hints[i].valid) &&
+                 ((win->allocation.w != w) || (win->allocation.h != h)))
+               {
+                  _ecore_wl_window_configure_send(win,
+                                                  win->allocation.x, win->allocation.y,
+                                                  w, h, 0);
+               }
+          }
      }
 
    if ((!win->tz_resource) && (_ecore_wl_disp->wl.tz_surf))
@@ -1311,7 +1328,6 @@ ecore_wl_window_rotation_geometry_set(Ecore_Wl_Window *win, int rot, int x, int 
    int i = 0;
    int rotation = 0;
    if (!win) return;
-   if (!win->tz_rotation) return;
 
    if ((rot % 90 != 0) || (rot / 90 > 3) || (rot < 0)) return;
 
@@ -1322,6 +1338,7 @@ ecore_wl_window_rotation_geometry_set(Ecore_Wl_Window *win, int rot, int x, int 
    win->rotation_geometry_hints[i].h = h;
    win->rotation_geometry_hints[i].valid = EINA_TRUE;
 
+   if (!win->tz_rotation) return;
    rotation = ecore_wl_window_rotation_get(win);
    if ((rotation % 90 != 0) || (rotation / 90 > 3) || (rotation < 0)) return;
    if ((i == (rotation / 90)) &&

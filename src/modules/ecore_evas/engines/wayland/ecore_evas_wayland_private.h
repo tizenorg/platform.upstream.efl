@@ -108,7 +108,6 @@ void _ecore_evas_wl_common_wm_rot_preferred_rotation_set(Ecore_Evas *ee, int rot
 void _ecore_evas_wl_common_wm_rot_available_rotations_set(Ecore_Evas *ee, const int *rots, unsigned int count);
 void _ecore_evas_wl_common_wm_rot_manual_rotation_done_set(Ecore_Evas *ee, Eina_Bool set);
 void _ecore_evas_wl_common_wm_rot_manual_rotation_done(Ecore_Evas *ee);
-void _ecore_evas_wl_common_aux_hints_supported_update(Ecore_Evas *ee);
 
 #ifdef BUILD_ECORE_EVAS_WAYLAND_SHM
 void _ecore_evas_wayland_shm_resize(Ecore_Evas *ee, int location);

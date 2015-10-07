@@ -2210,6 +2210,23 @@ ecore_evas_aux_hint_add(Ecore_Evas *ee, const char *hint, const char *val)
 
    Eina_List *ll;
    char *supported_hint;
+   if (ee->prop.aux_hint.supported_list == NULL)
+     {
+        if (!strncmp(ee->driver, "wayland", 7))
+          {
+             Ecore_Evas_Interface_Wayland *iface;
+             iface = (Ecore_Evas_Interface_Wayland *)_ecore_evas_interface_get(ee, "wayland");
+             EINA_SAFETY_ON_NULL_RETURN_VAL(iface, -1);
+
+             if (iface->aux_hint_add)
+               iface->supported_aux_hints_get(ee);
+
+             if (ee->prop.aux_hint.supported_list == NULL)
+               return -1;
+          }
+       else
+         return -1;
+     }
    EINA_LIST_FOREACH(ee->prop.aux_hint.supported_list, ll, supported_hint)
      {
         if (!strncmp(supported_hint, hint, strlen(hint)))

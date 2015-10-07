@@ -1316,18 +1316,6 @@ _ecore_evas_wl_common_wm_rot_manual_rotation_done(Ecore_Evas *ee)
 }
 
 void
-_ecore_evas_wl_common_aux_hints_supported_update(Ecore_Evas *ee)
-{
-   Ecore_Evas_Engine_Wl_Data *wdata;
-
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   if (!ee) return;
-   wdata = ee->engine.data;
-   ee->prop.aux_hint.supported_list = ecore_wl_window_aux_hints_supported_get(wdata->win);
-}
-
-void
 _ecore_evas_wl_common_raise(Ecore_Evas *ee)
 {
    Ecore_Evas_Engine_Wl_Data *wdata;
@@ -1994,7 +1982,17 @@ _ecore_evas_wayland_pointer_set(Ecore_Evas *ee EINA_UNUSED, int hot_x EINA_UNUSE
 }
 
 static void
-_ecore_evas_wayland_aux_hint_add(Ecore_Evas *ee EINA_UNUSED, int id, const char *hint, const char *val)
+_ecore_evas_wayland_supported_aux_hints_get(Ecore_Evas *ee)
+{
+   Ecore_Evas_Engine_Wl_Data *wdata;
+
+   if (!ee) return;
+   wdata = ee->engine.data;
+   ee->prop.aux_hint.supported_list = ecore_wl_window_aux_hints_supported_get(wdata->win);
+}
+
+static void
+_ecore_evas_wayland_aux_hint_add(Ecore_Evas *ee, int id, const char *hint, const char *val)
 {
    Ecore_Evas_Engine_Wl_Data *wdata;
 
@@ -2004,7 +2002,7 @@ _ecore_evas_wayland_aux_hint_add(Ecore_Evas *ee EINA_UNUSED, int id, const char 
 }
 
 static void
-_ecore_evas_wayland_aux_hint_change(Ecore_Evas *ee EINA_UNUSED, int id, const char *val)
+_ecore_evas_wayland_aux_hint_change(Ecore_Evas *ee, int id, const char *val)
 {
    Ecore_Evas_Engine_Wl_Data *wdata;
 
@@ -2014,7 +2012,7 @@ _ecore_evas_wayland_aux_hint_change(Ecore_Evas *ee EINA_UNUSED, int id, const ch
 }
 
 static void
-_ecore_evas_wayland_aux_hint_del(Ecore_Evas *ee EINA_UNUSED, int id)
+_ecore_evas_wayland_aux_hint_del(Ecore_Evas *ee, int id)
 {
    Ecore_Evas_Engine_Wl_Data *wdata;
 
@@ -2042,6 +2040,7 @@ _ecore_evas_wl_interface_new(void)
    iface->aux_hint_add = _ecore_evas_wayland_aux_hint_add;
    iface->aux_hint_change = _ecore_evas_wayland_aux_hint_change;
    iface->aux_hint_del = _ecore_evas_wayland_aux_hint_del;
+   iface->supported_aux_hints_get = _ecore_evas_wayland_supported_aux_hints_get;
 
 #ifdef BUILD_ECORE_EVAS_WAYLAND_EGL
    iface->pre_post_swap_callback_set = 

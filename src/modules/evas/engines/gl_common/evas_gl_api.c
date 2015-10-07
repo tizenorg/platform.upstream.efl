@@ -968,11 +968,6 @@ _evgl_glGetFloatv(GLenum pname, GLfloat* params)
                        return;
                     }
                }
-             else if (pname == GL_NUM_EXTENSIONS)
-               {
-                  *params = (GLfloat)evgl_api_ext_num_extensions_get(ctx->version);
-                  return;
-               }
           }
      }
    else
@@ -1008,11 +1003,6 @@ _evgl_glGetFloatv(GLenum pname, GLfloat* params)
                             return;
                          }
                     }
-               }
-             else if (pname == GL_NUM_EXTENSIONS)
-               {
-                  *params = (GLfloat)evgl_api_ext_num_extensions_get(ctx->version);
-                  return;
                }
           }
      }
@@ -1161,11 +1151,6 @@ _evgl_glGetIntegerv(GLenum pname, GLint* params)
                        return;
                     }
                }
-             else if (pname == GL_NUM_EXTENSIONS)
-               {
-                  *params = (GLint)evgl_api_ext_num_extensions_get(ctx->version);
-                  return;
-               }
           }
      }
    else
@@ -1202,11 +1187,6 @@ _evgl_glGetIntegerv(GLenum pname, GLint* params)
                             return;
                          }
                     }
-               }
-             else if (pname == GL_NUM_EXTENSIONS)
-               {
-                  *params = (GLint)evgl_api_ext_num_extensions_get(ctx->version);
-                  return;
                }
           }
      }
@@ -1305,65 +1285,6 @@ _evgl_glGetString(GLenum name)
      }
 
    return glGetString(name);
-}
-
-static const GLubyte *
-_evgl_glGetStringi(GLenum name, GLuint index)
-{
-   EVGL_Context *ctx;
-
-   ctx = evas_gl_common_current_context_get();
-
-   if (!ctx)
-     {
-        ERR("Unable to retrive Current Context");
-        return NULL;
-     }
-
-   switch (name)
-     {
-        case GL_EXTENSIONS:
-           if (index < evgl_api_ext_num_extensions_get(ctx->version))
-             {
-                int ndx, length;
-                char * nth_string = evgl_api_ext_stringi_get(ctx->version);
-                if (!nth_string)
-                  {
-                     ERR("EvasGL extension Stringi is NULL.");
-                     return NULL;
-                  }
-
-                char * nth_start = evgl_api_ext_string_get(EINA_TRUE, ctx->version);
-                if (!nth_start)
-                  {
-                     ERR("EvasGL extension String is NULL.");
-                     return NULL;
-                  }
-
-                char * nth_end = NULL;
-
-                for (ndx = 0; ndx < index; ndx++)
-                  {
-                     nth_start = strchr(nth_start, ' ');
-                     nth_start += sizeof(char);
-                  }
-
-                nth_end = strchr(nth_start, ' ');
-                length = nth_end - nth_start;
-
-                strncpy(nth_string, nth_start, length);
-                nth_string[length] = '\0';
-                return nth_string;
-             }
-           else
-             SET_GL_ERROR(GL_INVALID_VALUE);
-           break;
-        default:
-           SET_GL_ERROR(GL_INVALID_ENUM);
-           break;
-     }
-
-   return NULL;
 }
 
 static void

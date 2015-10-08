@@ -13,6 +13,8 @@ static char *_gl_ext_string_official = NULL;
 static char *_gles1_ext_string = NULL;
 // list of gles 3.1 exts by official name
 static char *_gles3_ext_string = NULL;
+// indexed pointer list of each extension of gles 3
+Eina_Array *_gles3_ext_plist = NULL;
 
 typedef void (*_getproc_fn) (void);
 typedef _getproc_fn (*fp_getproc)(const char *);
@@ -1053,6 +1055,7 @@ _evgl_api_gles3_ext_init(void)
      }
 #endif
 
+   _gles3_ext_plist = eina_array_new(1);
    gles3_funcs = _evgl_api_gles3_internal_get();
    if (!gles3_funcs || !gles3_funcs->glGetString)
      {
@@ -1158,7 +1161,10 @@ _evgl_api_gles3_ext_init(void)
 #define _EVASGL_EXT_DRVNAME_PRINT(name) \
      { \
         if ((strncmp(name, "GL_", 3) == 0) && (strstr(eina_strbuf_string_get(sb), name) == NULL)) \
-          eina_strbuf_append(sb, name" "); \
+          { \
+             eina_strbuf_append(sb, name" "); \
+             eina_array_push(_gles3_ext_plist, name); \
+          } \
      }
 #define _EVASGL_EXT_DRVNAME(name) \
    if (_curext_supported) \
@@ -1293,4 +1299,33 @@ evgl_api_ext_string_get(Eina_Bool official, int version)
      return _gl_ext_string_official;
 
    return _gl_ext_string;
+}
+
+const char *
+evgl_api_ext_stringi_get(GLuint index, int version)
+{
+   if (_evgl_api_ext_status < 1)
+     {
+        ERR("EVGL extension is not yet initialized.");
+        return NULL;
+     }
+
+   if (version == EVAS_GL_GLES_3_X)
+     {
+        if (index < evgl_api_ext_num_extensions_get(version) && index >= 0)
+          {
+             return eina_array_data_get(_gles3_ext_plist, index);
+          }
+     }
+
+   return NULL;
+}
+
+GLint
+evgl_api_ext_num_extensions_get(int version)
+{
+   if (version == EVAS_GL_GLES_3_X)
+     return eina_array_count(_gles3_ext_plist);
+
+   return 0;
 }

@@ -90,6 +90,8 @@ extern void evgl_api_ext_get(Evas_GL_API *gl_funcs);
 extern void evgl_api_gles1_ext_get(Evas_GL_API *gl_funcs);
 extern void evgl_api_gles3_ext_get(Evas_GL_API *gl_funcs);
 extern const char *evgl_api_ext_string_get(Eina_Bool official, int version);
+extern const char *evgl_api_ext_stringi_get(GLuint index, int version);
+extern GLint evgl_api_ext_num_extensions_get(int version);
 
 #endif //_EVAS_GL_API_EXT_H
 

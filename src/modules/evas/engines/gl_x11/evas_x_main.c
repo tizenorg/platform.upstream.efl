@@ -874,6 +874,111 @@ eng_window_resurf(Outbuf *gw)
    gw->surf = 1;
 }
 
+// TIZEN_ONLY
+void
+eng_window_recontext(Outbuf *gw, EGLConfig *config)
+{
+#ifdef GL_GLES
+    Outbuf *xwin;
+    GLContext context;
+    int context_attrs[3];
+
+    context_attrs[0] = EGL_CONTEXT_CLIENT_VERSION;
+    context_attrs[1] = 2;
+    context_attrs[2] = EGL_NONE;
+
+    context = _tls_context_get();
+    SET_RESTORE_CONTEXT();
+    eglMakeCurrent(gw->egl_disp, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    // context destroy
+    if (gw->egl_context[0] != context)
+       eglDestroyContext(gw->egl_disp, gw->egl_context[0]);
+
+    // context recreate
+    gw->egl_context[0] = eglCreateContext
+            (gw->egl_disp, config, context, context_attrs);
+    if (gw->egl_context[0] == EGL_NO_CONTEXT)
+        {
+            ERR("eglCreateContext() fail. code=%#x", eglGetError());
+            return;
+        }
+    if (context == EGL_NO_CONTEXT)
+        _tls_context_set(gw->egl_context[0]);
+
+    // surface destroy
+    xwin = _tls_outbuf_get();
+    if (xwin)
+       glsym_evas_gl_common_context_flush(xwin->gl_context);
+
+    SET_RESTORE_CONTEXT();
+    eglMakeCurrent(gw->egl_disp, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    if (gw->egl_surface[0] != EGL_NO_SURFACE)
+       eglDestroySurface(gw->egl_disp, gw->egl_surface[0]);
+    gw->egl_surface[0] = EGL_NO_SURFACE;
+    if (gw->egl_surface[1] != EGL_NO_SURFACE)
+       eglDestroySurface(gw->egl_disp, gw->egl_surface[1]);
+    gw->egl_surface[1] = EGL_NO_SURFACE;
+
+    // surface recreate
+    if (gw->win_back)
+       {
+          gw->egl_surface[0] = eglCreatePixmapSurface(gw->egl_disp, gw->egl_config,
+                                                      (EGLNativePixmapType)gw->win,
+                                                      NULL);
+          if (gw->egl_surface[0] == EGL_NO_SURFACE)
+             {
+                ERR("eglCreatePixmapSurface() fail for %#x. code=%#x",
+                    (unsigned int)gw->win, eglGetError());
+                return;
+             }
+
+          gw->egl_surface[1] = eglCreatePixmapSurface(gw->egl_disp, gw->egl_config,
+                                                      (EGLNativePixmapType)gw->win_back,
+                                                      NULL);
+          if (gw->egl_surface[1] == EGL_NO_SURFACE)
+             {
+                ERR("eglCreatePixmapSurface() fail for %#x. code=%#x",
+                    (unsigned int)gw->win_back, eglGetError());
+                return;
+             }
+       }
+    else
+       {
+          gw->egl_surface[0] = eglCreateWindowSurface(gw->egl_disp, gw->egl_config,
+                                                      (EGLNativeWindowType)gw->win,
+                                                      NULL);
+          if (gw->egl_surface[0] == EGL_NO_SURFACE)
+             {
+                ERR("eglCreateWindowSurface() fail for %#x. code=%#x",
+                    (unsigned int)gw->win, eglGetError());
+                return;
+             }
+       }
+
+
+    SET_RESTORE_CONTEXT();
+    if (eglMakeCurrent(gw->egl_disp,
+                       gw->egl_surface[gw->offscreen],
+                       gw->egl_surface[gw->offscreen],
+                       gw->egl_context[0]) == EGL_FALSE)
+        {
+            ERR("eglMakeCurrent() fail. code=%#x", eglGetError());
+            return;
+        }
+
+    int val;
+    eglGetConfigAttrib(gw->egl_disp, gw->egl_config, EGL_DEPTH_SIZE, &val);
+    gw->detected.depth_buffer_size = val;
+    DBG("Detected depth size %d", val);
+    eglGetConfigAttrib(gw->egl_disp, gw->egl_config, EGL_STENCIL_SIZE, &val);
+    gw->detected.stencil_buffer_size = val;
+    DBG("Detected stencil size %d", val);
+    eglGetConfigAttrib(gw->egl_disp, gw->egl_config, EGL_SAMPLES, &val);
+    gw->detected.msaa = val;
+    DBG("Detected msaa %d", val);
+#endif
+}
+
 void *
 eng_best_visual_get(Evas_Engine_Info_GL_X11 *einfo)
 {
@@ -963,7 +1068,7 @@ try_again:
    else
      {
         config_attrs[i++] = EGL_DEPTH_SIZE;
-        config_attrs[i++] = 1;
+        config_attrs[i++] = 0;
      }
 
    if (stencil_bits)
@@ -974,7 +1079,7 @@ try_again:
    else
      {
         config_attrs[i++] = EGL_STENCIL_SIZE;
-        config_attrs[i++] = 1;
+        config_attrs[i++] = 0;
      }
 
    if (msaa_samples)

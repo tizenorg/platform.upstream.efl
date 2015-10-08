@@ -263,6 +263,9 @@ static const EVGL_Interface evgl_funcs =
    //TIZEN ONLY
    NULL, //partial_rendering_enable
    NULL, //partial_rendering_disable
+   NULL, //check_egl_config
+   NULL, //context_eina_tls_new
+   NULL, //context_eina_tls_destroy
 };
 
 

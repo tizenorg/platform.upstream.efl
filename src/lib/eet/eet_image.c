@@ -858,8 +858,17 @@ eet_data_image_etc2_decode(const void *data,
    switch (m[OFFSET_ALGORITHM] & 0xFF)
      {
       case 0:
-        if (lossy != EET_IMAGE_ETC1) return 0;
-        file_cspace = EET_COLORSPACE_ETC1;
+        // ETC2 is backwards compatible with ETC1 but we prefer ETC2
+        if(lossy == EET_IMAGE_ETC2_RGB)
+          {
+             INF("ETC2 is backwoards compatible with ETC1 but we prefer ETC2");
+             file_cspace = EET_COLORSPACE_RGB8_ETC2;
+          }
+        else
+          {
+             if (lossy != EET_IMAGE_ETC1) return 0;
+             file_cspace = EET_COLORSPACE_ETC1;
+          }
         if (alpha != EINA_FALSE) return 0;
         etc_block_size = 8;
         break;
@@ -2605,6 +2614,10 @@ eet_data_image_decode_to_cspace_surface_cipher(const void   *data,
 
    if (!d)
      return 0;
+
+   // ETC2 is backwards compatible with ETC1 but we prefer ETC2
+   if(cspace == EET_COLORSPACE_RGB8_ETC2 && ilossy == EET_IMAGE_ETC1)
+      ilossy = EET_IMAGE_ETC2_RGB;
 
    if (cspace == EET_COLORSPACE_ETC1 &&
        ilossy != EET_IMAGE_ETC1)

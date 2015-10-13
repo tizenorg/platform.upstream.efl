@@ -101,6 +101,7 @@ ecore_wl_window_new(Ecore_Wl_Window *parent, int x, int y, int w, int h, int buf
 {
    Ecore_Wl_Window *win;
    static int _win_id = 1;
+   struct wl_compositor *wlcomp;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
@@ -131,11 +132,19 @@ ecore_wl_window_new(Ecore_Wl_Window *parent, int x, int y, int w, int h, int buf
    win->opaque.w = w;
    win->opaque.h = h;
 
+   wlcomp = _ecore_wl_compositor_get();
+   if (!wlcomp)
+     {
+        ERR("Failed to get wl_compositor");
+        free(win);
+        return NULL;
+     }
+
    win->opaque_region = 
-     wl_compositor_create_region(_ecore_wl_compositor_get());
+     wl_compositor_create_region(wlcomp);
 
    win->input_region = 
-     wl_compositor_create_region(_ecore_wl_compositor_get());
+     wl_compositor_create_region(wlcomp);
 
    win->title = NULL;
    win->class_name = NULL;

@@ -34,6 +34,7 @@ ecore_wl_subsurf_create(Ecore_Wl_Window *win)
    struct wl_surface *surface;
    Ecore_Wl_Subsurf *ess;
    struct wl_subcompositor *subcomp;
+   struct wl_compositor *wlcomp;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
@@ -43,7 +44,10 @@ ecore_wl_subsurf_create(Ecore_Wl_Window *win)
    subcomp = _ecore_wl_subcompositor_get();
    if (!subcomp) return NULL;
 
-   surface = wl_compositor_create_surface(_ecore_wl_compositor_get());
+   wlcomp = _ecore_wl_compositor_get();
+   if (!wlcomp) return NULL;
+
+   surface = wl_compositor_create_surface(wlcomp);
    if (!surface)
      return NULL;
 

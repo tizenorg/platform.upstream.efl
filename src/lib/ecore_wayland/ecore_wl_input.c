@@ -531,8 +531,11 @@ _ecore_wl_input_seat_handle_capabilities(void *data, struct wl_seat *seat, enum 
    if ((caps & WL_SEAT_CAPABILITY_TOUCH) && (!input->touch))
      {
         input->touch = wl_seat_get_touch(seat);
-        wl_touch_set_user_data(input->touch, input);
-        wl_touch_add_listener(input->touch, &touch_listener, input);
+        if (input->touch)
+          {
+             wl_touch_set_user_data(input->touch, input);
+             wl_touch_add_listener(input->touch, &touch_listener, input);
+          }
      }
    else if (!(caps & WL_SEAT_CAPABILITY_TOUCH) && (input->touch))
      {
@@ -1015,7 +1018,6 @@ _ecore_wl_input_cb_pointer_leave(void *data, struct wl_pointer *pointer EINA_UNU
     * here for any corner-cases */
    /* _ecore_wl_input_cursor_update(input); */
 
-   if (!surface) return;
    if (!(win = ecore_wl_window_surface_find(surface))) return;
 
    win->pointer_device = NULL;
@@ -1085,7 +1087,6 @@ _ecore_wl_input_cb_keyboard_leave(void *data, struct wl_keyboard *keyboard EINA_
 
    input->display->serial = serial;
 
-   if (!surface) return;
    if (!(win = ecore_wl_window_surface_find(surface))) return;
 
    win->keyboard_device = NULL;

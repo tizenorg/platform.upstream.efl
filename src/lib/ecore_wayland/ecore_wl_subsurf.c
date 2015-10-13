@@ -60,6 +60,12 @@ ecore_wl_subsurf_create(Ecore_Wl_Window *win)
      }
 
    ess = calloc(1, sizeof(*ess));
+   if (!ess)
+     {
+        wl_surface_destroy(surface);
+        return NULL;
+     }
+
    ess->surface = surface;
    ess->subsurface = subsurface;
    ess->parent_win = win;

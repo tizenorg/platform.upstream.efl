@@ -638,6 +638,8 @@ _ecore_wl_input_cb_pointer_frame(void *data, struct wl_callback *callback, unsig
    if ((input->cursor->image_count > 1) && (!input->cursor_frame_cb))
      {
         input->cursor_frame_cb = wl_surface_frame(input->cursor_surface);
+        if (!input->cursor_frame_cb) return;
+
         wl_callback_add_listener(input->cursor_frame_cb,
                                  &_ecore_wl_pointer_surface_listener, input);
      }

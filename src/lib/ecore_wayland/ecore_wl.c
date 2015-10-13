@@ -1256,7 +1256,7 @@ _ecore_wl_cb_conformant_area(void *data EINA_UNUSED, struct tizen_policy *tizen_
    struct wl_surface *surface = surface_resource;
    Ecore_Wl_Window *win = NULL;
    int org_x, org_y, org_w, org_h;
-   Eina_Bool changed;
+   Eina_Bool changed = EINA_FALSE;
 
    if (!surface) return;
    win = ecore_wl_window_surface_find(surface);

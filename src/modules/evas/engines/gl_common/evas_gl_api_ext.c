@@ -224,6 +224,13 @@ _evgl_evasglDestroyImage(EvasGLImage image)
 {
    EvasGLImage_EGL *img = image;
 
+   if (!img)
+     {
+        ERR("EvasGLImage is NULL.");
+        evas_gl_common_error_set(NULL, EVAS_GL_BAD_PARAMETER);
+        return;
+     }
+
    EXT_FUNC(eglDestroyImage)(img->dpy, img->img);
    free(img);
 }
@@ -232,6 +239,34 @@ static void
 _evgl_glEvasGLImageTargetTexture2D(GLenum target, EvasGLImage image)
 {
    EvasGLImage_EGL *img = image;
+   EVGL_Resource *rsc;
+   EVGL_Context *ctx;
+
+   if (!(rsc=_evgl_tls_resource_get()))
+     {
+        ERR("Unable to execute GL command. Error retrieving tls");
+        return;
+     }
+
+   if (!rsc->current_eng)
+     {
+        ERR("Unable to retrive Current Engine");
+        return;
+     }
+
+   ctx = rsc->current_ctx;
+   if (!ctx)
+     {
+        ERR("Unable to retrive Current Context");
+        return;
+     }
+
+  if (!img)
+    {
+       ERR("EvasGLImage is NULL");
+       ctx->gl_error = GL_INVALID_VALUE;
+       return;
+    }
 
    EXT_FUNC(glEGLImageTargetTexture2DOES)(target, img->img);
 }
@@ -240,6 +275,34 @@ static void
 _evgl_glEvasGLImageTargetRenderbufferStorage(GLenum target, EvasGLImage image)
 {
    EvasGLImage_EGL *img = image;
+   EVGL_Resource *rsc;
+   EVGL_Context *ctx;
+
+   if (!(rsc=_evgl_tls_resource_get()))
+     {
+        ERR("Unable to execute GL command. Error retrieving tls");
+        return;
+     }
+
+   if (!rsc->current_eng)
+     {
+        ERR("Unable to retrive Current Engine");
+        return;
+     }
+
+   ctx = rsc->current_ctx;
+   if (!ctx)
+     {
+        ERR("Unable to retrive Current Context");
+        return;
+     }
+
+  if (!img)
+    {
+       ERR("EvasGLImage is NULL");
+       ctx->gl_error = GL_INVALID_VALUE;
+       return;
+    }
 
    EXT_FUNC(glEGLImageTargetRenderbufferStorageOES)(target, img->img);
 }

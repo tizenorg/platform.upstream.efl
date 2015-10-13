@@ -1006,7 +1006,8 @@ static void find_keycode(struct xkb_keymap *keymap, xkb_keycode_t key, void *dat
           {
              found_keycodes->num_keycodes++;
              found_keycodes->keycodes = realloc(found_keycodes->keycodes, sizeof(int) * found_keycodes->num_keycodes);
-             found_keycodes->keycodes[found_keycodes->num_keycodes - 1] = key;
+             if (found_keycodes->keycodes)
+               found_keycodes->keycodes[found_keycodes->num_keycodes - 1] = key;
           }
      }
 }

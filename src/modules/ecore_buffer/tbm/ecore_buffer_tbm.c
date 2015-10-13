@@ -206,6 +206,7 @@ _ecore_buffer_tbm_init(const char *context EINA_UNUSED, const char *options EINA
    Ecore_Buffer_Module_Tbm_Data *mdata = NULL;
 
    mdata = calloc(sizeof(Ecore_Buffer_Module_Tbm_Data), 1);
+   EINA_SAFETY_ON_NULL_RETURN_VAL(mdata, NULL);
 
    mdata->tbm_mgr = tbm_bufmgr_init(-1);
    if (!mdata->tbm_mgr)

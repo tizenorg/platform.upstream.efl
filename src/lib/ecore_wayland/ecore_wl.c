@@ -1079,29 +1079,32 @@ ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key, int mod EINA_
         wl_display_roundtrip(_ecore_wl_disp->wl.display);
      }
 
-   if (!_ecore_wl_disp->input->xkb.keymap)
+   if (_ecore_wl_disp->input)
      {
-        int loop_count = 5;
-        INF("Wait until keymap event occurs");
-        while((!_ecore_wl_disp->input->xkb.keymap) && (loop_count > 0))
-          {
-             wl_display_roundtrip(_ecore_wl_disp->wl.display);
-             loop_count--;
-          }
         if (!_ecore_wl_disp->input->xkb.keymap)
           {
-             ERR("Fail to keymap, conut:[%d]", loop_count);
+             int loop_count = 5;
+             INF("Wait until keymap event occurs");
+             while((!_ecore_wl_disp->input->xkb.keymap) && (loop_count > 0))
+               {
+                  wl_display_roundtrip(_ecore_wl_disp->wl.display);
+                  loop_count--;
+               }
+             if (!_ecore_wl_disp->input->xkb.keymap)
+               {
+                  ERR("Fail to keymap, conut:[%d]", loop_count);
+                  return EINA_FALSE;
+               }
+             INF("Finish keymap event");
+          }
+
+        if (_ecore_wl_disp->input->xkb.keymap)
+          num_keycodes = _ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap, keysym, &keycodes);
+        else
+          {
+             WRN("Keymap is not ready");
              return EINA_FALSE;
           }
-        INF("Finish keymap event");
-     }
-
-   if (_ecore_wl_disp->input->xkb.keymap)
-     num_keycodes = _ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap, keysym, &keycodes);
-   else
-     {
-        WRN("Keymap is not ready");
-        return EINA_FALSE;
      }
 
    if (num_keycodes == 0)

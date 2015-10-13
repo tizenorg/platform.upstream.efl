@@ -201,6 +201,8 @@ ecore_wl_subsurf_opaque_region_set(Ecore_Wl_Subsurf *ess, int x, int y, int w, i
         if (!wlcomp) return;
 
         region = wl_compositor_create_region(wlcomp);
+        if (!region) return;
+
         wl_region_add(region, x, y, w, h);
         wl_surface_set_opaque_region(ess->surface, region);
         wl_region_destroy(region);

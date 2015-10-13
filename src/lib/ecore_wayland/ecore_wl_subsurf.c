@@ -189,6 +189,7 @@ EAPI void
 ecore_wl_subsurf_opaque_region_set(Ecore_Wl_Subsurf *ess, int x, int y, int w, int h)
 {
    struct wl_region *region = NULL;
+   struct wl_compositor *wlcomp;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
@@ -196,7 +197,10 @@ ecore_wl_subsurf_opaque_region_set(Ecore_Wl_Subsurf *ess, int x, int y, int w, i
 
    if ((w > 0) && (h > 0))
      {
-        region = wl_compositor_create_region(_ecore_wl_compositor_get());
+        wlcomp = _ecore_wl_compositor_get();
+        if (!wlcomp) return;
+
+        region = wl_compositor_create_region(wlcomp);
         wl_region_add(region, x, y, w, h);
         wl_surface_set_opaque_region(ess->surface, region);
         wl_region_destroy(region);

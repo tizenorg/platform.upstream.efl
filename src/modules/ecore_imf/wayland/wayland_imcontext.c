@@ -34,8 +34,7 @@
 // TIZEN_ONLY(20150708): Support back key
 #define BACK_KEY "XF86Back"
 
-static Ecore_Event_Handler  *_key_down_handler           = NULL;
-static Ecore_Event_Handler  *_key_up_handler             = NULL;
+static Ecore_Event_Filter   *_ecore_event_filter_handler = NULL;
 static Ecore_IMF_Context    *_active_ctx                 = NULL;
 //
 static Ecore_IMF_Input_Panel_State _input_panel_state    = ECORE_IMF_INPUT_PANEL_STATE_HIDE;
@@ -100,14 +99,14 @@ static Eina_Bool
 key_down_cb(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
    Ecore_Event_Key *ev = (Ecore_Event_Key *)event;
-   if (!ev || !ev->keyname || !_active_ctx) return ECORE_CALLBACK_PASS_ON;
+   if (!ev || !ev->keyname || !_active_ctx) return EINA_TRUE;
 
    if ((_input_panel_state == ECORE_IMF_INPUT_PANEL_STATE_SHOW ||
         _input_panel_state == ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW) &&
        strcmp(ev->keyname, BACK_KEY) == 0)
-     return ECORE_CALLBACK_DONE;
+     return EINA_FALSE;
 
-   return ECORE_CALLBACK_PASS_ON;
+   return EINA_TRUE;
 }
 
 static Eina_Bool
@@ -115,11 +114,11 @@ key_up_cb(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
    Ecore_Event_Key *ev = (Ecore_Event_Key *)event;
    WaylandIMContext *imcontext = NULL;
-   if (!ev || !ev->keyname || !_active_ctx) return ECORE_CALLBACK_PASS_ON;
+   if (!ev || !ev->keyname || !_active_ctx) return EINA_TRUE;
 
    if (_input_panel_state == ECORE_IMF_INPUT_PANEL_STATE_HIDE ||
        strcmp(ev->keyname, BACK_KEY) != 0)
-     return ECORE_CALLBACK_PASS_ON;
+     return EINA_TRUE;
 
    ecore_imf_context_reset(_active_ctx);
 
@@ -132,32 +131,38 @@ key_up_cb(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
                                  ecore_wl_input_seat_get(imcontext->input));
      }
 
-   return ECORE_CALLBACK_DONE;
+   return EINA_FALSE;
+}
+
+static Eina_Bool
+_ecore_event_filter_cb(void *data, void *loop_data, int type, void *event)
+{
+   if (type == ECORE_EVENT_KEY_DOWN)
+     {
+        return key_down_cb(data, type, event);
+     }
+   else if (type == ECORE_EVENT_KEY_UP)
+     {
+        return key_up_cb(data, type, event);
+     }
+
+   return EINA_TRUE;
 }
 
 EAPI void
 register_key_handler()
 {
-   if (!_key_down_handler)
-     _key_down_handler = ecore_event_handler_add(ECORE_EVENT_KEY_DOWN, key_down_cb, NULL);
-
-   if (!_key_up_handler)
-     _key_up_handler = ecore_event_handler_add(ECORE_EVENT_KEY_UP, key_up_cb, NULL);
+   if (!_ecore_event_filter_handler)
+     _ecore_event_filter_handler = ecore_event_filter_add(NULL, _ecore_event_filter_cb, NULL, NULL);
 }
 
 EAPI void
 unregister_key_handler()
 {
-   if (_key_down_handler)
+   if (_ecore_event_filter_handler)
      {
-        ecore_event_handler_del(_key_down_handler);
-        _key_down_handler = NULL;
-     }
-
-   if (_key_up_handler)
-     {
-        ecore_event_handler_del(_key_up_handler);
-        _key_up_handler = NULL;
+        ecore_event_filter_del(_ecore_event_filter_handler);
+        _ecore_event_filter_handler = NULL;
      }
 }
 //

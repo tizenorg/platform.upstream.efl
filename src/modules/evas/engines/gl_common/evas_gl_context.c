@@ -1200,7 +1200,7 @@ evas_gl_common_context_newframe(Evas_Engine_GL_Context *gc)
    glBindTexture(GL_TEXTURE_2D, gc->pipe[0].shader.cur_tex);
    GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 
-   _evas_gl_common_viewport_set(gc,1);
+   _evas_gl_common_viewport_set(gc,0);
 }
 
 EAPI void

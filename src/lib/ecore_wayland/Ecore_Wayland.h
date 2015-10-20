@@ -85,7 +85,8 @@ enum _Ecore_Wl_Window_Type
    ECORE_WL_WINDOW_TYPE_TRANSIENT,
    ECORE_WL_WINDOW_TYPE_MENU,
    ECORE_WL_WINDOW_TYPE_DND,
-   ECORE_WL_WINDOW_TYPE_CUSTOM
+   ECORE_WL_WINDOW_TYPE_CUSTOM,
+   ECORE_WL_WINDOW_TYPE_NOTIFICATION
 };
 
 enum _Ecore_Wl_Window_Buffer_Type
@@ -728,6 +729,7 @@ EAPI struct wl_surface *ecore_wl_window_surface_get(Ecore_Wl_Window *win);
 EAPI struct wl_shell_surface *ecore_wl_window_shell_surface_get(Ecore_Wl_Window *win);
 EAPI struct xdg_surface *ecore_wl_window_xdg_surface_get(Ecore_Wl_Window *win); /** @since 1.12 */
 EAPI Ecore_Wl_Window *ecore_wl_window_find(unsigned int id);
+EAPI Ecore_Wl_Window_Type ecore_wl_window_type_get(Ecore_Wl_Window *win);
 EAPI void ecore_wl_window_type_set(Ecore_Wl_Window *win, Ecore_Wl_Window_Type type);
 EAPI void ecore_wl_window_pointer_set(Ecore_Wl_Window *win, struct wl_surface *surface, int hot_x, int hot_y);
 EAPI void ecore_wl_window_cursor_from_name_set(Ecore_Wl_Window *win, const char *cursor_name);

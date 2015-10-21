@@ -1312,7 +1312,7 @@ evgl_api_ext_stringi_get(GLuint index, int version)
 
    if (version == EVAS_GL_GLES_3_X)
      {
-        if (index < evgl_api_ext_num_extensions_get(version) && index >= 0)
+        if (index < evgl_api_ext_num_extensions_get(version))
           {
              return eina_array_data_get(_gles3_ext_plist, index);
           }

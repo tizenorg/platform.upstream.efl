@@ -207,42 +207,12 @@ _evas_video_nv12(unsigned char *evas_data, const unsigned char *source_data, uns
 }
 
 static void
-_native_bind_cb(void *data EINA_UNUSED, void *image, int x EINA_UNUSED, int y EINA_UNUSED, int w EINA_UNUSED, int h EINA_UNUSED)
-{
-   RGBA_Image *im = image;
-   Native *n = im->native.data;
-
-   if (!im) return;
-   if ((n) && (n->ns.type == EVAS_NATIVE_SURFACE_TBM))
-     {
-        tbm_surface_info_s info;
-
-        if (sym_tbm_surface_map(n->ns.data.tbm.buffer, TBM_SURF_OPTION_READ|TBM_SURF_OPTION_WRITE, &info)) return;
-
-        im->image.data = (DATA32 *)info.planes[0].ptr;
-     }
-}
-
-static void
-_native_unbind_cb(void *data EINA_UNUSED, void *image)
-{
-   RGBA_Image *im = image;
-   Native *n = im->native.data;
-
-   if (!im) return;
-   if ((n) && (n->ns.type == EVAS_NATIVE_SURFACE_TBM))
-     {
-        sym_tbm_surface_unmap(n->ns.data.tbm.buffer);
-     }
-}
-
-static void
 _native_free_cb(void *data EINA_UNUSED, void *image)
 {
    RGBA_Image *im = image;
+   if (!im) return;
    Native *n = im->native.data;
 
-   if (!im) return;
    im->native.data        = NULL;
    im->native.func.bind   = NULL;
    im->native.func.unbind = NULL;
@@ -330,8 +300,8 @@ evas_native_tbm_image_set(void *data EINA_UNUSED, void *image, void *native)
 
         memcpy(n, ns, sizeof(Evas_Native_Surface));
         im->native.data = n;
-        im->native.func.bind   = _native_bind_cb;
-        im->native.func.unbind = _native_unbind_cb;
+        im->native.func.bind   = NULL;
+        im->native.func.unbind = NULL;
         im->native.func.free   = _native_free_cb;
 
         sym_tbm_surface_unmap(ns->data.tbm.buffer);

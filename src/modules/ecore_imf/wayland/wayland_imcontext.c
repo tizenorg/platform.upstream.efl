@@ -704,6 +704,11 @@ text_input_input_panel_state(void                 *data EINA_UNUSED,
     ecore_imf_context_input_panel_event_callback_call(imcontext->ctx,
                                                       ECORE_IMF_INPUT_PANEL_STATE_EVENT,
                                                       _input_panel_state);
+    if (state == WL_TEXT_INPUT_INPUT_PANEL_STATE_HIDE ||
+        state == WL_TEXT_INPUT_INPUT_PANEL_STATE_SHOW)
+        ecore_imf_context_input_panel_event_callback_call(imcontext->ctx,
+                                                          ECORE_IMF_INPUT_PANEL_GEOMETRY_EVENT,
+                                                          0);
 }
 
 static void

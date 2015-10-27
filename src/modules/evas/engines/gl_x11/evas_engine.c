@@ -1447,8 +1447,11 @@ evgl_eng_check_egl_config(void *data, EVGL_Engine *evgl_engine, EVGL_Surface *sf
     eng_window_recontext(eng_get_ob(re), eng_get_ob(re)->egl_config);
 
     // for internal_make_current
-    evgl_eng_context_destroy(data, rsc->context);
-    rsc->context = evgl_eng_context_create(data, NULL, EVAS_GL_GLES_2_X);
+    if (rsc && rsc->context)
+       {
+          evgl_eng_context_destroy(data, rsc->context);
+          rsc->context = evgl_eng_context_create(data, NULL, EVAS_GL_GLES_2_X);
+       }
 
     sfc->egl_reconfig  = 1;
     eng_get_ob(re)->egl_reconfig = 1;

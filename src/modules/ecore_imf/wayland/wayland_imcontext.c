@@ -86,15 +86,12 @@ struct _WaylandIMContext
    uint32_t reset_serial;
    uint32_t content_purpose;
    uint32_t content_hint;
-<<<<<<< HEAD
    uint32_t return_key_type;
 
    Eina_Bool return_key_disabled;
 
    void *imdata;
    uint32_t imdata_size;
-=======
->>>>>>> opensource/master
 };
 
 // TIZEN_ONLY(20150708): Support back key
@@ -401,10 +398,7 @@ show_input_panel(Ecore_IMF_Context *ctx)
 
    if (ecore_imf_context_input_panel_enabled_get(ctx))
      {
-<<<<<<< HEAD
         _input_panel_state = ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW;
-=======
->>>>>>> opensource/master
         wl_text_input_show_input_panel(imcontext->text_input);
         wl_text_input_activate(imcontext->text_input, seat,
                                ecore_wl_window_surface_get(imcontext->window));
@@ -412,7 +406,6 @@ show_input_panel(Ecore_IMF_Context *ctx)
         wl_text_input_set_content_type(imcontext->text_input,
                                        imcontext->content_hint,
                                        imcontext->content_purpose);
-<<<<<<< HEAD
 
         wl_text_input_set_return_key_type(imcontext->text_input,
                                           imcontext->return_key_type);
@@ -422,8 +415,6 @@ show_input_panel(Ecore_IMF_Context *ctx)
 
         if (imcontext->imdata_size > 0)
           wl_text_input_set_input_panel_data(imcontext->text_input, (const char *)imcontext->imdata, imcontext->imdata_size);
-=======
->>>>>>> opensource/master
      }
 
    return EINA_TRUE;
@@ -871,13 +862,10 @@ wayland_im_context_focus_in(Ecore_IMF_Context *ctx)
 {
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom, "focus-in");
 
-<<<<<<< HEAD
    // TIZEN_ONLY(20150708): Support back key
    _active_ctx = ctx;
    //
 
-=======
->>>>>>> opensource/master
    if (!ecore_imf_context_input_panel_show_on_demand_get (ctx))
      show_input_panel(ctx);
 }
@@ -1093,11 +1081,7 @@ wayland_im_context_input_panel_layout_set(Ecore_IMF_Context *ctx, Ecore_IMF_Inpu
          imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_PHONE;
          break;
       case ECORE_IMF_INPUT_PANEL_LAYOUT_IP:
-<<<<<<< HEAD
          imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_IP;
-=======
-         imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_NUMBER;
->>>>>>> opensource/master
          break;
       case ECORE_IMF_INPUT_PANEL_LAYOUT_MONTH:
          imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_DATE;
@@ -1114,12 +1098,9 @@ wayland_im_context_input_panel_layout_set(Ecore_IMF_Context *ctx, Ecore_IMF_Inpu
       case ECORE_IMF_INPUT_PANEL_LAYOUT_DATETIME:
         imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_DATETIME;
         break;
-<<<<<<< HEAD
       case ECORE_IMF_INPUT_PANEL_LAYOUT_EMOTICON:
         imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_EMOTICON;
         break;
-=======
->>>>>>> opensource/master
       default:
         imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_NORMAL;
         break;
@@ -1166,7 +1147,6 @@ wayland_im_context_input_panel_language_set(Ecore_IMF_Context *ctx,
    else
      imcontext->content_hint &= ~WL_TEXT_INPUT_CONTENT_HINT_LATIN;
 }
-<<<<<<< HEAD
 
 EAPI Ecore_IMF_Input_Panel_State
 wayland_im_context_input_panel_state_get(Ecore_IMF_Context *ctx EINA_UNUSED)
@@ -1236,8 +1216,6 @@ wayland_im_context_input_panel_imdata_set(Ecore_IMF_Context *ctx, const void *da
    memcpy(imcontext->imdata, data, length);
    imcontext->imdata_size = length;
 }
-=======
->>>>>>> opensource/master
 
 WaylandIMContext *wayland_im_context_new (struct wl_text_input_manager *text_input_manager)
 {

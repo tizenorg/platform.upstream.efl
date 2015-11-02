@@ -8,6 +8,28 @@
 # include <sys/types.h>
 # include <sys/mman.h>
 
+#ifdef EAPI
+# undef EAPI
+#endif
+
+#ifdef _WIN32
+# ifdef DLL_EXPORT
+#  define EAPI __declspec(dllexport)
+# else
+#  define EAPI
+# endif /* ! DLL_EXPORT */
+#else
+# ifdef __GNUC__
+#  if __GNUC__ >= 4
+#   define EAPI __attribute__ ((visibility("default")))
+#  else
+#   define EAPI
+#  endif
+# else
+#  define EAPI
+# endif
+#endif /* ! _WIN32 */
+
 /* local function prototypes */
 static void _ecore_evas_wl_move_resize(Ecore_Evas *ee, int x, int y, int w, int h);
 static void _ecore_evas_wl_show(Ecore_Evas *ee);
@@ -218,12 +240,16 @@ ecore_evas_wayland_shm_new_internal(const char *disp_name, unsigned int parent, 
      evas_event_callback_add(ee->evas, EVAS_CALLBACK_RENDER_POST,
 			     _ecore_evas_wl_common_render_updates, ee);
 
+   evas_event_callback_add(ee->evas, EVAS_CALLBACK_RENDER_PRE,
+			     _ecore_evas_wl_common_render_pre, ee);
+
    /* FIXME: This needs to be set based on theme & scale */
    if (ee->prop.draw_frame)
      evas_output_framespace_set(ee->evas, fx, fy, fw, fh);
 
    if ((einfo = (Evas_Engine_Info_Wayland_Shm *)evas_engine_info_get(ee->evas)))
      {
+        einfo->info.wl_disp = ecore_wl_display_get();
         einfo->info.wl_shm = ecore_wl_shm_get();
         einfo->info.destination_alpha = EINA_TRUE;
         einfo->info.rotation = ee->rotation;
@@ -244,6 +270,8 @@ ecore_evas_wayland_shm_new_internal(const char *disp_name, unsigned int parent, 
         ERR("Failed to get Evas Engine Info for '%s'", ee->driver);
         goto err;
      }
+
+   /* ecore_wl_animator_source_set(ECORE_ANIMATOR_SOURCE_CUSTOM); */
 
    ecore_evas_callback_pre_free_set(ee, _ecore_evas_wl_common_pre_free);
 
@@ -327,7 +355,6 @@ _ecore_evas_wl_show(Ecore_Evas *ee)
      {
         ecore_wl_window_show(wdata->win);
         ecore_wl_window_alpha_set(wdata->win, ee->alpha);
-        ecore_wl_window_update_size(wdata->win, ee->w + fw, ee->h + fh);
 
         einfo = (Evas_Engine_Info_Wayland_Shm *)evas_engine_info_get(ee->evas);
         if (einfo)
@@ -355,6 +382,8 @@ _ecore_evas_wl_show(Ecore_Evas *ee)
 
    if (ee->visible) return;
    ee->visible = 1;
+   ee->should_be_visible = 1;
+   ee->draw_ok = EINA_TRUE;
    if (ee->func.fn_show) ee->func.fn_show(ee);
 }
 
@@ -390,7 +419,7 @@ _ecore_evas_wl_hide(Ecore_Evas *ee)
    if (!ee->visible) return;
    ee->visible = 0;
    ee->should_be_visible = 0;
-   _ecore_evas_wl_common_frame_callback_clean(ee);
+   ee->draw_ok = EINA_FALSE;
 
    if (ee->func.fn_hide) ee->func.fn_hide(ee);
 }
@@ -405,7 +434,7 @@ _ecore_evas_wayland_shm_alpha_do(Ecore_Evas *ee, int alpha)
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!ee) return;
-   if ((ee->alpha == alpha)) return;
+   if (ee->alpha == alpha) return;
    ee->alpha = alpha;
    wdata = ee->engine.data;
 
@@ -444,7 +473,7 @@ _ecore_evas_wayland_shm_transparent_do(Ecore_Evas *ee, int transparent)
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!ee) return;
-   if ((ee->transparent == transparent)) return;
+   if (ee->transparent == transparent) return;
    ee->transparent = transparent;
 
    wdata = ee->engine.data;
@@ -485,16 +514,12 @@ _ecore_evas_wayland_shm_resize(Ecore_Evas *ee, int location)
    wdata = ee->engine.data;
    if (wdata->win) 
      {
-        int fw, fh;
-
         _ecore_evas_wayland_shm_resize_edge_set(ee, location);
 
-        evas_output_framespace_get(ee->evas, NULL, NULL, &fw, &fh);
-
         if (ECORE_EVAS_PORTRAIT(ee))
-          ecore_wl_window_resize(wdata->win, ee->w + fw, ee->h + fh, location);
+          ecore_wl_window_resize(wdata->win, ee->w, ee->h, location);
         else
-          ecore_wl_window_resize(wdata->win, ee->w + fh, ee->h + fw, location);
+          ecore_wl_window_resize(wdata->win, ee->w, ee->h, location);
      }
 }
 

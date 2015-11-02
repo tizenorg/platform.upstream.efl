@@ -12,7 +12,14 @@ efl_eolian_files = \
       lib/efl/interfaces/efl_gfx_shape.eo \
       lib/efl/interfaces/efl_gfx_gradient_base.eo \
       lib/efl/interfaces/efl_gfx_gradient_linear.eo \
+<<<<<<< HEAD
       lib/efl/interfaces/efl_gfx_gradient_radial.eo
+=======
+      lib/efl/interfaces/efl_gfx_gradient_radial.eo \
+      lib/efl/interfaces/efl_gfx_filter.eo \
+      lib/efl/interfaces/efl_model_base.eo \
+      $(NULL)
+>>>>>>> opensource/master
 
 efl_eolian_files_h = $(efl_eolian_files:%.eo=%.eo.h)
 efl_eolian_files_c = $(efl_eolian_files:%.eo=%.eo.c)
@@ -39,7 +46,11 @@ lib_efl_libefl_la_SOURCES = \
 lib/efl/interfaces/efl_interfaces_main.c \
 lib/efl/interfaces/efl_gfx_shape.c
 
+<<<<<<< HEAD
 lib_efl_libefl_la_CPPFLAGS = -I$(top_builddir)/src/lib/efl -I$(top_srcdir)/src/lib/efl @EFL_CFLAGS@
+=======
+lib_efl_libefl_la_CPPFLAGS = -I$(top_builddir)/src/lib/efl -I$(top_srcdir)/src/lib/efl @EFL_CFLAGS@ -DEFL_GFX_FILTER_BETA
+>>>>>>> opensource/master
 lib_efl_libefl_la_LIBADD = @EFL_LIBS@
 lib_efl_libefl_la_DEPENDENCIES = @EFL_INTERNAL_LIBS@
 lib_efl_libefl_la_LDFLAGS = @EFL_LTLIBRARY_FLAGS@
@@ -47,6 +58,7 @@ lib_efl_libefl_la_LDFLAGS = @EFL_LTLIBRARY_FLAGS@
 installed_eflheadersdir = $(includedir)/efl-@VMAJ@
 dist_installed_eflheaders_DATA = \
               lib/efl/Efl_Config.h \
+              lib/efl/Efl_Model_Common.h \
               lib/efl/Efl.h
 
 installed_eflinterfacesdir = $(includedir)/efl-@VMAJ@/interfaces
@@ -65,3 +77,26 @@ installed_eflluadir = $(datadir)/elua/modules/efl
 nodist_installed_efllua_DATA = $(generated_efl_lua_all)
 
 endif
+
+### Binary
+
+bin_PROGRAMS += \
+bin/efl/efl_debugd \
+bin/efl/efl_debug
+
+bin_efl_efl_debugd_SOURCES = \
+bin/efl/efl_debugd.c \
+bin/efl/efl_debug_common.c \
+bin/efl/efl_debug_common.h
+bin_efl_efl_debugd_CPPFLAGS = -I$(top_builddir)/src/bin/efl @EINA_CFLAGS@ @ECORE_CFLAGS@ @ECORE_CON_CFLAGS@
+bin_efl_efl_debugd_LDADD = @USE_EINA_INTERNAL_LIBS@ @USE_ECORE_INTERNAL_LIBS@ @USE_ECORE_CON_INTERNAL_LIBS@
+bin_efl_efl_debugd_DEPENDENCIES = @USE_EINA_INTERNAL_LIBS@ @USE_ECORE_INTERNAL_LIBS@ @USE_ECORE_CON_INTERNAL_LIBS@
+
+bin_efl_efl_debug_SOURCES = \
+bin/efl/efl_debug.c \
+bin/efl/efl_debug_common.c \
+bin/efl/efl_debug_common.h
+bin_efl_efl_debug_CPPFLAGS = -I$(top_builddir)/src/bin/efl @EINA_CFLAGS@ @ECORE_CFLAGS@ @ECORE_CON_CFLAGS@
+bin_efl_efl_debug_LDADD = @USE_EINA_INTERNAL_LIBS@ @USE_ECORE_INTERNAL_LIBS@ @USE_ECORE_CON_INTERNAL_LIBS@
+bin_efl_efl_debug_DEPENDENCIES = @USE_EINA_INTERNAL_LIBS@ @USE_ECORE_INTERNAL_LIBS@ @USE_ECORE_CON_INTERNAL_LIBS@
+

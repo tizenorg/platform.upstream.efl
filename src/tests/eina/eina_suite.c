@@ -76,6 +76,14 @@ static const Eina_Test_Case etc[] = {
    { "Locking", eina_test_locking },
    { "ABI", eina_test_abi },
    { "Trash", eina_test_trash },
+#ifdef XATTR_TEST_DIR
+   { "Xattr", eina_test_xattr },
+#endif
+   { "Crc", eina_test_crc },
+   { "Quad", eina_test_quad },
+   { "Matrix", eina_test_matrix },
+   { "Quaternion", eina_test_quaternion },
+   { "Bezier", eina_test_bezier },
    { NULL, NULL }
 };
 

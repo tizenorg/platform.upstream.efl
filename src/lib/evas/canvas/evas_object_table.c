@@ -841,11 +841,13 @@ _evas_object_table_calculate_layout_regular(Evas_Object *o, Evas_Table_Data *pri
 
         cx = x + opt->col * (priv->pad.h);
         cx += _evas_object_table_sum_sizes(cols, 0, opt->col);
-        cw = _evas_object_table_sum_sizes(cols, opt->col, opt->end_col);
+        cw = (opt->colspan - 1) * priv->pad.h;
+        cw += _evas_object_table_sum_sizes(cols, opt->col, opt->end_col);
 
         cy = y + opt->row * (priv->pad.v);
         cy += _evas_object_table_sum_sizes(rows, 0, opt->row);
-        ch = _evas_object_table_sum_sizes(rows, opt->row, opt->end_row);
+        ch = (opt->rowspan - 1) * priv->pad.v;
+        ch += _evas_object_table_sum_sizes(rows, opt->row, opt->end_row);
 
         _evas_object_table_calculate_cell(opt, &cx, &cy, &cw, &ch);
 
@@ -959,15 +961,20 @@ _evas_table_evas_object_smart_calculate(Eo *o, Evas_Table_Data *priv)
 EAPI Evas_Object *
 evas_object_table_add(Evas *evas)
 {
+   MAGIC_CHECK(evas, Evas, MAGIC_EVAS);
+   return NULL;
+   MAGIC_CHECK_END();
    Evas_Object *obj = eo_add(MY_CLASS, evas);
    return obj;
 }
 
-EOLIAN static void
+EOLIAN static Eo *
 _evas_table_eo_base_constructor(Eo *obj, Evas_Table_Data *class_data EINA_UNUSED)
 {
-   eo_do_super(obj, MY_CLASS, eo_constructor());
+   obj = eo_do_super_ret(obj, MY_CLASS, obj, eo_constructor());
    eo_do(obj, evas_obj_type_set(MY_CLASS_NAME_LEGACY));
+
+   return obj;
 }
 
 EOLIAN static Evas_Object*
@@ -1051,7 +1058,7 @@ _evas_table_padding_get(Eo *o EINA_UNUSED, Evas_Table_Data *priv, Evas_Coord *ho
 }
 
 EOLIAN static Eina_Bool
-_evas_table_pack_get(Eo *o EINA_UNUSED, Evas_Table_Data *_pd EINA_UNUSED, Evas_Object *child, unsigned short *col, unsigned short *row, unsigned short *colspan, unsigned short *rowspan)
+_evas_table_pack_get(const Eo *o EINA_UNUSED, Evas_Table_Data *_pd EINA_UNUSED, Evas_Object *child, unsigned short *col, unsigned short *row, unsigned short *colspan, unsigned short *rowspan)
 {
    Evas_Object_Table_Option *opt;
 
@@ -1305,7 +1312,7 @@ _evas_table_col_row_size_get(Eo *o EINA_UNUSED, Evas_Table_Data *priv, int *cols
 }
 
 EOLIAN static Eina_Iterator*
-_evas_table_iterator_new(Eo *o, Evas_Table_Data *priv)
+_evas_table_iterator_new(const Eo *o, Evas_Table_Data *priv)
 {
    Evas_Object_Table_Iterator *it;
 
@@ -1333,7 +1340,7 @@ _evas_table_iterator_new(Eo *o, Evas_Table_Data *priv)
 }
 
 EOLIAN static Eina_Accessor*
-_evas_table_accessor_new(Eo *o, Evas_Table_Data *priv)
+_evas_table_accessor_new(const Eo *o, Evas_Table_Data *priv)
 {
    Evas_Object_Table_Accessor *it;
 

@@ -1,9 +1,12 @@
 #ifndef _ECORE_BUFFER_QUEUE_H_
 #define _ECORE_BUFFER_QUEUE_H_
 
+<<<<<<< HEAD
 #include <Eina.h>
 #include "Ecore_Buffer.h"
 
+=======
+>>>>>>> opensource/master
 #ifdef EAPI
 # undef EAPI
 #endif
@@ -34,6 +37,12 @@
 extern "C" {
 #endif
 
+<<<<<<< HEAD
+=======
+#include <Eina.h>
+#include "Ecore_Buffer.h"
+
+>>>>>>> opensource/master
 /**
  * @defgroup Ecore_Buffer_Queue_Group Ecore Buffer Queue functions
  * @ingroup Ecore_Buffer_Group
@@ -51,7 +60,11 @@ extern "C" {
  * @ingroup Ecore_Buffer_Queue_Group
  *
  * This group of functions is applied to an Ecore_Buffer_Provider object.
+<<<<<<< HEAD
  * Ecore_Buffer_Provider provides Ecore_Buffer to Ecore_Buffer_Consumer(usally
+=======
+ * Ecore_Buffer_Provider provides Ecore_Buffer to Ecore_Buffer_Consumer(usually
+>>>>>>> opensource/master
  * different process or thread from Ecore_Buffer_Provider).
  * Ecore_Buffer_Provider should creates Ecore_Buffer as a provider.
  */
@@ -76,17 +89,29 @@ extern "C" {
  */
 typedef enum _Ecore_Buffer_Return
 {
+<<<<<<< HEAD
    ECORE_BUFFER_RETURN_ERROR,       /**< on error @since_tizen 2.4 */
    ECORE_BUFFER_RETURN_SUCCESS,     /**< success to dequeue a buffer @since_tizen 2.4 */
    ECORE_BUFFER_RETURN_EMPTY,       /**< Empty queue @since_tizen 2.4 */
    ECORE_BUFFER_RETURN_NOT_EMPTY,   /**< Not empty queue @since_tizen 2.4 */
    ECORE_BUFFER_RETURN_NEED_ALLOC,  /**< need to create Ecore_Buffer @since_tizen 2.4 */
+=======
+   ECORE_BUFFER_RETURN_ERROR,       /**< on error @since 1.15 */
+   ECORE_BUFFER_RETURN_SUCCESS,     /**< success to dequeue a buffer @since 1.15 */
+   ECORE_BUFFER_RETURN_EMPTY,       /**< Empty queue @since 1.15 */
+   ECORE_BUFFER_RETURN_NOT_EMPTY,   /**< Not empty queue @since 1.15 */
+   ECORE_BUFFER_RETURN_NEED_ALLOC,  /**< need to create Ecore_Buffer @since 1.15 */
+>>>>>>> opensource/master
 } Ecore_Buffer_Return;
 /**
  * @typedef Ecore_Buffer_Consumer
  * An object representing a consumer of Ecore_Buffer.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @ingroup Ecore_Buffer_Consumer_Group
  */
@@ -95,7 +120,11 @@ typedef struct _Ecore_Buffer_Consumer Ecore_Buffer_Consumer;
  * @typedef Ecore_Buffer_Provider
  * An object representing a provider of Ecore_Buffer.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @ingroup Ecore_Buffer_Provider_Group
  */
@@ -105,7 +134,11 @@ typedef struct _Ecore_Buffer_Provider Ecore_Buffer_Provider;
  *
  * @brief Called whenever a Ecore_Buffer_Provider connected.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @see ecore_buffer_consumer_provider_add_cb_set()
  * @ingroup Ecore_Buffer_Consumer_Group
@@ -116,7 +149,11 @@ typedef void (*Ecore_Buffer_Consumer_Provider_Add_Cb) (Ecore_Buffer_Consumer *co
  *
  * @brief Called whenever a Ecore_Buffer_Provider disonnected.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @see ecore_buffer_consumer_provider_del_cb_set()
  * @ingroup Ecore_Buffer_Consumer_Group
@@ -127,7 +164,11 @@ typedef void (*Ecore_Buffer_Consumer_Provider_Del_Cb) (Ecore_Buffer_Consumer *co
  *
  * @brief Called whenever a Ecore_Buffer enqueued in buffer queue.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @see ecore_buffer_consumer_buffer_enqueued_cb_set()
  * @ingroup Ecore_Buffer_Consumer_Group
@@ -138,7 +179,11 @@ typedef void (*Ecore_Buffer_Consumer_Enqueue_Cb) (Ecore_Buffer_Consumer *consume
  *
  * @brief Called whenever a Ecore_Buffer_Consumer connected.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @see ecore_buffer_provider_consumer_add_cb_set()
  * @ingroup Ecore_Buffer_Provider_Group
@@ -149,7 +194,11 @@ typedef void (*Ecore_Buffer_Provider_Consumer_Add_Cb) (Ecore_Buffer_Provider *pr
  *
  * @brief Called whenever a Ecore_Buffer_Consumer disconnected.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @see ecore_buffer_provider_consumer_del_cb_set()
  * @ingroup Ecore_Buffer_Provider_Group
@@ -160,7 +209,11 @@ typedef void (*Ecore_Buffer_Provider_Consumer_Del_Cb) (Ecore_Buffer_Provider *pr
  *
  * @brief Called whenever a Ecore_Buffer is released.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @see ecore_buffer_provider_buffer_released_cb_set()
  * @ingroup Ecore_Buffer_Provider_Group
@@ -175,7 +228,11 @@ typedef void (*Ecore_Buffer_Provider_Enqueue_Cb) (Ecore_Buffer_Provider *provide
 /**
  * @brief Init the Ecore_Buffer_Queue system.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @return How many times the lib has been initialized, 0 indicates failure.
  *
@@ -187,13 +244,21 @@ EAPI int   ecore_buffer_queue_init(void);
 /**
  * @brief Shut down the Ecore_Buffer_Queue system.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * this closes the connection of Buffer Queue deamon, and Shut down Ecore_Buffer_Queue libraries.
  *
  * @see ecore_buffer_queue_init()
  */
+<<<<<<< HEAD
 EAPI void  ecore_buffer_queue_shutdown(void);
+=======
+EAPI int    ecore_buffer_queue_shutdown(void);
+>>>>>>> opensource/master
 
 /**
  * @}
@@ -207,7 +272,11 @@ EAPI void  ecore_buffer_queue_shutdown(void);
 /**
  * @brief Creates a new Buffer Consumer based on name and common parameters.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @param[in] name the name of Buffer_Queue, this is needed by Consumer and Provider to connect each other.
  * @param[in] queue_size size of Queue (If you pass this 0, then default size two(2) is appied)
@@ -220,7 +289,11 @@ EAPI Ecore_Buffer_Consumer    *ecore_buffer_consumer_new(const char *name, int32
 /**
  * @brief Free an Ecore_Buffer_Consumer
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @param[in] consumer The Ecore_Buffer_Consumer to free
  *
@@ -230,7 +303,11 @@ EAPI void                      ecore_buffer_consumer_free(Ecore_Buffer_Consumer 
 /**
  * @brief Return the latest Ecore_Buffer submitted by provider.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @param[in] consumer The Ecore_Buffer_Consumer to request for buffer
  *
@@ -245,7 +322,11 @@ EAPI Ecore_Buffer             *ecore_buffer_consumer_buffer_dequeue(Ecore_Buffer
 /**
  * @brief Release the acquired Ecore_Buffer.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @param[in] consumer The Ecore_Buffer_Consumer to request release buffer
  * @param[in] buffer The Ecore_Buffer to release
@@ -263,7 +344,11 @@ EAPI Eina_Bool                 ecore_buffer_consumer_buffer_release(Ecore_Buffer
 /**
  * @brief Check if Queue of Ecore_Buffer is empty.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @param[in] consumer The Ecore_Buffer_Consumer to query
  *
@@ -273,7 +358,11 @@ EAPI Eina_Bool                 ecore_buffer_consumer_queue_is_empty(Ecore_Buffer
 /**
  * @brief Set a callback for provider connection events.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @param[in] consumer The Ecore_Buffer_Consumer to set callbacks on
  * @param[in] func The function to call
@@ -286,7 +375,11 @@ EAPI void                      ecore_buffer_consumer_provider_add_cb_set(Ecore_B
 /**
  * @brief Set a callback for provider disconnection events.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @param[in] consumer The Ecore_Buffer_Consumer to set callbacks on
  * @param[in] func The function to call
@@ -299,7 +392,11 @@ EAPI void                      ecore_buffer_consumer_provider_del_cb_set(Ecore_B
 /**
  * @brief Set a callback for enqueued buffer events.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @param[in] consumer The Ecore_Buffer_Consumer to set callbacks on
  * @param[in] func The function to call
@@ -324,7 +421,11 @@ EAPI void                      ecore_buffer_consumer_buffer_enqueued_cb_set(Ecor
 /**
  * @brief Creates a new Buffer Provider based on name.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @param[in] name the name of Buffer_Queue.
  *
@@ -334,7 +435,11 @@ EAPI Ecore_Buffer_Provider    *ecore_buffer_provider_new(const char *name);
 /**
  * @brief Free an Ecore_Buffer_Provider
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @param[in] provider The Ecore_Buffer_Provider to free
  *
@@ -344,7 +449,11 @@ EAPI void                      ecore_buffer_provider_free(Ecore_Buffer_Provider 
 /**
  * @brief Return the Ecore_Buffer released by consumer or State of Queue.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @param[in] provider The Ecore_Buffer_Provider to request for buffer
  * @param[out] ret_buf A Pointer to the Ecore_Buffer
@@ -353,7 +462,11 @@ EAPI void                      ecore_buffer_provider_free(Ecore_Buffer_Provider 
  *
  * This function gives you drawable buffer and inform you the state of Queue.
  * Each return value of enumeration has meaning as below.
+<<<<<<< HEAD
  * @li ECORE_BUFFER_RETURN_ERROR, means error occured.
+=======
+ * @li ECORE_BUFFER_RETURN_ERROR, means error occurred.
+>>>>>>> opensource/master
  * @li ECORE_BUFFER_RETURN_SUCCESS, means success to dequeue, therefore ret_buf is valid.
  * @li ECORE_BUFFER_RETURN_EMPTY, means queue is empty, not available slot in Queue.
  *  in other words, there is no free drawable buffer in Queue.
@@ -366,7 +479,11 @@ EAPI Ecore_Buffer_Return       ecore_buffer_provider_buffer_acquire(Ecore_Buffer
 /**
  * @brief Submit the Ecore_Buffer to Consumer to request compositing.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @param[in] provider The Ecore_Buffer_Provider connected with consumer.
  * @param[in] buffer The Ecore_Buffer to submit
@@ -383,7 +500,11 @@ EAPI Eina_Bool                 ecore_buffer_provider_buffer_enqueue(Ecore_Buffer
 /**
  * @brief Check if state of queue.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @param[in] provider The Ecore_Buffer_Provider to query
  *
@@ -399,7 +520,11 @@ EAPI Ecore_Buffer_Return       ecore_buffer_provider_buffer_acquirable_check(Eco
 /**
  * @brief Set a callback for consumer connection events.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @param[in] provider The Ecore_Buffer_Provider to set callbacks on
  * @param[in] func The function to call
@@ -412,7 +537,11 @@ EAPI void                      ecore_buffer_provider_consumer_add_cb_set(Ecore_B
 /**
  * @brief Set a callback for consumer disconnection events.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @param[in] provider The Ecore_Buffer_Provider to set callbacks on
  * @param[in] func The function to call
@@ -425,7 +554,11 @@ EAPI void                      ecore_buffer_provider_consumer_del_cb_set(Ecore_B
 /**
  * @brief Set a callback for released buffer events.
  *
+<<<<<<< HEAD
  * @since_tizen 2.4
+=======
+ * @since 1.15
+>>>>>>> opensource/master
  *
  * @param[in] provider The Ecore_Buffer_Provider to set callbacks on
  * @param[in] func The function to call

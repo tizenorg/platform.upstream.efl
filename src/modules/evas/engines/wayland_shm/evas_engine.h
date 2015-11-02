@@ -63,29 +63,47 @@ struct _Shm_Data
 typedef struct _Shm_Leaf Shm_Leaf;
 struct _Shm_Leaf
 {
+<<<<<<< HEAD
    int w, h, busy;
+=======
+   int w, h, busy, age;
+>>>>>>> opensource/master
    Shm_Data *data;
    Shm_Pool *resize_pool;
    Eina_Bool valid : 1;
    Eina_Bool reconfigure : 1;
+<<<<<<< HEAD
+=======
+   Eina_Bool drawn : 1;
+>>>>>>> opensource/master
 };
 
 typedef struct _Shm_Surface Shm_Surface;
 struct _Shm_Surface
 {
+<<<<<<< HEAD
    struct wl_shm *shm;
    struct wl_surface *surface;
    struct wl_callback *frame_cb;
+=======
+   struct wl_display *disp;
+   struct wl_shm *shm;
+   struct wl_surface *surface;
+>>>>>>> opensource/master
    uint32_t flags;
    int w, h;
    int dx, dy;
    int num_buff;
+<<<<<<< HEAD
    int last_buff;
    int curr_buff;
+=======
+>>>>>>> opensource/master
 
    Shm_Leaf leaf[MAX_BUFFERS];
    Shm_Leaf *current;
 
+<<<<<<< HEAD
    Eina_Bool redraw : 1;
    Eina_Bool alpha : 1;
 
@@ -94,6 +112,9 @@ struct _Shm_Surface
         void (*released) (void *data);
         void *data;
      } callback;
+=======
+   Eina_Bool alpha : 1;
+>>>>>>> opensource/master
 };
 
 struct _Outbuf
@@ -108,7 +129,11 @@ struct _Outbuf
 
    Shm_Surface *surface;
 
+<<<<<<< HEAD
    struct
+=======
+   struct 
+>>>>>>> opensource/master
      {
         /* one big buffer for updates. flushed on idle_flush */
         RGBA_Image *onebuf;
@@ -125,6 +150,7 @@ struct _Outbuf
      } priv;
 };
 
+<<<<<<< HEAD
 Shm_Surface *_evas_shm_surface_create(struct wl_shm *shm, struct wl_surface *surface, int w, int h, int num_buff, Eina_Bool alpha);
 void _evas_shm_surface_destroy(Shm_Surface *surface);
 void _evas_shm_surface_reconfigure(Shm_Surface *surface, int dx, int dy, int w, int h, int num_buff, uint32_t flags);
@@ -134,16 +160,33 @@ void _evas_shm_surface_redraw(Shm_Surface *surface);
 Eina_Bool _evas_shm_surface_busy_check(Shm_Surface *surface);
 
 Outbuf *_evas_outbuf_setup(int w, int h, int rot, Outbuf_Depth depth, Eina_Bool alpha, struct wl_shm *shm, struct wl_surface *surface);
+=======
+Shm_Surface *_evas_shm_surface_create(struct wl_display *disp, struct wl_shm *shm, struct wl_surface *surface, int w, int h, int num_buff, Eina_Bool alpha);
+void _evas_shm_surface_destroy(Shm_Surface *surface);
+void _evas_shm_surface_reconfigure(Shm_Surface *surface, int dx, int dy, int w, int h, int num_buff, uint32_t flags);
+void *_evas_shm_surface_data_get(Shm_Surface *surface, int *w, int *h);
+Eina_Bool _evas_shm_surface_assign(Shm_Surface *surface);
+void _evas_shm_surface_post(Shm_Surface *surface, Eina_Rectangle *rects, unsigned int count);
+
+Outbuf *_evas_outbuf_setup(int w, int h, int rot, Outbuf_Depth depth, Eina_Bool alpha, struct wl_shm *shm, struct wl_surface *surface, struct wl_display *disp);
+>>>>>>> opensource/master
 void _evas_outbuf_free(Outbuf *ob);
 void _evas_outbuf_flush(Outbuf *ob, Tilebuf_Rect *rects, Evas_Render_Mode render_mode);
 void _evas_outbuf_idle_flush(Outbuf *ob);
 
+<<<<<<< HEAD
 Render_Engine_Swap_Mode _evas_outbuf_swapmode_get(Outbuf *ob);
+=======
+Render_Engine_Swap_Mode _evas_outbuf_swap_mode_get(Outbuf *ob);
+>>>>>>> opensource/master
 int _evas_outbuf_rotation_get(Outbuf *ob);
 void _evas_outbuf_reconfigure(Outbuf *ob, int x, int y, int w, int h, int rot, Outbuf_Depth depth, Eina_Bool alpha, Eina_Bool resize);
 void *_evas_outbuf_update_region_new(Outbuf *ob, int x, int y, int w, int h, int *cx, int *cy, int *cw, int *ch);
 void _evas_outbuf_update_region_push(Outbuf *ob, RGBA_Image *update, int x, int y, int w, int h);
 void _evas_outbuf_update_region_free(Outbuf *ob, RGBA_Image *update);
+<<<<<<< HEAD
 Eina_Bool _evas_outbuf_buffer_busy_check(Outbuf *ob);
+=======
+>>>>>>> opensource/master
 
 #endif

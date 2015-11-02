@@ -90,6 +90,7 @@ void *(*glsym_eglCreateImage) (EGLDisplay a, EGLContext b, EGLenum c, EGLClientB
 void (*glsym_eglDestroyImage) (EGLDisplay a, void *b) = NULL;
 void (*glsym_glEGLImageTargetTexture2DOES) (int a, void *b)  = NULL;
 unsigned int (*glsym_eglSwapBuffersWithDamage) (EGLDisplay a, void *b, const EGLint *d, EGLint c) = NULL;
+unsigned int (*glsym_eglSetDamageRegionKHR) (EGLDisplay a, EGLSurface b, EGLint *c, EGLint d) = NULL;
 
 /* local variables */
 static Eina_Bool initted = EINA_FALSE;
@@ -188,6 +189,8 @@ gl_symbols(void)
            glsym_func_uint);
    FINDSYM(glsym_eglSwapBuffersWithDamage, "eglSwapBuffersWithDamage",
            glsym_func_uint);
+   FINDSYM(glsym_eglSetDamageRegionKHR, "eglSetDamageRegionKHR", 
+           glsym_func_uint);
 
    done = EINA_TRUE;
 }
@@ -200,11 +203,24 @@ gl_extn_veto(Render_Engine *re)
    str = eglQueryString(eng_get_ob(re)->egl_disp, EGL_EXTENSIONS);
    if (str)
      {
+        const char *s;
         if (getenv("EVAS_GL_INFO"))
           printf("EGL EXTN:\n%s\n", str);
-        if (!strstr(str, "EGL_EXT_buffer_age"))
+        // Disable Partial Rendering
+        if ((s = getenv("EVAS_GL_PARTIAL_DISABLE")) && atoi(s))
           {
              extn_have_buffer_age = EINA_FALSE;
+             glsym_eglSwapBuffersWithDamage = NULL;
+             glsym_eglSetDamageRegionKHR = NULL;
+          }
+        if (!strstr(str, "EGL_EXT_buffer_age"))
+          {
+             if (!strstr(str, "EGL_KHR_partial_update"))
+               extn_have_buffer_age = EINA_FALSE;
+          }
+        if (!strstr(str, "EGL_KHR_partial_update"))
+          {
+             glsym_eglSetDamageRegionKHR = NULL;
           }
         if (!strstr(str, "EGL_NOK_texture_from_pixmap"))
           {
@@ -677,11 +693,20 @@ static const EVGL_Interface evgl_funcs =
    evgl_eng_proc_address_get,
    evgl_eng_string_get,
    evgl_eng_rotation_angle_get,
+<<<<<<< HEAD
    evgl_eng_pbuffer_surface_create,
    evgl_eng_pbuffer_surface_destroy,
    NULL, //gles1_surface_create
    NULL, // gles1_surface_destroy
    NULL, //native_win_surface_config_check
+=======
+   NULL, // PBuffer
+   NULL, // PBuffer
+   NULL, // OpenGL-ES 1
+   NULL, // OpenGL-ES 1
+   NULL, // OpenGL-ES 1
+   NULL, // native_win_surface_config_get
+>>>>>>> opensource/master
 };
 
 /* engine functions */
@@ -782,7 +807,7 @@ eng_setup(Evas *evas, void *info)
 
    if (!(re = epd->engine.data.output))
      {
-        Render_Engine_Merge_Mode merge = MERGE_BOUNDING;
+        Render_Engine_Merge_Mode merge = MERGE_SMART;
 
         /* FIXME: Remove this line as soon as eglGetDisplay() autodetection
          * gets fixed. Currently it is incorrectly detecting wl_display and
@@ -799,17 +824,7 @@ eng_setup(Evas *evas, void *info)
         /* if we have not initialize gl & evas, do it */
         if (!initted)
           {
-             evas_common_cpu_init();
-             evas_common_blend_init();
-             evas_common_image_init();
-             evas_common_convert_init();
-             evas_common_scale_init();
-             evas_common_rectangle_init();
-             evas_common_polygon_init();
-             evas_common_line_init();
-             evas_common_font_init();
-             evas_common_draw_init();
-             evas_common_tilebuf_init();
+             evas_common_init();
              glsym_evas_gl_preload_init();
           }
 
@@ -848,6 +863,8 @@ eng_setup(Evas *evas, void *info)
                merge = MERGE_BOUNDING;
              else if ((!strcmp(s, "full")) || (!strcmp(s, "f")))
                merge = MERGE_FULL;
+             else if ((!strcmp(s, "smart")) || (!strcmp(s, "s")))
+               merge = MERGE_SMART;
           }
 
         evas_render_engine_software_generic_merge_mode_set(&re->generic.software, merge);
@@ -966,8 +983,7 @@ eng_output_free(void *data)
    if ((initted == EINA_TRUE) && (gl_wins == 0))
      {
         glsym_evas_gl_preload_shutdown();
-        evas_common_image_shutdown();
-        evas_common_font_shutdown();
+        evas_common_shutdown();
         initted = EINA_FALSE;
      }
 }
@@ -1020,7 +1036,6 @@ _native_cb_bind(void *data EINA_UNUSED, void *image)
    if (n->ns.type == EVAS_NATIVE_SURFACE_OPENGL)
      {
         glBindTexture(GL_TEXTURE_2D, n->ns.data.opengl.texture_id);
-        GLERR(__FUNCTION__, __FILE__, __LINE__, "");
      }
   else if (n->ns.type == EVAS_NATIVE_SURFACE_EVASGL)
     {
@@ -1051,7 +1066,6 @@ _native_cb_unbind(void *data EINA_UNUSED, void *image)
    if (n->ns.type == EVAS_NATIVE_SURFACE_OPENGL)
      {
         glBindTexture(GL_TEXTURE_2D, 0);
-        GLERR(__FUNCTION__, __FILE__, __LINE__, "");
      }
   else if (n->ns.type == EVAS_NATIVE_SURFACE_EVASGL)
     {

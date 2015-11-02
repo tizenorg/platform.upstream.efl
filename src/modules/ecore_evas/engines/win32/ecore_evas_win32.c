@@ -27,6 +27,28 @@
 # include <Evas_Engine_Software_DDraw.h>
 #endif
 
+#ifdef EAPI
+# undef EAPI
+#endif
+
+#ifdef _WIN32
+# ifdef DLL_EXPORT
+#  define EAPI __declspec(dllexport)
+# else
+#  define EAPI
+# endif /* ! DLL_EXPORT */
+#else
+# ifdef __GNUC__
+#  if __GNUC__ >= 4
+#   define EAPI __attribute__ ((visibility("default")))
+#  else
+#   define EAPI
+#  endif
+# else
+#  define EAPI
+# endif
+#endif /* ! _WIN32 */
+
 #ifdef BUILD_ECORE_EVAS_WIN32
 
 #define ECORE_EVAS_EVENT_COUNT 10
@@ -184,22 +206,24 @@ _ecore_evas_win32_event_mouse_out(void *data EINA_UNUSED, int type EINA_UNUSED, 
    Ecore_Evas                  *ee;
    Ecore_Win32_Event_Mouse_Out *e;
 
-   INF("mouse out");
-
    e = event;
    ee = ecore_event_window_match((Ecore_Window)e->window);
-   if ((!ee) || (ee->ignore_events)) return 1; /* pass on event */
-   if ((Ecore_Window)e->window != ee->prop.window) return 1;
+   if ((!ee) || (ee->ignore_events)) return ECORE_CALLBACK_PASS_ON;
+   if ((Ecore_Window)e->window != ee->prop.window) return ECORE_CALLBACK_PASS_ON;
 
    /* FIXME to do */
 /*    _ecore_evas_x_modifier_locks_update(ee, e->modifiers); */
    _ecore_evas_mouse_move_process(ee, e->x, e->y, e->timestamp);
 
-   evas_event_feed_mouse_out(ee->evas, e->timestamp, NULL);
-   if (ee->func.fn_mouse_out) ee->func.fn_mouse_out(ee);
-   if (ee->prop.cursor.object) evas_object_hide(ee->prop.cursor.object);
+   if (ee->in)
+     {
+        if (evas_event_down_count_get(ee->evas) > 0) return ECORE_CALLBACK_PASS_ON;
+        evas_event_feed_mouse_out(ee->evas, e->timestamp, NULL);
+        if (ee->func.fn_mouse_out) ee->func.fn_mouse_out(ee);
+        if (ee->prop.cursor.object) evas_object_hide(ee->prop.cursor.object);
+     }
 
-   return 1;
+   return ECORE_CALLBACK_PASS_ON;
 }
 
 static Eina_Bool
@@ -445,6 +469,7 @@ _ecore_evas_win32_free(Ecore_Evas *ee)
 
    ecore_win32_window_free((struct _Ecore_Win32_Window *)ee->prop.window);
    ecore_event_window_unregister(ee->prop.window);
+   free(ee->engine.data);
    _ecore_evas_win32_shutdown();
    ecore_win32_shutdown();
 }

@@ -680,6 +680,7 @@ struct _Ecore_X_Event_Window_Property
    Ecore_X_Window win;
    Ecore_X_Atom   atom;
    Ecore_X_Time   time;
+   Eina_Bool      state; /**< @since 1.16 If @c EINA_TRUE, property was deleted */
 };
 
 struct _Ecore_X_Event_Window_Colormap
@@ -741,6 +742,7 @@ struct _Ecore_X_Event_Selection_Notify
    Ecore_X_Atom      atom;
    char             *target;
    void             *data;
+   Ecore_X_Atom      property; /**< @since 1.16 */
 };
 
 struct _Ecore_X_Selection_Data
@@ -1392,6 +1394,7 @@ typedef enum _Ecore_X_Illume_Window_State
 #define ECORE_X_PROP_LIST_TOGGLE    2
 
 EAPI int                       ecore_x_init(const char *name);
+EAPI int                       ecore_x_init_from_display(Ecore_X_Display *display); /**< @since 1.15 */
 EAPI int                       ecore_x_shutdown(void);
 EAPI int                       ecore_x_disconnect(void);
 EAPI Ecore_X_Display          *ecore_x_display_get(void);
@@ -2519,6 +2522,16 @@ EAPI const char    *ecore_x_keysym_string_get(int keysym);
  */
 EAPI int            ecore_x_keysym_keycode_get(const char *keyname);
 
+/**
+ * Return the X-specific keysym for a given key string
+ * @param string The key to get the keysym for
+ * @return the keysym value
+ *
+ * @since 1.15
+ * @note The returned value is not portable.
+ */
+EAPI unsigned int   ecore_x_keysym_get(const char *string);
+
 typedef struct _Ecore_X_Image Ecore_X_Image;
 
 EAPI Ecore_X_Image *ecore_x_image_new(int w, int h, Ecore_X_Visual vis, int depth);
@@ -2532,6 +2545,8 @@ EAPI Eina_Bool      ecore_x_image_to_argb_convert(void *src, int sbpp, int sbpl,
 
 EAPI Eina_Bool      ecore_x_input_multi_select(Ecore_X_Window win); /**< @since 1.13 */
 EAPI Eina_Bool	    ecore_x_input_raw_select(Ecore_X_Window win); /**< @since 1.8 */
+EAPI Eina_Bool      ecore_x_input_touch_devices_grab(Ecore_X_Window win); /**< @since 1.15 */
+EAPI Eina_Bool      ecore_x_input_touch_devices_ungrab(void); /**< @since 1.15 */
 
 EAPI Eina_Bool      ecore_x_vsync_animator_tick_source_set(Ecore_X_Window win);
 
@@ -2736,11 +2751,34 @@ EAPI Eina_Bool                             ecore_x_window_keygrab_unset(Ecore_X_
 EAPI void                                  ecore_x_e_keyrouter_set(Ecore_X_Window root, Eina_Bool on); //Key router set keyrouter flag using this
 EAPI Eina_Bool                             ecore_x_e_keyrouter_get(Ecore_X_Window root); //Client check the existance of keyrouter using this
 
+//this enum and API for keyrouter and client window side
+//keycode (8~255)
+typedef enum
+{
+   ECORE_X_WIN_KEYGRAB_UNKNOWN = 0, /**< Unknown keygrab mode */
+   ECORE_X_WIN_KEYGRAB_SHARED  = (1 << 8), /**< Getting the grabbed-key together with the other client windows */
+   ECORE_X_WIN_KEYGRAB_TOPMOST = (1 << 9), /**< Getting the grabbed-key only when window is top of the stack */
+   ECORE_X_WIN_KEYGRAB_EXCLUSIVE = (1 << 10), /**< Getting the grabbed-key exclusively regardless of window's position */
+   ECORE_X_WIN_KEYGRAB_OVERRIDE_EXCLUSIVE = (1 << 11) /**< Getting the grabbed-key exclusively regardless of window's position. Being overrided the grab by the other client window  */
+} Ecore_X_Win_Keygrab_Mode;
+
+//add mod, anymod, priority for the future.
+//we will support modifier and priority feature later.
+EAPI Eina_Bool                             ecore_x_window_keygrab_set(Ecore_X_Window win, const char *key, int mod, int any_mod, int priority, Ecore_X_Win_Keygrab_Mode grab_mode); /**< @since 1.15 */
+EAPI Eina_Bool                             ecore_x_window_keygrab_unset(Ecore_X_Window win, const char *key, int mod, int any_mod); /**< @since 1.15 */
+
+//this API for keyrouter protocol
+EAPI void                                  ecore_x_e_keyrouter_set(Ecore_X_Window root, Eina_Bool on); /**< @since 1.15 */ //Key router set keyrouter flag using this
+EAPI Eina_Bool                             ecore_x_e_keyrouter_get(Ecore_X_Window root); /**< @since 1.15 */ //Client check the existance of keyrouter using this
+
+#include <Ecore_X_Atoms.h>
+#include <Ecore_X_Cursor.h>
+
 #ifdef __cplusplus
 }
 #endif // ifdef __cplusplus
 
-#include <Ecore_X_Atoms.h>
-#include <Ecore_X_Cursor.h>
+#undef EAPI
+#define EAPI
 
 #endif // ifndef _ECORE_X_H

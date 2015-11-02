@@ -12,7 +12,7 @@
 #endif
 
 #ifdef _WIN32
-# ifdef EFL_ECORE_BUILD
+# ifdef EFL_ECORE_AVAHI_BUILD
 #  ifdef DLL_EXPORT
 #   define EAPI __declspec(dllexport)
 #  else
@@ -84,5 +84,8 @@ EAPI const void  *ecore_avahi_poll_get(Ecore_Avahi *handler); // return AvahiPol
 #ifdef __cplusplus
 }
 #endif
+
+#undef EAPI
+#define EAPI
 
 #endif

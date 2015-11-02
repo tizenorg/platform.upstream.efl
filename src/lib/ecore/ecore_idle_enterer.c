@@ -39,7 +39,6 @@ _ecore_idle_enterer_add(Ecore_Idle_Enterer *obj,
 {
     if (EINA_UNLIKELY(!eina_main_loop_is()))
       {
-         eo_error_set(obj);
          EINA_MAIN_LOOP_CHECK_RETURN_VAL(EINA_FALSE);
       }
 
@@ -48,7 +47,6 @@ _ecore_idle_enterer_add(Ecore_Idle_Enterer *obj,
 
    if (!func)
      {
-        eo_error_set(obj);
         ERR("callback function must be set up for an object of class: '%s'", MY_CLASS_NAME);
         return EINA_FALSE;
      }
@@ -135,6 +133,17 @@ _ecore_idle_enterer_eo_base_destructor(Eo *obj, Ecore_Idle_Enterer_Data *idle_en
    eo_do_super(obj, MY_CLASS, eo_destructor());
 }
 
+EOLIAN static Eo *
+_ecore_idle_enterer_eo_base_finalize(Eo *obj, Ecore_Idle_Enterer_Data *idle_enterer)
+{
+   if (!idle_enterer->func)
+     {
+        return NULL;
+     }
+
+     return eo_do_super_ret(obj, MY_CLASS, obj, eo_finalize());
+}
+
 void
 _ecore_idle_enterer_shutdown(void)
 {
@@ -174,10 +183,12 @@ _ecore_idle_enterer_call(void)
         if (!ie->delete_me)
           {
              ie->references++;
+             eina_evlog("+idle_enterer", ie, 0.0, NULL);
              if (!_ecore_call_task_cb(ie->func, ie->data))
                {
                   if (!ie->delete_me) _ecore_idle_enterer_del(ie->obj);
                }
+             eina_evlog("-idle_enterer", ie, 0.0, NULL);
              ie->references--;
           }
         if (idle_enterer_current) /* may have changed in recursive main loops */

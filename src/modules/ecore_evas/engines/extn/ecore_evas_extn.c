@@ -1,5 +1,27 @@
 #include "ecore_evas_extn_engine.h"
 
+#ifdef EAPI
+# undef EAPI
+#endif
+
+#ifdef _WIN32
+# ifdef DLL_EXPORT
+#  define EAPI __declspec(dllexport)
+# else
+#  define EAPI
+# endif /* ! DLL_EXPORT */
+#else
+# ifdef __GNUC__
+#  if __GNUC__ >= 4
+#   define EAPI __attribute__ ((visibility("default")))
+#  else
+#   define EAPI
+#  endif
+# else
+#  define EAPI
+# endif
+#endif /* ! _WIN32 */
+
 #define NBUF 2
 
 static int blank = 0x00000000;
@@ -94,6 +116,12 @@ _ecore_evas_extn_plug_render_post(void *data, Evas *e EINA_UNUSED, void *event_i
    extn = bdata->data;
    if (!extn) return;
    _extnbuf_unlock(extn->b[extn->cur_b].buf);
+   if (extn->b[extn->cur_b].obuf)
+     {
+        _extnbuf_unlock(extn->b[extn->cur_b].obuf);
+        _extnbuf_free(extn->b[extn->cur_b].obuf);
+        extn->b[extn->cur_b].obuf = NULL;
+     }
 }
 
 static void
@@ -156,7 +184,12 @@ _ecore_evas_extn_free(Ecore_Evas *ee)
         Ecore_Event_Handler *hdl;
         Ipc_Data_Update *ipc;
         int i;
-
+        if (bdata->image)
+          {
+             evas_object_image_data_set(bdata->image, NULL);
+             evas_object_image_pixels_dirty_set(bdata->image, EINA_TRUE);
+          }
+        bdata->pixels = NULL;
         for (i = 0; i < NBUF; i++)
           {
              if (extn->b[i].buf) _extnbuf_free(extn->b[i].buf);
@@ -207,7 +240,7 @@ _ecore_evas_extn_free(Ecore_Evas *ee)
              ee2->sub_ecore_evas = eina_list_remove(ee2->sub_ecore_evas, ee);
           }
         evas_object_del(bdata->image);
-		bdata->image = NULL;
+        bdata->image = NULL;
      }
    free(bdata);
    ee->engine.data = NULL;
@@ -893,6 +926,10 @@ _ipc_server_add(void *data, int type EINA_UNUSED, void *event)
      return ECORE_CALLBACK_PASS_ON;
    extn = bdata->data;
    if (!extn) return ECORE_CALLBACK_PASS_ON;
+   /* If a server relaunches while a client is running, the server cannot get the OP_SHOW.
+      In this case, the client should send the OP_SHOW, when the server is added. */
+   if (ee->visible && extn->ipc.server)
+     ecore_ipc_server_send(extn->ipc.server, MAJOR, OP_SHOW, 0, 0, 0, NULL, 0);
    //FIXME: find a way to let app know server there
    return ECORE_CALLBACK_PASS_ON;
 }
@@ -984,12 +1021,6 @@ _ipc_server_data(void *data, int type EINA_UNUSED, void *event)
                    extn->cur_b = n;
 
                    if (extn->b[pn].buf) _extnbuf_unlock(extn->b[pn].buf);
-                   if (extn->b[pn].obuf)
-                     {
-                        _extnbuf_unlock(extn->b[pn].obuf);
-                        _extnbuf_free(extn->b[pn].obuf);
-                        extn->b[pn].obuf = NULL;
-                     }
 
                    evas_object_image_colorspace_set(bdata->image, EVAS_COLORSPACE_ARGB8888);
                    if (extn->b[n].buf)
@@ -1227,6 +1258,12 @@ ecore_evas_extn_plug_new_internal(Ecore_Evas *ee_target)
 
    extn_ee_list = eina_list_append(extn_ee_list, ee);
    ee_target->sub_ecore_evas = eina_list_append(ee_target->sub_ecore_evas, ee);
+
+   evas_event_callback_add(ee_target->evas, EVAS_CALLBACK_RENDER_PRE,
+                           _ecore_evas_extn_plug_render_pre, ee);
+   evas_event_callback_add(ee_target->evas, EVAS_CALLBACK_RENDER_POST,
+                           _ecore_evas_extn_plug_render_post, ee);
+
    return o;
 }
 
@@ -1624,6 +1661,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
            }
          break;
       case OP_EV_MOUSE_IN:
+         if (ee->events_block) break;
          if (e->size >= (int)sizeof(Ipc_Data_Ev_Mouse_In))
            {
               Ipc_Data_Ev_Mouse_In *ipc = e->data;
@@ -1637,6 +1675,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
            }
          break;
       case OP_EV_MOUSE_OUT:
+         if (ee->events_block) break;
          if (e->size >= (int)sizeof(Ipc_Data_Ev_Mouse_Out))
            {
               Ipc_Data_Ev_Mouse_Out *ipc = e->data;
@@ -1650,6 +1689,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
            }
          break;
       case OP_EV_MOUSE_UP:
+         if (ee->events_block) break;
          if (e->size >= (int)sizeof(Ipc_Data_Ev_Mouse_Up))
            {
               Ipc_Data_Ev_Mouse_Up *ipc = e->data;
@@ -1663,6 +1703,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
            }
          break;
       case OP_EV_MOUSE_DOWN:
+         if (ee->events_block) break;
          if (e->size >= (int)sizeof(Ipc_Data_Ev_Mouse_Down))
            {
               Ipc_Data_Ev_Mouse_Up *ipc = e->data;
@@ -1676,6 +1717,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
            }
          break;
       case OP_EV_MOUSE_MOVE:
+         if (ee->events_block) break;
          if (e->size >= (int)sizeof(Ipc_Data_Ev_Mouse_Move))
            {
               Ipc_Data_Ev_Mouse_Move *ipc = e->data;
@@ -1689,6 +1731,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
            }
          break;
       case OP_EV_MOUSE_WHEEL:
+         if (ee->events_block) break;
          if (e->size >= (int)sizeof(Ipc_Data_Ev_Mouse_Wheel))
            {
               Ipc_Data_Ev_Mouse_Wheel *ipc = e->data;
@@ -1702,6 +1745,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
            }
          break;
       case OP_EV_MULTI_UP:
+         if (ee->events_block) break;
          if (e->size >= (int)sizeof(Ipc_Data_Ev_Multi_Up))
            {
               Ipc_Data_Ev_Multi_Up *ipc = e->data;
@@ -1715,6 +1759,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
            }
          break;
       case OP_EV_MULTI_DOWN:
+         if (ee->events_block) break;
          if (e->size >= (int)sizeof(Ipc_Data_Ev_Multi_Down))
            {
               Ipc_Data_Ev_Multi_Down *ipc = e->data;
@@ -1728,6 +1773,7 @@ _ipc_client_data(void *data, int type EINA_UNUSED, void *event)
            }
          break;
       case OP_EV_MULTI_MOVE:
+         if (ee->events_block) break;
          if (e->size >= (int)sizeof(Ipc_Data_Ev_Multi_Move))
            {
               Ipc_Data_Ev_Multi_Move *ipc = e->data;
@@ -2221,6 +2267,18 @@ _ecore_evas_extn_interface_new(void)
    iface->listen = _ecore_evas_extn_socket_listen;
 
    return iface;
+}
+
+EAPI void
+ecore_evas_extn_socket_events_block_set_internal(Ecore_Evas *ee, Eina_Bool events_block)
+{
+   ee->events_block = events_block;
+}
+
+EAPI Eina_Bool
+ecore_evas_extn_socket_events_block_get_internal(Ecore_Evas *ee)
+{
+   return ee->events_block;
 }
 
 EINA_MODULE_INIT(_ecore_evas_extn_module_init);

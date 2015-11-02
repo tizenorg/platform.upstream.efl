@@ -2,24 +2,22 @@ class Ecore_Mainloop (Eo.Base)
 {
    legacy_prefix: null;
    data: null;
-   properties {
-      select_func {
+   methods {
+      @property select_func {
          set {
          }
          get {
          }
          values {
-            Ecore_Select_Function select_func;
+            select_func: Ecore_Select_Function;
          }
       }
-   }
-   methods {
       iterate {
       }
       iterate_may_block {
          return: int;
          params {
-            int may_block;
+            may_block: int;
          }
       }
       begin {

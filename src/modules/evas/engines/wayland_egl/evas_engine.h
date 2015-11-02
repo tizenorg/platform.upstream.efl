@@ -12,9 +12,15 @@
 
 # define GL_GLEXT_PROTOTYPES
 
+<<<<<<< HEAD
 #if !defined(HAVE_ECORE_X_XLIB) && !defined(MESA_EGL_NO_X11_HEADERS)
 # define MESA_EGL_NO_X11_HEADERS
 #endif
+=======
+# if !defined(HAVE_ECORE_X_XLIB) && !defined(MESA_EGL_NO_X11_HEADERS)
+#  define MESA_EGL_NO_X11_HEADERS
+# endif
+>>>>>>> opensource/master
 
 # include <EGL/egl.h>
 # include <GLES2/gl2.h>
@@ -106,6 +112,7 @@ extern Evas_GL_Preload_Render_Call glsym_evas_gl_preload_render_lock;
 extern Evas_GL_Preload_Render_Call glsym_evas_gl_preload_render_unlock;
 
 extern unsigned int (*glsym_eglSwapBuffersWithDamage) (EGLDisplay a, void *b, const EGLint *d, EGLint c);
+extern unsigned int (*glsym_eglSetDamageRegionKHR) (EGLDisplay a, EGLSurface b, EGLint *c, EGLint d);
 
 Outbuf *eng_window_new(Evas *evas, Evas_Engine_Info_Wayland_Egl *einfo, int w, int h, Render_Engine_Swap_Mode swap_mode);
 void eng_window_free(Outbuf *gw);

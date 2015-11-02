@@ -13,59 +13,56 @@ typedef Eo Class_Simple;
 
 
 #endif
-/**
- * Class Desc Simple
+/** Class Desc Simple
+ *
+ * @ingroup Class_Simple
  */
 #define CLASS_SIMPLE_CLASS class_simple_class_get()
 
-const Eo_Class *class_simple_class_get(void) EINA_CONST;
+EAPI const Eo_Class *class_simple_class_get(void) EINA_CONST;
 
+#ifdef CLASS_SIMPLE_BETA
 /**
+ * @brief Common desc for a
  *
- * Common desc for a
  * comment a.set
  *
  * @param[in] value Value description
  *
+ * @return comment for property set return
+ *
+ * @ingroup Class_Simple
  */
 EOAPI Eina_Bool  evas_obj_simple_a_set(int value);
+#endif
 
+#ifdef CLASS_SIMPLE_BETA
 /**
+ * @brief Common desc for a
  *
- * Common desc for a
- * 
+ * @return Value description
  *
- *
+ * @ingroup Class_Simple
  */
 EOAPI int  evas_obj_simple_a_get(void);
+#endif
 
-/**
- *
- * No description supplied.
- *
- *
- */
 EOAPI void  evas_obj_simple_b_set(void);
 
+#ifdef CLASS_SIMPLE_BETA
 /**
+ * @brief comment foo
  *
- * comment foo
- * 
+ * @param[in,out] b
+ * @param[out] c
  *
- * @param[in] a a
- * @param[inout] b No description supplied.
- * @param[out] c No description supplied.
+ * @return comment for method return
  *
+ * @ingroup Class_Simple
  */
 EOAPI char * evas_obj_simple_foo(int a, char *b, double *c);
+#endif
 
-/**
- *
- * No description supplied.
- *
- * @param[in] x No description supplied.
- *
- */
 EOAPI int  evas_obj_simple_bar(int x);
 
 

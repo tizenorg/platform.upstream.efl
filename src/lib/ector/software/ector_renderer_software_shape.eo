@@ -6,6 +6,10 @@ class Ector.Renderer.Software.Shape (Ector.Renderer.Software.Base, Ector.Rendere
       Ector.Renderer.Generic.Base.prepare;
       Ector.Renderer.Generic.Base.draw;
       Ector.Renderer.Software.Base.fill;
+<<<<<<< HEAD
+=======
+      Ector.Renderer.Generic.Base.crc.get;
+>>>>>>> opensource/master
       Efl.Gfx.Shape.path.set;
       Eo.Base.constructor;
       Eo.Base.destructor;      

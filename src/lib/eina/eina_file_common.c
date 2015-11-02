@@ -70,6 +70,10 @@ _eina_file_escape(char *path, size_t len)
    if (!result)
      return NULL;
 
+#ifdef _WIN32
+   EVIL_PATH_SEP_WIN32_TO_UNIX(path);
+#endif
+
    while ((p = strchr(p, '/')))
      {
 	// remove double `/'
@@ -344,6 +348,7 @@ EAPI char *
 eina_file_path_sanitize(const char *path)
 {
    Eina_Tmpstr *result = NULL;
+   char *r;
    size_t len;
 
    if (!path) return NULL;
@@ -353,12 +358,15 @@ eina_file_path_sanitize(const char *path)
    if (eina_file_path_relative(path))
      {
        result = eina_file_current_directory_get(path, len);
-       len = eina_tmpstr_strlen(result) - 1; /* tmpstr lengths include '/0' */
+       len = eina_tmpstr_len(result);
      }
    else
      result = path;
 
-   return _eina_file_escape(eina_file_cleanup(result), len);
+   r = _eina_file_escape(strdup(result ? result : ""), len);
+   if (result != path) eina_tmpstr_del(result);
+
+   return r;
 }
 
 EAPI Eina_File *
@@ -531,11 +539,11 @@ _eina_find_eol(const char *start, int boundary, const char *end)
         if (cr)
           {
              if (lf && lf < cr)
-               return lf + 1;
-             return cr + 1;
+               return lf;
+             return cr;
           }
         else if (lf)
-           return lf + 1;
+           return lf;
 
         start += chunk;
         boundary = 4096;
@@ -554,11 +562,13 @@ _eina_file_map_lines_iterator_next(Eina_Lines_Iterator *it, void **data)
      return EINA_FALSE;
 
    match = *it->current.end;
+   if (it->current.index > 0)
+     it->current.end++;
    while ((*it->current.end == '\n' || *it->current.end == '\r')
           && it->current.end < it->end)
      {
         if (match == *it->current.end)
-          it->current.index++;
+          break;
         it->current.end++;
      }
    it->current.index++;
@@ -575,7 +585,7 @@ _eina_file_map_lines_iterator_next(Eina_Lines_Iterator *it, void **data)
    it->current.start = it->current.end;
 
    it->current.end = eol;
-   it->current.length = eol - it->current.start - 1;
+   it->current.length = eol - it->current.start;
 
    *data = &it->current;
    return EINA_TRUE;

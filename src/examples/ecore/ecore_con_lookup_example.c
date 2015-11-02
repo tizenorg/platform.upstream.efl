@@ -6,12 +6,12 @@
 #include <Ecore_Con.h>
 
 static void
-_lookup_done_cb(const char *canonname, const char *ip, struct sockaddr *addr, int addrlen, void *data EINA_UNUSED)
+_lookup_done_cb(const char *canonname, const char *ip, struct sockaddr *addr, int addrlen EINA_UNUSED, void *data EINA_UNUSED)
 {
    printf("canonname = %s\n", canonname);
    printf("ip = %s\n", ip);
    printf("addr = %p\n", addr);
-   printf("addrlen = %d\n", addrlen);
+   ecore_main_loop_quit();
 }
 
 int
@@ -23,7 +23,6 @@ main(int argc, const char *argv[])
         return -1;
      }
 
-   ecore_init();
    ecore_con_init();
 
    if (!ecore_con_lookup(argv[1], _lookup_done_cb, NULL))
@@ -36,7 +35,6 @@ main(int argc, const char *argv[])
 
 end:
    ecore_con_shutdown();
-   ecore_shutdown();
 
    return 0;
 }

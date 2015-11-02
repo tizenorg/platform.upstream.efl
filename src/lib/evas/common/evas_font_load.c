@@ -471,6 +471,7 @@ evas_common_font_int_load_complete(RGBA_Font_Int *fi)
         FTLOCK();
 
         if (FT_HAS_FIXED_SIZES(fi->src->ft.face))
+<<<<<<< HEAD
           {
              error = FT_Select_Size(fi->src->ft.face, strike_index);
 
@@ -483,6 +484,11 @@ evas_common_font_int_load_complete(RGBA_Font_Int *fi)
           {
              error = FT_Set_Pixel_Sizes(fi->src->ft.face, 0, fi->real_size);
           }
+=======
+          error = FT_Select_Size(fi->src->ft.face, strike_index);
+        else
+          error = FT_Set_Pixel_Sizes(fi->src->ft.face, 0, fi->real_size);
+>>>>>>> opensource/master
 
         FTUNLOCK();
 	if (error)

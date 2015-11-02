@@ -35,7 +35,7 @@ static Eina_Bool _ecore_x_fd_handler(void *data,
                                      Ecore_Fd_Handler *fd_handler);
 static Eina_Bool _ecore_x_fd_handler_buf(void *data,
                                          Ecore_Fd_Handler *fd_handler);
-static int       _ecore_x_key_mask_get(KeySym sym);
+static int       _ecore_x_key_mask_get(XModifierKeymap *mod, KeySym sym);
 static int       _ecore_x_event_modifier(unsigned int state);
 
 static Ecore_Fd_Handler *_ecore_x_fd_handler_handle = NULL;
@@ -256,6 +256,7 @@ _ecore_x_XKeycodeToKeysym(Display *display, KeyCode keycode, int idx)
 void
 _ecore_x_modifiers_get(void)
 {
+   XModifierKeymap *mod;
    ECORE_X_MODIFIER_SHIFT = 0;
    ECORE_X_MODIFIER_CTRL = 0;
    ECORE_X_MODIFIER_ALT = 0;
@@ -266,24 +267,27 @@ _ecore_x_modifiers_get(void)
    ECORE_X_LOCK_CAPS = 0;
    ECORE_X_LOCK_SHIFT = 0;
 
+   mod = XGetModifierMapping(_ecore_x_disp);
+   if ((!mod) || (mod->max_keypermod <= 0)) goto clean_up;
+
    /* everything has these... unless its like a pda... :) */
-   ECORE_X_MODIFIER_SHIFT = _ecore_x_key_mask_get(XK_Shift_L);
-   ECORE_X_MODIFIER_CTRL = _ecore_x_key_mask_get(XK_Control_L);
+   ECORE_X_MODIFIER_SHIFT = _ecore_x_key_mask_get(mod, XK_Shift_L);
+   ECORE_X_MODIFIER_CTRL = _ecore_x_key_mask_get(mod, XK_Control_L);
 
    /* apple's xdarwin has no alt!!!! */
-   ECORE_X_MODIFIER_ALT = _ecore_x_key_mask_get(XK_Alt_L);
+   ECORE_X_MODIFIER_ALT = _ecore_x_key_mask_get(mod, XK_Alt_L);
    if (!ECORE_X_MODIFIER_ALT)
-     ECORE_X_MODIFIER_ALT = _ecore_x_key_mask_get(XK_Meta_L);
+     ECORE_X_MODIFIER_ALT = _ecore_x_key_mask_get(mod, XK_Meta_L);
 
    if (!ECORE_X_MODIFIER_ALT)
-     ECORE_X_MODIFIER_ALT = _ecore_x_key_mask_get(XK_Super_L);
+     ECORE_X_MODIFIER_ALT = _ecore_x_key_mask_get(mod, XK_Super_L);
 
    /* the windows key... a valid modifier :) */
-   ECORE_X_MODIFIER_WIN = _ecore_x_key_mask_get(XK_Super_L);
+   ECORE_X_MODIFIER_WIN = _ecore_x_key_mask_get(mod, XK_Super_L);
    if (!ECORE_X_MODIFIER_WIN)
-     ECORE_X_MODIFIER_WIN = _ecore_x_key_mask_get(XK_Meta_L);
+     ECORE_X_MODIFIER_WIN = _ecore_x_key_mask_get(mod, XK_Meta_L);
 
-   ECORE_X_MODIFIER_ALTGR = _ecore_x_key_mask_get(XK_Mode_switch);
+   ECORE_X_MODIFIER_ALTGR = _ecore_x_key_mask_get(mod, XK_Mode_switch);
 
    if (ECORE_X_MODIFIER_WIN == ECORE_X_MODIFIER_ALT)
      ECORE_X_MODIFIER_WIN = 0;
@@ -333,29 +337,54 @@ _ecore_x_modifiers_get(void)
           }
      }
 
-   ECORE_X_LOCK_SCROLL = _ecore_x_key_mask_get(XK_Scroll_Lock);
-   ECORE_X_LOCK_NUM = _ecore_x_key_mask_get(XK_Num_Lock);
-   ECORE_X_LOCK_CAPS = _ecore_x_key_mask_get(XK_Caps_Lock);
-   ECORE_X_LOCK_SHIFT = _ecore_x_key_mask_get(XK_Shift_Lock);
+   ECORE_X_LOCK_SCROLL = _ecore_x_key_mask_get(mod, XK_Scroll_Lock);
+   ECORE_X_LOCK_NUM = _ecore_x_key_mask_get(mod, XK_Num_Lock);
+   ECORE_X_LOCK_CAPS = _ecore_x_key_mask_get(mod, XK_Caps_Lock);
+   ECORE_X_LOCK_SHIFT = _ecore_x_key_mask_get(mod, XK_Shift_Lock);
+
+clean_up:
+   if (mod)
+     {
+        if (mod->modifiermap) XFree(mod->modifiermap);
+        XFree(mod);
+     }
 }
 
-/**
- * @defgroup Ecore_X_Init_Group X Library Init and Shutdown Functions
- *
- * Functions that start and shut down the Ecore X Library.
- */
+static Eina_Bool
+_ecore_x_init1(void)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+#ifdef LOGRT
+   _logrt_init();
+#endif /* ifdef LOGRT */
 
-/**
- * Initialize the X display connection to the given display.
- *
- * @param   name Display target name.  If @c NULL, the default display is
- *               assumed.
- * @return  The number of times the library has been initialized without
- *          being shut down.  0 is returned if an error occurs.
- * @ingroup Ecore_X_Init_Group
- */
-EAPI int
-ecore_x_init(const char *name)
+   eina_init();
+   _ecore_xlib_log_dom = eina_log_domain_register
+       ("ecore_x", ECORE_XLIB_DEFAULT_LOG_COLOR);
+   if (_ecore_xlib_log_dom < 0)
+     {
+        EINA_LOG_ERR(
+          "Impossible to create a log domain for the Ecore Xlib module.");
+        return EINA_FALSE;
+     }
+
+   if (!ecore_init())
+     goto shutdown_eina;
+   if (!ecore_event_init())
+     goto shutdown_ecore;
+
+   return EINA_TRUE;
+shutdown_ecore:
+   ecore_shutdown();
+shutdown_eina:
+   eina_log_domain_unregister(_ecore_xlib_log_dom);
+   _ecore_xlib_log_dom = -1;
+   eina_shutdown();
+   return EINA_FALSE;
+}
+
+static Eina_Bool
+_ecore_x_init2(void)
 {
    int shape_base = 0;
    int shape_err_base = 0;
@@ -384,35 +413,6 @@ ecore_x_init(const char *name)
 #ifdef ECORE_XKB
    int xkb_base = 0;
 #endif /* ifdef ECORE_XKB */
-   if (++_ecore_x_init_count != 1)
-     return _ecore_x_init_count;
-
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-#ifdef LOGRT
-   _logrt_init();
-#endif /* ifdef LOGRT */
-
-   eina_init();
-   _ecore_xlib_log_dom = eina_log_domain_register
-       ("ecore_x", ECORE_XLIB_DEFAULT_LOG_COLOR);
-   if (_ecore_xlib_log_dom < 0)
-     {
-        EINA_LOG_ERR(
-          "Impossible to create a log domain for the Ecore Xlib module.");
-        return --_ecore_x_init_count;
-     }
-
-   if (!ecore_init())
-     goto shutdown_eina;
-   if (!ecore_event_init())
-     goto shutdown_ecore;
-
-#ifdef EVAS_FRAME_QUEUING
-   XInitThreads();
-#endif /* ifdef EVAS_FRAME_QUEUING */
-   _ecore_x_disp = XOpenDisplay((char *)name);
-   if (!_ecore_x_disp)
-     goto shutdown_ecore_event;
 
    _ecore_x_error_handler_init();
    _ecore_x_event_handlers_num = LASTEvent;
@@ -703,7 +703,7 @@ ecore_x_init(const char *name)
    _ecore_x_private_win = ecore_x_window_override_new(0, -77, -777, 123, 456);
    _ecore_xlib_sync = !!getenv("ECORE_X_SYNC");
 
-   return _ecore_x_init_count;
+   return EINA_TRUE;
 
 free_event_handlers:
    free(_ecore_x_event_handlers);
@@ -712,15 +712,72 @@ close_display:
    XCloseDisplay(_ecore_x_disp);
    _ecore_x_fd_handler_handle = NULL;
    _ecore_x_disp = NULL;
-shutdown_ecore_event:
    ecore_event_shutdown();
-shutdown_ecore:
    ecore_shutdown();
-shutdown_eina:
    eina_log_domain_unregister(_ecore_xlib_log_dom);
    _ecore_xlib_log_dom = -1;
    eina_shutdown();
+   return EINA_FALSE;
+}
 
+/**
+ * @defgroup Ecore_X_Init_Group X Library Init and Shutdown Functions
+ *
+ * Functions that start and shut down the Ecore X Library.
+ */
+
+/**
+ * Initialize the X display connection to the given display.
+ *
+ * @param   name Display target name.  If @c NULL, the default display is
+ *               assumed.
+ * @return  The number of times the library has been initialized without
+ *          being shut down.  0 is returned if an error occurs.
+ * @ingroup Ecore_X_Init_Group
+ */
+EAPI int
+ecore_x_init(const char *name)
+{
+   if (++_ecore_x_init_count != 1)
+     return _ecore_x_init_count;
+
+   if (!_ecore_x_init1())
+     return --_ecore_x_init_count;
+
+#ifdef EVAS_FRAME_QUEUING
+   XInitThreads();
+#endif /* ifdef EVAS_FRAME_QUEUING */
+   _ecore_x_disp = XOpenDisplay((char *)name);
+   if (!_ecore_x_disp)
+     goto shutdown_ecore_event;
+   if (_ecore_x_init2())
+     return _ecore_x_init_count;
+shutdown_ecore_event:
+   ecore_event_shutdown();
+   ecore_shutdown();
+   eina_log_domain_unregister(_ecore_xlib_log_dom);
+   _ecore_xlib_log_dom = -1;
+   eina_shutdown();
+   return --_ecore_x_init_count;
+}
+
+EAPI int
+ecore_x_init_from_display(Ecore_X_Display *display)
+{
+   EINA_SAFETY_ON_NULL_RETURN_VAL(display, 0);
+   if (++_ecore_x_init_count != 1)
+     return _ecore_x_init_count;
+
+   if (!_ecore_x_init1())
+     return --_ecore_x_init_count;
+   _ecore_x_disp = display;
+   if (_ecore_x_init2())
+     return _ecore_x_init_count;
+   ecore_event_shutdown();
+   ecore_shutdown();
+   eina_log_domain_unregister(_ecore_xlib_log_dom);
+   _ecore_xlib_log_dom = -1;
+   eina_shutdown();
    return --_ecore_x_init_count;
 }
 
@@ -1120,9 +1177,8 @@ _ecore_x_fd_handler_buf(void *data,
 }
 
 static int
-_ecore_x_key_mask_get(KeySym sym)
+_ecore_x_key_mask_get(XModifierKeymap *mod, KeySym sym)
 {
-   XModifierKeymap *mod;
    KeySym sym2;
    int i, j, mask = 0;
    const int masks[8] =
@@ -1131,25 +1187,16 @@ _ecore_x_key_mask_get(KeySym sym)
         Mod1Mask, Mod2Mask, Mod3Mask, Mod4Mask, Mod5Mask
      };
 
-   mod = XGetModifierMapping(_ecore_x_disp);
-   if ((mod) && (mod->max_keypermod > 0))
+   for (i = 0; i < (8 * mod->max_keypermod); i++)
      {
-        for (i = 0; i < (8 * mod->max_keypermod); i++)
+        for (j = 0; j < 8; j++)
           {
-             for (j = 0; j < 8; j++)
-               {
-                  sym2 = _ecore_x_XKeycodeToKeysym(_ecore_x_disp,
-                                                   mod->modifiermap[i], j);
-                  if (sym2 != 0)
-                  break;
-               }
-             if (sym2 == sym) mask = masks[i / mod->max_keypermod];
+             sym2 = _ecore_x_XKeycodeToKeysym(_ecore_x_disp,
+                                              mod->modifiermap[i], j);
+             if (sym2 != 0)
+             break;
           }
-     }
-   if (mod)
-     {
-        if (mod->modifiermap) XFree(mod->modifiermap);
-        XFree(mod);
+        if (sym2 == sym) mask = masks[i / mod->max_keypermod];
      }
    return mask;
 }
@@ -1173,9 +1220,6 @@ ecore_x_window_root_list(int *num_ret)
 {
    int num, i;
    Ecore_X_Window *roots;
-#ifdef ECORE_XPRINT
-   int xp_base, xp_err_base;
-#endif /* ifdef ECORE_XPRINT */
 
    if (!num_ret)
      return NULL;
@@ -1183,80 +1227,6 @@ ecore_x_window_root_list(int *num_ret)
    *num_ret = 0;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
-#ifdef ECORE_XPRINT
-   num = ScreenCount(_ecore_x_disp);
-   if (XpQueryExtension(_ecore_x_disp, &xp_base, &xp_err_base))
-     {
-        Screen **ps = NULL;
-        int psnum = 0;
-
-        ps = XpQueryScreens(_ecore_x_disp, &psnum);
-        if (ps)
-          {
-             int overlap, j;
-
-             overlap = 0;
-             for (i = 0; i < num; i++)
-               {
-                  for (j = 0; j < psnum; j++)
-                    {
-                       if (ScreenOfDisplay(_ecore_x_disp, i) == ps[j])
-                         overlap++;
-                    }
-               }
-             roots = malloc(MAX((num - overlap) * sizeof(Ecore_X_Window), 1));
-             if (roots)
-               {
-                  int k;
-
-                  k = 0;
-                  for (i = 0; i < num; i++)
-                    {
-                       int is_print;
-
-                       is_print = 0;
-                       for (j = 0; j < psnum; j++)
-                         {
-                            if (ScreenOfDisplay(_ecore_x_disp, i) == ps[j])
-                              {
-                                 is_print = 1;
-                                 break;
-                              }
-                         }
-                       if (!is_print)
-                         {
-                            roots[k] = RootWindow(_ecore_x_disp, i);
-                            k++;
-                         }
-                    }
-                  *num_ret = k;
-               }
-
-             XFree(ps);
-          }
-        else
-          {
-             roots = malloc(num * sizeof(Ecore_X_Window));
-             if (!roots)
-               return NULL;
-
-             *num_ret = num;
-             for (i = 0; i < num; i++)
-               roots[i] = RootWindow(_ecore_x_disp, i);
-          }
-     }
-   else
-     {
-        roots = malloc(num * sizeof(Ecore_X_Window));
-        if (!roots)
-          return NULL;
-
-        *num_ret = num;
-        for (i = 0; i < num; i++)
-          roots[i] = RootWindow(_ecore_x_disp, i);
-     }
-
-#else /* ifdef ECORE_XPRINT */
    num = ScreenCount(_ecore_x_disp);
    roots = malloc(num * sizeof(Ecore_X_Window));
    if (!roots)
@@ -1265,7 +1235,6 @@ ecore_x_window_root_list(int *num_ret)
    *num_ret = num;
    for (i = 0; i < num; i++)
      roots[i] = RootWindow(_ecore_x_disp, i);
-#endif /* ifdef ECORE_XPRINT */
    return roots;
 }
 
@@ -1892,7 +1861,7 @@ _ecore_x_window_key_grab_internal(Ecore_X_Window win,
    for (i = 0; i < 8; i++)
      {
         XGrabKey(_ecore_x_disp, keycode, m | locks[i],
-                 win, False, GrabModeSync, GrabModeAsync);
+                 win, False, GrabModeAsync, GrabModeAsync);
         if (_ecore_xlib_sync) ecore_x_sync();
      }
 }

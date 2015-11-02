@@ -24,6 +24,13 @@ _class_name_concatenate(const Eolian_Class *class, char *buffer)
    eina_iterator_free(itr);
 }
 
+static char *
+_fill_envs(char *dest, const char *src, size_t bufs) {
+    strncpy(dest, src, bufs - 1);
+    dest[bufs - 1] = '\0';
+    return dest;
+}
+
 void
 _class_env_create(const Eolian_Class *class, const char *over_classname, _eolian_class_vars *env)
 {
@@ -33,22 +40,22 @@ _class_env_create(const Eolian_Class *class, const char *over_classname, _eolian
    char *p;
 
    if (!class)
-      strncpy(env->full_classname, over_classname, PATH_MAX - 1);
+      _fill_envs(env->full_classname, over_classname, sizeof(env->full_classname));
    else
       _class_name_concatenate(class, env->full_classname);
 
    /* class/CLASS*/
-   p = strncpy(env->upper_classname, env->full_classname, PATH_MAX - 1);
+   p = _fill_envs(env->upper_classname, env->full_classname, sizeof(env->upper_classname));
    eina_str_toupper(&p);
-   p = strncpy(env->lower_classname, env->full_classname, PATH_MAX - 1);
+   p = _fill_envs(env->lower_classname, env->full_classname, sizeof(env->lower_classname));
    eina_str_tolower(&p);
 
    /* eo_prefix */
    if (class) eo_prefix = eolian_class_eo_prefix_get(class);
    if (!eo_prefix) eo_prefix = env->full_classname;
-   p = strncpy(env->upper_eo_prefix, eo_prefix, PATH_MAX - 1);
+   p = _fill_envs(env->upper_eo_prefix, eo_prefix, sizeof(env->upper_eo_prefix));
    eina_str_toupper(&p);
-   p = strncpy(env->lower_eo_prefix, eo_prefix, PATH_MAX - 1);
+   p = _fill_envs(env->lower_eo_prefix, eo_prefix, sizeof(env->lower_eo_prefix));
    eina_str_tolower(&p);
 
    /* classtype */
@@ -76,50 +83,26 @@ void
 _class_func_env_create(const Eolian_Class *class, const char *funcname, Eolian_Function_Type ftype, _eolian_class_func_vars *env)
 {
    char *p;
-   const char *ret;
-   const char *suffix = "";
-   const char *legacy = NULL;
    const Eolian_Function *funcid = eolian_class_function_get_by_name(class, funcname, ftype);
-   if (ftype == EOLIAN_PROP_GET)
-     {
-        suffix = "_get";
-        legacy = eolian_function_legacy_get(funcid, ftype);
-     }
-   else if (ftype == EOLIAN_PROP_SET)
-     {
-        suffix = "_set";
-        legacy = eolian_function_legacy_get(funcid, ftype);
-     }
-   else legacy = eolian_function_legacy_get(funcid, EOLIAN_METHOD);
 
-   _eolian_class_vars tmp_env;
-   _class_env_create(class, NULL, &tmp_env);
-
-   p = strncpy(env->upper_func, funcname, PATH_MAX - 1);
+   p = _fill_envs(env->upper_func, funcname, sizeof(env->upper_func));
    eina_str_toupper(&p);
 
-   ret = eolian_function_full_c_name_get(funcid);
-   sprintf(p = env->upper_eo_func, "%s%s", ret, suffix);
+   Eolian_Function_Type aftype = ftype;
+   if (aftype == EOLIAN_PROPERTY) aftype = EOLIAN_METHOD;
+
+   Eina_Stringshare *fname = eolian_function_full_c_name_get(funcid, aftype, EINA_FALSE);
+   p = _fill_envs(env->upper_eo_func, fname, sizeof(env->upper_eo_func));
    eina_str_toupper(&p);
-   sprintf(p = env->lower_eo_func, "%s%s", ret, suffix);
+   p = _fill_envs(env->lower_eo_func, fname, sizeof(env->lower_eo_func));
    eina_str_tolower(&p);
-   eina_stringshare_del(ret);
+   eina_stringshare_del(fname);
 
+   Eina_Stringshare *lname = eolian_function_full_c_name_get(funcid, aftype, EINA_TRUE);
    env->legacy_func[0] = '\0';
-   if (legacy && !strcmp(legacy, "null")) goto end;
-   if (legacy)
-     {
-        sprintf(p = env->legacy_func, "%s", legacy);
-        goto end;
-     }
-
-   legacy = eolian_class_legacy_prefix_get(class);
-   if (legacy && !strcmp(legacy, "null")) goto end;
-
-   sprintf(env->legacy_func, "%s_%s%s", legacy?legacy:tmp_env.lower_classname, funcname, suffix);
-
-end:
-   return;
+   if (!lname) return;
+   p = _fill_envs(env->legacy_func, lname, sizeof(env->legacy_func));
+   eina_stringshare_del(lname);
 }
 
 void
@@ -170,22 +153,5 @@ _startline(char *str, char *pos)
    char *ret =  pos;
    while ((ret > str) && (*(ret-1)!='\n')) ret--;
 
-   return ret;
-}
-
-char*
-_source_desc_get(const char *str)
-{
-   Eina_Strbuf *part = eina_strbuf_new();
-   if (str)
-     {
-        const char *p = strchr(str, '\n');
-        size_t offs = (p) ? (size_t)(p - str) : strlen(str);
-        eina_strbuf_append_n(part, str, offs);
-        eina_strbuf_replace_all(part, "\\", "\\\\");
-        eina_strbuf_replace_all(part, "\"", "\\\"");
-     }
-   char *ret = eina_strbuf_string_steal(part);
-   eina_strbuf_free(part);
    return ret;
 }

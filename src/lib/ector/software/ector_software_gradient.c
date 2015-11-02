@@ -28,6 +28,10 @@ Linear_Helper_Func linear_helper;
 static inline int
 _gradient_clamp(const Ector_Renderer_Software_Gradient_Data *data, int ipos)
 {
+<<<<<<< HEAD
+=======
+   int limit;
+>>>>>>> opensource/master
    if (data->gd->s == EFL_GFX_GRADIENT_SPREAD_REPEAT)
      {
         ipos = ipos % GRADIENT_STOPTABLE_SIZE;
@@ -35,7 +39,11 @@ _gradient_clamp(const Ector_Renderer_Software_Gradient_Data *data, int ipos)
      }
    else if (data->gd->s == EFL_GFX_GRADIENT_SPREAD_REFLECT)
      {
+<<<<<<< HEAD
         const int limit = GRADIENT_STOPTABLE_SIZE * 2;
+=======
+        limit = GRADIENT_STOPTABLE_SIZE * 2;
+>>>>>>> opensource/master
         ipos = ipos % limit;
         ipos = ipos < 0 ? limit + ipos : ipos;
         ipos = ipos >= GRADIENT_STOPTABLE_SIZE ? limit - 1 - ipos : ipos;
@@ -106,7 +114,11 @@ static void
 loop_break(unsigned int *buffer, int length, int *lprealign, int *lby4 , int *lremaining)
 {
    int l1=0,l2=0,l3=0;
+<<<<<<< HEAD
    while ((int)buffer & 0xF)
+=======
+   while ((uintptr_t)buffer & 0xF)
+>>>>>>> opensource/master
      buffer++ , l1++;
 
    if(length <= l1)
@@ -125,10 +137,17 @@ static void
 _radial_helper_sse3(uint *buffer, int length, Ector_Renderer_Software_Gradient_Data *g_data,
                     float det, float delta_det, float delta_delta_det, float b, float delta_b)
 {
+<<<<<<< HEAD
    int lprealign, lby4, lremaining;
    loop_break(buffer, length, &lprealign, &lby4, &lremaining);
    // prealign loop
    for (int i = 0 ; i < lprealign ; i++)
+=======
+   int lprealign, lby4, lremaining, i;
+   loop_break(buffer, length, &lprealign, &lby4, &lremaining);
+   // prealign loop
+   for (i = 0 ; i < lprealign ; i++)
+>>>>>>> opensource/master
      {
         *buffer++ = _gradient_pixel(g_data, sqrt(det) - b);
         det += delta_det;
@@ -141,7 +160,11 @@ _radial_helper_sse3(uint *buffer, int length, Ector_Renderer_Software_Gradient_D
    vec4_f delta_det4_vec;
    vec4_f b_vec;
 
+<<<<<<< HEAD
    for (int i = 0; i < 4; ++i)
+=======
+   for (i = 0; i < 4; ++i)
+>>>>>>> opensource/master
      {
         det_vec.f[i] = det;
         delta_det4_vec.f[i] = 4 * delta_det;
@@ -157,7 +180,11 @@ _radial_helper_sse3(uint *buffer, int length, Ector_Renderer_Software_Gradient_D
    __m128 v_delta_b4 = _mm_set1_ps(4 * delta_b);
 
 #define FETCH_RADIAL_PROLOGUE \
+<<<<<<< HEAD
   for (int i = 0 ; i < lby4 ; i+=4) { \
+=======
+  for (i = 0 ; i < lby4 ; i+=4) { \
+>>>>>>> opensource/master
     __m128 v_index_local = _mm_sub_ps(_mm_sqrt_ps(det_vec.v), b_vec.v); \
     __m128 v_index = _mm_add_ps(_mm_mul_ps(v_index_local, v_max), v_halff); \
     det_vec.v = _mm_add_ps(_mm_add_ps(det_vec.v, delta_det4_vec.v), v_delta_delta_det6); \
@@ -185,17 +212,28 @@ _radial_helper_sse3(uint *buffer, int length, Ector_Renderer_Software_Gradient_D
   }
 
    // remaining loop
+<<<<<<< HEAD
    for (int i = 0 ; i < lremaining ; i++)
+=======
+   for (i = 0 ; i < lremaining ; i++)
+>>>>>>> opensource/master
      *buffer++ = _gradient_pixel(g_data, sqrt(det_vec.f[i]) - b_vec.f[i]);
 }
 
 static void
 _linear_helper_sse3(uint *buffer, int length, Ector_Renderer_Software_Gradient_Data *g_data, int t, int inc)
 {
+<<<<<<< HEAD
    int lprealign, lby4, lremaining;
    loop_break(buffer, length, &lprealign, &lby4, &lremaining); 
    // prealign loop
    for (int i = 0 ; i < lprealign ; i++)
+=======
+   int lprealign, lby4, lremaining, i;
+   loop_break(buffer, length, &lprealign, &lby4, &lremaining); 
+   // prealign loop
+   for (i = 0 ; i < lprealign ; i++)
+>>>>>>> opensource/master
      {
         *buffer++ = _gradient_pixel_fixed(g_data, t);
         t += inc;
@@ -203,7 +241,11 @@ _linear_helper_sse3(uint *buffer, int length, Ector_Renderer_Software_Gradient_D
 
    // lby4 16byte align loop
    vec4_i t_vec;
+<<<<<<< HEAD
    for (int i = 0; i < 4; ++i)
+=======
+   for (i = 0; i < 4; ++i)
+>>>>>>> opensource/master
      {
         t_vec.i[i] = t;
         t += inc;
@@ -221,7 +263,11 @@ _linear_helper_sse3(uint *buffer, int length, Ector_Renderer_Software_Gradient_D
    __m128i v_reflect_limit = _mm_set1_epi32(2 * GRADIENT_STOPTABLE_SIZE - 1);
 
 #define FETCH_LINEAR_LOOP_PROLOGUE \
+<<<<<<< HEAD
   for (int i = 0 ; i < lby4 ; i+=4) { \
+=======
+  for (i = 0 ; i < lby4 ; i+=4) { \
+>>>>>>> opensource/master
     vec4_i index_vec;\
     __m128i v_index;\
     v_index =  _mm_srai_epi32(_mm_add_epi32(t_vec.v, v_fxtpt_size), FIXPT_BITS); \
@@ -259,7 +305,11 @@ _linear_helper_sse3(uint *buffer, int length, Ector_Renderer_Software_Gradient_D
     }
 
    // remaining loop
+<<<<<<< HEAD
    for (int i = 0 ; i < lremaining ; i++)
+=======
+   for (i = 0 ; i < lremaining ; i++)
+>>>>>>> opensource/master
      *buffer++ = _gradient_pixel_fixed(g_data, t_vec.i[i]);
 }
 
@@ -276,16 +326,30 @@ _ease_linear(double t)
 static Eina_Bool
 _generate_gradient_color_table(Efl_Gfx_Gradient_Stop *gradient_stops, int stop_count, uint *color_table, int size)
 {
+<<<<<<< HEAD
    int pos = 0;
    Eina_Bool alpha = EINA_FALSE;
    Efl_Gfx_Gradient_Stop *curr, *next;
+=======
+   int dist, idist, pos = 0, i;
+   Eina_Bool alpha = EINA_FALSE;
+   Efl_Gfx_Gradient_Stop *curr, *next;
+   uint current_color, next_color;
+   double delta, t, incr, fpos;
+>>>>>>> opensource/master
    assert(stop_count > 0);
 
    curr = gradient_stops;
    if (curr->a != 255) alpha = EINA_TRUE;
+<<<<<<< HEAD
    uint current_color = ECTOR_ARGB_JOIN(curr->a, curr->r, curr->g, curr->b);
    double incr = 1.0 / (double)size;
    double fpos = 1.5 * incr;
+=======
+   current_color = ECTOR_ARGB_JOIN(curr->a, curr->r, curr->g, curr->b);
+   incr = 1.0 / (double)size;
+   fpos = 1.5 * incr;
+>>>>>>> opensource/master
 
    color_table[pos++] = current_color;
 
@@ -296,6 +360,7 @@ _generate_gradient_color_table(Efl_Gfx_Gradient_Stop *gradient_stops, int stop_c
         fpos += incr;
      }
 
+<<<<<<< HEAD
    for (int i = 0; i < stop_count - 1; ++i)
      {
         curr = (gradient_stops + i);
@@ -309,6 +374,21 @@ _generate_gradient_color_table(Efl_Gfx_Gradient_Stop *gradient_stops, int stop_c
              double t = func((fpos - curr->offset) * delta);
              int dist = (int)(256 * t);
              int idist = 256 - dist;
+=======
+   for (i = 0; i < stop_count - 1; ++i)
+     {
+        curr = (gradient_stops + i);
+        next = (gradient_stops + i + 1);
+        delta = 1/(next->offset - curr->offset);
+        if (next->a != 255) alpha = EINA_TRUE;
+        next_color = ECTOR_ARGB_JOIN(next->a, next->r, next->g, next->b);
+        BLEND_FUNC func = &_ease_linear;
+        while (fpos < next->offset && pos < size)
+          {
+             t = func((fpos - curr->offset) * delta);
+             dist = (int)(256 * t);
+             idist = 256 - dist;
+>>>>>>> opensource/master
              color_table[pos] = INTERPOLATE_PIXEL_256(current_color, idist, next_color, dist);
              ++pos;
              fpos += incr;
@@ -348,7 +428,12 @@ inline static void
 _linear_helper_generic(uint *buffer, int length, Ector_Renderer_Software_Gradient_Data *g_data,
                        int t_fixed, int inc_fixed)
 {
+<<<<<<< HEAD
    for (int i = 0 ; i < length ; i++)
+=======
+   int i;
+   for (i = 0 ; i < length ; i++)
+>>>>>>> opensource/master
      {
         *buffer++ = _gradient_pixel_fixed(g_data, t_fixed);
         t_fixed += inc_fixed;
@@ -359,9 +444,15 @@ void
 fetch_linear_gradient(uint *buffer, Span_Data *data, int y, int x, int length)
 {
    Ector_Renderer_Software_Gradient_Data *g_data = data->gradient;
+<<<<<<< HEAD
    float t, inc;
    float rx=0, ry=0;
 
+=======
+   float t, inc, rx=0, ry=0;
+   uint *end;
+   int t_fixed, inc_fixed;
+>>>>>>> opensource/master
    if (g_data->linear.l == 0)
      {
         t = inc = 0;
@@ -377,7 +468,11 @@ fetch_linear_gradient(uint *buffer, Span_Data *data, int y, int x, int length)
         inc *= (GRADIENT_STOPTABLE_SIZE - 1);
      }
 
+<<<<<<< HEAD
    uint *end = buffer + length;
+=======
+    end = buffer + length;
+>>>>>>> opensource/master
     if (inc > (float)(-1e-5) && inc < (float)(1e-5))
       {
          _ector_memfill(buffer, length, _gradient_pixel_fixed(g_data, (int)(t * FIXPT_SIZE)));
@@ -388,8 +483,13 @@ fetch_linear_gradient(uint *buffer, Span_Data *data, int y, int x, int length)
              t+inc*length > (float)(INT_MIN >> (FIXPT_BITS + 1)))
            {
               // we can use fixed point math
+<<<<<<< HEAD
               int t_fixed = (int)(t * FIXPT_SIZE);
               int inc_fixed = (int)(inc * FIXPT_SIZE);
+=======
+              t_fixed = (int)(t * FIXPT_SIZE);
+              inc_fixed = (int)(inc * FIXPT_SIZE);
+>>>>>>> opensource/master
               linear_helper(buffer, length, g_data, t_fixed, inc_fixed);
            }
          else
@@ -410,7 +510,12 @@ inline static void
 _radial_helper_generic(uint *buffer, int length, Ector_Renderer_Software_Gradient_Data *g_data, float det,
                        float delta_det, float delta_delta_det, float b, float delta_b)
 {
+<<<<<<< HEAD
    for (int i = 0 ; i < length ; i++)
+=======
+   int i;
+   for (i = 0 ; i < length ; i++)
+>>>>>>> opensource/master
      {
         *buffer++ = _gradient_pixel(g_data, sqrt(det) - b);
         det += delta_det;
@@ -423,20 +528,34 @@ void
 fetch_radial_gradient(uint *buffer, Span_Data *data, int y, int x, int length)
 {
    Ector_Renderer_Software_Gradient_Data *g_data = data->gradient;
+<<<<<<< HEAD
 
    // avoid division by zero
    if (abs(g_data->radial.a) <= 0.00001f)
+=======
+   float rx, ry, inv_a, delta_rx, delta_ry, b, delta_b, b_delta_b, delta_b_delta_b,
+         bb, delta_bb, rxrxryry, delta_rxrxryry, rx_plus_ry, delta_rx_plus_ry, det,
+         delta_det, delta_delta_det;
+   // avoid division by zero
+   if (fabsf(g_data->radial.a) <= 0.00001f)
+>>>>>>> opensource/master
      {
         _ector_memfill(buffer, length, 0);
         return;
      }
 
+<<<<<<< HEAD
    float rx = data->inv.xy * (y + (float)0.5) + data->inv.xz + data->inv.xx * (x + (float)0.5);
    float ry = data->inv.yy * (y + (float)0.5) + data->inv.yz + data->inv.yx * (x + (float)0.5);
+=======
+   rx = data->inv.xy * (y + (float)0.5) + data->inv.xz + data->inv.xx * (x + (float)0.5);
+   ry = data->inv.yy * (y + (float)0.5) + data->inv.yz + data->inv.yx * (x + (float)0.5);
+>>>>>>> opensource/master
 
    rx -= g_data->radial.fx;
    ry -= g_data->radial.fy;
 
+<<<<<<< HEAD
    float inv_a = 1 / (float)(2 * g_data->radial.a);
 
    const float delta_rx = data->inv.xx;
@@ -462,6 +581,33 @@ fetch_radial_gradient(uint *buffer, Span_Data *data, int y, int x, int length)
    float det = (bb - 4 * g_data->radial.a * (g_data->radial.sqrfr - rxrxryry)) * inv_a;
    float delta_det = (b_delta_b + delta_bb + 4 * g_data->radial.a * (rx_plus_ry + delta_rxrxryry)) * inv_a;
    const float delta_delta_det = (delta_b_delta_b + 4 * g_data->radial.a * delta_rx_plus_ry) * inv_a;
+=======
+   inv_a = 1 / (float)(2 * g_data->radial.a);
+
+   delta_rx = data->inv.xx;
+   delta_ry = data->inv.yx;
+
+   b = 2*(g_data->radial.dr*g_data->radial.fradius + rx * g_data->radial.dx + ry * g_data->radial.dy);
+   delta_b = 2*(delta_rx * g_data->radial.dx + delta_ry * g_data->radial.dy);
+   b_delta_b = 2 * b * delta_b;
+   delta_b_delta_b = 2 * delta_b * delta_b;
+
+   bb = b * b;
+   delta_bb = delta_b * delta_b;
+   b *= inv_a;
+   delta_b *= inv_a;
+
+   rxrxryry = rx * rx + ry * ry;
+   delta_rxrxryry = delta_rx * delta_rx + delta_ry * delta_ry;
+   rx_plus_ry = 2*(rx * delta_rx + ry * delta_ry);
+   delta_rx_plus_ry = 2 * delta_rxrxryry;
+
+   inv_a *= inv_a;
+
+   det = (bb - 4 * g_data->radial.a * (g_data->radial.sqrfr - rxrxryry)) * inv_a;
+   delta_det = (b_delta_b + delta_bb + 4 * g_data->radial.a * (rx_plus_ry + delta_rxrxryry)) * inv_a;
+   delta_delta_det = (delta_b_delta_b + 4 * g_data->radial.a * delta_rx_plus_ry) * inv_a;
+>>>>>>> opensource/master
 
    radial_helper(buffer, length, g_data, det, delta_det, delta_delta_det, b, delta_b);
 }

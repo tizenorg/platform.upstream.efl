@@ -22,6 +22,7 @@ struct _Render_Engine
 };
 
 /* LOCAL FUNCTIONS */
+<<<<<<< HEAD
 Eina_Bool
 _render_engine_swapbuf_busy_check(void *data)
 {
@@ -43,15 +44,22 @@ _render_engine_swapbuf_busy_check(void *data)
 
 Render_Engine *
 _render_engine_swapbuf_setup(int w, int h, unsigned int rotation, unsigned int depth, Eina_Bool alpha, struct wl_shm *shm, struct wl_surface *surface)
+=======
+Render_Engine *
+_render_engine_swapbuf_setup(int w, int h, unsigned int rotation, unsigned int depth, Eina_Bool alpha, struct wl_shm *shm, struct wl_surface *surface, struct wl_display *disp)
+>>>>>>> opensource/master
 {
    Render_Engine *re;
    Outbuf *ob;
+   Render_Engine_Merge_Mode merge_mode = MERGE_SMART;
+   const char *s;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    /* try to allocate space for new render engine */
    if (!(re = calloc(1, sizeof(Render_Engine)))) return NULL;
 
+<<<<<<< HEAD
    ob = _evas_outbuf_setup(w, h, rotation, depth, alpha, shm, surface);
    if (!ob) goto err;
 
@@ -60,6 +68,16 @@ _render_engine_swapbuf_setup(int w, int h, unsigned int rotation, unsigned int d
                                                  _evas_outbuf_rotation_get,
                                                  NULL,
                                                  NULL,
+=======
+   ob = _evas_outbuf_setup(w, h, rotation, depth, alpha, shm, surface, disp);
+   if (!ob) goto err;
+
+   if (!evas_render_engine_software_generic_init(&re->generic, ob, 
+                                                 _evas_outbuf_swap_mode_get,
+                                                 _evas_outbuf_rotation_get,
+                                                 NULL,
+                                                 NULL, 
+>>>>>>> opensource/master
                                                  _evas_outbuf_update_region_new,
                                                  _evas_outbuf_update_region_push,
                                                  _evas_outbuf_update_region_free,
@@ -68,8 +86,26 @@ _render_engine_swapbuf_setup(int w, int h, unsigned int rotation, unsigned int d
                                                  _evas_outbuf_free,
                                                  w, h))
      goto err;
+<<<<<<< HEAD
 
    re->outbuf_reconfigure = _evas_outbuf_reconfigure;
+=======
+
+   re->outbuf_reconfigure = _evas_outbuf_reconfigure;
+
+   s = getenv("EVAS_WAYLAND_PARTIAL_MERGE");
+   if (s)
+     {
+        if ((!strcmp(s, "bounding")) || (!strcmp(s, "b")))
+          merge_mode = MERGE_BOUNDING;
+        else if ((!strcmp(s, "full")) || (!strcmp(s, "f")))
+          merge_mode = MERGE_FULL;
+        else if ((!strcmp(s, "smart")) || (!strcmp(s, "s")))
+          merge_mode = MERGE_SMART;
+     }
+
+   evas_render_engine_software_generic_merge_mode_set(&re->generic, merge_mode);
+>>>>>>> opensource/master
 
    /* return allocated render engine */
    return re;
@@ -85,9 +121,15 @@ static void *
 eng_info(Evas *eo_evas EINA_UNUSED)
 {
    Evas_Engine_Info_Wayland_Shm *einfo;
+<<<<<<< HEAD
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
+=======
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+>>>>>>> opensource/master
    /* try to allocate space for new engine info */
    if (!(einfo = calloc(1, sizeof(Evas_Engine_Info_Wayland_Shm))))
      return NULL;
@@ -95,7 +137,10 @@ eng_info(Evas *eo_evas EINA_UNUSED)
    /* fill in engine info */
    einfo->magic.magic = rand();
    einfo->render_mode = EVAS_RENDER_MODE_BLOCKING;
+<<<<<<< HEAD
    einfo->func.busy_check = _render_engine_swapbuf_busy_check;
+=======
+>>>>>>> opensource/master
 
    /* return allocated engine info */
    return einfo;
@@ -134,6 +179,7 @@ eng_setup(Evas *eo_evas, void *info)
    if (!(re = epd->engine.data.output))
      {
         /* if we have no engine data, assume we have not initialized yet */
+<<<<<<< HEAD
         evas_common_cpu_init();
         evas_common_blend_init();
         evas_common_image_init();
@@ -162,6 +208,20 @@ eng_setup(Evas *eo_evas, void *info)
                   re->generic.ob->surface->callback.data = einfo->callback.data;
                }
           }
+=======
+        evas_common_init();
+
+        re = _render_engine_swapbuf_setup(epd->output.w, epd->output.h,
+                                          einfo->info.rotation, 
+                                          einfo->info.depth, 
+                                          einfo->info.destination_alpha,
+                                          einfo->info.wl_shm, 
+                                          einfo->info.wl_surface,
+                                          einfo->info.wl_disp);
+
+        if (re) 
+          re->generic.ob->info = einfo;
+>>>>>>> opensource/master
         else
           goto err;
      }
@@ -169,6 +229,7 @@ eng_setup(Evas *eo_evas, void *info)
      {
         Outbuf *ob;
 
+<<<<<<< HEAD
         ob = _evas_outbuf_setup(epd->output.w, epd->output.h,
                                 einfo->info.rotation, einfo->info.depth,
                                 einfo->info.destination_alpha,
@@ -184,6 +245,18 @@ eng_setup(Evas *eo_evas, void *info)
                }
              evas_render_engine_software_generic_update(&re->generic, ob,
                                                         epd->output.w,
+=======
+        ob = _evas_outbuf_setup(epd->output.w, epd->output.h, 
+                                einfo->info.rotation, einfo->info.depth, 
+                                einfo->info.destination_alpha, 
+                                einfo->info.wl_shm, einfo->info.wl_surface,
+                                einfo->info.wl_disp);
+        if (ob)
+          {
+             ob->info = einfo;
+             evas_render_engine_software_generic_update(&re->generic, ob, 
+                                                        epd->output.w, 
+>>>>>>> opensource/master
                                                         epd->output.h);
           }
      }
@@ -204,12 +277,16 @@ eng_setup(Evas *eo_evas, void *info)
    return 1;
 
 err:
+<<<<<<< HEAD
    evas_common_font_shutdown();
    evas_common_image_shutdown();
+=======
+   evas_common_shutdown();
+>>>>>>> opensource/master
    return 0;
 }
 
-static void
+static void 
 eng_output_free(void *data)
 {
    Render_Engine *re;
@@ -220,11 +297,10 @@ eng_output_free(void *data)
         free(re);
      }
 
-   evas_common_font_shutdown();
-   evas_common_image_shutdown();
+   evas_common_shutdown();
 }
 
-static void
+static void 
 eng_output_resize(void *data, int w, int h)
 {
    Render_Engine *re;
@@ -255,13 +331,21 @@ eng_output_resize(void *data, int w, int h)
 
    if (einfo->info.edges) resize = EINA_TRUE;
 
+<<<<<<< HEAD
    re->outbuf_reconfigure(re->generic.ob, dx, dy, w, h,
                           einfo->info.rotation, einfo->info.depth,
+=======
+   re->outbuf_reconfigure(re->generic.ob, dx, dy, w, h, 
+                          einfo->info.rotation, einfo->info.depth, 
+>>>>>>> opensource/master
                           einfo->info.destination_alpha, resize);
 
    evas_common_tilebuf_free(re->generic.tb);
    if ((re->generic.tb = evas_common_tilebuf_new(w, h)))
      evas_common_tilebuf_set_tile_size(re->generic.tb, TILESIZE, TILESIZE);
+
+   re->generic.w = w;
+   re->generic.h = h;
 }
 
 /* EVAS MODULE FUNCTIONS */

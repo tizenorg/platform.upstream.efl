@@ -25,6 +25,15 @@ getter_t const getter = {};
 struct method_t { static constexpr ::Eolian_Function_Type value = ::EOLIAN_METHOD; };
 method_t const method = {};
 
+inline efl::eolian::eolian_scope
+eolian_scope_cxx(Eolian_Object_Scope s)
+{
+   using efl::eolian::eolian_scope;
+   return s == EOLIAN_SCOPE_PRIVATE ? eolian_scope::private_ :
+          s == EOLIAN_SCOPE_PROTECTED ? eolian_scope::protected_ :
+          eolian_scope::public_;
+}
+
 inline const Eolian_Class*
 class_from_file(std::string const& file)
 {
@@ -86,19 +95,6 @@ class_eo_name(Eolian_Class const& klass)
      }
    return safe_upper
      (find_replace(class_full_name(klass) + "_" + suffix, ".", "_"));
-}
-
-inline std::string
-class_format_cxx(std::string const& fullname)
-{
-   std::string s = fullname;
-   auto found = s.find(".");
-   while (found != std::string::npos)
-     {
-        s.replace(found, 1, "::");
-        found = s.find(".");
-     }
-   return s;
 }
 
 inline efl::eolian::eo_class::eo_class_type
@@ -168,7 +164,7 @@ function_name(Eolian_Function const& func)
 inline std::string
 function_impl(Eolian_Function const& func)
 {
-   const char *s = ::eolian_function_full_c_name_get(&func);
+   const char *s = ::eolian_function_full_c_name_get(&func, EOLIAN_METHOD, EINA_FALSE);
    std::string ret(s);
    ::eina_stringshare_del(s);
    return ret;
@@ -196,10 +192,23 @@ function_is_constructor(Eolian_Class const& cls, Eolian_Function const& func)
 }
 
 inline bool
+function_is_beta(Eolian_Function const& func)
+{
+   return ::eolian_function_is_beta(&func);
+}
+
+inline efl::eolian::eolian_scope
+function_scope(Eolian_Function const& func)
+{
+   return eolian_scope_cxx(::eolian_function_scope_get(&func));
+}
+
+inline bool
 function_is_visible(Eolian_Function const& func, Eolian_Function_Type func_type)
 {
-   return (::eolian_function_scope_get(&func) == EOLIAN_SCOPE_PUBLIC &&
-           ! ::eolian_function_is_legacy_only(&func, func_type));
+   Eolian_Object_Scope s = ::eolian_function_scope_get(&func);
+   return ((s == EOLIAN_SCOPE_PUBLIC || s == EOLIAN_SCOPE_PROTECTED) &&
+           !::eolian_function_is_legacy_only(&func, func_type));
 }
 
 inline bool
@@ -306,42 +315,8 @@ parameter_is_out(Eolian_Function_Parameter const& parameter)
    return direction == EOLIAN_OUT_PARAM || direction == EOLIAN_INOUT_PARAM;
 }
 
-inline bool
-parameter_is_const(Eolian_Function_Parameter const& parameter,
-                   Eolian_Function_Type func_type)
-{
-   return ::eolian_parameter_const_attribute_get
-     (&parameter, property_is_getter(func_type));
-}
-
-inline bool
-parameter_is_const(Eolian_Function_Parameter const& parameter,
-                   getter_t func_type)
-{
-   return ::eolian_parameter_const_attribute_get
-     (&parameter, property_is_getter(func_type.value));
-}
-
-inline bool
-parameter_is_const(Eolian_Function_Parameter const& parameter,
-                   setter_t func_type)
-{
-   return ::eolian_parameter_const_attribute_get
-     (&parameter, property_is_getter(func_type.value));
-}
-
-inline bool
-parameter_is_const(Eolian_Function_Parameter const& parameter,
-                   Eolian_Function const& func)
-{
-   assert(function_op_type(func) != EOLIAN_PROPERTY);
-   return ::eolian_parameter_const_attribute_get
-     (&parameter, property_is_getter(func));
-}
-
 inline efl::eolian::eolian_type_instance
-parameter_type(Eolian_Function_Parameter const& parameter,
-               Eolian_Function_Type func_type = method_t::value)
+parameter_type(Eolian_Function_Parameter const& parameter)
 {
    efl::eolian::eolian_type_instance type
      (type_lookup(::eolian_parameter_type_get(&parameter)));
@@ -353,29 +328,9 @@ parameter_type(Eolian_Function_Parameter const& parameter,
         type.is_out = true;
         type.front().native += "*";
      }
-   if (parameter_is_const(parameter, func_type))
-     {
-        type.front().native.insert(0, "const ");
-        if (!type.front().binding.empty())
-          type.front().binding.insert(0, "const ");
-     }
-   if (::eolian_parameter_is_nonull(&parameter))
-     {
-        type.is_nonull = true;
-     }
+   type.is_optional = ::eolian_parameter_is_optional(&parameter) ||
+                      ::eolian_parameter_is_nullable(&parameter);
    return type;
-}
-
-inline efl::eolian::eolian_type_instance
-parameter_type(Eolian_Function_Parameter const& parameter, getter_t func_type)
-{
-   return parameter_type(parameter, func_type.value);
-}
-
-inline efl::eolian::eolian_type_instance
-parameter_type(Eolian_Function_Parameter const& parameter, setter_t func_type)
-{
-   return parameter_type(parameter, func_type.value);
 }
 
 inline efl::eolian::eo_event
@@ -388,10 +343,13 @@ event_create(Eolian_Class const& klass, const Eolian_Event *event_)
         std::string name_ = safe_str(name);
         std::transform(name_.begin(), name_.end(), name_.begin(),
                        [](int c) { return c != ',' ? c : '_'; });
+        event.scope = eolian_scope_cxx(::eolian_event_scope_get(event_));
+        event.is_beta = (::eolian_event_is_beta(event_) != EINA_FALSE);
         event.name = normalize_spaces(name_);
         event.eo_name = safe_upper
           (find_replace(class_full_name(klass), ".", "_") + "_EVENT_" + event.name);
-        event.comment = safe_str(eolian_event_description_get(event_));
+        /* FIXME: use doc api */
+        event.comment = safe_str("");
      }
    return event;
 }

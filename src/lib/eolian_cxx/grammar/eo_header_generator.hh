@@ -41,8 +41,10 @@ namespace efl { namespace eolian { namespace grammar {
 struct include_dependencies
 {
    eo_class const& _cls;
-   include_dependencies(eo_class const& cls)
+   eo_generator_options const& _opts;
+   include_dependencies(eo_class const& cls, eo_generator_options const& opts)
      : _cls(cls)
+     , _opts(opts)
    {}
 };
 
@@ -58,7 +60,8 @@ operator<<(std::ostream& out, include_dependencies const& x)
           it_p != last_p; ++it_p)
        for (eolian_type const& subtype : (*it_p).type.parts)
          for (std::string header : subtype.includes)
-           headers.insert(header);
+           if (header != x._opts.header_decl_file_name)
+             headers.insert(header);
 
    for (auto it = cls.functions.begin(), last  = cls.functions.end();
         it != last; ++it)
@@ -66,7 +69,8 @@ operator<<(std::ostream& out, include_dependencies const& x)
              it_p != last_p; ++it_p)
           for (eolian_type const& subtype : (*it_p).type.parts)
             for (std::string header : subtype.includes)
-              headers.insert(header);
+              if (header != x._opts.header_decl_file_name)
+                headers.insert(header);
 
    for (std::string header : headers)
      out << "#include <" << header << ">" << endl;
@@ -111,18 +115,34 @@ include_headers(std::ostream& out,
      {
        out << "#include \"" << cxx_header << "\"" << endl;
      }
-   out << include_dependencies(cls) << endl;
+   out << include_dependencies(cls, opts) << endl;
 }
 
 inline void
-eo_header_generator(std::ostream& out, eo_class const& cls, eo_generator_options const& opts)
+include_header_impl(std::ostream& out,
+                eo_class const& cls EINA_UNUSED,
+                eo_generator_options const& opts)
 {
-   onceguard_head(out, cls);
-   include_headers(out, cls, opts);
-   eo_class_generator(out, cls);
-   eo_inheritance_detail_generator(out, cls);
-   onceguard_tail(out, cls);
-   out << endl;
+   out << "#include \"" << opts.header_impl_file_name << "\"" << endl << endl;
+}
+
+inline void
+eo_headers_generator(std::ostream& header_decl,
+                     std::ostream& header_impl,
+                     eo_class const& cls,
+                     eo_generator_options const& opts)
+{
+   onceguard_head(header_decl, cls);
+   include_headers(header_decl, cls, opts);
+   eo_class_declarations_generator(header_decl, cls);
+   include_header_impl(header_decl, cls, opts);
+   onceguard_tail(header_decl, cls);
+   header_decl << endl;
+
+   header_impl << comment("@cond EO_CXX_EO_IMPL") << endl;
+   eo_class_definitions_generator(header_impl, cls);
+   eo_inheritance_detail_generator(header_impl, cls);
+   header_impl << endl << comment("@endcond") << endl;
 }
 
 } } } // namespace efl { namespace eolian { namespace grammar {

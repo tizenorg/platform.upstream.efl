@@ -17,12 +17,19 @@
 #include <Eina.h>
 #include <Ecore.h>
 #include <Ecore_X.h>
+<<<<<<< HEAD
+=======
+#include <Ecore_Buffer.h>
+>>>>>>> opensource/master
 
 #include <tbm_bufmgr.h>
 #include <tbm_surface.h>
 #include <tbm_surface_internal.h>
 
+<<<<<<< HEAD
 #include <Ecore_Buffer.h>
+=======
+>>>>>>> opensource/master
 #include "ecore_buffer_private.h"
 
 typedef struct _Ecore_Buffer_Module_X11_Dri3_Data Ecore_Buffer_Module_X11_Dri3_Data;
@@ -427,6 +434,7 @@ _ecore_buffer_x11_dri3_buffer_alloc(Ecore_Buffer_Module_Data bmdata EINA_UNUSED,
 }
 
 static Ecore_Buffer_Data
+<<<<<<< HEAD
 _ecore_buffer_x11_dri3_buffer_alloc_with_tbm_surface(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, void *tbm_surface, int *ret_w, int *ret_h, Ecore_Buffer_Format *ret_format, unsigned int flags)
 {
    Ecore_Buffer_X11_Dri3_Data *buf;
@@ -454,6 +462,12 @@ static void
 _ecore_buffer_x11_dri3_buffer_free(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, Ecore_Buffer_Data data)
 {
    Ecore_Buffer_X11_Dri3_Data *buf = data;
+=======
+static void
+_ecore_buffer_x11_dri3_buffer_free(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, Ecore_Buffer_Data bdata)
+{
+   Ecore_Buffer_X11_Dri3_Data *buf = bdata;
+>>>>>>> opensource/master
 
    if (!buf)
      return;
@@ -468,9 +482,15 @@ _ecore_buffer_x11_dri3_buffer_free(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, 
 }
 
 static Ecore_Export_Type
+<<<<<<< HEAD
 _ecore_buffer_x11_dri3_buffer_export(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, Ecore_Buffer_Data data, int *id)
 {
    Ecore_Buffer_X11_Dri3_Data *buf = data;
+=======
+_ecore_buffer_x11_dri3_buffer_export(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, Ecore_Buffer_Data bdata, int *id)
+{
+   Ecore_Buffer_X11_Dri3_Data *buf = bdata;
+>>>>>>> opensource/master
    tbm_bo bo;
 
    if (_buf_get_num_planes(buf->format) != 1)
@@ -527,7 +547,10 @@ _ecore_buffer_x11_dri3_buffer_import(Ecore_Buffer_Module_Data bmdata, int w, int
    info.format = format;
    info.bpp = _buf_get_bpp(format);
    info.size = w * h * info.bpp;
+<<<<<<< HEAD
    info.num_planes = num_plane;
+=======
+>>>>>>> opensource/master
    for ( i = 0 ; i < num_plane ; i++)
    {
       info.planes[i].size = w * h * info.bpp;
@@ -549,9 +572,15 @@ _ecore_buffer_x11_dri3_buffer_import(Ecore_Buffer_Module_Data bmdata, int w, int
 }
 
 static Ecore_Pixmap
+<<<<<<< HEAD
 _ecore_buffer_x11_dri3_pixmap_get(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, Ecore_Buffer_Data data)
 {
    Ecore_Buffer_X11_Dri3_Data *buf = data;
+=======
+_ecore_buffer_x11_dri3_pixmap_get(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, Ecore_Buffer_Data bdata)
+{
+   Ecore_Buffer_X11_Dri3_Data *buf = bdata;
+>>>>>>> opensource/master
    Ecore_X_Display *xdpy;
    Ecore_X_Window root;
    tbm_surface_info_s info;
@@ -589,9 +618,15 @@ _ecore_buffer_x11_dri3_pixmap_get(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, E
 }
 
 static void *
+<<<<<<< HEAD
 _ecore_buffer_x11_dri3_tbm_bo_get(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, Ecore_Buffer_Data data)
 {
    Ecore_Buffer_X11_Dri3_Data *buf = data;
+=======
+_ecore_buffer_x11_dri3_tbm_bo_get(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, Ecore_Buffer_Data bdata)
+{
+   Ecore_Buffer_X11_Dri3_Data *buf = bdata;
+>>>>>>> opensource/master
 
    if (!buf)
      return NULL;
@@ -604,10 +639,17 @@ static Ecore_Buffer_Backend _ecore_buffer_x11_dri3_backend = {
      &_ecore_buffer_x11_dri3_init,
      &_ecore_buffer_x11_dri3_shutdown,
      &_ecore_buffer_x11_dri3_buffer_alloc,
+<<<<<<< HEAD
      &_ecore_buffer_x11_dri3_buffer_alloc_with_tbm_surface,
      &_ecore_buffer_x11_dri3_buffer_free,
      &_ecore_buffer_x11_dri3_buffer_export,
      &_ecore_buffer_x11_dri3_buffer_import,
+=======
+     &_ecore_buffer_x11_dri3_buffer_free,
+     &_ecore_buffer_x11_dri3_buffer_export,
+     &_ecore_buffer_x11_dri3_buffer_import,
+     NULL,
+>>>>>>> opensource/master
      &_ecore_buffer_x11_dri3_pixmap_get,
      &_ecore_buffer_x11_dri3_tbm_bo_get,
 };

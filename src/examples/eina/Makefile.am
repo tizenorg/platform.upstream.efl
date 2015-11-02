@@ -39,6 +39,7 @@ eina_inlist_03.c \
 eina_str_01.c \
 eina_strbuf_01.c \
 eina_stringshare_01.c \
+eina_tmpstr_01.c \
 eina_tiler_01.c \
 eina_simple_xml_parser_01.c \
 eina_value_01.c \
@@ -84,6 +85,7 @@ eina_inlist_03 \
 eina_str_01 \
 eina_strbuf_01 \
 eina_stringshare_01 \
+eina_tmpstr_01 \
 eina_magic_01 \
 eina_simple_xml_parser_01 \
 eina_value_01 \
@@ -120,12 +122,14 @@ eina_tiler_01_CPPFLAGS = \
 -I$(top_srcdir)/src/lib/eina \
 -I$(top_srcdir)/src/lib/eo \
 -I$(top_srcdir)/src/lib/evas \
+-I$(top_srcdir)/src/lib/emile \
 -I$(top_srcdir)/src/lib/ecore \
 -I$(top_srcdir)/src/lib/ecore_input \
 -I$(top_srcdir)/src/lib/ecore_evas \
 -I$(top_builddir)/src/lib/efl \
 -I$(top_builddir)/src/lib/efl/interfaces \
 -I$(top_builddir)/src/lib/eina \
+-I$(top_builddir)/src/lib/emile \
 -I$(top_builddir)/src/lib/eo \
 -I$(top_builddir)/src/lib/evas \
 -I$(top_builddir)/src/lib/ecore \
@@ -135,6 +139,7 @@ eina_tiler_01_CPPFLAGS = \
 
 eina_tiler_01_LDADD = \
 $(top_builddir)/src/lib/eina/libeina.la \
+$(top_builddir)/src/lib/emile/libemile.la \
 $(top_builddir)/src/lib/eo/libeo.la \
 $(top_builddir)/src/lib/ecore/libecore.la \
 $(top_builddir)/src/lib/ecore_input/libecore_input.la \
@@ -153,7 +158,7 @@ clean-local:
 	rm -f $(EXTRA_PROGRAMS)
 
 install-examples:
-	mkdir -p $(datadir)/eina/examples
+	$(MKDIR_P) $(datadir)/eina/examples
 	cd $(srcdir) && $(install_sh_DATA) -c $(SRCS) $(DATA_FILES) $(datadir)/eina/examples
 
 uninstall-local:

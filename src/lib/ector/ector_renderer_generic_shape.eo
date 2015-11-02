@@ -2,32 +2,55 @@ mixin Ector.Renderer.Generic.Shape (Efl.Gfx.Shape)
 {
    eo_prefix: ector_renderer_shape;
    legacy_prefix: null;
+<<<<<<< HEAD
    properties {
       fill {
+=======
+   methods {
+      @property fill {
+>>>>>>> opensource/master
          set {
 	 }
 	 get {
 	 }
 	 values {
+<<<<<<< HEAD
 	    const(Ector_Renderer) *r;
 	 }
       }
       stroke_fill {
+=======
+	    r: const(Ector_Renderer) *;
+	 }
+      }
+      @property stroke_fill {
+>>>>>>> opensource/master
          set {
 	 }
 	 get {
 	 }
 	 values {
+<<<<<<< HEAD
 	    const(Ector_Renderer) *r;
 	 }
       }
       stroke_marker {
+=======
+	    r: const(Ector_Renderer) *;
+	 }
+      }
+      @property stroke_marker {
+>>>>>>> opensource/master
          set {
 	 }
 	 get {
 	 }
 	 values {
+<<<<<<< HEAD
 	    const(Ector_Renderer) *r;
+=======
+	    r: const(Ector_Renderer) *;
+>>>>>>> opensource/master
 	 }
       }
    }
@@ -40,4 +63,8 @@ mixin Ector.Renderer.Generic.Shape (Efl.Gfx.Shape)
       Efl.Gfx.Shape.stroke_cap;
       Efl.Gfx.Shape.stroke_join;
    }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> opensource/master

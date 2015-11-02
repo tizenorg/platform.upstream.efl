@@ -17,7 +17,7 @@ enum Tokens
    TOK_EQ = START_CUSTOM, TOK_NQ, TOK_GE, TOK_LE,
    TOK_AND, TOK_OR, TOK_LSH, TOK_RSH,
 
-   TOK_COMMENT, TOK_STRING, TOK_CHAR, TOK_NUMBER, TOK_VALUE
+   TOK_DOC, TOK_STRING, TOK_CHAR, TOK_NUMBER, TOK_VALUE
 };
 
 /* all keywords in eolian, they can still be used as names (they're TOK_VALUE)
@@ -26,13 +26,13 @@ enum Tokens
     \
     KW(abstract), KW(constructor), KW(constructors), KW(data), \
     KW(destructor), KW(eo), KW(eo_prefix), KW(events), KW(free), \
-    KW(get), KW(implements), KW(interface), KW(keys), KW(legacy), \
+    KW(get), KW(implements), KW(import), KW(interface), KW(keys), KW(legacy), \
     KW(legacy_prefix), KW(methods), KW(mixin), KW(own), KW(params), \
-    KW(properties), KW(set), KW(type), KW(values), KW(var), KWAT(auto), \
-    KWAT(c_only), KWAT(class), KWAT(const), KWAT(const_get), KWAT(const_set), \
-    KWAT(empty), KWAT(extern), KWAT(free), KWAT(in), KWAT(inout), KWAT(nonull), \
-    KWAT(optional), KWAT(out), KWAT(private), KWAT(protected), KWAT(virtual), \
-    KWAT(warn_unused), \
+    KW(set), KW(type), KW(values), KW(var), KWAT(auto), KWAT(beta), \
+    KWAT(c_only), KWAT(class), KWAT(const), KWAT(empty), KWAT(extern), \
+    KWAT(free), KWAT(in), KWAT(inout), KWAT(nonull), KWAT(nullable), \
+    KWAT(optional), KWAT(out), KWAT(private), KWAT(property), \
+    KWAT(protected), KWAT(virtual), KWAT(warn_unused), \
     \
     KW(byte), KW(ubyte), KW(char), KW(short), KW(ushort), KW(int), KW(uint), \
     KW(long), KW(ulong), KW(llong), KW(ullong), \
@@ -50,7 +50,9 @@ enum Tokens
     \
     KW(void), \
     \
-    KW(accessor), KW(array), KW(iterator), KW(hash), KW(list), \
+    KW(accessor), KW(array), KW(iterator), KW(hash), KW(list), KW(generic_value), \
+    \
+    KW(__builtin_event_cb), \
     \
     KW(true), KW(false), KW(null)
 
@@ -79,26 +81,41 @@ enum Numbers
    NUM_DOUBLE
 };
 
+typedef union
+{
+   char               c;
+   const    char     *s;
+   signed   int       i;
+   unsigned int       u;
+   signed   long      l;
+   unsigned long      ul;
+   signed   long long ll;
+   unsigned long long ull;
+   float              f;
+   double             d;
+   Eolian_Documentation *doc;
+} Eo_Token_Union;
+
 /* a token - "token" is the actual token id, "value" is the value of a token
  * if needed - NULL otherwise - for example the value of a TOK_VALUE, "kw"
  * is the keyword id if this is a keyword, it's 0 when not a keyword */
 typedef struct _Eo_Token
 {
    int token, kw;
-   Eolian_Value_Union value;
+   Eo_Token_Union value;
 } Eo_Token;
 
 typedef struct _Lexer_Ctx
 {
    int line, column;
    const char *linestr;
+   Eo_Token token;
 } Lexer_Ctx;
 
 typedef struct _Eo_Lexer_Temps
 {
    Eolian_Class *kls;
    Eolian_Variable *var;
-   Eina_List *classes;
    Eina_List *str_bufs;
    Eina_List *type_defs;
    Eina_List *expr_defs;
@@ -144,9 +161,6 @@ typedef struct _Eo_Lexer
    /* this is jumped to when an error happens */
    jmp_buf      err_jmp;
 
-   /* whether we allow lexing expression related tokens */
-   Eina_Bool expr_mode;
-
    /* saved context info */
    Eina_List *saved_ctxs;
 
@@ -155,6 +169,12 @@ typedef struct _Eo_Lexer
     * case of error - and it's nulled when it's written into a more permanent
     * position (e.g. as part of another struct, or into nodes */
    Eo_Lexer_Temps tmp;
+
+   /* whether we allow lexing expression related tokens */
+   Eina_Bool expr_mode;
+
+   /* decimal point, by default '.' */
+   char decpoint;
 } Eo_Lexer;
 
 int         eo_lexer_init           (void);
@@ -184,34 +204,5 @@ void eo_lexer_context_push   (Eo_Lexer *ls);
 void eo_lexer_context_pop    (Eo_Lexer *ls);
 void eo_lexer_context_restore(Eo_Lexer *ls);
 void eo_lexer_context_clear  (Eo_Lexer *ls);
-
-extern int _eo_lexer_log_dom;
-#ifdef CRITICAL
-#undef CRITICAL
-#endif
-#define CRITICAL(...) EINA_LOG_DOM_CRIT(_eo_lexer_log_dom, __VA_ARGS__)
-
-#ifdef ERR
-#undef ERR
-#endif
-#define ERR(...) EINA_LOG_DOM_ERR(_eo_lexer_log_dom, __VA_ARGS__)
-
-#ifdef WRN
-#undef WRN
-#endif
-#define WRN(...) EINA_LOG_DOM_WARN(_eo_lexer_log_dom, __VA_ARGS__)
-
-#define INF_ENABLED EINA_FALSE
-#ifdef INF
-#undef INF
-#endif
-#define INF(...) if (INF_ENABLED) EINA_LOG_DOM_INFO(_eo_lexer_log_dom, __VA_ARGS__)
-
-#define DBG_ENABLED EINA_FALSE
-#ifdef DBG
-#undef DBG
-#endif
-#define DBG(...) if (DBG_ENABLED) EINA_LOG_DOM_DBG(_eo_lexer_log_dom, __VA_ARGS__)
-
 
 #endif /* __EO_LEXER_H__ */

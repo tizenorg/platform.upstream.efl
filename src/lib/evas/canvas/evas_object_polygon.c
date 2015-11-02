@@ -85,6 +85,7 @@ static const Evas_Object_Func object_func =
      NULL,
      NULL,
      NULL,
+     NULL,
      NULL
 };
 
@@ -101,18 +102,14 @@ evas_object_polygon_add(Evas *e)
    return eo_obj;
 }
 
-EOLIAN static void
+EOLIAN static Eo *
 _evas_polygon_eo_base_constructor(Eo *eo_obj, Evas_Polygon_Data *class_data EINA_UNUSED)
 {
-   Evas_Object_Protected_Data *obj;
-   Eo *parent = NULL;
+   eo_obj = eo_do_super_ret(eo_obj, MY_CLASS, eo_obj, eo_constructor());
 
-   eo_do_super(eo_obj, MY_CLASS, eo_constructor());
-
-   obj = eo_data_scope_get(eo_obj, EVAS_OBJECT_CLASS);
    evas_object_polygon_init(eo_obj);
-   eo_do(eo_obj, parent = eo_parent_get());
-   evas_object_inject(eo_obj, obj, evas_object_evas_get(parent));
+
+   return eo_obj;
 }
 
 EOLIAN static void
@@ -124,7 +121,7 @@ _evas_polygon_point_add(Eo *eo_obj, Evas_Polygon_Data *_pd, Evas_Coord x, Evas_C
    Evas_Coord min_x, max_x, min_y, max_y;
    int is, was = 0;
 
-
+   evas_object_async_block(obj);
    if (!obj->layer->evas->is_frozen)
      {
         if (!evas_event_passes_through(eo_obj, obj) &&
@@ -230,6 +227,7 @@ _evas_polygon_points_clear(Eo *eo_obj, Evas_Polygon_Data *_pd)
    void *list_data;
    int is, was;
 
+   evas_object_async_block(obj);
    was = evas_object_is_in_output_rect(eo_obj, obj,
                                        obj->layer->evas->pointer.x,
                                        obj->layer->evas->pointer.y, 1, 1);

@@ -77,6 +77,8 @@ evas_common_convert_argb8888_to(void *data, int w, int h, int stride, Eina_Bool 
      {
 	case EVAS_COLORSPACE_RGB565_A5P:
 	  return evas_common_convert_argb8888_to_rgb565_a5p(data, w, h, stride, has_alpha);
+	case EVAS_COLORSPACE_GRY8:
+	  return evas_common_convert_argb8888_to_a8(data, w, h, stride, has_alpha);
 	default:
 	  break;
      }
@@ -129,7 +131,7 @@ evas_common_convert_yuv_422P_601_to(void *data, int w, int h, Evas_Colorspace cs
            dst = malloc(sizeof (unsigned int) * w * h);
            if (!dst) return NULL;
 
-           evas_common_convert_yuv_420p_601_rgba(data, dst, w, h);
+           evas_common_convert_yuv_422p_601_rgba(data, dst, w, h);
            return dst;
         }
       default:

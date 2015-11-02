@@ -61,6 +61,28 @@
 # endif
 #endif
 
+#ifdef _WIN32
+# ifdef DLL_EXPORT
+#  define EXPORTAPI __declspec(dllexport)
+# else
+#  define EXPORTAPI
+# endif /* ! DLL_EXPORT */
+#else
+# ifdef __GNUC__
+#  if __GNUC__ >= 4
+#   define EXPORTAPI __attribute__ ((visibility("default")))
+#  else
+#   define EXPORTAPI
+#  endif
+# else
+/**
+ * @def EAPI
+ * @brief Used to export functions(by changing visibility).
+ */
+#  define EXPORTAPI
+# endif
+#endif
+
 #include "eina_config.h"
 
 #ifdef EINA_UNUSED
@@ -226,11 +248,11 @@
 /**
  * @def EINA_ARG_NONNULL
  * Used to warn when the specified arguments of the function are @c NULL.
- * 
+ *
  * @param ... Oridnals of the parameters to check for nullity (1..n)
- * 
+ *
  * @returns Nothing, but Doxygen will complain if it's not documented :-P
- * 
+ *
  */
 # define EINA_ARG_NONNULL(...)
 

@@ -8,8 +8,11 @@
 #include "ector_private.h"
 #include "ector_software_private.h"
 
+<<<<<<< HEAD
 static unsigned int _software_count = 0;
 
+=======
+>>>>>>> opensource/master
 typedef struct _Ector_Renderer_Software_Base_Data Ector_Renderer_Software_Base_Data;
 struct _Ector_Renderer_Software_Base_Data
 {
@@ -65,6 +68,7 @@ _ector_software_surface_surface_get(Eo *obj EINA_UNUSED,
    *height = pd->software->fill_data.raster_buffer.height;
 }
 
+<<<<<<< HEAD
 static void
 _ector_software_surface_eo_base_constructor(Eo *obj,
                                             Ector_Software_Surface_Data *pd EINA_UNUSED)
@@ -76,14 +80,27 @@ _ector_software_surface_eo_base_constructor(Eo *obj,
        ector_software_rasterizer_init(pd->software);
     }
   _software_count++;
+=======
+static Eo *
+_ector_software_surface_eo_base_constructor(Eo *obj,
+                                            Ector_Software_Surface_Data *pd EINA_UNUSED)
+{
+   obj = eo_do_super_ret(obj, ECTOR_SOFTWARE_SURFACE_CLASS, obj, eo_constructor());
+   pd->software = (Software_Rasterizer *) calloc(1, sizeof(Software_Rasterizer));
+   ector_software_rasterizer_init(pd->software);
+  return obj;
+>>>>>>> opensource/master
 }
 
 static void
 _ector_software_surface_eo_base_destructor(Eo *obj EINA_UNUSED,
                                            Ector_Software_Surface_Data *pd EINA_UNUSED)
 {
+<<<<<<< HEAD
    --_software_count;
    if (_software_count > 0) return;
+=======
+>>>>>>> opensource/master
    ector_software_rasterizer_done(pd->software);
    free(pd->software);
    pd->software = NULL;

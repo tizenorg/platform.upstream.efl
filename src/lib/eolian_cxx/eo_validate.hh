@@ -71,10 +71,10 @@ eo_class_validate(const eo_class& cls)
 {
    // class name and type
    _validate(cls.name, cls);
-   assert(cls.type != eo_class::regular_ ||
-          cls.type != eo_class::regular_noninst_ ||
-          cls.type != eo_class::interface_ ||
-          cls.type != eo_class::mixin_);
+   assert(cls.type == eo_class::regular_ ||
+          cls.type == eo_class::regular_noninst_ ||
+          cls.type == eo_class::interface_ ||
+          cls.type == eo_class::mixin_);
 
    // constructors
    for (auto it = cls.constructors.cbegin(), last = cls.constructors.cend();
@@ -107,7 +107,8 @@ eo_class_validate(const eo_class& cls)
           }
      }
    // events
-   _validate(cls.events, cls);
+   _validate(cls.own_events, cls);
+   _validate(cls.concrete_events, cls);
 }
 
 } } // namespace efl { namespace eolian {

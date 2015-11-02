@@ -6,10 +6,22 @@
 typedef struct _Efl_VG_Base_Data Efl_VG_Base_Data;
 typedef struct _Efl_VG_Container_Data Efl_VG_Container_Data;
 typedef struct _Efl_VG_Gradient_Data Efl_VG_Gradient_Data;
+<<<<<<< HEAD
 
 struct _Efl_VG_Base_Data
 {
    Eina_Matrix3 *m;
+=======
+typedef struct _Efl_VG_Interpolation Efl_VG_Interpolation;
+
+struct _Efl_VG_Base_Data
+{
+   const char *name;
+
+   Eina_Matrix3 *m;
+   Efl_VG_Interpolation *intp;
+
+>>>>>>> opensource/master
    Efl_VG *mask;
    Ector_Renderer *renderer;
 
@@ -26,6 +38,11 @@ struct _Efl_VG_Base_Data
 struct _Efl_VG_Container_Data
 {
    Eina_List *children;
+<<<<<<< HEAD
+=======
+
+   Eina_Hash *names;
+>>>>>>> opensource/master
 };
 
 struct _Efl_VG_Gradient_Data
@@ -37,6 +54,18 @@ struct _Efl_VG_Gradient_Data
    Efl_Gfx_Gradient_Spread s;
 };
 
+<<<<<<< HEAD
+=======
+struct _Efl_VG_Interpolation
+{
+   Eina_Quaternion rotation;
+   Eina_Quaternion perspective;
+   Eina_Point_3D translation;
+   Eina_Point_3D scale;
+   Eina_Point_3D skew;
+};
+
+>>>>>>> opensource/master
 static inline Efl_VG_Base_Data *
 _evas_vg_render_pre(Efl_VG *child, Ector_Surface *s, Eina_Matrix3 *m)
 {
@@ -57,9 +86,33 @@ _efl_vg_base_changed(Eo *obj)
    eo_do(obj, eo_event_callback_call(EFL_GFX_CHANGED, NULL));
 }
 
+<<<<<<< HEAD
 #define EFL_VG_COMPUTE_MATRIX(Current, Parent, Nd)                      \
   Eina_Matrix3 *Current = Nd->m;                                        \
   Eina_Matrix3 _matrix_tmp, translate;                                  \
+=======
+static inline void *
+_efl_vg_realloc(void *from, unsigned int sz)
+{
+   void *result;
+
+   result = sz > 0 ? realloc(from, sz) : NULL;
+   if (!result) free(from);
+
+   return result;
+}
+
+static inline void
+_efl_vg_clean_object(Eo **obj)
+{
+   if (*obj) eo_unref(*obj);
+   *obj = NULL;
+}
+
+#define EFL_VG_COMPUTE_MATRIX(Current, Parent, Nd)                      \
+  Eina_Matrix3 *Current = Nd->m;                                        \
+  Eina_Matrix3 _matrix_tmp;                                             \
+>>>>>>> opensource/master
                                                                         \
   if (Parent)                                                           \
     {                                                                   \
@@ -70,10 +123,17 @@ _efl_vg_base_changed(Eo *obj)
          }                                                              \
        else                                                             \
          {                                                              \
+<<<<<<< HEAD
             eina_matrix3_translate(&translate, -(Nd->x), -(Nd->y));     \
             eina_matrix3_compose(Parent, &translate, &_matrix_tmp);     \
             eina_matrix3_translate(&translate, (Nd->x), (Nd->y));       \
             eina_matrix3_compose(&_matrix_tmp, &translate, &_matrix_tmp); \
+=======
+            eina_matrix3_identity(&_matrix_tmp);                        \
+            eina_matrix3_translate(&_matrix_tmp, -(Nd->x), -(Nd->y));   \
+            eina_matrix3_compose(Parent, &_matrix_tmp, &_matrix_tmp);   \
+            eina_matrix3_translate(&_matrix_tmp, (Nd->x), (Nd->y));     \
+>>>>>>> opensource/master
             Current = &_matrix_tmp;                                     \
          }                                                              \
     }

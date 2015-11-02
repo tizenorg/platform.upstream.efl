@@ -1,23 +1,41 @@
+<<<<<<< HEAD
+=======
+import eina_types;
+
+>>>>>>> opensource/master
 abstract Ector.Renderer.Generic.Base (Eo.Base)
 {
    eo_prefix: ector_renderer;
    legacy_prefix: null;
+<<<<<<< HEAD
    properties {
       transformation {
+=======
+   methods {
+      @property transformation {
+>>>>>>> opensource/master
          set {
 	 }
 	 get {
 	 }
 	 values {
+<<<<<<< HEAD
 	    const(Eina_Matrix3) *m;
 	 }
       }
       origin {
+=======
+	    m: const(Eina_Matrix3) *;
+	 }
+      }
+      @property origin {
+>>>>>>> opensource/master
          set {
 	 }
 	 get {
 	 }
 	 values {
+<<<<<<< HEAD
 	    double x;
 	    double y;
 	 }
@@ -66,20 +84,74 @@ abstract Ector.Renderer.Generic.Base (Eo.Base)
 	 }
       }
       mask {
+=======
+	    x: double;
+	    y: double;
+	 }
+      }
+      @property visibility {
+         set {
+            [[Makes the given Ector renderer visible or invisible.]]
+	 }
+	 get {
+            [[Retrieves whether or not the given Ector renderer is visible.]]
+	 }
+	 values {
+	    v: bool; [[true if to make the object visible, false otherwise]]
+	 }
+      }
+      @property color {
+         set {
+            [[Sets the general/main color of the given Ector renderer to the
+              given one.
+
+              These color values are expected to be premultiplied by alpha.
+            ]]
+         }
+         get {
+            [[Retrieves the general/main color of the given Ector renderer.
+
+              Retrieves the main color's RGB component (and alpha channel)
+              values, which range from 0 to 255. For the alpha channel,
+              which defines the object's transparency level, 0 means totally
+              transparent, while 255 means opaque. These color values are
+              premultiplied by the alpha value.
+
+              Use null pointers on the components you're not interested in,
+              they'll be ignored by the function.
+            ]]
+	 }
+	 values {
+            r: int; [[The red component of the given color.]]
+            g: int; [[The green component of the given color.]]
+            b: int; [[The blue component of the given color.]]
+            a: int; [[The alpha component of the given color.]]
+	 }
+      }
+      @property mask {
+>>>>>>> opensource/master
          set {
 	 }
 	 get {
 	 }
 	 values {
+<<<<<<< HEAD
 	    Ector_Renderer *r;
 	 }
       }
       quality {
+=======
+	    r: Ector_Renderer *;
+	 }
+      }
+      @property quality {
+>>>>>>> opensource/master
          set {
 	 }
 	 get {
 	 }
 	 values {
+<<<<<<< HEAD
 	    Ector_Quality q;
 	 }
       }
@@ -88,14 +160,33 @@ abstract Ector.Renderer.Generic.Base (Eo.Base)
       bounds_get {
 	 params {
 	    @out Eina_Rectangle r;
+=======
+	    q: Ector_Quality;
+	 }
+      }
+      @property crc {
+         get {
+            return: uint;
+	 }
+      }
+      bounds_get {
+	 params {
+	    @out r: Eina.Rectangle;
+>>>>>>> opensource/master
 	 }
       }
       draw {
          return: bool @warn_unused;
 	 params {
+<<<<<<< HEAD
 	    @in Ector_Rop op;
 	    @in array<Eina_Rectangle *> *clips; /*@ array of Eina_Rectangle clip */
 	    @in uint mul_col;
+=======
+	    @in op: Ector_Rop;
+	    @in clips: array<Eina.Rectangle *> *; [[array of @Eina.Rectangle clip]]
+	    @in mul_col: uint;
+>>>>>>> opensource/master
 	 }
       }
       prepare {

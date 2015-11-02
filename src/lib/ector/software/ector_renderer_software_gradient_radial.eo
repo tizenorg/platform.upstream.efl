@@ -6,6 +6,10 @@ class Ector.Renderer.Software.Gradient_Radial (Ector.Renderer.Software.Base, Ect
    implements {
       Ector.Renderer.Generic.Base.prepare;
       Ector.Renderer.Generic.Base.draw;
+<<<<<<< HEAD
+=======
+      Ector.Renderer.Generic.Base.crc.get;
+>>>>>>> opensource/master
       Ector.Renderer.Software.Base.fill;
       Eo.Base.constructor;
       Eo.Base.destructor;

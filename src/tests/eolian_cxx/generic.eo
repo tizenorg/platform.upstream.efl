@@ -1,0 +1,56 @@
+class Generic (Eo.Base)
+{
+   legacy_prefix: null;
+   data: Generic_Data;
+   methods {
+      @property req_ctor_a_value {
+         get {
+         }
+         values {
+            value: int;
+         }
+      }
+      @property opt_ctor_a_value {
+         get {
+         }
+         values {
+            value: int;
+         }
+      }
+      required_ctor_a {
+         params {
+            @in value: int;
+         }
+      }
+      required_ctor_b {
+         params {
+            @in cb: Ecore_Cb;
+            @in data: void*;
+         }
+      }
+      optional_ctor_a {
+         params {
+            @in value: int;
+         }
+      }
+      optional_ctor_b {
+         params {
+            @in cb: Ecore_Cb;
+            @in data: void*;
+         }
+      }
+      call_req_ctor_b_callback {
+      }
+      call_opt_ctor_b_callback {
+      }
+   }
+   constructors {
+      .required_ctor_a;
+      .required_ctor_b;
+      .optional_ctor_a @optional;
+      .optional_ctor_b @optional;
+   }
+   implements {
+      Eo.Base.constructor;
+   }
+}

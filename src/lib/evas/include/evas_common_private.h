@@ -49,12 +49,39 @@
 
 #include <Eina.h>
 #include <Eo.h>
+#include <Ector.h>
 
 #ifdef BUILD_LOADER_EET
 # include <Eet.h>
 #endif
 #include "Evas.h"
 //#include "Evas_GL.h"
+
+#ifdef EAPI
+# undef EAPI
+#endif
+
+#ifdef _WIN32
+# ifdef EFL_EVAS_BUILD
+#  ifdef DLL_EXPORT
+#   define EAPI __declspec(dllexport)
+#  else
+#   define EAPI
+#  endif /* ! DLL_EXPORT */
+# else
+#  define EAPI __declspec(dllimport)
+# endif /* ! EFL_EVAS_BUILD */
+#else
+# ifdef __GNUC__
+#  if __GNUC__ >= 4
+#   define EAPI __attribute__ ((visibility("default")))
+#  else
+#   define EAPI
+#  endif
+# else
+#  define EAPI
+# endif
+#endif /* ! _WIN32 */
 
 #ifndef HAVE_LROUND
 /* right now i dont care about rendering bugs on platforms without lround
@@ -217,7 +244,7 @@ extern EAPI int _evas_log_dom_global;
 /*****************************************************************************/
 
 /* use exact rects for updates not tiles */
-/* #define RECTUPDATE */
+//#define NEWTILER
 #define TILESIZE 8
 #define IMG_MAX_SIZE 65000
 
@@ -400,14 +427,17 @@ typedef struct _RGBA_Font_Glyph       RGBA_Font_Glyph;
 typedef struct _RGBA_Font_Glyph_Out   RGBA_Font_Glyph_Out;
 typedef struct _RGBA_Gfx_Compositor   RGBA_Gfx_Compositor;
 
-typedef struct _Cutout_Rect           Cutout_Rect;
+typedef struct _Cutout_Rect             Cutout_Rect;
 typedef struct _Cutout_Rects            Cutout_Rects;
 
 typedef struct _Convert_Pal             Convert_Pal;
 
 typedef struct _Tilebuf                 Tilebuf;
+typedef struct _Tilebuf_Rect            Tilebuf_Rect;
+
+#ifndef NEWTILER
 typedef struct _Tilebuf_Tile            Tilebuf_Tile;
-typedef struct _Tilebuf_Rect		Tilebuf_Rect;
+#endif
 
 typedef struct _Evas_Common_Transform        Evas_Common_Transform;
 
@@ -421,11 +451,6 @@ typedef int FPc;
 #define FPH (1 << (FP - 1))
 // one fp unit
 #define FP1 (1 << (FP))
-
-/*
-typedef struct _Regionbuf             Regionbuf;
-typedef struct _Regionspan            Regionspan;
-*/
 
 typedef void (*RGBA_Gfx_Func)    (DATA32 *src, DATA8 *mask, DATA32 col, DATA32 *dst, int len);
 typedef void (*RGBA_Gfx_Pt_Func) (DATA32 src, DATA8 mask, DATA32 col, DATA32 *dst);
@@ -611,6 +636,8 @@ struct _Image_Entry
 
    unsigned char          scale;
 
+   unsigned char          need_unload : 1;
+
    struct
      {
         unsigned int w;
@@ -683,9 +710,12 @@ struct _Cutout_Rect
 
 struct _Cutout_Rects
 {
-   Cutout_Rect*      rects;
+   Cutout_Rect      *rects;
    int               active;
    int               max;
+   struct {
+      int            x, w, y, h;
+   } last_add;
 };
 
 struct _Evas_Common_Transform
@@ -709,9 +739,11 @@ struct _RGBA_Draw_Context
    } col;
    struct RGBA_Draw_Context_clip {
       int    x, y, w, h;
-      void  *mask;
+      Evas_Public_Data *evas; // for async unref
+      void  *mask; // RGBA_Image (SW) or Evas_GL_Image (GL)
       int    mask_x, mask_y;
       Eina_Bool use : 1;
+      Eina_Bool async : 1;
    } clip;
    Cutout_Rects cutout;
    struct {
@@ -847,6 +879,15 @@ struct _RGBA_Image
       pixman_image_t *im;
    } pixman;
 #endif
+   struct {
+      void   *data; //Evas_Native_Surface ns;
+      struct {
+        void (*bind) (void *data, void *image, int x, int y, int w, int h);
+        void (*unbind) (void *data, void *image);
+        void (*free) (void *data, void *image);
+        void *data;
+      } func;
+   } native;
 };
 
 struct _RGBA_Polygon_Point
@@ -1041,8 +1082,7 @@ struct _RGBA_Gfx_Compositor
    RGBA_Gfx_Pt_Func  (*composite_pixel_mask_pt_get)(Eina_Bool src_alpha, Eina_Bool dst_alpha);
 };
 
-#define EVAS_RECT_SPLIT 1
-#ifdef EVAS_RECT_SPLIT
+#ifndef NEWTILER
 typedef struct list_node list_node_t;
 typedef struct list list_t;
 typedef struct rect rect_t;
@@ -1075,68 +1115,38 @@ struct rect_node
     struct list_node _lst;
     struct rect rect;
 };
-#endif /* EVAS_RECT_SPLIT */
+#endif
 
 struct _Tilebuf
 {
    int outbuf_w, outbuf_h;
+#ifdef NEWTILER
+   void *region;
+#else
    struct {
       short w, h;
    } tile_size;
-#ifdef RECTUPDATE
-/*
-   Regionbuf *rb;
- */
-#elif defined(EVAS_RECT_SPLIT)
    int need_merge;
    list_t rects;
-#else
-/*
-   struct {
-      int           w, h;
-      Tilebuf_Tile *tiles;
-   } tiles;
- */
-#endif
    struct {
       int x, y, w, h;
    } prev_add, prev_del;
    Eina_Bool strict_tiles : 1;
+#endif
 };
 
+#ifndef NEWTILER
 struct _Tilebuf_Tile
 {
    Eina_Bool redraw : 1;
-/* FIXME: need these flags later - but not now */
-/*
-   Eina_Bool done   : 1;
-   Eina_Bool edge   : 1;
-   Eina_Bool from   : 1;
-
-   struct {
-      int dx, dy;
-   } vector;
- */
 };
+#endif
 
 struct _Tilebuf_Rect
 {
    EINA_INLIST;
    int               x, y, w, h;
 };
-/*
-struct _Regionbuf
-{
-   int w, h;
-   Regionspan **spans;
-};
-
-struct _Regionspan
-{
-  EINA_INLIST;
-   int x1, x2;
-};
-*/
 
 struct _Convert_Pal
 {
@@ -1212,8 +1222,8 @@ extern "C" {
 #endif
 
 /****/
-void evas_common_init                                   (void);
-void evas_common_shutdown                               (void);
+EAPI void evas_common_init                                   (void);
+EAPI void evas_common_shutdown                               (void);
 
 EAPI void evas_common_cpu_init                          (void);
 
@@ -1309,6 +1319,9 @@ void evas_common_rgba_image_scalecache_items_ref(Image_Entry *ie, Eina_Array *re
 void evas_common_rgba_image_scalecache_item_unref(Image_Entry *ie);
 
 /*****************************************************************************/
+
+#undef EAPI
+#define EAPI
 
 #ifdef __cplusplus
 }

@@ -255,6 +255,10 @@ _efl_gfx_shape_equal_commands_internal(Efl_Gfx_Shape_Data *a,
    unsigned int i;
 
    if (a->commands_count != b->commands_count) return EINA_FALSE;
+<<<<<<< HEAD
+=======
+   if (a->commands_count <= 0) return EINA_TRUE;
+>>>>>>> opensource/master
 
    for (i = 0; a->commands[i] == b->commands[i] &&
           a->commands[i] != EFL_GFX_PATH_COMMAND_TYPE_END; i++)
@@ -337,6 +341,7 @@ _efl_gfx_shape_interpolate(Eo *obj, Efl_Gfx_Shape_Data *pd,
    if (!pts && from_pd->points_count) return EINA_FALSE;
    pd->points = pts;
 
+<<<<<<< HEAD
    memcpy(cmds, from_pd->commands,
           sizeof (Efl_Gfx_Path_Command) * from_pd->commands_count);
 
@@ -352,6 +357,26 @@ _efl_gfx_shape_interpolate(Eo *obj, Efl_Gfx_Shape_Data *pd,
           from_pts++;
           to_pts++;
        }
+=======
+   if (cmds)
+     {
+        memcpy(cmds, from_pd->commands,
+               sizeof (Efl_Gfx_Path_Command) * from_pd->commands_count);
+
+        to_pts = to_pd->points;
+        from_pts = from_pd->points;
+
+        for (i = 0; cmds[i] != EFL_GFX_PATH_COMMAND_TYPE_END; i++)
+          for (j = 0; j < _efl_gfx_path_command_length(cmds[i]); j++)
+            {
+               *pts = interpolate(*from_pts, *to_pts, pos_map);
+
+               pts++;
+               from_pts++;
+               to_pts++;
+            }
+     }
+>>>>>>> opensource/master
 
    pd->points_count = from_pd->points_count;
    pd->commands_count = from_pd->commands_count;
@@ -420,7 +445,11 @@ _efl_gfx_shape_equal_commands(Eo *obj EINA_UNUSED,
 }
 
 static void
+<<<<<<< HEAD
 _efl_gfx_shape_dup(Eo *obj, Efl_Gfx_Shape_Data *pd, Eo *dup_from)
+=======
+_efl_gfx_shape_dup(Eo *obj, Efl_Gfx_Shape_Data *pd, const Eo *dup_from)
+>>>>>>> opensource/master
 {
    const Efl_Gfx_Dash *dash = NULL;
    Efl_Gfx_Shape_Data *from;
@@ -808,6 +837,7 @@ _efl_gfx_shape_append_arc_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
      }
 }
 
+<<<<<<< HEAD
 // append arc implementation
 typedef struct _Bezier
 {
@@ -1161,6 +1191,8 @@ _efl_gfx_shape_append_arc(Eo *obj, Efl_Gfx_Shape_Data *pd,
      }
 }
 
+=======
+>>>>>>> opensource/master
 static void
 _efl_gfx_shape_append_close(Eo *obj, Efl_Gfx_Shape_Data *pd)
 {
@@ -1178,7 +1210,13 @@ static void
 _efl_gfx_shape_append_circle(Eo *obj, Efl_Gfx_Shape_Data *pd,
                              double xc, double yc, double radius)
 {
+<<<<<<< HEAD
    _efl_gfx_shape_append_arc(obj, pd, xc - radius, yc - radius, 2*radius, 2*radius, 0, 360);
+=======
+   _efl_gfx_shape_append_move_to(obj, pd, xc - radius, yc);
+   _efl_gfx_shape_append_arc_to(obj, pd, xc + radius, yc, radius, radius, 0, EINA_TRUE, EINA_TRUE);
+   _efl_gfx_shape_append_arc_to(obj, pd, xc - radius, yc, radius, radius, 0, EINA_TRUE, EINA_TRUE);
+>>>>>>> opensource/master
 }
 
 static void
@@ -1186,6 +1224,7 @@ _efl_gfx_shape_append_rect(Eo *obj, Efl_Gfx_Shape_Data *pd,
                            double x, double y, double w, double h,
                            double rx, double ry)
 {
+<<<<<<< HEAD
    // clamp the rx and ry radius value.
    rx = 2*rx;
    ry = 2*ry;
@@ -1197,6 +1236,24 @@ _efl_gfx_shape_append_rect(Eo *obj, Efl_Gfx_Shape_Data *pd,
    _efl_gfx_shape_append_arc(obj, pd, x + w - rx, y, rx, ry, 90, -90);
    _efl_gfx_shape_append_arc(obj, pd, x + w - rx, y + h - ry, rx, ry, 0, -90);
    _efl_gfx_shape_append_arc(obj, pd, x, y + h - ry, rx, ry, 270, -90);
+=======
+   // clamp the x and y radius value.
+   if (rx > w/2) rx = w/2;
+   if (ry > h/2) ry = h/2;
+
+   _efl_gfx_shape_append_move_to(obj, pd, x, y + ry);
+   // Top left corner
+   _efl_gfx_shape_append_arc_to(obj, pd, x + rx, y, rx, ry, 0, EINA_FALSE, EINA_TRUE);
+   _efl_gfx_shape_append_line_to(obj, pd, x + w - rx, y);
+   // Top right corner
+   _efl_gfx_shape_append_arc_to(obj, pd, x + w, y + ry, rx, ry, 0, EINA_FALSE, EINA_TRUE);
+   _efl_gfx_shape_append_line_to(obj, pd, x + w, y + h - ry);
+   // Bottom right corner
+   _efl_gfx_shape_append_arc_to(obj, pd, x + w - rx, y + h, rx, ry, 0, EINA_FALSE, EINA_TRUE);
+   _efl_gfx_shape_append_line_to(obj, pd, x + rx, y + h);
+   // Bottom left corner
+   _efl_gfx_shape_append_arc_to(obj, pd, x, y + h - ry, rx, ry, 0, EINA_FALSE, EINA_TRUE);
+>>>>>>> opensource/master
    _efl_gfx_shape_append_close(obj, pd);
 }
 
@@ -1215,11 +1272,19 @@ _efl_gfx_path_append_vertical_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
 }
 
 static char *
+<<<<<<< HEAD
 _strcomma(const char *content)
 {
    while (*content && isspace(*content)) content++;
    if (*content != ',') return NULL;
    return (char*) content + 1;
+=======
+_skipcomma(const char *content)
+{
+   while (*content && isspace(*content)) content++;
+   if (*content == ',') return (char*) content + 1;
+   return (char*) content;
+>>>>>>> opensource/master
 }
 
 static inline Eina_Bool
@@ -1231,6 +1296,7 @@ _next_isnumber(const char *content)
    return content != tmp;
 }
 
+<<<<<<< HEAD
 static Eina_Bool
 _efl_gfx_path_parse_pair(const char *content, char **end, double *x, double *y)
 {
@@ -1246,6 +1312,32 @@ _efl_gfx_path_parse_pair(const char *content, char **end, double *x, double *y)
 
    *end = end2;
    return EINA_TRUE;
+=======
+static inline Eina_Bool
+_parse_number(char **content, double *number)
+{
+   char *end = NULL;
+   *number = strtod(*content, &end);
+   // if the start of string is not number 
+   if ((*content) == end) return EINA_FALSE;
+   //skip comma if any
+   *content = _skipcomma(end);
+   return EINA_TRUE;
+}
+
+static Eina_Bool
+_efl_gfx_path_parse_pair(const char *content, char **end, double *x, double *y)
+{
+   char *str = (char *) content;
+
+   if (_parse_number(&str, x))
+     if (_parse_number(&str, y))
+       {
+          *end = str;
+          return EINA_TRUE;
+       }
+   return EINA_FALSE;
+>>>>>>> opensource/master
 }
 
 static Eina_Bool
@@ -1321,6 +1413,7 @@ _efl_gfx_path_parse_six(const char *content, char **end,
                         double *ctrl_x0, double *ctrl_y0,
                         double *ctrl_x1, double *ctrl_y1)
 {
+<<<<<<< HEAD
    /* "x,y ctrl_x0,ctrl_y0 ctrl_x1,ctrl_y1" */
    char *end1 = NULL;
    char *end2 = NULL;
@@ -1346,6 +1439,20 @@ _efl_gfx_path_parse_six(const char *content, char **end,
    *end = end1;
 
    return EINA_TRUE;
+=======
+   char *str = (char *) content;
+   if (_parse_number(&str, ctrl_x0))
+     if (_parse_number(&str, ctrl_y0))
+       if (_parse_number(&str, ctrl_x1))
+         if (_parse_number(&str, ctrl_y1))
+           if (_parse_number(&str, x))
+             if (_parse_number(&str, y))
+               {
+                  *end = str;
+                  return EINA_TRUE;
+               }
+   return EINA_FALSE;
+>>>>>>> opensource/master
 }
 
 static Eina_Bool
@@ -1372,8 +1479,16 @@ _efl_gfx_path_parse_six_to(const char *content, char **end,
           {
              x += *current_x;
              y += *current_y;
+<<<<<<< HEAD
           }
 
+=======
+             ctrl_x0 += *current_x;
+             ctrl_y0 += *current_y;
+             ctrl_x1 += *current_x;
+             ctrl_y1 += *current_y;
+          }
+>>>>>>> opensource/master
         func(obj, pd, x, y, ctrl_x0, ctrl_y0, ctrl_x1, ctrl_y1);
         content = *end;
 
@@ -1390,6 +1505,7 @@ _efl_gfx_path_parse_quad(const char *content, char **end,
                          double *x, double *y,
                          double *ctrl_x0, double *ctrl_y0)
 {
+<<<<<<< HEAD
    /* "x,y ctrl_x0,ctrl_y0" */
    char *end1 = NULL;
    char *end2 = NULL;
@@ -1409,6 +1525,19 @@ _efl_gfx_path_parse_quad(const char *content, char **end,
    *end = end2;
 
    return EINA_TRUE;
+=======
+   char *str = (char *) content;
+
+   if (_parse_number(&str, ctrl_x0))
+     if (_parse_number(&str, ctrl_y0))
+       if (_parse_number(&str, x))
+         if (_parse_number(&str, y))
+           {
+              *end = str;
+              return EINA_TRUE;
+           }
+   return EINA_FALSE;
+>>>>>>> opensource/master
 }
 
 static Eina_Bool
@@ -1455,6 +1584,7 @@ _efl_gfx_path_parse_arc(const char *content, char **end,
                         double *radius,
                         Eina_Bool *large_arc, Eina_Bool *sweep)
 {
+<<<<<<< HEAD
    /* "rx,ry r large-arc-flag,sweep-flag x,y" */
    char *end1 = NULL;
    char *end2 = NULL;
@@ -1483,6 +1613,34 @@ _efl_gfx_path_parse_arc(const char *content, char **end,
    *end = end2;
 
    return EINA_TRUE;
+=======
+   char *str = (char *) content;
+   char *end1 = NULL;
+   char *end2 = NULL;
+
+   if (_parse_number(&str, rx))
+     if (_parse_number(&str, ry))
+       if (_parse_number(&str, radius))
+         {
+            // large_arc
+            *large_arc = strtol(str, &end1, 10) ? EINA_TRUE : EINA_FALSE;
+            if (!end1 || (str == end1)) return EINA_FALSE;
+            end1 = _skipcomma(end1);
+
+            // sweeo
+            *sweep = strtol(end1, &end2, 10) ? EINA_TRUE : EINA_FALSE;
+            if (!end2 || (end1 == end2)) return EINA_FALSE;
+            str = _skipcomma(end2);
+
+            if (_parse_number(&str, x))
+              if (_parse_number(&str, y))
+                {
+                   *end = str;
+                   return EINA_TRUE;
+                }
+         }
+   return EINA_FALSE;
+>>>>>>> opensource/master
 }
 
 static Eina_Bool
@@ -1709,7 +1867,11 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
                 return ;
               break;
            default:
+<<<<<<< HEAD
               return ;
+=======
+              return;
+>>>>>>> opensource/master
           }
      }
 }

@@ -83,6 +83,10 @@ _ecore_signal_shutdown(void)
 {
    _ecore_signal_callback_set(SIGPIPE, (Signal_Handler)SIG_DFL);
    _ecore_signal_callback_set(SIGALRM, (Signal_Handler)SIG_DFL);
+   // XXX: consider using new clone4 features:
+   // http://code.qt.io/cgit/qt/qtbase.git/tree/src/3rdparty/forkfd/forkfd.c
+   // https://lkml.org/lkml/2015/3/12/1060
+   // https://lkml.org/lkml/2015/3/12/1044
    _ecore_signal_callback_set(SIGCHLD, (Signal_Handler)SIG_DFL);
    _ecore_signal_callback_set(SIGUSR1, (Signal_Handler)SIG_DFL);
    _ecore_signal_callback_set(SIGUSR2, (Signal_Handler)SIG_DFL);
@@ -148,6 +152,7 @@ _ecore_signal_call(void)
    int tot;
 
    if (sig_count == 0) return;
+   eina_evlog("+signals", NULL, 0.0, NULL);
    sigemptyset(&newset);
    sigaddset(&newset, SIGPIPE);
    sigaddset(&newset, SIGALRM);
@@ -452,6 +457,7 @@ _ecore_signal_call(void)
    sig_count = 0;
    
    sigprocmask(SIG_SETMASK, &oldset, NULL);
+   eina_evlog("-signals", NULL, 0.0, NULL);
 }
 
 static void

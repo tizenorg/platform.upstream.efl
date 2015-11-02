@@ -9,6 +9,7 @@ Paul Vixie (ISC) (inet_pton and inet_ntop functions)
 Daniel Stenberg (inet_pton and inet_ntop functions)
 The MinGW and MinGW-w64 teams (POSIX printf family functions)
 Keith Marshall (realpath on Windows XP). See http://sourceforge.net/tracker/?func=detail&atid=302435&aid=1294010&group_id=2435
+Michelle Legrand <legrand.michelle@outlook.com>
 
 Escape
 ------
@@ -38,7 +39,7 @@ Tom Hacohen <tom@stosb.com>
 Sebastian Dransfeld <sd@tango.flipp.net>
 Myungjae Lee <mjae.lee@samsung.com>
 Youness Alaoui <kakaroto@kakaroto.homelinux.net>
-billiob (Boris Faure) <billiob@gmail.com>
+Boris Faure <billiob@gmail.com>
 Sung W. Park <sungwoo@gmail.com>
 Guillaume Friloux <guillaume.friloux@gmail.com>
 Jonas M. Gastal <jgastal@profusion.mobi>
@@ -50,6 +51,8 @@ Igor Murzov <e-mail@date.by>
 Vladislav Brovko <v.brovko@samsung.com>
 ChunEon Park (Hermet) <hermet@hermet.pe.kr>
 Rajeev Ranjan (Rajeev) <rajeev.r@samsung.com> <rajeev.jnnce@gmail.com>
+Subodh Kumar <s7158.kumar@samsung.com>
+Michelle Legrand <legrand.michelle@outlook.com>
 
 Eet
 ---
@@ -140,6 +143,10 @@ Yury Usischev <y.usishchev@samsung.com>
 Youngbok Shin <youngb.shin@samsung.com>
 Rajeev Ranjan (Rajeev) <rajeev.r@samsung.com> <rajeev.jnnce@gmail.com>
 MinKyoung Kim <mer.kim@samsung.com>
+Pierre Lamot <pierre.lamot@yahoo.fr>
+Michelle Legrand <legrand.michelle@outlook.com>
+Romain Perier <romain.perier@openwide.fr>
+Subodh Kumar <s7158.kumar@samsung.com>
 
 Ecore
 -----
@@ -210,12 +217,18 @@ Robert David <robert.david.public@gmail.com>
 Gwanglim Lee <gl77.lee@samsung.com> <gwanglim@gmail.com>
 Sung-Jin Park <sj76.park@samsung.com>
 Guillaume Friloux <guillaume.friloux@gmail.com>
+Boris Faure <billiob@gmail.com>
+Pierre Lamot <pierre.lamot@yahoo.fr>
+Michelle Legrand <legrand.michelle@outlook.com>
+Romain Perier <romain.perier@openwide.fr>
 
 Embryo
 ------
 
 The Rasterman (Carsten Haitzler) <raster@rasterman.com>
 Jérôme Pinot <ngc891@gmail.com>
+kumar Navneet <k.navneet@samsung.com>
+Deborshi Saha <deb.saha@samsung.com>
 
 Eio
 ---
@@ -229,7 +242,8 @@ Mike Blumenkrantz (zmike/discomfitor) <michael.blumenkrantz@gmail.com>
 Jérôme Pinot <ngc891@gmail.com>
 Daniel Willmann <d.willmann@samsung.com>
 Jérémy Zurcher <jeremy@asynk.ch>
-
+Pierre Lamot <pierre.lamot@yahoo.fr>
+Michelle Legrand <legrand.michelle@outlook.com>
 
 Eldbus
 -----
@@ -288,7 +302,7 @@ Aharon Hillel <a.hillel@partner.samsung.com>
 Shilpa Singh <shilpa.singh@samsung.com> <shilpasingh.o@gmail.com>
 Mike Blumenkrantz <michael.blumenkrantz@gmail.com
 Jaehwan Kim <jae.hwan.kim@samsung.com>
-billiob (Boris Faure) <billiob@gmail.com>
+Boris Faure <billiob@gmail.com>
 Govindaraju SM <govi.sm@samsung.com> <govism@gmail.com>
 Prince Kumar Dubey <prince.dubey@samsung.com> <prince.dubey@gmail.com>
 David Seikel <onefang at gmail.com>
@@ -309,6 +323,9 @@ Andrii Kroitor <an.kroitor@samsung.com>
 Vorobiov Vitalii <vi.vorobiov@samsung.com>
 m.biliavskyi <m.biliavskyi@samsung.com>
 Vyacheslav Reutskiy <v.reutskiy@samsung.com>
+Kumar Navneet <k.navneet@samsung.com>
+Katpagavalli Anantharaj <katpagavalli@gmail.com>
+Subodh Kumar <s7158.kumar@samsung.com>
 
 Emotion
 -------

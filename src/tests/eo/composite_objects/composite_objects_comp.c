@@ -2,6 +2,8 @@
 # include <config.h>
 #endif
 
+#define EO_BASE_BETA
+
 #include "Eo.h"
 #include "composite_objects_simple.h"
 #include "composite_objects_comp.h"
@@ -19,25 +21,27 @@ _a_get(Eo *obj, void *class_data EINA_UNUSED)
    return a;
 }
 
-static void
+static Eo *
 _constructor(Eo *obj, void *class_data EINA_UNUSED)
 {
-   eo_do_super(obj, MY_CLASS, eo_constructor());
+   Eina_Bool tmp;
+   obj = eo_do_super_ret(obj, MY_CLASS, obj, eo_constructor());
 
    Eo *simple = eo_add(SIMPLE_CLASS, obj);
    eo_do(obj, eo_composite_attach(simple));
    eo_do(simple, eo_event_callback_forwarder_add(EV_A_CHANGED, obj));
 
-   fail_if(eo_do(obj, eo_composite_part_is()));
-   fail_if(!eo_do(simple, eo_composite_part_is()));
+   fail_if(eo_do_ret(obj, tmp, eo_composite_part_is()));
+   fail_if(!eo_do_ret(simple, tmp, eo_composite_part_is()));
 
-   eo_do(obj, eo_key_data_set("simple-obj", simple, NULL));
+   eo_do(obj, eo_key_data_set("simple-obj", simple));
+
+   return obj;
 }
 
 static Eo_Op_Description op_descs[] = {
      EO_OP_FUNC_OVERRIDE(eo_constructor, _constructor),
      EO_OP_FUNC_OVERRIDE(simple_a_get, _a_get),
-     EO_OP_SENTINEL
 };
 
 static const Eo_Class_Description class_desc = {

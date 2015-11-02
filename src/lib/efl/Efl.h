@@ -2,8 +2,7 @@
 #define _EFL_H
 
 #if defined ( __cplusplus )
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <Eo.h>
@@ -96,7 +95,10 @@ typedef enum _Efl_Gfx_Join
 
 /**
  * Type defining gradient stop.
+<<<<<<< HEAD
  * @note Describe the location and color of a transition point in a gradient.
+=======
+>>>>>>> opensource/master
  * @since 1.14
  */
 typedef struct _Efl_Gfx_Gradient_Stop Efl_Gfx_Gradient_Stop;
@@ -140,6 +142,8 @@ typedef enum _Efl_Gfx_Fill_Spread
 
 #ifdef EFL_BETA_API_SUPPORT
 
+#include <Efl_Model_Common.h>
+  
 /* Interfaces */
 #include "interfaces/efl_control.eo.h"
 #include "interfaces/efl_file.eo.h"
@@ -147,6 +151,23 @@ typedef enum _Efl_Gfx_Fill_Spread
 #include "interfaces/efl_player.eo.h"
 #include "interfaces/efl_text.eo.h"
 #include "interfaces/efl_text_properties.eo.h"
+#include "interfaces/efl_model_base.eo.h"
+
+EAPI extern const Eo_Event_Description _EFL_GFX_CHANGED;
+EAPI extern const Eo_Event_Description _EFL_GFX_PATH_CHANGED;
+
+#define EFL_GFX_CHANGED (&(_EFL_GFX_CHANGED))
+#define EFL_GFX_PATH_CHANGED (&(_EFL_GFX_PATH_CHANGED))
+
+#include "interfaces/efl_gfx_base.eo.h"
+#include "interfaces/efl_gfx_stack.eo.h"
+#include "interfaces/efl_gfx_fill.eo.h"
+#include "interfaces/efl_gfx_view.eo.h"
+#include "interfaces/efl_gfx_shape.eo.h"
+#include "interfaces/efl_gfx_gradient_base.eo.h"
+#include "interfaces/efl_gfx_gradient_linear.eo.h"
+#include "interfaces/efl_gfx_gradient_radial.eo.h"
+#include "interfaces/efl_gfx_filter.eo.h"
 
 EAPI extern const Eo_Event_Description _EFL_GFX_CHANGED;
 EAPI extern const Eo_Event_Description _EFL_GFX_PATH_CHANGED;
@@ -168,5 +189,8 @@ EAPI extern const Eo_Event_Description _EFL_GFX_PATH_CHANGED;
 #if defined ( __cplusplus )
 }
 #endif
+
+#undef EAPI
+#define EAPI
 
 #endif

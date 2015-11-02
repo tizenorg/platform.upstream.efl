@@ -1,6 +1,8 @@
 #include "evas_common_private.h"
 #include "evas_private.h"
 
+#include "evas_render2.h"
+
 #define MY_CLASS EVAS_RECTANGLE_CLASS
 
 /* private magic number for rectangle objects */
@@ -41,6 +43,13 @@ static int evas_object_rectangle_was_opaque(Evas_Object *eo_obj,
 					    Evas_Object_Protected_Data *obj,
 					    void *type_private_data);
 
+static void evas_object_rectangle_render2_walk(Evas_Object *eo_obj,
+                                               Evas_Object_Protected_Data *obj,
+                                               void *type_private_data,
+                                               void *updates,
+                                               int offx,
+                                               int offy);
+
 #if 0 /* usless calls for a rect object. much more useful for images etc. */
 static void evas_object_rectangle_store(Evas_Object *eo_obj);
 static void evas_object_rectangle_unstore(Evas_Object *eo_obj);
@@ -73,7 +82,8 @@ static const Evas_Object_Func object_func =
      NULL,
      NULL,
      NULL,
-     NULL
+     NULL,
+     evas_object_rectangle_render2_walk
 };
 
 /* the actual api call to add a rect */
@@ -89,18 +99,14 @@ evas_object_rectangle_add(Evas *e)
    return eo_obj;
 }
 
-EOLIAN static void
+EOLIAN static Eo *
 _evas_rectangle_eo_base_constructor(Eo *eo_obj, Evas_Rectangle_Data *class_data EINA_UNUSED)
 {
-   Eo *parent = NULL;
+   eo_obj = eo_do_super_ret(eo_obj, MY_CLASS, eo_obj, eo_constructor());
 
-   eo_do_super(eo_obj, MY_CLASS, eo_constructor());
-
-   Evas_Object_Protected_Data *obj = eo_data_scope_get(eo_obj, EVAS_OBJECT_CLASS);
    evas_object_rectangle_init(eo_obj);
 
-   eo_do(eo_obj, parent = eo_parent_get());
-   evas_object_inject(eo_obj, obj, evas_object_evas_get(parent));
+   return eo_obj;
 }
 
 /* all nice and private */
@@ -112,6 +118,66 @@ evas_object_rectangle_init(Evas_Object *eo_obj)
    obj->func = &object_func;
    obj->private_data = eo_data_ref(eo_obj, MY_CLASS);
    obj->type = o_type;
+}
+
+static void
+evas_object_rectangle_render2_walk(Evas_Object *eo_obj,
+                                   Evas_Object_Protected_Data *obj,
+                                   void *type_private_data EINA_UNUSED,
+                                   void *updates, int offx, int offy)
+{
+   Eina_Bool visible_is, visible_was;
+   unsigned int col_prev, col_cur;
+
+   if (obj->clip.clipees) return;
+   visible_is = evas_object_is_visible(eo_obj, obj);
+   if (!obj->changed) goto nochange;
+
+   if ((obj->cur->clipper) && (obj->cur->cache.clip.dirty))
+     evas_object_clip_recalc(obj->cur->clipper);
+   visible_was = evas_object_was_visible(eo_obj,obj);
+   // just became visible or invisible
+   if (visible_is != visible_was)
+     {
+        region_rect_add
+          (updates,
+           obj->cur->cache.clip.x - offx, obj->cur->cache.clip.y - offy,
+           obj->cur->cache.clip.w,        obj->cur->cache.clip.h);
+        return;
+     }
+   // general change (prev and cur clip geom change)
+   col_prev = (obj->prev->color.a << 24) | (obj->prev->color.r << 16) |
+              (obj->prev->color.g << 8)  | (obj->prev->color.b      );
+   col_cur  = (obj->cur->color.a << 24)  | (obj->cur->color.r << 16) |
+              (obj->cur->color.g << 8)   | (obj->cur->color.b      );
+   if ((col_prev != col_cur) ||
+       ((obj->cur->cache.clip.x != obj->prev->cache.clip.x) ||
+        (obj->cur->cache.clip.y != obj->prev->cache.clip.y) ||
+        (obj->cur->cache.clip.w != obj->prev->cache.clip.w) ||
+        (obj->cur->cache.clip.h != obj->prev->cache.clip.h)) ||
+       (obj->cur->render_op != obj->prev->render_op) ||
+       (obj->restack)
+      )
+     {
+        region_rect_add
+          (updates,
+           obj->prev->cache.clip.x - offx, obj->prev->cache.clip.y - offy,
+           obj->prev->cache.clip.w,        obj->prev->cache.clip.h);
+        region_rect_add
+          (updates,
+           obj->cur->cache.clip.x - offx, obj->cur->cache.clip.y - offy,
+           obj->cur->cache.clip.w,        obj->cur->cache.clip.h);
+        return;
+     }
+nochange:
+   // object hasn't really changed
+   if ((visible_is) && (evas_object_is_opaque(eo_obj, obj)))
+     {
+        region_rect_del
+          (updates,
+           obj->cur->cache.clip.x - offx, obj->cur->cache.clip.y - offy,
+           obj->cur->cache.clip.w,        obj->cur->cache.clip.h);
+     }
 }
 
 static void
@@ -211,33 +277,6 @@ evas_object_rectangle_render_pre(Evas_Object *eo_obj,
 	evas_object_render_pre_prev_cur_add(&obj->layer->evas->clip_changes, eo_obj, obj);
 	goto done;
      }
-   /* if it changed geometry - and obviously not visibility or color */
-   /* calculate differences since we have a constant color fill */
-   /* we really only need to update the differences */
-   if ((obj->cur->geometry.x != obj->prev->geometry.x) ||
-       (obj->cur->geometry.y != obj->prev->geometry.y) ||
-       (obj->cur->geometry.w != obj->prev->geometry.w) ||
-       (obj->cur->geometry.h != obj->prev->geometry.h))
-     {
-	evas_rects_return_difference_rects(&obj->layer->evas->clip_changes,
-					   obj->cur->geometry.x,
-					   obj->cur->geometry.y,
-					   obj->cur->geometry.w,
-					   obj->cur->geometry.h,
-					   obj->prev->geometry.x,
-					   obj->prev->geometry.y,
-					   obj->prev->geometry.w,
-					   obj->prev->geometry.h);
-////	rl = evas_rects_return_difference_rects(obj->cur->cache.geometry.x,
-////						obj->cur->cache.geometry.y,
-////						obj->cur->cache.geometry.w,
-////						obj->cur->cache.geometry.h,
-////						obj->prev->cache.geometry.x,
-////						obj->prev->cache.geometry.y,
-////						obj->prev->cache.geometry.w,
-////						obj->prev->cache.geometry.h);
-	goto done;
-     }
    /* it obviously didn't change - add a NO obscure - this "unupdates"  this */
    /* area so if there were updates for it they get wiped. don't do it if we */
    /* arent fully opaque and we are visible */
@@ -264,6 +303,33 @@ evas_object_rectangle_render_pre(Evas_Object *eo_obj,
          x + obj->layer->evas->framespace.x,
          y + obj->layer->evas->framespace.y,
          w, h);
+     }
+   /* if it changed geometry - and obviously not visibility or color */
+   /* calculate differences since we have a constant color fill */
+   /* we really only need to update the differences */
+   if ((obj->cur->geometry.x != obj->prev->geometry.x) ||
+       (obj->cur->geometry.y != obj->prev->geometry.y) ||
+       (obj->cur->geometry.w != obj->prev->geometry.w) ||
+       (obj->cur->geometry.h != obj->prev->geometry.h))
+     {
+	evas_rects_return_difference_rects(&obj->layer->evas->clip_changes,
+					   obj->cur->geometry.x,
+					   obj->cur->geometry.y,
+					   obj->cur->geometry.w,
+					   obj->cur->geometry.h,
+					   obj->prev->geometry.x,
+					   obj->prev->geometry.y,
+					   obj->prev->geometry.w,
+					   obj->prev->geometry.h);
+////	rl = evas_rects_return_difference_rects(obj->cur->cache.geometry.x,
+////						obj->cur->cache.geometry.y,
+////						obj->cur->cache.geometry.w,
+////						obj->cur->cache.geometry.h,
+////						obj->prev->cache.geometry.x,
+////						obj->prev->cache.geometry.y,
+////						obj->prev->cache.geometry.w,
+////						obj->prev->cache.geometry.h);
+	goto done;
      }
    done:
    evas_object_render_pre_effect_updates(&obj->layer->evas->clip_changes, eo_obj, is_v, was_v);

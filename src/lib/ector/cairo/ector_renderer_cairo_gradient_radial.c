@@ -19,8 +19,11 @@ static void (*cairo_arc)(cairo_t *cr,
                          double xc, double yc,
                          double radius,
                          double angle1, double angle2) = NULL;
+<<<<<<< HEAD
 static void (*cairo_pattern_add_color_stop_rgba)(cairo_pattern_t *pattern, double offset,
                                                  double red, double green, double blue, double alpha) = NULL;
+=======
+>>>>>>> opensource/master
 static void (*cairo_pattern_destroy)(cairo_pattern_t *pattern) = NULL;
 
 static void (*cairo_pattern_set_extend)(cairo_pattern_t *pattern, cairo_extend_t extend) = NULL;
@@ -31,12 +34,16 @@ typedef struct _Ector_Renderer_Cairo_Gradient_Radial_Data Ector_Renderer_Cairo_G
 struct _Ector_Renderer_Cairo_Gradient_Radial_Data
 {
    Ector_Cairo_Surface_Data *parent;
+<<<<<<< HEAD
    cairo_pattern_t *pat;
+=======
+>>>>>>> opensource/master
 };
 
 static Eina_Bool
 _ector_renderer_cairo_gradient_radial_ector_renderer_generic_base_prepare(Eo *obj, Ector_Renderer_Cairo_Gradient_Radial_Data *pd)
 {
+<<<<<<< HEAD
    Ector_Renderer_Generic_Gradient_Radial_Data *grd;
    Ector_Renderer_Generic_Gradient_Data *gd;
    unsigned int i;
@@ -69,6 +76,10 @@ _ector_renderer_cairo_gradient_radial_ector_renderer_generic_base_prepare(Eo *ob
    USE(obj, cairo_pattern_set_extend, EINA_FALSE);
    cairo_pattern_set_extend(pd->pat, _ector_cairo_extent_get(gd->s));
 
+=======
+   eo_do_super(obj, ECTOR_RENDERER_CAIRO_GRADIENT_RADIAL_CLASS, ector_renderer_prepare());
+
+>>>>>>> opensource/master
    if (!pd->parent)
      {
         Eo *parent;
@@ -81,10 +92,36 @@ _ector_renderer_cairo_gradient_radial_ector_renderer_generic_base_prepare(Eo *ob
    return EINA_FALSE;
 }
 
+<<<<<<< HEAD
+=======
+static cairo_pattern_t *
+_ector_renderer_cairo_gradient_radial_prepare(Eo *obj,
+                                              Ector_Renderer_Generic_Gradient_Radial_Data *grd,
+                                              Ector_Renderer_Generic_Gradient_Data *gd,
+                                              unsigned int mul_col)
+{
+   cairo_pattern_t *pat;
+
+   USE(obj, cairo_pattern_create_radial, NULL);
+
+   pat = cairo_pattern_create_radial(grd->focal.x, grd->focal.y, 0,
+                                     grd->radial.x, grd->radial.y, grd->radius);
+   if (!pat) return NULL;
+
+   _ector_renderer_cairo_gradient_prepare(obj, pat, gd, mul_col);
+
+   USE(obj, cairo_pattern_set_extend, NULL);
+   cairo_pattern_set_extend(pat, _ector_cairo_extent_get(gd->s));
+
+   return pat;
+}
+
+>>>>>>> opensource/master
 // Clearly duplicated and should be in a common place...
 static Eina_Bool
 _ector_renderer_cairo_gradient_radial_ector_renderer_generic_base_draw(Eo *obj, Ector_Renderer_Cairo_Gradient_Radial_Data *pd, Ector_Rop op, Eina_Array *clips, unsigned int mul_col)
 {
+<<<<<<< HEAD
    if (pd->pat) return EINA_FALSE;
 
    Ector_Renderer_Generic_Gradient_Radial_Data *gld;
@@ -92,11 +129,25 @@ _ector_renderer_cairo_gradient_radial_ector_renderer_generic_base_draw(Eo *obj, 
    // FIXME: don't ignore clipping !
    gld = eo_data_scope_get(obj, ECTOR_RENDERER_GENERIC_GRADIENT_RADIAL_MIXIN);
    if (!pd->pat || !gld) return EINA_FALSE;
+=======
+   Ector_Renderer_Generic_Gradient_Radial_Data *grd;
+   Ector_Renderer_Generic_Gradient_Data *gd;
+   cairo_pattern_t *pat;
+
+   // FIXME: Handle clipping and generally make it work :-)
+   grd = eo_data_scope_get(obj, ECTOR_RENDERER_GENERIC_GRADIENT_RADIAL_MIXIN);
+   gd = eo_data_scope_get(obj, ECTOR_RENDERER_GENERIC_GRADIENT_MIXIN);
+   if (!grd || !gd) return EINA_FALSE;
+
+   pat = _ector_renderer_cairo_gradient_radial_prepare(obj, grd, gd, mul_col);
+   if (!pat) return EINA_FALSE;
+>>>>>>> opensource/master
 
    eo_do_super(obj, ECTOR_RENDERER_CAIRO_GRADIENT_RADIAL_CLASS, ector_renderer_draw(op, clips, mul_col));
 
    USE(obj, cairo_arc, EINA_FALSE);
    USE(obj, cairo_fill, EINA_FALSE);
+<<<<<<< HEAD
 
    cairo_arc(pd->parent->cairo,
              gld->radial.x, gld->radial.y,
@@ -104,12 +155,25 @@ _ector_renderer_cairo_gradient_radial_ector_renderer_generic_base_draw(Eo *obj, 
              0, 2 * M_PI);
    eo_do(obj, ector_renderer_cairo_base_fill());
    cairo_fill(pd->parent->cairo);
+=======
+   USE(obj, cairo_set_source, EINA_FALSE);
+   USE(obj, cairo_pattern_destroy, EINA_FALSE);
+
+   cairo_arc(pd->parent->cairo,
+             grd->radial.x, grd->radial.y,
+             grd->radius,
+             0, 2 * M_PI);
+   cairo_set_source(pd->parent->cairo, pat);
+   cairo_fill(pd->parent->cairo);
+   cairo_pattern_destroy(pat);
+>>>>>>> opensource/master
 
    return EINA_TRUE;
 }
 
 // Clearly duplicated and should be in a common place...
 static Eina_Bool
+<<<<<<< HEAD
 _ector_renderer_cairo_gradient_radial_ector_renderer_cairo_base_fill(Eo *obj, Ector_Renderer_Cairo_Gradient_Radial_Data *pd)
 {
    if (!pd->pat) return EINA_FALSE;
@@ -117,6 +181,28 @@ _ector_renderer_cairo_gradient_radial_ector_renderer_cairo_base_fill(Eo *obj, Ec
    USE(obj, cairo_set_source, EINA_FALSE);
 
    cairo_set_source(pd->parent->cairo, pd->pat);
+=======
+_ector_renderer_cairo_gradient_radial_ector_renderer_cairo_base_fill(Eo *obj,
+                                                                     Ector_Renderer_Cairo_Gradient_Radial_Data *pd,
+                                                                     unsigned int mul_col)
+{
+   Ector_Renderer_Generic_Gradient_Radial_Data *grd;
+   Ector_Renderer_Generic_Gradient_Data *gd;
+   cairo_pattern_t *pat;
+
+   grd = eo_data_scope_get(obj, ECTOR_RENDERER_GENERIC_GRADIENT_RADIAL_MIXIN);
+   gd = eo_data_scope_get(obj, ECTOR_RENDERER_GENERIC_GRADIENT_MIXIN);
+   if (!grd || !gd) return EINA_FALSE;
+
+   pat = _ector_renderer_cairo_gradient_radial_prepare(obj, grd, gd, mul_col);
+   if (!pat) return EINA_FALSE;
+
+   USE(obj, cairo_set_source, EINA_FALSE);
+   USE(obj, cairo_pattern_destroy, EINA_FALSE);
+
+   cairo_set_source(pd->parent->cairo, pat);
+   cairo_pattern_destroy(pat);
+>>>>>>> opensource/master
 
    return EINA_TRUE;
 }
@@ -143,11 +229,14 @@ _ector_renderer_cairo_gradient_radial_eo_base_destructor(Eo *obj,
 {
    Eo *parent;
 
+<<<<<<< HEAD
    USE(obj, cairo_pattern_destroy, );
 
    if (pd->pat) cairo_pattern_destroy(pd->pat);
    pd->pat = NULL;
 
+=======
+>>>>>>> opensource/master
    eo_do(obj, parent = eo_parent_get());
    eo_data_xunref(parent, pd->parent, obj);
 
@@ -155,6 +244,7 @@ _ector_renderer_cairo_gradient_radial_eo_base_destructor(Eo *obj,
 }
 
 void
+<<<<<<< HEAD
 _ector_renderer_cairo_gradient_radial_efl_gfx_gradient_base_stop_set(Eo *obj, Ector_Renderer_Cairo_Gradient_Radial_Data *pd, const Efl_Gfx_Gradient_Stop *colors, unsigned int length)
 {
    USE(obj, cairo_pattern_destroy, );
@@ -164,6 +254,37 @@ _ector_renderer_cairo_gradient_radial_efl_gfx_gradient_base_stop_set(Eo *obj, Ec
 
    eo_do_super(obj, ECTOR_RENDERER_CAIRO_GRADIENT_RADIAL_CLASS,
                efl_gfx_gradient_stop_set(colors, length));
+=======
+_ector_renderer_cairo_gradient_radial_efl_gfx_gradient_base_stop_set(Eo *obj,
+                                                                     Ector_Renderer_Cairo_Gradient_Radial_Data *pd EINA_UNUSED,
+                                                                     const Efl_Gfx_Gradient_Stop *colors,
+                                                                     unsigned int length)
+{
+   eo_do_super(obj, ECTOR_RENDERER_CAIRO_GRADIENT_RADIAL_CLASS,
+               efl_gfx_gradient_stop_set(colors, length));
+}
+
+static unsigned int
+_ector_renderer_cairo_gradient_radial_ector_renderer_generic_base_crc_get(Eo *obj, Ector_Renderer_Cairo_Gradient_Radial_Data *pd EINA_UNUSED)
+{
+   Ector_Renderer_Generic_Gradient_Radial_Data *grd;
+   Ector_Renderer_Generic_Gradient_Data *gd;
+   unsigned int crc;
+
+   eo_do_super(obj, ECTOR_RENDERER_CAIRO_GRADIENT_RADIAL_CLASS,
+               crc = ector_renderer_crc_get());
+
+   grd = eo_data_scope_get(obj, ECTOR_RENDERER_GENERIC_GRADIENT_RADIAL_MIXIN);
+   gd = eo_data_scope_get(obj, ECTOR_RENDERER_GENERIC_GRADIENT_MIXIN);
+   if (!grd || !gd) return crc;
+
+   crc = eina_crc((void*) gd->s, sizeof (Efl_Gfx_Gradient_Spread), crc, EINA_FALSE);
+   if (gd->colors_count)
+     crc = eina_crc((void*) gd->colors, sizeof (Efl_Gfx_Gradient_Stop) * gd->colors_count, crc, EINA_FALSE);
+   crc = eina_crc((void*) grd, sizeof (Ector_Renderer_Generic_Gradient_Radial_Data), crc, EINA_FALSE);
+
+   return crc;
+>>>>>>> opensource/master
 }
 
 #include "ector_renderer_cairo_gradient_radial.eo.c"

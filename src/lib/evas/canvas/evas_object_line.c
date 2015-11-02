@@ -84,6 +84,7 @@ static const Evas_Object_Func object_func =
    NULL,
    NULL,
    NULL,
+   NULL,
    NULL
 };
 
@@ -118,6 +119,7 @@ _evas_line_xy_set(Eo *eo_obj, Evas_Line_Data *_pd, Evas_Coord x1, Evas_Coord y1,
        (y1 == (obj->cur->geometry.y + o->cur.y1)) &&
        (x2 == (obj->cur->geometry.x + o->cur.x2)) &&
        (y2 == (obj->cur->geometry.y + o->cur.y2))) return;
+   evas_object_async_block(obj);
 
    if (!(obj->layer->evas->is_frozen))
      {
@@ -213,19 +215,14 @@ evas_object_line_init(Evas_Object *eo_obj)
    obj->type = o_type;
 }
 
-EOLIAN static void
+EOLIAN static Eo *
 _evas_line_eo_base_constructor(Eo *eo_obj, Evas_Line_Data *class_data EINA_UNUSED)
 {
-   Evas_Object_Protected_Data *obj;
    Evas_Line_Data *o;
-   Eo *parent = NULL;
 
-   eo_do_super(eo_obj, MY_CLASS, eo_constructor());
+   eo_obj = eo_do_super_ret(eo_obj, MY_CLASS, eo_obj, eo_constructor());
 
-   obj = eo_data_scope_get(eo_obj, EVAS_OBJECT_CLASS);
    evas_object_line_init(eo_obj);
-   eo_do(eo_obj, parent = eo_parent_get());
-   evas_object_inject(eo_obj, obj, evas_object_evas_get(parent));
 
    o = class_data;
    /* alloc obj private data */
@@ -234,6 +231,8 @@ _evas_line_eo_base_constructor(Eo *eo_obj, Evas_Line_Data *class_data EINA_UNUSE
    o->cur.x2 = 31;
    o->cur.y2 = 31;
    o->prev = o->cur;
+
+   return eo_obj;
 }
 
 static void

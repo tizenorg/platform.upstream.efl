@@ -2,16 +2,27 @@ class Ector.Cairo_Software.Surface (Ector.Cairo.Surface)
 {
    eo_prefix: ector_cairo_software_surface;
    legacy_prefix: null;
+<<<<<<< HEAD
    properties {
       surface {
+=======
+   methods {
+      @property surface {
+>>>>>>> opensource/master
          set {
 	 }
 	 get {
 	 }
 	 values {
+<<<<<<< HEAD
 	    void *pixels;
 	    uint width;
 	    uint height;
+=======
+	    pixels: void *;
+	    width: uint;
+	    height: uint;
+>>>>>>> opensource/master
 	 }
       }
    }

@@ -126,6 +126,7 @@ _ecore_xcb_keymap_finalize(void)
    ECORE_X_LOCK_NUM = _ecore_xcb_keymap_mask_get(reply, XK_Num_Lock);
    ECORE_X_LOCK_CAPS = _ecore_xcb_keymap_mask_get(reply, XK_Caps_Lock);
    ECORE_X_LOCK_SHIFT = _ecore_xcb_keymap_mask_get(reply, XK_Shift_Lock);
+   free(reply);
 }
 
 void
@@ -328,6 +329,12 @@ ecore_x_keysym_keycode_get(const char *keyname)
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    return _ecore_xcb_keymap_string_to_keycode(keyname);
+}
+
+EAPI unsigned int
+ecore_x_keysym_get(const char *string)
+{
+   return _ecore_xcb_keymap_string_to_keysym(string);
 }
 
 /* local functions */

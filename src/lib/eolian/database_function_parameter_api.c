@@ -33,21 +33,11 @@ eolian_parameter_name_get(const Eolian_Function_Parameter *param)
    return param->name;
 }
 
-EAPI Eina_Stringshare *
-eolian_parameter_description_get(const Eolian_Function_Parameter *param)
+EAPI const Eolian_Documentation *
+eolian_parameter_documentation_get(const Eolian_Function_Parameter *param)
 {
    EINA_SAFETY_ON_NULL_RETURN_VAL(param, NULL);
-   return param->description;
-}
-
-EAPI Eina_Bool
-eolian_parameter_const_attribute_get(const Eolian_Function_Parameter *param, Eina_Bool is_get)
-{
-   EINA_SAFETY_ON_NULL_RETURN_VAL(param, EINA_FALSE);
-   if (is_get)
-      return param->is_const_on_get;
-   else
-      return param->is_const_on_set;
+   return param->doc;
 }
 
 EAPI Eina_Bool
@@ -55,4 +45,18 @@ eolian_parameter_is_nonull(const Eolian_Function_Parameter *param)
 {
    EINA_SAFETY_ON_NULL_RETURN_VAL(param, EINA_FALSE);
    return param->nonull;
+}
+
+EAPI Eina_Bool
+eolian_parameter_is_nullable(const Eolian_Function_Parameter *param)
+{
+   EINA_SAFETY_ON_NULL_RETURN_VAL(param, EINA_FALSE);
+   return param->nullable;
+}
+
+EAPI Eina_Bool
+eolian_parameter_is_optional(const Eolian_Function_Parameter *param)
+{
+   EINA_SAFETY_ON_NULL_RETURN_VAL(param, EINA_FALSE);
+   return param->optional;
 }

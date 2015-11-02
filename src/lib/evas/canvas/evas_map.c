@@ -472,6 +472,7 @@ _evas_object_map_enable_set(Eo *eo_obj, Evas_Object_Protected_Data *obj, Eina_Bo
    if (obj->map->cur.usemap == enabled) return;
    pchange = obj->changed;
 
+   evas_object_async_block(obj);
    EINA_COW_WRITE_BEGIN(evas_object_map_cow, obj->map, Evas_Object_Map_Data, map_write)
      map_write->cur.usemap = enabled;
    EINA_COW_WRITE_END(evas_object_map_cow, obj->map, map_write);
@@ -493,7 +494,7 @@ _evas_object_map_enable_set(Eo *eo_obj, Evas_Object_Protected_Data *obj, Eina_Bo
           {
              EINA_COW_WRITE_BEGIN(evas_object_map_cow, obj->map, Evas_Object_Map_Data, map_write)
                {
-                  obj->layer->evas->engine.func->image_map_surface_free
+                  obj->layer->evas->engine.func->image_free
                     (obj->layer->evas->engine.data.output,
                      map_write->surface);
                   map_write->surface = NULL;
@@ -540,13 +541,14 @@ _evas_object_map_enable_get(Eo *eo_obj EINA_UNUSED, Evas_Object_Protected_Data *
 EOLIAN void
 _evas_object_map_set(Eo *eo_obj, Evas_Object_Protected_Data *obj, const Evas_Map *map)
 {
+   evas_object_async_block(obj);
    if ((!map) || (map->count < 4))
      {
         if (obj->map->surface)
           {
              EINA_COW_WRITE_BEGIN(evas_object_map_cow, obj->map, Evas_Object_Map_Data, map_write)
                {
-                  obj->layer->evas->engine.func->image_map_surface_free
+                  obj->layer->evas->engine.func->image_free
                     (obj->layer->evas->engine.data.output,
                      map_write->surface);
                   map_write->surface = NULL;
@@ -631,6 +633,7 @@ _evas_object_map_set(Eo *eo_obj, Evas_Object_Protected_Data *obj, const Evas_Map
 EOLIAN Evas_Map *
 _evas_object_map_get(Eo *eo_obj EINA_UNUSED, Evas_Object_Protected_Data *obj)
 {
+   evas_object_async_block(obj);
    return obj->map->cur.map;
 }
 
@@ -1082,6 +1085,9 @@ EAPI void
 evas_map_util_quat_rotate(Evas_Map *m, double qx, double qy, double qz,
                           double qw, double cx, double cy, double cz)
 {
+   Eina_Quaternion q;
+   Eina_Point_3D c;
+
    MAGIC_CHECK(m, Evas_Map, MAGIC_MAP);
    return;
    MAGIC_CHECK_END();
@@ -1091,33 +1097,28 @@ evas_map_util_quat_rotate(Evas_Map *m, double qx, double qy, double qz,
    p = m->points;
    p_end = p + m->count;
 
+   q.x = qx;
+   q.y = qy;
+   q.z = qz;
+   q.w = qw;
+
+   c.x = cx;
+   c.y = cy;
+   c.z = cz;
+
    for (; p < p_end; p++)
      {
-       double x, y, z, uvx, uvy, uvz, uuvx, uuvy, uuvz;
+        Eina_Point_3D current;
 
-       x = p->x - cx;
-       y = p->y - cy;
-       z = p->z - cz;
+        current.x = p->x;
+        current.y = p->y;
+        current.z = p->z;
 
-       uvx = qy * z - qz * y;
-       uvy = qz * x - qx * z;
-       uvz = qx * y - qy * x;
+        eina_quaternion_rotate(&current, &c, &q);
 
-       uuvx = qy * uvz - qz * uvy;
-       uuvy = qz * uvx - qx * uvz;
-       uuvz = qx * uvy - qy * uvx;
-
-       uvx *= (2.0f * qw);
-       uvy *= (2.0f * qw);
-       uvz *= (2.0f * qw);
-
-       uuvx *= 2.0f;
-       uuvy *= 2.0f;
-       uuvz *= 2.0f;
-
-       p->px = p->x = cx + x + uvx + uuvx;
-       p->py = p->y = cy + y + uvy + uuvy;
-       p->z = cz + z + uvz + uuvz;
+        p->px = p->x = current.x;
+        p->py = p->y = current.y;
+        p->z = current.z;
      }
 }
 

@@ -94,6 +94,11 @@ EAPI Eldbus_Message        *eldbus_message_method_call_new(const char *dest, con
  * @param name name of the signal to be broadcasted
  *
  * @return a new Eldbus_Message, free with eldbus_message_unref()
+<<<<<<< HEAD
+=======
+ *
+ * @since 1.16
+>>>>>>> opensource/master
  */
 EAPI Eldbus_Message *eldbus_message_signal_new(const char *path, const char *interface, const char *name) EINA_ARG_NONNULL(1, 2, 3) EINA_WARN_UNUSED_RESULT;
 
@@ -147,7 +152,7 @@ EAPI Eina_Bool             eldbus_message_error_get(const Eldbus_Message *msg, c
  * from @param msg
  * @param ... The pointers in which to store the message arguments
  *
- * @return EINA_TRUE if the arguments were read succesfully and stored in the
+ * @return EINA_TRUE if the arguments were read successfully and stored in the
  * respective pointer arguments.
  */
 EAPI Eina_Bool             eldbus_message_arguments_get(const Eldbus_Message *msg, const char *signature, ...) EINA_ARG_NONNULL(1, 2) EINA_WARN_UNUSED_RESULT;
@@ -161,7 +166,7 @@ EAPI Eina_Bool             eldbus_message_arguments_get(const Eldbus_Message *ms
  *
  * @see eldbus_message_arguments_get()
  *
- * @return EINA_TRUE if the arguments were read succesfully and stored in the
+ * @return EINA_TRUE if the arguments were read successfully and stored in the
  * respective pointer arguments.
  */
 EAPI Eina_Bool             eldbus_message_arguments_vget(const Eldbus_Message *msg, const char *signature, va_list ap) EINA_ARG_NONNULL(1, 2) EINA_WARN_UNUSED_RESULT;

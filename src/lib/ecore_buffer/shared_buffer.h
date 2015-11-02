@@ -16,6 +16,10 @@ typedef enum _Shared_Buffer_State
    SHARED_BUFFER_STATE_UNKNOWN,
    SHARED_BUFFER_STATE_ENQUEUE,
    // provider side type
+<<<<<<< HEAD
+=======
+   SHARED_BUFFER_STATE_NEW,
+>>>>>>> opensource/master
    SHARED_BUFFER_STATE_SUBMIT,
    SHARED_BUFFER_STATE_DEQUEUE,
    // consumer side type
@@ -26,6 +30,7 @@ typedef enum _Shared_Buffer_State
    SHARED_BUFFER_STATE_RELEASE,
 } Shared_Buffer_State;
 
+<<<<<<< HEAD
 Shared_Buffer        *_shared_buffer_new(struct bq_buffer *proxy, int w, int h, int format, unsigned int flags);
 void                  _shared_buffer_free(Shared_Buffer *sb);
 Eina_Bool             _shared_buffer_info_get(Shared_Buffer *sb, int *w, int *h, int *format, unsigned int *flags);
@@ -33,6 +38,15 @@ Eina_Bool             _shared_buffer_buffer_set(Shared_Buffer *sb, Ecore_Buffer 
 Ecore_Buffer         *_shared_buffer_buffer_get(Shared_Buffer *sb);
 Eina_Bool             _shared_buffer_proxy_set(Shared_Buffer *sb, struct bq_buffer *proxy);
 struct bq_buffer     *_shared_buffer_proxy_get(Shared_Buffer *sb);
+=======
+Shared_Buffer        *_shared_buffer_new(const char *engine, struct bq_buffer *resource, int w, int h, int format, unsigned int flags);
+void                  _shared_buffer_free(Shared_Buffer *sb);
+Eina_Bool             _shared_buffer_info_get(Shared_Buffer *sb, const char **engine, int *w, int *h, int *format, unsigned int *flags);
+Eina_Bool             _shared_buffer_buffer_set(Shared_Buffer *sb, Ecore_Buffer *buffer);
+Ecore_Buffer         *_shared_buffer_buffer_get(Shared_Buffer *sb);
+Eina_Bool             _shared_buffer_resource_set(Shared_Buffer *sb, struct bq_buffer *resource);
+struct bq_buffer     *_shared_buffer_resource_get(Shared_Buffer *sb);
+>>>>>>> opensource/master
 void                  _shared_buffer_state_set(Shared_Buffer *sb, Shared_Buffer_State state);
 Shared_Buffer_State   _shared_buffer_state_get(Shared_Buffer *sb);
 const char           *_shared_buffer_state_string_get(Shared_Buffer *sb);

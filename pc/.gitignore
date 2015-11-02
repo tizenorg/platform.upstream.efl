@@ -17,6 +17,10 @@
 /ecore-win32.pc
 /ecore-x.pc
 /ecore.pc
+<<<<<<< HEAD
+=======
+/ecore-buffer.pc
+>>>>>>> opensource/master
 /ector.pc
 /edje.pc
 /eet.pc
@@ -28,6 +32,7 @@
 /eina-cxx.pc
 /eet-cxx.pc
 /eio.pc
+/eio-cxx.pc
 /eldbus.pc
 /elocation.pc
 /embryo.pc
@@ -62,3 +67,4 @@
 /efl.pc
 /efl-cxx.pc
 /elua.pc
+/emile.pc

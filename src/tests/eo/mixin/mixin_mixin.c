@@ -17,10 +17,10 @@ _ab_sum_get(Eo *obj, void *class_data EINA_UNUSED)
    return a + b;
 }
 
-static void
+static Eo *
 _constructor(Eo *obj, void *class_data EINA_UNUSED)
 {
-   eo_do_super(obj, MY_CLASS, eo_constructor());
+   return eo_do_super_ret(obj, MY_CLASS, obj, eo_constructor());
 }
 
 static void
@@ -34,8 +34,7 @@ EAPI EO_FUNC_BODY(mixin_ab_sum_get, int, 0);
 static Eo_Op_Description op_descs[] = {
      EO_OP_FUNC_OVERRIDE(eo_constructor, _constructor),
      EO_OP_FUNC_OVERRIDE(eo_destructor, _destructor),
-     EO_OP_FUNC(mixin_ab_sum_get, _ab_sum_get, "Get the sum of a and b."),
-     EO_OP_SENTINEL
+     EO_OP_FUNC(mixin_ab_sum_get, _ab_sum_get),
 };
 
 static const Eo_Class_Description class_desc = {

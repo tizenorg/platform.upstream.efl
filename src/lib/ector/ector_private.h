@@ -141,8 +141,25 @@ struct _Ector_Renderer_Generic_Shape_Data
       unsigned int dash_length;
 
       Efl_Gfx_Cap cap;
+<<<<<<< HEAD
       Efl_Gfx_Cap join;
    } stroke;
 };
 
+=======
+      Efl_Gfx_Join join;
+   } stroke;
+};
+
+static inline unsigned int
+_renderer_crc_get(Eo *obj, unsigned int crc)
+{
+   unsigned int id;
+
+   eo_do(obj, id = ector_renderer_crc_get());
+   crc = eina_crc((void*) &id, sizeof (id), crc, EINA_FALSE);
+   return crc;
+}
+
+>>>>>>> opensource/master
 #endif

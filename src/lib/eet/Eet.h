@@ -96,8 +96,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <Eina.h>
 #include <Efl_Config.h>
+#include <Eina.h>
+#include <Emile.h>
 
 #ifdef EAPI
 # undef EAPI
@@ -481,25 +482,24 @@ typedef enum _Eet_File_Mode
  * Specify lossy encoding for image
  * @since 1.10
  */
-typedef enum _Eet_Image_Encoding
-{
-   EET_IMAGE_LOSSLESS = 0,
-   EET_IMAGE_JPEG = 1,
-   EET_IMAGE_ETC1 = 2,
-   EET_IMAGE_ETC2_RGB = 3,
-   EET_IMAGE_ETC2_RGBA = 4,
-   EET_IMAGE_ETC1_ALPHA = 5,
-} Eet_Image_Encoding;
+typedef Emile_Image_Encoding Eet_Image_Encoding;
 
-typedef enum _Eet_Colorspace
-{
-   EET_COLORSPACE_ARGB8888 = 0,
-   /* The number between are reserved to preserve compatibility with evas */
-   EET_COLORSPACE_ETC1 = 9,
-   EET_COLORSPACE_RGB8_ETC2 = 10,
-   EET_COLORSPACE_RGBA8_ETC2_EAC = 11,
-   EET_COLORSPACE_ETC1_ALPHA = 12
-} Eet_Colorspace;
+#define EET_IMAGE_LOSSLESS   EMILE_IMAGE_LOSSLESS
+#define EET_IMAGE_JPEG       EMILE_IMAGE_JPEG
+#define EET_IMAGE_ETC1       EMILE_IMAGE_ETC1
+#define EET_IMAGE_ETC2_RGB   EMILE_IMAGE_ETC2_RGB
+#define EET_IMAGE_ETC2_RGBA  EMILE_IMAGE_ETC2_RGBA
+#define EET_IMAGE_ETC1_ALPHA EMILE_IMAGE_ETC1_ALPHA
+
+typedef Emile_Colorspace Eet_Colorspace;
+
+#define EET_COLORSPACE_ARGB8888 EMILE_COLORSPACE_ARGB8888
+#define EET_COLORSPACE_GRY8 EMILE_COLORSPACE_GRY8
+#define EET_COLORSPACE_AGRY88 EMILE_COLORSPACE_AGRY88
+#define EET_COLORSPACE_ETC1 EMILE_COLORSPACE_ETC1
+#define EET_COLORSPACE_RGB8_ETC2 EMILE_COLORSPACE_RGB8_ETC2
+#define EET_COLORSPACE_RGBA8_ETC2_EAC EMILE_COLORSPACE_RGBA8_ETC2_EAC
+#define EET_COLORSPACE_ETC1_ALPHA EMILE_COLORSPACE_ETC1_ALPHA
 
 /**
  * @typedef Eet_File
@@ -4192,7 +4192,7 @@ eet_data_descriptor_decode_cipher(Eet_Data_Descriptor *edd,
  * serialised chunk of data that can be decoded again by
  * eet_data_descriptor_decode(). This is useful for being able to transmit
  * data structures across sockets, pipes, IPC or shared file mechanisms,
- * without having to worry about memory space, machine type, endianess etc.
+ * without having to worry about memory space, machine type, endianness etc.
  *
  * The parameter @p edd must point to a valid data descriptor, and
  * @p data_in must point to the right data structure to encode. If not, the
@@ -4821,9 +4821,11 @@ eet_connection_close(Eet_Connection *conn,
                      Eina_Bool *on_going);
 
 /***************************************************************************/
-
 #ifdef __cplusplus
 }
 #endif /* ifdef __cplusplus */
+
+#undef EAPI
+#define EAPI
 
 #endif /* ifndef _EET_H */

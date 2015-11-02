@@ -2,7 +2,6 @@
 # include "config.h"
 #endif
 
-#include "Ecore_Drm.h"
 #include "ecore_drm_private.h"
 
 /* local variables */
@@ -90,11 +89,16 @@ ecore_drm_init(void)
    if (!eeze_init()) goto eeze_err;
 
    ECORE_DRM_EVENT_ACTIVATE = ecore_event_type_new();
+<<<<<<< HEAD
    ECORE_DRM_EVENT_PAGE_FLIP = ecore_event_type_new();
    ECORE_DRM_EVENT_VBLANK = ecore_event_type_new();
    ECORE_DRM_EVENT_OUTPUT = ecore_event_type_new();
    ECORE_DRM_EVENT_INPUT_DEVICE_ADD = ecore_event_type_new();
    ECORE_DRM_EVENT_INPUT_DEVICE_DEL = ecore_event_type_new();
+=======
+   ECORE_DRM_EVENT_OUTPUT = ecore_event_type_new();
+   ECORE_DRM_EVENT_SEAT_ADD = ecore_event_type_new();
+>>>>>>> opensource/master
 
    /* return init count */
    return _ecore_drm_init_count;

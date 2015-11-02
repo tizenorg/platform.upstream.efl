@@ -92,7 +92,7 @@ struct _Ecore_Pipe
    Ecore_Pipe_Cb     handler;
    unsigned int      len;
    int               handling;
-   size_t            already_read;
+   unsigned int      already_read;
    void             *passed_data;
    int               message;
    Eina_Bool         delete_me : 1;
@@ -424,7 +424,7 @@ _ecore_pipe_wait(Ecore_Pipe *p,
                  double      wait)
 {
    struct timeval tv, *t;
-   fd_set rset;
+   fd_set rset, wset, exset;
    double end = 0.0;
    double timeout;
    int ret;
@@ -435,10 +435,12 @@ _ecore_pipe_wait(Ecore_Pipe *p,
      return -1;
 
    FD_ZERO(&rset);
+   FD_ZERO(&wset);
+   FD_ZERO(&exset);
    FD_SET(p->fd_read, &rset);
 
    if (wait >= 0.0)
-     end = ecore_loop_time_get() + wait;
+     end = ecore_time_get() + wait;
    timeout = wait;
 
    while (message_count > 0 && (timeout > 0.0 || wait <= 0.0))
@@ -472,7 +474,7 @@ _ecore_pipe_wait(Ecore_Pipe *p,
              t = NULL;
           }
 
-        ret = main_loop_select(p->fd_read + 1, &rset, NULL, NULL, t);
+        ret = main_loop_select(p->fd_read + 1, &rset, &wset, &exset, t);
 
         if (ret > 0)
           {
@@ -487,13 +489,16 @@ _ecore_pipe_wait(Ecore_Pipe *p,
           }
         else if (errno != EINTR)
           {
-             close(p->fd_read);
-             p->fd_read = PIPE_FD_INVALID;
+             if (p->fd_read != PIPE_FD_INVALID)
+               {
+                  close(p->fd_read);
+                  p->fd_read = PIPE_FD_INVALID;
+               }
              break;
           }
 
         if (wait >= 0.0)
-          timeout = end - ecore_loop_time_get();
+          timeout = end - ecore_time_get();
      }
 
    return total;
@@ -651,12 +656,12 @@ _ecore_pipe_read(void             *data,
 
         /* catch the non error case first */
         /* if we read enough data to finish the message/buffer */
-        if (ret == (ssize_t)(p->len - p->already_read))
+        if (ret == (p->len - p->already_read))
           _ecore_pipe_handler_call(p, p->passed_data, p->len);
         else if (ret > 0)
           {
              /* more data left to read */
-              p->already_read += ret;
+              p->already_read += (unsigned int) ret;
               _ecore_pipe_unhandle(p);
               return ECORE_CALLBACK_RENEW;
           }

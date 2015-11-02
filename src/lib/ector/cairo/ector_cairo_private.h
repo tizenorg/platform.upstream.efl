@@ -18,8 +18,11 @@ struct _Ector_Cairo_Surface_Data
    struct {
       double x, y;
    } current;
+<<<<<<< HEAD
 
    Eina_Bool internal : 1;
+=======
+>>>>>>> opensource/master
 };
 
 struct _Ector_Renderer_Cairo_Base_Data
@@ -72,4 +75,33 @@ _ector_cairo_symbol_get(Eo *obj, const char *name)
    return sym;
 }
 
+<<<<<<< HEAD
+=======
+extern void (*cairo_pattern_add_color_stop_rgba)(cairo_pattern_t *pattern, double offset,
+                                                 double red, double green, double blue, double alpha);
+
+static inline void
+_ector_renderer_cairo_gradient_prepare(Eo *obj,
+                                       cairo_pattern_t *pat,
+                                       Ector_Renderer_Generic_Gradient_Data *src,
+                                       unsigned int mul_col)
+{
+   unsigned int i;
+
+   USE(obj, cairo_pattern_add_color_stop_rgba, );
+
+   for (i = 0; i < src->colors_count; i++)
+     {
+        int r,g,b,a;
+
+        r = ((src->colors[i].r * R_VAL(&mul_col)) >> 8);
+        g = ((src->colors[i].g * G_VAL(&mul_col)) >> 8);
+        b = ((src->colors[i].b * B_VAL(&mul_col)) >> 8);
+        a = ((src->colors[i].a * A_VAL(&mul_col)) >> 8);
+        ector_color_argb_unpremul(a, &r, &g, &b);
+        cairo_pattern_add_color_stop_rgba(pat, src->colors[i].offset, r/255.0, g/255.0, b/255.0, a/255.0);
+     }
+}
+
+>>>>>>> opensource/master
 #endif

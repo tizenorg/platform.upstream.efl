@@ -11,43 +11,35 @@ typedef Eo Struct;
 #ifndef _STRUCT_EO_TYPES
 #define _STRUCT_EO_TYPES
 
-typedef struct _Foo Foo;
-
-typedef struct {
-  Foo a;
-  struct _Foo b;
-} Bar;
-
-struct Named {
+typedef struct _Named
+{
   int field;
   const char *something;
-};
+} Named;
 
-struct Another {
-  struct Named field;
-};
+typedef struct _Another
+{
+  Named field;
+} Another;
 
-struct _Foo {
-  int field;
-  float another;
-};
-
-struct Opaque;
+typedef struct _Opaque Opaque;
 
 
 #endif
 #define STRUCT_CLASS struct_class_get()
 
-const Eo_Class *struct_class_get(void) EINA_CONST;
+EAPI const Eo_Class *struct_class_get(void) EINA_CONST;
 
 /**
+ * @brief Foo docs. This is @c monospace. This is alone-standing $.
  *
- * No description supplied.
+ * @param[in] idx
  *
- * @param[in] idx No description supplied.
- *
+ * @ingroup Struct
  */
 EOAPI char * struct_foo(int idx);
+
+EOAPI Named * struct_bar(void);
 
 
 #endif

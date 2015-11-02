@@ -8,6 +8,8 @@
 
 #include <Eina.h>
 
+#define EO_BASE_BETA
+
 #include "Eo.h"
 #include "eo_ptr_indirection.h"
 #include "eo_private.h"
@@ -23,6 +25,8 @@ static _Eo_Class **_eo_classes;
 static Eo_Id _eo_classes_last_id;
 static int _eo_init_count = 0;
 static Eo_Op _eo_ops_last_id = 0;
+static Eina_Hash *_ops_storage = NULL;
+static Eina_Spinlock _ops_storage_lock;
 
 static size_t _eo_sz = 0;
 static size_t _eo_class_sz = 0;
@@ -32,7 +36,6 @@ static inline void *_eo_data_scope_get(const _Eo_Object *obj, const _Eo_Class *k
 static inline void *_eo_data_xref_internal(const char *file, int line, _Eo_Object *obj, const _Eo_Class *klass, const _Eo_Object *ref_obj);
 static inline void _eo_data_xunref_internal(_Eo_Object *obj, void *data, const _Eo_Object *ref_obj);
 static const _Eo_Class *_eo_op_class_get(Eo_Op op);
-static const char * _eo_op_id_name_get(Eo_Op op);
 
 /* Start of Dich */
 
@@ -111,9 +114,8 @@ _dich_func_set(_Eo_Class *klass, Eo_Op op, eo_op_func_type func)
    if (fsrc->src == klass)
      {
         const _Eo_Class *op_kls = _eo_op_class_get(op);
-        const char *op_name = _eo_op_id_name_get(op);
-        ERR("Class '%s': Overriding func %p for op %d (%s:'%s') with %p.",
-              klass->desc->name, fsrc->func, op, op_kls->desc->name, op_name, func);
+        ERR("Class '%s': Overriding func %p for op %d (%s) with %p.",
+              klass->desc->name, fsrc->func, op, op_kls->desc->name, func);
         return EINA_FALSE;
      }
 
@@ -149,7 +151,7 @@ _eo_is_a_class(const Eo *eo_id)
 #else
    /* fortunately EO_OBJ_POINTER_RETURN* will handle NULL eo_id */
    if (!eo_id) return EINA_FALSE;
-   oid = ((Eo_Base *) eo_id)->id;
+   oid = ((Eo_Header *) eo_id)->id;
 #endif
    return ((((oid >> REF_TAG_SHIFT) & 0x1) == 0x0) &&
          (oid & MASK_CLASS_TAG));
@@ -189,38 +191,26 @@ _eo_op_class_get(Eo_Op op)
    return NULL;
 }
 
-static const Eo_Op_Description *
-_eo_op_id_desc_get(Eo_Op op)
+static const char *
+_eo_op_desc_name_get(const Eo_Op_Description *desc)
 {
-   unsigned int i;
-   const _Eo_Class *klass;
-   const Eo_Op_Description *op_descs;
+   static const char *fct_name = "unknown";
 
-   if (op == EO_NOOP)
-      return NULL;
-
-   klass = _eo_op_class_get(op);
-
-   if (klass)
+   if (!desc)
      {
-        DBG("klass %p %s", klass, klass->desc->name);
-
-        op_descs = klass->desc->ops.descs;
-        for (i = 0; i <  klass->desc->ops.count; i++)
-          {
-             if (op_descs[i].op == op)
-               return &op_descs[i];
-          }
+        return fct_name;
      }
 
-   return NULL;
-}
-
-static const char *
-_eo_op_id_name_get(Eo_Op op)
-{
-   const Eo_Op_Description *desc = _eo_op_id_desc_get(op);
-   return (desc) ? desc->doc : NULL;
+#ifndef _WIN32
+# ifdef HAVE_DLADDR
+   static Dl_info info;
+   if (dladdr(desc->api_func, &info) != 0)
+      fct_name = info.dli_sname;
+# endif
+#else
+   fct_name = desc->api_func; /* Same on windows */
+#endif
+   return fct_name;
 }
 
 static inline const op_type_funcs *
@@ -252,9 +242,6 @@ _eo_kls_itr_next(const _Eo_Class *orig_kls, const _Eo_Class *cur_klass, Eo_Op op
 }
 
 /************************************ EO ************************************/
-
-EAPI Eo_Hook_Call eo_hook_call_pre = NULL;
-EAPI Eo_Hook_Call eo_hook_call_post = NULL;
 
 #define EO_INVALID_DATA (void *) -1
 // 1024 entries == 16k or 32k (32 or 64bit) for eo call stack. that's 1023
@@ -314,17 +301,12 @@ _eo_call_stack_mem_alloc(size_t size)
 static void
 _eo_call_stack_mem_resize(void **ptr EINA_UNUSED, size_t newsize, size_t size)
 {
-   // FIXME we don't grow
    if (newsize > size)
      {
         CRI("eo call stack overflow, abort.");
         abort();
      }
-   // FIXME resize call stack down
-   return;
-   size_t addr = MEM_PAGE_SIZE * ((newsize + MEM_PAGE_SIZE - 1) /
-                                  MEM_PAGE_SIZE);
-   madvise(((unsigned char *)*ptr) + addr, size - addr, MADV_DONTNEED);
+   return; // Do nothing, code for actual implementation in history. See commit message for details.
 #else
 static void
 _eo_call_stack_mem_resize(void **ptr, size_t newsize, size_t size EINA_UNUSED)
@@ -390,34 +372,29 @@ _eo_call_stack_free(void *ptr)
    free(stack);
 }
 
+static Eo_Call_Stack *main_loop_stack = NULL;
+
+#define _EO_CALL_STACK_GET() ((EINA_LIKELY(eina_main_loop_is())) ? main_loop_stack : _eo_call_stack_get_thread())
+
 static inline Eo_Call_Stack *
-_eo_call_stack_get(Eina_Bool is_main_loop)
+_eo_call_stack_get_thread(void)
 {
-   static Eo_Call_Stack *main_loop_stack = NULL;
-   Eo_Call_Stack *stack = is_main_loop ?
-     main_loop_stack : eina_tls_get(_eo_call_stack_key);
+   Eo_Call_Stack *stack;
+
+   stack = eina_tls_get(_eo_call_stack_key);
 
    if (stack) return stack;
 
    stack = _eo_call_stack_create();
-   if (!stack)
-     {
-        EINA_LOG_ERR("Could not alloc eo call stack.");
-        return NULL;
-     }
-
-   if (is_main_loop)
-     {
-        main_loop_stack = stack;
-     }
-   else if (!eina_tls_set(_eo_call_stack_key, stack))
-     {
-        EINA_LOG_ERR("Could not set eo call stack in TLS key.");
-        _eo_call_stack_free(stack);
-        return NULL;
-     }
+   eina_tls_set(_eo_call_stack_key, stack);
 
    return stack;
+}
+
+EAPI EINA_CONST void *
+_eo_stack_get(void)
+{
+   return _EO_CALL_STACK_GET();
 }
 
 static inline void
@@ -433,15 +410,9 @@ _eo_call_stack_resize(Eo_Call_Stack *stack, Eina_Bool grow)
      next_sz = sz / 2;
    frame_offset = stack->frame_ptr - stack->frames;
 
-   DBG("resize from %lu to %lu", (long unsigned int)sz, (long unsigned int)next_sz);
    _eo_call_stack_mem_resize((void **)&(stack->frames),
                              next_sz * sizeof(Eo_Stack_Frame),
                              sz * sizeof(Eo_Stack_Frame));
-   if (!stack->frames)
-     {
-        CRI("unable to resize call stack, abort.");
-        abort();
-     }
 
    stack->frame_ptr = &stack->frames[frame_offset];
    stack->last_frame = &stack->frames[next_sz - 1];
@@ -504,12 +475,11 @@ _eo_do_internal(const Eo *eo_id, const Eo_Class *cur_klass_id,
 }
 
 EAPI Eina_Bool
-_eo_do_start(const Eo *eo_id, const Eo_Class *cur_klass_id, Eina_Bool is_super, const char *file EINA_UNUSED, const char *func EINA_UNUSED, int line EINA_UNUSED)
+_eo_do_start(const Eo *eo_id, const Eo_Class *cur_klass_id, Eina_Bool is_super, void *eo_stack)
 {
-   Eina_Bool is_main_loop = eina_main_loop_is();
    Eina_Bool ret = EINA_TRUE;
    Eo_Stack_Frame *fptr, *pfptr;
-   Eo_Call_Stack *stack = _eo_call_stack_get(is_main_loop);
+   Eo_Call_Stack *stack = eo_stack;
 
    if (stack->frame_ptr == stack->last_frame)
      _eo_call_stack_resize(stack, EINA_TRUE);
@@ -533,10 +503,10 @@ _eo_do_start(const Eo *eo_id, const Eo_Class *cur_klass_id, Eina_Bool is_super, 
 }
 
 EAPI void
-_eo_do_end(const Eo **eo_id EINA_UNUSED)
+_eo_do_end(void *eo_stack)
 {
    Eo_Stack_Frame *fptr;
-   Eo_Call_Stack *stack = _eo_call_stack_get(eina_main_loop_is()); // Is it possible to extract information from the scope ?
+   Eo_Call_Stack *stack = eo_stack;
 
    fptr = stack->frame_ptr;
 
@@ -545,12 +515,6 @@ _eo_do_end(const Eo **eo_id EINA_UNUSED)
 
    fptr->obj_data = EO_INVALID_DATA;
 
-   if (fptr == stack->frames)
-     {
-        CRI("eo call stack underflow, abort.");
-        abort();
-     }
-
    stack->frame_ptr--;
 
    if (fptr == stack->shrink_frame)
@@ -558,28 +522,35 @@ _eo_do_end(const Eo **eo_id EINA_UNUSED)
 }
 
 EAPI Eina_Bool
-  _eo_call_resolve(const char *func_name, const Eo_Op op, Eo_Op_Call_Data *call, Eina_Bool is_main_loop, const char *file, int line)
+_eo_call_resolve(const char *func_name, Eo_Op_Call_Data *call, Eo_Call_Cache *cache, const char *file, int line)
 {
    Eo_Stack_Frame *fptr;
-   const _Eo_Class *klass;
+   const _Eo_Class *klass, *inputklass;
    const op_type_funcs *func;
    Eina_Bool is_obj;
 
-   if (op == EO_NOOP) return EINA_FALSE;
-
-   fptr = _eo_call_stack_get(is_main_loop)->frame_ptr;
+   fptr = _EO_CALL_STACK_GET()->frame_ptr;
 
    if (EINA_UNLIKELY(!fptr->o.obj))
       return EINA_FALSE;
 
    is_obj = !_eo_is_a_class(fptr->eo_id);
 
-   klass = (is_obj) ? fptr->o.obj->klass : fptr->o.kls;
+   inputklass = klass = (is_obj) ? fptr->o.obj->klass : fptr->o.kls;
+
+   if (!cache->op)
+     {
+        ERR("%s:%d: unable to resolve %s api func '%s' in class '%s'.",
+            file, line, (!is_obj ? "class" : "regular"),
+            func_name, klass->desc->name);
+
+        return EINA_FALSE;
+     }
 
    /* If we have a current class, we need to itr to the next. */
    if (fptr->cur_klass)
      {
-        func = _eo_kls_itr_next(klass, fptr->cur_klass, op);
+        func = _eo_kls_itr_next(klass, fptr->cur_klass, cache->op);
 
         if (!func)
           goto end;
@@ -588,7 +559,42 @@ EAPI Eina_Bool
      }
    else
      {
-        func = _dich_func_get(klass, op);
+# if EO_CALL_CACHE_SIZE > 0
+# if EO_CALL_CACHE_SIZE > 1
+        int i;
+
+        for (i = 0; i < EO_CALL_CACHE_SIZE; i++)
+# else
+        const int i = 0;
+# endif
+          {
+             if ((const void *)inputklass == cache->index[i].klass)
+               {
+                  func = (const op_type_funcs *)cache->entry[i].func;
+                  call->func = func->func;
+                  if (is_obj)
+                    {
+                       call->obj = (Eo *)fptr->eo_id;
+                       if (func->src == fptr->o.obj->klass)
+                         {
+                            if (fptr->obj_data == EO_INVALID_DATA)
+                              fptr->obj_data = (char *)fptr->o.obj + cache->off[i].off;
+                            call->data = fptr->obj_data;
+                         }
+                       else
+                         call->data = (char *)fptr->o.obj + cache->off[i].off;
+                    }
+                  else
+                    {
+                       call->obj = _eo_class_id_get(inputklass);
+                       call->data = NULL;
+                    }
+                  return EINA_TRUE;
+               }
+          }
+#endif
+
+        func = _dich_func_get(klass, cache->op);
 
         if (!func)
           goto end;
@@ -597,7 +603,6 @@ EAPI Eina_Bool
    if (EINA_LIKELY(func->func && func->src))
      {
         call->func = func->func;
-        call->klass = _eo_class_id_get(klass);
 
         if (is_obj)
           {
@@ -614,9 +619,26 @@ EAPI Eina_Bool
           }
         else
           {
-             call->obj = call->klass;
+             call->obj = _eo_class_id_get(klass);
              call->data = NULL;
           }
+
+# if EO_CALL_CACHE_SIZE > 0
+        if (!fptr->cur_klass)
+          {
+# if EO_CALL_CACHE_SIZE > 1
+             const int slot = cache->next_slot;
+# else
+             const int slot = 0;
+# endif
+             cache->index[slot].klass = (const void *)inputklass;
+             cache->entry[slot].func = (const void *)func;
+             cache->off[slot].off = (int)((long)((char *)call->data - (char *)fptr->o.obj));
+# if EO_CALL_CACHE_SIZE > 1
+             cache->next_slot = (slot + 1) % EO_CALL_CACHE_SIZE;
+# endif
+          }
+#endif
 
         return EINA_TRUE;
      }
@@ -624,7 +646,7 @@ EAPI Eina_Bool
    if (func->src != NULL)
      {
         ERR("in %s:%d: you called a pure virtual func '%s' (%d) of class '%s'.",
-            file, line, func_name, op, klass->desc->name);
+            file, line, func_name, cache->op, klass->desc->name);
         return EINA_FALSE;
      }
 
@@ -642,14 +664,13 @@ end:
              if (!emb_obj)
                continue;
 
-             func = _dich_func_get(emb_obj->klass, op);
+             func = _dich_func_get(emb_obj->klass, cache->op);
              if (func == NULL)
                continue;
 
              if (EINA_LIKELY(func->func && func->src))
                {
                   call->obj = _eo_id_get(emb_obj);
-                  call->klass = _eo_class_id_get(emb_obj->klass);
                   call->func = func->func;
                   call->data = _eo_data_scope_get(emb_obj, func->src);
 
@@ -666,24 +687,42 @@ end:
         if (fptr->cur_klass)
           {
              ERR("in %s:%d: func '%s' (%d) could not be resolved for class '%s' for super of '%s'.",
-                 file, line, func_name, op, main_klass->desc->name,
+                 file, line, func_name, cache->op, main_klass->desc->name,
                  fptr->cur_klass->desc->name);
           }
         else
           {
              /* we should not be able to take this branch */
              ERR("in %s:%d: func '%s' (%d) could not be resolved for class '%s'.",
-                 file, line, func_name, op, main_klass->desc->name);
+                 file, line, func_name, cache->op, main_klass->desc->name);
           }
      }
    return EINA_FALSE;
 }
 
-
-static inline const Eo_Op_Description *
-_eo_api_desc_get(const void *api_func, const _Eo_Class *klass, const _Eo_Class **extns, const char *api_name)
+static inline Eina_Bool
+_eo_api_func_equal(const void *api_func1, const void *api_func2)
 {
-   int imin, imax, imid;
+#ifndef _WIN32
+                  return (api_func1 == api_func2);
+#else
+                  /* On Windows, DLL API's will be exported using the dllexport flag.
+                   * When used by another library or executable, they will be declared
+                   * using the dllimport flag. What happens really is that two symbols are
+                   * created, at two different addresses. So it's impossible to match
+                   * them. We fallback to plain string comparison based on the
+                   * function name itself. Slow, but this should rarely happen.
+                   */
+                  return (api_func2 && api_func1 && !strcmp(api_func2, api_func1));
+#endif
+}
+
+/* api_func should be the pointer to the function on all platforms except windows,
+ * in which it should be the the name of the function (string).
+ */
+static inline const Eo_Op_Description *
+_eo_api_desc_get(const void *api_func, const _Eo_Class *klass, const _Eo_Class **extns)
+{
    const _Eo_Class *cur_klass;
    const _Eo_Class **kls_itr = NULL;
    const Eo_Op_Description *op_desc;
@@ -693,40 +732,17 @@ _eo_api_desc_get(const void *api_func, const _Eo_Class *klass, const _Eo_Class *
      {
         for (kls_itr = klass->mro ; *kls_itr ; kls_itr++)
           {
+             unsigned int i;
              cur_klass = *kls_itr;
-             imin = 0;
-             imax = cur_klass->desc->ops.count - 1;
              op_descs = cur_klass->desc->ops.descs;
 
-             while (imax >= imin)
+             for (i = 0, op_desc = op_descs; i < cur_klass->desc->ops.count; i++, op_desc++)
                {
-                  imid = (imax + imin) / 2;
-                  op_desc = op_descs + imid;
-
-                  if (op_desc->api_func > api_func)
-                    imin = imid + 1;
-                  else if (op_desc->api_func < api_func)
-                    imax = imid - 1;
-                  else
-                    return op_desc;
+                  if (_eo_api_func_equal(op_desc->api_func, api_func))
+                    {
+                       return op_desc;
+                    }
                }
-
-#ifdef _WIN32
-             /* On Windows, DLL API's will be exported using the dllexport flag.
-              * When used by another library or executable, they will be declared
-              * using the dllimport flag. What happens really is that two symbols are
-              * created, at two different addresses. So it's impossible to match
-              * them. We fallback to plain string comparison based on the
-              * function name itself. Slow, but this should rarely happen.
-              */
-             for (unsigned int i = 0; i < cur_klass->desc->ops.count; i++)
-               if (api_name && !strcmp(api_name, op_descs[i].api_name))
-                 {
-                    if (op_descs[i].api_func == NULL || op_descs[i].api_func == ((void (*)())-1))
-                      break;
-                    return &op_descs[i];
-                 }
-#endif
           }
      }
 
@@ -735,7 +751,7 @@ _eo_api_desc_get(const void *api_func, const _Eo_Class *klass, const _Eo_Class *
         for (kls_itr = extns ; *kls_itr ; kls_itr++)
           {
              cur_klass = *kls_itr;
-             op_desc = _eo_api_desc_get(api_func, cur_klass, NULL, api_name);
+             op_desc = _eo_api_desc_get(api_func, cur_klass, NULL);
              if (op_desc) return op_desc;
           }
      }
@@ -744,63 +760,27 @@ _eo_api_desc_get(const void *api_func, const _Eo_Class *klass, const _Eo_Class *
 }
 
 EAPI Eo_Op
-_eo_api_op_id_get(const void *api_func, Eina_Bool is_main_loop, const char *file, int line)
+_eo_api_op_id_get(const void *api_func)
 {
-   const Eo_Op_Description *desc;
-   const _Eo_Class *klass;
-   Eo_Call_Stack *stack = _eo_call_stack_get(is_main_loop);
-
-   Eina_Bool class_ref = _eo_is_a_class(stack->frame_ptr->eo_id);
-
-   if (EINA_UNLIKELY(!stack->frame_ptr->o.obj))
-      return EO_NOOP;
-
-   if (class_ref)
-     klass = stack->frame_ptr->o.kls;
-   else
-     klass = stack->frame_ptr->o.obj->klass;
-
-   // Win32 compatibility: api_name is NULL because we're assuming the
-   // function pointer is correct (it was referred to using the same
-   // dllimport vs. dllexport flags).
-   desc = _eo_api_desc_get(api_func, klass, klass->extensions, NULL);
-
-   if (desc == NULL)
-     {
-        const char *fct_name = "unknown";
-#ifdef HAVE_DLADDR
-        Dl_info info;
-        if (dladdr(api_func, &info) != 0)
-          fct_name = info.dli_sname;
+   eina_spinlock_take(&_ops_storage_lock);
+#ifndef _WIN32
+   Eo_Op op = (uintptr_t) eina_hash_find(_ops_storage, &api_func);
+#else
+   Eo_Op op = (uintptr_t) eina_hash_find(_ops_storage, api_func);
 #endif
-        ERR("in %s:%d: unable to resolve %s api func '%s' %p in class '%s'.",
-            file, line, (class_ref ? "class" : "regular"),
-            fct_name, api_func, klass->desc->name);
-        return EO_NOOP;
-     }
+   eina_spinlock_release(&_ops_storage_lock);
 
-   return desc->op;
-}
-
-static int
-eo_api_funcs_cmp(const void *p1, const void *p2)
-{
-   const Eo_Op_Description *op1, *op2;
-   op1 = (Eo_Op_Description *) p1;
-   op2 = (Eo_Op_Description *) p2;
-   if (op1->api_func > op2->api_func) return -1;
-   else if (op1->api_func < op2->api_func) return 1;
-   else return 0;
+   return op;
 }
 
 static Eina_Bool
 _eo_class_funcs_set(_Eo_Class *klass)
 {
+   unsigned int i;
    int op_id;
    const void *last_api_func;
-   const Eo_Op_Description *api_desc;
-   Eo_Op_Description *op_desc;
-   Eo_Op_Description *op_descs;
+   const Eo_Op_Description *op_desc;
+   const Eo_Op_Description *op_descs;
 
    op_id = klass->base_id;
    op_descs = klass->desc->ops.descs;
@@ -809,51 +789,63 @@ _eo_class_funcs_set(_Eo_Class *klass)
 
    if (!op_descs) return EINA_TRUE;
 
-   qsort((void*)op_descs, klass->desc->ops.count, sizeof(Eo_Op_Description), eo_api_funcs_cmp);
-
    last_api_func = NULL;
-   for (op_desc = op_descs; op_desc->op_type != EO_OP_TYPE_INVALID; op_desc++)
+   for (i = 0, op_desc = op_descs; i < klass->desc->ops.count; i++, op_desc++)
      {
-        if(op_desc->api_func == NULL)
+        Eo_Op op = EO_NOOP;
+
+        if (op_desc->api_func == NULL)
           {
-             ERR("Class '%s': NULL API not allowed (%d NULL->%p '%s').",
-                 klass->desc->name, op_desc->op, op_desc->func, op_desc->doc);
+             ERR("Class '%s': NULL API not allowed (NULL->%p '%s').",
+                 klass->desc->name, op_desc->func, _eo_op_desc_name_get(op_desc));
              return EINA_FALSE;
           }
 
-        if (op_desc->op == EO_NOOP)
+        if ((op_desc->op_type == EO_OP_TYPE_REGULAR) || (op_desc->op_type == EO_OP_TYPE_CLASS))
           {
-             if (op_desc->api_func == last_api_func)
+             if (_eo_api_func_equal(op_desc->api_func, last_api_func))
                {
-                  ERR("Class '%s': API previously defined (%d %p->%p '%s').",
-                      klass->desc->name, op_desc->op, op_desc->api_func, op_desc->func, op_desc->doc);
+                  ERR("Class '%s': API previously defined (%p->%p '%s').",
+                      klass->desc->name, op_desc->api_func, op_desc->func, _eo_op_desc_name_get(op_desc));
                   return EINA_FALSE;
                }
-             op_desc->op = op_id;
+
+             op = op_id;
+             eina_spinlock_take(&_ops_storage_lock);
+#ifndef _WIN32
+             eina_hash_add(_ops_storage, &op_desc->api_func, (void *) (uintptr_t) op);
+#else
+             eina_hash_add(_ops_storage, op_desc->api_func, (void *) (uintptr_t) op);
+#endif
+             eina_spinlock_release(&_ops_storage_lock);
+
              op_id++;
           }
-        else if (op_desc->op == EO_OP_OVERRIDE)
+        else if ((op_desc->op_type == EO_OP_TYPE_REGULAR_OVERRIDE) || (op_desc->op_type == EO_OP_TYPE_CLASS_OVERRIDE))
           {
-#ifdef _WIN32
-             api_desc = _eo_api_desc_get(op_desc->api_func, klass->parent, klass->extensions, op_desc->api_name);
-#else
-             api_desc = _eo_api_desc_get(op_desc->api_func, klass->parent, klass->extensions, NULL);
-#endif
+             const Eo_Op_Description *api_desc;
+             api_desc = _eo_api_desc_get(op_desc->api_func, klass->parent, klass->extensions);
 
              if (api_desc == NULL)
                {
                   ERR("Class '%s': Can't find api func description in class hierarchy (%p->%p) (%s).",
-                      klass->desc->name, op_desc->api_func, op_desc->func, op_desc->doc);
+                      klass->desc->name, op_desc->api_func, op_desc->func, _eo_op_desc_name_get(op_desc));
                   return EINA_FALSE;
                }
 
-             op_desc->op = api_desc->op;
-             op_desc->doc = api_desc->doc;
+             op = _eo_api_op_id_get(op_desc->api_func);
           }
 
-        DBG(" %4d %p->%p '%s'", op_desc->op, op_desc->api_func, op_desc->func, op_desc->doc);
+        if (op == EO_NOOP)
+          {
+             ERR("Class '%s': Invalid op 'EO_NOOP' (%p->%p '%s').",
+                 klass->desc->name, op_desc->api_func, op_desc->func, _eo_op_desc_name_get(op_desc));
+             return EINA_FALSE;
+          }
 
-        if (!_dich_func_set(klass, op_desc->op, op_desc->func))
+        DBG("%p->%p '%s'", op_desc->api_func, op_desc->func, _eo_op_desc_name_get(op_desc));
+
+        if (!_dich_func_set(klass, op, op_desc->func))
           return EINA_FALSE;
 
         last_api_func = op_desc->api_func;
@@ -897,7 +889,7 @@ _eo_add_internal_start(const char *file, int line, const Eo_Class *klass_id, Eo 
    obj->klass = klass;
 
 #ifndef HAVE_EO_ID
-   EINA_MAGIC_SET((Eo_Base *) obj, EO_EINA_MAGIC);
+   EINA_MAGIC_SET((Eo_Header *) obj, EO_EINA_MAGIC);
 #endif
    obj->header.id = _eo_id_allocate(obj);
    Eo *eo_id = _eo_id_get(obj);
@@ -908,25 +900,38 @@ _eo_add_internal_start(const char *file, int line, const Eo_Class *klass_id, Eo 
 
    eo_do(eo_id, eo_parent_set(parent_id));
 
-   /* If there's a parent. Unref. Eo_add should return an object with either a
+   /* If there's a parent. Ref. Eo_add should return an object with either a
     * parent ref, or with the lack of, just a ref. */
-   if (!ref && eo_do(eo_id, eo_parent_get()))
      {
+        Eo *parent_tmp;
+        if (ref && eo_do_ret(eo_id, parent_tmp, eo_parent_get()))
+          {
+             _eo_ref(obj);
+          }
+     }
+
+   /* eo_id can change here. Freeing is done on the resolved object. */
+   eo_do(eo_id, eo_id = eo_constructor());
+   if (!eo_id)
+     {
+        ERR("Object of class '%s' - Error while constructing object",
+            klass->desc->name);
         _eo_unref(obj);
+        eo_del((Eo *) obj->header.id);
+        return NULL;
      }
 
    return eo_id;
 }
 
-Eo *
-_eo_add_internal_end(Eo *eo_id)
+static Eo *
+_eo_add_internal_end(Eo *eo_id, Eo_Call_Stack *stack)
 {
    Eo_Stack_Frame *fptr;
-   Eo_Call_Stack *stack = _eo_call_stack_get(eina_main_loop_is());
 
    fptr = stack->frame_ptr;
 
-   if ((fptr == NULL) || (fptr->eo_id != eo_id))
+   if ((fptr == NULL) || (eo_id && (fptr->eo_id != eo_id)))
      {
         ERR("Something very wrong happend to the call stack.");
         return NULL;
@@ -934,20 +939,36 @@ _eo_add_internal_end(Eo *eo_id)
 
    if (EINA_UNLIKELY(!fptr->o.obj))
      {
-        ERR("Corrupt call stuck, shouldn't happen, please report!");
+        ERR("Corrupt call stack, shouldn't happen, please report!");
         return NULL;
      }
 
-   if (!fptr->o.obj->condtor_done || fptr->o.obj->do_error)
      {
         const _Eo_Class *klass = (fptr->cur_klass) ?
            fptr->cur_klass : fptr->o.obj->klass;
-        ERR("Object of class '%s' - Not all of the object constructors have been executed.",
-            klass->desc->name);
-        /* Unref twice, once for the ref in _eo_add_internal_start, and once for the basic object ref. */
-        _eo_unref(fptr->o.obj);
-        _eo_unref(fptr->o.obj);
-        return NULL;
+
+        if (!fptr->o.obj->condtor_done)
+          {
+             ERR("Object of class '%s' - Not all of the object constructors have been executed.",
+                   klass->desc->name);
+             goto cleanup;
+          }
+
+        if (!eo_id)
+          {
+// XXX: Given EFL usage of objects, construction is a perfectly valid thing
+// to do. we shouldn't complain about it as handling a NULL obj creation is
+// the job of the caller. a perfect example here is ecore_con and ecore_ipc
+// where you create a con or ipc obj then set up type/destination/port and
+// the finalize of the constructor does the actual connect and thus this
+// fails or succeeds based on if service is there.
+//
+// until there is a better solution - don't complain here.
+// 
+//             ERR("Object of class '%s' - Finalizing the object failed.",
+//                   klass->desc->name);
+             goto cleanup;
+          }
      }
 
    fptr->o.obj->finalized = EINA_TRUE;
@@ -955,20 +976,23 @@ _eo_add_internal_end(Eo *eo_id)
    _eo_unref(fptr->o.obj);
 
    return (Eo *)eo_id;
+
+cleanup:
+   _eo_unref(fptr->o.obj);
+   eo_del((Eo *) fptr->o.obj->header.id);
+   return NULL;
+}
+
+EAPI Eo *
+_eo_add_end(void *eo_stack)
+{
+   Eo *ret = eo_finalize();
+   ret = _eo_add_internal_end(ret, eo_stack);
+   _eo_do_end(eo_stack);
+   return ret;
 }
 
 /*****************************************************************************/
-
-#define _EO_OP_ERR_NO_OP_PRINT(file, line, op, klass) \
-   do \
-      { \
-         const _Eo_Class *op_klass = _eo_op_class_get(op); \
-         const char *_dom_name = (op_klass) ? op_klass->desc->name : NULL; \
-         ERR("in %s:%d: Can't execute function %s:%s (op 0x%x) for class '%s'. Aborting.", \
-               file, line, _dom_name, _eo_op_id_name_get(op), op, \
-               (klass) ? klass->desc->name : NULL); \
-      } \
-   while (0)
 
 EAPI const Eo_Class *
 eo_class_get(const Eo *eo_id)
@@ -1196,9 +1220,9 @@ eo_class_new(const Eo_Class_Description *desc, const Eo_Class *parent_id, ...)
 
    _Eo_Class *parent = _eo_class_pointer_get(parent_id);
 #ifndef HAVE_EO_ID
-   if (parent && !EINA_MAGIC_CHECK((Eo_Base *) parent, EO_CLASS_EINA_MAGIC))
+   if (parent && !EINA_MAGIC_CHECK((Eo_Header *) parent, EO_CLASS_EINA_MAGIC))
      {
-        EINA_MAGIC_FAIL((Eo_Base *) parent, EO_CLASS_EINA_MAGIC);
+        EINA_MAGIC_FAIL((Eo_Header *) parent, EO_CLASS_EINA_MAGIC);
         return NULL;
      }
 #endif
@@ -1313,7 +1337,7 @@ eo_class_new(const Eo_Class_Description *desc, const Eo_Class *parent_id, ...)
 
    klass = calloc(1, _eo_class_sz + extn_sz + mro_sz + mixins_sz);
 #ifndef HAVE_EO_ID
-   EINA_MAGIC_SET((Eo_Base *) klass, EO_CLASS_EINA_MAGIC);
+   EINA_MAGIC_SET((Eo_Header *) klass, EO_CLASS_EINA_MAGIC);
 #endif
    eina_spinlock_new(&klass->objects.trash_lock);
    eina_spinlock_new(&klass->iterators.trash_lock);
@@ -1544,7 +1568,8 @@ eo_unref(const Eo *obj_id)
 EAPI void
 eo_del(const Eo *obj)
 {
-   if (eo_do(obj, eo_parent_get()))
+   Eo *parent_tmp;
+   if (eo_do_ret(obj, parent_tmp, eo_parent_get()))
      {
         eo_do(obj, eo_parent_set(NULL));
      }
@@ -1560,16 +1585,6 @@ eo_ref_get(const Eo *obj_id)
    EO_OBJ_POINTER_RETURN_VAL(obj_id, obj, 0);
 
    return obj->refcount;
-}
-
-EAPI void
-eo_error_set_internal(const Eo *obj_id, const char *file, int line)
-{
-   EO_OBJ_POINTER_RETURN(obj_id, obj);
-
-   ERR("Error with obj '%p' at %s:%d.", obj, file, line);
-
-   obj->do_error = EINA_TRUE;
 }
 
 void
@@ -1592,9 +1607,10 @@ _eo_data_scope_get(const _Eo_Object *obj, const _Eo_Class *klass)
      return ((char *) obj) + _eo_sz + klass->data_offset;
 
    if (EINA_UNLIKELY(klass->desc->data_size == 0))
-     return NULL;
+     {
+        return NULL;
+     }
    else
-
      {
         Eo_Extension_Data_Offset *doff_itr = obj->klass->extn_data_off;
 
@@ -1783,11 +1799,23 @@ eo_init(void)
         return EINA_FALSE;
      }
 
+   if (!eina_spinlock_new(&_ops_storage_lock))
+     {
+        EINA_LOG_ERR("Could not init lock.");
+        return EINA_FALSE;
+     }
+
    eina_magic_string_static_set(EO_EINA_MAGIC, EO_EINA_MAGIC_STR);
    eina_magic_string_static_set(EO_FREED_EINA_MAGIC,
                                 EO_FREED_EINA_MAGIC_STR);
    eina_magic_string_static_set(EO_CLASS_EINA_MAGIC,
                                 EO_CLASS_EINA_MAGIC_STR);
+
+#ifndef _WIN32
+   _ops_storage = eina_hash_pointer_new(NULL);
+#else
+   _ops_storage = eina_hash_string_superfast_new(NULL);
+#endif
 
 #ifdef EO_DEBUG
    /* Call it just for coverage purposes. Ugly I know, but I like it better than
@@ -1812,6 +1840,13 @@ eo_init(void)
              return EINA_FALSE;
 
           }
+     }
+
+   main_loop_stack = _eo_call_stack_create();
+   if (!main_loop_stack)
+     {
+        EINA_LOG_ERR("Could not alloc eo call stack.");
+        return EINA_FALSE;
      }
 
    return EINA_TRUE;
@@ -1839,6 +1874,9 @@ eo_shutdown(void)
    if (_eo_classes)
      free(_eo_classes);
 
+   eina_hash_free(_ops_storage);
+
+   eina_spinlock_free(&_ops_storage_lock);
    eina_spinlock_free(&_eo_class_creation_lock);
 
    if (_eo_call_stack_key != 0)

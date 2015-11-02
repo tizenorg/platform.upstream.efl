@@ -8,17 +8,16 @@
 
 #define MY_CLASS SIMPLE2_CLASS
 
-static void
+static Eo *
 _constructor(Eo *obj, void *class_data EINA_UNUSED)
 {
-   eo_do_super(obj, MY_CLASS, eo_constructor());
+   obj = eo_do_super_ret(obj, MY_CLASS, obj, eo_constructor());
 
-   eo_error_set(obj);
+   return NULL;
 }
 
 static Eo_Op_Description op_descs[] = {
      EO_OP_FUNC_OVERRIDE(eo_constructor, _constructor),
-     EO_OP_SENTINEL
 };
 
 static const Eo_Class_Description class_desc = {

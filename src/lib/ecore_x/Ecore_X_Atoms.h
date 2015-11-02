@@ -338,6 +338,7 @@ EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_WINDOW_AUX_HINT_SUPPORT; /**< @since 1.1
 EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_WINDOW_AUX_HINT; /**< @since 1.10 */
 EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_WINDOW_AUX_HINT_ALLOWED; /**< @since 1.10 */
 
+<<<<<<< HEAD
 /* E virtual keyboard extension */
 EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_VIRTUAL_KEYBOARD_CONTROL_WINDOW;
 EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_VIRTUAL_KEYBOARD_ON_PREPARE_REQUEST;
@@ -345,6 +346,8 @@ EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_VIRTUAL_KEYBOARD_ON_PREPARE_DONE;
 EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_VIRTUAL_KEYBOARD_OFF_PREPARE_REQUEST;
 EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_VIRTUAL_KEYBOARD_OFF_PREPARE_DONE;
 
+=======
+>>>>>>> opensource/master
 /* E keyrouter protocol */
 EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_KEYROUTER_SUPPORTED; /**< @since 1.15 */
 EAPI extern Ecore_X_Atom ECORE_X_ATOM_E_KEYROUTER_WINDOW_KEYTABLE; /**< @since 1.15 */

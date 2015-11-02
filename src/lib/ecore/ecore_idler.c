@@ -50,7 +50,6 @@ _ecore_idler_constructor(Eo *obj, Ecore_Idler_Data *ie, Ecore_Task_Cb func, cons
 {
     if (EINA_UNLIKELY(!eina_main_loop_is()))
       {
-         eo_error_set(obj);
          EINA_MAIN_LOOP_CHECK_RETURN;
       }
 
@@ -59,7 +58,6 @@ _ecore_idler_constructor(Eo *obj, Ecore_Idler_Data *ie, Ecore_Task_Cb func, cons
 
    if (!func)
      {
-        eo_error_set(obj);
         ERR("callback function must be set up for an object of class: '%s'", MY_CLASS_NAME);
         return;
      }
@@ -87,6 +85,7 @@ static void *
 _ecore_idler_del(Ecore_Idler *obj)
 {
    Ecore_Idler_Data *idler = eo_data_scope_get(obj, MY_CLASS);
+   if (!idler) return NULL;
    EINA_SAFETY_ON_TRUE_RETURN_VAL(idler->delete_me, NULL);
    idler->delete_me = 1;
    idlers_delete_me = 1;
@@ -100,6 +99,17 @@ _ecore_idler_eo_base_destructor(Eo *obj, Ecore_Idler_Data *idler)
    idlers_delete_me = 1;
 
    eo_do_super(obj, MY_CLASS, eo_destructor());
+}
+
+EOLIAN static Eo *
+_ecore_idler_eo_base_finalize(Eo *obj, Ecore_Idler_Data *idler)
+{
+   if (!idler->func)
+     {
+        return NULL;
+     }
+
+   return eo_do_super_ret(obj, MY_CLASS, obj, eo_finalize());
 }
 
 void
@@ -140,10 +150,12 @@ _ecore_idler_all_call(void)
         if (!ie->delete_me)
           {
              ie->references++;
+             eina_evlog("+idler", ie, 0.0, NULL);
              if (!_ecore_call_task_cb(ie->func, ie->data))
                {
                   if (!ie->delete_me) _ecore_idler_del(ie->obj);
                }
+             eina_evlog("-idler", ie, 0.0, NULL);
              ie->references--;
           }
         if (idler_current) /* may have changed in recursive main loops */

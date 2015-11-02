@@ -12,7 +12,7 @@ typedef struct
 } Private_Data;
 
 EAPI const Eo_Event_Description _EV_A_CHANGED =
-        EO_EVENT_DESCRIPTION("a,changed", "Called when a has changed.");
+        EO_EVENT_DESCRIPTION("a,changed");
 
 #define MY_CLASS SIMPLE_CLASS
 
@@ -60,23 +60,24 @@ _cb_deled(void *data, Eo *obj, const Eo_Event_Description *desc, void *event_inf
    return EO_CALLBACK_CONTINUE;
 }
 
-static void
+static Eo *
 _constructor(Eo *obj, void *class_data EINA_UNUSED)
 {
-   eo_do_super(obj, MY_CLASS, eo_constructor());
+   obj = eo_do_super_ret(obj, MY_CLASS, obj, eo_constructor());
 
    eo_do(obj, eo_event_callback_add(EO_EV_CALLBACK_ADD, _cb_added, NULL));
    eo_do(obj, eo_event_callback_add(EO_EV_CALLBACK_DEL, _cb_deled, NULL));
 
-   eo_do(obj, eo_key_data_set("cb_count", (intptr_t) 0, NULL));
+   eo_do(obj, eo_key_data_set("cb_count", NULL));
+
+   return obj;
 }
 
 EAPI EO_VOID_FUNC_BODYV(simple_a_set, EO_FUNC_CALL(a), int a);
 
 static Eo_Op_Description op_descs[] = {
      EO_OP_FUNC_OVERRIDE(eo_constructor, _constructor),
-     EO_OP_FUNC(simple_a_set, _a_set, "Set property a"),
-     EO_OP_SENTINEL
+     EO_OP_FUNC(simple_a_set, _a_set),
 };
 
 

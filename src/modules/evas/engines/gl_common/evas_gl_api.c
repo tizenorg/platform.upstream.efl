@@ -1,16 +1,23 @@
+#define GL_ERRORS_NODEF 1
 #include "evas_gl_core_private.h"
 #include "evas_gl_api_ext.h"
 #include <dlfcn.h>
 
-#define EVGL_FUNC_BEGIN() \
+#define EVGL_FUNC_BEGIN() if (UNLIKELY(_need_context_restore)) _context_restore()
+
+#define EVGLD_FUNC_BEGIN() \
 { \
+   EVGL_FUNC_BEGIN(); \
    _func_begin_debug(__FUNCTION__); \
 }
 
-#define EVGL_FUNC_END()
+#define EVGLD_FUNC_END() GLERRV(__FUNCTION__)
 #define _EVGL_INT_INIT_VALUE -3
 
+<<<<<<< HEAD
 extern int _evas_gl_log_level;
+=======
+>>>>>>> opensource/master
 static void *_gles3_handle = NULL;
 static Evas_GL_API _gles3_api;
 //---------------------------------------//
@@ -369,8 +376,10 @@ _evgl_glClear(GLbitfield mask)
              /* Skip glClear() if clearing with transparent color
               * Note: There will be side effects if the object itself is not
               * marked as having an alpha channel!
+              * COPY mode forces the normal behaviour of glClear().
               */
-             if (ctx->current_sfc->alpha && (mask & GL_COLOR_BUFFER_BIT))
+             if (ctx->current_sfc->alpha && !rsc->direct.render_op_copy &&
+                 (mask & GL_COLOR_BUFFER_BIT))
                {
                   if ((rsc->clear_color.a == 0) &&
                       (rsc->clear_color.r == 0) &&
@@ -655,7 +664,7 @@ _evgl_glGetString(GLenum name)
    static char _version[128] = {0};
    static char _glsl[128] = {0};
    EVGL_Resource *rsc;
-   const GLubyte *ret;
+   const char *ret;
 
    /* We wrap two values here:
     *
@@ -676,6 +685,10 @@ _evgl_glGetString(GLenum name)
     * --> crash moved to app side if they blindly call strstr()
     */
 
+   /* NOTE: Please modify software_generic/evas_engine.c as well if you change
+    *       this function!
+    */
+
    if ((!(rsc = _evgl_tls_resource_get())) || !rsc->current_ctx)
      {
         ERR("Current context is NULL, not calling glGetString");
@@ -692,17 +705,21 @@ _evgl_glGetString(GLenum name)
         break;
 
       case GL_SHADING_LANGUAGE_VERSION:
-        ret = glGetString(GL_SHADING_LANGUAGE_VERSION);
+        ret = (const char *) glGetString(GL_SHADING_LANGUAGE_VERSION);
         if (!ret) return NULL;
 #ifdef GL_GLES
+<<<<<<< HEAD
         if (ret[18] != (GLubyte) '1')
+=======
+        if (ret[18] != '1')
+>>>>>>> opensource/master
           {
              // We try not to remove the vendor fluff
-             snprintf(_glsl, sizeof(_glsl), "OpenGL ES GLSL ES 1.00 Evas GL (%s)", ((char *) ret) + 18);
+             snprintf(_glsl, sizeof(_glsl), "OpenGL ES GLSL ES 1.00 Evas GL (%s)", ret + 18);
              _glsl[sizeof(_glsl) - 1] = '\0';
              return (const GLubyte *) _glsl;
           }
-        return ret;
+        return (const GLubyte *) ret;
 #else
         // Desktop GL, we still keep the official name
         snprintf(_glsl, sizeof(_glsl), "OpenGL ES GLSL ES 1.00 Evas GL (%s)", (char *) ret);
@@ -711,17 +728,21 @@ _evgl_glGetString(GLenum name)
 #endif
 
       case GL_VERSION:
-        ret = glGetString(GL_VERSION);
+        ret = (const char *) glGetString(GL_VERSION);
         if (!ret) return NULL;
 #ifdef GL_GLES
+<<<<<<< HEAD
         if ((ret[10] != (GLubyte) '2') && (ret[10] != (GLubyte) '3'))
+=======
+        if ((ret[10] != '2') && (ret[10] != '3'))
+>>>>>>> opensource/master
           {
              // We try not to remove the vendor fluff
-             snprintf(_version, sizeof(_version), "OpenGL ES 2.0 Evas GL (%s)", ((char *) ret) + 10);
+             snprintf(_version, sizeof(_version), "OpenGL ES 2.0 Evas GL (%s)", ret + 10);
              _version[sizeof(_version) - 1] = '\0';
              return (const GLubyte *) _version;
           }
-        return ret;
+        return (const GLubyte *) ret;
 #else
         // Desktop GL, we still keep the official name
         snprintf(_version, sizeof(_version), "OpenGL ES 2.0 Evas GL (%s)", (char *) ret);
@@ -730,7 +751,11 @@ _evgl_glGetString(GLenum name)
 #endif
 
       case GL_EXTENSIONS:
+<<<<<<< HEAD
         // Passing the verion -  GLESv2/GLESv3.
+=======
+        // Passing the version -  GLESv2/GLESv3.
+>>>>>>> opensource/master
         return (GLubyte *) evgl_api_ext_string_get(EINA_TRUE, rsc->current_ctx->version);
 
       default:
@@ -995,10 +1020,10 @@ _evgl_glViewport(GLint x, GLint y, GLsizei width, GLsizei height)
         glViewport(x, y, width, height);
      }
 }
-//-------------------------------------------------------------//
 
 
 //-------------------------------------------------------------//
+<<<<<<< HEAD
 // Open GLES 3.0 APIs
 
 
@@ -4779,6 +4804,288 @@ do_eglShaderPatch(const char *source, int length, int *patched_len)
                   patched = tmp;
                }
 
+=======
+// Open GLES 2.0 APIs
+#define _EVASGL_FUNCTION_PRIVATE_BEGIN(ret, name, param1, param2) \
+static ret evgl_##name param1 { \
+   EVGL_FUNC_BEGIN(); \
+   return _evgl_##name param2; \
+}
+
+#define _EVASGL_FUNCTION_PRIVATE_BEGIN_VOID(name, param1, param2) \
+static void evgl_##name param1 { \
+   EVGL_FUNC_BEGIN(); \
+   _evgl_##name param2; \
+}
+
+#define _EVASGL_FUNCTION_BEGIN(ret, name, param1, param2) \
+static ret evgl_##name param1 { \
+   EVGL_FUNC_BEGIN(); \
+   return name param2; \
+}
+
+#define _EVASGL_FUNCTION_BEGIN_VOID(name, param1, param2) \
+static void evgl_##name param1 { \
+   EVGL_FUNC_BEGIN(); \
+   name param2; \
+}
+
+#include "evas_gl_api_def.h"
+
+#undef _EVASGL_FUNCTION_PRIVATE_BEGIN
+#undef _EVASGL_FUNCTION_PRIVATE_BEGIN_VOID
+#undef _EVASGL_FUNCTION_BEGIN
+#undef _EVASGL_FUNCTION_BEGIN_VOID
+
+
+//-------------------------------------------------------------//
+// Open GLES 2.0 APIs DEBUG
+#define _EVASGL_FUNCTION_PRIVATE_BEGIN(ret, name, param1, param2) \
+static ret _evgld_##name param1 { \
+   EVGLD_FUNC_BEGIN(); \
+   ret _a = _evgl_##name param2; \
+   EVGLD_FUNC_END(); \
+   return _a; \
+}
+
+#define _EVASGL_FUNCTION_PRIVATE_BEGIN_VOID(name, param1, param2) \
+static void _evgld_##name param1 { \
+   EVGLD_FUNC_BEGIN(); \
+   _evgl_##name param2; \
+   EVGLD_FUNC_END(); \
+}
+
+#define _EVASGL_FUNCTION_BEGIN(ret, name, param1, param2) \
+static ret _evgld_##name param1 { \
+   EVGLD_FUNC_BEGIN(); \
+   ret _a = name param2; \
+   EVGLD_FUNC_END(); \
+   return _a; \
+}
+
+#define _EVASGL_FUNCTION_BEGIN_VOID(name, param1, param2) \
+static void _evgld_##name param1 { \
+   EVGLD_FUNC_BEGIN(); \
+   name param2; \
+   EVGLD_FUNC_END(); \
+}
+
+#include "evas_gl_api_def.h"
+
+#undef _EVASGL_FUNCTION_PRIVATE_BEGIN
+#undef _EVASGL_FUNCTION_PRIVATE_BEGIN_VOID
+#undef _EVASGL_FUNCTION_BEGIN
+#undef _EVASGL_FUNCTION_BEGIN_VOID
+
+
+//-------------------------------------------------------------//
+// Open GLES 3.0 APIs
+#define _EVASGL_FUNCTION_BEGIN(ret, name, param1, param2) \
+static ret evgl_gles3_##name param1 { \
+   EVGL_FUNC_BEGIN(); \
+   if (!_gles3_api.name) return (ret)0; \
+   return _gles3_api.name param2; \
+}
+
+#define _EVASGL_FUNCTION_BEGIN_VOID(name, param1, param2) \
+static void evgl_gles3_##name param1 { \
+   EVGL_FUNC_BEGIN(); \
+   if (!_gles3_api.name) return; \
+   _gles3_api.name param2; \
+}
+
+#include "evas_gl_api_gles3_def.h"
+
+#undef _EVASGL_FUNCTION_BEGIN
+#undef _EVASGL_FUNCTION_BEGIN_VOID
+
+
+//-------------------------------------------------------------//
+// Open GLES 3.0 APIs DEBUG
+#define _EVASGL_FUNCTION_BEGIN(ret, name, param1, param2) \
+static ret _evgld_##name param1 { \
+   EVGLD_FUNC_BEGIN(); \
+   if (!_gles3_api.name) return (ret)0; \
+   ret _a = _gles3_api.name param2; \
+   EVGLD_FUNC_END(); \
+   return _a; \
+}
+
+#define _EVASGL_FUNCTION_BEGIN_VOID(name, param1, param2) \
+static void _evgld_##name param1 { \
+   EVGLD_FUNC_BEGIN(); \
+   if (!_gles3_api.name) return; \
+   _gles3_api.name param2; \
+   EVGLD_FUNC_END(); \
+}
+
+#include "evas_gl_api_gles3_def.h"
+
+#undef _EVASGL_FUNCTION_BEGIN
+#undef _EVASGL_FUNCTION_BEGIN_VOID
+
+//-------------------------------------------------------------//
+// Calls for stripping precision string in the shader
+#if 0
+
+static const char *
+opengl_strtok(const char *s, int *n, char **saveptr, char *prevbuf)
+{
+   char *start;
+   char *ret;
+   char *p;
+   int retlen;
+   static const char *delim = " \t\n\r/";
+
+   if (prevbuf)
+      free(prevbuf);
+
+   if (s)
+     {
+        *saveptr = s;
+     }
+   else
+     {
+        if (!(*saveptr) || !(*n))
+           return NULL;
+        s = *saveptr;
+     }
+
+   for (; *n && strchr(delim, *s); s++, (*n)--)
+     {
+        if (*s == '/' && *n > 1)
+          {
+             if (s[1] == '/')
+               {
+                  do {
+                       s++, (*n)--;
+                  } while (*n > 1 && s[1] != '\n' && s[1] != '\r');
+               }
+             else if (s[1] == '*')
+               {
+                  do {
+                       s++, (*n)--;
+                  } while (*n > 2 && (s[1] != '*' || s[2] != '/'));
+                  s++, (*n)--;
+                  s++, (*n)--;
+                  if (*n == 0)
+                    {
+                       break;
+                    }
+               }
+             else
+               {
+                  break;
+               }
+          }
+     }
+
+   start = s;
+   for (; *n && *s && !strchr(delim, *s); s++, (*n)--);
+   if (*n > 0)
+      s++, (*n)--;
+
+   *saveptr = s;
+
+   retlen = s - start;
+   ret = malloc(retlen + 1);
+   p = ret;
+
+   if (retlen == 0)
+     {
+        *p = 0;
+        return;
+     }
+
+   while (retlen > 0)
+     {
+        if (*start == '/' && retlen > 1)
+          {
+             if (start[1] == '/')
+               {
+                  do {
+                       start++, retlen--;
+                  } while (retlen > 1 && start[1] != '\n' && start[1] != '\r');
+                  start++, retlen--;
+                  continue;
+               } else if (start[1] == '*')
+                 {
+                    do {
+                         start++, retlen--;
+                    } while (retlen > 2 && (start[1] != '*' || start[2] != '/'));
+                    start += 3, retlen -= 3;
+                    continue;
+                 }
+          }
+        *(p++) = *(start++), retlen--;
+     }
+
+   *p = 0;
+   return ret;
+}
+
+static char *
+do_eglShaderPatch(const char *source, int length, int *patched_len)
+{
+   char *saveptr = NULL;
+   char *sp;
+   char *p = NULL;
+
+   if (!length) length = strlen(source);
+
+   *patched_len = 0;
+   int patched_size = length;
+   char *patched = malloc(patched_size + 1);
+
+   if (!patched) return NULL;
+
+   p = opengl_strtok(source, &length, &saveptr, NULL);
+
+   for (; p; p = opengl_strtok(0, &length, &saveptr, p))
+     {
+        if (!strncmp(p, "lowp", 4) || !strncmp(p, "mediump", 7) || !strncmp(p, "highp", 5))
+          {
+             continue;
+          }
+        else if (!strncmp(p, "precision", 9))
+          {
+             while ((p = opengl_strtok(0, &length, &saveptr, p)) && !strchr(p, ';'));
+          }
+        else
+          {
+             if (!strncmp(p, "gl_MaxVertexUniformVectors", 26))
+               {
+                  free(p);
+                  p = strdup("(gl_MaxVertexUniformComponents / 4)");
+               }
+             else if (!strncmp(p, "gl_MaxFragmentUniformVectors", 28))
+               {
+                  free(p);
+                  p = strdup("(gl_MaxFragmentUniformComponents / 4)");
+               }
+             else if (!strncmp(p, "gl_MaxVaryingVectors", 20))
+               {
+                  free(p);
+                  p = strdup("(gl_MaxVaryingFloats / 4)");
+               }
+
+             int new_len = strlen(p);
+             if (*patched_len + new_len > patched_size)
+               {
+                  char *tmp;
+
+                  patched_size *= 2;
+                  tmp = realloc(patched, patched_size + 1);
+                  if (!tmp)
+                    {
+                       free(patched);
+                       free(p);
+                       return NULL;
+                    }
+                  patched = tmp;
+               }
+
+>>>>>>> opensource/master
              memcpy(patched + *patched_len, p, new_len);
              *patched_len += new_len;
           }
@@ -4840,11 +5147,10 @@ shadersrc_gles_to_gl(GLsizei count, const char** string, char **s, const GLint* 
 void
 _evgld_glShaderSource(GLuint shader, GLsizei count, const char* const* string, const GLint* length)
 {
-   EVGL_FUNC_BEGIN();
+   EVGLD_FUNC_BEGIN();
 
 #ifdef GL_GLES
    glShaderSource(shader, count, string, length);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
    goto finish;
 #else
    //GET_EXT_PTR(void, glShaderSource, (int, int, char **, void *));
@@ -4874,7 +5180,6 @@ _evgld_glShaderSource(GLuint shader, GLsizei count, const char* const* string, c
       ERR("Error allocating memory for shader string manipulation.");
 
    glShaderSource(shader, count, tab_prog_new, tab_length_new);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 
    for (i = 0; i < count; i++)
       free(tab_prog_new[i]);
@@ -4885,37 +5190,14 @@ _evgld_glShaderSource(GLuint shader, GLsizei count, const char* const* string, c
 #endif
 
 finish:
-   EVGL_FUNC_END();
+   EVGLD_FUNC_END();
 }
 #endif
 
 //-------------------------------------------------------------//
 
-
-//-------------------------------------------------------------//
-// Calls related to Evas GL Direct Rendering
-//-------------------------------------------------------------//
 static void
-_evgld_glClear(GLbitfield mask)
-{
-   EVGL_FUNC_BEGIN();
-
-   _evgl_glClear(mask);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-   EVGL_FUNC_END();
-}
-
-static void
-_evgld_glEnable(GLenum cap)
-{
-   EVGL_FUNC_BEGIN();
-
-   _evgl_glEnable(cap);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-   EVGL_FUNC_END();
-}
-
-static void
+<<<<<<< HEAD
 _evgld_glDisable(GLenum cap)
 {
    EVGL_FUNC_BEGIN();
@@ -5336,6 +5618,13 @@ _normal_gles3_api_get(Evas_GL_API *funcs)
 {
 #define ORD(f) EVAS_API_OVERRIDE(f, funcs,)
    // GLES 3.0 APIs that are same as GLES 2.0
+=======
+_normal_gles2_api_get(Evas_GL_API *funcs)
+{
+   funcs->version = EVAS_GL_API_VERSION;
+
+#define ORD(f) EVAS_API_OVERRIDE(f, funcs, evgl_)
+   // GLES 2.0
    ORD(glActiveTexture);
    ORD(glAttachShader);
    ORD(glBindAttribLocation);
@@ -5349,9 +5638,9 @@ _normal_gles3_api_get(Evas_GL_API *funcs)
    ORD(glBufferData);
    ORD(glBufferSubData);
    ORD(glCheckFramebufferStatus);
-//   ORD(glClear);
-//   ORD(glClearColor);
-//   ORD(glClearDepthf);
+   ORD(glClear);
+   ORD(glClearColor);
+   ORD(glClearDepthf);
    ORD(glClearStencil);
    ORD(glColorMask);
    ORD(glCompileShader);
@@ -5370,13 +5659,13 @@ _normal_gles3_api_get(Evas_GL_API *funcs)
    ORD(glDeleteTextures);
    ORD(glDepthFunc);
    ORD(glDepthMask);
-//   ORD(glDepthRangef);
+   ORD(glDepthRangef);
    ORD(glDetachShader);
-//   ORD(glDisable);
+   ORD(glDisable);
    ORD(glDisableVertexAttribArray);
    ORD(glDrawArrays);
    ORD(glDrawElements);
-//   ORD(glEnable);
+   ORD(glEnable);
    ORD(glEnableVertexAttribArray);
    ORD(glFinish);
    ORD(glFlush);
@@ -5397,15 +5686,15 @@ _normal_gles3_api_get(Evas_GL_API *funcs)
    ORD(glGetError);
    ORD(glGetFloatv);
    ORD(glGetFramebufferAttachmentParameteriv);
-//   ORD(glGetIntegerv);
+   ORD(glGetIntegerv);
    ORD(glGetProgramiv);
    ORD(glGetProgramInfoLog);
    ORD(glGetRenderbufferParameteriv);
    ORD(glGetShaderiv);
    ORD(glGetShaderInfoLog);
-//   ORD(glGetShaderPrecisionFormat);
+   ORD(glGetShaderPrecisionFormat);
    ORD(glGetShaderSource);
-//   ORD(glGetString);
+   ORD(glGetString);
    ORD(glGetTexParameterfv);
    ORD(glGetTexParameteriv);
    ORD(glGetUniformfv);
@@ -5426,14 +5715,13 @@ _normal_gles3_api_get(Evas_GL_API *funcs)
    ORD(glLinkProgram);
    ORD(glPixelStorei);
    ORD(glPolygonOffset);
-//   ORD(glReadPixels);
-//   ORD(glReleaseShaderCompiler);
+   ORD(glReadPixels);
+   ORD(glReleaseShaderCompiler);
    ORD(glRenderbufferStorage);
    ORD(glSampleCoverage);
-//   ORD(glScissor);
-//   ORD(glShaderBinary);
-// Deal with double glShaderSource signature
-   funcs->glShaderSource = (void (*)(GLuint, GLsizei, const char * const *, const GLint *))glShaderSource;
+   ORD(glScissor);
+   ORD(glShaderBinary);
+   ORD(glShaderSource);
    ORD(glStencilFunc);
    ORD(glStencilFuncSeparate);
    ORD(glStencilMask);
@@ -5476,12 +5764,186 @@ _normal_gles3_api_get(Evas_GL_API *funcs)
    ORD(glVertexAttrib4f);
    ORD(glVertexAttrib4fv);
    ORD(glVertexAttribPointer);
-//   ORD(glViewport);
+   ORD(glViewport);
 
-//   ORD(glBindFramebuffer);
+   ORD(glBindFramebuffer);
    ORD(glBindRenderbuffer);
 #undef ORD
+}
 
+static void
+_direct_scissor_off_api_get(Evas_GL_API *funcs)
+{
+
+#define ORD(f) EVAS_API_OVERRIDE(f, funcs,)
+   // For Direct Rendering
+   ORD(glClear);
+   ORD(glClearColor);
+   ORD(glDisable);
+   ORD(glEnable);
+   ORD(glGetIntegerv);
+   ORD(glReadPixels);
+   ORD(glScissor);
+   ORD(glViewport);
+#undef ORD
+}
+
+
+static void
+_debug_gles2_api_get(Evas_GL_API *funcs)
+{
+   funcs->version = EVAS_GL_API_VERSION;
+
+#define ORD(f) EVAS_API_OVERRIDE(f, funcs, _evgld_)
+   // GLES 2.0
+>>>>>>> opensource/master
+   ORD(glActiveTexture);
+   ORD(glAttachShader);
+   ORD(glBindAttribLocation);
+   ORD(glBindBuffer);
+   ORD(glBindTexture);
+   ORD(glBlendColor);
+   ORD(glBlendEquation);
+   ORD(glBlendEquationSeparate);
+   ORD(glBlendFunc);
+   ORD(glBlendFuncSeparate);
+   ORD(glBufferData);
+   ORD(glBufferSubData);
+   ORD(glCheckFramebufferStatus);
+   ORD(glClear);
+   ORD(glClearColor);
+   ORD(glClearDepthf);
+   ORD(glClearStencil);
+   ORD(glColorMask);
+   ORD(glCompileShader);
+   ORD(glCompressedTexImage2D);
+   ORD(glCompressedTexSubImage2D);
+   ORD(glCopyTexImage2D);
+   ORD(glCopyTexSubImage2D);
+   ORD(glCreateProgram);
+   ORD(glCreateShader);
+   ORD(glCullFace);
+   ORD(glDeleteBuffers);
+   ORD(glDeleteFramebuffers);
+   ORD(glDeleteProgram);
+   ORD(glDeleteRenderbuffers);
+   ORD(glDeleteShader);
+   ORD(glDeleteTextures);
+   ORD(glDepthFunc);
+   ORD(glDepthMask);
+   ORD(glDepthRangef);
+   ORD(glDetachShader);
+   ORD(glDisable);
+   ORD(glDisableVertexAttribArray);
+   ORD(glDrawArrays);
+   ORD(glDrawElements);
+   ORD(glEnable);
+   ORD(glEnableVertexAttribArray);
+   ORD(glFinish);
+   ORD(glFlush);
+   ORD(glFramebufferRenderbuffer);
+   ORD(glFramebufferTexture2D);
+   ORD(glFrontFace);
+   ORD(glGenBuffers);
+   ORD(glGenerateMipmap);
+   ORD(glGenFramebuffers);
+   ORD(glGenRenderbuffers);
+   ORD(glGenTextures);
+   ORD(glGetActiveAttrib);
+   ORD(glGetActiveUniform);
+   ORD(glGetAttachedShaders);
+   ORD(glGetAttribLocation);
+   ORD(glGetBooleanv);
+   ORD(glGetBufferParameteriv);
+   ORD(glGetError);
+   ORD(glGetFloatv);
+   ORD(glGetFramebufferAttachmentParameteriv);
+   ORD(glGetIntegerv);
+   ORD(glGetProgramiv);
+   ORD(glGetProgramInfoLog);
+   ORD(glGetRenderbufferParameteriv);
+   ORD(glGetShaderiv);
+   ORD(glGetShaderInfoLog);
+   ORD(glGetShaderPrecisionFormat);
+   ORD(glGetShaderSource);
+   ORD(glGetString);
+   ORD(glGetTexParameterfv);
+   ORD(glGetTexParameteriv);
+   ORD(glGetUniformfv);
+   ORD(glGetUniformiv);
+   ORD(glGetUniformLocation);
+   ORD(glGetVertexAttribfv);
+   ORD(glGetVertexAttribiv);
+   ORD(glGetVertexAttribPointerv);
+   ORD(glHint);
+   ORD(glIsBuffer);
+   ORD(glIsEnabled);
+   ORD(glIsFramebuffer);
+   ORD(glIsProgram);
+   ORD(glIsRenderbuffer);
+   ORD(glIsShader);
+   ORD(glIsTexture);
+   ORD(glLineWidth);
+   ORD(glLinkProgram);
+   ORD(glPixelStorei);
+   ORD(glPolygonOffset);
+   ORD(glReadPixels);
+   ORD(glReleaseShaderCompiler);
+   ORD(glRenderbufferStorage);
+   ORD(glSampleCoverage);
+   ORD(glScissor);
+   ORD(glShaderBinary);
+   ORD(glShaderSource);
+   ORD(glStencilFunc);
+   ORD(glStencilFuncSeparate);
+   ORD(glStencilMask);
+   ORD(glStencilMaskSeparate);
+   ORD(glStencilOp);
+   ORD(glStencilOpSeparate);
+   ORD(glTexImage2D);
+   ORD(glTexParameterf);
+   ORD(glTexParameterfv);
+   ORD(glTexParameteri);
+   ORD(glTexParameteriv);
+   ORD(glTexSubImage2D);
+   ORD(glUniform1f);
+   ORD(glUniform1fv);
+   ORD(glUniform1i);
+   ORD(glUniform1iv);
+   ORD(glUniform2f);
+   ORD(glUniform2fv);
+   ORD(glUniform2i);
+   ORD(glUniform2iv);
+   ORD(glUniform3f);
+   ORD(glUniform3fv);
+   ORD(glUniform3i);
+   ORD(glUniform3iv);
+   ORD(glUniform4f);
+   ORD(glUniform4fv);
+   ORD(glUniform4i);
+   ORD(glUniform4iv);
+   ORD(glUniformMatrix2fv);
+   ORD(glUniformMatrix3fv);
+   ORD(glUniformMatrix4fv);
+   ORD(glUseProgram);
+   ORD(glValidateProgram);
+   ORD(glVertexAttrib1f);
+   ORD(glVertexAttrib1fv);
+   ORD(glVertexAttrib2f);
+   ORD(glVertexAttrib2fv);
+   ORD(glVertexAttrib3f);
+   ORD(glVertexAttrib3fv);
+   ORD(glVertexAttrib4f);
+   ORD(glVertexAttrib4fv);
+   ORD(glVertexAttribPointer);
+   ORD(glViewport);
+
+   ORD(glBindFramebuffer);
+   ORD(glBindRenderbuffer);
+#undef ORD
+}
+
+<<<<<<< HEAD
 // GLES 3.0 NEW APIs
 #define ORD(name) EVAS_API_OVERRIDE(name, funcs, _evgl_)
    ORD(glBeginQuery);
@@ -5599,27 +6061,285 @@ _normal_gles3_api_get(Evas_GL_API *funcs)
 
    // For Surface FBO
    ORD(glBindFramebuffer);
+=======
+void
+_evgl_api_gles2_get(Evas_GL_API *funcs, Eina_Bool debug)
+{
+   if (debug)
+     _debug_gles2_api_get(funcs);
+   else
+     _normal_gles2_api_get(funcs);
 
-   // For Direct Rendering
+   if (evgl_engine->direct_scissor_off)
+     _direct_scissor_off_api_get(funcs);
+}
+>>>>>>> opensource/master
+
+static void
+_normal_gles3_api_get(Evas_GL_API *funcs)
+{
+#define ORD(f) EVAS_API_OVERRIDE(f, funcs, evgl_)
+   // GLES 3.0 APIs that are same as GLES 2.0
+   ORD(glActiveTexture);
+   ORD(glAttachShader);
+   ORD(glBindAttribLocation);
+   ORD(glBindBuffer);
+   ORD(glBindTexture);
+   ORD(glBlendColor);
+   ORD(glBlendEquation);
+   ORD(glBlendEquationSeparate);
+   ORD(glBlendFunc);
+   ORD(glBlendFuncSeparate);
+   ORD(glBufferData);
+   ORD(glBufferSubData);
+   ORD(glCheckFramebufferStatus);
    ORD(glClear);
    ORD(glClearColor);
+   ORD(glClearDepthf);
+   ORD(glClearStencil);
+   ORD(glColorMask);
+   ORD(glCompileShader);
+   ORD(glCompressedTexImage2D);
+   ORD(glCompressedTexSubImage2D);
+   ORD(glCopyTexImage2D);
+   ORD(glCopyTexSubImage2D);
+   ORD(glCreateProgram);
+   ORD(glCreateShader);
+   ORD(glCullFace);
+   ORD(glDeleteBuffers);
+   ORD(glDeleteFramebuffers);
+   ORD(glDeleteProgram);
+   ORD(glDeleteRenderbuffers);
+   ORD(glDeleteShader);
+   ORD(glDeleteTextures);
+   ORD(glDepthFunc);
+   ORD(glDepthMask);
+   ORD(glDepthRangef);
+   ORD(glDetachShader);
    ORD(glDisable);
+   ORD(glDisableVertexAttribArray);
+   ORD(glDrawArrays);
+   ORD(glDrawElements);
    ORD(glEnable);
+   ORD(glEnableVertexAttribArray);
+   ORD(glFinish);
+   ORD(glFlush);
+   ORD(glFramebufferRenderbuffer);
+   ORD(glFramebufferTexture2D);
+   ORD(glFrontFace);
+   ORD(glGenBuffers);
+   ORD(glGenerateMipmap);
+   ORD(glGenFramebuffers);
+   ORD(glGenRenderbuffers);
+   ORD(glGenTextures);
+   ORD(glGetActiveAttrib);
+   ORD(glGetActiveUniform);
+   ORD(glGetAttachedShaders);
+   ORD(glGetAttribLocation);
+   ORD(glGetBooleanv);
+   ORD(glGetBufferParameteriv);
+   ORD(glGetError);
+   ORD(glGetFloatv);
+   ORD(glGetFramebufferAttachmentParameteriv);
    ORD(glGetIntegerv);
+<<<<<<< HEAD
+=======
+   ORD(glGetProgramiv);
+   ORD(glGetProgramInfoLog);
+   ORD(glGetRenderbufferParameteriv);
+   ORD(glGetShaderiv);
+   ORD(glGetShaderInfoLog);
+   ORD(glGetShaderPrecisionFormat);
+   ORD(glGetShaderSource);
+   ORD(glGetString);
+   ORD(glGetTexParameterfv);
+   ORD(glGetTexParameteriv);
+   ORD(glGetUniformfv);
+   ORD(glGetUniformiv);
+   ORD(glGetUniformLocation);
+   ORD(glGetVertexAttribfv);
+   ORD(glGetVertexAttribiv);
+   ORD(glGetVertexAttribPointerv);
+   ORD(glHint);
+   ORD(glIsBuffer);
+   ORD(glIsEnabled);
+   ORD(glIsFramebuffer);
+   ORD(glIsProgram);
+   ORD(glIsRenderbuffer);
+   ORD(glIsShader);
+   ORD(glIsTexture);
+   ORD(glLineWidth);
+   ORD(glLinkProgram);
+   ORD(glPixelStorei);
+   ORD(glPolygonOffset);
+>>>>>>> opensource/master
    ORD(glReadPixels);
+   ORD(glReleaseShaderCompiler);
+   ORD(glRenderbufferStorage);
+   ORD(glSampleCoverage);
    ORD(glScissor);
+   ORD(glShaderBinary);
+   ORD(glShaderSource);
+   ORD(glStencilFunc);
+   ORD(glStencilFuncSeparate);
+   ORD(glStencilMask);
+   ORD(glStencilMaskSeparate);
+   ORD(glStencilOp);
+   ORD(glStencilOpSeparate);
+   ORD(glTexImage2D);
+   ORD(glTexParameterf);
+   ORD(glTexParameterfv);
+   ORD(glTexParameteri);
+   ORD(glTexParameteriv);
+   ORD(glTexSubImage2D);
+   ORD(glUniform1f);
+   ORD(glUniform1fv);
+   ORD(glUniform1i);
+   ORD(glUniform1iv);
+   ORD(glUniform2f);
+   ORD(glUniform2fv);
+   ORD(glUniform2i);
+   ORD(glUniform2iv);
+   ORD(glUniform3f);
+   ORD(glUniform3fv);
+   ORD(glUniform3i);
+   ORD(glUniform3iv);
+   ORD(glUniform4f);
+   ORD(glUniform4fv);
+   ORD(glUniform4i);
+   ORD(glUniform4iv);
+   ORD(glUniformMatrix2fv);
+   ORD(glUniformMatrix3fv);
+   ORD(glUniformMatrix4fv);
+   ORD(glUseProgram);
+   ORD(glValidateProgram);
+   ORD(glVertexAttrib1f);
+   ORD(glVertexAttrib1fv);
+   ORD(glVertexAttrib2f);
+   ORD(glVertexAttrib2fv);
+   ORD(glVertexAttrib3f);
+   ORD(glVertexAttrib3fv);
+   ORD(glVertexAttrib4f);
+   ORD(glVertexAttrib4fv);
+   ORD(glVertexAttribPointer);
    ORD(glViewport);
 
-   // GLES 2 Compat for Desktop
-   ORD(glClearDepthf);
-   ORD(glDepthRangef);
-   ORD(glGetShaderPrecisionFormat);
-   ORD(glShaderBinary);
-   ORD(glReleaseShaderCompiler);
-
+   ORD(glBindFramebuffer);
+   ORD(glBindRenderbuffer);
 #undef ORD
 
+<<<<<<< HEAD
    evgl_api_gles3_ext_get(funcs);
+=======
+// GLES 3.0 NEW APIs
+#define ORD(name) EVAS_API_OVERRIDE(name, funcs, evgl_gles3_)
+   ORD(glBeginQuery);
+   ORD(glBeginTransformFeedback);
+   ORD(glBindBufferBase);
+   ORD(glBindBufferRange);
+   ORD(glBindSampler);
+   ORD(glBindTransformFeedback);
+   ORD(glBindVertexArray);
+   ORD(glBlitFramebuffer);
+   ORD(glClearBufferfi);
+   ORD(glClearBufferfv);
+   ORD(glClearBufferiv);
+   ORD(glClearBufferuiv);
+   ORD(glClientWaitSync);
+   ORD(glCompressedTexImage3D);
+   ORD(glCompressedTexSubImage3D);
+   ORD(glCopyBufferSubData);
+   ORD(glCopyTexSubImage3D);
+   ORD(glDeleteQueries);
+   ORD(glDeleteSamplers);
+   ORD(glDeleteSync);
+   ORD(glDeleteTransformFeedbacks);
+   ORD(glDeleteVertexArrays);
+   ORD(glDrawArraysInstanced);
+   ORD(glDrawBuffers);
+   ORD(glDrawElementsInstanced);
+   ORD(glDrawRangeElements);
+   ORD(glEndQuery);
+   ORD(glEndTransformFeedback);
+   ORD(glFenceSync);
+   ORD(glFlushMappedBufferRange);
+   ORD(glFramebufferTextureLayer);
+   ORD(glGenQueries);
+   ORD(glGenSamplers);
+   ORD(glGenTransformFeedbacks);
+   ORD(glGenVertexArrays);
+   ORD(glGetActiveUniformBlockiv);
+   ORD(glGetActiveUniformBlockName);
+   ORD(glGetActiveUniformsiv);
+   ORD(glGetBufferParameteri64v);
+   ORD(glGetBufferPointerv);
+   ORD(glGetFragDataLocation);
+   ORD(glGetInteger64i_v);
+   ORD(glGetInteger64v);
+   ORD(glGetIntegeri_v);
+   ORD(glGetInternalformativ);
+   ORD(glGetProgramBinary);
+   ORD(glGetQueryiv);
+   ORD(glGetQueryObjectuiv);
+   ORD(glGetSamplerParameterfv);
+   ORD(glGetSamplerParameteriv);
+   ORD(glGetStringi);
+   ORD(glGetSynciv);
+   ORD(glGetTransformFeedbackVarying);
+   ORD(glGetUniformBlockIndex);
+   ORD(glGetUniformIndices);
+   ORD(glGetUniformuiv);
+   ORD(glGetVertexAttribIiv);
+   ORD(glGetVertexAttribIuiv);
+   ORD(glInvalidateFramebuffer);
+   ORD(glInvalidateSubFramebuffer);
+   ORD(glIsQuery);
+   ORD(glIsSampler);
+   ORD(glIsSync);
+   ORD(glIsTransformFeedback);
+   ORD(glIsVertexArray);
+   ORD(glMapBufferRange);
+   ORD(glPauseTransformFeedback);
+   ORD(glProgramBinary);
+   ORD(glProgramParameteri);
+   ORD(glReadBuffer);
+   ORD(glRenderbufferStorageMultisample);
+   ORD(glResumeTransformFeedback);
+   ORD(glSamplerParameterf);
+   ORD(glSamplerParameterfv);
+   ORD(glSamplerParameteri);
+   ORD(glSamplerParameteriv);
+   ORD(glTexImage3D);
+   ORD(glTexStorage2D);
+   ORD(glTexStorage3D);
+   ORD(glTexSubImage3D);
+   ORD(glTransformFeedbackVaryings);
+   ORD(glUniform1ui);
+   ORD(glUniform1uiv);
+   ORD(glUniform2ui);
+   ORD(glUniform2uiv);
+   ORD(glUniform3ui);
+   ORD(glUniform3uiv);
+   ORD(glUniform4ui);
+   ORD(glUniform4uiv);
+   ORD(glUniformBlockBinding);
+   ORD(glUniformMatrix2x3fv);
+   ORD(glUniformMatrix3x2fv);
+   ORD(glUniformMatrix2x4fv);
+   ORD(glUniformMatrix4x2fv);
+   ORD(glUniformMatrix3x4fv);
+   ORD(glUniformMatrix4x3fv);
+   ORD(glUnmapBuffer);
+   ORD(glVertexAttribDivisor);
+   ORD(glVertexAttribI4i);
+   ORD(glVertexAttribI4iv);
+   ORD(glVertexAttribI4ui);
+   ORD(glVertexAttribI4uiv);
+   ORD(glVertexAttribIPointer);
+   ORD(glWaitSync);
+
+#undef ORD
+>>>>>>> opensource/master
 }
 
 static void
@@ -5877,8 +6597,179 @@ _debug_gles3_api_get(Evas_GL_API *funcs)
    ORD(glVertexAttribI4uiv);
    ORD(glVertexAttribIPointer);
    ORD(glWaitSync);
+<<<<<<< HEAD
+=======
 #undef ORD
+}
 
+
+static Eina_Bool
+_evgl_load_gles3_apis(void *dl_handle, Evas_GL_API *funcs)
+{
+   if (!dl_handle) return EINA_FALSE;
+
+#define ORD(name) \
+   funcs->name = dlsym(dl_handle, #name); \
+   if (!funcs->name) \
+     { \
+        WRN("%s symbol not found", #name); \
+        return EINA_FALSE; \
+     }
+
+   // Used to update extensions
+   ORD(glGetString);
+
+   // GLES 3.0 new APIs
+   ORD(glBeginQuery);
+   ORD(glBeginTransformFeedback);
+   ORD(glBindBufferBase);
+   ORD(glBindBufferRange);
+   ORD(glBindSampler);
+   ORD(glBindTransformFeedback);
+   ORD(glBindVertexArray);
+   ORD(glBlitFramebuffer);
+   ORD(glClearBufferfi);
+   ORD(glClearBufferfv);
+   ORD(glClearBufferiv);
+   ORD(glClearBufferuiv);
+   ORD(glClientWaitSync);
+   ORD(glCompressedTexImage3D);
+   ORD(glCompressedTexSubImage3D);
+   ORD(glCopyBufferSubData);
+   ORD(glCopyTexSubImage3D);
+   ORD(glDeleteQueries);
+   ORD(glDeleteSamplers);
+   ORD(glDeleteSync);
+   ORD(glDeleteTransformFeedbacks);
+   ORD(glDeleteVertexArrays);
+   ORD(glDrawArraysInstanced);
+   ORD(glDrawBuffers);
+   ORD(glDrawElementsInstanced);
+   ORD(glDrawRangeElements);
+   ORD(glEndQuery);
+   ORD(glEndTransformFeedback);
+   ORD(glFenceSync);
+   ORD(glFlushMappedBufferRange);
+   ORD(glFramebufferTextureLayer);
+   ORD(glGenQueries);
+   ORD(glGenSamplers);
+   ORD(glGenTransformFeedbacks);
+   ORD(glGenVertexArrays);
+   ORD(glGetActiveUniformBlockiv);
+   ORD(glGetActiveUniformBlockName);
+   ORD(glGetActiveUniformsiv);
+   ORD(glGetBufferParameteri64v);
+   ORD(glGetBufferPointerv);
+   ORD(glGetFragDataLocation);
+   ORD(glGetInteger64i_v);
+   ORD(glGetInteger64v);
+   ORD(glGetIntegeri_v);
+   ORD(glGetInternalformativ);
+   ORD(glGetProgramBinary);
+   ORD(glGetQueryiv);
+   ORD(glGetQueryObjectuiv);
+   ORD(glGetSamplerParameterfv);
+   ORD(glGetSamplerParameteriv);
+   ORD(glGetStringi);
+   ORD(glGetSynciv);
+   ORD(glGetTransformFeedbackVarying);
+   ORD(glGetUniformBlockIndex);
+   ORD(glGetUniformIndices);
+   ORD(glGetUniformuiv);
+   ORD(glGetVertexAttribIiv);
+   ORD(glGetVertexAttribIuiv);
+   ORD(glInvalidateFramebuffer);
+   ORD(glInvalidateSubFramebuffer);
+   ORD(glIsQuery);
+   ORD(glIsSampler);
+   ORD(glIsSync);
+   ORD(glIsTransformFeedback);
+   ORD(glIsVertexArray);
+   ORD(glMapBufferRange);
+   ORD(glPauseTransformFeedback);
+   ORD(glProgramBinary);
+   ORD(glProgramParameteri);
+   ORD(glReadBuffer);
+   ORD(glRenderbufferStorageMultisample);
+   ORD(glResumeTransformFeedback);
+   ORD(glSamplerParameterf);
+   ORD(glSamplerParameterfv);
+   ORD(glSamplerParameteri);
+   ORD(glSamplerParameteriv);
+   ORD(glTexImage3D);
+   ORD(glTexStorage2D);
+   ORD(glTexStorage3D);
+   ORD(glTexSubImage3D);
+   ORD(glTransformFeedbackVaryings);
+   ORD(glUniform1ui);
+   ORD(glUniform1uiv);
+   ORD(glUniform2ui);
+   ORD(glUniform2uiv);
+   ORD(glUniform3ui);
+   ORD(glUniform3uiv);
+   ORD(glUniform4ui);
+   ORD(glUniform4uiv);
+   ORD(glUniformBlockBinding);
+   ORD(glUniformMatrix2x3fv);
+   ORD(glUniformMatrix3x2fv);
+   ORD(glUniformMatrix2x4fv);
+   ORD(glUniformMatrix4x2fv);
+   ORD(glUniformMatrix3x4fv);
+   ORD(glUniformMatrix4x3fv);
+   ORD(glUnmapBuffer);
+   ORD(glVertexAttribDivisor);
+   ORD(glVertexAttribI4i);
+   ORD(glVertexAttribI4iv);
+   ORD(glVertexAttribI4ui);
+   ORD(glVertexAttribI4uiv);
+   ORD(glVertexAttribIPointer);
+   ORD(glWaitSync);
+>>>>>>> opensource/master
+#undef ORD
+   return EINA_TRUE;
+}
+
+
+
+static Eina_Bool
+_evgl_gles3_api_init(void)
+{
+   static Eina_Bool _initialized = EINA_FALSE;
+   if (_initialized) return EINA_TRUE;
+
+   memset(&_gles3_api, 0, sizeof(_gles3_api));
+
+#ifdef GL_GLES
+   _gles3_handle = dlopen("libGLESv2.so", RTLD_NOW);
+   if (!_gles3_handle) _gles3_handle = dlopen("libGLESv2.so.2.0", RTLD_NOW);
+   if (!_gles3_handle) _gles3_handle = dlopen("libGLESv2.so.2", RTLD_NOW);
+#else
+   _gles3_handle = dlopen("libGL.so", RTLD_NOW);
+   if (!_gles3_handle) _gles3_handle = dlopen("libGL.so.4", RTLD_NOW);
+   if (!_gles3_handle) _gles3_handle = dlopen("libGL.so.3", RTLD_NOW);
+   if (!_gles3_handle) _gles3_handle = dlopen("libGL.so.2", RTLD_NOW);
+   if (!_gles3_handle) _gles3_handle = dlopen("libGL.so.1", RTLD_NOW);
+   if (!_gles3_handle) _gles3_handle = dlopen("libGL.so.0", RTLD_NOW);
+#endif
+
+   if (!_gles3_handle)
+     {
+        WRN("OpenGL ES 3 was not found on this system. Evas GL will not support GLES 3 contexts.");
+        return EINA_FALSE;
+     }
+
+   if (!dlsym(_gles3_handle, "glBeginQuery"))
+     {
+        WRN("OpenGL ES 3 was not found on this system. Evas GL will not support GLES 3 contexts.");
+        return EINA_FALSE;
+     }
+
+   if (!_evgl_load_gles3_apis(_gles3_handle, &_gles3_api))
+     {
+        return EINA_FALSE;
+     }
+
+<<<<<<< HEAD
    evgl_api_gles3_ext_get(funcs);
 }
 
@@ -6059,6 +6950,18 @@ _evgl_api_gles3_get(Evas_GL_API *funcs, Eina_Bool debug)
 {
    if(!_evgl_api_init())
       return EINA_FALSE;
+=======
+   _initialized = EINA_TRUE;
+   return EINA_TRUE;
+}
+
+
+void
+_evgl_api_gles3_get(Evas_GL_API *funcs, Eina_Bool debug)
+{
+   if (!_evgl_gles3_api_init())
+      return;
+>>>>>>> opensource/master
 
    if (debug)
      _debug_gles3_api_get(funcs);
@@ -6068,6 +6971,7 @@ _evgl_api_gles3_get(Evas_GL_API *funcs, Eina_Bool debug)
    if (evgl_engine->direct_scissor_off)
      _direct_scissor_off_api_get(funcs);
 
+<<<<<<< HEAD
    return EINA_TRUE;
 }
 
@@ -6075,4 +6979,14 @@ Evas_GL_API *
 _evgl_api_gles3_internal_get(void)
 {
    return &_gles3_api;
+=======
+   return;
+>>>>>>> opensource/master
 }
+
+Evas_GL_API *
+_evgl_api_gles3_internal_get(void)
+{
+   return &_gles3_api;
+}
+

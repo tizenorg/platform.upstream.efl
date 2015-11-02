@@ -60,7 +60,11 @@ static Ecore_IMF_Context_Class wayland_imf_class =
    wayland_im_context_input_mode_set,         /* input_mode_set */
    wayland_im_context_filter_event,           /* filter_event */
    wayland_im_context_preedit_string_with_attributes_get, /* preedit_string_with_attribute_get */
+<<<<<<< HEAD
    wayland_im_context_prediction_allow_set,   /* prediction_allow_set */
+=======
+   NULL,                                      /* prediction_allow_set */
+>>>>>>> opensource/master
    wayland_im_context_autocapital_type_set,   /* autocapital_type_set */
    NULL,                                      /* control panel show */
    NULL,                                      /* control panel hide */
@@ -74,11 +78,19 @@ static Ecore_IMF_Context_Class wayland_imf_class =
    wayland_im_context_input_panel_return_key_type_set, /* input_panel_return_key_type_set */
    wayland_im_context_input_panel_return_key_disabled_set, /* input_panel_return_key_disabled_set */
    NULL,                                      /* input_panel_caps_lock_mode_set */
+<<<<<<< HEAD
    wayland_im_context_input_panel_geometry_get, /* input_panel_geometry_get */
    wayland_im_context_input_panel_state_get,  /* input_panel_state_get */
    NULL,                                      /* input_panel_event_callback_add */
    NULL,                                      /* input_panel_event_callback_del */
    wayland_im_context_input_panel_language_locale_get, /* input_panel_language_locale_get */
+=======
+   NULL,                                      /* input_panel_geometry_get */
+   NULL,                                      /* input_panel_state_get */
+   NULL,                                      /* input_panel_event_callback_add */
+   NULL,                                      /* input_panel_event_callback_del */
+   NULL,                                      /* input_panel_language_locale_get */
+>>>>>>> opensource/master
    NULL,                                      /* candidate_window_geometry_get */
    wayland_im_context_input_hint_set,         /* input_hint_set */
    NULL                                       /* bidi_direction_set */
@@ -145,8 +157,19 @@ im_module_create()
 static Eina_Bool
 im_module_init(void)
 {
+   const char *s;
+
    _ecore_imf_wayland_log_dom = 
      eina_log_domain_register("ecore_imf_wayland", EINA_COLOR_YELLOW);
+
+   if (!getenv("WAYLAND_DISPLAY")) return EINA_FALSE;
+   if ((s = getenv("ELM_DISPLAY")))
+     {
+        if (strcmp(s, "wl")) return EINA_FALSE;
+     }
+
+   if (!ecore_wl_init(NULL))
+     return EINA_FALSE;
 
    ecore_imf_module_register(&wayland_im_info, im_module_create, 
                              im_module_exit);
@@ -166,6 +189,7 @@ im_module_shutdown(void)
    unregister_key_handler();
    //
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom, "im module shutdown");
+   ecore_wl_shutdown();
 }
 
 EINA_MODULE_INIT(im_module_init);

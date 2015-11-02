@@ -16,10 +16,10 @@
 const Eo_Class *simple_class_get(void);
 #define MY_CLASS simple_class_get()
 
-static void
+static Eo *
 _constructor(Eo *obj, void *class_data EINA_UNUSED)
 {
-   eo_do_super(obj, MY_CLASS, eo_constructor());
+   return eo_do_super_ret(obj, MY_CLASS, obj, eo_constructor());
 }
 
 static void
@@ -31,7 +31,6 @@ _destructor(Eo *obj, void *class_data EINA_UNUSED)
 static Eo_Op_Description op_descs[] = {
     EO_OP_FUNC_OVERRIDE(reinterpret_cast<void*>(&eo_constructor), reinterpret_cast<void*>(&_constructor))
   , EO_OP_FUNC_OVERRIDE(reinterpret_cast<void*>(&eo_destructor), reinterpret_cast<void*>(&_destructor))
-  , EO_OP_SENTINEL
 };
 
 static const Eo_Class_Description class_desc = {

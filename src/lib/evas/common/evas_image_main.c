@@ -28,6 +28,7 @@ static Evas_Cache_Image * eci = NULL;
 static Evas_Cache2      * eci2 = NULL;
 #endif
 static int                reference = 0;
+static int                evas_image_no_mmap = -1;
 
 /* static RGBA_Image *evas_rgba_line_buffer = NULL; */
 
@@ -125,6 +126,14 @@ _evas_common_rgba_image_surface_size(unsigned int w, unsigned int h,
    int siz, block_size = 8;
    Eina_Bool reset_borders = EINA_TRUE;
 
+   if (EINA_UNLIKELY(evas_image_no_mmap == -1))
+     {
+        const char *s = getenv("EVAS_IMAGE_NO_MMAP");
+        evas_image_no_mmap = s && (atoi(s));
+        if (evas_image_no_mmap)
+          WRN("EVAS_IMAGE_NO_MMAP is set, use this only for debugging purposes!");
+     }
+
    switch (cspace)
      {
       case EVAS_COLORSPACE_GRY8: siz = w * h * sizeof(DATA8); break;
@@ -162,7 +171,8 @@ _evas_common_rgba_image_surface_size(unsigned int w, unsigned int h,
         if (b) *b = 0;
      }
 
-   if (siz < PAGE_SIZE) return siz;
+   if ((siz < PAGE_SIZE) || evas_image_no_mmap)
+     return siz;
 
    return ALIGN_TO_PAGE(siz);
 
@@ -187,7 +197,7 @@ _evas_common_rgba_image_surface_mmap(Image_Entry *ie, unsigned int w, unsigned i
    if (siz < 0)
      return NULL;
 
-   if (siz < PAGE_SIZE)
+   if ((siz < PAGE_SIZE) || evas_image_no_mmap)
      return malloc(siz);
 
    if (siz > ((HUGE_PAGE_SIZE * 75) / 100))
@@ -211,7 +221,7 @@ _evas_common_rgba_image_surface_munmap(void *data, unsigned int w, unsigned int 
    size_t siz;
 
    siz = _evas_common_rgba_image_surface_size(w, h, cspace, NULL, NULL, NULL, NULL);
-   if (siz < PAGE_SIZE)
+   if ((siz < PAGE_SIZE) || evas_image_no_mmap)
      free(data);
    else
      munmap(data, siz);
@@ -296,6 +306,7 @@ _evas_common_rgba_image_delete(Image_Entry *ie)
 {
    RGBA_Image *im = (RGBA_Image *)ie;
 
+   evas_common_rgba_pending_unloads_remove(ie);
 #ifdef BUILD_PIPE_RENDER
    evas_common_pipe_free(im);
 #endif
@@ -332,49 +343,10 @@ _evas_common_rgba_image_delete(Image_Entry *ie)
    free(im);
 }
 
-EAPI void
-evas_common_rgba_image_free(Image_Entry *ie)
-{
-   if (ie->references > 0) return;
-
-   _evas_common_rgba_image_surface_delete(ie);
-   _evas_common_rgba_image_delete(ie);
-}
-
-#ifdef SURFDBG
-static Eina_List *surfs = NULL;
-
 static void
-surf_debug(void)
-{
-   Eina_List *l;
-   Image_Entry *ie;
-   RGBA_Image *im;
-   int i = 0;
-   
-   printf("----SURFS----\n");
-   EINA_LIST_FOREACH(surfs, l, ie)
-     {
-        im = ie;
-        printf("%i - %p - %ix%i  [%s][%s]\n", 
-               i, im->image.data, ie->allocated.w, ie->allocated.h,
-               ie->file, ie->key
-              );
-        i++;
-     }
-}
-#endif
-
-EAPI void
-evas_common_rgba_image_unload(Image_Entry *ie)
+evas_common_rgba_image_unload_real(Image_Entry *ie)
 {
    RGBA_Image   *im = (RGBA_Image *) ie;
-
-   if (!ie->flags.loaded) return;
-   if ((!ie->info.module) && (!ie->data1)) return;
-   if (!ie->file && !ie->f) return;
-   if ((evas_cache_async_frozen_get() == 0) &&
-       (ie->references > 0)) return;
 
    ie->flags.loaded = 0;
 
@@ -419,9 +391,89 @@ evas_common_rgba_image_unload(Image_Entry *ie)
    ie->allocated.h = 0;
    ie->flags.loaded = 0;
    ie->flags.preload_done = 0;
+   ie->need_unload = 0;
 #ifdef SURFDBG
    surf_debug();
 #endif   
+}
+
+static Eina_List *pending_unloads = NULL;
+
+EAPI void
+evas_common_rgba_pending_unloads_cleanup(void)
+{
+   Image_Entry *ie;
+   Eina_List *l;
+   Eina_List *l_next;
+
+   EINA_LIST_FOREACH_SAFE(pending_unloads, l, l_next, ie)
+     {
+        if ((ie->need_unload) && (!ie->preload) && (!ie->flags.preload_done))
+          {
+             evas_common_rgba_image_unload_real(ie);
+             pending_unloads = eina_list_remove_list(pending_unloads, l);
+          }
+     }
+}
+
+EAPI void
+evas_common_rgba_pending_unloads_remove(Image_Entry *ie)
+{
+   if (!ie->need_unload) return;
+   ie->need_unload = 0;
+   pending_unloads = eina_list_remove(pending_unloads, ie);
+}
+
+EAPI void
+evas_common_rgba_image_free(Image_Entry *ie)
+{
+   if (ie->references > 0) return;
+   evas_common_rgba_pending_unloads_remove(ie);
+   _evas_common_rgba_image_surface_delete(ie);
+   _evas_common_rgba_image_delete(ie);
+}
+
+#ifdef SURFDBG
+static Eina_List *surfs = NULL;
+
+static void
+surf_debug(void)
+{
+   Eina_List *l;
+   Image_Entry *ie;
+   RGBA_Image *im;
+   int i = 0;
+   
+   printf("----SURFS----\n");
+   EINA_LIST_FOREACH(surfs, l, ie)
+     {
+        im = ie;
+        printf("%i - %p - %ix%i  [%s][%s]\n", 
+               i, im->image.data, ie->allocated.w, ie->allocated.h,
+               ie->file, ie->key
+              );
+        i++;
+     }
+}
+#endif
+
+EAPI void
+evas_common_rgba_image_unload(Image_Entry *ie)
+{
+   if (!ie->flags.loaded) return;
+   if ((!ie->info.module) && (!ie->data1)) return;
+   if (!ie->file && !ie->f) return;
+   if ((evas_cache_async_frozen_get() == 0) &&
+       (ie->references > 0))
+     {
+        if (!ie->need_unload)
+          {
+             pending_unloads = eina_list_append(pending_unloads, ie);
+             ie->need_unload = 1;
+          }
+        return;
+     }
+   if (!ie->need_unload) evas_common_rgba_image_unload_real(ie);
 }
 
 void
@@ -794,13 +846,13 @@ evas_common_image_colorspace_normalize(RGBA_Image *im)
       case EVAS_COLORSPACE_ARGB8888:
       case EVAS_COLORSPACE_GRY8:
       case EVAS_COLORSPACE_AGRY88:
-	if (im->image.data != im->cs.data)
-	  {
+        if (im->image.data != im->cs.data)
+          {
 #ifdef EVAS_CSERVE2
              // if (((Image_Entry *)im)->data1) evas_cserve2_image_free(&im->cache_entry);
              if (((Image_Entry *)im)->data1) ERR("Shouldn't reach this point since we are using cache2.");
 #endif
-	     if (!im->image.no_free)
+             if (!im->image.no_free)
                {
                   _evas_common_rgba_image_surface_munmap(im->image.data,
                                                          im->cache_entry.allocated.w,
@@ -808,19 +860,19 @@ evas_common_image_colorspace_normalize(RGBA_Image *im)
                                                          im->cache_entry.space);
 #ifdef SURFDBG
                   surfs = eina_list_remove(surfs, im);
-#endif                  
+#endif
                   ((Image_Entry *)im)->allocated.w = 0;
                   ((Image_Entry *)im)->allocated.h = 0;
                }
-	     im->image.data = im->cs.data;
-	     im->cs.no_free = im->image.no_free;
-	  }
-	break;
+             im->image.data = im->cs.data;
+             im->cs.no_free = im->image.no_free;
+          }
+        break;
       case EVAS_COLORSPACE_YCBCR422P601_PL:
-	if ((im->image.data) && (*((unsigned char **)im->cs.data)))
-	  evas_common_convert_yuv_420p_601_rgba(im->cs.data, (DATA8*) im->image.data,
-						im->cache_entry.w, im->cache_entry.h);
-	break;
+        if ((im->image.data) && (*((unsigned char **)im->cs.data)))
+          evas_common_convert_yuv_422p_601_rgba(im->cs.data, (DATA8*) im->image.data,
+                                                im->cache_entry.w, im->cache_entry.h);
+        break;
       case EVAS_COLORSPACE_YCBCR422601_PL:
         if ((im->image.data) && (*((unsigned char **)im->cs.data)))
           evas_common_convert_yuv_422_601_rgba(im->cs.data, (DATA8*) im->image.data,
@@ -836,13 +888,18 @@ evas_common_image_colorspace_normalize(RGBA_Image *im)
           evas_common_convert_yuv_420T_601_rgba(im->cs.data, (DATA8*) im->image.data,
                                                 im->cache_entry.w, im->cache_entry.h);
          break;
+      case EMILE_COLORSPACE_YCBCR422P709_PL:
+        if ((im->image.data) && (*((unsigned char **)im->cs.data)))
+          evas_common_convert_yuv_422p_709_rgba(im->cs.data, (DATA8*) im->image.data,
+                                                im->cache_entry.w, im->cache_entry.h);
+        break;
       default:
-	break;
+        break;
      }
    im->cs.dirty = 0;
 #ifdef SURFDBG
    surf_debug();
-#endif   
+#endif
 }
 
 EAPI void

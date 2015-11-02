@@ -2306,6 +2306,7 @@ ecore_x_e_window_rotation_change_done_send(Ecore_X_Window root,
               &xev);
 }
 
+<<<<<<< HEAD
 EAPI void
 ecore_x_e_window_rotation_geometry_set(Ecore_X_Window win,
                                        int rot,
@@ -2458,6 +2459,8 @@ ecore_x_e_virtual_keyboard_off_prepare_done_send(Ecore_X_Window root,
               &xev);
 }
 
+=======
+>>>>>>> opensource/master
 /*
  * Does keyrouter exist?
  */
@@ -2494,4 +2497,8 @@ ecore_x_e_keyrouter_get(Ecore_X_Window win EINA_UNUSED)
    if (ret != 1) return EINA_FALSE;
 
    return val == 1 ? EINA_TRUE : EINA_FALSE;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> opensource/master

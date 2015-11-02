@@ -291,7 +291,11 @@ _ecore_x_axis_update(Ecore_Window window,
    int i;
 
    e = malloc(sizeof(Ecore_Event_Axis_Update));
-   if (!e) return;
+   if (!e)
+     {
+        if (axis) free(axis);
+        return;
+     }
 
    e->window = window;
    e->event_window = event_window;
@@ -366,9 +370,8 @@ _ecore_key_press(int event,
    if (!key)
      key = keyname;
 
-   e =
-     malloc(sizeof(Ecore_Event_Key) + strlen(key) + strlen(keyname) +
-            (compose ? strlen(compose) : 0) + 3);
+   e = calloc(1, sizeof(Ecore_Event_Key) + strlen(key) + strlen(keyname) +
+              (compose ? strlen(compose) : 0) + 3);
    if (!e)
      goto on_error;
 
@@ -448,6 +451,18 @@ _ecore_mouse_button(int event,
 
    if (down_info)
      {
+        //If mouse cancel event occred, should reset down info related with double & triple click
+        if (event == ECORE_EVENT_MOUSE_BUTTON_CANCEL)
+          {
+             down_info->last_win = 0;
+             down_info->last_last_win = 0;
+             down_info->last_event_win = 0;
+             down_info->last_last_event_win = 0;
+             down_info->last_time = 0;
+             down_info->last_last_time = 0;
+             down_info->did_double = EINA_FALSE;
+             down_info->did_triple = EINA_FALSE;
+          }
         if ((event == ECORE_EVENT_MOUSE_BUTTON_DOWN) &&
             down_info->did_triple)
           {
@@ -494,7 +509,7 @@ _ecore_mouse_button(int event,
                        down_info->did_triple = EINA_FALSE;
                     }
                }
-             else
+             else if (event == ECORE_EVENT_MOUSE_BUTTON_UP)
                {
                   if (down_info->did_double)
                     e->double_click = 1;
@@ -1336,6 +1351,7 @@ _ecore_x_event_handle_property_notify(XEvent *xevent)
       e->win = xevent->xproperty.window;
       e->atom = xevent->xproperty.atom;
       e->time = xevent->xproperty.time;
+      e->state = !!xevent->xproperty.state;
       _ecore_x_event_last_time = e->time;
       ecore_event_add(ECORE_X_EVENT_WINDOW_PROPERTY, e, NULL, NULL);
    }
@@ -1494,6 +1510,7 @@ _ecore_x_event_handle_selection_notify(XEvent *xevent)
    e->win = xevent->xselection.requestor;
    e->time = xevent->xselection.time;
    e->atom = selection;
+   e->property = xevent->xselection.property;
    e->target = _ecore_x_selection_target_get(xevent->xselection.target);
 
    if (selection == ECORE_X_ATOM_SELECTION_PRIMARY)
@@ -1996,6 +2013,7 @@ _ecore_x_event_handle_client_message(XEvent *xevent)
         e->win = xevent->xclient.window;
         e->message_type = xevent->xclient.message_type;
         e->format = xevent->xclient.format;
+        e->time = _ecore_x_event_last_time;
         for (i = 0; i < 5; i++)
           e->data.l[i] = xevent->xclient.data.l[i];
 
@@ -2102,7 +2120,7 @@ _ecore_x_event_handle_screensaver_notify(XEvent *xevent)
    e->time = screensaver_event->time;
    ecore_event_add(ECORE_X_EVENT_SCREENSAVER_NOTIFY, e, NULL, NULL);
 #else /* ifdef ECORE_XSS */
-   xevent = NULL;
+   (void) xevent;
 #endif /* ifdef ECORE_XSS */
 }
 

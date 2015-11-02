@@ -1,3 +1,5 @@
+#include "edje_types.eot.h"
+
 /**
  * @internal
  *
@@ -16,6 +18,28 @@ typedef struct _Edje_Version
 
 EAPI extern Edje_Version *edje_version;
 
+#ifndef _EDJE_OBJECT_EO_CLASS_TYPE
+#define _EDJE_OBJECT_EO_CLASS_TYPE
+
+typedef Eo Edje_Object;
+
+#endif
+
+/**
+ * @typedef Edje_Color_Class
+ * Type for edje color class
+ */
+typedef struct _Edje_Color_Class Edje_Color_Class;
+
+struct _Edje_Color_Class
+{
+   const char       *name;
+
+   unsigned char  r, g, b, a;
+   unsigned char  r2, g2, b2, a2;
+   unsigned char  r3, g3, b3, a3;
+   Eina_Stringshare *desc;
+};
 
 /**
  * @defgroup Edje_Object_Communication_Interface_Signal Edje Communication Interface: Signal
@@ -298,20 +322,6 @@ EAPI void         edje_collection_cache_flush     (void);
  */
 
 /**
- * The possible types the parameters of an EXTERNAL part can be.
- */
-typedef enum _Edje_External_Param_Type
-{
-   EDJE_EXTERNAL_PARAM_TYPE_INT, /**< Parameter value is an integer. */
-   EDJE_EXTERNAL_PARAM_TYPE_DOUBLE, /**< Parameter value is a double. */
-   EDJE_EXTERNAL_PARAM_TYPE_STRING, /**< Parameter value is a string. */
-   EDJE_EXTERNAL_PARAM_TYPE_BOOL, /**< Parameter value is boolean. */
-   EDJE_EXTERNAL_PARAM_TYPE_CHOICE, /**< Parameter value is one of a set of
-                                      predefined string choices. */
-   EDJE_EXTERNAL_PARAM_TYPE_MAX /**< Sentinel. Don't use. */
-} Edje_External_Param_Type;
-
-/**
  * Flags that determine how a parameter may be accessed in different
  * circumstances.
  */
@@ -336,25 +346,6 @@ typedef enum _Edje_External_Param_Flags
  * @return the string with the string representation, or @c "(unknown)".
  */
 EAPI const char *edje_external_param_type_str(Edje_External_Param_Type type) EINA_PURE;
-
-/**
- * Struct that holds parameters for parts of type EXTERNAL.
- */
-struct _Edje_External_Param
-{
-   const char               *name; /**< The name of the parameter. */
-   Edje_External_Param_Type  type; /**< The type of the parameter. This defines
-                                     which of the next three variables holds
-                                     the value for it. */
-   // XXX these could be in a union, but eet doesn't support them (or does it?)
-   int                       i; /**< Used by both integer and boolean */
-   double                    d; /**< Used by double */
-   const char               *s; /**< Used by both string and choice */
-};
-/**
- * Struct that holds parameters for parts of type EXTERNAL.
- */
-typedef struct _Edje_External_Param Edje_External_Param;
 
 /**
  * Helper macro to indicate an EXTERNAL's integer parameter is undefined.
@@ -923,7 +914,7 @@ EAPI double       edje_scale_get                  (void);
  *
  * In Edje it's possible to use a text part as a entry so the user is
  * able to make inputs of text. To do so, the text part must be set
- * with a input panel taht will work as a virtual keyboard.
+ * with a input panel that will work as a virtual keyboard.
  *
  * Some of effects can be applied to the entered text and also plenty
  * actions can be performed after any input.
@@ -960,7 +951,7 @@ typedef struct _Edje_Entry_Change_Info        Edje_Entry_Change_Info;
 
 /**
  * @typedef Edje_Text_Filter_Type
- * 
+ *
  * All Edje text filters type values.
  */
 typedef enum _Edje_Text_Filter_Type
@@ -969,76 +960,6 @@ typedef enum _Edje_Text_Filter_Type
    EDJE_TEXT_FILTER_FORMAT = 1, /**< Format type filter */
    EDJE_TEXT_FILTER_MARKUP = 2  /**< Markup type filter */
 } Edje_Text_Filter_Type;
-
-/**
- * @typedef Edje_Text_Autocapital_Type
- *
- * All Text auto capital mode type values 
- *
- */
-typedef enum _Edje_Text_Autocapital_Type
-{
-   EDJE_TEXT_AUTOCAPITAL_TYPE_NONE,        /**< None mode value */
-   EDJE_TEXT_AUTOCAPITAL_TYPE_WORD,        /**< Word mode value */
-   EDJE_TEXT_AUTOCAPITAL_TYPE_SENTENCE,    /**< Sentence mode value */
-   EDJE_TEXT_AUTOCAPITAL_TYPE_ALLCHARACTER /**< All characters mode value */
-} Edje_Text_Autocapital_Type;
-
-/**
- * @typedef Edje_Input_Panel_Lang
- * 
- */
-typedef enum _Edje_Input_Panel_Lang
-{
-   EDJE_INPUT_PANEL_LANG_AUTOMATIC,    /**< Automatic @since 1.2 */
-   EDJE_INPUT_PANEL_LANG_ALPHABET      /**< Alphabet @since 1.2 */
-} Edje_Input_Panel_Lang;
-
-typedef enum _Edje_Input_Panel_Return_Key_Type
-{
-   EDJE_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT, /**< Default @since 1.2 */
-   EDJE_INPUT_PANEL_RETURN_KEY_TYPE_DONE,    /**< Done @since 1.2 */
-   EDJE_INPUT_PANEL_RETURN_KEY_TYPE_GO,      /**< Go @since 1.2 */
-   EDJE_INPUT_PANEL_RETURN_KEY_TYPE_JOIN,    /**< Join @since 1.2 */
-   EDJE_INPUT_PANEL_RETURN_KEY_TYPE_LOGIN,   /**< Login @since 1.2 */
-   EDJE_INPUT_PANEL_RETURN_KEY_TYPE_NEXT,    /**< Next @since 1.2 */
-   EDJE_INPUT_PANEL_RETURN_KEY_TYPE_SEARCH,  /**< Search or magnifier icon @since 1.2 */
-   EDJE_INPUT_PANEL_RETURN_KEY_TYPE_SEND,    /**< Send @since 1.2 */
-   EDJE_INPUT_PANEL_RETURN_KEY_TYPE_SIGNIN   /**< Sign-in @since 1.8 */
-} Edje_Input_Panel_Return_Key_Type;
-
-/**
- * @typedef Edje_Input_Panel_Layout
- * @brief Edje input panel layout
- */
-typedef enum _Edje_Input_Panel_Layout
-{
-   EDJE_INPUT_PANEL_LAYOUT_NORMAL,          /**< Default layout */
-   EDJE_INPUT_PANEL_LAYOUT_NUMBER,          /**< Number layout */
-   EDJE_INPUT_PANEL_LAYOUT_EMAIL,           /**< Email layout */
-   EDJE_INPUT_PANEL_LAYOUT_URL,             /**< URL layout */
-   EDJE_INPUT_PANEL_LAYOUT_PHONENUMBER,     /**< Phone Number layout */
-   EDJE_INPUT_PANEL_LAYOUT_IP,              /**< IP layout */
-   EDJE_INPUT_PANEL_LAYOUT_MONTH,           /**< Month layout */
-   EDJE_INPUT_PANEL_LAYOUT_NUMBERONLY,      /**< Number Only layout */
-   EDJE_INPUT_PANEL_LAYOUT_INVALID,         /**< Never use this */
-   EDJE_INPUT_PANEL_LAYOUT_HEX,             /**< Hexadecimal layout @since 1.2 */
-   EDJE_INPUT_PANEL_LAYOUT_TERMINAL,        /**< Command-line terminal layout including esc, alt, ctrl key, so on (no auto-correct, no auto-capitalization) @since 1.2 */
-   EDJE_INPUT_PANEL_LAYOUT_PASSWORD,        /**< Like normal, but no auto-correct, no auto-capitalization etc. @since 1.2 */
-   EDJE_INPUT_PANEL_LAYOUT_DATETIME,        /**< Date and time layout @since 1.8 */
-   EDJE_INPUT_PANEL_LAYOUT_EMOTICON         /**< Emoticon layout @since 1.10 */
-} Edje_Input_Panel_Layout;
-
-/*
- * @typedef Edje_Input_Hints
- * @brief Edje input hints 
- */
-typedef enum
-{
-   EDJE_INPUT_HINT_NONE                = 0,        /**< No active hints @since 1.12 */
-   EDJE_INPUT_HINT_AUTO_COMPLETE       = 1 << 0,   /**< Suggest word auto completion @since 1.12 */
-   EDJE_INPUT_HINT_SENSITIVE_DATA      = 1 << 1,   /**< Typed text should not be stored. @since 1.12 */
-} Edje_Input_Hints;
 
 enum
 {
@@ -1246,6 +1167,28 @@ EAPI void         edje_color_class_del            (const char *color_class);
 EAPI Eina_List   *edje_color_class_list           (void);
 
 /**
+ * @brief Iterate over all the active class of an application.
+ *
+ * @return an iterator of Edje_Color_Class of the currently active color class
+ *
+ * This function only iterate over the Edje_Color_Class in use by
+ * an application.
+ *
+ * @since 1.14
+ */
+EAPI Eina_Iterator *edje_color_class_active_iterator_new(void);
+
+/**
+ * @brief Iterate over all the color class provided by an Edje file.
+ *
+ * @return an iterator of Edje_Color_Class provided by the Edje file.
+ *
+ * @since 1.14
+ */
+EAPI Eina_Iterator *edje_mmap_color_class_iterator_new(Eina_File *f);
+
+
+/**
  * @}
  */
 
@@ -1292,7 +1235,8 @@ typedef enum _Edje_Part_Type
    EDJE_PART_TYPE_MESH_NODE = 13,
    EDJE_PART_TYPE_LIGHT     = 14,
    EDJE_PART_TYPE_CAMERA    = 15,
-   EDJE_PART_TYPE_LAST      = 16  /**< Last type value */
+   EDJE_PART_TYPE_SNAPSHOT  = 16, /**< Snapshot @since 1.16 */
+   EDJE_PART_TYPE_LAST      = 17  /**< Last type value */
 } Edje_Part_Type;
 /**
  * @}
@@ -1403,24 +1347,6 @@ typedef void         (*Edje_Text_Change_Cb)     (void *data, Evas_Object *obj, c
  */
 
 /**
- * @typedef Edje_Cursor
- *
- * All available cursor states
- *
- */
-typedef enum _Edje_Cursor
-{
-   EDJE_CURSOR_MAIN,            /*< Main cursor state            */
-   EDJE_CURSOR_SELECTION_BEGIN, /*< Selection begin cursor state */
-   EDJE_CURSOR_SELECTION_END,   /*< Selection end cursor state   */
-   EDJE_CURSOR_PREEDIT_START,   /*< Pre-edit start cursor state  */
-   EDJE_CURSOR_PREEDIT_END,     /*< Pre-edit end cursor starge   */
-   EDJE_CURSOR_USER,            /*< User cursor state            */
-   EDJE_CURSOR_USER_EXTRA,      /*< User extra cursor state      */
-   // more later
-} Edje_Cursor;
-
-/**
  * @}
  */
 
@@ -1501,19 +1427,6 @@ typedef enum _Edje_Aspect_Control
  *
  * @{
  */
-
-/**
- * @typedef Edje_Drag_Dir
- *
- * Dragable properties values
- */
-typedef enum _Edje_Drag_Dir
-{
-   EDJE_DRAG_DIR_NONE = 0,  /*< Not dragable value     */
-   EDJE_DRAG_DIR_X = 1,     /*< X dragable value       */
-   EDJE_DRAG_DIR_Y = 2,     /*< Y dragable value       */
-   EDJE_DRAG_DIR_XY = 3     /*< X and Y dragable value */
-} Edje_Drag_Dir;
 
 /**
  * @}
@@ -1696,21 +1609,6 @@ EAPI Eina_List   *edje_text_class_list            (void);
  * @{
  */
 
-typedef enum _Edje_Load_Error
-{
-   EDJE_LOAD_ERROR_NONE = 0, /**< No error happened, the loading was successful */
-   EDJE_LOAD_ERROR_GENERIC = 1, /**< A generic error happened during the loading */
-   EDJE_LOAD_ERROR_DOES_NOT_EXIST = 2, /**< The file pointed to did not exist */
-   EDJE_LOAD_ERROR_PERMISSION_DENIED = 3, /**< Permission to read the given file was denied */
-   EDJE_LOAD_ERROR_RESOURCE_ALLOCATION_FAILED = 4, /**< Resource allocation failed during the loading */
-   EDJE_LOAD_ERROR_CORRUPT_FILE = 5, /**< The file pointed to was corrupt */
-   EDJE_LOAD_ERROR_UNKNOWN_FORMAT = 6, /**< The file pointed to had an unknown format */
-   EDJE_LOAD_ERROR_INCOMPATIBLE_FILE = 7, /**< The file pointed to is incompatible, i.e., it doesn't match the library's current version's format */
-   EDJE_LOAD_ERROR_UNKNOWN_COLLECTION = 8, /**< The group/collection set to load from was @b not found in the file */
-   EDJE_LOAD_ERROR_RECURSIVE_REFERENCE = 9 /**< The group/collection set to load from had <b>recursive references</b> on its components */
-} Edje_Load_Error; /**< Edje file loading error codes one can get - see edje_load_error_str() too. */
-
-
 /**
  * Get a list of groups in an edje mapped file
  * @param f The mapped file
@@ -1738,6 +1636,15 @@ EAPI void              edje_mmap_collection_list_free(Eina_List *lst);
  * @return 1 if a match is found, 0 otherwise
  */
 EAPI Eina_Bool         edje_mmap_group_exists(Eina_File *f, const char *glob);
+
+/**
+ * @brief Iterate over all the opened Edje file.
+ *
+ * @return an iterator of Eina_File currently opened Edje file.
+ *
+ * @since 1.14
+ */
+EAPI Eina_Iterator *edje_file_iterator_new(void);
 
 /**
  * Get a list of groups in an edje file
@@ -1864,6 +1771,7 @@ typedef enum _Edje_Action_Type
    EDJE_ACTION_TYPE_PHYSICS_STOP             = 22, /**< @since 1.8 @brief Physics stop action value */
    EDJE_ACTION_TYPE_PHYSICS_ROT_SET          = 23, /**< @since 1.8 @brief Physics rotation set action value */
    EDJE_ACTION_TYPE_VIBRATION_SAMPLE         = 24, /**< @since 1.10 @brief vibration sample action value */
+<<<<<<< HEAD
    // TIZEN_ONLY(20150110): Add plugin keyword.
 #ifdef PLUGIN
    EDJE_ACTION_TYPE_RUN_PLUGIN               = 25,
@@ -1873,6 +1781,10 @@ typedef enum _Edje_Action_Type
 #endif
    //
    //EDJE_ACTION_TYPE_LAST                     = 25  /**< Last action value */
+=======
+   EDJE_ACTION_TYPE_MO                       = 25, /**< @since 1.15 @brief Mo action value */
+   EDJE_ACTION_TYPE_LAST                     = 26  /**< Last action value */
+>>>>>>> opensource/master
 } Edje_Action_Type;
 
 /**
@@ -1928,6 +1840,54 @@ EAPI void         edje_freeze                     (void);
 EAPI void         edje_thaw                       (void);
 
 /**
+ * @brief Set's Edje language.
+ *
+ * This function sets the given language.
+ *
+ * @note: emits signal edje,language,"locale".
+ *
+ * @since 1.15
+ */
+EAPI void         edje_language_set               (const char *locale);
+
+/**
+ * @brief Set edje transition duration factor.
+ *
+ * @param scale The edje trasition's duration factor (the default value is @c 1.0)
+ *
+ * This function sets the edje transition duration factor
+ * It will affect the speed of transitions
+ * which had the @c use_duration_factor property set to @1.
+ * The default value of @c use_duration_factor property is @c zero,
+ * but can be changed by @p "USE_DURATION_FACTOR 1" or @p "USE_DURATION_FACTOR 0"
+ * as parameter of @c "TRANSITION" property at EDC level.
+ * If the parameter is @p "USE_DURATION_FACTOR 0" or not mentioned about @p "USE_DURATION_FACTOR",
+ * the duration of transition keeps original duration
+ *
+ * @warning The transition's duration factor cannot be set on each translation.
+ * If you use this function, it will affect transitions globally
+ *
+ * @see edje_transition_duration_factor_get()
+ *
+ * @since 1.15
+ */
+EAPI void         edje_transition_duration_factor_set        (double scale);
+
+/**
+ * @brief Retrieve transitions duration factor.
+ *
+ * @return The edje transition duration factor
+ *
+ * This function returns the edje transition duration factor.
+ *
+ * @see edje_transition_duration_set() for more details
+ *
+ * @since 1.15
+ *
+ */
+EAPI double       edje_transition_duration_factor_get                  (void);
+
+/**
  * @}
  */
 
@@ -1951,34 +1911,6 @@ EAPI void         edje_thaw                       (void);
  *
  * @{
  */
-
-/**
- * Identifiers of Edje message types, which can be sent back and forth
- * code and a given Edje object's theme file/group.
- *
- * @see edje_object_message_send()
- * @see edje_object_message_handler_set()
- */
-typedef enum _Edje_Message_Type
-{
-   EDJE_MESSAGE_NONE = 0,
-
-   EDJE_MESSAGE_SIGNAL = 1, /* DONT USE THIS */
-
-   EDJE_MESSAGE_STRING = 2, /**< A message with a string as value. Use #Edje_Message_String structs as message body, for this type. */
-   EDJE_MESSAGE_INT = 3, /**< A message with an integer number as value. Use #Edje_Message_Int structs as message body, for this type. */
-   EDJE_MESSAGE_FLOAT = 4, /**< A message with a floating pointer number as value. Use #Edje_Message_Float structs as message body, for this type. */
-
-   EDJE_MESSAGE_STRING_SET = 5, /**< A message with a list of strings as value. Use #Edje_Message_String_Set structs as message body, for this type. */
-   EDJE_MESSAGE_INT_SET = 6, /**< A message with a list of integer numbers as value. Use #Edje_Message_Int_Set structs as message body, for this type. */
-   EDJE_MESSAGE_FLOAT_SET = 7, /**< A message with a list of floating point numbers as value. Use #Edje_Message_Float_Set structs as message body, for this type. */
-
-   EDJE_MESSAGE_STRING_INT = 8, /**< A message with a struct containing a string and an integer number as value. Use #Edje_Message_String_Int structs as message body, for this type. */
-   EDJE_MESSAGE_STRING_FLOAT = 9, /**< A message with a struct containing a string and a floating point number as value. Use #Edje_Message_String_Float structs as message body, for this type. */
-
-   EDJE_MESSAGE_STRING_INT_SET = 10, /**< A message with a struct containing a string and list of integer numbers as value. Use #Edje_Message_String_Int_Set structs as message body, for this type. */
-   EDJE_MESSAGE_STRING_FLOAT_SET = 11 /**< A message with a struct containing a string and list of floating point numbers as value. Use #Edje_Message_String_Float_Set structs as message body, for this type. */
-} Edje_Message_Type;
 
 typedef struct _Edje_Message_String           Edje_Message_String;
 typedef struct _Edje_Message_Int              Edje_Message_Int;
@@ -2083,9 +2015,6 @@ EAPI void         edje_message_signal_process             (void);
  *
  * @{
  */
-
-/* perspective info for maps inside edje objects */
-typedef struct _Edje_Perspective Edje_Perspective;
 
 /**
  * Creates a new perspective in the given canvas.
@@ -2212,7 +2141,7 @@ EAPI const Edje_Perspective *edje_evas_global_perspective_get(const Evas *e);
  *
  * @see edje_audio_channel_mute_set()
  * @see edje_audio_channel_mute_get()
- * 
+ *
  * @since 1.9
  */
 typedef enum _Edje_Channel

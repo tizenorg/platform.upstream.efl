@@ -624,11 +624,7 @@ _ecore_wl_input_cb_pointer_button(void *data, struct wl_pointer *pointer EINA_UN
                                         0, button, timestamp);
 
         input->grab_count--;
-<<<<<<< HEAD
         if ((input->grab) && (input->grab_button == button) &&
-=======
-        if ((input->grab) && (input->grab_button == button) && 
->>>>>>> opensource/master
             (!state) && (!input->grab_count))
           ecore_wl_input_ungrab(input);
      }
@@ -1021,18 +1017,12 @@ _ecore_wl_input_cb_keyboard_repeat(void *data)
    if (!(input = data)) return ECORE_CALLBACK_RENEW;
 
    if ((win = input->keyboard_focus))
-<<<<<<< HEAD
-     _ecore_wl_input_cb_keyboard_key(input, NULL, input->display->serial,
-                                     input->repeat.time,
-                                     input->repeat.key, EINA_TRUE);
-=======
      {
         _ecore_wl_input_cb_keyboard_key(input, NULL, input->display->serial,
                                         input->repeat.time,
                                         input->repeat.key, EINA_TRUE);
         return ECORE_CALLBACK_RENEW;
      }
->>>>>>> opensource/master
 
    input->repeat.sym = 0;
    input->repeat.key = 0;
@@ -1238,11 +1228,7 @@ _ecore_wl_input_cb_touch_up(void *data, struct wl_touch *touch EINA_UNUSED, unsi
 
    _ecore_wl_input_mouse_up_send(input, input->touch_focus, id, BTN_LEFT, timestamp);
    input->grab_count--;
-<<<<<<< HEAD
    if ((input->grab) && (input->grab_button == BTN_LEFT) &&
-=======
-   if ((input->grab) && (input->grab_button == BTN_LEFT) && 
->>>>>>> opensource/master
        (!input->grab_count))
      ecore_wl_input_ungrab(input);
 }

@@ -2653,8 +2653,6 @@ eng_image_native_set(void *data, void *image, void *native)
                       im->native.func.bind   = _native_bind_cb;
                       im->native.func.unbind = _native_unbind_cb;
                       im->native.func.free   = _native_free_cb;
-                      //Tizen Only
-                      im->native.offbuffer   = 0;
 
                       glsym_evas_gl_common_image_native_enable(im);
                    }

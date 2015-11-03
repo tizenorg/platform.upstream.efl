@@ -657,7 +657,6 @@ evas_gl_common_context_new(void)
      return NULL;
    gc = calloc(1, sizeof(Evas_Engine_GL_Context));
    if (!gc) return NULL;
-   gc->gles_version = gles_version;
 
    tbm_symbols();
    gc->gles_version = gles_version;

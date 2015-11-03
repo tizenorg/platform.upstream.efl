@@ -332,6 +332,7 @@ struct _Evas_Engine_GL_Context
 
    GLuint preserve_bit;
    int gles_version;
+
    RGBA_Image *font_surface;
 };
 
@@ -424,8 +425,6 @@ struct _Evas_GL_Image
       int           target;
       int           mipmap;
       unsigned char loose : 1;
-      //Tizen Only
-      unsigned char    offbuffer : 1;
    } native;
 
    struct {

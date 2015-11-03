@@ -479,14 +479,14 @@ _fbo_surface_cap_test(GLint color_ifmt, GLenum color_fmt,
 
    // Return the result
    if (fb_status != GL_FRAMEBUFFER_COMPLETE)
-   {
+     {
         int err = glGetError();
 
         if (err != GL_NO_ERROR)
            DBG("glGetError() returns %x ", err);
 
-      return 0;
-   }
+        return 0;
+     }
    else
       return 1;
 }
@@ -2508,8 +2508,8 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
                             evgl_direct_partial_render_start();
                             ctx->partial_render = 1;
                          }
-                         }
                     }
+               }
 
              rsc->direct.rendered = 1;
           }
@@ -2709,9 +2709,9 @@ evgl_native_surface_get(EVGL_Surface *sfc, Evas_Native_Surface *ns)
         return 0;
      }
 
-        ns->type = EVAS_NATIVE_SURFACE_EVASGL;
-        ns->version = EVAS_NATIVE_SURFACE_VERSION;
-        ns->data.evasgl.surface = sfc;
+   ns->type = EVAS_NATIVE_SURFACE_EVASGL;
+   ns->version = EVAS_NATIVE_SURFACE_VERSION;
+   ns->data.evasgl.surface = sfc;
 
    return 1;
 }
@@ -2962,4 +2962,5 @@ evas_gl_context_restore_set(Eina_Bool enable)
 }
 
 //-----------------------------------------------------//
+
 

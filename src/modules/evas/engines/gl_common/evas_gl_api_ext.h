@@ -64,10 +64,7 @@
 #define _EVASGL_EXT_CHECK_SUPPORT(name)
 #define _EVASGL_EXT_DISCARD_SUPPORT()
 #define _EVASGL_EXT_BEGIN(name) \
-<<<<<<< HEAD
-=======
    extern int _egl_ext_support_##name; \
->>>>>>> opensource/master
    extern int _gl_ext_support_##name; \
    extern int _gles1_ext_support_##name; \
    extern int _gles3_ext_support_##name;
@@ -103,12 +100,6 @@
 #define EXTENSION_SUPPORT_GLES1(name) (_gles1_ext_support_##name == 1)
 #define EXTENSION_SUPPORT_GLES3(name) (_gles3_ext_support_##name == 1)
 
-<<<<<<< HEAD
-extern Eina_Bool evgl_api_ext_init(void *getproc, const char *glueexts);
-extern void evgl_api_ext_get(Evas_GL_API *gl_funcs);
-extern void evgl_api_gles1_ext_get(Evas_GL_API *gl_funcs);
-extern void evgl_api_gles3_ext_get(Evas_GL_API *gl_funcs);
-=======
 #ifdef GL_GLES
 extern Eina_Bool evgl_api_egl_ext_init(void *getproc, const char *glueexts);
 #endif
@@ -116,7 +107,6 @@ extern void evgl_api_gles2_ext_get(Evas_GL_API *gl_funcs, void *getproc, const c
 extern void evgl_api_gles1_ext_get(Evas_GL_API *gl_funcs, void *getproc, const char *glueexts);
 extern void evgl_api_gles3_ext_get(Evas_GL_API *gl_funcs, void *getproc, const char *glueexts);
 extern const char *evgl_api_ext_egl_string_get(void);
->>>>>>> opensource/master
 extern const char *evgl_api_ext_string_get(Eina_Bool official, int version);
 
 #endif //_EVAS_GL_API_EXT_H

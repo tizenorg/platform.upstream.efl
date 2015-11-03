@@ -57,89 +57,6 @@ EAPI extern Evas_Version * evas_version;
  * @todo finish api documentation
  */
 
-<<<<<<< HEAD
-/* BiDi exposed stuff */
-/*FIXME: document */
-typedef enum _Evas_BiDi_Direction
-{
-   EVAS_BIDI_DIRECTION_NATURAL,
-   EVAS_BIDI_DIRECTION_NEUTRAL = EVAS_BIDI_DIRECTION_NATURAL,
-   EVAS_BIDI_DIRECTION_LTR,
-   EVAS_BIDI_DIRECTION_RTL
-} Evas_BiDi_Direction;
-
-/**
- * Identifier of callbacks to be set for Evas canvases or Evas
- * objects.
- *
- * The following figure illustrates some Evas callbacks:
- *
- * @image html evas-callbacks.png
- * @image rtf evas-callbacks.png
- * @image latex evas-callbacks.eps
- *
- * @see evas_object_event_callback_add()
- * @see evas_event_callback_add()
- */
-typedef enum _Evas_Callback_Type
-{
-   /*
-    * The following events are only for use with Evas objects, with
-    * evas_object_event_callback_add():
-    */
-   EVAS_CALLBACK_MOUSE_IN, /**< Mouse In Event */
-   EVAS_CALLBACK_MOUSE_OUT, /**< Mouse Out Event */
-   EVAS_CALLBACK_MOUSE_DOWN, /**< Mouse Button Down Event */
-   EVAS_CALLBACK_MOUSE_UP, /**< Mouse Button Up Event */
-   EVAS_CALLBACK_MOUSE_MOVE, /**< Mouse Move Event */
-   EVAS_CALLBACK_MOUSE_WHEEL, /**< Mouse Wheel Event */
-   EVAS_CALLBACK_MULTI_DOWN, /**< Multi-touch Down Event */
-   EVAS_CALLBACK_MULTI_UP, /**< Multi-touch Up Event */
-   EVAS_CALLBACK_MULTI_MOVE, /**< Multi-touch Move Event */
-   EVAS_CALLBACK_FREE, /**< Object Being Freed (Called after Del) */
-   EVAS_CALLBACK_KEY_DOWN, /**< Key Press Event */
-   EVAS_CALLBACK_KEY_UP, /**< Key Release Event */
-   EVAS_CALLBACK_FOCUS_IN, /**< Focus In Event */
-   EVAS_CALLBACK_FOCUS_OUT, /**< Focus Out Event */
-   EVAS_CALLBACK_SHOW, /**< Show Event */
-   EVAS_CALLBACK_HIDE, /**< Hide Event */
-   EVAS_CALLBACK_MOVE, /**< Move Event */
-   EVAS_CALLBACK_RESIZE, /**< Resize Event */
-   EVAS_CALLBACK_RESTACK, /**< Restack Event */
-   EVAS_CALLBACK_DEL, /**< Object Being Deleted (called before Free) */
-   EVAS_CALLBACK_HOLD, /**< Events go on/off hold */
-   EVAS_CALLBACK_CHANGED_SIZE_HINTS, /**< Size hints changed event */
-   EVAS_CALLBACK_IMAGE_PRELOADED, /**< Image has been preloaded */
-
-   /*
-    * The following events are only for use with Evas canvases, with
-    * evas_event_callback_add():
-    */
-   EVAS_CALLBACK_CANVAS_FOCUS_IN, /**< Canvas got focus as a whole */
-   EVAS_CALLBACK_CANVAS_FOCUS_OUT, /**< Canvas lost focus as a whole */
-   EVAS_CALLBACK_RENDER_FLUSH_PRE, /**< Called just before rendering is updated on the canvas target */
-   EVAS_CALLBACK_RENDER_FLUSH_POST, /**< Called just after rendering is updated on the canvas target */
-   EVAS_CALLBACK_CANVAS_OBJECT_FOCUS_IN, /**< Canvas object got focus */
-   EVAS_CALLBACK_CANVAS_OBJECT_FOCUS_OUT, /**< Canvas object lost focus */
-   EVAS_CALLBACK_CANVAS_VIEWPORT_RESIZE, /**< Canvas viewport resized @since 1.15 */
-
-   /*
-    * More Evas object event types - see evas_object_event_callback_add():
-    */
-   EVAS_CALLBACK_IMAGE_UNLOADED, /**< Image data has been unloaded (by some mechanism in Evas that throw out original image data) */
-
-   EVAS_CALLBACK_RENDER_PRE, /**< Called just before rendering starts on the canvas target @since 1.2 */
-   EVAS_CALLBACK_RENDER_POST, /**< Called just after rendering stops on the canvas target @since 1.2 */
-
-   EVAS_CALLBACK_IMAGE_RESIZE, /**< Image size is changed @since 1.8 */
-   EVAS_CALLBACK_DEVICE_CHANGED, /**< Devices added, removed or changed on canvas @since 1.8 */
-
-   EVAS_CALLBACK_AXIS_UPDATE, /**< Input device changed value on some axis @since 1.13 */
-   EVAS_CALLBACK_LAST /**< kept as last element/sentinel -- not really an event */
-} Evas_Callback_Type; /**< The types of events triggering a callback */
-
-=======
->>>>>>> opensource/master
 /**
  * @def EVAS_CALLBACK_PRIORITY_BEFORE
  * Slightly more prioritized than default.
@@ -389,16 +306,8 @@ typedef enum _Evas_Native_Surface_Type
    EVAS_NATIVE_SURFACE_X11,  /**< X Window system based type. pixmap id or visual of the pixmap */
    EVAS_NATIVE_SURFACE_OPENGL, /**< OpenGL system based type. texture or framebuffer id*/
    EVAS_NATIVE_SURFACE_WL, /**< Wayland system based type. buffer of surface */
-<<<<<<< HEAD
-   // TIZEN ONLY (20150112) : NOT FIXED
-   EVAS_NATIVE_SURFACE_TIZEN,
-   EVAS_NATIVE_SURFACE_TBM,    /**< Tizen system based type. This is used for tizen buffer manager. */
-   EVAS_NATIVE_SURFACE_EVASGL, /**< Evas GL based type. evas gl surface */
-   //
-=======
    EVAS_NATIVE_SURFACE_TBM, /**< Tizen system based type. tbm surface @since 1.14  */
    EVAS_NATIVE_SURFACE_EVASGL, /**< Evas GL based type. evas gl surface @since 1.14 */
->>>>>>> opensource/master
 } Evas_Native_Surface_Type;
 
 /**
@@ -451,21 +360,6 @@ struct _Evas_Native_Surface
       {
          void *legacy_buffer; /**< wayland client buffer to use */
       } wl; /**< Set this struct fields if surface data is Wayland based. */
-<<<<<<< HEAD
-
-      struct
-      {
-         void *buffer; /**< tbm surface */
-         int   rot; /**< rotation (0, 90, 180, 270) */
-         float ratio; /**< width/height ratio of the source image */
-         int   flip; /**< flip (0:none, 1:horizontal, 2:vertical, 3:both) */
-      } tbm; /**< Set this struct fields if your surface data is Tizen based. */
-      struct
-      {
-         void *surface; /**< evas gl surface to use */
-      } evasgl; /**< Set this struct fields if surface data is Evas GL based. */
-      //
-=======
       struct
       {
          void *buffer; /**< tbm surface buffer to use @since 1.14 */
@@ -474,7 +368,6 @@ struct _Evas_Native_Surface
       {
          void *surface; /**< evas gl surface to use @since 1.14 */
       } evasgl; /**< Set this struct fields if surface data is Evas GL based. @since 1.14 */
->>>>>>> opensource/master
    } data; /**< Choose one union data according to your surface. */
 };
 
@@ -5551,11 +5444,7 @@ EAPI const Eina_List        *evas_font_path_global_list(void) EINA_WARN_UNUSED_R
 
 /**
  * Reinitialize FontConfig. If FontConfig has to be reinitialized
-<<<<<<< HEAD
- * according to changes of system enviroments(ex. Changing font config files), it will be useful.
-=======
  * according to changes of system environments(ex. Changing font config files), it will be useful.
->>>>>>> opensource/master
  *
  * @ingroup Evas_Font_Path_Group
  * @since 1.14

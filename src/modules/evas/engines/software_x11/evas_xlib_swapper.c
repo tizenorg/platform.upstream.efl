@@ -319,16 +319,6 @@ static void *tbm_lib = NULL;
 
 typedef struct _tbm_bufmgr *tbm_bufmgr;
 typedef struct _tbm_bo *tbm_bo;
-<<<<<<< HEAD
-static tbm_bo (*sym_tbm_bo_import) (tbm_bufmgr bufmgr, unsigned int key) = NULL;
-// XXXX: sym_tbm_bo_map() is incorrectly defined - it SHOULD return a
-// void * at least
-static void *(*sym_tbm_bo_map) (tbm_bo bo, int device, int opt) = NULL;
-static int (*sym_tbm_bo_unmap)  (tbm_bo bo, int device) = NULL;
-static void (*sym_tbm_bo_unref) (tbm_bo bo) = NULL;
-static tbm_bufmgr (*sym_tbm_bufmgr_init) (int fd, void *arg) = NULL;
-static void (*sym_tbm_bufmgr_destroy) (tbm_bufmgr bufmgr) = NULL;
-=======
 
 typedef union _tbm_bo_handle
 {
@@ -351,7 +341,6 @@ static void (*sym_tbm_bufmgr_deinit) (tbm_bufmgr bufmgr) = NULL;
 static void *(*sym_drm_slp_bo_map) (tbm_bo bo, int device, int opt) = NULL;
 static int (*sym_drm_slp_bo_unmap)  (tbm_bo bo, int device) = NULL;
 static tbm_bufmgr (*sym_drm_slp_bufmgr_init) (int fd, void *arg) = NULL;
->>>>>>> opensource/master
 
 ////////////////////////////////////
 // libdri2.so.0
@@ -413,11 +402,7 @@ static void (*sym_XFixesDestroyRegion) (Display *dpy, XID region) = NULL;
 typedef struct
 {
    unsigned int name;
-<<<<<<< HEAD
    tbm_bo   buf_bo;
-=======
-   tbm_bo       buf_bo;
->>>>>>> opensource/master
 } Buffer;
 
 struct _X_Swapper
@@ -426,11 +411,7 @@ struct _X_Swapper
    Drawable    draw;
    Visual     *vis;
    int         w, h, depth;
-<<<<<<< HEAD
    tbm_bo  buf_bo;
-=======
-   tbm_bo      buf_bo;
->>>>>>> opensource/master
    DRI2Buffer *buf;
    void       *buf_data;
    int         buf_w, buf_h;
@@ -471,21 +452,14 @@ _drm_init(Display *disp, int scr)
         if (swap_debug) ERR("Can't load libdrm.so.2");
         goto err;
      }
-<<<<<<< HEAD
-=======
    slp_mode = EINA_FALSE;
->>>>>>> opensource/master
    tbm_lib = dlopen("libtbm.so.1", RTLD_NOW | RTLD_LOCAL);
    if (!tbm_lib)
      {
         if (swap_debug) ERR("Can't load libtbm.so.1");
-<<<<<<< HEAD
-        goto err;
-=======
         tbm_lib = dlopen("libdrm_slp.so.1", RTLD_NOW | RTLD_LOCAL);
         if (tbm_lib) slp_mode = EINA_TRUE;
         else goto err;
->>>>>>> opensource/master
      }
    dri_lib = dlopen("libdri2.so.0", RTLD_NOW | RTLD_LOCAL);
    if (!dri_lib)
@@ -510,14 +484,6 @@ _drm_init(Display *disp, int scr)
 
    SYM(drm_lib, drmGetMagic);
 
-<<<<<<< HEAD
-   SYM(tbm_lib, tbm_bo_import);
-   SYM(tbm_lib, tbm_bo_map);
-   SYM(tbm_lib, tbm_bo_unmap);
-   SYM(tbm_lib, tbm_bo_unref);
-   SYM(tbm_lib, tbm_bufmgr_init);
-   SYM(tbm_lib, tbm_bufmgr_destroy);
-=======
    if (!slp_mode)
      {
         SYM(tbm_lib, tbm_bo_import);
@@ -544,7 +510,6 @@ _drm_init(Display *disp, int scr)
              goto err;
           }
      }
->>>>>>> opensource/master
 
    SYM(dri_lib, DRI2GetBuffers);
    SYM(dri_lib, DRI2QueryExtension);
@@ -616,17 +581,12 @@ _drm_init(Display *disp, int scr)
         if (swap_debug) ERR("DRI2 authenticate failed with magic 0x%x on screen %i", (unsigned int)magic, scr);
         goto err;
      }
-<<<<<<< HEAD
-
-   if (!(bufmgr = sym_tbm_bufmgr_init(drm_fd, NULL)))
-=======
    
    if (!slp_mode)
      bufmgr = sym_tbm_bufmgr_init(drm_fd);
    else
      bufmgr = sym_drm_slp_bufmgr_init(drm_fd, NULL);
    if (!bufmgr)
->>>>>>> opensource/master
      {
         if (swap_debug) ERR("DRM bufmgr init failed");
         goto err;
@@ -676,11 +636,7 @@ _drm_shutdown(void)
 /*
    if (bufmgr)
      {
-<<<<<<< HEAD
-        sym_tbm_bufmgr_destroy(bufmgr);
-=======
         sym_tbm_bufmgr_deinit(bufmgr);
->>>>>>> opensource/master
         bufmgr = NULL;
      }
    if (drm_fd >= 0) close(drm_fd);
@@ -841,13 +797,6 @@ evas_xlib_swapper_buffer_map(X_Swapper *swp, int *bpl, int *w, int *h)
                }
           }
      }
-<<<<<<< HEAD
-   // XXXX: sym_tbm_bo_map() is incorrectly defined - it SHOULD return a
-   // void * at least
-   swp->buf_data = sym_tbm_bo_map(swp->buf_bo, TBM_DEVICE_CPU,
-                                               TBM_OPTION_READ |
-                                               TBM_OPTION_WRITE);
-=======
 
    if (!slp_mode)
      {
@@ -861,7 +810,6 @@ evas_xlib_swapper_buffer_map(X_Swapper *swp, int *bpl, int *w, int *h)
         swp->buf_data = sym_drm_slp_bo_map(swp->buf_bo, TBM_DEVICE_CPU, TBM_OPTION_READ | TBM_OPTION_WRITE);
      }
 
->>>>>>> opensource/master
    if (!swp->buf_data)
      {
         ERR("Buffer map name %i failed", swp->buf->name);
@@ -885,14 +833,10 @@ void
 evas_xlib_swapper_buffer_unmap(X_Swapper *swp)
 {
    if (!swp->mapped) return;
-<<<<<<< HEAD
-   sym_tbm_bo_unmap(swp->buf_bo, TBM_DEVICE_CPU);
-=======
    if (!slp_mode)
      sym_tbm_bo_unmap(swp->buf_bo);
    else
      sym_drm_slp_bo_unmap(swp->buf_bo, TBM_DEVICE_CPU);
->>>>>>> opensource/master
    if (swap_debug) printf("Unmap buffer name %i\n", swp->buf->name);
    free(swp->buf);
    swp->buf = NULL;

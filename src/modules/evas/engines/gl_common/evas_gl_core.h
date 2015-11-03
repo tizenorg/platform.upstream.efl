@@ -44,14 +44,6 @@ typedef struct _EVGL_Surface_Cap    EVGL_Surface_Cap;
 typedef struct _EVGL_Surface_Format EVGL_Surface_Format;
 
 EAPI void         evgl_engine_shutdown(void *eng_data);
-<<<<<<< HEAD
-EAPI void        *evgl_native_surface_buffer_get(EVGL_Surface *sfc);
-EAPI int          evgl_native_surface_yinvert_get(EVGL_Surface *sfc);
-
-typedef void (*EVGL_Engine_Call)(void *eng_data);
-typedef void *(*EVGL_Native_Surface_Call)(void *sfc);
-typedef int (*EVGL_Native_Surface_Yinvert_Call)(void *sfc);
-=======
 EAPI void        *evgl_native_surface_buffer_get(EVGL_Surface *sfc, Eina_Bool *is_egl_image);
 EAPI int          evgl_native_surface_yinvert_get(EVGL_Surface *sfc);
 EAPI void        *evgl_current_native_context_get(EVGL_Context *ctx);
@@ -60,7 +52,6 @@ typedef void (*EVGL_Engine_Call)(void *eng_data);
 typedef void *(*EVGL_Native_Surface_Call)(void *sfc, Eina_Bool *is_egl_image);
 typedef int (*EVGL_Native_Surface_Yinvert_Call)(void *sfc);
 typedef void *(*EVGL_Current_Native_Context_Get_Call)(void *ctx);
->>>>>>> opensource/master
 
 EVGL_Engine *evgl_engine_init(void *eng_data, const EVGL_Interface *efunc);
 
@@ -82,15 +73,10 @@ void         evgl_direct_override_get(Eina_Bool *override, Eina_Bool *force_off)
 void         evgl_direct_info_set(int win_w, int win_h, int rot,
                                   int img_x, int img_y, int img_w, int img_h,
                                   int clip_x, int clip_y, int clip_w, int clip_h,
-<<<<<<< HEAD
-                                  void *surface);
-void         evgl_direct_info_clear();
-=======
                                   int render_op, void *surface);
 void         evgl_direct_info_clear(void);
 void         evgl_get_pixels_pre(void);
 void         evgl_get_pixels_post(void);
->>>>>>> opensource/master
 
 Eina_Bool    evgl_native_surface_direct_opts_get(Evas_Native_Surface *ns,
                                                  Eina_Bool *direct_render,

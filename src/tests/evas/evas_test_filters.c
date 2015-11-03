@@ -404,23 +404,14 @@ START_TEST(evas_filter_text_render_test)
              evas_object_show(o);
              eo_do(to,
                    efl_gfx_color_set(255, 255, 255, 255),
-<<<<<<< HEAD
-                   evas_obj_text_filter_source_set(tc->source, o),
-                   evas_obj_text_filter_program_set(tc->code));
-=======
                    efl_gfx_filter_source_set(tc->source, o),
                    efl_gfx_filter_program_set(tc->code, "evas_test_filter"));
->>>>>>> opensource/master
           }
         else
           {
              eo_do(to,
                    efl_gfx_color_set(255, 255, 255, 255),
-<<<<<<< HEAD
-                   evas_obj_text_filter_program_set(tc->code));
-=======
                    efl_gfx_filter_program_set(tc->code, "evas_test_filter"));
->>>>>>> opensource/master
           }
 
         evas_object_geometry_get(to, NULL, NULL, &w, &h);

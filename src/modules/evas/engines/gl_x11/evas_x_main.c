@@ -166,9 +166,6 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
 #endif
    const GLubyte *vendor, *renderer, *version, *glslversion;
    int blacklist = 0;
-<<<<<<< HEAD
-   int val = 0;
-=======
    int val = 0, idx;
    Evas_GL_X11_Visual *evis;
 
@@ -180,7 +177,6 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
         evis = eina_hash_find(_evas_gl_visuals, &idx);
         if (!evis) return NULL;
      }
->>>>>>> opensource/master
 
    vis = evis->info.visual;
    if (!vis) return NULL;
@@ -205,15 +201,7 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
    gw->depth_bits = depth_bits;
    gw->stencil_bits = stencil_bits;
    gw->msaa_bits = msaa_bits;
-<<<<<<< HEAD
-
-   if (gw->alpha && _evas_gl_x11_rgba_vi)
-     gw->visualinfo = _evas_gl_x11_rgba_vi;
-   else
-     gw->visualinfo = _evas_gl_x11_vi;
-=======
    gw->visualinfo = &evis->info;
->>>>>>> opensource/master
 
 // EGL / GLES
 #ifdef GL_GLES
@@ -253,14 +241,11 @@ eng_window_new(Evas_Engine_Info_GL_X11 *info,
         return NULL;
      }
 
-<<<<<<< HEAD
-=======
 try_gles2:
    context_attrs[0] = EGL_CONTEXT_CLIENT_VERSION;
    context_attrs[1] = gw->gles3 ? 3 : 2;
    context_attrs[2] = EGL_NONE;
 
->>>>>>> opensource/master
    context = _tls_context_get();
    gw->egl_context[0] = eglCreateContext
      (gw->egl_disp, gw->egl_config, context, context_attrs);
@@ -277,15 +262,10 @@ try_gles2:
         eng_window_free(gw);
         return NULL;
      }
-
    if (context == EGL_NO_CONTEXT)
      _tls_context_set(gw->egl_context[0]);
-<<<<<<< HEAD
-
-=======
    
    SET_RESTORE_CONTEXT();
->>>>>>> opensource/master
    if (eglMakeCurrent(gw->egl_disp,
                       gw->egl_surface[0],
                       gw->egl_surface[0],
@@ -899,18 +879,6 @@ eng_best_visual_get(Evas_Engine_Info_GL_X11 *einfo)
         if (gles3_supported &&
             ((s = getenv("EVAS_GL_DISABLE_GLES3")) && (atoi(s) == 1)))
           {
-<<<<<<< HEAD
-             Eina_Bool found;
-             int config_attrs[40], i, n, num;
-             int depth = DefaultDepth(einfo->info.display,
-                                      einfo->info.screen);
-
-             n = 0;
-             config_attrs[n++] = EGL_SURFACE_TYPE;
-             config_attrs[n++] = EGL_WINDOW_BIT;
-             config_attrs[n++] = EGL_RENDERABLE_TYPE;
-             config_attrs[n++] = EGL_OPENGL_ES2_BIT | EGL_OPENGL_ES_BIT;
-=======
              INF("Disabling OpenGL ES 3.x support.");
              gles3_supported = EINA_FALSE;
           }
@@ -926,7 +894,6 @@ try_again:
      config_attrs[i++] = EGL_OPENGL_ES3_BIT_KHR;
    else
      config_attrs[i++] = EGL_OPENGL_ES2_BIT;
->>>>>>> opensource/master
 # if 0
    // FIXME: n900 - omap3 sgx libs break here
    config_attrs[n++] = EGL_RED_SIZE;
@@ -1032,85 +999,12 @@ try_again:
                }
              else
                {
-<<<<<<< HEAD
-                  config_attrs[n++] = EGL_ALPHA_SIZE;
-                  config_attrs[n++] = 0;
-               }
-
-             // Tizen Only :: Direct Rendering Option for widget (e.g. WEBKIT)
-             /*
-               * Sometimes, Tizen Widget uses Evas GL with Direct Rendering.
-               * This widget also runs with depth/stencil.
-               * Unfortunately, Application can not know this widget uses Evas GL that runs with DR, Depth/Stencil buffer.
-               * Although application does not set depth/stencil buffer size,
-               * evas gl render engine should set depth/stencil buffer size with minimum.
-               * This is HACK code for tizen platform.
-               */
-
-             if (einfo->depth_bits)
-               {
-                  config_attrs[n++] = EGL_DEPTH_SIZE;
-                  config_attrs[n++] = einfo->depth_bits;
-               }
-             else
-               {
-                  config_attrs[n++] = EGL_DEPTH_SIZE;
-                  config_attrs[n++] = 1;
-               }
-
-             if (einfo->stencil_bits)
-               {
-                  config_attrs[n++] = EGL_STENCIL_SIZE;
-                  config_attrs[n++] = einfo->stencil_bits;
-               }
-             else
-              {
-                  config_attrs[n++] = EGL_STENCIL_SIZE;
-                  config_attrs[n++] = 1;
-              }
-
-             if (einfo->msaa_bits)
-               {
-                  config_attrs[n++] = EGL_SAMPLE_BUFFERS;
-                  config_attrs[n++] = 1;
-                  config_attrs[n++] = EGL_SAMPLES;
-                  config_attrs[n++] = einfo->msaa_bits;
-               }
-             config_attrs[n++] = EGL_NONE;
-             num = 0;
-             if ((!eglChooseConfig(egl_disp, config_attrs, configs, 200, &num))
-                 || (num < 1))
-               {
-                  ERR("eglChooseConfig() can't find any configs");
-                  return NULL;
-               }
-             found = EINA_FALSE;
-             for (i = 0; (i < num) && (!found); i++)
-               {
-                  EGLint val = 0;
-                  VisualID visid = 0;
-                  XVisualInfo *xvi, vi_in;
-                  int nvi, j;
-
-                  if (!eglGetConfigAttrib(egl_disp, configs[i],
-                                          EGL_NATIVE_VISUAL_ID, &val))
-                    continue;
-                  visid = val;
-                  vi_in.screen = einfo->info.screen;
-                  vi_in.visualid = visid;
-                  xvi = XGetVisualInfo(einfo->info.display,
-                                       VisualScreenMask |
-                                       VisualIDMask,
-                                       &vi_in, &nvi);
-                  for (j = 0; j < nvi; j++)
-=======
                   XRenderPictFormat *fmt;
 
                   fmt = XRenderFindVisualFormat
                         (einfo->info.display, xvi[j].visual);
                   if ((fmt->direct.alphaMask > 0) &&
                       (fmt->type == PictTypeDirect))
->>>>>>> opensource/master
                     {
                        memcpy(&evis->info, &(xvi[j]), sizeof(XVisualInfo));
                        evis->config = configs[i];

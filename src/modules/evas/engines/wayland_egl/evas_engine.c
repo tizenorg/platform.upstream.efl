@@ -693,20 +693,12 @@ static const EVGL_Interface evgl_funcs =
    evgl_eng_proc_address_get,
    evgl_eng_string_get,
    evgl_eng_rotation_angle_get,
-<<<<<<< HEAD
    evgl_eng_pbuffer_surface_create,
    evgl_eng_pbuffer_surface_destroy,
-   NULL, //gles1_surface_create
-   NULL, // gles1_surface_destroy
-   NULL, //native_win_surface_config_check
-=======
-   NULL, // PBuffer
-   NULL, // PBuffer
    NULL, // OpenGL-ES 1
    NULL, // OpenGL-ES 1
    NULL, // OpenGL-ES 1
    NULL, // native_win_surface_config_get
->>>>>>> opensource/master
 };
 
 /* engine functions */

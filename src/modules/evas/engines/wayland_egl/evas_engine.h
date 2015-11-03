@@ -12,15 +12,9 @@
 
 # define GL_GLEXT_PROTOTYPES
 
-<<<<<<< HEAD
 #if !defined(HAVE_ECORE_X_XLIB) && !defined(MESA_EGL_NO_X11_HEADERS)
 # define MESA_EGL_NO_X11_HEADERS
 #endif
-=======
-# if !defined(HAVE_ECORE_X_XLIB) && !defined(MESA_EGL_NO_X11_HEADERS)
-#  define MESA_EGL_NO_X11_HEADERS
-# endif
->>>>>>> opensource/master
 
 # include <EGL/egl.h>
 # include <GLES2/gl2.h>

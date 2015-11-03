@@ -3131,7 +3131,6 @@ _edje_edit_real_part_add(Evas_Object *obj, const char *name, Edje_Part_Type type
         rp->object = evas_object_textblock_add(ed->base->evas);
      }
    else if (ep->type == EDJE_PART_TYPE_BOX)
-<<<<<<< HEAD
      {
         rp->type = EDJE_RP_TYPE_CONTAINER;
         rp->typedata.container = calloc(1, sizeof(Edje_Real_Part_Container));
@@ -3142,18 +3141,6 @@ _edje_edit_real_part_add(Evas_Object *obj, const char *name, Edje_Part_Type type
      {
         rp->type = EDJE_RP_TYPE_CONTAINER;
         rp->typedata.container = calloc(1, sizeof(Edje_Real_Part_Container));
-=======
-     {
-        rp->type = EDJE_RP_TYPE_CONTAINER;
-        rp->typedata.container = calloc(1, sizeof(Edje_Real_Part_Container));
-        rp->object = evas_object_box_add(ed->base->evas);
-        rp->typedata.container->anim = _edje_box_layout_anim_new(rp->object);
-     }
-   else if (ep->type == EDJE_PART_TYPE_TABLE)
-     {
-        rp->type = EDJE_RP_TYPE_CONTAINER;
-        rp->typedata.container = calloc(1, sizeof(Edje_Real_Part_Container));
->>>>>>> opensource/master
         rp->object = evas_object_table_add(ed->base->evas);
      }
    else if (ep->type != EDJE_PART_TYPE_SPACER)
@@ -3998,11 +3985,7 @@ _check_recursive_reference(Edje *ed, const char *source, Eina_List *group_path, 
         eina_stringshare_del(part_source);
         part_source = edje_edit_part_source_get(part_obj, part_name);
         type = edje_edit_part_type_get(part_obj, part_name);
-<<<<<<< HEAD
-        if ((type ==  EDJE_PART_TYPE_GROUP) && part_source)
-=======
         if ((type == EDJE_PART_TYPE_GROUP) && part_source)
->>>>>>> opensource/master
           {
              /* Make sure that this group isn't already in the tree of parents */
              EINA_LIST_FOREACH(group_path, l, data)
@@ -4235,396 +4218,6 @@ FUNC_PART_DRAG_ID(threshold);
 
 /***************************/
 /*         BOX API         */
-<<<<<<< HEAD
-/***************************/
-
-#define FUNC_STATE_BOX_LAYOUT(Layout) \
-  EAPI Eina_Stringshare * \
-  edje_edit_state_box_##Layout##_get(Evas_Object *obj, const char *part, \
-                                     const char *state, double value) \
-    { \
-       GET_PD_OR_RETURN(0) \
-       if (rp->part->type == EDJE_PART_TYPE_BOX) \
-         { \
-            Edje_Part_Description_Box *box; \
-            box = (Edje_Part_Description_Box *) pd; \
-            return eina_stringshare_add(box->box.Layout); \
-         } \
-       return NULL; \
-    } \
-  EAPI Eina_Bool \
-  edje_edit_state_box_##Layout##_set(Evas_Object *obj, const char *part, \
-                                     const char *state, double value, \
-                                     char *layout) \
-  { \
-     GET_PD_OR_RETURN(EINA_FALSE) \
-     if (rp->part->type == EDJE_PART_TYPE_BOX) \
-       { \
-          Edje_Part_Description_Box *box; \
-          box = (Edje_Part_Description_Box *) pd; \
-          box->box.Layout = layout; \
-       } \
-     else \
-       return EINA_FALSE; \
-     return EINA_TRUE; \
-  }
-
-FUNC_STATE_BOX_LAYOUT(layout);
-FUNC_STATE_BOX_LAYOUT(alt_layout);
-
-/***************************/
-/*        TABLE API        */
-/***************************/
-
-EAPI unsigned char
-edje_edit_state_table_homogeneous_get(Evas_Object *obj, const char *part,
-                                      const char *state, double value)
-{
-   GET_PD_OR_RETURN(0)
-
-   switch (rp->part->type)
-     {
-      case EDJE_PART_TYPE_TABLE:
-        {
-           Edje_Part_Description_Table *table;
-           table = (Edje_Part_Description_Table*) pd;
-           return table->table.homogeneous;
-        }
-      default:
-        return 0;
-     }
-   return 0;
-}
-
-EAPI Eina_Bool
-edje_edit_state_table_homogeneous_set(Evas_Object *obj, const char *part,
-                                      const char *state, double value,
-                                      unsigned char homogeneous)
-{
-   GET_PD_OR_RETURN(EINA_FALSE)
-
-   switch (rp->part->type)
-     {
-      case EDJE_PART_TYPE_TABLE:
-        {
-           Edje_Part_Description_Table *table;
-           table = (Edje_Part_Description_Table*) pd;
-           table->table.homogeneous = homogeneous;
-           break;
-        }
-      default:
-        return EINA_FALSE;
-     }
-   return EINA_TRUE;
-}
-
-/***************************/
-/*     BOX & TABLE API     */
-/***************************/
-
-#define FUNC_CONTAINER_BOOL(CLASS, VALUE) \
-EAPI Eina_Bool \
-edje_edit_state_container_##CLASS##_##VALUE##_get(Evas_Object *obj, const char *part, const char *state, double value) \
-{ \
-   Eina_Bool val; \
-   GET_PD_OR_RETURN(EINA_FALSE) \
-   switch (rp->part->type) \
-     { \
-      case EDJE_PART_TYPE_TABLE: \
-      { \
-         Edje_Part_Description_Table *table; \
-         table = (Edje_Part_Description_Table *)pd; \
-         val = table->table.CLASS.VALUE; \
-         break; \
-      } \
-      case EDJE_PART_TYPE_BOX: \
-      { \
-         Edje_Part_Description_Box *box; \
-         box = (Edje_Part_Description_Box *)pd; \
-         val = box->box.CLASS.VALUE; \
-         break; \
-      } \
-      default: \
-       val = EINA_FALSE; \
-     } \
-   return val; \
-} \
-EAPI Eina_Bool \
-edje_edit_state_container_##CLASS##_##VALUE##_set(Evas_Object *obj, const char *part, const char *state, double value, Eina_Bool new_val) \
-{ \
-   GET_PD_OR_RETURN(EINA_FALSE) \
-   switch (rp->part->type) \
-     { \
-      case EDJE_PART_TYPE_TABLE: \
-      { \
-         Edje_Part_Description_Table *table; \
-         table = (Edje_Part_Description_Table *)pd; \
-         table->table.CLASS.VALUE = new_val; \
-         break; \
-      } \
-      case EDJE_PART_TYPE_BOX: \
-      { \
-         Edje_Part_Description_Box *box; \
-         box = (Edje_Part_Description_Box *)pd; \
-         box->box.CLASS.VALUE = new_val; \
-         break; \
-      } \
-      default: \
-        return EINA_FALSE; \
-     } \
-   return EINA_TRUE; \
-}
-
-FUNC_CONTAINER_BOOL(min, v)
-FUNC_CONTAINER_BOOL(min, h)
-
-#undef FUNC_CONTAINER_BOOL
-
-#define FUNC_CONTAINER_INT(CLASS, VALUE) \
-EAPI int \
-edje_edit_state_container_##CLASS##_##VALUE##_get(Evas_Object *obj, const char *part, const char *state, double value) \
-{ \
-   int val; \
-   GET_PD_OR_RETURN(EINA_FALSE) \
-   switch (rp->part->type) \
-     { \
-      case EDJE_PART_TYPE_TABLE: \
-      { \
-         Edje_Part_Description_Table *table; \
-         table = (Edje_Part_Description_Table *)pd; \
-         val = table->table.CLASS.VALUE; \
-         break; \
-      } \
-      case EDJE_PART_TYPE_BOX: \
-      { \
-         Edje_Part_Description_Box *box; \
-         box = (Edje_Part_Description_Box *)pd; \
-         val = box->box.CLASS.VALUE; \
-         break; \
-      } \
-      default: \
-        val = 0; \
-     } \
-   return val; \
-} \
-EAPI Eina_Bool \
-edje_edit_state_container_##CLASS##_##VALUE##_set(Evas_Object *obj, const char *part, const char *state, double value, int new_val) \
-{ \
-   GET_PD_OR_RETURN(EINA_FALSE) \
-   switch (rp->part->type) \
-     { \
-      case EDJE_PART_TYPE_TABLE: \
-      { \
-         Edje_Part_Description_Table *table; \
-         table = (Edje_Part_Description_Table *)pd; \
-         table->table.CLASS.VALUE = new_val; \
-         break; \
-      } \
-      case EDJE_PART_TYPE_BOX: \
-      { \
-         Edje_Part_Description_Box *box; \
-         box = (Edje_Part_Description_Box *)pd; \
-         box->box.CLASS.VALUE = new_val; \
-         break; \
-      } \
-      default: \
-        return EINA_FALSE; \
-     } \
-   return EINA_TRUE; \
-}
-
-FUNC_CONTAINER_INT(padding, x)
-FUNC_CONTAINER_INT(padding, y)
-
-#undef FUNC_CONTAINER_INT
-
-
-#define FUNC_CONTAINER_DOUBLE(CLASS, VALUE) \
-EAPI double \
-edje_edit_state_container_##CLASS##_##VALUE##_get(Evas_Object *obj, const char *part, const char *state, double value) \
-{ \
-   double val; \
-   GET_PD_OR_RETURN(0.0) \
-   switch (rp->part->type) \
-     { \
-      case EDJE_PART_TYPE_TABLE: \
-      { \
-         Edje_Part_Description_Table *table; \
-         table = (Edje_Part_Description_Table *)pd; \
-         val = FROM_DOUBLE(table->table.CLASS.VALUE); \
-         break; \
-      } \
-      case EDJE_PART_TYPE_BOX: \
-      { \
-         Edje_Part_Description_Box *box; \
-         box = (Edje_Part_Description_Box *)pd; \
-         val = FROM_DOUBLE(box->box.CLASS.VALUE); \
-         break; \
-      } \
-      default: \
-         val = 0.0; \
-     } \
-   return val; \
-} \
-EAPI Eina_Bool \
-edje_edit_state_container_##CLASS##_##VALUE##_set(Evas_Object *obj, const char *part, const char *state, double value, double new_val) \
-{ \
-   GET_PD_OR_RETURN(EINA_FALSE) \
-   switch (rp->part->type) \
-     { \
-      case EDJE_PART_TYPE_TABLE: \
-      { \
-         Edje_Part_Description_Table *table; \
-         table = (Edje_Part_Description_Table *)pd; \
-         table->table.CLASS.VALUE = TO_DOUBLE(new_val); \
-         break; \
-      } \
-      case EDJE_PART_TYPE_BOX: \
-      { \
-         Edje_Part_Description_Box *box; \
-         box = (Edje_Part_Description_Box *)pd; \
-         box->box.CLASS.VALUE = TO_DOUBLE(new_val); \
-         break; \
-      } \
-      default: \
-        return EINA_FALSE; \
-     } \
-   return EINA_TRUE; \
-}
-
-FUNC_CONTAINER_DOUBLE(align, x)
-FUNC_CONTAINER_DOUBLE(align, y)
-
-#undef FUNC_CONTAINER_DOUBLE
-
-EAPI Eina_Bool
-edje_edit_state_container_align_get(Evas_Object *obj, const char *part, const char *state, double value, double *x, double *y)
-{
-   GET_PD_OR_RETURN(EINA_FALSE)
-
-   switch (rp->part->type)
-     {
-      case EDJE_PART_TYPE_TABLE:
-      {
-         Edje_Part_Description_Table *table;
-         table = (Edje_Part_Description_Table *)pd;
-         if (x) *x = FROM_DOUBLE(table->table.align.x);
-         if (y) *y = FROM_DOUBLE(table->table.align.y);
-         break;
-      }
-
-      case EDJE_PART_TYPE_BOX:
-      {
-         Edje_Part_Description_Box *box;
-         box = (Edje_Part_Description_Box *)pd;
-         if (x) *x = FROM_DOUBLE(box->box.align.x);
-         if (y) *y = FROM_DOUBLE(box->box.align.y);
-         break;
-      }
-
-      default:
-        return EINA_FALSE;
-     }
-   return EINA_TRUE;
-}
-
-EAPI Eina_Bool
-edje_edit_state_container_align_set(Evas_Object *obj, const char *part, const char *state, double value, double x, double y)
-{
-   GET_PD_OR_RETURN(EINA_FALSE)
-
-   switch (rp->part->type)
-     {
-      case EDJE_PART_TYPE_TABLE:
-      {
-         Edje_Part_Description_Table *table;
-         table = (Edje_Part_Description_Table *)pd;
-         table->table.align.x = TO_DOUBLE(x);
-         table->table.align.y = TO_DOUBLE(y);
-         break;
-      }
-
-      case EDJE_PART_TYPE_BOX:
-      {
-         Edje_Part_Description_Box *box;
-         box = (Edje_Part_Description_Box *)pd;
-         box->box.align.x = x;
-         box->box.align.y = y;
-         break;
-      }
-
-      default:
-        return EINA_FALSE;
-     }
-   return EINA_TRUE;
-}
-
-EAPI Eina_Bool
-edje_edit_state_container_padding_get(Evas_Object *obj, const char *part,
-                                      const char *state, double value,
-                                      int *x, int *y)
-{
-   GET_PD_OR_RETURN(EINA_FALSE)
-
-   switch (rp->part->type)
-     {
-      case EDJE_PART_TYPE_TABLE:
-        {
-           Edje_Part_Description_Table *table;
-           table = (Edje_Part_Description_Table*) pd;
-           if (x) *x = table->table.padding.x;
-           if (y) *y = table->table.padding.y;
-           break;
-        }
-      case EDJE_PART_TYPE_BOX:
-        {
-           Edje_Part_Description_Box *box;
-           box = (Edje_Part_Description_Box*) pd;
-           if (x) *x = box->box.padding.x;
-           if (y) *y = box->box.padding.y;
-           break;
-        }
-      default:
-        return EINA_FALSE;
-     }
-
-   return EINA_TRUE;
-}
-
-EAPI Eina_Bool
-edje_edit_state_container_padding_set(Evas_Object *obj, const char *part,
-                                    const char *state, double value,
-                                    int x, int y)
-{
-   GET_PD_OR_RETURN(EINA_FALSE)
-
-   switch (rp->part->type)
-     {
-      case EDJE_PART_TYPE_TABLE:
-        {
-           Edje_Part_Description_Table *table;
-           table = (Edje_Part_Description_Table*) pd;
-           table->table.padding.x = x;
-           table->table.padding.y = y;
-           break;
-        }
-      case EDJE_PART_TYPE_BOX:
-        {
-           Edje_Part_Description_Box *box;
-           box = (Edje_Part_Description_Box*) pd;
-           box->box.padding.x = x;
-           box->box.padding.y = y;
-           break;
-        }
-      default:
-       return EINA_FALSE;
-     }
-   return EINA_TRUE;
-}
-/***************************/
-/*  BOX & TABLE ITEMS API  */
-=======
->>>>>>> opensource/master
 /***************************/
 
 #define FUNC_STATE_BOX_LAYOUT(Layout)                                                                                    \
@@ -10965,10 +10558,6 @@ edje_edit_source_generate(Evas_Object *obj)
 
    buf = eina_strbuf_new();
 
-<<<<<<< HEAD
-
-=======
->>>>>>> opensource/master
    /* If data items exist, print them */
    if (ed->file->data)
      {
@@ -10980,7 +10569,6 @@ edje_edit_source_generate(Evas_Object *obj)
         Eina_Iterator *it = eina_hash_iterator_key_new(ed->file->data);
         EINA_ITERATOR_FOREACH(it, entry)
           {
-<<<<<<< HEAD
               es = eina_hash_find(ed->file->data, entry);
               str = edje_string_get(es);
               data_len = strlen(str);
@@ -10993,20 +10581,6 @@ edje_edit_source_generate(Evas_Object *obj)
               BUF_APPENDF(I1"item: \"%s\" \"%s\";\n", escaped_entry, escaped_string);
               free(escaped_entry);
               free(escaped_string);
-=======
-             es = eina_hash_find(ed->file->data, entry);
-             str = edje_string_get(es);
-             data_len = strlen(str);
-             /* In case when data ends with '\n' character, this item recognize
-              * as data.file. This data will not generated into the source code
-              * of group. */
-             if (str[data_len - 1] == '\n') continue;
-             escaped_entry = eina_str_escape(entry);
-             escaped_string = eina_str_escape(str);
-             BUF_APPENDF(I1 "item: \"%s\" \"%s\";\n", escaped_entry, escaped_string);
-             free(escaped_entry);
-             free(escaped_string);
->>>>>>> opensource/master
           }
         eina_iterator_free(it);
         BUF_APPEND(I0 "}\n\n");
@@ -12248,11 +11822,7 @@ _edje_generate_source_of_part(Evas_Object *obj, Edje_Part *ep, Eina_Strbuf *buf)
                                 item->padding.l, item->padding.r,
                                 item->padding.t, item->padding.b);
                   if ((item->weight.x != 0) || (item->weight.y != 0))
-<<<<<<< HEAD
-                    _edje_source_with_double_values_append(I7"weight", 2,
-=======
                     _edje_source_with_double_values_append(I7 "weight", 2,
->>>>>>> opensource/master
                                                            TO_DOUBLE(item->weight.x),
                                                            TO_DOUBLE(item->weight.y),
                                                            buf, &ret);
@@ -12774,10 +12344,6 @@ edje_edit_full_source_generate(Evas_Object *obj)
    eina_strbuf_free(code);
    return ret;
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> opensource/master
 
 /*********************/
 /*  SAVING ROUTINES  */

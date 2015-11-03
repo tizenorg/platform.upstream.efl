@@ -1889,13 +1889,7 @@ EAPI Eina_Bool edje_edit_part_drag_threshold_set(Evas_Object *obj, const char *p
  * @return Primary layout of a BOX part in given state.
  * @since 1.14
  */
-<<<<<<< HEAD
-EAPI Eina_Stringshare *
-edje_edit_state_box_layout_get(Evas_Object *obj, const char *part,
-                               const char *state, double value);
-=======
 EAPI Eina_Stringshare * edje_edit_state_box_layout_get(Evas_Object *obj, const char *part, const char *state, double value);
->>>>>>> opensource/master
 
 /** Set primary layout of the box.
  *
@@ -1923,14 +1917,7 @@ EAPI Eina_Stringshare * edje_edit_state_box_layout_get(Evas_Object *obj, const c
  * @return @c EINA_TRUE in case of success, @c EINA_FALSE otherwise.
  * @since 1.14
  */
-<<<<<<< HEAD
-EAPI Eina_Bool
-edje_edit_state_box_layout_set(Evas_Object *obj, const char *part,
-                               const char *state, double value,
-                               char *layout);
-=======
 EAPI Eina_Bool edje_edit_state_box_layout_set(Evas_Object *obj, const char *part, const char *state, double value, char *layout);
->>>>>>> opensource/master
 
 /** Get fallback layout of the box.
  *
@@ -1943,13 +1930,7 @@ EAPI Eina_Bool edje_edit_state_box_layout_set(Evas_Object *obj, const char *part
  * @return Fallback layout of a BOX part in given state.
  * @since 1.14
  */
-<<<<<<< HEAD
-EAPI Eina_Stringshare *
-edje_edit_state_box_alt_layout_get(Evas_Object *obj, const char *part,
-                                   const char *state, double value);
-=======
 EAPI Eina_Stringshare * edje_edit_state_box_alt_layout_get(Evas_Object *obj, const char *part, const char *state, double value);
->>>>>>> opensource/master
 
 /** Set fallback layout of the box.
  *
@@ -1977,14 +1958,7 @@ EAPI Eina_Stringshare * edje_edit_state_box_alt_layout_get(Evas_Object *obj, con
  * @return @c EINA_TRUE in case of success, @c EINA_FALSE otherwise.
  * @since 1.14
  */
-<<<<<<< HEAD
-EAPI Eina_Bool
-edje_edit_state_box_alt_layout_set(Evas_Object *obj, const char *part,
-                                   const char *state, double value,
-                                   char *layout);
-=======
 EAPI Eina_Bool edje_edit_state_box_alt_layout_set(Evas_Object *obj, const char *part, const char *state, double value, char *layout);
->>>>>>> opensource/master
 
 //@}
 /******************************************************************************/
@@ -2011,14 +1985,7 @@ EAPI Eina_Bool edje_edit_state_box_alt_layout_set(Evas_Object *obj, const char *
  * @since 1.14
  */
 EAPI Eina_Bool
-<<<<<<< HEAD
-edje_edit_state_table_homogeneous_set(Evas_Object *obj, const char *part,
-                                      const char *state, double value,
-                                      unsigned char homogeneous);
-
-=======
 edje_edit_state_table_homogeneous_set(Evas_Object *obj, const char *part, const char *state, double value, unsigned char homogeneous);
->>>>>>> opensource/master
 /** Get homogeneous mode for TABLE part.
  *
  * @param obj Object being edited.
@@ -2034,13 +2001,7 @@ edje_edit_state_table_homogeneous_set(Evas_Object *obj, const char *part, const 
  * @return Table homogeneous mode on success or 0 on any error.
  * @since 1.14
  */
-<<<<<<< HEAD
-EAPI unsigned char
-edje_edit_state_table_homogeneous_get(Evas_Object *obj, const char *part,
-                                      const char *state, double value);
-=======
 EAPI unsigned char edje_edit_state_table_homogeneous_get(Evas_Object *obj, const char *part, const char *state, double value);
->>>>>>> opensource/master
 
 //@}
 /******************************************************************************/
@@ -2064,13 +2025,8 @@ EAPI unsigned char edje_edit_state_table_homogeneous_get(Evas_Object *obj, const
  * @param h Variable to store horizontal min value.
  * @param v Variable to store vertical min value.
  *
-<<<<<<< HEAD
- * @deprecated Use edje_edit_state_container_min_x_get() and
- * edje_edit_state_container_min_y_get() instead.
-=======
  * @deprecated Use edje_edit_state_container_min_h_get() and
  * edje_edit_state_container_min_v_get() instead.
->>>>>>> opensource/master
  *
  * @return @c EINA_TRUE in case of success, @c EINA_FALSE otherwise.
  * @since 1.14
@@ -2091,11 +2047,7 @@ EAPI Eina_Bool edje_edit_state_container_min_get(Evas_Object *obj, const char *p
  * @since 1.16
  */
 EAPI Eina_Bool
-<<<<<<< HEAD
-edje_edit_state_container_min_x_get(Evas_Object *obj, const char *part, const char *state, double value);
-=======
 edje_edit_state_container_min_h_get(Evas_Object *obj, const char *part, const char *state, double value);
->>>>>>> opensource/master
 
 /** Get whether vertical min size of the container is equal to the min vertical
  * size of items (BOX and TABLE part functions).
@@ -2110,11 +2062,7 @@ edje_edit_state_container_min_h_get(Evas_Object *obj, const char *part, const ch
  * @since 1.16
  */
 EAPI Eina_Bool
-<<<<<<< HEAD
-edje_edit_state_container_min_y_get(Evas_Object *obj, const char *part, const char *state, double value);
-=======
 edje_edit_state_container_min_v_get(Evas_Object *obj, const char *part, const char *state, double value);
->>>>>>> opensource/master
 
 /** Set whether vertical or horizontal minimum size's of the box are equal
  * to the minimum vertical or horizontal size of items
@@ -2128,13 +2076,8 @@ edje_edit_state_container_min_v_get(Evas_Object *obj, const char *part, const ch
  * @param h horizontal min value.
  * @param v vertical min value.
  *
-<<<<<<< HEAD
- * @deprecated Use edje_edit_state_container_min_x_set() and
- * edje_edit_state_container_min_y_set() instead.
-=======
  * @deprecated Use edje_edit_state_container_min_h_set() and
  * edje_edit_state_container_min_v_set() instead.
->>>>>>> opensource/master
  *
  * @return @c EINA_TRUE in case of success, @c EINA_FALSE otherwise.
  * @since 1.14
@@ -2156,11 +2099,7 @@ EAPI Eina_Bool edje_edit_state_container_min_set(Evas_Object *obj, const char *p
  * @since 1.16
  */
 EAPI Eina_Bool
-<<<<<<< HEAD
-edje_edit_state_container_min_x_set(Evas_Object *obj, const char *part, const char *state, double value, Eina_Bool v);
-=======
 edje_edit_state_container_min_h_set(Evas_Object *obj, const char *part, const char *state, double value, Eina_Bool h);
->>>>>>> opensource/master
 
 /** Set whether vertical min size of the container should be equal to the min
  * vertical size of items (BOX and TABLE part functions).
@@ -2175,11 +2114,7 @@ edje_edit_state_container_min_h_set(Evas_Object *obj, const char *part, const ch
  * @since 1.16
  */
 EAPI Eina_Bool
-<<<<<<< HEAD
-edje_edit_state_container_min_y_set(Evas_Object *obj, const char *part, const char *state, double value, Eina_Bool h);
-=======
 edje_edit_state_container_min_v_set(Evas_Object *obj, const char *part, const char *state, double value, Eina_Bool v);
->>>>>>> opensource/master
 
 /** Get x and y paddings for BOX or TABLE part.
  *
@@ -2844,11 +2779,7 @@ EAPI Eina_Bool edje_edit_part_item_weight_y_set(Evas_Object *obj, const char *pa
  * @deprecated Use edje_edit_part_item_position_col_get() and
  * edje_edit_part_item_position_row_get() instead.
  *
-<<<<<<< HEAD
- * @return @c EINA_TRUE If successfull, @c EINA_FALSE otherwise.
-=======
  * @return @c EINA_TRUE If successful, @c EINA_FALSE otherwise.
->>>>>>> opensource/master
  * @since 1.11
  */
 EINA_DEPRECATED
@@ -2879,8 +2810,6 @@ EAPI unsigned short
 edje_edit_part_item_position_row_get(Evas_Object *obj, const char *part, const char *item_name);
 
 /** Set column/row position of a new part's item.
-<<<<<<< HEAD
-=======
  *
  * @param obj Object being edited.
  * @param part Part that contain item.
@@ -2911,51 +2840,13 @@ EAPI Eina_Bool
 edje_edit_part_item_position_col_set(Evas_Object *obj, const char *part, const char *item_name, unsigned short col);
 
 /** Set row position of a part item.
->>>>>>> opensource/master
  *
  * @param obj Object being edited.
  * @param part Part that contain item.
  * @param item_name The name of the item.
  * @param row Row item position.
  *
-<<<<<<< HEAD
- * @deprecation Use edje_edit_part_item_position_col_set() and
- * edje_edit_part_item_position_row_set() instead.
- *
- * @return @c EINA_TRUE If successfull, @c EINA_FALSE otherwise.
- * @since 1.11
- */
-EINA_DEPRECATED
-EAPI Eina_Bool edje_edit_part_item_position_set(Evas_Object *obj, const char *part, const char *item_name, unsigned short col, unsigned short row);
-=======
  * @return @c EINA_TRUE If successful, @c EINA_FALSE otherwise.
- * @since 1.16
- */
-EAPI Eina_Bool
-edje_edit_part_item_position_row_set(Evas_Object *obj, const char *part, const char *item_name, unsigned short row);
->>>>>>> opensource/master
-
-/** Set column position of a part item.
- *
- * @param obj Object being edited.
- * @param part Part that contain item.
- * @param item_name The name of the item.
- * @param col Column item position.
- *
- * @return @c EINA_TRUE If successfull, @c EINA_FALSE otherwise.
- * @since 1.16
- */
-EAPI Eina_Bool
-edje_edit_part_item_position_col_set(Evas_Object *obj, const char *part, const char *item_name, unsigned short col);
-
-/** Set row position of a part item.
- *
- * @param obj Object being edited.
- * @param part Part that contain item.
- * @param item_name The name of the item.
- * @param row Row item position.
- *
- * @return @c EINA_TRUE If successfull, @c EINA_FALSE otherwise.
  * @since 1.16
  */
 EAPI Eina_Bool

@@ -17,10 +17,6 @@
 
 #include <xf86drm.h>
 #include <X11/Xmd.h>
-<<<<<<< HEAD
-
-=======
->>>>>>> opensource/master
 #include <dri2/dri2.h>
 
 #include "Ecore_Buffer.h"
@@ -353,10 +349,7 @@ _ecore_buffer_x11_dri2_buffer_alloc(Ecore_Buffer_Module_Data bmdata, int width, 
    info.format = format;
    info.bpp = bpp;
    info.size = width * bufs->pitch;
-<<<<<<< HEAD
    info.num_planes = num_plane;
-=======
->>>>>>> opensource/master
    for ( i = 0 ; i < num_plane ; i++)
    {
       info.planes[i].size = width * bufs->pitch;
@@ -384,7 +377,6 @@ on_error:
    return NULL;
 }
 
-<<<<<<< HEAD
 static Ecore_Buffer_Data
 _ecore_buffer_x11_dri2_buffer_alloc_with_tbm_surface(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, void *tbm_surface, int *ret_w, int *ret_h, Ecore_Buffer_Format *ret_format, unsigned int flags EINA_UNUSED)
 {
@@ -411,8 +403,6 @@ _ecore_buffer_x11_dri2_buffer_alloc_with_tbm_surface(Ecore_Buffer_Module_Data bm
    return buf;
 }
 
-=======
->>>>>>> opensource/master
 static void
 _ecore_buffer_x11_dri2_buffer_free(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, Ecore_Buffer_Data bdata)
 {
@@ -498,10 +488,7 @@ _ecore_buffer_x11_dri2_buffer_import(Ecore_Buffer_Module_Data bmdata EINA_UNUSED
    info.format = format;
    info.bpp = _buf_get_bpp(format);
    info.size = w * bufs->pitch;
-<<<<<<< HEAD
    info.num_planes = num_plane;
-=======
->>>>>>> opensource/master
    for ( i = 0 ; i < num_plane ; i++)
    {
       info.planes[i].size = w * bufs->pitch;
@@ -518,10 +505,6 @@ _ecore_buffer_x11_dri2_buffer_import(Ecore_Buffer_Module_Data bmdata EINA_UNUSED
    free(bufs);
 
    return buf;
-<<<<<<< HEAD
-
-=======
->>>>>>> opensource/master
 on_error:
    if (bo) tbm_bo_unref(bo);
    if (bufs) free(bufs);
@@ -561,17 +544,10 @@ static Ecore_Buffer_Backend _ecore_buffer_x11_dri2_backend = {
      &_ecore_buffer_x11_dri2_init,
      &_ecore_buffer_x11_dri2_shutdown,
      &_ecore_buffer_x11_dri2_buffer_alloc,
-<<<<<<< HEAD
      &_ecore_buffer_x11_dri2_buffer_alloc_with_tbm_surface,
      &_ecore_buffer_x11_dri2_buffer_free,
      &_ecore_buffer_x11_dri2_buffer_export,
      &_ecore_buffer_x11_dri2_buffer_import,
-=======
-     &_ecore_buffer_x11_dri2_buffer_free,
-     &_ecore_buffer_x11_dri2_buffer_export,
-     &_ecore_buffer_x11_dri2_buffer_import,
-     NULL,
->>>>>>> opensource/master
      &_ecore_buffer_x11_dri2_pixmap_get,
      &_ecore_buffer_x11_dri2_tbm_bo_get,
 };

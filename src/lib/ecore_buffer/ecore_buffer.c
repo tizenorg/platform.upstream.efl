@@ -15,14 +15,10 @@
 typedef struct _Ecore_Buffer_Module Ecore_Buffer_Module;
 typedef struct _Ecore_Buffer_Cb_Data Ecore_Buffer_Cb_Data;
 
-<<<<<<< HEAD
-struct _Ecore_Buffer_Module {
-=======
 struct _Ecore_Buffer_Module
 {
->>>>>>> opensource/master
-     Ecore_Buffer_Backend *be;
-     Ecore_Buffer_Module_Data data;
+   Ecore_Buffer_Backend *be;
+   Ecore_Buffer_Module_Data data;
 };
 
 struct _Ecore_Buffer
@@ -91,18 +87,10 @@ _ecore_buffer_get_backend(const char *name)
    else
      bm = eina_hash_find(_backends, backend_name);
 
-<<<<<<< HEAD
    if ((!bm) || (!bm->be) || (!bm->be->init))
      return NULL;
 
    bm->data = bm->be->init(NULL, NULL);
-=======
-   if ((!bm) || (!bm->be))
-     return NULL;
-
-   if (bm->be->init)
-     bm->data = bm->be->init(NULL, NULL);
->>>>>>> opensource/master
 
    return bm;
 }
@@ -288,7 +276,6 @@ ecore_buffer_new(const char *engine, unsigned int width, unsigned int height, Ec
    return bo;
 }
 
-<<<<<<< HEAD
 EAPI Ecore_Buffer *
 ecore_buffer_new_with_tbm_surface(const char *engine, void *tbm_surface, unsigned int flags)
 {
@@ -337,8 +324,6 @@ ecore_buffer_new_with_tbm_surface(const char *engine, void *tbm_surface, unsigne
    return bo;
 }
 
-=======
->>>>>>> opensource/master
 EAPI void
 ecore_buffer_free(Ecore_Buffer *buf)
 {
@@ -369,22 +354,6 @@ ecore_buffer_free(Ecore_Buffer *buf)
    free(buf);
 }
 
-<<<<<<< HEAD
-=======
-EAPI void *
-ecore_buffer_data_get(Ecore_Buffer *buf)
-{
-   EINA_SAFETY_ON_NULL_RETURN_VAL(buf, NULL);
-   EINA_SAFETY_ON_NULL_RETURN_VAL(buf->bm, NULL);
-   EINA_SAFETY_ON_NULL_RETURN_VAL(buf->bm->be, NULL);
-
-   if (!buf->bm->be->data_get)
-     return NULL;
-
-   return buf->bm->be->data_get(buf->bm->data, buf->buffer_data);
-}
-
->>>>>>> opensource/master
 EAPI Ecore_Pixmap
 ecore_buffer_pixmap_get(Ecore_Buffer *buf)
 {
@@ -449,11 +418,7 @@ ecore_buffer_free_callback_add(Ecore_Buffer *buf, Ecore_Buffer_Cb func, void *da
 
    Ecore_Buffer_Cb_Data *free_cb;
 
-<<<<<<< HEAD
-   free_cb = calloc(sizeof(Ecore_Buffer_Cb_Data), 1);
-=======
    free_cb = calloc(1, sizeof(Ecore_Buffer_Cb_Data));
->>>>>>> opensource/master
    if (!free_cb)
      return;
 
@@ -558,36 +523,3 @@ _ecore_buffer_import(const char *engine, int width, int height, Ecore_Buffer_For
 
    return bo;
 }
-<<<<<<< HEAD
-
-void
-_ecore_buffer_user_data_set(Ecore_Buffer *buffer, const void *key, const void *data)
-{
-   EINA_SAFETY_ON_NULL_RETURN(buffer);
-   EINA_SAFETY_ON_NULL_RETURN(key);
-
-   if (buffer->data)
-     eina_hash_del(buffer->data, key, NULL);
-
-   if (data)
-     {
-        if (!buffer->data)
-          buffer->data = eina_hash_string_superfast_new(NULL);
-
-        eina_hash_add(buffer->data, key, data);
-     }
-}
-
-void *
-_ecore_buffer_user_data_get(Ecore_Buffer *buffer, const void *key)
-{
-   EINA_SAFETY_ON_NULL_RETURN_VAL(buffer, NULL);
-   EINA_SAFETY_ON_NULL_RETURN_VAL(key, NULL);
-
-   if (!buffer->data)
-     return NULL;
-
-   return eina_hash_find(buffer->data, key);
-}
-=======
->>>>>>> opensource/master

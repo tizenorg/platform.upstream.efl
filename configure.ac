@@ -4635,52 +4635,52 @@ if test "x${have_tbm}" = "xyes" ; then
 fi
 EFL_ADD_FEATURE([ECORE_BUFFER], [tbm], [${build_ecore_buffer_tbm}])
 
-PKG_CHECK_MODULES([X11_DRI_COMMON],
-   [
-      libtbm >= 1.1.0,
-      libdrm >= 2.4.35,
-   ],
-   [have_x11_dri_common_pkgs="yes"],
-   [have_x11_dri_common_pkgs="no"]
-)
-
-if test "x$have_x11_dri_common_pkgs" = "xyes" ; then
-   EFL_INTERNAL_DEPEND_PKG([ECORE_BUFFER], [ecore_x])
-
-   PKG_CHECK_MODULES([X11_DRI2], [libdri2],
-                     [have_x11_dri2_pkgs="yes"],
-                     [have_x11_dri2_pkgs="no"])
-   PKG_CHECK_MODULES([X11_DRI3],
+if test "x$want_x11_any" = "xyes" ; then
+   drm_version="2.4.35"
+   PKG_CHECK_MODULES([X11_DRI_COMMON],
       [
-         xshmfence,
-         xcb,
-         x11-xcb,
-         xcb-sync,
-         xcb-dri3
+         libtbm >= ${tbm_version},
+         libdrm >= ${drm_version}
+         ecore-x
       ],
-      [have_x11_dri3_pkgs="yes"],
-      [have_x11_dri3_pkgs="no"])
-fi
+      [have_x11_dri_common_pkgs="yes"],
+      [have_x11_dri_common_pkgs="no"]
+   )
 
-if test "x${have_x11_dri2_pkgs}" = "xyes" ; then
-   build_ecore_buffer_x11_dri2="yes"
-   AC_DEFINE(BUILD_ECORE_BUFFER_X11_DRI2, 1, [Support for X11_DRI2 Backend in Ecore_Buffer])
-fi
+   if test "x$have_x11_dri_common_pkgs" = "xyes" ; then
+      PKG_CHECK_MODULES([X11_DRI2], [libdri2],
+                        [have_x11_dri2_pkgs="yes"],
+                        [have_x11_dri2_pkgs="no"])
 
-if test "x${have_x11_dri3_pkgs}" = "xyes" ; then
-   build_ecore_buffer_x11_dri3="yes"
-   AC_DEFINE(BUILD_ECORE_BUFFER_X11_DRI3, 1, [Support for X11_DRI3 Backend in Ecore_Buffer])
-fi
-EFL_EVAL_PKGS([ECORE_BUFFER])
+      PKG_CHECK_MODULES([X11_DRI3],
+         [
+            xshmfence,
+            xcb,
+            x11-xcb,
+            xcb-sync,
+            xcb-dri3
+         ],
+         [have_x11_dri3_pkgs="yes"],
+         [have_x11_dri3_pkgs="no"])
+   fi
 
-EFL_ADD_FEATURE([ECORE_BUFFER], [shm], ["yes"])
-EFL_ADD_FEATURE([ECORE_BUFFER], [x11_dri2], [${build_ecore_buffer_x11_dri2}])
-EFL_ADD_FEATURE([ECORE_BUFFER], [x11_dri3], [${build_ecore_buffer_x11_dri3}])
+   if test "x${have_x11_dri2_pkgs}" = "xyes" ; then
+      build_ecore_buffer_x11_dri2="yes"
+      AC_DEFINE(BUILD_ECORE_BUFFER_X11_DRI2, 1, [Support for X11_DRI2 Backend in Ecore_Buffer])
+   fi
+   EFL_ADD_FEATURE([ECORE_BUFFER], [x11_dri2], [${build_ecore_buffer_x11_dri2}])
+
+   if test "x${have_x11_dri3_pkgs}" = "xyes" ; then
+      build_ecore_buffer_x11_dri3="yes"
+      AC_DEFINE(BUILD_ECORE_BUFFER_X11_DRI3, 1, [Support for X11_DRI3 Backend in Ecore_Buffer])
+   fi
+   EFL_ADD_FEATURE([ECORE_BUFFER], [x11_dri3], [${build_ecore_buffer_x11_dri3}])
+fi
 
 EFL_LIB_END_OPTIONAL([Ecore_Buffer])
 
-AM_CONDITIONAL([BUILD_ECORE_BUFFER_X11_DRI2], [test "${build_ecore_buffer_x11_dri2}" = "xyes"])
-AM_CONDITIONAL([BUILD_ECORE_BUFFER_X11_DRI3], [test "${build_ecore_buffer_x11_dri3}" = "xyes"])
+AM_CONDITIONAL([BUILD_ECORE_BUFFER_X11_DRI2], [test "${build_ecore_buffer_x11_dri2}" = "yes"])
+AM_CONDITIONAL([BUILD_ECORE_BUFFER_X11_DRI3], [test "${build_ecore_buffer_x11_dri3}" = "yes"])
 AM_CONDITIONAL([BUILD_ECORE_BUFFER_TBM], [test "${build_ecore_buffer_tbm}" = "yes"])
 
 #### End of Ecore_Buffer

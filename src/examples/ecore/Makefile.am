@@ -327,8 +327,6 @@ ecore_thread_example.c \
 ecore_time_functions_example.c \
 ecore_timer_example.c \
 ecore_getopt_example.c \
-ecore_buffer_example.c
-
 ecore_con_eet_client_example.c \
 ecore_con_eet_server_example.c \
 ecore_con_eet_descriptor_example.c 

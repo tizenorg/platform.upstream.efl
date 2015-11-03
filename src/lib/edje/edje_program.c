@@ -1020,7 +1020,6 @@ low_mem_current:
         break;
 
       case EDJE_ACTION_TYPE_SOUND_TONE:
-<<<<<<< HEAD
          if (_edje_block_break(ed))
            goto break_prog;
          _edje_multisense_internal_sound_tone_play(ed, pr->tone_name, pr->duration, pr->channel);
@@ -1032,13 +1031,6 @@ low_mem_current:
         break;
 #endif
       //
-=======
-        if (_edje_block_break(ed))
-          goto break_prog;
-        _edje_multisense_internal_sound_tone_play(ed, pr->tone_name, pr->duration, pr->channel);
-        break;
-
->>>>>>> opensource/master
       case EDJE_ACTION_TYPE_VIBRATION_SAMPLE:
         if (_edje_block_break(ed))
           goto break_prog;

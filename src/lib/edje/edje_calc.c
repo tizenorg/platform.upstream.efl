@@ -1534,15 +1534,9 @@ _edje_part_recalc_single_textblock(FLOAT_T sc,
                   tw = th = 0;
                   if (!chosen_desc->text.min_x)
                     {
-<<<<<<< HEAD
-	               eo_do(ep->object,
-	        	     efl_gfx_size_set(TO_INT(params->eval.w), TO_INT(params->eval.h)),
-	        	     evas_obj_textblock_size_formatted_get(&tw, &th));
-=======
                        eo_do(ep->object,
                              efl_gfx_size_set(TO_INT(params->eval.w), TO_INT(params->eval.h)),
                              evas_obj_textblock_size_formatted_get(&tw, &th));
->>>>>>> opensource/master
                     }
                   else
                     evas_object_textblock_size_native_get(ep->object, &tw, &th);
@@ -1568,15 +1562,9 @@ _edje_part_recalc_single_textblock(FLOAT_T sc,
              tw = th = 0;
              if (!chosen_desc->text.max_x)
                {
-<<<<<<< HEAD
-		  eo_do(ep->object,
-			efl_gfx_size_set(TO_INT(params->eval.w), TO_INT(params->eval.h)),
-			evas_obj_textblock_size_formatted_get(&tw, &th));
-=======
                   eo_do(ep->object,
                         efl_gfx_size_set(TO_INT(params->eval.w), TO_INT(params->eval.h)),
                         evas_obj_textblock_size_formatted_get(&tw, &th));
->>>>>>> opensource/master
                }
              else
                evas_object_textblock_size_native_get(ep->object, &tw, &th);
@@ -1821,17 +1809,10 @@ _edje_part_recalc_single_text(FLOAT_T sc EINA_UNUSED,
                [(ep->part->effect & EDJE_TEXT_EFFECT_MASK_SHADOW_DIRECTION) >> 4];
              EVAS_TEXT_STYLE_SHADOW_DIRECTION_SET(style, shadow);
 
-<<<<<<< HEAD
-	     eo_do(ep->object,
-		   evas_obj_text_style_set(style),
-		   evas_obj_text_set(text),
-		   efl_gfx_size_get(&tw, &th));
-=======
              eo_do(ep->object,
                    evas_obj_text_style_set(style),
                    evas_obj_text_set(text),
                    efl_gfx_size_get(&tw, &th));
->>>>>>> opensource/master
              if (chosen_desc->text.max_x)
                {
                   int l, r;
@@ -4369,44 +4350,6 @@ _edje_part_recalc(Edje *ed, Edje_Real_Part *ep, int flags, Edje_Calc_Params *sta
            case EDJE_PART_TYPE_EXTERNAL:
              /* visibility and color have no meaning on SWALLOW and GROUP part. */
 #ifdef HAVE_EPHYSICS
-<<<<<<< HEAD
-              eo_do(ep->object,
-                    efl_gfx_size_set(pf->final.w, pf->final.h));
-              if ((ep->part->physics_body) && (!ep->body))
-                {
-                   if (_edje_physics_world_geometry_check(ed->world))
-                     {
-		        _edje_physics_body_add(ed, ep, ed->world);
-                        _edje_physics_body_props_update(ed, ep, pf, EINA_TRUE);
-                     }
-                }
-              else if (ep->body)
-                {
-                   if (((ep->prev_description) &&
-                        (chosen_desc != ep->prev_description)) ||
-                       (pf != p1))
-                     _edje_physics_body_props_update(ed, ep, pf, !pf->physics->ignore_part_pos);
-                }
-              else
-                eo_do(ep->object,
-                      efl_gfx_position_set(ed->x + pf->final.x, ed->y + pf->final.y));
-#else
-	      eo_do(ep->object,
-                    efl_gfx_position_set(ed->x + pf->final.x, ed->y + pf->final.y),
-		    efl_gfx_size_set(pf->final.w, pf->final.h));
-#endif
-
-              if (ep->nested_smart)
-                {  /* Move, Resize all nested parts */
-                   /* Not really needed but will improve the bounding box evaluation done by Evas */
-		   eo_do(ep->nested_smart,
-			 efl_gfx_position_set(ed->x + pf->final.x, ed->y + pf->final.y),
-			 efl_gfx_size_set(pf->final.w, pf->final.h));
-                }
-              if (ep->part->entry_mode > EDJE_ENTRY_EDIT_MODE_NONE)
-                _edje_entry_real_part_configure(ed, ep);
-              break;
-=======
              eo_do(ep->object,
                    efl_gfx_size_set(pf->final.w, pf->final.h));
              if ((ep->part->physics_body) && (!ep->body))
@@ -4451,7 +4394,6 @@ _edje_part_recalc(Edje *ed, Edje_Real_Part *ep, int flags, Edje_Calc_Params *sta
                evas_object_clip_set(ep->object, ed->base->clipper);
              break;
 
->>>>>>> opensource/master
            case EDJE_PART_TYPE_TEXT:
              /* This is correctly handle in _edje_text_recalc_apply at the moment. */
              break;

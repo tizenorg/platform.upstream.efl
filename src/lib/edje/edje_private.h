@@ -2918,13 +2918,12 @@ void _animation_get(Eo *obj, void *_pd, va_list *list);
 void edje_signal_init(void);
 void edje_signal_shutdown(void);
 
-<<<<<<< HEAD
 // TIZEN_ONLY(20150110): Add plugin keyword.
 #ifdef PLUGIN
 typedef Eina_Bool (*Edje_Module_Plugin_Run) (const Evas_Object *obj, const char *name, const char *param);
 #endif
 //
-=======
+
 Eina_Bool _edje_part_mouse_events_get(Edje *ed, Edje_Real_Part *rp);
 void _edje_part_mouse_events_set(Edje *ed, Edje_Real_Part *rp, Eina_Bool mouse_events);
 Eina_Bool _edje_part_repeat_events_get(Edje *ed, Edje_Real_Part *rp);
@@ -2933,7 +2932,6 @@ Evas_Event_Flags _edje_part_ignore_flags_get(Edje *ed, Edje_Real_Part *rp);
 void _edje_part_ignore_flags_set(Edje *ed, Edje_Real_Part *rp, Evas_Event_Flags ignore_flags);
 Evas_Event_Flags _edje_part_mask_flags_get(Edje *ed, Edje_Real_Part *rp);
 void _edje_part_mask_flags_set(Edje *ed, Edje_Real_Part *rp, Evas_Event_Flags mask_flags);
->>>>>>> opensource/master
 
 #ifdef HAVE_LIBREMIX
 #include <remix/remix.h>

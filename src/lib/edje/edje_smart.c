@@ -370,13 +370,9 @@ _edje_object_efl_file_mmap_get(Eo *obj EINA_UNUSED, Edje *pd,
 EAPI Eina_Bool
 edje_object_mmap_set(Edje_Object *obj, const Eina_File *file, const char *group)
 {
-<<<<<<< HEAD
-   return eo_do((Edje_Object *)obj, efl_file_mmap_set(file, group));
-=======
    Eina_Bool ret;
 
    return eo_do_ret(obj, ret, efl_file_mmap_set(file, group));
->>>>>>> opensource/master
 }
 
 EAPI Eina_Bool

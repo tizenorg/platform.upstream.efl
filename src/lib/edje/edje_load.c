@@ -1730,7 +1730,6 @@ _edje_file_free(Edje_File *edf)
         free(edf->vibration_dir);
      }
 
-<<<<<<< HEAD
    // TIZEN_ONLY(20150110): Add plugin keyword.
 #ifdef PLUGIN
    Edje_Plugin *plugin;
@@ -1746,7 +1745,6 @@ _edje_file_free(Edje_File *edf)
      }
 #endif
    //
-=======
    if (edf->mo_dir)
      {
         unsigned int i;
@@ -1761,7 +1759,6 @@ _edje_file_free(Edje_File *edf)
         free(edf->mo_dir->mo_entries);
         free(edf->mo_dir);
      }
->>>>>>> opensource/master
 
    if (edf->external_dir)
      {

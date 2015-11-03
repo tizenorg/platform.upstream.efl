@@ -166,19 +166,6 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          get {
             [[Get a given Edje object's base_scale factor.
 
-<<<<<<< HEAD
-            This function returns the base_scale factor set on the
-            @a obj Edje object.
-            The base_scale can be set in the collection of edc.
-            If it isn't set, the default value is 1.0 */
-         }
-         values {
-            double base_scale; /* The base_scale factor (the default value is @ 1.0,
-            that means the edc file is made based on scale 1.0. */
-         }
-      }
-      text_change_cb {
-=======
               This function returns the base_scale factor set on the
                obj Edje object.
               The base_scale can be set in the collection of edc.
@@ -190,7 +177,6 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
          }
       }
       @property text_change_cb {
->>>>>>> opensource/master
          set {
             [[Set the object text callback.
 
@@ -1849,22 +1835,6 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
             @out size: Evas.Font.Size; [[Font Size]]
          }
       }
-      text_class_get @const {
-         /*@
-         @brief Gets font and font size from edje text class.
-
-         @return @c EINA_TRUE, on success or @c EINA_FALSE, on error
-
-         This function gets the font and the font size from the object
-         text class. The font string will only be valid until the text
-         class is changed or the edje object is deleted. */
-         return: bool;
-         params {
-            @in const(char)* text_class; /*@ The text class name */
-            @out const(char)* font; /*@ Font name */
-            @out Evas_Font_Size size; /*@ Font Size */
-         }
-      }
       color_class_set {
          [[Sets the object color class.
 
@@ -2179,11 +2149,8 @@ class Edje.Object (Evas.Smart_Clipped, Efl.File)
       Efl.File.file.get;
       Efl.File.mmap.set;
       Efl.File.mmap.get;
-<<<<<<< HEAD
-=======
    }
    events {
       recalc; [[Edje re-calculated the object.]]
->>>>>>> opensource/master
    }
 }

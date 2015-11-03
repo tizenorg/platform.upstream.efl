@@ -126,32 +126,17 @@ evas_common_font_rgba_draw(RGBA_Image *dst, RGBA_Draw_Context *dc, int x, int y,
              if (dc->font_ext.func.gl_image_new_from_data)
                {
                   /* extension calls */
-<<<<<<< HEAD
-                  fg->ext_dat = dc->font_ext.func.gl_image_new_from_data(dc->font_ext.data,
-                                                                         (unsigned int)w, (unsigned int)h,
-                                                                         (DATA32 *)fg->glyph_out->bitmap.buffer,
-                                                                         EINA_TRUE,
-                                                                         EVAS_COLORSPACE_ARGB8888);
-=======
                   fg->ext_dat = dc->font_ext.func.gl_image_new_from_data
                     (dc->font_ext.data, (unsigned int)w, (unsigned int)h,
                      (DATA32 *)fg->glyph_out->bitmap.buffer, EINA_TRUE,
                      EVAS_COLORSPACE_ARGB8888);
->>>>>>> opensource/master
                   fg->ext_dat_free = dc->font_ext.func.gl_image_free;
                }
              else
                {
-<<<<<<< HEAD
-                  fg->ext_dat = _evas_font_image_new_from_data(w, h,
-                                                                      (DATA32 *)fg->glyph_out->bitmap.buffer,
-                                                                      EINA_TRUE,
-                                                                      EVAS_COLORSPACE_ARGB8888);
-=======
                   fg->ext_dat = _evas_font_image_new_from_data
                     (w, h, (DATA32 *)fg->glyph_out->bitmap.buffer,
                      EINA_TRUE, EVAS_COLORSPACE_ARGB8888);
->>>>>>> opensource/master
                   fg->ext_dat_free = _evas_font_image_free;
                }
           }
@@ -165,17 +150,14 @@ evas_common_font_rgba_draw(RGBA_Image *dst, RGBA_Draw_Context *dc, int x, int y,
                   if (fg->glyph_out->rle)
                     {
                        if ((fg->ext_dat) && (dc->font_ext.func.gl_draw))
-<<<<<<< HEAD
-                         {
-                            dc->font_ext.func.gl_draw(dc->font_ext.data, (void *)dst,
-                                                      dc, fg, chr_x, y - (chr_y - y));
-                         }
+                         dc->font_ext.func.gl_draw(dc->font_ext.data, dst,
+                                                   dc, fg,
+                                                   chr_x, y - (chr_y - y));
                        else
-                         {
-                            evas_common_font_glyph_draw(fg, dc, dst, im_w,
-                                                        chr_x, y - (chr_y - y),
-                                                        ext_x, ext_y, ext_w, ext_h);
-                         }
+                         evas_common_font_glyph_draw(fg, dc, dst, im_w,
+                                                     chr_x, y - (chr_y - y),
+                                                     ext_x, ext_y,
+                                                     ext_w, ext_h);
                     }
                   else if ((fg->ext_dat) && FT_HAS_COLOR(fg->fi->src->ft.face))
                     {
@@ -184,11 +166,11 @@ evas_common_font_rgba_draw(RGBA_Image *dst, RGBA_Draw_Context *dc, int x, int y,
                        if (dc->font_ext.func.gl_image_draw)
                          dc->font_ext.func.gl_image_draw
                            (dc->font_ext.data, fg->ext_dat, 0, 0, w, h,
-                            chr_x, y - (chr_y - y), draw_w, draw_h, EINA_TRUE);
+                            chr_x, y - (chr_y - y), w, h, EINA_TRUE);
                        else
                          _evas_font_image_draw
                            (dc, dst, fg->ext_dat, 0, 0, w, h,
-                            chr_x, y - (chr_y - y), draw_w, draw_h, EINA_TRUE);
+                            chr_x, y - (chr_y - y), w, h, EINA_TRUE);
                        */
                        int draw_w = w * fg->fi->scale_factor;
                        int draw_h = h * fg->fi->scale_factor;
@@ -202,27 +184,6 @@ evas_common_font_rgba_draw(RGBA_Image *dst, RGBA_Draw_Context *dc, int x, int y,
                            (dc, dst, fg->ext_dat, 0, 0, w, h,
                             chr_x, y - (chr_y - y), draw_w, draw_h, EINA_TRUE);
                        //
-=======
-                         dc->font_ext.func.gl_draw(dc->font_ext.data, dst,
-                                                   dc, fg,
-                                                   chr_x, y - (chr_y - y));
-                       else
-                         evas_common_font_glyph_draw(fg, dc, dst, im_w,
-                                                     chr_x, y - (chr_y - y),
-                                                     ext_x, ext_y,
-                                                     ext_w, ext_h);
-                    }
-                  else if ((fg->ext_dat) && FT_HAS_COLOR(fg->fi->src->ft.face))
-                    {
-                       if (dc->font_ext.func.gl_image_draw)
-                         dc->font_ext.func.gl_image_draw
-                           (dc->font_ext.data, fg->ext_dat, 0, 0, w, h,
-                            chr_x, y - (chr_y - y), w, h, EINA_TRUE);
-                       else
-                         _evas_font_image_draw
-                           (dc, dst, fg->ext_dat, 0, 0, w, h,
-                            chr_x, y - (chr_y - y), w, h, EINA_TRUE);
->>>>>>> opensource/master
                     }
                }
           }

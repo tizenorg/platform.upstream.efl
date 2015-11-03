@@ -24,16 +24,6 @@ evas_eolian_files = \
 	lib/evas/canvas/evas_selectable_interface.eo \
 	lib/evas/canvas/evas_zoomable_interface.eo \
 	lib/evas/canvas/evas_box.eo\
-<<<<<<< HEAD
-	lib/evas/canvas/evas_3d_camera.eo\
-	lib/evas/canvas/evas_3d_texture.eo\
-	lib/evas/canvas/evas_3d_material.eo\
-	lib/evas/canvas/evas_3d_light.eo\
-	lib/evas/canvas/evas_3d_mesh.eo\
-	lib/evas/canvas/evas_3d_node.eo\
-	lib/evas/canvas/evas_3d_scene.eo\
-	lib/evas/canvas/evas_3d_object.eo \
-=======
 	lib/evas/canvas/evas_canvas3d_camera.eo\
 	lib/evas/canvas/evas_canvas3d_texture.eo\
 	lib/evas/canvas/evas_canvas3d_material.eo\
@@ -43,7 +33,6 @@ evas_eolian_files = \
 	lib/evas/canvas/evas_canvas3d_node.eo\
 	lib/evas/canvas/evas_canvas3d_scene.eo\
 	lib/evas/canvas/evas_canvas3d_object.eo \
->>>>>>> opensource/master
 	lib/evas/canvas/evas_vg.eo \
 	lib/evas/canvas/efl_vg_base.eo \
 	lib/evas/canvas/efl_vg_container.eo \
@@ -51,16 +40,12 @@ evas_eolian_files = \
 	lib/evas/canvas/efl_vg_root_node.eo \
 	lib/evas/canvas/efl_vg_gradient.eo \
 	lib/evas/canvas/efl_vg_gradient_radial.eo \
-<<<<<<< HEAD
-	lib/evas/canvas/efl_vg_gradient_linear.eo
-=======
 	lib/evas/canvas/efl_vg_gradient_linear.eo \
 	lib/evas/canvas/evas_filter.eo \
 	$(NULL)
 
 evas_eolian_type_files = \
     lib/evas/canvas/evas_types.eot
->>>>>>> opensource/master
 
 evas_eolian_c = $(evas_eolian_files:%.eo=%.eo.c)
 evas_eolian_h = $(evas_eolian_files:%.eo=%.eo.h) \
@@ -111,12 +96,8 @@ lib/evas/include/evas_mmx.h \
 lib/evas/include/evas_common_private.h \
 lib/evas/include/evas_blend_ops.h \
 lib/evas/include/evas_filter.h \
-<<<<<<< HEAD
-lib/evas/canvas/evas_vg_private.h
-=======
 lib/evas/canvas/evas_vg_private.h \
 lib/evas/common3d/primitives/primitive_common.h
->>>>>>> opensource/master
 
 # Linebreak
 
@@ -596,11 +577,7 @@ if EVAS_STATIC_BUILD_SOFTWARE_GENERIC
 BUILT_SOURCES += \
 modules/evas/engines/software_generic/ector_cairo_software_surface.eo.c \
 modules/evas/engines/software_generic/ector_cairo_software_surface.eo.h
-<<<<<<< HEAD
-lib_evas_libevas_la_SOURCES += modules/evas/engines/software_generic/evas_engine.c modules/evas/engines/software_generic/Evas_Engine_Software_Generic.h
-=======
 lib_evas_libevas_la_SOURCES += modules/evas/engines/software_generic/evas_engine.c modules/evas/engines/software_generic/ector_surface.c modules/evas/engines/software_generic/Evas_Engine_Software_Generic.h
->>>>>>> opensource/master
 lib_evas_libevas_la_LIBADD +=
 else
 enginesoftwaregenericpkgdir = $(libdir)/evas/modules/engines/software_generic/$(MODULE_ARCH)
@@ -731,128 +708,6 @@ modules/evas/engines/gl_common/evas_gl_3d_renderer.c \
 modules/evas/engines/gl_common/evas_gl_3d_shader.c
 
 GL_SHADERS_GEN = \
-<<<<<<< HEAD
-modules/evas/engines/gl_common/shader/font_frag.shd \
-modules/evas/engines/gl_common/shader/font_vert.shd \
-modules/evas/engines/gl_common/shader/font_mask_frag.shd \
-modules/evas/engines/gl_common/shader/font_mask_vert.shd \
-modules/evas/engines/gl_common/shader/img_12_bgra_frag.shd \
-modules/evas/engines/gl_common/shader/img_12_bgra_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/img_12_bgra_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/img_12_bgra_vert.shd \
-modules/evas/engines/gl_common/shader/img_12_frag.shd \
-modules/evas/engines/gl_common/shader/img_12_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/img_12_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/img_12_vert.shd \
-modules/evas/engines/gl_common/shader/img_21_bgra_frag.shd \
-modules/evas/engines/gl_common/shader/img_21_bgra_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/img_21_bgra_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/img_21_bgra_vert.shd \
-modules/evas/engines/gl_common/shader/img_21_frag.shd \
-modules/evas/engines/gl_common/shader/img_21_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/img_21_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/img_21_vert.shd \
-modules/evas/engines/gl_common/shader/img_22_bgra_frag.shd \
-modules/evas/engines/gl_common/shader/img_22_bgra_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/img_22_bgra_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/img_22_bgra_vert.shd \
-modules/evas/engines/gl_common/shader/img_22_frag.shd \
-modules/evas/engines/gl_common/shader/img_22_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/img_22_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/img_22_vert.shd \
-modules/evas/engines/gl_common/shader/img_bgra_frag.shd \
-modules/evas/engines/gl_common/shader/img_bgra_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/img_bgra_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/img_bgra_vert.shd \
-modules/evas/engines/gl_common/shader/img_frag.shd \
-modules/evas/engines/gl_common/shader/img_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/img_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/img_vert.shd \
-modules/evas/engines/gl_common/shader/nv12_frag.shd \
-modules/evas/engines/gl_common/shader/nv12_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/nv12_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/nv12_vert.shd \
-modules/evas/engines/gl_common/shader/rect_frag.shd \
-modules/evas/engines/gl_common/shader/rect_vert.shd \
-modules/evas/engines/gl_common/shader/rgb_a_pair_frag.shd \
-modules/evas/engines/gl_common/shader/rgb_a_pair_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/rgb_a_pair_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/rgb_a_pair_vert.shd \
-modules/evas/engines/gl_common/shader/tex_12_frag.shd \
-modules/evas/engines/gl_common/shader/tex_12_vert.shd \
-modules/evas/engines/gl_common/shader/tex_12_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/tex_12_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/tex_21_frag.shd \
-modules/evas/engines/gl_common/shader/tex_21_vert.shd \
-modules/evas/engines/gl_common/shader/tex_21_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/tex_21_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/tex_22_frag.shd \
-modules/evas/engines/gl_common/shader/tex_22_vert.shd \
-modules/evas/engines/gl_common/shader/tex_22_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/tex_22_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/tex_frag.shd \
-modules/evas/engines/gl_common/shader/tex_vert.shd \
-modules/evas/engines/gl_common/shader/tex_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/tex_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/tex_afill_frag.shd \
-modules/evas/engines/gl_common/shader/tex_afill_vert.shd \
-modules/evas/engines/gl_common/shader/tex_22_afill_frag.shd \
-modules/evas/engines/gl_common/shader/tex_22_afill_vert.shd \
-modules/evas/engines/gl_common/shader/tex_21_afill_frag.shd \
-modules/evas/engines/gl_common/shader/tex_21_afill_vert.shd \
-modules/evas/engines/gl_common/shader/tex_12_afill_frag.shd \
-modules/evas/engines/gl_common/shader/tex_12_afill_vert.shd \
-modules/evas/engines/gl_common/shader/tex_22_nomul_afill_frag.shd \
-modules/evas/engines/gl_common/shader/tex_22_nomul_afill_vert.shd \
-modules/evas/engines/gl_common/shader/tex_21_nomul_afill_frag.shd \
-modules/evas/engines/gl_common/shader/tex_21_nomul_afill_vert.shd \
-modules/evas/engines/gl_common/shader/tex_12_nomul_afill_frag.shd \
-modules/evas/engines/gl_common/shader/tex_12_nomul_afill_vert.shd \
-modules/evas/engines/gl_common/shader/tex_nomul_afill_frag.shd \
-modules/evas/engines/gl_common/shader/tex_nomul_afill_vert.shd \
-modules/evas/engines/gl_common/shader/yuv_frag.shd \
-modules/evas/engines/gl_common/shader/yuv_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/yuv_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/yuv_vert.shd \
-modules/evas/engines/gl_common/shader/yuy2_frag.shd \
-modules/evas/engines/gl_common/shader/yuy2_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/yuy2_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/yuy2_vert.shd \
-modules/evas/engines/gl_common/shader/img_mask_frag.shd \
-modules/evas/engines/gl_common/shader/img_mask_vert.shd \
-modules/evas/engines/gl_common/shader/img_mask_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/img_mask_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/img_mask_bgra_frag.shd \
-modules/evas/engines/gl_common/shader/img_mask_bgra_vert.shd \
-modules/evas/engines/gl_common/shader/img_mask_bgra_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/img_mask_bgra_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/yuv_mask_frag.shd \
-modules/evas/engines/gl_common/shader/yuv_mask_vert.shd \
-modules/evas/engines/gl_common/shader/nv12_mask_frag.shd \
-modules/evas/engines/gl_common/shader/nv12_mask_vert.shd \
-modules/evas/engines/gl_common/shader/yuy2_mask_frag.shd \
-modules/evas/engines/gl_common/shader/yuy2_mask_vert.shd \
-modules/evas/engines/gl_common/shader/rgb_a_pair_mask_frag.shd \
-modules/evas/engines/gl_common/shader/rgb_a_pair_mask_vert.shd \
-modules/evas/engines/gl_common/shader/rect_mask_frag.shd \
-modules/evas/engines/gl_common/shader/rect_mask_vert.shd \
-modules/evas/engines/gl_common/shader/map_mask_frag.shd \
-modules/evas/engines/gl_common/shader/map_mask_vert.shd \
-modules/evas/engines/gl_common/shader/map_mask_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/map_mask_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/map_mask_bgra_frag.shd \
-modules/evas/engines/gl_common/shader/map_mask_bgra_vert.shd \
-modules/evas/engines/gl_common/shader/map_mask_bgra_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/map_mask_bgra_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/tex_external_frag.shd \
-modules/evas/engines/gl_common/shader/tex_external_vert.shd \
-modules/evas/engines/gl_common/shader/tex_external_nomul_frag.shd \
-modules/evas/engines/gl_common/shader/tex_external_nomul_vert.shd \
-modules/evas/engines/gl_common/shader/tex_external_afill_frag.shd \
-modules/evas/engines/gl_common/shader/tex_external_afill_vert.shd \
-modules/evas/engines/gl_common/shader/tex_external_nomul_afill_frag.shd \
-modules/evas/engines/gl_common/shader/tex_external_nomul_afill_vert.shd
-=======
 modules/evas/engines/gl_common/shader/gen_shaders.sh \
 modules/evas/engines/gl_common/shader/shaders.txt \
 modules/evas/engines/gl_common/shader/fragment.glsl \
@@ -891,7 +746,6 @@ modules/evas/engines/gl_common/shader_3d/color_pick_frag.shd \
 modules/evas/engines/gl_common/shader_3d/parallax_occlusion_vert.shd \
 modules/evas/engines/gl_common/shader_3d/parallax_occlusion_frag.shd \
 $(NULL)
->>>>>>> opensource/master
 
 EXTRA_DIST += \
 modules/evas/engines/gl_common/shader_3d/gen_shaders_3d.sh \

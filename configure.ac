@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-EFL_VERSION([1], [13], [1], [release])
-AC_INIT([efl], [efl_version], [enlightenment-devel@lists.sourceforge.net])
-=======
 EFL_VERSION([1], [16], [0], [release])
 AC_INIT([efl], [efl_version-beta3], [enlightenment-devel@lists.sourceforge.net])
->>>>>>> opensource/master
 
 AC_PREREQ([2.60])
 AC_CONFIG_SRCDIR([configure.ac])
@@ -1705,28 +1700,17 @@ AC_ARG_ENABLE([tile-rotate],
   ],
   [have_tile_rotate="no"])
 
-<<<<<<< HEAD
 # Ecore_Buffer
 AC_ARG_ENABLE([ecore-buffer],
    [AS_HELP_STRING([--enable-ecore-buffer],[Enable ecore-buffer. @<:@default=disabled@:>@])],
-=======
-# Ecore Buffer
-AC_ARG_ENABLE([ecore-buffer],
-   [AS_HELP_STRING([--enable-ecore-buffer],[enable ecore-buffer. @<:@default=disabled@:>@])],
->>>>>>> opensource/master
    [
     if test "x${enableval}" = "xyes" ; then
        want_ecore_buffer="yes"
     else
        want_ecore_buffer="no"
     fi
-<<<<<<< HEAD
-  ],
-  [want_ecore_buffer="no"])
-=======
    ],
    [want_ecore_buffer="no"])
->>>>>>> opensource/master
 
 # Image Loaders
 
@@ -1782,10 +1766,7 @@ EFL_INTERNAL_DEPEND_PKG([EVAS], [eo])
 EFL_INTERNAL_DEPEND_PKG([EVAS], [eet])
 EFL_INTERNAL_DEPEND_PKG([EVAS], [eina])
 EFL_INTERNAL_DEPEND_PKG([EVAS], [efl])
-<<<<<<< HEAD
-=======
 EFL_INTERNAL_DEPEND_PKG([EVAS], [emile])
->>>>>>> opensource/master
 EFL_INTERNAL_DEPEND_PKG([EVAS], [ector])
 
 EFL_ADD_LIBS([EVAS], [-lm])
@@ -2975,11 +2956,7 @@ EFL_INTERNAL_DEPEND_PKG([ECORE_WAYLAND], [eo])
 EFL_INTERNAL_DEPEND_PKG([ECORE_WAYLAND], [eina])
 
 EFL_DEPEND_PKG([ECORE_WAYLAND], [WAYLAND],
-<<<<<<< HEAD
    [wayland-client >= 1.3.0 wayland-cursor >= 1.3.0 xkbcommon >= 0.3.0 xdg-shell-client text-client tizen-extension-client])
-=======
-   [wayland-client >= 1.8.0 wayland-cursor >= 1.8.0 xkbcommon >= 0.5.0])
->>>>>>> opensource/master
 
 EFL_EVAL_PKGS([ECORE_WAYLAND])
 
@@ -3643,10 +3620,6 @@ if test "x${want_x11_xlib}" = "xyes" ; then
    ECORE_CHECK_X_EXTENSION([Xdpms], [dpms.h], [Xext], [DPMSQueryExtension])
    ECORE_CHECK_X_EXTENSION([Xfixes], [Xfixes.h], [Xfixes], [XFixesExpandRegion])
    ECORE_CHECK_X_EXTENSION([Xinerama], [Xinerama.h], [Xinerama], [XineramaQueryScreens])
-<<<<<<< HEAD
-   #ECORE_CHECK_X_EXTENSION([Xprint], [Print.h], [Xp], [XpQueryScreens])
-=======
->>>>>>> opensource/master
    ECORE_CHECK_X_EXTENSION([Xrandr], [Xrandr.h], [Xrandr], [XRRGetScreenResourcesCurrent])
    ECORE_CHECK_X_EXTENSION([Xrender], [Xrender.h], [Xrender], [XRenderFindVisualFormat])
    ECORE_CHECK_X_EXTENSION([Xtest], [XTest.h], [Xtst], [XTestFakeKeyEvent])
@@ -3686,11 +3659,7 @@ fi
 if test "${want_x11_xcb}" = "yes"; then
 dnl note: added pixman-1 as ecore_xcb_region uses that
    EFL_DEPEND_PKG([ECORE_X], [ECORE_X_XCB],
-<<<<<<< HEAD
-      [x11-xcb xcb xcb-shm xcb-event xcb-icccm >= 0.3.8 xcb-util >= 0.3.8 xcb-image xcb-keysyms >= 0.3.8 xcb-composite xcb-present xcb-damage xcb-dpms xcb-randr xcb-render xcb-screensaver xcb-shape xcb-sync xcb-xfixes xcb-xinerama xcb-xtest xcb-renderutil pixman-1]) #xcb-xprint
-=======
       [x11-xcb xcb xcb-shm xcb-event xcb-icccm >= 0.3.8 xcb-util >= 0.3.8 xcb-image xcb-keysyms >= 0.3.8 xcb-composite xcb-present xcb-damage xcb-dpms xcb-randr xcb-render xcb-screensaver xcb-shape xcb-sync xcb-xfixes xcb-xinerama xcb-xtest xcb-renderutil pixman-1])
->>>>>>> opensource/master
 
 dnl TODO: remove these ifdefs from code!
    AC_DEFINE([ECORE_XCB_COMPOSITE], [1], [Build support for XCB composite])
@@ -3703,10 +3672,6 @@ dnl TODO: remove these ifdefs from code!
    AC_DEFINE([ECORE_XCB_SYNC], [1], [Build support for XCB sync])
    AC_DEFINE([ECORE_XCB_XFIXES], [1], [Build support for XCB xfixes])
    AC_DEFINE([ECORE_XCB_XINERAMA], [1], [Build support for XCB xinerama])
-<<<<<<< HEAD
-   #AC_DEFINE([ECORE_XCB_XPRINT], [1], [Build support for XCB xprint])
-=======
->>>>>>> opensource/master
    AC_DEFINE([ECORE_XCB_XTEST], [1], [Build support for XCB xtest])
    AC_DEFINE([ECORE_XCB_CURSOR], [1], [Build support for XCB cursor])
 
@@ -3842,11 +3807,7 @@ EFL_ADD_FEATURE([ECORE_IMF], [xim])
 # wayland
 if test "x${want_ecore_imf_wayland}" = "xyes" ; then
    PKG_CHECK_MODULES([WAYLAND],
-<<<<<<< HEAD
       [wayland-client >= 1.2.0 text-client],
-=======
-      [wayland-client >= 1.8.0],
->>>>>>> opensource/master
       [
        have_ecore_imf_wayland="yes"
        AC_DEFINE([BUILD_ECORE_IMF_WAYLAND], [1], [Ecore Imf Wayland Support])
@@ -4655,19 +4616,16 @@ AC_ARG_ENABLE([i-really-know-what-i-am-doing-and-that-this-will-probably-break-t
 #### Ecore_Buffer
 build_ecore_buffer_x11_dri2="no"
 build_ecore_buffer_x11_dri3="no"
-<<<<<<< HEAD
 build_ecore_buffer_tbm="no"
 EFL_LIB_START_OPTIONAL([Ecore_Buffer], [test "${want_ecore_buffer}" = "yes"])
 ### Checks for libraries
 EFL_INTERNAL_DEPEND_PKG([ECORE_BUFFER], [eina])
-EFL_INTERNAL_DEPEND_PKG([ECORE_BUFFER], [ecore])
 EFL_INTERNAL_DEPEND_PKG([ECORE_BUFFER], [eo])
+EFL_INTERNAL_DEPEND_PKG([ECORE_BUFFER], [ecore])
 EFL_DEPEND_PKG([ECORE_BUFFER], [WAYLAND],
-               [wayland-client >= 1.5.0])
-EFL_EVAL_PKGS([ECORE_BUFFER])
+               [wayland-server >= 1.5.0 wayland-client >= 1.5.0])
 
-tbm_version="1.1.0"
-PKG_CHECK_MODULES([TBM], [libtbm >= ${tbm_version}],
+PKG_CHECK_MODULES([TBM], [libtbm >= "1.1.0"],
                   [have_tbm="yes"],
                   [have_tbm="no"])
 
@@ -4676,65 +4634,6 @@ if test "x${have_tbm}" = "xyes" ; then
    AC_DEFINE(BUILD_ECORE_BUFFER_TBM, 1, [Support for TBM Backend in Ecore_Buffer])
 fi
 EFL_ADD_FEATURE([ECORE_BUFFER], [tbm], [${build_ecore_buffer_tbm}])
-
-if test "x$want_x11_any" = "xyes" ; then
-   drm_version="2.4.35"
-   PKG_CHECK_MODULES([X11_DRI_COMMON],
-      [
-         libtbm >= ${tbm_version},
-         libdrm >= ${drm_version}
-         ecore-x
-      ],
-      [have_x11_dri_common_pkgs="yes"],
-      [have_x11_dri_common_pkgs="no"]
-   )
-
-   if test "x$have_x11_dri_common_pkgs" = "xyes" ; then
-      PKG_CHECK_MODULES([X11_DRI2], [libdri2],
-                        [have_x11_dri2_pkgs="yes"],
-                        [have_x11_dri2_pkgs="no"])
-
-      PKG_CHECK_MODULES([X11_DRI3],
-         [
-            xshmfence,
-            xcb,
-            x11-xcb,
-            xcb-sync,
-            xcb-dri3
-         ],
-         [have_x11_dri3_pkgs="yes"],
-         [have_x11_dri3_pkgs="no"])
-   fi
-
-   if test "x${have_x11_dri2_pkgs}" = "xyes" ; then
-      build_ecore_buffer_x11_dri2="yes"
-      AC_DEFINE(BUILD_ECORE_BUFFER_X11_DRI2, 1, [Support for X11_DRI2 Backend in Ecore_Buffer])
-   fi
-   EFL_ADD_FEATURE([ECORE_BUFFER], [x11_dri2], [${build_ecore_buffer_x11_dri2}])
-
-   if test "x${have_x11_dri3_pkgs}" = "xyes" ; then
-      build_ecore_buffer_x11_dri3="yes"
-      AC_DEFINE(BUILD_ECORE_BUFFER_X11_DRI3, 1, [Support for X11_DRI3 Backend in Ecore_Buffer])
-   fi
-   EFL_ADD_FEATURE([ECORE_BUFFER], [x11_dri3], [${build_ecore_buffer_x11_dri3}])
-fi
-
-EFL_LIB_END_OPTIONAL([Ecore_Buffer])
-
-AM_CONDITIONAL([BUILD_ECORE_BUFFER_X11_DRI2], [test "${build_ecore_buffer_x11_dri2}" = "yes"])
-AM_CONDITIONAL([BUILD_ECORE_BUFFER_X11_DRI3], [test "${build_ecore_buffer_x11_dri3}" = "yes"])
-AM_CONDITIONAL([BUILD_ECORE_BUFFER_TBM], [test "${build_ecore_buffer_tbm}" = "yes"])
-
-#### End of Ecore_Buffer
-
-=======
-EFL_LIB_START_OPTIONAL([Ecore_Buffer], [test "${want_ecore_buffer}" = "yes"])
-### Checks for libraries
-EFL_INTERNAL_DEPEND_PKG([ECORE_BUFFER], [eina])
-EFL_INTERNAL_DEPEND_PKG([ECORE_BUFFER], [eo])
-EFL_INTERNAL_DEPEND_PKG([ECORE_BUFFER], [ecore])
-EFL_DEPEND_PKG([ECORE_BUFFER], [WAYLAND],
-               [wayland-server >= 1.5.0 wayland-client >= 1.5.0])
 
 PKG_CHECK_MODULES([X11_DRI_COMMON],
    [
@@ -4782,9 +4681,9 @@ EFL_LIB_END_OPTIONAL([Ecore_Buffer])
 
 AM_CONDITIONAL([BUILD_ECORE_BUFFER_X11_DRI2], [test "${build_ecore_buffer_x11_dri2}" = "xyes"])
 AM_CONDITIONAL([BUILD_ECORE_BUFFER_X11_DRI3], [test "${build_ecore_buffer_x11_dri3}" = "xyes"])
+AM_CONDITIONAL([BUILD_ECORE_BUFFER_TBM], [test "${build_ecore_buffer_tbm}" = "yes"])
 
 #### End of Ecore_Buffer
->>>>>>> opensource/master
 
 #### src/examples/ephysics/Makefile
 AC_CONFIG_FILES([
@@ -5038,11 +4937,7 @@ echo "Ecore_Win32.....: $have_win32"
 fi
 echo "Ecore_Audio.....: ${efl_lib_optional_ecore_audio} (${features_ecore_audio})"
 echo "Ecore_Avahi.....: yes (${features_ecore_avahi})"
-<<<<<<< HEAD
-echo "Ecore_Evas......: ${efl_lib_optional_ecore_evas} (${features_ecore_evas})"
-=======
 echo "Ecore_Evas......: yes (${features_ecore_evas})"
->>>>>>> opensource/master
 echo "Ector...........: yes"
 echo "Eeze............: ${efl_lib_optional_eeze} (${features_eeze})"
 echo "EPhysics........: ${efl_lib_optional_ephysics}"

@@ -17,10 +17,7 @@
 /ecore-win32.pc
 /ecore-x.pc
 /ecore.pc
-<<<<<<< HEAD
-=======
 /ecore-buffer.pc
->>>>>>> opensource/master
 /ector.pc
 /edje.pc
 /eet.pc

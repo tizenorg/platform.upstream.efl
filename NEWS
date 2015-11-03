@@ -1,14 +1,4 @@
 ==========
-<<<<<<< HEAD
-EFL 1.13.1
-==========
-
-Changes since 1.13.0:
----------------------
-
-Fixes:
-
-=======
 EFL 1.16.0
 ==========
 
@@ -444,17 +434,10 @@ Fixes:
    * Edje: edje_edit - fix Segmentation Fault on new BOX part
    * evas text: fix _ellipsis_get to return -1.0 on failure.
    * eina: fix eina_bench.c compilation error.
->>>>>>> opensource/master
    * Evas masking: Fix some garbage pixels with the SW engine
    * Evas masking: Fix potential issues with map & masking
    * Evas masking: Force BLEND mode in case of image masking (GL)
    * ecore-drm should not use sscanf when getting logind vt
-<<<<<<< HEAD
-   * ecore/drm: Fix libinput >= 0.8 check
-   * ee-win32 probably might compile now
-   * Evas GL: Fix leak of surfaces with GLES 1.1
-   * eina + ecore - fix main loop thread id tracking on fork
-=======
    * eina: correctly handle and report Eina_File error on Windows.
    * eina: fix Eina_Log to only try to free non deleted log.
    * eolian: add right extension to eolian_gen if we are on Windows
@@ -645,7 +628,6 @@ Fixes:
    * ecore-evas-wayland: Fix issue of setting NULL cursor object
    * edje: _check_recursive_reference reworked to fix segv in Edje_Edit.
    * ecore-drm: Add missing doxy for ecore_drm_output_enable
->>>>>>> opensource/master
 
 Changes since 1.12.0:
 ---------------------

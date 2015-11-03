@@ -213,14 +213,10 @@ ecore_wl_subsurf_opaque_region_set(Ecore_Wl_Subsurf *ess, int x, int y, int w, i
 
    if ((w > 0) && (h > 0))
      {
-<<<<<<< HEAD
         wlcomp = _ecore_wl_compositor_get();
         if (!wlcomp) return;
 
         region = wl_compositor_create_region(wlcomp);
-=======
-        region = wl_compositor_create_region(_ecore_wl_compositor_get());
->>>>>>> opensource/master
         if (!region) return;
 
         wl_region_add(region, x, y, w, h);

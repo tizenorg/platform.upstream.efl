@@ -12,7 +12,7 @@
 # include <wayland-client.h>
 # include <wayland-cursor.h>
 # include <xkbcommon/xkbcommon.h>
-# include <xdg-shell-client-protocol.h>
+# include "xdg-shell-client-protocol.h"
 
 # ifdef EAPI
 #  undef EAPI
@@ -1154,8 +1154,6 @@ EAPI void ecore_wl_window_aux_hint_add(Ecore_Wl_Window *win, int id, const char 
 EAPI void ecore_wl_window_aux_hint_change(Ecore_Wl_Window *win, int id, const char *val);
 EAPI void ecore_wl_window_aux_hint_del(Ecore_Wl_Window *win, int id);
 
-=======
->>>>>>> opensource/master
 #ifdef __cplusplus
 }
 #endif

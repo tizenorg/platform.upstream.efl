@@ -12,7 +12,7 @@
 # define IVI_SURFACE_ID 6000
 # endif
 
-# include <xdg-shell-client-protocol.h>
+# include "xdg-shell-client-protocol.h"
 # include <tizen-extension-client-protocol.h>
 # include "tizen-policy-ext-client-protocol.h"
 

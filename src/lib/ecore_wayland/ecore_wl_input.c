@@ -224,11 +224,9 @@ ecore_wl_input_cursor_size_set(Ecore_Wl_Input *input, const int size)
 
    EINA_SAFETY_ON_NULL_RETURN(input->display->wl.shm);
 
-<<<<<<< HEAD
-=======
    if (input->display->cursor_theme)
      wl_cursor_theme_destroy(input->display->cursor_theme);
->>>>>>> opensource/master
+
    input->display->cursor_theme =
      wl_cursor_theme_load(NULL, input->cursor_size, input->display->wl.shm);
 }
@@ -368,11 +366,7 @@ ecore_wl_input_seat_get(Ecore_Wl_Input *input)
 
 /* local functions */
 void
-<<<<<<< HEAD
-_ecore_wl_input_add(Ecore_Wl_Display *ewd, unsigned int id)
-=======
 _ecore_wl_input_setup(Ecore_Wl_Input *input)
->>>>>>> opensource/master
 {
    char *temp;
    unsigned int cursor_size;
@@ -396,8 +390,6 @@ _ecore_wl_input_add(Ecore_Wl_Display *ewd, unsigned int id)
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
-<<<<<<< HEAD
-=======
    if (!(input = calloc(1, sizeof(Ecore_Wl_Input)))) return;
 
    input->display = ewd;
@@ -411,7 +403,7 @@ _ecore_wl_input_add(Ecore_Wl_Display *ewd, unsigned int id)
 
    if (ewd->wl.shm)
      _ecore_wl_input_setup(input);
->>>>>>> opensource/master
+
    input->seat =
      wl_registry_bind(ewd->wl.registry, id, &wl_seat_interface, 1);
    ewd->inputs = eina_inlist_append(ewd->inputs, EINA_INLIST_GET(input));
@@ -669,11 +661,8 @@ _ecore_wl_input_cb_pointer_frame(void *data, struct wl_callback *callback, unsig
    if ((input->cursor->image_count > 1) && (!input->cursor_frame_cb))
      {
         input->cursor_frame_cb = wl_surface_frame(input->cursor_surface);
-<<<<<<< HEAD
         if (!input->cursor_frame_cb) return;
 
-=======
->>>>>>> opensource/master
         wl_callback_add_listener(input->cursor_frame_cb,
                                  &_ecore_wl_pointer_surface_listener, input);
      }
@@ -801,13 +790,10 @@ _ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard EINA_UN
    if (!(input = data)) return;
 
    win = input->keyboard_focus;
-<<<<<<< HEAD
-=======
    if ((!win) || (win->keyboard_device != input) || (!input->xkb.state))
      return;
 
    input->display->serial = serial;
->>>>>>> opensource/master
 
    /* xkb rules reflect X broken keycodes, so offset by 8 */
    code = keycode + 8;
@@ -934,12 +920,8 @@ _ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard EINA_UN
         if (!input->repeat.tmr)
           {
              input->repeat.tmr =
-<<<<<<< HEAD
-               ecore_timer_add(0.025, _ecore_wl_input_cb_keyboard_repeat, input);
-=======
                ecore_timer_add(input->repeat.rate,
                                _ecore_wl_input_cb_keyboard_repeat, input);
->>>>>>> opensource/master
           }
         ecore_timer_delay(input->repeat.tmr, input->repeat.delay);
      }
@@ -982,8 +964,6 @@ _ecore_wl_input_cb_keyboard_modifiers(void *data, struct wl_keyboard *keyboard E
      input->modifiers |= ECORE_EVENT_MODIFIER_ALTGR;
 }
 
-<<<<<<< HEAD
-=======
 static void
 _ecore_wl_input_cb_keyboard_repeat_setup(void *data, struct wl_keyboard *keyboard EINA_UNUSED, int32_t rate, int32_t delay)
 {
@@ -1005,7 +985,6 @@ _ecore_wl_input_cb_keyboard_repeat_setup(void *data, struct wl_keyboard *keyboar
    input->repeat.delay = (delay / 100);
 }
 
->>>>>>> opensource/master
 static Eina_Bool
 _ecore_wl_input_cb_keyboard_repeat(void *data)
 {

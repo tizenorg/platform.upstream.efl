@@ -17,16 +17,10 @@
 # include <subsurface-client-protocol.h>
 #endif
 
-<<<<<<< HEAD
-#include <xdg-shell-client-protocol.h>
-#define XDG_VERSION 4
-#include <tizen-extension-client-protocol.h>
-=======
 #include "xdg-shell-client-protocol.h"
 #define XDG_VERSION 5
 
 #include "session-recovery-client-protocol.h"
->>>>>>> opensource/master
 
 /* local function prototypes */
 static int _ecore_wl_shutdown(Eina_Bool close);
@@ -106,10 +100,8 @@ static const struct tizen_policy_listener _ecore_tizen_policy_listener =
    _ecore_wl_cb_supported_aux_hints,
    _ecore_wl_cb_allowed_aux_hint,
 };
+
 static void 
-=======
-static void
->>>>>>> opensource/master
 xdg_shell_ping(void *data EINA_UNUSED, struct xdg_shell *shell, uint32_t serial)
 {
    xdg_shell_pong(shell, serial);
@@ -174,13 +166,7 @@ static void
 _ecore_wl_init_wait(void)
 {
    int ret;
-<<<<<<< HEAD
 
-   while (!_ecore_wl_disp->init_done)
-     {
-        ret = wl_display_dispatch(_ecore_wl_disp->wl.display);
-        assert(ret != -1);
-=======
    while (!_ecore_wl_disp->init_done)
      {
         ret = wl_display_dispatch(_ecore_wl_disp->wl.display);
@@ -191,7 +177,6 @@ _ecore_wl_init_wait(void)
              abort();
              break;
           }
->>>>>>> opensource/master
      }
 }
 
@@ -341,16 +326,7 @@ ecore_wl_flush(void)
 EAPI void
 ecore_wl_sync(void)
 {
-<<<<<<< HEAD
-   int ret = 0;
-   if ((!_ecore_wl_disp) || (!_ecore_wl_disp->wl.display)) return;
-   _ecore_wl_sync_wait(_ecore_wl_disp);
-   while (_ecore_wl_disp->sync_ref_count > 0 && ret != -1)
-     {
-        ret = wl_display_dispatch(_ecore_wl_disp->wl.display);
-        if (ret == -1)
-          CRI("dispatch failed: %s(%d)", strerror(errno), errno);
-=======
+
    int ret;
    if ((!_ecore_wl_disp) || (!_ecore_wl_disp->wl.display)) return;
    _ecore_wl_sync_wait(_ecore_wl_disp);
@@ -364,7 +340,6 @@ ecore_wl_sync(void)
              abort();
              break;
           }
->>>>>>> opensource/master
      }
 }
 

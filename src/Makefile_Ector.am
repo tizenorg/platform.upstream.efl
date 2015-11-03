@@ -1,55 +1,36 @@
 
 ### Library
-<<<<<<< HEAD
-ector_eolian_files = \
-=======
 ector_eolian_files_generic = \
->>>>>>> opensource/master
 	lib/ector/ector_generic_surface.eo \
 	lib/ector/ector_renderer_generic_base.eo \
 	lib/ector/ector_renderer_generic_shape.eo \
 	lib/ector/ector_renderer_generic_gradient.eo \
 	lib/ector/ector_renderer_generic_gradient_radial.eo \
 	lib/ector/ector_renderer_generic_gradient_linear.eo
-<<<<<<< HEAD
-
-# Handle cairo backend
-ector_eolian_files += \
-=======
 ector_eolian_generic_h = $(ector_eolian_files_generic:%.eo=%.eo.h)
 
 # Handle cairo backend
 ector_eolian_files_cairo = \
->>>>>>> opensource/master
 	lib/ector/cairo/ector_cairo_surface.eo \
 	lib/ector/cairo/ector_renderer_cairo_base.eo \
 	lib/ector/cairo/ector_renderer_cairo_shape.eo \
 	lib/ector/cairo/ector_renderer_cairo_gradient_linear.eo \
 	lib/ector/cairo/ector_renderer_cairo_gradient_radial.eo
-<<<<<<< HEAD
-
-# Handle software backend
-ector_eolian_files += \
-=======
 ector_eolian_cairo_h = $(ector_eolian_files_cairo:%.eo=%.eo.h)
 
 # Handle default software backend
 ector_eolian_files_software = \
->>>>>>> opensource/master
 	lib/ector/software/ector_software_surface.eo \
 	lib/ector/software/ector_renderer_software_base.eo \
 	lib/ector/software/ector_renderer_software_shape.eo \
 	lib/ector/software/ector_renderer_software_gradient_radial.eo \
 	lib/ector/software/ector_renderer_software_gradient_linear.eo
-<<<<<<< HEAD
-=======
 ector_eolian_software_h = $(ector_eolian_files_software:%.eo=%.eo.h)
 
 ector_eolian_files = \
                      $(ector_eolian_files_generic) \
                      $(ector_eolian_files_cairo) \
                      $(ector_eolian_files_software)
->>>>>>> opensource/master
 
 ector_eolian_c = $(ector_eolian_files:%.eo=%.eo.c)
 ector_eolian_h = $(ector_eolian_files:%.eo=%.eo.h)
@@ -62,25 +43,19 @@ CLEANFILES += \
 	$(ector_eolian_c) \
 	$(ector_eolian_h)
 
-<<<<<<< HEAD
-=======
 ectoreolianfilesdir = $(datadir)/eolian/include/ector-@VMAJ@
 ectoreolianfiles_DATA = $(ector_eolian_files)
 
 EXTRA_DIST += $(ectoreolianfiles_DATA)
 
->>>>>>> opensource/master
 lib_LTLIBRARIES += lib/ector/libector.la
 
 installed_ectormainheadersdir = $(includedir)/ector-@VMAJ@
 dist_installed_ectormainheaders_DATA = \
 lib/ector/Ector.h \
 lib/ector/ector_util.h \
-<<<<<<< HEAD
-=======
 lib/ector/ector_surface.h \
 lib/ector/ector_renderer.h \
->>>>>>> opensource/master
 lib/ector/cairo/Ector_Cairo.h \
 lib/ector/software/Ector_Software.h
 
@@ -95,12 +70,9 @@ lib/ector/ector_renderer_gradient.c \
 lib/ector/ector_renderer_gradient_radial.c \
 lib/ector/ector_renderer_gradient_linear.c
 
-<<<<<<< HEAD
-=======
 installed_ectorgenericheadersdir = $(includedir)/ector-@VMAJ@/generic
 nodist_installed_ectorgenericheaders_DATA = $(ector_eolian_generic_h)
 
->>>>>>> opensource/master
 # And now the cairo backend
 lib_ector_libector_la_SOURCES += \
 lib/ector/cairo/ector_renderer_cairo_gradient_linear.c \
@@ -109,14 +81,11 @@ lib/ector/cairo/ector_renderer_cairo_shape.c \
 lib/ector/cairo/ector_renderer_cairo_base.c \
 lib/ector/cairo/ector_cairo_surface.c
 
-<<<<<<< HEAD
 # And now the software backend
-=======
 installed_ectorcairoheadersdir = $(includedir)/ector-@VMAJ@/cairo
 nodist_installed_ectorcairoheaders_DATA = $(ector_eolian_cairo_h)
 
 # And the default software backend
->>>>>>> opensource/master
 lib_ector_libector_la_SOURCES += \
 lib/ector/software/ector_renderer_software_gradient_linear.c \
 lib/ector/software/ector_renderer_software_gradient_radial.c \
@@ -128,11 +97,6 @@ lib/ector/software/sw_ft_math.c \
 lib/ector/software/sw_ft_raster.c \
 lib/ector/software/sw_ft_stroker.c \
 lib/ector/software/ector_drawhelper.c \
-<<<<<<< HEAD
-lib/ector/software/ector_drawhelper_sse2.c
-
-lib_ector_libector_la_CPPFLAGS = -I$(top_builddir)/src/lib/efl \
-=======
 lib/ector/software/ector_drawhelper_sse2.c \
 lib/ector/software/ector_drawhelper_neon.c
 
@@ -143,7 +107,6 @@ lib_ector_libector_la_CPPFLAGS = -I$(top_builddir)/src/lib/efl \
 -I$(top_builddir)/src/lib/ector \
 -I$(top_builddir)/src/lib/ector/cairo \
 -I$(top_builddir)/src/lib/ector/software \
->>>>>>> opensource/master
 @ECTOR_CFLAGS@ \
 -DPACKAGE_BIN_DIR=\"$(bindir)\" \
 -DPACKAGE_LIB_DIR=\"$(libdir)\" \
@@ -186,16 +149,6 @@ tests_ector_ector_suite_DEPENDENCIES = @USE_ECTOR_INTERNAL_LIBS@
 endif
 
 EXTRA_DIST += \
-<<<<<<< HEAD
-src/lib/ector/ector_private.h \
-src/lib/ector/cairo/ector_cairo_private.h \
-src/lib/ector/software/ector_drawhelper_private.h \
-src/lib/ector/software/ector_software_private.h \
-src/lib/ector/software/sw_ft_math.h \
-src/lib/ector/software/sw_ft_raster.h \
-src/lib/ector/software/sw_ft_stroker.h \
-src/lib/ector/software/sw_ft_types.h
-=======
 lib/ector/ector_private.h \
 lib/ector/cairo/ector_cairo_private.h \
 lib/ector/software/ector_drawhelper_private.h \
@@ -204,4 +157,4 @@ lib/ector/software/sw_ft_math.h \
 lib/ector/software/sw_ft_raster.h \
 lib/ector/software/sw_ft_stroker.h \
 lib/ector/software/sw_ft_types.h
->>>>>>> opensource/master
+

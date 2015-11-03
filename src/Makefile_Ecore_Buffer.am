@@ -14,12 +14,8 @@ lib/ecore_buffer/bq_mgr_protocol.c \
 lib/ecore_buffer/buffer_queue.c \
 lib/ecore_buffer/shared_buffer.c \
 lib/ecore_buffer/ecore_buffer.c \
-<<<<<<< HEAD
-lib/ecore_buffer/ecore_buffer_connection.c \
-=======
 lib/ecore_buffer/ecore_buffer_queue_main.c \
 lib/ecore_buffer/ecore_buffer_con.c \
->>>>>>> opensource/master
 lib/ecore_buffer/ecore_buffer_provider.c \
 lib/ecore_buffer/ecore_buffer_consumer.c
 
@@ -33,9 +29,6 @@ lib_ecore_buffer_libecore_buffer_la_LIBADD = @ECORE_BUFFER_LIBS@
 lib_ecore_buffer_libecore_buffer_la_DEPENDENCIES = @ECORE_BUFFER_INTERNAL_LIBS@
 lib_ecore_buffer_libecore_buffer_la_LDFLAGS = @EFL_LTLIBRARY_FLAGS@
 
-<<<<<<< HEAD
-### Backends
-=======
 ### Binary
 bqmgr_bindir=$(libdir)/ecore_buffer/bin/$(MODULE_ARCH)
 bqmgr_bin_PROGRAMS = bin/ecore_buffer/bq_mgr
@@ -69,7 +62,6 @@ modules_ecore_buffer_shm_module_la_DEPENDENCIES = \
 modules_ecore_buffer_shm_module_la_LDFLAGS = -module @EFL_LTMODULE_FLAGS@
 modules_ecore_buffer_shm_module_la_LIBTOOLFLAGS = --tag=disable-static
 
->>>>>>> opensource/master
 if BUILD_ECORE_BUFFER_X11_DRI2
 ecorebufferx11dri2dir = $(libdir)/ecore_buffer/modules/x11_dri2/$(MODULE_ARCH)
 ecorebufferx11dri2_LTLIBRARIES = modules/ecore_buffer/x11_dri2/module.la
@@ -118,7 +110,6 @@ modules_ecore_buffer_x11_dri3_module_la_LDFLAGS = -module @EFL_LTMODULE_FLAGS@
 modules_ecore_buffer_x11_dri3_module_la_LIBTOOLFLAGS = --tag=disable-static
 endif
 
-<<<<<<< HEAD
 if BUILD_ECORE_BUFFER_TBM
 ecorebuffertbmdir = $(libdir)/ecore_buffer/modules/tbm/$(MODULE_ARCH)
 ecorebuffertbm_LTLIBRARIES = modules/ecore_buffer/tbm/module.la
@@ -143,6 +134,3 @@ endif
 
 endif
 
-=======
-endif
->>>>>>> opensource/master

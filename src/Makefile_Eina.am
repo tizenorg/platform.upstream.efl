@@ -88,19 +88,6 @@ lib/eina/eina_cow.h \
 lib/eina/eina_inline_unicode.x \
 lib/eina/eina_thread_queue.h \
 lib/eina/eina_matrix.h \
-<<<<<<< HEAD
-lib/eina/eina_quad.h
-
-# Will be back for developper after 1.2.
-# lib/eina/eina_model.h
-# lib/eina/eina_object.h
-
-if HAVE_WIN32
-dist_installed_einaheaders_DATA += lib/eina/eina_inline_lock_win32.x
-else
-dist_installed_einaheaders_DATA += lib/eina/eina_inline_lock_posix.x
-endif
-=======
 lib/eina/eina_quad.h \
 lib/eina/eina_crc.h \
 lib/eina/eina_inline_crc.x \
@@ -108,7 +95,6 @@ lib/eina/eina_evlog.h \
 lib/eina/eina_util.h \
 lib/eina/eina_quaternion.h \
 lib/eina/eina_bezier.h
->>>>>>> opensource/master
 
 lib_eina_libeina_la_SOURCES = \
 lib/eina/eina_abi.c \
@@ -177,18 +163,8 @@ lib/eina/eina_debug.h \
 lib/eina/eina_private.h \
 lib/eina/eina_share_common.h \
 lib/eina/eina_strbuf_common.h \
-<<<<<<< HEAD
-lib/eina/eina_thread_queue.c \
-lib/eina/eina_matrix.c \
-lib/eina/eina_quad.c
-
-# Will be back for developper after 1.2
-# lib/eina/eina_model.c \
-# lib/eina/eina_object.c
-=======
 lib/eina/eina_quaternion.c \
 lib/eina/eina_bezier.c
->>>>>>> opensource/master
 
 if HAVE_WIN32
 lib_eina_libeina_la_SOURCES += lib/eina/eina_file_win32.c

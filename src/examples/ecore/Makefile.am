@@ -76,12 +76,9 @@ ecore_thread_example \
 ecore_time_functions_example \
 ecore_timer_example \
 ecore_getopt_example \
-<<<<<<< HEAD
-ecore_buffer_example
-=======
+ecore_buffer_example \
 ecore_con_eet_client_example \
 ecore_con_eet_server_example
->>>>>>> opensource/master
 
 ECORE_COMMON_LDADD = \
 $(top_builddir)/src/lib/ecore/libecore.la \
@@ -273,13 +270,9 @@ ecore_timer_example_LDADD = $(ECORE_COMMON_LDADD)
 ecore_getopt_example_SOURCES = ecore_getopt_example.c
 ecore_getopt_example_LDADD = $(ECORE_COMMON_LDADD)
 
-<<<<<<< HEAD
 ecore_buffer_example_SOURCES = ecore_buffer_example.c
 ecore_buffer_example_LDADD = $(ECORE_BUFFER_COMMON_LDADD)
 
-SRCS = \
-ecore_animator_example.c \
-=======
 ecore_con_eet_client_example_SOURCES = ecore_con_eet_client_example.c ecore_con_eet_descriptor_example.c
 ecore_con_eet_client_example_LDADD = $(ECORE_CON_COMMON_LDADD) \
 $(top_builddir)/src/lib/eet/libeet.la
@@ -296,7 +289,6 @@ ecore_buffer_provider_example.c \
 ecore_audio_custom.c \
 ecore_audio_playback.c \
 ecore_audio_to_ogg.c \
->>>>>>> opensource/master
 ecore_client_bench.c \
 ecore_compose_get_example.c \
 ecore_con_client_example.c \
@@ -335,20 +327,11 @@ ecore_thread_example.c \
 ecore_time_functions_example.c \
 ecore_timer_example.c \
 ecore_getopt_example.c \
-<<<<<<< HEAD
 ecore_buffer_example.c
 
-if HAVE_ECORE_AUDIO
-#SRCS += \
-#ecore_audio_custom.c \
-#ecore_audio_playback.c \
-#ecore_audio_to_ogg.c
-endif
-=======
 ecore_con_eet_client_example.c \
 ecore_con_eet_server_example.c \
 ecore_con_eet_descriptor_example.c 
->>>>>>> opensource/master
 
 DATA_FILES = red.png Makefile.examples
 

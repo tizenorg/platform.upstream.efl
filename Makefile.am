@@ -142,11 +142,8 @@ pc/ecore-imf.pc \
 pc/ecore-imf-evas.pc \
 pc/ecore-evas.pc \
 pc/ecore-avahi.pc \
-<<<<<<< HEAD
 pc/ecore-buffer.pc \
-=======
 pc/ector.pc \
->>>>>>> opensource/master
 pc/embryo.pc \
 pc/eio.pc \
 pc/eldbus.pc \

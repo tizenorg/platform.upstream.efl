@@ -207,13 +207,8 @@ examples_DATA = $(EDJS)
 clean-local:
 	rm -f $(EXTRA_PROGRAMS) $(EDJS) $(CODEGEN_GENERATED)
 
-<<<<<<< HEAD
-install-examples:
-	mkdir -p $(datadir)/edje/examples
-=======
 install-examples: $(EDJS)
 	$(MKDIR_P) $(datadir)/edje/examples
->>>>>>> opensource/master
 	cd $(srcdir) && $(install_sh_DATA) -c $(SRCS) $(DIST_EDCS) $(DATA_FILES) $(datadir)/edje/examples
 	cd $(builddir) && $(install_sh_DATA) -c $(EDJS) $(datadir)/edje/examples
 

@@ -2,19 +2,7 @@ MAINTAINERCLEANFILES = Makefile.in
 CLEANFILES =
 BUILT_SOURCES =
 
-<<<<<<< HEAD
-EOLIAN_FLAGS = -I$(srcdir)\
-	       -I$(srcdir)/lib/eo \
-	       -I$(srcdir)/lib/ector \
-	       -I$(srcdir)/lib/evas/canvas \
-	       -I$(srcdir)/lib/edje \
-	       -I$(srcdir)/lib/efl/interfaces \
-	       -I$(srcdir)/lib/ecore_audio \
-	       -I$(srcdir)/lib/ecore \
-	       -I$(srcdir)/lib/ecore_con
-=======
 EOLIAN_FLAGS = -I$(srcdir)
->>>>>>> opensource/master
 
 DIST_SUBDIRS =
 SUBDIRS =
@@ -40,10 +28,7 @@ include Makefile_Emile.am
 include Makefile_Eet.am
 include Makefile_Eolian.am
 include Makefile_Ector.am
-<<<<<<< HEAD
-=======
 include Makefile_Evas.am
->>>>>>> opensource/master
 include Makefile_Ecore.am
 include Makefile_Ecore_Con.am
 include Makefile_Ecore_Ipc.am
@@ -63,15 +48,12 @@ include Makefile_Eldbus.am
 include Makefile_Eeze.am
 include Makefile_Ecore_Drm.am
 include Makefile_Ecore_Evas.am
-<<<<<<< HEAD
-=======
 include Makefile_Ecore_Audio.am
 include Makefile_Ecore_Audio_Cxx.am
 include Makefile_Ecore_Avahi.am
 include Makefile_Embryo.am
 include Makefile_Eio.am
 include Makefile_Efreet.am
->>>>>>> opensource/master
 include Makefile_Ecore_Buffer.am
 include Makefile_EPhysics.am
 include Makefile_Edje.am

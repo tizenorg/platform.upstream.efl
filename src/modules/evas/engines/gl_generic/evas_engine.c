@@ -19,11 +19,6 @@
 #include "evas_cs2_private.h"
 #endif
 
-#include "cairo/Ector_Cairo.h"
-#include "software/Ector_Software.h"
-
-#include "ector_cairo_software_surface.eo.h"
-
 #define EVAS_GL_NO_GL_H_CHECK 1
 #include "Evas_GL.h"
 
@@ -2437,202 +2432,7 @@ _evas_render_op_to_ector_rop(Evas_Render_Op op)
 }
 
 static void
-eng_ector_renderer_draw(void *data, void *context, void *surface, Ector_Renderer *renderer, Eina_Array *clips, Eina_Bool do_async EINA_UNUSED)
-{
-   Evas_GL_Image *dst = surface;
-   Evas_Engine_GL_Context *gc;
-   Render_Engine_GL_Generic *re = data;
-   Eina_Rectangle *r;
-   Eina_Array *c;
-   Eina_Rectangle clip;
-   Eina_Array_Iterator it;
-   unsigned int i;
-
-   gc = re->window_gl_context_get(re->software.ob);
-   gc->dc = context;
-   if (gc->dc->clip.use)
-     {
-        clip.x = gc->dc->clip.x;
-        clip.y = gc->dc->clip.y;
-        clip.w = gc->dc->clip.w;
-        clip.h = gc->dc->clip.h;
-     }
-   else
-     {
-        clip.x = 0;
-        clip.y = 0;
-        clip.w = dst->w;
-        clip.h = dst->h;
-     }
-
-   c = eina_array_new(8);
-   if (clips)
-     {
-        EINA_ARRAY_ITER_NEXT(clips, i, r, it)
-          {
-             Eina_Rectangle *rc;
-
-             rc = eina_rectangle_new(r->x, r->y, r->w, r->h);
-             if (!rc) continue;
-
-             if (eina_rectangle_intersection(rc, &clip))
-               eina_array_push(c, rc);
-             else
-               eina_rectangle_free(rc);
-          }
-
-        if (eina_array_count(c) == 0 &&
-            eina_array_count(clips) > 0)
-          {
-             eina_array_free(c);
-             return;
-          }
-     }
-
-   if (eina_array_count(c) == 0)
-     eina_array_push(c, eina_rectangle_new(clip.x, clip.y, clip.w, clip.h));
-
-   eo_do(renderer,
-         ector_renderer_draw(_evas_render_op_to_ector_rop(gc->dc->render_op),
-                             c,
-                             // mul_col will be applied by GL during ector_end
-                             0xffffffff));
-
-   while ((r = eina_array_pop(c)))
-     eina_rectangle_free(r);
-   eina_array_free(c);
-}
-
-static void *software_buffer = NULL;
-
-static void
-eng_ector_begin(void *data EINA_UNUSED, void *context EINA_UNUSED, Ector_Surface *ector,
-                void *surface, int x, int y, Eina_Bool do_async EINA_UNUSED)
-{
-   Evas_Engine_GL_Context *gl_context;
-   Render_Engine_GL_Generic *re = data;
-   int w, h;
-   void *temp;
-
-   re->window_use(re->software.ob);
-   gl_context = re->window_gl_context_get(re->software.ob);
-   evas_gl_common_context_target_surface_set(gl_context, surface);
-   gl_context->dc = context;
-
-   w = gl_context->w; h = gl_context->h;
-
-   temp = software_buffer;
-   software_buffer = realloc(software_buffer, sizeof (unsigned int) * w * h);
-   if (!software_buffer)
-     {
-        ERR("Realloc failed!!");
-        software_buffer = temp;
-        return;
-     }
-   memset(software_buffer, 0, sizeof (unsigned int) * w * h);
-   if (use_cairo)
-     {
-        eo_do(ector,
-              ector_cairo_software_surface_set(software_buffer, w, h),
-              ector_surface_reference_point_set(x, y));
-     }
-   else
-     {
-        eo_do(ector,
-              ector_software_surface_set(software_buffer, w, h),
-              ector_surface_reference_point_set(x, y));
-     }
-}
-
-static void
-eng_ector_end(void *data, void *context EINA_UNUSED, Ector_Surface *ector,
-              void *surface EINA_UNUSED, Eina_Bool do_async EINA_UNUSED)
-{
-   Evas_Engine_GL_Context *gl_context;
-   Render_Engine_GL_Generic *re = data;
-   Evas_GL_Image *im;
-   int w, h;
-   Eina_Bool mul_use;
-
-   gl_context = re->window_gl_context_get(re->software.ob);
-   w = gl_context->w; h = gl_context->h;
-   mul_use = gl_context->dc->mul.use;
-
-   if (use_cairo)
-     {
-        eo_do(ector,
-              ector_cairo_software_surface_set(NULL, 0, 0));
-     }
-   else
-     {
-        eo_do(ector,
-              ector_software_surface_set(NULL, 0, 0));
-     }
-
-   im = evas_gl_common_image_new_from_copied_data(gl_context, w, h, software_buffer, 1, EVAS_COLORSPACE_ARGB8888);
-
-   if (!mul_use)
-   {
-      // @hack as image_draw uses below fields to do colour multiplication.
-      gl_context->dc->mul.col = ector_color_multiply(0xffffffff,gl_context->dc->col.col);
-      gl_context->dc->mul.use = EINA_TRUE;
-   }
-   
-   // We actually just bluntly push the pixel all over the
-   // destination surface. We don't have the actual information
-   // of the widget size. This is not a problem.
-   // Later on, we don't want that information and today when
-   // using GL backend, you just need to turn on Evas_Map on
-   // the Evas_Object_VG.
-   evas_gl_common_image_draw(gl_context, im, 0, 0, w, h, 0, 0, w, h, 0);
-
-   evas_gl_common_image_free(im);
-
-   // restore gl state
-   gl_context->dc->mul.use = mul_use;
-}
-
-static Ector_Surface *_software_ector = NULL;
-static Eina_Bool use_cairo;
-
-static Ector_Surface *
-eng_ector_get(void *data EINA_UNUSED)
-{
-   if (!_software_ector)
-     {
-        const char *ector_backend;
-
-        ector_backend = getenv("ECTOR_BACKEND");
-        if (ector_backend && !strcasecmp(ector_backend, "default"))
-          {
-             _software_ector = eo_add(ECTOR_SOFTWARE_SURFACE_CLASS, NULL);
-             use_cairo = EINA_FALSE;
-          }
-        else
-          {
-             _software_ector = eo_add(ECTOR_CAIRO_SOFTWARE_SURFACE_CLASS, NULL);
-             use_cairo = EINA_TRUE;
-          }
-     }
-   return _software_ector;
-}
-
-static Ector_Rop
-_evas_render_op_to_ector_rop(Evas_Render_Op op)
-{
-   switch (op)
-     {
-      case EVAS_RENDER_BLEND:
-         return ECTOR_ROP_BLEND;
-      case EVAS_RENDER_COPY:
-         return ECTOR_ROP_COPY;
-      default:
-         return ECTOR_ROP_BLEND;
-     }
-}
-
-static void
-eng_ector_renderer_draw(void *data, void *context EINA_UNUSED, void *surface, Ector_Renderer *renderer, Eina_Array *clips, Eina_Bool do_async EINA_UNUSED)
+eng_ector_renderer_draw(void *data, void *context, void *surface, Ector_Renderer *renderer, Eina_Array *clips EINA_UNUSED, Eina_Bool do_async EINA_UNUSED)
 {
    Evas_GL_Image *glimg = surface;
    RGBA_Image *img = glimg->im;
@@ -2646,6 +2446,7 @@ eng_ector_renderer_draw(void *data, void *context EINA_UNUSED, void *surface, Ec
    eina_array_push(c, eina_rectangle_new(0, 0, img->cache_entry.w, img->cache_entry.h));
 
    gc = re->window_gl_context_get(re->software.ob);
+   gc->dc = context;
    eo_do(renderer,
          ector_renderer_draw(_evas_render_op_to_ector_rop(gc->dc->render_op),
                              c,
@@ -2660,9 +2461,6 @@ static void *
 eng_ector_surface_create(void *data, void *surface, int width, int height)
 {
    Evas_GL_Image *glim;
-   //@TODO hack to force the texture not to created in a texture atlas
-   if (width < 256) width = 256;
-   if (height < 256) height = 256;
 
    if (!surface)
      {
@@ -2688,7 +2486,8 @@ eng_ector_surface_create(void *data, void *surface, int width, int height)
 }
 
 static void
-eng_ector_begin(void *data EINA_UNUSED, void *context EINA_UNUSED, void *surface, int x, int y, Eina_Bool do_async EINA_UNUSED)
+eng_ector_begin(void *data EINA_UNUSED, void *context EINA_UNUSED, Ector_Surface *ector,
+                void *surface, int x, int y, Eina_Bool do_async EINA_UNUSED)
 {
    int w, h;
    Evas_GL_Image *glim = surface;
@@ -2698,29 +2497,29 @@ eng_ector_begin(void *data EINA_UNUSED, void *context EINA_UNUSED, void *surface
    void *pixels = evas_cache_image_pixels(&dst->cache_entry);
    if (use_cairo)
      {
-        eo_do(_software_ector,
+        eo_do(ector,
               ector_cairo_software_surface_set(pixels, w, h),
               ector_surface_reference_point_set(x, y));
      }
    else
      {
-        eo_do(_software_ector,
+        eo_do(ector,
               ector_software_surface_set(pixels, w, h),
               ector_surface_reference_point_set(x, y));
      }
 }
 
 static void
-eng_ector_end(void *data EINA_UNUSED, void *context EINA_UNUSED, void *surface EINA_UNUSED, Eina_Bool do_async EINA_UNUSED)
+eng_ector_end(void *data EINA_UNUSED, void *context EINA_UNUSED, Ector_Surface *ector, void *surface EINA_UNUSED, Eina_Bool do_async EINA_UNUSED)
 {
    if (use_cairo)
      {
-        eo_do(_software_ector,
+        eo_do(ector,
               ector_cairo_software_surface_set(NULL, 0, 0));
      }
    else
      {
-        eo_do(_software_ector,
+        eo_do(ector,
               ector_software_surface_set(NULL, 0, 0));
      }
 }
@@ -2870,11 +2669,6 @@ module_open(Evas_Module *em)
 
    ORD(ector_create);
    ORD(ector_destroy);
-   ORD(ector_begin);
-   ORD(ector_renderer_draw);
-   ORD(ector_end);
-
-   ORD(ector_get);
    ORD(ector_begin);
    ORD(ector_renderer_draw);
    ORD(ector_end);

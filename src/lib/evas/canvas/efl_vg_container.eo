@@ -1,8 +1,6 @@
 class Efl.VG.Container (Efl.VG.Base)
 {
    legacy_prefix: evas_vg_container;
-<<<<<<< HEAD
-=======
    methods {
       child_get {
          params {
@@ -14,15 +12,11 @@ class Efl.VG.Container (Efl.VG.Base)
          return: free(own(iterator<Efl.VG.Base *>*), eina_iterator_free) @warn_unused;
       }
    }
->>>>>>> opensource/master
    implements {
       Eo.Base.constructor;
       Eo.Base.destructor;
       Efl.VG.Base.bounds_get;
-<<<<<<< HEAD
-=======
       Efl.VG.Base.interpolate;
       Efl.VG.Base.dup;
->>>>>>> opensource/master
    }
 }

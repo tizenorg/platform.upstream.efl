@@ -9,8 +9,6 @@
 
 #define MY_CLASS EFL_VG_BASE_CLASS
 
-<<<<<<< HEAD
-=======
 static const Efl_VG_Interpolation interpolation_identity = {
   { 0, 0, 0, 1 },
   { 0, 0, 0, 1 },
@@ -19,7 +17,6 @@ static const Efl_VG_Interpolation interpolation_identity = {
   { 0, 0, 0 }
 };
 
->>>>>>> opensource/master
 static Eina_Bool
 _efl_vg_base_property_changed(void *data, Eo *obj, const Eo_Event_Description *desc, void *event_info)
 {
@@ -39,15 +36,12 @@ _efl_vg_base_transformation_set(Eo *obj,
                                 Efl_VG_Base_Data *pd,
                                 const Eina_Matrix3 *m)
 {
-<<<<<<< HEAD
-=======
    if (pd->intp)
      {
         free(pd->intp);
         pd->intp = NULL;
      }
 
->>>>>>> opensource/master
    if (m)
      {
         if (!pd->m)
@@ -244,11 +238,6 @@ _efl_vg_base_parent_checked_get(Eo *obj,
              goto on_error;
           }
      }
-<<<<<<< HEAD
-   else if (*parent != NULL)
-     {
-        ERR("Parent of unauthorized class.");
-=======
    else if (eo_isa(*parent, EVAS_VG_CLASS))
      {
         goto on_error;
@@ -256,7 +245,6 @@ _efl_vg_base_parent_checked_get(Eo *obj,
    else if (*parent != NULL)
      {
         ERR("Parent of unauthorized class '%s'.", eo_class_name_get(eo_class_get(*parent)));
->>>>>>> opensource/master
         goto on_error;
      }
 
@@ -268,26 +256,13 @@ _efl_vg_base_parent_checked_get(Eo *obj,
    return EINA_FALSE;
 }
 
-<<<<<<< HEAD
-static void
-=======
 static Eo *
->>>>>>> opensource/master
 _efl_vg_base_eo_base_constructor(Eo *obj,
                                  Efl_VG_Base_Data *pd)
 {
    Efl_VG_Container_Data *cd = NULL;
    Eo *parent;
 
-<<<<<<< HEAD
-   eo_do_super(obj, MY_CLASS, eo_constructor());
-
-   if (!_efl_vg_base_parent_checked_get(obj, &parent, &cd))
-     eo_error_set(obj);
-
-   eo_do(obj, eo_event_callback_add(EFL_GFX_CHANGED, _efl_vg_base_property_changed, pd));
-   pd->changed = EINA_TRUE;
-=======
    obj = eo_do_super_ret(obj, MY_CLASS, obj, eo_constructor());
 
    if (!_efl_vg_base_parent_checked_get(obj, &parent, &cd)) {
@@ -299,7 +274,6 @@ _efl_vg_base_eo_base_constructor(Eo *obj,
    pd->changed = EINA_TRUE;
 
    return obj;
->>>>>>> opensource/master
 }
 
 static void
@@ -310,8 +284,6 @@ _efl_vg_base_eo_base_destructor(Eo *obj, Efl_VG_Base_Data *pd)
         free(pd->m);
         pd->m = NULL;
      }
-<<<<<<< HEAD
-=======
 
    if (pd->renderer)
      {
@@ -324,13 +296,10 @@ _efl_vg_base_eo_base_destructor(Eo *obj, Efl_VG_Base_Data *pd)
         pd->intp = NULL;
      }
 
->>>>>>> opensource/master
    eo_do_super(obj, MY_CLASS, eo_destructor());
 }
 
 static void
-<<<<<<< HEAD
-=======
 _efl_vg_base_name_insert(Eo *obj, Efl_VG_Base_Data *pd, Efl_VG_Container_Data *cd)
 {
    Eo *set;
@@ -374,7 +343,6 @@ _efl_vg_base_name_get(Eo *obj EINA_UNUSED, Efl_VG_Base_Data *pd)
 }
 
 static void
->>>>>>> opensource/master
 _efl_vg_base_eo_base_parent_set(Eo *obj,
                                 Efl_VG_Base_Data *pd EINA_UNUSED,
                                 Eo *parent)
@@ -399,17 +367,6 @@ _efl_vg_base_eo_base_parent_set(Eo *obj,
      }
 
    if (!_efl_vg_base_parent_checked_get(obj, &old_parent, &old_cd))
-<<<<<<< HEAD
-     goto on_error;
-
-   // FIXME: this may become slow with to much object
-   if (old_cd)
-     old_cd->children = eina_list_remove(old_cd->children, obj);
-
-   eo_do_super(obj, MY_CLASS, eo_parent_set(parent));
-   if (cd)
-     cd->children = eina_list_append(cd->children, obj);
-=======
      {
         ERR("Can't check the old parent of %p.", obj);
         goto on_error;
@@ -430,7 +387,6 @@ _efl_vg_base_eo_base_parent_set(Eo *obj,
 
         _efl_vg_base_name_insert(obj, pd, cd);
      }
->>>>>>> opensource/master
 
    _efl_vg_base_changed(old_parent);
    _efl_vg_base_changed(obj);
@@ -439,10 +395,6 @@ _efl_vg_base_eo_base_parent_set(Eo *obj,
    return ;
 
  on_error:
-<<<<<<< HEAD
-   eo_error_set(obj);
-=======
->>>>>>> opensource/master
    return ;
 }
 
@@ -471,11 +423,7 @@ _efl_vg_base_efl_gfx_stack_raise(Eo *obj, Efl_VG_Base_Data *pd EINA_UNUSED)
    return ;
 
  on_error:
-<<<<<<< HEAD
-   eo_error_set(obj);
-=======
    ERR("Err");
->>>>>>> opensource/master
 }
 
 static void
@@ -505,11 +453,7 @@ _efl_vg_base_efl_gfx_stack_stack_above(Eo *obj,
    return ;
 
  on_error:
-<<<<<<< HEAD
-   eo_error_set(obj);
-=======
    ERR("Err");
->>>>>>> opensource/master
 }
 
 static void
@@ -539,11 +483,7 @@ _efl_vg_base_efl_gfx_stack_stack_below(Eo *obj,
    return ;
 
  on_error:
-<<<<<<< HEAD
-   eo_error_set(obj);
-=======
    ERR("Err");
->>>>>>> opensource/master
 }
 
 static void
@@ -571,11 +511,7 @@ _efl_vg_base_efl_gfx_stack_lower(Eo *obj, Efl_VG_Base_Data *pd EINA_UNUSED)
    return ;
 
  on_error:
-<<<<<<< HEAD
-   eo_error_set(obj);
-=======
    ERR("Err");
->>>>>>> opensource/master
 }
 
 static Eo *
@@ -684,12 +620,6 @@ _efl_vg_base_efl_gfx_stack_above_get(Eo *obj, Efl_VG_Base_Data *pd EINA_UNUSED)
    return above;
 }
 
-<<<<<<< HEAD
-EAPI Eina_Bool
-evas_vg_node_visible_get(Eo *obj)
-{
-   return eo_do(obj, efl_gfx_visible_get());
-=======
 static Efl_VG_Interpolation *
 _efl_vg_interpolation_get(Efl_VG_Base_Data *pd)
 {
@@ -871,7 +801,6 @@ evas_vg_node_visible_get(Eo *obj)
    Eina_Bool ret;
 
    return eo_do_ret(obj, ret, efl_gfx_visible_get());
->>>>>>> opensource/master
 }
 
 EAPI void

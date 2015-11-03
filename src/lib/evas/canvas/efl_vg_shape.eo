@@ -1,55 +1,32 @@
 class Efl.VG.Shape (Efl.VG.Base, Efl.Gfx.Shape)
 {
    legacy_prefix: evas_vg_shape;
-<<<<<<< HEAD
-   properties {
-      fill {
-=======
    methods {
       @property fill {
->>>>>>> opensource/master
          set {
 	 }
 	 get {
 	 }
 	 values {
-<<<<<<< HEAD
-	    Efl_VG *f;
-	 }
-      }
-      stroke_fill {
-=======
 	    f: Efl_VG *;
 	 }
       }
       @property stroke_fill {
->>>>>>> opensource/master
          set {
 	 }
 	 get {
 	 }
 	 values {
-<<<<<<< HEAD
-	    Efl_VG *f;
-	 }
-      }
-      stroke_marker {
-=======
 	    f: Efl_VG *;
 	 }
       }
       @property stroke_marker {
->>>>>>> opensource/master
          set {
 	 }
 	 get {
 	 }
 	 values {
-<<<<<<< HEAD
-	    Efl_VG *m;
-=======
 	    m: Efl_VG *;
->>>>>>> opensource/master
 	 }
       }
    }
@@ -64,11 +41,8 @@ class Efl.VG.Shape (Efl.VG.Base, Efl.Gfx.Shape)
       Efl.Gfx.Base.color_part.set;
       Efl.Gfx.Base.color_part.get;
       Efl.VG.Base.bounds_get;
-<<<<<<< HEAD
-=======
       Efl.VG.Base.interpolate;
       Efl.VG.Base.dup;
->>>>>>> opensource/master
       Eo.Base.constructor;
       Eo.Base.destructor;
    }

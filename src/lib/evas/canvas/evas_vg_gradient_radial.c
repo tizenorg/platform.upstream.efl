@@ -105,29 +105,18 @@ _efl_vg_gradient_radial_render_pre(Eo *obj,
          ector_renderer_prepare());
 }
 
-<<<<<<< HEAD
-static void
-=======
 static Eo *
->>>>>>> opensource/master
 _efl_vg_gradient_radial_eo_base_constructor(Eo *obj, Efl_VG_Gradient_Radial_Data *pd)
 {
    Efl_VG_Base_Data *nd;
 
-<<<<<<< HEAD
-   eo_do_super(obj, MY_CLASS, eo_constructor());
-=======
    obj = eo_do_super_ret(obj, MY_CLASS, obj, eo_constructor());
->>>>>>> opensource/master
 
    nd = eo_data_scope_get(obj, EFL_VG_BASE_CLASS);
    nd->render_pre = _efl_vg_gradient_radial_render_pre;
    nd->data = pd;
-<<<<<<< HEAD
-=======
 
    return obj;
->>>>>>> opensource/master
 }
 
 static void
@@ -149,8 +138,6 @@ _efl_vg_gradient_radial_efl_vg_base_bounds_get(Eo *obj, Efl_VG_Gradient_Radial_D
                       pd->radius * 2, pd->radius * 2);
 }
 
-<<<<<<< HEAD
-=======
 static Eina_Bool
 _efl_vg_gradient_radial_efl_vg_base_interpolate(Eo *obj,
                                                 Efl_VG_Gradient_Radial_Data *pd,
@@ -200,7 +187,6 @@ _efl_vg_gradient_radial_efl_vg_base_dup(Eo *obj,
          efl_gfx_gradient_radial_radius_set(fromd->radius));
 }
 
->>>>>>> opensource/master
 EAPI void
 evas_vg_gradient_radial_center_set(Eo *obj, double x, double y)
 {
@@ -222,13 +208,9 @@ evas_vg_gradient_radial_radius_set(Eo *obj, double r)
 EAPI double
 evas_vg_gradient_radial_radius_get(Eo *obj)
 {
-<<<<<<< HEAD
-   return eo_do(obj, efl_gfx_gradient_radial_radius_get());
-=======
    double ret;
 
    return eo_do_ret(obj, ret, efl_gfx_gradient_radial_radius_get());
->>>>>>> opensource/master
 }
 
 EAPI void

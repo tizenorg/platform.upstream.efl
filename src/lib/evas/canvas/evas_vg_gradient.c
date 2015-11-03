@@ -51,8 +51,6 @@ _efl_vg_gradient_efl_gfx_gradient_base_spread_get(Eo *obj EINA_UNUSED,
    return pd->s;
 }
 
-<<<<<<< HEAD
-=======
 static Eina_Bool
 _efl_vg_gradient_efl_vg_base_interpolate(Eo *obj,
                                          Efl_VG_Gradient_Data *pd,
@@ -112,7 +110,6 @@ _efl_vg_gradient_efl_vg_base_dup(Eo *obj,
          efl_gfx_gradient_spread_set(fromd->s));
 }
 
->>>>>>> opensource/master
 EAPI void
 evas_vg_gradient_stop_set(Eo *obj, const Efl_Gfx_Gradient_Stop *colors, unsigned int length)
 {
@@ -134,14 +131,9 @@ evas_vg_gradient_spread_set(Eo *obj, Efl_Gfx_Gradient_Spread s)
 EAPI Efl_Gfx_Gradient_Spread
 evas_vg_gradient_spread_get(Eo *obj)
 {
-<<<<<<< HEAD
-
-   return eo_do(obj, efl_gfx_gradient_spread_get());
-=======
    Efl_Gfx_Gradient_Spread ret;
 
    return eo_do_ret(obj, ret, efl_gfx_gradient_spread_get());
->>>>>>> opensource/master
 }
 
 #include "efl_vg_gradient.eo.c"

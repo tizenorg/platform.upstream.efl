@@ -25,32 +25,21 @@ _efl_vg_container_render_pre(Eo *obj EINA_UNUSED,
      _evas_vg_render_pre(child, s, current);
 }
 
-<<<<<<< HEAD
-static void
-=======
 static Eo *
->>>>>>> opensource/master
 _efl_vg_container_eo_base_constructor(Eo *obj,
                                       Efl_VG_Container_Data *pd)
 {
    Efl_VG_Base_Data *nd;
 
-<<<<<<< HEAD
-   eo_do_super(obj, MY_CLASS, eo_constructor());
-=======
    pd->names = eina_hash_stringshared_new(NULL);
 
    obj = eo_do_super_ret(obj, MY_CLASS, obj, eo_constructor());
->>>>>>> opensource/master
 
    nd = eo_data_scope_get(obj, EFL_VG_BASE_CLASS);
    nd->render_pre = _efl_vg_container_render_pre;
    nd->data = pd;
-<<<<<<< HEAD
-=======
 
    return obj;
->>>>>>> opensource/master
 }
 
 static void
@@ -58,12 +47,9 @@ _efl_vg_container_eo_base_destructor(Eo *obj,
                                      Efl_VG_Container_Data *pd EINA_UNUSED)
 {
    eo_do_super(obj, MY_CLASS, eo_destructor());
-<<<<<<< HEAD
-=======
 
    eina_hash_free(pd->names);
    pd->names = NULL;
->>>>>>> opensource/master
 }
 
 static void
@@ -93,8 +79,6 @@ _efl_vg_container_efl_vg_base_bounds_get(Eo *obj EINA_UNUSED,
      }
 }
 
-<<<<<<< HEAD
-=======
 static Efl_VG_Base *
 _efl_vg_container_child_get(Eo *obj EINA_UNUSED, Efl_VG_Container_Data *pd, const char *name)
 {
@@ -177,7 +161,6 @@ _efl_vg_container_efl_vg_base_dup(Eo *obj,
      }
 }
 
->>>>>>> opensource/master
 EAPI Efl_VG*
 evas_vg_container_add(Efl_VG *parent)
 {

@@ -2,77 +2,6 @@ abstract Efl.VG.Base (Eo.Base, Efl.Gfx.Base, Efl.Gfx.Stack)
 {
    eo_prefix: efl_vg;
    legacy_prefix: evas_vg_node;
-<<<<<<< HEAD
-   properties {
-      transformation {
-         set {
-            /*@
-             Sets the transformation matrix to be used for this node object.
-             @note Pass @c NULL to cancel the applied transformation.
-             @since 1.14
-            */
-         }
-         get {
-            /*@
-             Gets the transformation matrix used for this node object.
-             @since 1.14
-            */
-         }
-         values {
-            const(Eina_Matrix3) *m; /*@ transformation matrix */
-         }
-      }
-      origin {
-         set {
-            /*@
-             Sets the origin position of this node object. This origin position
-             affects to node transformation
-             @since 1.14
-            */
-         }
-         get {
-            /*@
-             Gets the origin position of this node object.
-             @since 1.14
-            */
-         }
-         values {
-            double x; /* @origin x position */
-            double y; /* @origin y position */
-         }
-      }
-      mask {
-         set {
-	 }
-	 get {
-	 }
-	 values {
-	    Efl_VG *m;
-	 }
-      }
-/*      quality {
-         set {
-	 }
-	 get {
-	 }
-	 values {
-	    Evas_VG_Quality q;
-	 }
-      } */
-   }
-   methods {
-      bounds_get {
-         /*@
-          Give the bounding box in screen coordinate as being drawn.
-          It will start as the control box until it is refined once the shape
-          is computed.
-          @since 1.14
-         */
-         params {
-            @out Eina_Rectangle r; /*@ bounding box to be returned */
-         }
-      }
-=======
    methods {
       @property name {
          set {
@@ -173,7 +102,6 @@ abstract Efl.VG.Base (Eo.Base, Efl.Gfx.Base, Efl.Gfx.Stack)
           @in from: const(Efl.VG.Base)*;
         }
       }
->>>>>>> opensource/master
    }
    implements {
       Eo.Base.parent.set;

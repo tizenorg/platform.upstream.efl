@@ -199,12 +199,9 @@ _efl_vg_shape_efl_gfx_shape_stroke_dash_set(Eo *obj EINA_UNUSED,
    pd->stroke.dash = NULL;
    pd->stroke.dash_count = 0;
 
-<<<<<<< HEAD
-=======
    // check for null or empty dash
    if (!dash || !length) return;
 
->>>>>>> opensource/master
    pd->stroke.dash = malloc(sizeof (Efl_Gfx_Dash) * length);
    if (!pd->stroke.dash) return ;
 
@@ -319,20 +316,12 @@ _efl_vg_shape_render_pre(Eo *obj EINA_UNUSED,
          ector_renderer_prepare());
 }
 
-<<<<<<< HEAD
-static void
-=======
 static Eo *
->>>>>>> opensource/master
 _efl_vg_shape_eo_base_constructor(Eo *obj, Efl_VG_Shape_Data *pd)
 {
    Efl_VG_Base_Data *nd;
 
-<<<<<<< HEAD
-   eo_do_super(obj, MY_CLASS, eo_constructor());
-=======
    obj = eo_do_super_ret(obj, MY_CLASS, obj, eo_constructor());
->>>>>>> opensource/master
 
    pd->stroke.cap = EFL_GFX_CAP_BUTT;
    pd->stroke.join = EFL_GFX_JOIN_MITER;
@@ -342,11 +331,8 @@ _efl_vg_shape_eo_base_constructor(Eo *obj, Efl_VG_Shape_Data *pd)
    nd = eo_data_scope_get(obj, EFL_VG_BASE_CLASS);
    nd->render_pre = _efl_vg_shape_render_pre;
    nd->data = pd;
-<<<<<<< HEAD
-=======
 
    return obj;
->>>>>>> opensource/master
 }
 
 static void
@@ -355,12 +341,11 @@ _efl_vg_shape_eo_base_destructor(Eo *obj, Efl_VG_Shape_Data *pd EINA_UNUSED)
    eo_do_super(obj, MY_CLASS, eo_destructor());
 }
 
-<<<<<<< HEAD
 EAPI double
 evas_vg_shape_stroke_scale_get(Eo *obj)
 {
    return eo_do(obj, efl_gfx_shape_stroke_scale_get());
-=======
+
 static Eina_Bool
 _efl_vg_shape_efl_vg_base_interpolate(Eo *obj,
                                       Efl_VG_Shape_Data *pd,
@@ -442,7 +427,6 @@ evas_vg_shape_stroke_scale_get(Eo *obj)
    double ret;
 
    return eo_do_ret(obj, ret, efl_gfx_shape_stroke_scale_get());
->>>>>>> opensource/master
 }
 
 EAPI void
@@ -466,13 +450,9 @@ evas_vg_shape_stroke_color_set(Eo *obj, int r, int g, int b, int a)
 EAPI double
 evas_vg_shape_stroke_width_get(Eo *obj)
 {
-<<<<<<< HEAD
-   return eo_do(obj, efl_gfx_shape_stroke_width_get());
-=======
    double ret;
 
    return eo_do_ret(obj, ret, efl_gfx_shape_stroke_width_get());
->>>>>>> opensource/master
 }
 
 EAPI void
@@ -484,14 +464,9 @@ evas_vg_shape_stroke_width_set(Eo *obj, double w)
 EAPI double
 evas_vg_shape_stroke_location_get(Eo *obj)
 {
-<<<<<<< HEAD
-
-   return eo_do(obj, efl_gfx_shape_stroke_location_get());
-=======
    double ret;
 
    return eo_do_ret(obj, ret, efl_gfx_shape_stroke_location_get());
->>>>>>> opensource/master
 }
 
 EAPI void
@@ -515,13 +490,9 @@ evas_vg_shape_stroke_dash_set(Eo *obj, const Efl_Gfx_Dash *dash, unsigned int le
 EAPI Efl_Gfx_Cap
 evas_vg_shape_stroke_cap_get(Eo *obj)
 {
-<<<<<<< HEAD
-   return eo_do(obj, efl_gfx_shape_stroke_cap_get());
-=======
    Efl_Gfx_Cap ret;
 
    return eo_do_ret(obj, ret, efl_gfx_shape_stroke_cap_get());
->>>>>>> opensource/master
 }
 
 EAPI void
@@ -533,13 +504,9 @@ evas_vg_shape_stroke_cap_set(Eo *obj, Efl_Gfx_Cap c)
 EAPI Efl_Gfx_Join
 evas_vg_shape_stroke_join_get(Eo *obj)
 {
-<<<<<<< HEAD
-   return eo_do(obj, efl_gfx_shape_stroke_join_get());
-=======
    Efl_Gfx_Join ret;
 
    return eo_do_ret(obj, ret, efl_gfx_shape_stroke_join_get());
->>>>>>> opensource/master
 }
 
 EAPI void
@@ -633,15 +600,12 @@ evas_vg_shape_shape_append_arc_to(Eo *obj, double x, double y, double rx, double
 }
 
 EAPI void
-<<<<<<< HEAD
 evas_vg_shape_shape_append_arc(Eo *obj, double x, double y, double w, double h, double start_angle, double sweep_length)
 {
    eo_do(obj, efl_gfx_shape_append_arc(x, y, w, h, start_angle, sweep_length));
 }
 
 EAPI void
-=======
->>>>>>> opensource/master
 evas_vg_shape_shape_append_close(Eo *obj)
 {
    eo_do(obj, efl_gfx_shape_append_close());
@@ -668,26 +632,17 @@ evas_vg_shape_shape_append_svg_path(Eo *obj, const char *svg_path_data)
 EAPI Eina_Bool
 evas_vg_shape_shape_interpolate(Eo *obj, const Eo *from, const Eo *to, double pos_map)
 {
-<<<<<<< HEAD
-   return eo_do(obj, efl_gfx_shape_interpolate(from, to, pos_map));
-=======
    Eina_Bool ret;
 
    return eo_do_ret(obj, ret, efl_gfx_shape_interpolate(from, to, pos_map));
->>>>>>> opensource/master
 }
 
 EAPI Eina_Bool
 evas_vg_shape_shape_equal_commands(Eo *obj, const Eo *with)
 {
-<<<<<<< HEAD
-
-   return eo_do(obj, efl_gfx_shape_equal_commands(with));
-=======
    Eina_Bool ret;
 
    return eo_do_ret(obj, ret, efl_gfx_shape_equal_commands(with));
->>>>>>> opensource/master
 }
 
 EAPI Efl_VG*

@@ -104,10 +104,6 @@ EAPI unsigned int eina_seed = 0;
 
 #ifdef EFL_HAVE_THREADS
 EAPI pthread_t _eina_main_loop;
-<<<<<<< HEAD
-# endif
-=======
->>>>>>> opensource/master
 #endif
 
 #ifdef MT
@@ -280,10 +276,6 @@ eina_init(void)
 
 #ifdef EFL_HAVE_THREADS
    _eina_main_loop = pthread_self();
-<<<<<<< HEAD
-# endif
-=======
->>>>>>> opensource/master
 #endif
 
 #ifdef EINA_HAVE_DEBUG_THREADS
@@ -435,12 +427,6 @@ EAPI void
 eina_main_loop_define(void)
 {
 #ifdef EFL_HAVE_THREADS
-<<<<<<< HEAD
-# ifdef _WIN32
-   _eina_main_loop = GetCurrentThreadId();
-# else
-=======
->>>>>>> opensource/master
    _eina_main_loop = pthread_self();
 #endif
 }

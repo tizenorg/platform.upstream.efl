@@ -23,11 +23,8 @@
 #include "eina_private.h"
 
 #include <math.h>
-<<<<<<< HEAD
-=======
 #include <float.h>
 #include <string.h>
->>>>>>> opensource/master
 
 #include "eina_fp.h"
 #include "eina_rectangle.h"
@@ -37,14 +34,6 @@
 #define MATRIX_XX(m) (m)->xx
 #define MATRIX_XY(m) (m)->xy
 #define MATRIX_XZ(m) (m)->xz
-<<<<<<< HEAD
-#define MATRIX_YX(m) (m)->yx
-#define MATRIX_YY(m) (m)->yy
-#define MATRIX_YZ(m) (m)->yz
-#define MATRIX_ZX(m) (m)->zx
-#define MATRIX_ZY(m) (m)->zy
-#define MATRIX_ZZ(m) (m)->zz
-=======
 #define MATRIX_XW(m) (m)->xw
 #define MATRIX_YX(m) (m)->yx
 #define MATRIX_YY(m) (m)->yy
@@ -58,7 +47,6 @@
 #define MATRIX_WY(m) (m)->wy
 #define MATRIX_WZ(m) (m)->wz
 #define MATRIX_WW(m) (m)->ww
->>>>>>> opensource/master
 #define MATRIX_SIZE 9
 
 #define QUAD_X0(q) q->x0
@@ -86,21 +74,13 @@ static inline double
    const double B = 4/M_PI;
    const double C = -4/(M_PI*M_PI);
 
-<<<<<<< HEAD
-   double y = (B * x) + (C * x * fabsf(x));
-=======
    double y = (B * x) + (C * x * fabs(x));
->>>>>>> opensource/master
 
 #ifdef EXTRA_PRECISION
    //  const float Q = 0.775;
    const double P = 0.225;
 
-<<<<<<< HEAD
-   y = P * (y * fabsf(y) - y) + y; // Q * y + P * y * abs(y)
-=======
    y = P * (y * fabs(y) - y) + y; // Q * y + P * y * abs(y)
->>>>>>> opensource/master
 #endif
    return y;
 }
@@ -138,8 +118,6 @@ eina_matrix3_type_get(const Eina_Matrix3 *m)
 }
 
 EAPI Eina_Matrix_Type
-<<<<<<< HEAD
-=======
 eina_matrix4_type_get(const Eina_Matrix4 *m)
 {
    if ((MATRIX_XX(m) == 1) && (MATRIX_XY(m) == 0) && (MATRIX_XZ(m) == 0) && (MATRIX_XW(m) == 0) &&
@@ -151,7 +129,6 @@ eina_matrix4_type_get(const Eina_Matrix4 *m)
 }
 
 EAPI Eina_Matrix_Type
->>>>>>> opensource/master
 eina_matrix3_f16p16_type_get(const Eina_Matrix3_F16p16 *m)
 {
    if ((MATRIX_ZX(m) != 0) || (MATRIX_ZY(m) != 0) || (MATRIX_ZZ(m) != 65536))
@@ -201,8 +178,6 @@ eina_matrix3_values_get(const Eina_Matrix3 *m,
 }
 
 EAPI void
-<<<<<<< HEAD
-=======
 eina_matrix4_values_set(Eina_Matrix4 *m,
                         double xx, double xy, double xz, double xw,
                         double yx, double yy, double yz, double yw,
@@ -253,7 +228,6 @@ eina_matrix4_values_get(const Eina_Matrix4 *m,
 }
 
 EAPI void
->>>>>>> opensource/master
 eina_matrix3_fixed_values_get(const Eina_Matrix3 *m,
                               Eina_F16p16 *xx, Eina_F16p16 *xy, Eina_F16p16 *xz,
                               Eina_F16p16 *yx, Eina_F16p16 *yy, Eina_F16p16 *yz,
@@ -686,8 +660,6 @@ eina_matrix3_quad_quad_map(Eina_Matrix3 *m,
 
    return EINA_TRUE;
 }
-<<<<<<< HEAD
-=======
 
 EAPI void
 eina_matrix4_matrix3_to(Eina_Matrix3 *m3, const Eina_Matrix4 *m4)
@@ -1077,4 +1049,3 @@ eina_matrix4_identity(Eina_Matrix4 *out)
    MATRIX_ZZ(out) = 1;
    MATRIX_WW(out) = 1;
 }
->>>>>>> opensource/master

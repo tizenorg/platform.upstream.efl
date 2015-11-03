@@ -18,11 +18,8 @@
 #ifndef EINA_QUAD_H_
 #define EINA_QUAD_H_
 
-<<<<<<< HEAD
-=======
 #include <eina_rectangle.h>
 
->>>>>>> opensource/master
 /**
  * @file
  * @ender_group{Eina_Quad}
@@ -50,12 +47,6 @@ typedef struct _Eina_Quad
    double y3; /**< Bottom left y coordinate */
 } Eina_Quad;
 
-<<<<<<< HEAD
-EAPI void eina_quad_rectangle_to(const Eina_Quad *q,
-                                 Eina_Rectangle *r);
-EAPI void eina_quad_rectangle_from(Eina_Quad *q,
-                                   const Eina_Rectangle *r);
-=======
 /**
  * @since 1.14
  * */
@@ -69,19 +60,15 @@ EAPI void eina_quad_rectangle_from(Eina_Quad *q,
 /**
  * @since 1.14
  * */
->>>>>>> opensource/master
 EAPI void eina_quad_coords_set(Eina_Quad *q,
                                double x1, double y1,
                                double x2, double y2,
                                double x3, double y3,
                                double x4, double y4);
-<<<<<<< HEAD
-=======
 
 /**
  * @since 1.14
  * */
->>>>>>> opensource/master
 EAPI void eina_quad_coords_get(const Eina_Quad *q,
                                double *x1, double *y1,
                                double *x2, double *y2,

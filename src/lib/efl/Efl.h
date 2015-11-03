@@ -166,21 +166,6 @@ EAPI extern const Eo_Event_Description _EFL_GFX_PATH_CHANGED;
 #include "interfaces/efl_gfx_gradient_radial.eo.h"
 #include "interfaces/efl_gfx_filter.eo.h"
 
-EAPI extern const Eo_Event_Description _EFL_GFX_CHANGED;
-EAPI extern const Eo_Event_Description _EFL_GFX_PATH_CHANGED;
-
-#define EFL_GFX_CHANGED (&(_EFL_GFX_CHANGED))
-#define EFL_GFX_PATH_CHANGED (&(_EFL_GFX_PATH_CHANGED))
-
-#include "interfaces/efl_gfx_base.eo.h"
-#include "interfaces/efl_gfx_stack.eo.h"
-#include "interfaces/efl_gfx_fill.eo.h"
-#include "interfaces/efl_gfx_view.eo.h"
-#include "interfaces/efl_gfx_shape.eo.h"
-#include "interfaces/efl_gfx_gradient_base.eo.h"
-#include "interfaces/efl_gfx_gradient_linear.eo.h"
-#include "interfaces/efl_gfx_gradient_radial.eo.h"
-
 #endif
 
 #if defined ( __cplusplus )

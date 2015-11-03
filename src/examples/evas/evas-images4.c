@@ -20,19 +20,12 @@
 #include <Ecore_Evas.h>
 #include <stdio.h>
 #include <errno.h>
-<<<<<<< HEAD
-=======
 #include "evas-common.h"
->>>>>>> opensource/master
 
 #define WIDTH  (320)
 #define HEIGHT (240)
 
-<<<<<<< HEAD
-static const char *img_path = PACKAGE_EXAMPLES_DIR "/im1.png";
-=======
 static const char *img_path = PACKAGE_EXAMPLES_DIR EVAS_IMAGE_FOLDER "/im1.png";
->>>>>>> opensource/master
 static const char *commands = \
   "commands are:\n"
   "\tp - print image fill property\n"
@@ -86,11 +79,7 @@ _on_keydown(void        *data EINA_UNUSED,
 
    if (strcmp(ev->key, "h") == 0) /* print help */
      {
-<<<<<<< HEAD
-        fprintf(stdout, commands);
-=======
         puts(commands);
->>>>>>> opensource/master
         return;
      }
 
@@ -177,11 +166,7 @@ main(void)
           d.bg, EVAS_CALLBACK_KEY_DOWN, _on_keydown, NULL);
      }
 
-<<<<<<< HEAD
-   fprintf(stdout, commands);
-=======
    puts(commands);
->>>>>>> opensource/master
    ecore_main_loop_begin();
 
    ecore_evas_free(d.ee);

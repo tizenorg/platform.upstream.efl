@@ -5551,11 +5551,7 @@ EAPI const Eina_List        *evas_font_path_global_list(void) EINA_WARN_UNUSED_R
 
 /**
  * Reinitialize FontConfig. If FontConfig has to be reinitialized
-<<<<<<< HEAD
- * according to changes of system enviroments(ex. Changing font config files), it will be useful.
-=======
  * according to changes of system environments(ex. Changing font config files), it will be useful.
->>>>>>> opensource/master
  *
  * @ingroup Evas_Font_Path_Group
  * @since 1.14

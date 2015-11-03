@@ -1395,12 +1395,10 @@ _efl_gfx_path_parse_six_to(const char *content, char **end,
           {
              x += *current_x;
              y += *current_y;
-             // upstream begin
              ctrl_x0 += *current_x;
              ctrl_y0 += *current_y;
              ctrl_x1 += *current_x;
              ctrl_y1 += *current_y;
-             // upstream end
           }
         func(obj, pd, x, y, ctrl_x0, ctrl_y0, ctrl_x1, ctrl_y1);
         content = *end;

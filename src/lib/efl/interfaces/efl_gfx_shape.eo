@@ -316,12 +316,12 @@ mixin Efl.Gfx.Shape
           @since 1.14
         */
         params {
-          @in double x; /*@ X co-ordinate of the rect.*/
-          @in double y; /*@ Y co-ordinate of the rect.*/
-          @in double w; /*@ width of the rect.*/
-          @in double h; /*@ height of the rect.*/
-          @in double start_angle; /*@ Angle at which the arc will start*/
-          @in double sweep_length; /*@ Length of the arc.*/
+          @in x: double; /*@ X co-ordinate of the rect.*/
+          @in y: double; /*@ Y co-ordinate of the rect.*/
+          @in w: double; /*@ width of the rect.*/
+          @in h: double; /*@ height of the rect.*/
+          @in start_angle: double; /*@ Angle at which the arc will start*/
+          @in sweep_length: double; /*@ Length of the arc.*/
         }
       }
       append_close {

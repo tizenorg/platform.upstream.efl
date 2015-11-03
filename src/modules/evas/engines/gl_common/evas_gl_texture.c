@@ -1059,17 +1059,8 @@ evas_gl_common_texture_upload(Evas_GL_Texture *tex, RGBA_Image *im, unsigned int
    fmt = tex->pt->format;
    glBindTexture(GL_TEXTURE_2D, tex->pt->texture);
    if (tex->gc->shared->info.unpack_row_length)
-<<<<<<< HEAD
-     {
-        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-        GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-     }
-   glPixelStorei(GL_UNPACK_ALIGNMENT, bytes_count);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-=======
      glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
    glPixelStorei(GL_UNPACK_ALIGNMENT, bytes_count);
->>>>>>> opensource/master
 
 //   printf("tex upload %ix%i\n", im->cache_entry.w, im->cache_entry.h);
    //  +-+
@@ -1395,10 +1386,6 @@ evas_gl_common_texture_update(Evas_GL_Texture *tex, RGBA_Image *im)
              glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
           }
         glPixelStorei(GL_UNPACK_ALIGNMENT, bytes_count);
-<<<<<<< HEAD
-        GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-=======
->>>>>>> opensource/master
 
         _tex_sub_2d(tex->gc, u, tex->ty, EVAS_GL_TILE_SIZE, EVAS_GL_TILE_SIZE, fmt, tex->ptt->dataformat, out);
 

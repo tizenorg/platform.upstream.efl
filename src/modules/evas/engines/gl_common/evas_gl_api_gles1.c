@@ -1162,13 +1162,8 @@ _evgl_gles1_glGetString(GLenum name)
         break;
      }
 
-<<<<<<< HEAD
-   return _gles1_api.glGetString(name);
-
-=======
    EVGL_FUNC_BEGIN();
    return _gles1_api.glGetString(name);
->>>>>>> opensource/master
 }
 
 static void

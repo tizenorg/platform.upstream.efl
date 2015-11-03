@@ -1,13 +1,7 @@
 #ifndef ECTOR_DRAWHELPER_PRIVATE_H
 #define ECTOR_DRAWHELPER_PRIVATE_H
 
-<<<<<<< HEAD
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
-=======
 #include "ector_private.h"
->>>>>>> opensource/master
 
 #ifndef MIN
 #define MIN( a, b )  ( (a) < (b) ? (a) : (b) )
@@ -21,16 +15,6 @@
 typedef unsigned int uint;
 #endif
 
-<<<<<<< HEAD
-static inline int Alpha(uint c)
-{
-   return c>>24;
-}
-
-
-
-=======
->>>>>>> opensource/master
 #define ECTOR_ARGB_JOIN(a,r,g,b) \
         (((a) << 24) + ((r) << 16) + ((g) << 8) + (b))
 
@@ -62,15 +46,6 @@ static inline int Alpha(uint c)
       } \
    }
 
-<<<<<<< HEAD
-static inline void
-_ector_memfill(uint *dest, int length, uint value)
-{
-   if (!length)
-     return;
-
-   int n = (length + 7) / 8;
-=======
 static inline int
 alpha_inverse(int color)
 {
@@ -86,7 +61,6 @@ _ector_memfill(uint *dest, int length, uint value)
      return;
 
    n = (length + 7) / 8;
->>>>>>> opensource/master
    switch (length & 0x07)
      {
         case 0: do { *dest++ = value;
@@ -101,11 +75,7 @@ _ector_memfill(uint *dest, int length, uint value)
      }
 }
 
-<<<<<<< HEAD
-static inline uint 
-=======
 static inline uint
->>>>>>> opensource/master
 INTERPOLATE_PIXEL_256(uint x, uint a, uint y, uint b)
 {
    uint t = (x & 0xff00ff) * a + (y & 0xff00ff) * b;
@@ -119,11 +89,6 @@ INTERPOLATE_PIXEL_256(uint x, uint a, uint y, uint b)
 
 typedef void (*RGBA_Comp_Func)(uint *dest, const uint *src, int length, uint mul_col, uint const_alpha);
 typedef void (*RGBA_Comp_Func_Solid)(uint *dest, int length, uint color, uint const_alpha);
-<<<<<<< HEAD
-extern RGBA_Comp_Func_Solid func_for_mode_solid[ECTOR_ROP_LAST];
-extern RGBA_Comp_Func func_for_mode[ECTOR_ROP_LAST];
-
-=======
 
 extern RGBA_Comp_Func_Solid func_for_mode_solid[ECTOR_ROP_LAST];
 extern RGBA_Comp_Func func_for_mode[ECTOR_ROP_LAST];
@@ -132,7 +97,6 @@ void init_drawhelper_gradient();
 void init_draw_helper_sse2();
 void init_draw_helper_neon();
 
->>>>>>> opensource/master
 void init_draw_helper();
 
 RGBA_Comp_Func_Solid ector_comp_func_solid_span_get(Ector_Rop op, uint color);

@@ -471,18 +471,6 @@ _evas_gl_common_version_check(int *gles_ver)
  fail:
    free(version);
 
-<<<<<<< HEAD
-   if (((major == 1) && (minor >= 4)) || (major >= 2)) {
-
-     /* Map GL to GLES version: Refer http://en.wikipedia.org/wiki/OpenGL_ES */
-     if ((major >=4 ) && (minor >= 3))
-       *gles_ver = 3;
-     else
-       *gles_ver = 2;
-
-     return 1;
-   }
-=======
    if (((major == 1) && (minor >= 4)) || (major >= 2))
      {
         /* Map GL to GLES version: Refer http://en.wikipedia.org/wiki/OpenGL_ES */
@@ -492,7 +480,6 @@ _evas_gl_common_version_check(int *gles_ver)
           *gles_ver = 2;
         return 1;
      }
->>>>>>> opensource/master
 
    return 0;
 }
@@ -657,12 +644,7 @@ evas_gl_common_context_new(void)
 {
    Evas_Engine_GL_Context *gc;
    const char *s;
-<<<<<<< HEAD
-   int i;
-   int gles_version;
-=======
    int i, gles_version;
->>>>>>> opensource/master
 
 #if 1
    if (_evas_gl_common_context)
@@ -972,10 +954,7 @@ evas_gl_common_context_new(void)
         shared->native_pm_hash  = eina_hash_int32_new(NULL);
         shared->native_tex_hash = eina_hash_int32_new(NULL);
         shared->native_wl_hash = eina_hash_pointer_new(NULL);
-<<<<<<< HEAD
-=======
         shared->native_tbm_hash = eina_hash_pointer_new(NULL);
->>>>>>> opensource/master
         shared->native_evasgl_hash = eina_hash_pointer_new(NULL);
      }
    gc->shared = shared;
@@ -1055,10 +1034,7 @@ evas_gl_common_context_free(Evas_Engine_GL_Context *gc)
         eina_hash_free(gc->shared->native_pm_hash);
         eina_hash_free(gc->shared->native_tex_hash);
         eina_hash_free(gc->shared->native_wl_hash);
-<<<<<<< HEAD
-=======
         eina_hash_free(gc->shared->native_tbm_hash);
->>>>>>> opensource/master
         eina_hash_free(gc->shared->native_evasgl_hash);
         free(gc->shared);
         shared = NULL;
@@ -1286,16 +1262,8 @@ evas_gl_common_context_target_surface_set(Evas_Engine_GL_Context *gc,
    if (gc->pipe[0].shader.surface == gc->def_surface)
      glsym_glBindFramebuffer(GL_FRAMEBUFFER, 0);
    else
-<<<<<<< HEAD
-     {
         glsym_glBindFramebuffer(GL_FRAMEBUFFER, surface->tex->pt->fb);
-        GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-     }
    _evas_gl_common_viewport_set(gc,0);
-=======
-      glsym_glBindFramebuffer(GL_FRAMEBUFFER, surface->tex->pt->fb);
-   _evas_gl_common_viewport_set(gc);
->>>>>>> opensource/master
 }
 
 #define VERTEX_CNT 3
@@ -2123,18 +2091,6 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
    Eina_Bool blend = EINA_FALSE;
    Evas_GL_Shader shader = SHADER_IMG;
    GLuint prog = gc->shared->shader[shader].prog;
-<<<<<<< HEAD
-   int pn = 0, sam = 0, render_op = gc->dc->render_op, yinvert = 0;
-
-   if (!!mtex)
-     {
-        // masking forces BLEND mode (mask with COPY does not make sense)
-        blend = EINA_TRUE;
-        render_op = EVAS_RENDER_BLEND;
-     }
-   else if (!(render_op == EVAS_RENDER_COPY) && ((a < 255) || (tex->alpha)))
-     blend = EINA_TRUE;
-=======
    int pn = 0, render_op = gc->dc->render_op, nomul = 0;
    Shader_Sampling sam = 0, masksam = 0;
    int yinvert = 0;
@@ -2142,160 +2098,12 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
 
    if ((tex->im) && (tex->im->native.data))
      shd_in = SHD_IMAGENATIVE;
->>>>>>> opensource/master
 
    if (!!mtex)
      {
-<<<<<<< HEAD
-        if (tex->pt->dyn.img)
-          {
-             if ((smooth) && ((sw >= (w * 2)) && (sh >= (h * 2))))
-               {
-                  shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                        SHADER_IMG_22_BGRA_NOMUL, SHADER_IMG_22_BGRA,
-                                                        SHADER_IMG_MASK_BGRA_NOMUL, SHADER_IMG_MASK_BGRA);
-                  sam = 1;
-               }
-             else if ((smooth) && (sw >= (w * 2)))
-               {
-                  shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                        SHADER_IMG_21_BGRA_NOMUL, SHADER_IMG_21_BGRA,
-                                                        SHADER_IMG_MASK_BGRA_NOMUL, SHADER_IMG_MASK_BGRA);
-                  sam = 1;
-               }
-             else if ((smooth) && (sh >= (h * 2)))
-               {
-                  shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                        SHADER_IMG_12_BGRA_NOMUL, SHADER_IMG_12_BGRA,
-                                                        SHADER_IMG_MASK_BGRA_NOMUL, SHADER_IMG_MASK_BGRA);
-                  sam = 1;
-               }
-             else
-               {
-                  shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                        SHADER_IMG_BGRA_NOMUL, SHADER_IMG_BGRA,
-                                                        SHADER_IMG_MASK_BGRA_NOMUL, SHADER_IMG_MASK_BGRA);
-               }
-          }
-        else
-          {
-             if ((smooth) && ((sw >= (w * 2)) && (sh >= (h * 2))))
-               {
-                  if ((!tex->alpha) && (tex->pt->native))
-                    shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                          SHADER_TEX_22_NOMUL_AFILL, SHADER_TEX_22_AFILL,
-                                                          SHADER_IMG_MASK_NOMUL, SHADER_IMG_MASK);
-                  else
-                    shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                          SHADER_TEX_22_NOMUL, SHADER_TEX_22,
-                                                          SHADER_IMG_MASK_NOMUL, SHADER_IMG_MASK);
-                  sam = 1;
-               }
-             else if ((smooth) && (sw >= (w * 2)))
-               {
-                  if ((!tex->alpha) && (tex->pt->native))
-                    shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                          SHADER_TEX_21_NOMUL_AFILL, SHADER_TEX_21_AFILL,
-                                                          SHADER_IMG_MASK_NOMUL, SHADER_IMG_MASK);
-                  else
-                    shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                          SHADER_TEX_21_NOMUL, SHADER_TEX_21,
-                                                          SHADER_IMG_MASK_NOMUL, SHADER_IMG_MASK);
-                  sam = 1;
-               }
-             else if ((smooth) && (sh >= (h * 2)))
-               {
-                  if ((!tex->alpha) && (tex->pt->native))
-                    shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                          SHADER_TEX_12_NOMUL_AFILL, SHADER_TEX_12_AFILL,
-                                                          SHADER_IMG_MASK_NOMUL, SHADER_IMG_MASK);
-                  else
-                    shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                          SHADER_TEX_12_NOMUL, SHADER_TEX_12,
-                                                          SHADER_IMG_MASK_NOMUL, SHADER_IMG_MASK);
-                  sam = 1;
-               }
-             else
-               {
-                  //Tizen Only  : (!tex->im->native.offbuffer)
-                  if ((!tex->alpha) && (tex->pt->native) && (!tex->im->native.offbuffer))
-                    shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                          SHADER_TEX_NOMUL_AFILL, SHADER_TEX_AFILL,
-                                                          SHADER_IMG_MASK_NOMUL, SHADER_IMG_MASK);
-                  else
-                    shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                          SHADER_TEX_NOMUL, SHADER_TEX,
-                                                          SHADER_IMG_MASK_NOMUL, SHADER_IMG_MASK);
-               }
-          }
-     }
-   else
-     {
-        if (tex->gc->shared->info.bgra)
-          {
-             if ((smooth) && ((sw >= (w * 2)) && (sh >= (h * 2))))
-               {
-                  shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                        SHADER_IMG_22_BGRA_NOMUL, SHADER_IMG_22_BGRA,
-                                                        SHADER_IMG_MASK_BGRA_NOMUL, SHADER_IMG_MASK_BGRA);
-                  sam = 1;
-               }
-             else if ((smooth) && (sw >= (w * 2)))
-               {
-                  shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                        SHADER_IMG_21_BGRA_NOMUL, SHADER_IMG_21_BGRA,
-                                                        SHADER_IMG_MASK_BGRA_NOMUL, SHADER_IMG_MASK_BGRA);
-                  sam = 1;
-               }
-             else if ((smooth) && (sh >= (h * 2)))
-               {
-                  shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                        SHADER_IMG_12_BGRA_NOMUL, SHADER_IMG_12_BGRA,
-                                                        SHADER_IMG_MASK_BGRA_NOMUL, SHADER_IMG_MASK_BGRA);
-                  sam = 1;
-               }
-             else
-               {
-                  shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                        SHADER_IMG_BGRA_NOMUL, SHADER_IMG_BGRA,
-                                                        SHADER_IMG_MASK_BGRA_NOMUL, SHADER_IMG_MASK_BGRA);
-               }
-          }
-        else
-          {
-             if ((smooth) && ((sw >= (w * 2)) && (sh >= (h * 2))))
-               {
-                  shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                        SHADER_IMG_22_NOMUL, SHADER_IMG_22,
-                                                        SHADER_IMG_MASK_NOMUL, SHADER_IMG_MASK);
-                  sam = 1;
-               }
-             else if ((smooth) && (sw >= (w * 2)))
-               {
-                  shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                        SHADER_IMG_21_NOMUL, SHADER_IMG_21,
-                                                        SHADER_IMG_MASK_NOMUL, SHADER_IMG_MASK);
-                  sam = 1;
-               }
-             else if ((smooth) && (sh >= (h * 2)))
-               {
-                  shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                        SHADER_IMG_12_NOMUL, SHADER_IMG_12,
-                                                        SHADER_IMG_MASK_NOMUL, SHADER_IMG_MASK);
-                  sam = 1;
-               }
-             else
-               {
-                  shader = evas_gl_common_shader_choice(0, NULL, r, g, b, a, !!mtex,
-                                                        SHADER_IMG_NOMUL, SHADER_IMG,
-                                                        SHADER_IMG_MASK_NOMUL, SHADER_IMG_MASK);
-               }
-          }
-=======
         // masking forces BLEND mode (mask with COPY does not make sense)
         blend = EINA_TRUE;
         render_op = EVAS_RENDER_BLEND;
->>>>>>> opensource/master
      }
    else if (!(render_op == EVAS_RENDER_COPY) && ((a < 255) || (tex->alpha)))
      blend = EINA_TRUE;
@@ -2362,17 +2170,6 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
    pipe_region_expand(gc, pn, x, y, w, h);
    PIPE_GROW(gc, pn, 6);
 
-<<<<<<< HEAD
-   if ((tex->im) && (tex->im->native.data))
-     {
-        if (tex->im->native.func.yinvert)
-          yinvert = tex->im->native.func.yinvert(tex->im->native.func.data, tex->im);
-        else
-          yinvert = tex->im->native.yinvert;
-     }
-
-   if ((tex->im) && (tex->im->native.data) && (!yinvert))
-=======
    pw = pt->w;
    ph = pt->h;
    if (tex->im &&
@@ -2380,7 +2177,6 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
         tex->im->orient == EVAS_IMAGE_ORIENT_270 ||
         tex->im->orient == EVAS_IMAGE_FLIP_TRANSPOSE ||
         tex->im->orient == EVAS_IMAGE_FLIP_TRANSVERSE))
->>>>>>> opensource/master
      {
         // Adjust size for taking rotation into account as im->w and h are already modified.
         pw = pt->h;
@@ -3004,11 +2800,7 @@ evas_gl_common_context_image_map_push(Evas_Engine_GL_Context *gc,
    Eina_Bool use_texa = EINA_FALSE;
    Shader_Type type;
    int pn = 0, i;
-<<<<<<< HEAD
-   int flat = 0, yinvert = 0;
-=======
    int flat = 0, nomul = 0, yinvert = 0;
->>>>>>> opensource/master
    GLuint prog;
 
    if (!(gc->dc->render_op == EVAS_RENDER_COPY) &&

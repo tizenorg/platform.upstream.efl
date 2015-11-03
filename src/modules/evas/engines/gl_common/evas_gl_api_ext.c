@@ -15,15 +15,10 @@ static char *_gl_ext_string = NULL;
 static char *_gl_ext_string_official = NULL;
 // list of gles 1.1 exts by official name
 static char *_gles1_ext_string = NULL;
-<<<<<<< HEAD
-// list of gles 3.1 exts by official name
-static char *_gles3_ext_string = NULL;
-=======
 static char *_gles1_ext_string_official = NULL;
 // list of gles 3.1 exts by official name
 static char *_gles3_ext_string = NULL;
 static char *_gles3_ext_string_official = NULL;
->>>>>>> opensource/master
 
 typedef void (*_getproc_fn) (void);
 typedef _getproc_fn (*fp_getproc)(const char *);
@@ -47,18 +42,11 @@ struct wl_resource;
 #define _EVASGL_EXT_DRVNAME(name)
 #define _EVASGL_EXT_DRVNAME_PRIVATE(name)
 #define _EVASGL_EXT_DRVNAME_DESKTOP(deskname)
-<<<<<<< HEAD
-#define _EVASGL_EXT_FUNCTION_BEGIN(ret, name, param) \
-   ret (*gl_ext_sym_##name) param = NULL; \
-   ret (*gles1_ext_sym_##name) param = NULL; \
-   ret (*gles3_ext_sym_##name) param = NULL;
-=======
 #define _EVASGL_EXT_FUNCTION_BEGIN(ret, name, param1, param2) \
    ret (*egl_ext_sym_##name) param1 = NULL; \
    ret (*gl_ext_sym_##name) param1 = NULL; \
    ret (*gles1_ext_sym_##name) param1 = NULL; \
    ret (*gles3_ext_sym_##name) param1 = NULL;
->>>>>>> opensource/master
 #define _EVASGL_EXT_FUNCTION_END()
 #define _EVASGL_EXT_FUNCTION_DISABLE_FOR_GLES1_BEGIN()
 #define _EVASGL_EXT_FUNCTION_DISABLE_FOR_GLES1_END()
@@ -95,10 +83,7 @@ struct wl_resource;
 #define _EVASGL_EXT_END()
 #define _EVASGL_EXT_DRVNAME(name)
 #define _EVASGL_EXT_DRVNAME_PRIVATE(name) \
-<<<<<<< HEAD
-=======
    int _egl_ext_support_func_##name = 0; \
->>>>>>> opensource/master
    int _gl_ext_support_func_##name = 0; \
    int _gles1_ext_support_func_##name = 0; \
    int _gles3_ext_support_func_##name = 0;
@@ -365,8 +350,6 @@ _evgl_evasglQueryWaylandBuffer(Evas_GL *evas_gl,
 #else
 #endif
 
-<<<<<<< HEAD
-=======
 static void
 _evgl_glDiscardFramebufferEXT(GLenum target, GLsizei numAttachments, const GLenum* attachments)
 {
@@ -499,7 +482,6 @@ _evgl_glDiscardFramebufferEXT(GLenum target, GLsizei numAttachments, const GLenu
 #undef _EVASGL_EXT_FUNCTION_DRVFUNC
 #undef _EVASGL_EXT_FUNCTION_DRVFUNC_PROCADDR
 
->>>>>>> opensource/master
 //  0: not initialized,
 //  1: GLESv2 initialized,
 //  3: GLESv1 and GLESv2 initialized,
@@ -738,11 +720,7 @@ _evgl_api_gles2_ext_init(void *getproc, const char *glueexts)
 
 #define _EVASGL_EXT_FUNCTION_BEGIN(ret, name, param1, param2) \
      { \
-<<<<<<< HEAD
-        ret (**drvfunc)param = &gl_ext_sym_##name; \
-=======
         ret (**drvfunc)param1 = &gl_ext_sym_##name; \
->>>>>>> opensource/master
         if (*ext_support == 1) \
           {
 
@@ -794,12 +772,6 @@ _evgl_api_gles2_ext_init(void *getproc, const char *glueexts)
 
 #undef GETPROCADDR
    /////////////////////////////////////////////////////////////////////////////////////////////////////
-<<<<<<< HEAD
-
-	_gl_ext_string[0] = 0x00; //NULL;
-	_gl_ext_string_official[0] = 0x00;
-=======
->>>>>>> opensource/master
 
    /////////////////////////////////////////////////////////////////////////////////////////////////////
    // Extension HEADER
@@ -817,15 +789,9 @@ _evgl_api_gles2_ext_init(void *getproc, const char *glueexts)
 #define _EVASGL_EXT_DISCARD_SUPPORT()
 #define _EVASGL_EXT_DRVNAME_PRINT(name) \
        { \
-<<<<<<< HEAD
-          strncat(_gl_ext_string, name" ", MAX_EXTENSION_STRING_BUFFER); \
-          if ((strncmp(name, "GL", 2) == 0) && (strstr(_gl_ext_string_official, name) == NULL)) \
-            strncat(_gl_ext_string_official, name" ", MAX_EXTENSION_STRING_BUFFER); \
-=======
           eina_strbuf_append(sb, name" "); \
           if ((strncmp(name, "GL_", 3) == 0) && (strstr(eina_strbuf_string_get(sboff), name) == NULL)) \
             eina_strbuf_append(sboff, name" "); \
->>>>>>> opensource/master
        }
 #define _EVASGL_EXT_DRVNAME(name) \
      if (_curext_supported) \
@@ -906,11 +872,7 @@ evgl_api_gles2_ext_get(Evas_GL_API *gl_funcs, void *getproc, const char *glueext
 #define _EVASGL_EXT_FUNCTION_END()
 #define _EVASGL_EXT_FUNCTION_DISABLE_FOR_GLES1_BEGIN()
 #define _EVASGL_EXT_FUNCTION_DISABLE_FOR_GLES1_END()
-<<<<<<< HEAD
-#define _EVASGL_EXT_FUNCTION_PRIVATE_BEGIN(ret, name, param)
-=======
 #define _EVASGL_EXT_FUNCTION_PRIVATE_BEGIN(ret, name, param1, param2)
->>>>>>> opensource/master
 #define _EVASGL_EXT_FUNCTION_PRIVATE_END()
 #define _EVASGL_EXT_FUNCTION_DRVFUNC(name)
 #define _EVASGL_EXT_FUNCTION_DRVFUNC_PROCADDR(name)
@@ -949,16 +911,6 @@ evgl_api_gles2_ext_get(Evas_GL_API *gl_funcs, void *getproc, const char *glueext
 Eina_Bool
 _evgl_api_gles1_ext_init(void *getproc, const char *glueexts)
 {
-<<<<<<< HEAD
-   // Return if GLESv1 ext is already intiialised
-   if (_evgl_api_ext_status & 0x2)
-     return EINA_TRUE;
-
-#ifdef GL_GLES
-   int _curext_supported = 0;
-   Evas_GL_API *gles1_funcs;
-   const char *gles1_exts, *eglexts;
-=======
    const char *glexts;
    fp_getproc gp = (fp_getproc)getproc;
    int _curext_supported = 0;
@@ -967,7 +919,6 @@ _evgl_api_gles1_ext_init(void *getproc, const char *glueexts)
    Eina_Strbuf *sboff = eina_strbuf_new();
 
 #ifdef GL_GLES
->>>>>>> opensource/master
    EVGL_Resource *rsc;
    EGLint context_version;
    EGLDisplay dpy = EGLDISPLAY_GET(NULL);
@@ -1015,24 +966,6 @@ _evgl_api_gles1_ext_init(void *getproc, const char *glueexts)
         return EINA_FALSE;
      }
 
-<<<<<<< HEAD
-   eglexts = eglQueryString(dpy, EGL_EXTENSIONS);
-   if (!eglexts)
-     {
-        ERR("eglQueryString(EGL_EXTENSIONS) returned NULL!");
-        eglexts = "";
-     }
-
-   if (!_gles1_ext_string)
-     {
-        _gles1_ext_string = calloc(MAX_EXTENSION_STRING_BUFFER, 1);
-        if (!_gles1_ext_string) return EINA_FALSE;
-     }
-
-   _gles1_ext_string[0] = '\0';
-
-=======
->>>>>>> opensource/master
    /////////////////////////////////////////////////////////////////////////////////////////////////////
    // Scanning supported extensions, sets the variables
    /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1050,11 +983,7 @@ _evgl_api_gles1_ext_init(void *getproc, const char *glueexts)
    }
 
 #define _EVASGL_EXT_CHECK_SUPPORT(name) \
-<<<<<<< HEAD
-   ((strstr(gles1_exts, name) != NULL) || (strstr(eglexts, name) != NULL))
-=======
    ((strstr(glexts, name) != NULL) || (strstr(glueexts, name) != NULL))
->>>>>>> opensource/master
 
 #define _EVASGL_EXT_DISCARD_SUPPORT() \
    *ext_support = 0;
@@ -1069,11 +998,7 @@ _evgl_api_gles1_ext_init(void *getproc, const char *glueexts)
 
 #define _EVASGL_EXT_FUNCTION_BEGIN(ret, name, param1, param2) \
      { \
-<<<<<<< HEAD
-        ret (**drvfunc)param = &gles1_ext_sym_##name; \
-=======
         ret (**drvfunc)param1 = &gles1_ext_sym_##name; \
->>>>>>> opensource/master
         if (*ext_support == 1) \
           {
 
@@ -1146,14 +1071,9 @@ _evgl_api_gles1_ext_init(void *getproc, const char *glueexts)
 #define _EVASGL_EXT_DISCARD_SUPPORT()
 #define _EVASGL_EXT_DRVNAME_PRINT(name) \
      { \
-<<<<<<< HEAD
-        if ((strncmp(name, "GL", 2) == 0) && (strstr(_gles1_ext_string, name) == NULL)) \
-          strcat(_gles1_ext_string, name" "); \
-=======
         eina_strbuf_append(sb, name" "); \
         if ((strncmp(name, "GL_", 3) == 0) && (strstr(eina_strbuf_string_get(sboff), name) == NULL)) \
           eina_strbuf_append(sboff, name" "); \
->>>>>>> opensource/master
      }
 #define _EVASGL_EXT_DRVNAME(name) \
    if (_curext_supported) \
@@ -1201,28 +1121,14 @@ _evgl_api_gles1_ext_init(void *getproc, const char *glueexts)
      DBG("GLES1: List of supported extensions:\n%s", _gles1_ext_string);
 
    // GLESv1 version has been initialized!
-<<<<<<< HEAD
-   _evgl_api_ext_status |= 0x2;
-=======
    _evgl_api_ext_status |= EVASGL_API_GLES1_EXT_INITIALIZED;
->>>>>>> opensource/master
    return EINA_TRUE;
 }
 
 void
 evgl_api_gles1_ext_get(Evas_GL_API *gl_funcs, void *getproc, const char *glueexts)
 {
-<<<<<<< HEAD
-   if (_evgl_api_ext_status < 1)
-     {
-        ERR("EVGL extension is not yet initialized.");
-        return;
-     }
-
-   if (!(_evgl_api_ext_status & 0x2))
-=======
    if (!(_evgl_api_ext_status & EVASGL_API_GLES1_EXT_INITIALIZED))
->>>>>>> opensource/master
      {
         DBG("Initializing GLESv1 extensions...");
         if (!_evgl_api_gles1_ext_init(getproc, glueexts))
@@ -1246,8 +1152,6 @@ evgl_api_gles1_ext_get(Evas_GL_API *gl_funcs, void *getproc, const char *glueext
      }
 #define _EVASGL_EXT_DRVNAME(name)
 #define _EVASGL_EXT_DRVNAME_PRIVATE(name)
-<<<<<<< HEAD
-=======
 #define _EVASGL_EXT_DRVNAME_DESKTOP(deskname)
 #define _EVASGL_EXT_FUNCTION_BEGIN(ret, name, param1, param2) \
    ORD(name);
@@ -1528,18 +1432,13 @@ evgl_api_gles3_ext_get(Evas_GL_API *gl_funcs, void *getproc, const char *glueext
      }
 #define _EVASGL_EXT_DRVNAME(name)
 #define _EVASGL_EXT_DRVNAME_PRIVATE(name)
->>>>>>> opensource/master
 #define _EVASGL_EXT_DRVNAME_DESKTOP(deskname)
 #define _EVASGL_EXT_FUNCTION_BEGIN(ret, name, param1, param2) \
    ORD(name);
 #define _EVASGL_EXT_FUNCTION_END()
 #define _EVASGL_EXT_FUNCTION_DISABLE_FOR_GLES1_BEGIN()
 #define _EVASGL_EXT_FUNCTION_DISABLE_FOR_GLES1_END()
-<<<<<<< HEAD
-#define _EVASGL_EXT_FUNCTION_PRIVATE_BEGIN(ret, name, param)
-=======
 #define _EVASGL_EXT_FUNCTION_PRIVATE_BEGIN(ret, name, param1, param2)
->>>>>>> opensource/master
 #define _EVASGL_EXT_FUNCTION_PRIVATE_END()
 #define _EVASGL_EXT_FUNCTION_DRVFUNC(name)
 #define _EVASGL_EXT_FUNCTION_DRVFUNC_PROCADDR(name)
@@ -1574,277 +1473,7 @@ evgl_api_gles3_ext_get(Evas_GL_API *gl_funcs, void *getproc, const char *glueext
 
 }
 
-Eina_Bool
-_evgl_api_gles3_ext_init(void)
-{
-   if (_evgl_api_ext_status & 0x4)
-     return EINA_TRUE;
-
-   int _curext_supported = 0;
-   Evas_GL_API *gles3_funcs;
-   const char *gles3_exts;
-#ifdef GL_GLES
-   EVGL_Resource *rsc;
-   EGLint context_version;
-   EGLDisplay dpy = EGLDISPLAY_GET();
-
-   /* glGetString returns the information for the currently bound context
-    * So, update gles3_exts only if GLES3 context is currently bound.
-    * Check here if GLESv3 is current
-    */
-   if (!(rsc=_evgl_tls_resource_get()))
-     {
-        ERR("Unable to initialize GLES3 extensions. Error retrieving tls");
-        return EINA_FALSE;
-     }
-
-   if ((dpy == EGL_NO_DISPLAY) || !rsc->current_ctx)
-     {
-        DBG("Unable to initialize GLES3 extensions. Engine not initialised");
-        return EINA_FALSE;
-     }
-
-   if (!eglQueryContext(dpy, rsc->current_ctx->context, EGL_CONTEXT_CLIENT_VERSION, &context_version))
-     {
-        ERR("Unable to initialize GLES3 extensions. eglQueryContext failed 0x%x", eglGetError());
-        return EINA_FALSE;
-     }
-
-   if (context_version != EVAS_GL_GLES_3_X)
-     {
-        DBG("GLESv3 context not bound");
-        return EINA_FALSE;
-     }
-#endif
-
-   gles3_funcs = _evgl_api_gles3_internal_get();
-   if (!gles3_funcs || !gles3_funcs->glGetString)
-     {
-        ERR("Could not get address of glGetString in GLESv3 library!");
-        return EINA_FALSE;
-     }
-
-   gles3_exts = (const char *) gles3_funcs->glGetString(GL_EXTENSIONS);
-   if (!gles3_exts)
-     {
-        ERR("GLESv3:glGetString(GL_EXTENSIONS) returned NULL!");
-        return EINA_FALSE;
-     }
-
-   if (!_gles3_ext_string)
-     {
-        _gles3_ext_string = calloc(MAX_EXTENSION_STRING_BUFFER, 1);
-        if (!_gles3_ext_string) return EINA_FALSE;
-     }
-
-   _gles3_ext_string[0] = '\0';
-
-   /////////////////////////////////////////////////////////////////////////////////////////////////////
-   // Scanning supported extensions, sets the variables
-   /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-   // Preparing all the magic macros
-#define GETPROCADDR(sym) \
-   ((__typeof__((*drvfunc))) (eglGetProcAddress(sym)))
-
-#define _EVASGL_EXT_BEGIN(name) \
-   { \
-      int *ext_support = &_gles3_ext_support_##name; \
-      *ext_support = 0;
-
-#define _EVASGL_EXT_END() \
-   }
-
-#define _EVASGL_EXT_CHECK_SUPPORT(name) \
-   (strstr(gles3_exts, name) != NULL)
-
-#define _EVASGL_EXT_DISCARD_SUPPORT() \
-   *ext_support = 0;
-
-#define _EVASGL_EXT_DRVNAME(name) \
-   if (_EVASGL_EXT_CHECK_SUPPORT(#name)) *ext_support = 1;
-
-#define _EVASGL_EXT_DRVNAME_PRIVATE(name) \
-   if (_EVASGL_EXT_CHECK_SUPPORT(#name)) { *ext_support = 1; _gles3_ext_support_func_##name = 1; }
-#define _EVASGL_EXT_DRVNAME_DESKTOP(deskname) \
-   if (_EVASGL_EXT_CHECK_SUPPORT(deskname)) *ext_support = 1;
-
-#define _EVASGL_EXT_FUNCTION_BEGIN(ret, name, param) \
-     { \
-        ret (**drvfunc)param = &gles3_ext_sym_##name; \
-        if (*ext_support == 1) \
-          {
-
-#define _EVASGL_EXT_FUNCTION_END() \
-          } \
-        if ((*drvfunc) == NULL) _EVASGL_EXT_DISCARD_SUPPORT(); \
-     }
-#define _EVASGL_EXT_FUNCTION_DISABLE_FOR_GLES1_BEGIN()
-#define _EVASGL_EXT_FUNCTION_DISABLE_FOR_GLES1_END()
-#define _EVASGL_EXT_FUNCTION_DRVFUNC(name) \
-   if ((*drvfunc) == NULL) *drvfunc = name;
-
-#define _EVASGL_EXT_FUNCTION_DRVFUNC_PROCADDR(name) \
-   if ((*drvfunc) == NULL) \
-     { \
-        *drvfunc = GETPROCADDR(name); \
-        evgl_safe_extension_add(name, (void *) (*drvfunc)); \
-     } \
-   else evgl_safe_extension_add(name, NULL);
-
-#ifdef _EVASGL_EXT_FUNCTION_WHITELIST
-# undef _EVASGL_EXT_FUNCTION_WHITELIST
-#endif
-#define _EVASGL_EXT_FUNCTION_WHITELIST(name) evgl_safe_extension_add(name, NULL);
-
-   // Okay, now we are ready to scan.
-#include "evas_gl_api_ext_def.h"
-
-#undef _EVASGL_EXT_FUNCTION_WHITELIST
-#undef _EVASGL_EXT_CHECK_SUPPORT
-#undef _EVASGL_EXT_DISCARD_SUPPORT
-#undef _EVASGL_EXT_BEGIN
-#undef _EVASGL_EXT_END
-#undef _EVASGL_EXT_DRVNAME
-#undef _EVASGL_EXT_DRVNAME_PRIVATE
-#undef _EVASGL_EXT_DRVNAME_DESKTOP
-#undef _EVASGL_EXT_FUNCTION_BEGIN
-#undef _EVASGL_EXT_FUNCTION_END
-#undef _EVASGL_EXT_FUNCTION_DISABLE_FOR_GLES1_BEGIN
-#undef _EVASGL_EXT_FUNCTION_DISABLE_FOR_GLES1_END
-#undef _EVASGL_EXT_FUNCTION_DRVFUNC
-#undef _EVASGL_EXT_FUNCTION_DRVFUNC_PROCADDR
-#undef GETPROCADDR
-
-#define _EVASGL_EXT_BEGIN(name) \
-     _curext_supported = (_gles3_ext_support_##name != 0);
-
-
-   /////////////////////////////////////////////////////////////////////////////////////////////////////
-   // Scanning again to add to the gles3 ext string list
-   /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#define _EVASGL_EXT_END()
-#define _EVASGL_EXT_CHECK_SUPPORT(name)
-#define _EVASGL_EXT_DISCARD_SUPPORT()
-#define _EVASGL_EXT_DRVNAME_PRINT(name) \
-     { \
-        if ((strncmp(name, "GL", 2) == 0) && (strstr(_gles3_ext_string, name) == NULL)) \
-          strcat(_gles3_ext_string, name" "); \
-     }
-#define _EVASGL_EXT_DRVNAME(name) \
-   if (_curext_supported) \
-      _EVASGL_EXT_DRVNAME_PRINT(#name)
-#define _EVASGL_EXT_DRVNAME_PRIVATE(name) \
-   if (_curext_supported && _gles3_ext_support_func_##name) \
-      _EVASGL_EXT_DRVNAME_PRINT(#name)
-#define _EVASGL_EXT_DRVNAME_DESKTOP(deskname)
-#define _EVASGL_EXT_FUNCTION_BEGIN(ret, name, param)
-#define _EVASGL_EXT_FUNCTION_END()
-#define _EVASGL_EXT_FUNCTION_DISABLE_FOR_GLES1_BEGIN()
-#define _EVASGL_EXT_FUNCTION_DISABLE_FOR_GLES1_END()
-#define _EVASGL_EXT_FUNCTION_DRVFUNC(name)
-#define _EVASGL_EXT_FUNCTION_DRVFUNC_PROCADDR(name)
-
-#include "evas_gl_api_ext_def.h"
-
-#undef _EVASGL_EXT_CHECK_SUPPORT
-#undef _EVASGL_EXT_DISCARD_SUPPORT
-#undef _EVASGL_EXT_BEGIN
-#undef _EVASGL_EXT_END
-#undef _EVASGL_EXT_DRVNAME_PRINT
-#undef _EVASGL_EXT_DRVNAME
-#undef _EVASGL_EXT_DRVNAME_PRIVATE
-#undef _EVASGL_EXT_DRVNAME_DESKTOP
-#undef _EVASGL_EXT_FUNCTION_BEGIN
-#undef _EVASGL_EXT_FUNCTION_END
-#undef _EVASGL_EXT_FUNCTION_DISABLE_FOR_GLES1_BEGIN
-#undef _EVASGL_EXT_FUNCTION_DISABLE_FOR_GLES1_END
-#undef _EVASGL_EXT_FUNCTION_DRVFUNC
-#undef _EVASGL_EXT_FUNCTION_DRVFUNC_PROCADDR
-
-   if (evgl_engine->api_debug_mode)
-     DBG("GLES3: List of supported extensions:\n%s", _gles3_ext_string);
-
-   // GLESv3 version has been initialized!
-   _evgl_api_ext_status |= 0x4;
-   return EINA_TRUE;
-}
-
-void
-evgl_api_gles3_ext_get(Evas_GL_API *gl_funcs)
-{
-   if (_evgl_api_ext_status < 1)
-     {
-        ERR("EVGL extension is not yet initialized.");
-        return;
-     }
-
-   if (!(_evgl_api_ext_status & 0x4))
-     {
-        DBG("Initializing GLESv3 extensions...");
-        if (!_evgl_api_gles3_ext_init())
-          {
-             ERR("GLESv3 extensions initialization failed");
-             return;
-          }
-     }
-
-#define ORD(f) EVAS_API_OVERRIDE(f, gl_funcs, gles3_ext_sym_)
-
-   /////////////////////////////////////////////////////////////////////////////////////////////////////
-   // Extension HEADER
-   /////////////////////////////////////////////////////////////////////////////////////////////////////
-#define _EVASGL_EXT_CHECK_SUPPORT(name)
-#define _EVASGL_EXT_DISCARD_SUPPORT()
-#define _EVASGL_EXT_BEGIN(name) \
-   if (_gles3_ext_support_##name != 0) \
-     {
-#define _EVASGL_EXT_END() \
-     }
-#define _EVASGL_EXT_DRVNAME(name)
-#define _EVASGL_EXT_DRVNAME_PRIVATE(name)
-#define _EVASGL_EXT_DRVNAME_DESKTOP(deskname)
-#define _EVASGL_EXT_FUNCTION_BEGIN(ret, name, param) \
-   ORD(name);
-#define _EVASGL_EXT_FUNCTION_END()
-#define _EVASGL_EXT_FUNCTION_DISABLE_FOR_GLES1_BEGIN()
-#define _EVASGL_EXT_FUNCTION_DISABLE_FOR_GLES1_END()
-#define _EVASGL_EXT_FUNCTION_PRIVATE_BEGIN(ret, name, param)
-#define _EVASGL_EXT_FUNCTION_PRIVATE_END()
-#define _EVASGL_EXT_FUNCTION_DRVFUNC(name)
-#define _EVASGL_EXT_FUNCTION_DRVFUNC_PROCADDR(name)
-
-#undef _EVASGL_EXT_WHITELIST_ONLY
-#define _EVASGL_EXT_WHITELIST_ONLY 0
-
-#include "evas_gl_api_ext_def.h"
-
-#undef _EVASGL_EXT_CHECK_SUPPORT
-#undef _EVASGL_EXT_DISCARD_SUPPORT
-#undef _EVASGL_EXT_BEGIN
-#undef _EVASGL_EXT_END
-#undef _EVASGL_EXT_DRVNAME
-#undef _EVASGL_EXT_DRVNAME_PRIVATE
-#undef _EVASGL_EXT_DRVNAME_DESKTOP
-#undef _EVASGL_EXT_FUNCTION_BEGIN
-#undef _EVASGL_EXT_FUNCTION_END
-#undef _EVASGL_EXT_FUNCTION_DISABLE_FOR_GLES1_BEGIN
-#undef _EVASGL_EXT_FUNCTION_DISABLE_FOR_GLES1_END
-#undef _EVASGL_EXT_FUNCTION_PRIVATE_BEGIN
-#undef _EVASGL_EXT_FUNCTION_PRIVATE_END
-#undef _EVASGL_EXT_FUNCTION_DRVFUNC
-#undef _EVASGL_EXT_FUNCTION_DRVFUNC_PROCADDR
-   /////////////////////////////////////////////////////////////////////////////////////////////////////
-#undef ORD
-
-}
-
-
-
 const char *
-<<<<<<< HEAD
-=======
 evgl_api_ext_egl_string_get(void)
 {
 #ifdef GL_GLES
@@ -1861,7 +1490,6 @@ evgl_api_ext_egl_string_get(void)
 }
 
 const char *
->>>>>>> opensource/master
 evgl_api_ext_string_get(Eina_Bool official, int version)
 {
    if (_evgl_api_ext_status < 1)
@@ -1871,20 +1499,10 @@ evgl_api_ext_string_get(Eina_Bool official, int version)
      }
 
    if (version == EVAS_GL_GLES_1_X)
-<<<<<<< HEAD
-     return _gles1_ext_string;
-
-   if (version == EVAS_GL_GLES_3_X)
-     return _gles3_ext_string;
-
-   if (official)
-     return _gl_ext_string_official;
-=======
      return (official?_gles1_ext_string_official:_gles1_ext_string);
 
    if (version == EVAS_GL_GLES_3_X)
      return (official?_gles3_ext_string_official:_gles3_ext_string);
->>>>>>> opensource/master
 
    return (official?_gl_ext_string_official:_gl_ext_string);
 }

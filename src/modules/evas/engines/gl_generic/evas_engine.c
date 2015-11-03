@@ -31,9 +31,6 @@
 
 static int _evas_engine_GL_log_dom = -1;
 
-<<<<<<< HEAD
-static int eng_gl_image_direct_get(void *data EINA_UNUSED, void *image);
-=======
 #undef ERR
 #undef DBG
 #undef INF
@@ -109,7 +106,6 @@ _context_stored_reset(void *data EINA_UNUSED, void *surface)
 
 #define CONTEXT_STORE(data, surface, context) _context_store(data, surface, context)
 #define CONTEXT_STORED_RESET(data, surface) _context_stored_reset(data, surface)
->>>>>>> opensource/master
 
 static void
 eng_rectangle_draw(void *data, void *context, void *surface, int x, int y, int w, int h, Eina_Bool do_async EINA_UNUSED)
@@ -734,15 +730,10 @@ eng_image_data_get(void *data, void *image, int to_write, DATA32 **image_data, i
 #ifdef GL_GLES
    re->window_use(re->software.ob);
 
-<<<<<<< HEAD
-   if ((im->tex) && (im->tex->pt) && (im->tex->pt->dyn.img) &&
-       (im->cs.space == EVAS_COLORSPACE_ARGB8888))
-=======
    if ((im->tex) && (im->tex->pt) && (im->tex->pt->dyn.img) && 
        (im->cs.space == EVAS_COLORSPACE_ARGB8888) &&
        secsym_tbm_surface_map &&
        secsym_eglMapImageSEC)
->>>>>>> opensource/master
      {
         if (im->tex->pt->dyn.checked_out > 0)
           {
@@ -1109,15 +1100,7 @@ eng_image_draw(void *data, void *context, void *surface, void *image, int src_x,
              evgl_direct_partial_info_set(gl_context->preserve_bit);
           }
 
-<<<<<<< HEAD
-        if (n->type == EVAS_NATIVE_SURFACE_OPENGL)
-          direct_surface = eina_hash_find(evgl_engine->direct_surfaces, &n->data.opengl.texture_id);
-        else if (n->type == EVAS_NATIVE_SURFACE_X11)
-          direct_surface = eina_hash_find(evgl_engine->direct_surfaces, &n->data.x11.pixmap);
-        else if (n->type == EVAS_NATIVE_SURFACE_EVASGL)
-=======
         if (n->type == EVAS_NATIVE_SURFACE_EVASGL)
->>>>>>> opensource/master
           direct_surface = n->data.evasgl.surface;
         else
           {
@@ -1134,10 +1117,7 @@ eng_image_draw(void *data, void *context, void *surface, void *image, int src_x,
                              gl_context->dc->clip.y,
                              gl_context->dc->clip.w,
                              gl_context->dc->clip.h,
-<<<<<<< HEAD
-=======
                              gl_context->dc->render_op,
->>>>>>> opensource/master
                              direct_surface);
 
         // Call pixel get function
@@ -1647,11 +1627,7 @@ eng_gl_api_get(void *data, int version)
         ERR("Version not supported!");
         return NULL;
      }
-<<<<<<< HEAD
-   ret = evgl_api_get(version);
-=======
    ret = evgl_api_get(data, version);
->>>>>>> opensource/master
 
    //Disable GLES3 support if symbols not present
    if ((!ret) && (version == EVAS_GL_GLES_3_X))
@@ -1669,11 +1645,7 @@ eng_gl_direct_override_get(void *data, Eina_Bool *override, Eina_Bool *force_off
 }
 
 static Eina_Bool
-<<<<<<< HEAD
-eng_gl_surface_direct_renderable_get(void *data, Evas_Native_Surface *ns, Eina_Bool *direct_override)
-=======
 eng_gl_surface_direct_renderable_get(void *data, Evas_Native_Surface *ns, Eina_Bool *override, void *surface)
->>>>>>> opensource/master
 {
    Render_Engine_GL_Generic *re = data;
    Eina_Bool direct_render, client_side_rotation;
@@ -1682,11 +1654,7 @@ eng_gl_surface_direct_renderable_get(void *data, Evas_Native_Surface *ns, Eina_B
 
    EVGLINIT(data, EINA_FALSE);
    if (!re || !ns) return EINA_FALSE;
-<<<<<<< HEAD
-   if (!evgl_native_surface_direct_opts_get(ns, &direct_render, &client_side_rotation, direct_override))
-=======
    if (!evgl_native_surface_direct_opts_get(ns, &direct_render, &client_side_rotation, override))
->>>>>>> opensource/master
      return EINA_FALSE;
 
    if (!direct_render)

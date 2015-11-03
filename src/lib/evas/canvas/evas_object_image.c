@@ -689,11 +689,7 @@ _evas_image_orient_set(Eo *eo_obj, Evas_Image_Data *o, Evas_Image_Orient orient)
         ENFN->image_data_preload_cancel(ENDT, o->engine_data, eo_obj);
      }
 
-<<<<<<< HEAD
    if(o->engine_data)
-=======
-   if (o->engine_data)
->>>>>>> opensource/master
      {
         int stride = 0;
 
@@ -3045,11 +3041,7 @@ evas_process_dirty_pixels(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, 
                        if (ENFN->gl_direct_override_get)
                          ENFN->gl_direct_override_get(output, NULL /*&direct_override*/, &direct_force_off);
                        if (ENFN->gl_surface_direct_renderable_get)
-<<<<<<< HEAD
-                         direct_renderable = ENFN->gl_surface_direct_renderable_get(output, ns, &direct_override);
-=======
                          direct_renderable = ENFN->gl_surface_direct_renderable_get(output, ns, &direct_override, surface);
->>>>>>> opensource/master
 
                        if ( ((direct_override) ||
                              ((direct_renderable) &&
@@ -3122,11 +3114,7 @@ evas_process_dirty_pixels(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, 
              if (ENFN->gl_direct_override_get)
                ENFN->gl_direct_override_get(output, &direct_override, &direct_force_off);
              if (ENFN->gl_surface_direct_renderable_get)
-<<<<<<< HEAD
-               ENFN->gl_surface_direct_renderable_get(output, ns, &direct_override);
-=======
                ENFN->gl_surface_direct_renderable_get(output, ns, &direct_override, surface);
->>>>>>> opensource/master
 
              if (direct_override && !direct_force_off)
                {
@@ -3139,17 +3127,11 @@ evas_process_dirty_pixels(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, 
              else
                {
                   // Auto-fallback to FBO rendering (for perf & power consumption)
-<<<<<<< HEAD
-                  o->pixels->func.get_pixels(o->pixels->func.get_pixels_data, obj->object);
-                  //if (ENFN->get_pixels_render_post)
-                    //ENFN->get_pixels_render_post(output);
-=======
                   if (ENFN->gl_get_pixels_pre)
                     ENFN->gl_get_pixels_pre(output);
                   o->pixels->func.get_pixels(o->pixels->func.get_pixels_data, obj->object);
                   if (ENFN->gl_get_pixels_post)
                     ENFN->gl_get_pixels_post(output);
->>>>>>> opensource/master
                   o->direct_render = EINA_FALSE;
                }
           }
@@ -3292,8 +3274,6 @@ evas_object_image_render(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, v
      ENFN->gl_get_pixels_set(output, NULL, NULL, NULL);
    if (ENFN->gl_image_direct_set)
      ENFN->gl_image_direct_set(output, o->engine_data, EINA_FALSE);
-<<<<<<< HEAD
-=======
 
    /* Render filter */
    if (o->has_filter)
@@ -3301,7 +3281,6 @@ evas_object_image_render(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, v
         if (evas_filter_object_render(eo_obj, obj, output, context, surface, x, y, do_async, EINA_FALSE))
           return;
      }
->>>>>>> opensource/master
 
    _evas_image_render(eo_obj, obj, output, context, surface, x, y, 0, 0, 0, 0, do_async);
 }

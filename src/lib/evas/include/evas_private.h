@@ -5,13 +5,6 @@
 # include <config.h>
 #endif
 
-<<<<<<< HEAD
-#include <Eina.h>
-#include <eina_safety_checks.h>
-#include <Ector.h>
-
-=======
->>>>>>> opensource/master
 #include "Evas.h"
 
 #include "../file/evas_module.h"
@@ -802,11 +795,7 @@ struct _Evas_Public_Data
    struct {
       Evas_Module *module;
       Evas_Func *func;
-<<<<<<< HEAD
-      Ector_Surface *surface;
-=======
       Ector_Surface *ector;
->>>>>>> opensource/master
       struct {
          void *output;
 
@@ -1410,17 +1399,11 @@ struct _Evas_Func
    void *(*gl_current_surface_get)       (void *data);
    int  (*gl_rotation_angle_get)         (void *data);
    Eina_Bool (*gl_surface_query)         (void *data, void *surface, int attr, void *value);
-<<<<<<< HEAD
-   Eina_Bool (*gl_surface_direct_renderable_get) (void *data, Evas_Native_Surface *ns, Eina_Bool *direct_override);
-   void (*gl_image_direct_set)           (void *data, void *image, Eina_Bool direct);
-   int  (*gl_image_direct_get)           (void *data, void *image);
-=======
    Eina_Bool (*gl_surface_direct_renderable_get) (void *data, Evas_Native_Surface *ns, Eina_Bool *override, void *surface);
    void (*gl_image_direct_set)           (void *data, void *image, Eina_Bool direct);
    int  (*gl_image_direct_get)           (void *data, void *image);
    void (*gl_get_pixels_pre)             (void *data);
    void (*gl_get_pixels_post)            (void *data);
->>>>>>> opensource/master
 
    int  (*image_load_error_get)          (void *data, void *image);
    int  (*font_run_end_get)              (void *data, Evas_Font_Set *font, Evas_Font_Instance **script_fi, Evas_Font_Instance **cur_fi, Evas_Script_Type script, const Eina_Unicode *text, int run_len);
@@ -1463,15 +1446,6 @@ struct _Evas_Func
    void  (*texture_filter_set)           (void *data, void *texture, Evas_Canvas3D_Texture_Filter min, Evas_Canvas3D_Texture_Filter mag);
    void  (*texture_filter_get)           (void *data, void *texture, Evas_Canvas3D_Texture_Filter *min, Evas_Canvas3D_Texture_Filter *mag);
    void  (*texture_image_set)            (void *data, void *texture, void *image);
-<<<<<<< HEAD
-
-   void  (*output_copy)                  (void *data, void *buffer, int stride, int width, int height, uint format, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh);
-   Ector_Surface *(*ector_get)           (void *data);
-   void  (*ector_begin)                  (void *data, void *context, void *surface, int x, int y, Eina_Bool do_async);
-   void  (*ector_renderer_draw)          (void *data, void *context, void *surface, Ector_Renderer *r, Eina_Array *clips, Eina_Bool do_async);
-   void  *(*ector_end)                   (void *data, void *context, void *surface, Eina_Bool do_async);
-   void *(*ector_surface_create)         (void *data, void *surface, int w, int h);
-=======
    void *(*texture_image_get)            (void *data, void *texture);
 
    Ector_Surface *(*ector_create)        (void *data);
@@ -1479,7 +1453,6 @@ struct _Evas_Func
    void  (*ector_begin)                  (void *data, void *context, Ector_Surface *ector, void *surface, int x, int y, Eina_Bool do_async);
    void  (*ector_renderer_draw)          (void *data, void *context, void *surface, Ector_Renderer *r, Eina_Array *clips, Eina_Bool do_async);
    void  (*ector_end)                    (void *data, void *context, Ector_Surface *ector, void *surface, Eina_Bool do_async);
->>>>>>> opensource/master
 };
 
 struct _Evas_Image_Save_Func
@@ -1923,11 +1896,8 @@ void _evas_device_unref(Evas_Device *dev);
 
 Eina_Bool evas_vg_loader_svg(Evas_Object *vg, const Eina_File *f, const char *key EINA_UNUSED);
 
-<<<<<<< HEAD
-=======
 void *_evas_object_image_surface_get(Evas_Object *eo, Evas_Object_Protected_Data *obj);
 
->>>>>>> opensource/master
 extern Eina_Cow *evas_object_proxy_cow;
 extern Eina_Cow *evas_object_map_cow;
 extern Eina_Cow *evas_object_state_cow;

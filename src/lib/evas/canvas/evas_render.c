@@ -1886,14 +1886,8 @@ evas_render_proxy_subrender(Evas *eo_e, Evas_Object *eo_source, Evas_Object *eo_
         evas_render_mapped(evas, eo_source, source, ctx, proxy_write->surface,
                            -source->cur->geometry.x,
                            -source->cur->geometry.y,
-<<<<<<< HEAD
-                           2, 0, 0, evas->output.w, evas->output.h,
-                           &proxy_render_data, 1, EINA_TRUE, do_async);
-
-=======
                            level + 1, 0, 0, evas->output.w, evas->output.h,
                            &proxy_render_data, level + 1, EINA_TRUE, do_async);
->>>>>>> opensource/master
         ENFN->context_free(ENDT, ctx);
 
         proxy_write->surface = ENFN->image_dirty_region(ENDT, proxy_write->surface, 0, 0, w, h);
@@ -2013,51 +2007,7 @@ evas_render_mask_subrender(Evas_Public_Data *evas,
             }
        }
 
-<<<<<<< HEAD
-     /* create new RGBA render surface if needed */
-     if (!mdata->surface)
-       {
-          mdata->surface = ENFN->image_map_surface_new(ENDT, w, h, EINA_TRUE);
-          if (!mdata->surface) goto end;
-          mdata->is_alpha = EINA_FALSE;
-          mdata->w = w;
-          mdata->h = h;
-       }
-
-     /* Clear surface with transparency */
-     ctx = ENFN->context_new(ENDT);
-     ENFN->context_color_set(ENDT, ctx, 0, 0, 0, 0);
-     ENFN->context_render_op_set(ENDT, ctx, EVAS_RENDER_COPY);
-     ENFN->rectangle_draw(ENDT, ctx, mdata->surface, 0, 0, w, h, EINA_FALSE);
-     ENFN->context_free(ENDT, ctx);
-
-     /* Render mask to RGBA surface */
-     ctx = ENFN->context_new(ENDT);
-     if (prev_mask)
-       {
-          ENFN->context_clip_image_set(ENDT, ctx,
-                                       prev_mask->mask->surface,
-                                       prev_mask->cur->geometry.x - x,
-                                       prev_mask->cur->geometry.y - y);
-       }
-     evas_render_mapped(evas, mask->object, mask, ctx, mdata->surface,
-                        -x, -y, 2, 0, 0, evas->output.w, evas->output.h,
-                        NULL, 1, EINA_TRUE, EINA_FALSE);
-     ENFN->context_free(ENDT, ctx);
-
-     /* BEGIN HACK */
-
-     /* Now we want to convert this RGBA surface to Alpha.
-      * NOTE: So, this is not going to work with the GL engine but only with
-      *       the SW engine. Here's the detection hack:
-      * FIXME: If you know of a way to support rendering to GL_ALPHA in GL,
-      *        then we should render directly to an ALPHA surface. A priori,
-      *        GLES FBO does not support this.
-      */
-     if (!ENFN->gl_surface_read_pixels)
-=======
      if (!done)
->>>>>>> opensource/master
        {
           /* delete render surface if changed or if already alpha
            * (we don't know how to render objects to alpha) */

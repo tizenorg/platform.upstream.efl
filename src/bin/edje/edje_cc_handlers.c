@@ -663,7 +663,6 @@ New_Statement_Handler statement_handlers[] =
      {"collections.font", st_fonts_font}, /* dup */
      FONT_STYLE_CC_STATEMENTS("collections.")
      {"collections.base_scale", st_collections_base_scale},
-<<<<<<< HEAD
 // TIZEN_ONLY(20150110): Add plugins keyword.
 #ifdef PLUGIN
      {"collections.plugins.plugin.name", st_collections_plugins_plugin_name},
@@ -674,13 +673,11 @@ New_Statement_Handler statement_handlers[] =
      {"collections.group.plugins.plugin.param", st_collections_plugins_plugin_param}, /* dup */
 #endif
 //
-=======
      {"collections.translation.file.locale", st_collections_group_translation_file_locale},
      {"collections.translation.file.source", st_collections_group_translation_file_source},
      {"collections.group.translation.file.locale", st_collections_group_translation_file_locale},
      {"collections.group.translation.file.source", st_collections_group_translation_file_source},
 
->>>>>>> opensource/master
      {"collections.sounds.sample.name", st_collections_group_sound_sample_name},
      {"collections.sounds.sample.source", st_collections_group_sound_sample_source},
      {"collections.group.sounds.sample.name", st_collections_group_sound_sample_name}, /* dup */

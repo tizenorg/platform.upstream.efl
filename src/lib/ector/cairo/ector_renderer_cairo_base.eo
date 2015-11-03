@@ -4,12 +4,9 @@ abstract Ector.Renderer.Cairo.Base (Ector.Renderer.Generic.Base)
    methods {
       fill {
          return: bool;
-<<<<<<< HEAD
-=======
 	 params {
 	    @in mul_col: uint;
 	 }
->>>>>>> opensource/master
       }
    }
    implements {

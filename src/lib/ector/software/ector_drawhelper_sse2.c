@@ -89,10 +89,7 @@ v4_mul_color_sse2(__m128i x, __m128i y)
 {
    const __m128i zero = _mm_setzero_si128();
    const __m128i sym4_mask = _mm_set_epi32(0x00FF00FF, 0x000000FF, 0x00FF00FF, 0x000000FF);
-<<<<<<< HEAD
-=======
 
->>>>>>> opensource/master
    __m128i x_l = _mm_unpacklo_epi8(x, zero);
    __m128i x_h = _mm_unpackhi_epi8(x, zero);
 
@@ -115,10 +112,7 @@ static inline __m128i
 v4_ialpha_sse2(__m128i c)
 {
    __m128i a = _mm_srli_epi32(c, 24);
-<<<<<<< HEAD
-=======
 
->>>>>>> opensource/master
    return _mm_sub_epi32(_mm_set1_epi32(0xff), a);
 }
 
@@ -149,12 +143,6 @@ comp_func_helper_sse2 (uint *dest, int length, uint color, uint alpha)
 void
 comp_func_solid_source_sse2(uint *dest, int length, uint color, uint const_alpha)
 {
-<<<<<<< HEAD
-   if (const_alpha == 255) _ector_memfill(dest, length, color);
-   else
-     {
-        int ialpha;
-=======
    if (const_alpha == 255)
      {
         _ector_memfill(dest, length, color);
@@ -163,7 +151,6 @@ comp_func_solid_source_sse2(uint *dest, int length, uint color, uint const_alpha
      {
         int ialpha;
 
->>>>>>> opensource/master
         ialpha = 255 - const_alpha;
         color = BYTE_MUL(color, const_alpha);
         comp_func_helper_sse2(dest, length, color, ialpha);
@@ -174,16 +161,10 @@ void
 comp_func_solid_source_over_sse2(uint *dest, int length, uint color, uint const_alpha)
 {
    int ialpha;
-<<<<<<< HEAD
-   if (const_alpha != 255)
-     color = BYTE_MUL(color, const_alpha);
-   ialpha = Alpha(~color);
-=======
 
    if (const_alpha != 255)
      color = BYTE_MUL(color, const_alpha);
    ialpha = alpha_inverse(color);
->>>>>>> opensource/master
    comp_func_helper_sse2(dest, length, color, ialpha);
 }
 
@@ -220,21 +201,6 @@ comp_func_solid_source_over_sse2(uint *dest, int length, uint color, uint const_
 #define V4_COMP_OP_SRC \
   v_src = v4_interpolate_color_sse2(v_alpha, v_src, v_dest);
 
-<<<<<<< HEAD
-
-
-static void
-comp_func_source_sse2(uint *dest, const uint *src, int length, uint color, uint const_alpha)
-{
-   if (color == 0xffffffff) // No color multiplier
-     {
-        if (const_alpha == 255)
-          memcpy(dest, src, length * sizeof(uint));
-        else
-          {
-             int ialpha = 255 - const_alpha;
-             __m128i v_alpha = _mm_set1_epi32(const_alpha);
-=======
 static void
 comp_func_source_sse2(uint *dest, const uint *src, int length, uint color, uint const_alpha)
 {
@@ -252,7 +218,6 @@ comp_func_source_sse2(uint *dest, const uint *src, int length, uint color, uint 
              ialpha = 255 - const_alpha;
              __m128i v_alpha = _mm_set1_epi32(const_alpha);
 
->>>>>>> opensource/master
              LOOP_ALIGNED_U1_A4(dest, length,
                { /* UOP */
                   *dest = INTERPOLATE_PIXEL_256(*src, const_alpha, *dest, ialpha);
@@ -269,10 +234,7 @@ comp_func_source_sse2(uint *dest, const uint *src, int length, uint color, uint 
    else
      {
         __m128i v_color = _mm_set1_epi32(color);
-<<<<<<< HEAD
-=======
 
->>>>>>> opensource/master
         if (const_alpha == 255)
           {
              LOOP_ALIGNED_U1_A4(dest, length,
@@ -289,20 +251,12 @@ comp_func_source_sse2(uint *dest, const uint *src, int length, uint color, uint 
           }
         else
           {
-<<<<<<< HEAD
-             int ialpha = 255 - const_alpha;
-             __m128i v_alpha = _mm_set1_epi32(const_alpha);
-             LOOP_ALIGNED_U1_A4(dest, length,
-               { /* UOP */
-                  uint src_color = ECTOR_MUL4_SYM(*src, color);
-=======
              ialpha = 255 - const_alpha;
              __m128i v_alpha = _mm_set1_epi32(const_alpha);
 
              LOOP_ALIGNED_U1_A4(dest, length,
                { /* UOP */
                   src_color = ECTOR_MUL4_SYM(*src, color);
->>>>>>> opensource/master
                   *dest = INTERPOLATE_PIXEL_256(src_color, const_alpha, *dest, ialpha);
                   dest++; src++; length--;
                },
@@ -320,44 +274,6 @@ comp_func_source_sse2(uint *dest, const uint *src, int length, uint color, uint 
 static void
 comp_func_source_over_sse2(uint *dest, const uint *src, int length, uint color, uint const_alpha)
 {
-<<<<<<< HEAD
-   if (color == 0xffffffff) // No color multiplier
-     {
-        if (const_alpha == 255)
-          {
-             LOOP_ALIGNED_U1_A4(dest, length,
-               { /* UOP */
-                  uint s = *src;
-                  uint sia = Alpha(~s);
-                  *dest = s + BYTE_MUL(*dest, sia);
-                  dest++; src++; length--;
-               },
-               { /* A4OP */
-                  V4_FETCH_SRC_DEST
-                  V4_COMP_OP_SRC_OVER
-                  V4_STORE_DEST
-                  V4_SRC_DEST_LEN_INC
-               })
-          }
-        else
-          {
-             __m128i v_alpha = _mm_set1_epi16(const_alpha);
-             LOOP_ALIGNED_U1_A4(dest, length,
-               { /* UOP */
-                  uint s = BYTE_MUL(*src, const_alpha);
-                  uint sia = Alpha(~s);
-                  *dest = s + BYTE_MUL(*dest, sia);
-                  dest++; src++; length--;
-               },
-               { /* A4OP */
-                  V4_FETCH_SRC_DEST
-                  V4_ALPHA_MULTIPLY
-                  V4_COMP_OP_SRC_OVER
-                  V4_STORE_DEST
-                  V4_SRC_DEST_LEN_INC
-               })
-          }
-=======
    uint s, sia;
 
    if (const_alpha != 255)
@@ -378,50 +294,10 @@ comp_func_source_over_sse2(uint *dest, const uint *src, int length, uint color, 
             V4_STORE_DEST
             V4_SRC_DEST_LEN_INC
          })
->>>>>>> opensource/master
      }
    else
      {
         __m128i v_color = _mm_set1_epi32(color);
-<<<<<<< HEAD
-        if (const_alpha == 255)
-          {
-             LOOP_ALIGNED_U1_A4(dest, length,
-               { /* UOP */
-                  uint s = ECTOR_MUL4_SYM(*src, color);
-                  uint sia = Alpha(~s);
-                  *dest = s + BYTE_MUL(*dest, sia);
-                  dest++; src++; length--;
-               },
-               { /* A4OP */
-                  V4_FETCH_SRC_DEST
-                  V4_COLOR_MULTIPLY
-                  V4_COMP_OP_SRC_OVER
-                  V4_STORE_DEST
-                  V4_SRC_DEST_LEN_INC
-               })
-          }
-        else
-          {
-             __m128i v_alpha = _mm_set1_epi16(const_alpha);
-             LOOP_ALIGNED_U1_A4(dest, length,
-               { /* UOP */
-                  uint s = ECTOR_MUL4_SYM(*src, color);
-                  s = BYTE_MUL(s, const_alpha);
-                  uint sia = Alpha(~s);
-                  *dest = s + BYTE_MUL(*dest, sia);
-                  dest++; src++; length--;
-               },
-               { /* A4OP */
-                  V4_FETCH_SRC_DEST
-                  V4_COLOR_MULTIPLY
-                  V4_ALPHA_MULTIPLY
-                  V4_COMP_OP_SRC_OVER
-                  V4_STORE_DEST
-                  V4_SRC_DEST_LEN_INC
-               })
-          }
-=======
 
         LOOP_ALIGNED_U1_A4(dest, length,
          { /* UOP */
@@ -437,7 +313,6 @@ comp_func_source_over_sse2(uint *dest, const uint *src, int length, uint color, 
             V4_STORE_DEST
             V4_SRC_DEST_LEN_INC
          })
->>>>>>> opensource/master
      }
 }
 
@@ -459,7 +334,3 @@ init_draw_helper_sse2()
       }
 #endif
 }
-<<<<<<< HEAD
-
-=======
->>>>>>> opensource/master

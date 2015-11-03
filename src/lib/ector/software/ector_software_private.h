@@ -14,11 +14,8 @@ typedef unsigned int uint;
 
 typedef struct _Ector_Software_Surface_Data Ector_Software_Surface_Data;
 
-<<<<<<< HEAD
-=======
 #define CHECK_SOFTWARE(Parent) (!(Parent && Parent->software))
 
->>>>>>> opensource/master
 // Gradient related structure
 typedef struct _Software_Gradient_Linear_Data
 {
@@ -60,10 +57,7 @@ typedef struct _Raster_Buffer
 
 typedef struct _Shape_Rle_Data
 {
-<<<<<<< HEAD
-=======
    Eina_Rectangle   bbox;
->>>>>>> opensource/master
    unsigned short   alloc;
    unsigned short   size;
    SW_FT_Span      *spans;// array of Scanlines.
@@ -108,17 +102,6 @@ typedef struct _Span_Data
    };
 } Span_Data;
 
-<<<<<<< HEAD
-typedef struct _Software_Rasterizer
-{
-   SW_FT_Raster     raster;
-   SW_FT_Stroker    stroker;
-   void            *mem_pool;
-   Span_Data        fill_data;
-   Eina_Matrix3    *transform;
-   Eina_Rectangle   system_clip;
-} Software_Rasterizer;
-=======
 struct _Software_Rasterizer
 {
    SW_FT_Raster     raster;
@@ -129,7 +112,6 @@ struct _Software_Rasterizer
    Eina_Rectangle   system_clip;
 
 };
->>>>>>> opensource/master
 
 struct _Ector_Software_Surface_Data
 {
@@ -138,10 +120,7 @@ struct _Ector_Software_Surface_Data
    int y;
 };
 
-<<<<<<< HEAD
-=======
 
->>>>>>> opensource/master
 void ector_software_rasterizer_init(Software_Rasterizer *rasterizer);
 void ector_software_rasterizer_done(Software_Rasterizer *rasterizer);
 

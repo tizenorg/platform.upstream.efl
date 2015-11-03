@@ -18,11 +18,6 @@ struct _Ector_Cairo_Surface_Data
    struct {
       double x, y;
    } current;
-<<<<<<< HEAD
-
-   Eina_Bool internal : 1;
-=======
->>>>>>> opensource/master
 };
 
 struct _Ector_Renderer_Cairo_Base_Data
@@ -75,8 +70,6 @@ _ector_cairo_symbol_get(Eo *obj, const char *name)
    return sym;
 }
 
-<<<<<<< HEAD
-=======
 extern void (*cairo_pattern_add_color_stop_rgba)(cairo_pattern_t *pattern, double offset,
                                                  double red, double green, double blue, double alpha);
 
@@ -103,5 +96,4 @@ _ector_renderer_cairo_gradient_prepare(Eo *obj,
      }
 }
 
->>>>>>> opensource/master
 #endif

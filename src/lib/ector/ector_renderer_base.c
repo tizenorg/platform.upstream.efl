@@ -135,8 +135,6 @@ _ector_renderer_generic_base_prepare(Eo *obj EINA_UNUSED,
    return EINA_TRUE;
 }
 
-<<<<<<< HEAD
-=======
 static unsigned int
 _ector_renderer_generic_base_crc_get(Eo *obj EINA_UNUSED,
                                      Ector_Renderer_Generic_Base_Data *pd)
@@ -153,5 +151,4 @@ _ector_renderer_generic_base_crc_get(Eo *obj EINA_UNUSED,
    return crc;
 }
 
->>>>>>> opensource/master
 #include "ector_renderer_generic_base.eo.c"

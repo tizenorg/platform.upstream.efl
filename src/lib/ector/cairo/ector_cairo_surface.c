@@ -73,10 +73,6 @@ _ector_cairo_surface_ector_generic_surface_renderer_factory_new(Eo *obj,
 
 typedef struct _cairo_surface_t cairo_surface_t;
 
-<<<<<<< HEAD
-static void (*cairo_translate)(cairo_t *cr, double tx, double ty) = NULL;
-=======
->>>>>>> opensource/master
 static void (*cairo_destroy)(cairo_t *cr) = NULL;
 static cairo_surface_t *(*cairo_image_surface_create)(int format,
                                                       int width,
@@ -90,19 +86,9 @@ _ector_cairo_surface_context_set(Eo *obj,
                                  Ector_Cairo_Surface_Data *pd,
                                  cairo_t *ctx)
 {
-<<<<<<< HEAD
-   if (pd->internal)
-     {
-        USE(obj, cairo_destroy, );
-
-        if (pd->cairo) cairo_destroy(pd->cairo);
-        pd->internal = EINA_FALSE;
-     }
-=======
    USE(obj, cairo_destroy, );
 
    if (pd->cairo) cairo_destroy(pd->cairo);
->>>>>>> opensource/master
    if (!ctx)
      {
         USE(obj, cairo_image_surface_create, );
@@ -131,16 +117,6 @@ _ector_cairo_surface_ector_generic_surface_reference_point_set(Eo *obj EINA_UNUS
    pd->current.y = y;
 }
 
-<<<<<<< HEAD
-static void
-_ector_cairo_surface_eo_base_constructor(Eo *obj,
-                                         Ector_Cairo_Surface_Data *pd)
-{
-   eo_do_super(obj, ECTOR_CAIRO_SURFACE_CLASS, eo_constructor());
-   _cairo_count++;
-
-   _ector_cairo_surface_context_set(obj, pd, NULL);
-=======
 static Eo *
 _ector_cairo_surface_eo_base_constructor(Eo *obj,
                                          Ector_Cairo_Surface_Data *pd)
@@ -151,7 +127,6 @@ _ector_cairo_surface_eo_base_constructor(Eo *obj,
    _ector_cairo_surface_context_set(obj, pd, NULL);
 
    return obj;
->>>>>>> opensource/master
 }
 
 static void
@@ -160,11 +135,8 @@ _ector_cairo_surface_eo_base_destructor(Eo *obj EINA_UNUSED,
 {
    eo_do_super(obj, ECTOR_CAIRO_SURFACE_CLASS, eo_destructor());
 
-<<<<<<< HEAD
-=======
    
 
->>>>>>> opensource/master
    if (--_cairo_count) return ;
    if (_cairo_so) eina_module_free(_cairo_so);
    _cairo_so = NULL;

@@ -13,10 +13,7 @@
 static void
 _update_linear_data(Ector_Renderer_Software_Gradient_Data *gdata)
 {
-<<<<<<< HEAD
-=======
    update_color_table(gdata);
->>>>>>> opensource/master
    gdata->linear.x1 = gdata->gld->start.x;
    gdata->linear.y1 = gdata->gld->start.y;
 
@@ -69,25 +66,11 @@ static Eina_Bool
 _ector_renderer_software_gradient_linear_ector_renderer_software_base_fill(Eo *obj EINA_UNUSED,
                                                                            Ector_Renderer_Software_Gradient_Data *pd)
 {
-<<<<<<< HEAD
-   // lazy creation of color table
-   update_color_table(pd);
-=======
->>>>>>> opensource/master
    ector_software_rasterizer_linear_gradient_set(pd->surface->software, pd);
 
    return EINA_TRUE;
 }
 
-<<<<<<< HEAD
-void
-_ector_renderer_software_gradient_linear_eo_base_constructor(Eo *obj,
-                                                             Ector_Renderer_Software_Gradient_Data *pd)
-{
-   eo_do_super(obj, ECTOR_RENDERER_SOFTWARE_GRADIENT_LINEAR_CLASS, eo_constructor());
-   pd->gd  = eo_data_xref(obj, ECTOR_RENDERER_GENERIC_GRADIENT_MIXIN, obj);
-   pd->gld = eo_data_xref(obj, ECTOR_RENDERER_GENERIC_GRADIENT_LINEAR_MIXIN, obj);
-=======
 Eo *
 _ector_renderer_software_gradient_linear_eo_base_constructor(Eo *obj,
                                                              Ector_Renderer_Software_Gradient_Data *pd)
@@ -97,7 +80,6 @@ _ector_renderer_software_gradient_linear_eo_base_constructor(Eo *obj,
    pd->gld = eo_data_xref(obj, ECTOR_RENDERER_GENERIC_GRADIENT_LINEAR_MIXIN, obj);
 
    return obj;
->>>>>>> opensource/master
 }
 
 void
@@ -126,8 +108,6 @@ _ector_renderer_software_gradient_linear_efl_gfx_gradient_base_stop_set(Eo *obj,
    destroy_color_table(pd);
 }
 
-<<<<<<< HEAD
-=======
 static unsigned int
 _ector_renderer_software_gradient_linear_ector_renderer_generic_base_crc_get(Eo *obj, Ector_Renderer_Software_Gradient_Data *pd)
 {
@@ -144,5 +124,4 @@ _ector_renderer_software_gradient_linear_ector_renderer_generic_base_crc_get(Eo 
    return crc;
 }
 
->>>>>>> opensource/master
 #include "ector_renderer_software_gradient_linear.eo.c"

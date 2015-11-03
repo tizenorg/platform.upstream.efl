@@ -31,23 +31,16 @@ typedef struct _Outline
 }Outline;
 
 
-<<<<<<< HEAD
-=======
-#define TO_FT_COORD(x) ((x) * 64); // to freetype 26.6 coordinate.
+#define TO_FT_COORD(x) ((x) * 64) // to freetype 26.6 coordinate.
 
->>>>>>> opensource/master
 static inline void
 _grow_outline_contour(Outline *outline, int num)
 {
    if ( outline->ft_outline.n_contours + num > outline->contours_alloc)
      {
         outline->contours_alloc += 5;
-<<<<<<< HEAD
-        outline->ft_outline.contours = (short *) realloc(outline->ft_outline.contours, outline->contours_alloc * sizeof(short));
-=======
         outline->ft_outline.contours = (short *) realloc(outline->ft_outline.contours,
                                                          outline->contours_alloc * sizeof(short));
->>>>>>> opensource/master
      }
 }
 
@@ -57,15 +50,10 @@ _grow_outline_points(Outline *outline, int num)
    if ( outline->ft_outline.n_points + num > outline->points_alloc)
      {
         outline->points_alloc += 50;
-<<<<<<< HEAD
-        outline->ft_outline.points = (SW_FT_Vector *) realloc(outline->ft_outline.points, outline->points_alloc * sizeof(SW_FT_Vector));
-        outline->ft_outline.tags = (char *) realloc(outline->ft_outline.tags, outline->points_alloc * sizeof(char));
-=======
         outline->ft_outline.points = (SW_FT_Vector *) realloc(outline->ft_outline.points,
                                                               outline->points_alloc * sizeof(SW_FT_Vector));
         outline->ft_outline.tags = (char *) realloc(outline->ft_outline.tags,
                                                     outline->points_alloc * sizeof(char));
->>>>>>> opensource/master
      }
 }
 static Outline *
@@ -88,10 +76,7 @@ void _outline_destroy(Outline *outline)
         free(outline->ft_outline.tags);
         free(outline->ft_outline.contours);
         free(outline);
-<<<<<<< HEAD
         outline = NULL;
-=======
->>>>>>> opensource/master
      }
 }
 
@@ -101,13 +86,8 @@ _outline_move_to(Outline *outline, double x, double y)
    SW_FT_Outline *ft_outline = &outline->ft_outline;
 
    _grow_outline_points(outline, 1);
-<<<<<<< HEAD
-   ft_outline->points[ft_outline->n_points].x = x;
-   ft_outline->points[ft_outline->n_points].y = y;
-=======
    ft_outline->points[ft_outline->n_points].x = TO_FT_COORD(x);
    ft_outline->points[ft_outline->n_points].y = TO_FT_COORD(y);
->>>>>>> opensource/master
    ft_outline->tags[ft_outline->n_points] = SW_FT_CURVE_TAG_ON;
 
    if (ft_outline->n_points)
@@ -140,13 +120,8 @@ static void  _outline_line_to(Outline *outline, double x, double y)
    SW_FT_Outline *ft_outline = &outline->ft_outline;
 
    _grow_outline_points(outline, 1);
-<<<<<<< HEAD
-   ft_outline->points[ft_outline->n_points].x = x;
-   ft_outline->points[ft_outline->n_points].y = y;
-=======
    ft_outline->points[ft_outline->n_points].x = TO_FT_COORD(x);
    ft_outline->points[ft_outline->n_points].y = TO_FT_COORD(y);
->>>>>>> opensource/master
    ft_outline->tags[ft_outline->n_points] = SW_FT_CURVE_TAG_ON;
    ft_outline->n_points++;
 }
@@ -171,9 +146,6 @@ _outline_close_path(Outline *outline)
    // make sure there is atleast one point in the current path
    if (ft_outline->n_points == index) return EINA_FALSE;
 
-<<<<<<< HEAD
-   _outline_line_to(outline, ft_outline->points[index].x, ft_outline->points[index].y);
-=======
    // close the path
    _grow_outline_points(outline, 1);
    ft_outline->points[ft_outline->n_points].x = ft_outline->points[index].x;
@@ -181,36 +153,17 @@ _outline_close_path(Outline *outline)
    ft_outline->tags[ft_outline->n_points] = SW_FT_CURVE_TAG_ON;
    ft_outline->n_points++;
 
->>>>>>> opensource/master
    return EINA_TRUE;
 }
 
 
-<<<<<<< HEAD
-static void  _outline_cubic_to(Outline *outline, double cx1, double cy1, double cx2, double cy2, double x, double y)
-=======
 static void _outline_cubic_to(Outline *outline, double cx1, double cy1,
                               double cx2, double cy2, double x, double y)
->>>>>>> opensource/master
 {
    SW_FT_Outline *ft_outline = &outline->ft_outline;
 
    _grow_outline_points(outline, 3);
 
-<<<<<<< HEAD
-   ft_outline->points[ft_outline->n_points].x = cx1;
-   ft_outline->points[ft_outline->n_points].y = cy1;
-   ft_outline->tags[ft_outline->n_points] = SW_FT_CURVE_TAG_CUBIC;
-   ft_outline->n_points++;
-
-   ft_outline->points[ft_outline->n_points].x = cx2;
-   ft_outline->points[ft_outline->n_points].y = cy2;
-   ft_outline->tags[ft_outline->n_points] = SW_FT_CURVE_TAG_CUBIC;
-   ft_outline->n_points++;
-
-   ft_outline->points[ft_outline->n_points].x = x;
-   ft_outline->points[ft_outline->n_points].y = y;
-=======
    ft_outline->points[ft_outline->n_points].x = TO_FT_COORD(cx1);
    ft_outline->points[ft_outline->n_points].y = TO_FT_COORD(cy1);
    ft_outline->tags[ft_outline->n_points] = SW_FT_CURVE_TAG_CUBIC;
@@ -223,7 +176,6 @@ static void _outline_cubic_to(Outline *outline, double cx1, double cy1,
 
    ft_outline->points[ft_outline->n_points].x = TO_FT_COORD(x);
    ft_outline->points[ft_outline->n_points].y = TO_FT_COORD(y);
->>>>>>> opensource/master
    ft_outline->tags[ft_outline->n_points] = SW_FT_CURVE_TAG_ON;
    ft_outline->n_points++;
 }
@@ -231,49 +183,25 @@ static void _outline_cubic_to(Outline *outline, double cx1, double cy1,
 static void _outline_transform(Outline *outline, Eina_Matrix3 *m)
 {
    int i;
-<<<<<<< HEAD
-=======
    double x, y;
->>>>>>> opensource/master
    SW_FT_Outline *ft_outline = &outline->ft_outline;
 
-   if (m)
+   if (m && (eina_matrix3_type_get(m) != EINA_MATRIX_TYPE_IDENTITY))
      {
-<<<<<<< HEAD
-        double x, y;
-        for (i = 0; i < ft_outline->n_points; i++)
-          {
-             eina_matrix3_point_transform(m, ft_outline->points[i].x, ft_outline->points[i].y, &x, &y);
-             ft_outline->points[i].x = (int)(x * 64);// to freetype 26.6 coordinate.
-             ft_outline->points[i].y = (int)(y * 64);
-          }
-     }
-   else
-     {
-        for (i = 0; i < ft_outline->n_points; i++)
-          {
-             ft_outline->points[i].x = ft_outline->points[i].x <<6;// to freetype 26.6 coordinate.
-             ft_outline->points[i].y = ft_outline->points[i].y <<6;
-=======
         for (i = 0; i < ft_outline->n_points; i++)
           {
              eina_matrix3_point_transform(m,
-                                          ft_outline->points[i].x/64,/* convert back to normal coord.*/
-                                          ft_outline->points[i].y/64,/* convert back to normal coord.*/
+                                          ft_outline->points[i].x/64.0,/* convert back to normal coord.*/
+                                          ft_outline->points[i].y/64.0,/* convert back to normal coord.*/
                                           &x, &y);
              ft_outline->points[i].x = TO_FT_COORD(x);
              ft_outline->points[i].y = TO_FT_COORD(y);
->>>>>>> opensource/master
           }
      }
 }
 
 static Eina_Bool
-<<<<<<< HEAD
-_parse_commands(const Efl_Gfx_Path_Command *cmds, const double *pts, Outline * outline)
-=======
 _generate_outline(const Efl_Gfx_Path_Command *cmds, const double *pts, Outline * outline)
->>>>>>> opensource/master
 {
    Eina_Bool close_path = EINA_FALSE; 
    for (; *cmds != EFL_GFX_PATH_COMMAND_TYPE_END; cmds++)
@@ -295,11 +223,7 @@ _generate_outline(const Efl_Gfx_Path_Command *cmds, const double *pts, Outline *
             case EFL_GFX_PATH_COMMAND_TYPE_CUBIC_TO:
 
                // Be careful, we do have a different order than
-<<<<<<< HEAD
-               // cairo, first is destination point, followed by
-=======
                // freetype first is destination point, followed by
->>>>>>> opensource/master
                // the control point. The opposite of cairo.
                _outline_cubic_to(outline,
                                  pts[2], pts[3], pts[4], pts[5], // control points
@@ -321,8 +245,6 @@ _generate_outline(const Efl_Gfx_Path_Command *cmds, const double *pts, Outline *
    return close_path;
 }
 
-<<<<<<< HEAD
-=======
 typedef struct _Line
 {
    double x1;
@@ -567,19 +489,14 @@ _generate_dashed_outline(const Efl_Gfx_Path_Command *cmds, const double *pts, Ou
    return EINA_FALSE;
 }
 
->>>>>>> opensource/master
 static Eina_Bool
 _generate_stroke_data(Ector_Renderer_Software_Shape_Data *pd)
 {
    if (pd->outline_data) return EINA_FALSE;
 
    if (!pd->shape->stroke.fill &&
-<<<<<<< HEAD
-       ((pd->shape->stroke.color.a == 0) || pd->shape->stroke.width < 0.01))
-=======
        ((pd->shape->stroke.color.a == 0) ||
         (pd->shape->stroke.width < 0.01)))
->>>>>>> opensource/master
      return EINA_FALSE;
 
    return EINA_TRUE;
@@ -600,14 +517,6 @@ _update_rle(Eo *obj, Ector_Renderer_Software_Shape_Data *pd)
 {
    const Efl_Gfx_Path_Command *cmds = NULL;
    const double *pts = NULL;
-<<<<<<< HEAD
-   eo_do(obj, efl_gfx_shape_path_get(&cmds, &pts));
-   if (cmds && (_generate_stroke_data(pd) || _generate_shape_data(pd)))
-     {
-        Eina_Bool close_path;
-        Outline * outline = _outline_create();
-        close_path = _parse_commands(cmds, pts, outline);
-=======
    Eina_Bool close_path;
    Outline *outline, *dash_outline;
 
@@ -616,21 +525,10 @@ _update_rle(Eo *obj, Ector_Renderer_Software_Shape_Data *pd)
      {
         outline = _outline_create();
         close_path = _generate_outline(cmds, pts, outline);
->>>>>>> opensource/master
         _outline_transform(outline, pd->base->m);
 
         //shape data generation 
         if (_generate_shape_data(pd))
-<<<<<<< HEAD
-         pd->shape_data = ector_software_rasterizer_generate_rle_data(pd->surface->software, &outline->ft_outline);
-
-        //stroke data generation
-        if (_generate_stroke_data(pd))
-          {
-             ector_software_rasterizer_stroke_set(pd->surface->software, (pd->shape->stroke.width * pd->shape->stroke.scale), pd->shape->stroke.cap,
-                                                  pd->shape->stroke.join);
-             pd->outline_data = ector_software_rasterizer_generate_stroke_rle_data(pd->surface->software, &outline->ft_outline, close_path);
-=======
           pd->shape_data = ector_software_rasterizer_generate_rle_data(pd->surface->software,
                                                                        &outline->ft_outline);
 
@@ -661,19 +559,14 @@ _update_rle(Eo *obj, Ector_Renderer_Software_Shape_Data *pd)
                                                                                         &outline->ft_outline,
                                                                                         close_path);
                }
->>>>>>> opensource/master
           }
         _outline_destroy(outline);
      }
 }
 
 static Eina_Bool
-<<<<<<< HEAD
-_ector_renderer_software_shape_ector_renderer_generic_base_prepare(Eo *obj, Ector_Renderer_Software_Shape_Data *pd)
-=======
 _ector_renderer_software_shape_ector_renderer_generic_base_prepare(Eo *obj,
                                                                    Ector_Renderer_Software_Shape_Data *pd)
->>>>>>> opensource/master
 {
    // FIXME: shouldn't that be part of the shape generic implementation ?
    if (pd->shape->fill)
@@ -696,14 +589,10 @@ _ector_renderer_software_shape_ector_renderer_generic_base_prepare(Eo *obj,
 }
 
 static Eina_Bool
-<<<<<<< HEAD
-_ector_renderer_software_shape_ector_renderer_generic_base_draw(Eo *obj EINA_UNUSED, Ector_Renderer_Software_Shape_Data *pd, Ector_Rop op, Eina_Array *clips, unsigned int mul_col)
-=======
 _ector_renderer_software_shape_ector_renderer_generic_base_draw(Eo *obj,
                                                                 Ector_Renderer_Software_Shape_Data *pd,
                                                                 Ector_Rop op, Eina_Array *clips,
                                                                 unsigned int mul_col)
->>>>>>> opensource/master
 {
    int x, y;
 
@@ -721,22 +610,14 @@ _ector_renderer_software_shape_ector_renderer_generic_base_draw(Eo *obj,
    if (pd->shape->fill)
      {
         eo_do(pd->shape->fill, ector_renderer_software_base_fill());
-<<<<<<< HEAD
-        ector_software_rasterizer_draw_rle_data(pd->surface->software, x, y, mul_col, op, pd->shape_data);
-=======
         ector_software_rasterizer_draw_rle_data(pd->surface->software,
                                                 x, y, mul_col, op,
                                                 pd->shape_data);
->>>>>>> opensource/master
      }
    else
      {
         if (pd->base->color.a > 0)
           {
-<<<<<<< HEAD
-             ector_software_rasterizer_color_set(pd->surface->software, pd->base->color.r, pd->base->color.g, pd->base->color.b, pd->base->color.a);
-             ector_software_rasterizer_draw_rle_data(pd->surface->software, x, y, mul_col, op, pd->shape_data);
-=======
              ector_software_rasterizer_color_set(pd->surface->software,
                                                  pd->base->color.r,
                                                  pd->base->color.g,
@@ -745,31 +626,21 @@ _ector_renderer_software_shape_ector_renderer_generic_base_draw(Eo *obj,
              ector_software_rasterizer_draw_rle_data(pd->surface->software,
                                                      x, y, mul_col, op,
                                                      pd->shape_data);
->>>>>>> opensource/master
           }
      }
 
    if (pd->shape->stroke.fill)
      {
         eo_do(pd->shape->stroke.fill, ector_renderer_software_base_fill());
-<<<<<<< HEAD
-        ector_software_rasterizer_draw_rle_data(pd->surface->software, x, y, mul_col, op, pd->outline_data);
-=======
         ector_software_rasterizer_draw_rle_data(pd->surface->software,
                                                 x, y, mul_col, op,
                                                 pd->outline_data);
->>>>>>> opensource/master
      }
    else
      {
         if (pd->shape->stroke.color.a > 0)
           {
              ector_software_rasterizer_color_set(pd->surface->software,
-<<<<<<< HEAD
-                                                 pd->shape->stroke.color.r, pd->shape->stroke.color.g,
-                                                 pd->shape->stroke.color.b, pd->shape->stroke.color.a);
-             ector_software_rasterizer_draw_rle_data(pd->surface->software, x, y, mul_col, op, pd->outline_data);
-=======
                                                  pd->shape->stroke.color.r,
                                                  pd->shape->stroke.color.g,
                                                  pd->shape->stroke.color.b,
@@ -777,7 +648,6 @@ _ector_renderer_software_shape_ector_renderer_generic_base_draw(Eo *obj,
              ector_software_rasterizer_draw_rle_data(pd->surface->software,
                                                      x, y, mul_col, op,
                                                      pd->outline_data);
->>>>>>> opensource/master
           }
      }
 
@@ -785,12 +655,8 @@ _ector_renderer_software_shape_ector_renderer_generic_base_draw(Eo *obj,
 }
 
 static Eina_Bool
-<<<<<<< HEAD
-_ector_renderer_software_shape_ector_renderer_software_base_fill(Eo *obj EINA_UNUSED, Ector_Renderer_Software_Shape_Data *pd EINA_UNUSED)
-=======
 _ector_renderer_software_shape_ector_renderer_software_base_fill(Eo *obj EINA_UNUSED,
                                                                  Ector_Renderer_Software_Shape_Data *pd EINA_UNUSED)
->>>>>>> opensource/master
 {
    // FIXME: let's find out how to fill a shape with a shape later.
    // I need to read SVG specification and see how to map that with software.
@@ -798,15 +664,10 @@ _ector_renderer_software_shape_ector_renderer_software_base_fill(Eo *obj EINA_UN
 }
 
 static void
-<<<<<<< HEAD
-_ector_renderer_software_shape_efl_gfx_shape_path_set(Eo *obj, Ector_Renderer_Software_Shape_Data *pd,
-                                                      const Efl_Gfx_Path_Command *op, const double *points)
-=======
 _ector_renderer_software_shape_efl_gfx_shape_path_set(Eo *obj,
                                                       Ector_Renderer_Software_Shape_Data *pd,
                                                       const Efl_Gfx_Path_Command *op,
                                                       const double *points)
->>>>>>> opensource/master
 {
    if (pd->shape_data) ector_software_rasterizer_destroy_rle_data(pd->shape_data);
    if (pd->outline_data) ector_software_rasterizer_destroy_rle_data(pd->outline_data);
@@ -818,12 +679,8 @@ _ector_renderer_software_shape_efl_gfx_shape_path_set(Eo *obj,
 
 
 static Eina_Bool
-<<<<<<< HEAD
-_ector_renderer_software_shape_path_changed(void *data, Eo *obj EINA_UNUSED, const Eo_Event_Description *desc EINA_UNUSED,
-=======
 _ector_renderer_software_shape_path_changed(void *data, Eo *obj EINA_UNUSED,
                                             const Eo_Event_Description *desc EINA_UNUSED,
->>>>>>> opensource/master
                                             void *event_info EINA_UNUSED)
 {
    Ector_Renderer_Software_Shape_Data *pd = data;
@@ -837,38 +694,25 @@ _ector_renderer_software_shape_path_changed(void *data, Eo *obj EINA_UNUSED,
    return EINA_TRUE;
 }
 
-<<<<<<< HEAD
-void
-_ector_renderer_software_shape_eo_base_constructor(Eo *obj, Ector_Renderer_Software_Shape_Data *pd)
-{
-   eo_do_super(obj, ECTOR_RENDERER_SOFTWARE_SHAPE_CLASS, eo_constructor());
-=======
 Eo *
 _ector_renderer_software_shape_eo_base_constructor(Eo *obj, Ector_Renderer_Software_Shape_Data *pd)
 {
    obj = eo_do_super_ret(obj, ECTOR_RENDERER_SOFTWARE_SHAPE_CLASS, obj, eo_constructor());
->>>>>>> opensource/master
    pd->shape = eo_data_xref(obj, ECTOR_RENDERER_GENERIC_SHAPE_MIXIN, obj);
    pd->base = eo_data_xref(obj, ECTOR_RENDERER_GENERIC_BASE_CLASS, obj);
    eo_do(obj,
          eo_event_callback_add(EFL_GFX_PATH_CHANGED, _ector_renderer_software_shape_path_changed, pd));
-<<<<<<< HEAD
-=======
 
    return obj;
->>>>>>> opensource/master
 }
 
 void
 _ector_renderer_software_shape_eo_base_destructor(Eo *obj, Ector_Renderer_Software_Shape_Data *pd)
 {
    Eo *parent;
-<<<<<<< HEAD
-=======
    //FIXME, As base class  destructor can't call destructor of mixin class.
    // call explicit API to free shape data.
    eo_do(obj, efl_gfx_shape_reset());
->>>>>>> opensource/master
 
    if (pd->shape_data) ector_software_rasterizer_destroy_rle_data(pd->shape_data);
    if (pd->outline_data) ector_software_rasterizer_destroy_rle_data(pd->outline_data);
@@ -882,8 +726,6 @@ _ector_renderer_software_shape_eo_base_destructor(Eo *obj, Ector_Renderer_Softwa
 }
 
 
-<<<<<<< HEAD
-=======
 unsigned int
 _ector_renderer_software_shape_ector_renderer_generic_base_crc_get(Eo *obj,
                                                                    Ector_Renderer_Software_Shape_Data *pd)
@@ -909,5 +751,4 @@ _ector_renderer_software_shape_ector_renderer_generic_base_crc_get(Eo *obj,
    return crc;
 }
 
->>>>>>> opensource/master
 #include "ector_renderer_software_shape.eo.c"

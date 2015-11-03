@@ -165,11 +165,8 @@ static Eina_Bool
 _ector_renderer_cairo_shape_ector_renderer_generic_base_draw(Eo *obj, Ector_Renderer_Cairo_Shape_Data *pd, Ector_Rop op, Eina_Array *clips, unsigned int mul_col)
 {
    int r, g, b, a;
-<<<<<<< HEAD
-=======
    unsigned i;
 
->>>>>>> opensource/master
    if (pd->path == NULL) return EINA_FALSE;
 
    USE(obj, cairo_save, EINA_FALSE);
@@ -184,11 +181,7 @@ _ector_renderer_cairo_shape_ector_renderer_generic_base_draw(Eo *obj, Ector_Rend
    cairo_append_path(pd->parent->cairo, pd->path);
 
    if (pd->shape->fill)
-<<<<<<< HEAD
-     eo_do(pd->shape->fill, ector_renderer_cairo_base_fill());
-=======
      eo_do(pd->shape->fill, ector_renderer_cairo_base_fill(mul_col));
->>>>>>> opensource/master
 
    if (pd->shape->stroke.fill || pd->shape->stroke.color.a > 0)
      {
@@ -202,11 +195,7 @@ _ector_renderer_cairo_shape_ector_renderer_generic_base_draw(Eo *obj, Ector_Rend
         cairo_fill_preserve(pd->parent->cairo);
 
         if (pd->shape->stroke.fill)
-<<<<<<< HEAD
-          eo_do(pd->shape->stroke.fill, ector_renderer_cairo_base_fill());
-=======
           eo_do(pd->shape->stroke.fill, ector_renderer_cairo_base_fill(mul_col));
->>>>>>> opensource/master
        else
          {
             r = (((pd->shape->stroke.color.r * R_VAL(&mul_col)) + 0xff) >> 8);
@@ -217,41 +206,25 @@ _ector_renderer_cairo_shape_ector_renderer_generic_base_draw(Eo *obj, Ector_Rend
             cairo_set_source_rgba(pd->parent->cairo, r/255.0, g/255.0, b/255.0, a/255.0);
             if (pd->shape->stroke.dash)
               {
-<<<<<<< HEAD
-                 unsigned int i = 0;
-                 double *dashinfo = (double *) malloc(2 * pd->shape->stroke.dash_length * sizeof(double));
-                 for (i = 0 ; i < pd->shape->stroke.dash_length ; i++)
-=======
                  double *dashinfo;
 
                  USE(obj, cairo_set_dash, EINA_FALSE);
 
                  dashinfo = (double *) malloc(2 * pd->shape->stroke.dash_length * sizeof(double));
                  for (i = 0; i < pd->shape->stroke.dash_length; i++)
->>>>>>> opensource/master
                    {
                       dashinfo[i*2] = pd->shape->stroke.dash[i].length;
                       dashinfo[i*2 + 1] = pd->shape->stroke.dash[i].gap;
                    }
-<<<<<<< HEAD
-                 USE(obj, cairo_set_dash, EINA_FALSE);
-                 cairo_set_dash(pd->parent->cairo, dashinfo, pd->shape->stroke.dash_length * 2, 0);
-=======
                  cairo_set_dash(pd->parent->cairo, dashinfo, pd->shape->stroke.dash_length * 2, 0);
                  free(dashinfo);
->>>>>>> opensource/master
               }
          }
 
        // Set dash, cap and join
        cairo_set_line_width(pd->parent->cairo, (pd->shape->stroke.width * pd->shape->stroke.scale * 2));
-<<<<<<< HEAD
-       cairo_set_line_cap(pd->parent->cairo, pd->shape->stroke.cap);
-       cairo_set_line_join(pd->parent->cairo, pd->shape->stroke.join);
-=======
        cairo_set_line_cap(pd->parent->cairo, (cairo_line_cap_t) pd->shape->stroke.cap);
        cairo_set_line_join(pd->parent->cairo, (cairo_line_join_t) pd->shape->stroke.join);
->>>>>>> opensource/master
        cairo_stroke(pd->parent->cairo);
      }
    else
@@ -267,19 +240,11 @@ _ector_renderer_cairo_shape_ector_renderer_generic_base_draw(Eo *obj, Ector_Rend
 
 static Eina_Bool
 _ector_renderer_cairo_shape_ector_renderer_cairo_base_fill(Eo *obj EINA_UNUSED,
-<<<<<<< HEAD
-                                                           Ector_Renderer_Cairo_Shape_Data *pd EINA_UNUSED)
-{
-   // FIXME: let's find out how to fill a shape with a shape later.
-   // I need to read SVG specification and see how to map that with cairo.
-#warning "fill for a shape object is unhandled at this moment in cairo backend."
-=======
                                                            Ector_Renderer_Cairo_Shape_Data *pd EINA_UNUSED,
                                                            unsigned int mul_col EINA_UNUSED)
 {
    // FIXME: let's find out how to fill a shape with a shape later.
    // I need to read SVG specification and see how to map that with cairo.
->>>>>>> opensource/master
    ERR("fill with shape not implemented\n");
    return EINA_FALSE;
 }
@@ -299,39 +264,26 @@ _ector_renderer_cairo_shape_ector_renderer_generic_base_bounds_get(Eo *obj,
    r->y += bd->generic->origin.y;
 }
 
-<<<<<<< HEAD
-void
-_ector_renderer_cairo_shape_eo_base_constructor(Eo *obj, Ector_Renderer_Cairo_Shape_Data *pd)
-{
-   eo_do_super(obj, ECTOR_RENDERER_CAIRO_SHAPE_CLASS, eo_constructor());
-=======
 Eo *
 _ector_renderer_cairo_shape_eo_base_constructor(Eo *obj, Ector_Renderer_Cairo_Shape_Data *pd)
 {
    obj = eo_do_super_ret(obj, ECTOR_RENDERER_CAIRO_SHAPE_CLASS, obj, eo_constructor());
->>>>>>> opensource/master
    pd->shape = eo_data_xref(obj, ECTOR_RENDERER_GENERIC_SHAPE_MIXIN, obj);
    pd->base = eo_data_xref(obj, ECTOR_RENDERER_GENERIC_BASE_CLASS, obj);
 
    eo_do(obj,
          eo_event_callback_add(EFL_GFX_PATH_CHANGED, _ector_renderer_cairo_shape_path_changed, pd));
-<<<<<<< HEAD
-=======
 
    return obj;
->>>>>>> opensource/master
 }
 
 void
 _ector_renderer_cairo_shape_eo_base_destructor(Eo *obj, Ector_Renderer_Cairo_Shape_Data *pd)
 {
    Eo *parent;
-<<<<<<< HEAD
-=======
    //FIXME, As base class  destructor can't call destructor of mixin class.
    // call explicit API to free shape data.
    eo_do(obj, efl_gfx_shape_reset());
->>>>>>> opensource/master
 
    eo_do(obj, parent = eo_parent_get());
    eo_data_xunref(parent, pd->parent, obj);
@@ -345,8 +297,6 @@ _ector_renderer_cairo_shape_eo_base_destructor(Eo *obj, Ector_Renderer_Cairo_Sha
    if (pd->path) cairo_path_destroy(pd->path);
 }
 
-<<<<<<< HEAD
-=======
 unsigned int
 _ector_renderer_cairo_shape_ector_renderer_generic_base_crc_get(Eo *obj,
                                                                 Ector_Renderer_Cairo_Shape_Data *pd)
@@ -372,6 +322,5 @@ _ector_renderer_cairo_shape_ector_renderer_generic_base_crc_get(Eo *obj,
 
    return crc;
 }
->>>>>>> opensource/master
 
 #include "ector_renderer_cairo_shape.eo.c"

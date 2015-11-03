@@ -377,21 +377,6 @@ typedef void (Evas_Canvas3D_Surface_Func)(Evas_Real *out_x,
  * @}
  */
 
-<<<<<<< HEAD
-#include "canvas/evas_3d_object.eo.h"
-
-/**
- * @ingroup Evas_Object_VG
- *
- * @{
- */
-#include "canvas/evas_vg.eo.h"
-/**
- * @}
- */
-
-=======
->>>>>>> opensource/master
 #include "canvas/efl_vg_base.eo.h"
 #include "canvas/efl_vg_container.eo.h"
 #include "canvas/efl_vg_shape.eo.h"

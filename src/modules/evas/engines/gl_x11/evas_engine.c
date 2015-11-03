@@ -78,17 +78,6 @@ void (*glsym_evas_gl_context_restore_set) (Eina_Bool enable) = NULL;
 
 #ifdef GL_GLES
 
-#ifndef EGL_NATIVE_PIXMAP_KHR
-# define EGL_NATIVE_PIXMAP_KHR 0x30b0
-#endif
-#ifndef EGL_Y_INVERTED_NOK
-# define EGL_Y_INVERTED_NOK 0x307F
-#endif
-
-#ifndef EGL_OPENGL_ES3_BIT
-# define EGL_OPENGL_ES3_BIT 0x00000040
-#endif
-
 _eng_fn  (*glsym_eglGetProcAddress)            (const char *a) = NULL;
 void    *(*glsym_eglCreateImage)               (EGLDisplay a, EGLContext b, EGLenum c, EGLClientBuffer d, const int *e) = NULL;
 void     (*glsym_eglDestroyImage)              (EGLDisplay a, void *b) = NULL;
@@ -466,10 +455,9 @@ evgl_eng_context_create(void *data, void *share_ctx, Evas_GL_Context_Version ver
      }
    else if ((version == EVAS_GL_GLES_1_X) || (version == EVAS_GL_GLES_3_X))
      {
-        //This context will be used for DR only
         context = eglCreateContext(eng_get_ob(re)->egl_disp,
                                    eng_get_ob(re)->egl_config,
-                                   NULL,// no sharing between GLES1 and GLES2
+                                   NULL,
                                    context_attrs);
      }
    else
@@ -840,8 +828,10 @@ evgl_eng_indirect_surface_create(EVGL_Engine *evgl EINA_UNUSED, void *data,
                               EVGL_Surface *evgl_sfc,
                               Evas_GL_Config *cfg, int w, int h)
 {
-   Render_Engine *re = (Render_Engine *)data;
+   Render_Engine *re = data;
+#ifdef GL_GLES
    Eina_Bool alpha = EINA_FALSE;
+#endif
    int colordepth;
    Pixmap px;
 
@@ -2042,43 +2032,43 @@ _native_bind_cb(void *data EINA_UNUSED, void *image)
 static void
 _native_unbind_cb(void *data EINA_UNUSED, void *image)
 {
-  Evas_GL_Image *im = image;
-  Native *n = im->native.data;
+   Evas_GL_Image *im = image;
+   Native *n = im->native.data;
 
-  if (n->ns.type == EVAS_NATIVE_SURFACE_X11)
-    {
+   if (n->ns.type == EVAS_NATIVE_SURFACE_X11)
+     {
 #ifdef GL_GLES
-       // nothing
+        // nothing
 #else
 # ifdef GLX_BIND_TO_TEXTURE_TARGETS_EXT
-      Render_Engine *re = data;
+        Render_Engine *re = data;
 
-      if (glsym_glXReleaseTexImage)
-        {
-          glsym_glXReleaseTexImage(eng_get_ob(re)->disp, (XID)n->surface,
-                                   GLX_FRONT_LEFT_EXT);
-        }
-      else
-        ERR("Try glXReleaseTexImage on GLX with no support");
+        if (glsym_glXReleaseTexImage)
+          {
+             glsym_glXReleaseTexImage(eng_get_ob(re)->disp, (XID)n->surface,
+                                      GLX_FRONT_LEFT_EXT);
+          }
+        else
+          ERR("Try glXReleaseTexImage on GLX with no support");
 # endif
 #endif
-    }
-  else if (n->ns.type == EVAS_NATIVE_SURFACE_OPENGL)
-    {
-       glBindTexture(GL_TEXTURE_2D, 0);
-    }
-  else if (n->ns.type == EVAS_NATIVE_SURFACE_TBM)
-    {
-       // nothing
-    }
-  else if (n->ns.type == EVAS_NATIVE_SURFACE_EVASGL)
-    {
+     }
+   else if (n->ns.type == EVAS_NATIVE_SURFACE_OPENGL)
+     {
+        glBindTexture(GL_TEXTURE_2D, 0);
+     }
+   else if (n->ns.type == EVAS_NATIVE_SURFACE_TBM)
+     {
+        // nothing
+     }
+   else if (n->ns.type == EVAS_NATIVE_SURFACE_EVASGL)
+     {
 #ifdef GL_GLES
-       // nothing
+        // nothing
 #else
-       glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
 #endif
-    }
+     }
 }
 
 static void
@@ -2094,20 +2084,20 @@ _native_free_cb(void *data, void *image)
        pmid = n->pixmap;
        eina_hash_del(eng_get_ob(re)->gl_context->shared->native_pm_hash, &pmid, im);
 #ifdef GL_GLES
-      if (n->surface)
-        {
-           int err;
-           if (glsym_eglDestroyImage)
-             {
-                glsym_eglDestroyImage(eng_get_ob(re)->egl_disp,
-                                      n->surface);
-                if ((err = eglGetError()) != EGL_SUCCESS)
-                  {
-                     ERR("eglDestroyImage() failed.");
-                     glsym_evas_gl_common_error_set(err - EGL_SUCCESS);
-                  }
-             }
-           else
+       if (n->surface)
+         {
+            int err;
+            if (glsym_eglDestroyImage)
+              {
+                 glsym_eglDestroyImage(eng_get_ob(re)->egl_disp,
+                                       n->surface);
+                 if ((err = eglGetError()) != EGL_SUCCESS)
+                   {
+                      ERR("eglDestroyImage() failed.");
+                      glsym_evas_gl_common_error_set(err - EGL_SUCCESS);
+                   }
+              }
+            else
               ERR("Try eglDestroyImage on EGL with no support");
          }
 #else

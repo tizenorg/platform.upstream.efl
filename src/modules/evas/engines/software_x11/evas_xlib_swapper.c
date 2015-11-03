@@ -402,7 +402,7 @@ static void (*sym_XFixesDestroyRegion) (Display *dpy, XID region) = NULL;
 typedef struct
 {
    unsigned int name;
-   tbm_bo   buf_bo;
+   tbm_bo       buf_bo;
 } Buffer;
 
 struct _X_Swapper
@@ -411,7 +411,7 @@ struct _X_Swapper
    Drawable    draw;
    Visual     *vis;
    int         w, h, depth;
-   tbm_bo  buf_bo;
+   tbm_bo      buf_bo;
    DRI2Buffer *buf;
    void       *buf_data;
    int         buf_w, buf_h;

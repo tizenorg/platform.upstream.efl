@@ -3954,13 +3954,9 @@ eng_output_redraws_next_update_get(void *data, int *x, int *y, int *w, int *h, i
         surface = re->outbuf_new_region_for_update(re->ob,
                                                    *x, *y, *w, *h,
                                                    cx, cy, cw, ch);
-<<<<<<< HEAD
-        if ((!re->cur_rect) || (!surface))
-=======
         if ((re->swap_mode == MODE_AUTO) ||
             (re->swap_mode == MODE_FULL) ||
             (!surface))
->>>>>>> opensource/master
           {
              evas_common_tilebuf_free_render_rects(re->rects);
              re->rects = NULL;
@@ -4437,11 +4433,8 @@ static Evas_Func func =
      NULL, // need software mesa for gl rendering <- gl_surface_direct_renderable_get
      NULL, // need software mesa for gl rendering <- gl_image_direct_set
      NULL, // need software mesa for gl rendering <- gl_image_direct_get
-<<<<<<< HEAD
-=======
      NULL, // need software mesa for gl rendering <- gl_get_pixels_pre
      NULL, // need software mesa for gl rendering <- gl_get_pixels_post
->>>>>>> opensource/master
      eng_image_load_error_get,
      eng_font_run_font_end_get,
      eng_image_animated_get,

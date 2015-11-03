@@ -748,14 +748,13 @@ _surface_cap_cache_save()
    Eet_File *et = NULL; //check eet file
    int tmpfd;
    int res = 0;
-   char cap_dir_path[PATH_MAX] = {0,};
-   char cap_file_path[PATH_MAX]= {0,};
-   char tmp_file[PATH_MAX] = {0,};
+   char cap_dir_path[PATH_MAX];
+   char cap_file_path[PATH_MAX];
+   char tmp_file[PATH_MAX];
 
    if (!evas_gl_common_file_cache_dir_check(cap_dir_path, sizeof(cap_dir_path)))
      {
-        if (cap_dir_path[0] != '\0')
-          res = evas_gl_common_file_cache_mkpath(cap_dir_path);
+        res = evas_gl_common_file_cache_mkpath(cap_dir_path);
         if (!res) return 0; /* we can't make directory */
      }
 

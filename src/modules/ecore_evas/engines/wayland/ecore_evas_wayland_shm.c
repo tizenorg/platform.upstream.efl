@@ -254,11 +254,6 @@ ecore_evas_wayland_shm_new_internal(const char *disp_name, unsigned int parent, 
         einfo->info.destination_alpha = EINA_TRUE;
         einfo->info.rotation = ee->rotation;
         einfo->info.wl_surface = ecore_wl_window_surface_create(wdata->win);
-        einfo->callback.released = _ecore_evas_wayland_shm_buffer_released;
-        einfo->callback.data = ee;
-
-        if (einfo->func.busy_check) wdata->func.busy_check = einfo->func.busy_check;
-
         if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
           {
              ERR("Failed to set Evas Engine Info for '%s'", ee->driver);
@@ -530,29 +525,6 @@ _ecore_evas_wayland_shm_resize_edge_set(Ecore_Evas *ee, int edge)
 
    if ((einfo = (Evas_Engine_Info_Wayland_Shm *)evas_engine_info_get(ee->evas)))
      einfo->info.edges = edge;
-}
-
-void
-_ecore_evas_wayland_shm_buffer_released(void *data)
-{
-   Ecore_Evas_Engine_Wl_Data *wdata;
-   Ecore_Evas *ee = data;
-
-   if (!ee) return;
-   wdata = ee->engine.data;
-
-   if (!wdata->wait_buffer_release)
-     return;
-   else
-     wdata->wait_buffer_release = EINA_FALSE;
-
-   /* reset previous render time - the delay for buffer release does NOT
-    * have to be considered as stuck of async
-    */
-   if (!ee->in_async_render)
-     ee->async_render_start = ecore_loop_time_get();
-
-   _ecore_evas_wl_common_render(ee);
 }
 
 void

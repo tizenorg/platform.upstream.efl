@@ -35,16 +35,6 @@ struct _Ecore_Evas_Engine_Wl_Data
 #ifdef BUILD_ECORE_EVAS_WAYLAND_EGL
    struct wl_egl_window *egl_win;
 #endif
-<<<<<<< HEAD
-#ifdef BUILD_ECORE_EVAS_WAYLAND_SHM
-   struct
-     {
-        Eina_Bool (*busy_check) (void *data);
-     } func;
-   Eina_Bool wait_buffer_release : 1;
-#endif
-   Eina_Bool frame_pending : 1;
-   struct wl_callback *frame_callback;
    struct
      {
         unsigned char supported: 1;
@@ -52,9 +42,7 @@ struct _Ecore_Evas_Engine_Wl_Data
         unsigned char done : 1;
         Ecore_Job    *manual_mode_job;
      } wm_rot;
-=======
    struct wl_callback *anim_callback;
->>>>>>> opensource/master
 };
 
 Ecore_Evas_Interface_Wayland *_ecore_evas_wl_interface_new(void);
@@ -119,7 +107,6 @@ void _ecore_evas_wayland_shm_resize(Ecore_Evas *ee, int location);
 void _ecore_evas_wayland_shm_resize_edge_set(Ecore_Evas *ee, int edge);
 void _ecore_evas_wayland_shm_transparent_do(Ecore_Evas *ee, int transparent);
 void _ecore_evas_wayland_shm_alpha_do(Ecore_Evas *ee, int transparent);
-void _ecore_evas_wayland_shm_buffer_released(void *data);
 void _ecore_evas_wayland_shm_window_rotate(Ecore_Evas *ee, int rotation, int resize);
 #endif
 

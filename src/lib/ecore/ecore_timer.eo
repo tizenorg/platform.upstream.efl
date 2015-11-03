@@ -21,11 +21,7 @@ class Ecore.Timer (Eo.Base)
             [[Get the interval the timer ticks on.]]
          }
          values {
-<<<<<<< HEAD
-            double in(-1); /*@ The new interval in seconds */
-=======
             in: double(-1); [[The new interval in seconds]]
->>>>>>> opensource/master
          }
       }
       @property pending {

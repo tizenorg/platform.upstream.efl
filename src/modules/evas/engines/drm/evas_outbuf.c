@@ -459,7 +459,7 @@ evas_outbuf_rot_get(Outbuf *ob)
 void
 evas_outbuf_copy(Outbuf *ob, void *buffer, int stride, int width, int height, uint format, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh)
 {
-   Buffer *buff = &(ob->priv.buffer[ob->priv.last]);
+   Ecore_Drm_Fb *buff = ob->priv.buffer[ob->priv.last];
 
-   memcpy (buffer, buff->data, stride * height);
+   memcpy (buffer, buff->mmap, stride * height);
 }

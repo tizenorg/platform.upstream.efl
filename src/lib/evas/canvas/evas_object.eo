@@ -1,10 +1,6 @@
-<<<<<<< HEAD
-abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base)
-=======
 import evas_types;
 
 abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base, Efl.Gfx.Stack)
->>>>>>> opensource/master
 {
    eo_prefix: evas_obj;
    data: Evas_Object_Protected_Data;
@@ -72,19 +68,6 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base, Efl.Gfx.Stac
               This is not a size enforcement in any way, it's just a hint
               that should be used whenever appropriate.
 
-<<<<<<< HEAD
-            @note Use @c NULL pointers on the hint components you're not
-            interested in: they'll be ignored by the function.
-
-            @see evas_object_size_hint_request_set() */
-         }
-         values {
-            Evas_Coord w; /*@ Integer to use as the preferred width hint. */
-            Evas_Coord h; /*@ Integer to use as the preferred height hint. */
-         }
-      }
-      type {
-=======
               Note: Use $null pointers on the hint components you're not
               interested in: they'll be ignored by the function.
             ]]
@@ -95,7 +78,6 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base, Efl.Gfx.Stac
          }
       }
       @property type {
->>>>>>> opensource/master
          set {
             [[Sets the type of the given Evas object.]]
             legacy: null;
@@ -640,16 +622,6 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base, Efl.Gfx.Stac
             [[Set a hint flag on the given Evas object that it's used as a
               "static clipper".
 
-<<<<<<< HEAD
-            @ingroup Evas_Object_Group_Extras */
-         }
-         values {
-            bool is_static_clip; /*@ @c EINA_TRUE if it's to be used as a static
-            clipper, @c EINA_FALSE otherwise. */
-         }
-      }
-      focus {
-=======
               This is a hint to Evas that this object is used as a big
               static clipper and shouldn't be moved with children and
               otherwise considered specially. The default value for new
@@ -665,7 +637,6 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base, Efl.Gfx.Stac
          }
       }
       @property focus {
->>>>>>> opensource/master
          set {
             [[Sets or unsets a given object as the currently focused one on
               its canvas.
@@ -904,26 +875,6 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base, Efl.Gfx.Stac
                          ($false).]]
          }
       }
-<<<<<<< HEAD
-      anti_alias {
-         set {
-            /*@
-            Sets whether or not the given Evas object is to be drawn anti-aliased.
-
-            @ingroup Evas_Object_Group_Extras */
-         }
-         get {
-            /*@
-            Retrieves whether or not the given Evas object is to be drawn anti_aliased.
-            @return  (@c EINA_TRUE) if the object is to be anti_aliased.  (@c EINA_FALSE) otherwise.
-            @ingroup Evas_Object_Group_Extras */
-         }
-         values {
-            bool anti_alias; /*@ (@c EINA_TRUE) if the object is to be anti_aliased, (@c EINA_FALSE) otherwise. */
-         }
-      }
-      smart_data {
-=======
       @property anti_alias {
          set {
             [[Sets whether or not the given Evas object is to be drawn
@@ -941,7 +892,6 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base, Efl.Gfx.Stac
          }
       }
       @property smart_data {
->>>>>>> opensource/master
          get {
             [[Retrieve user data stored on a given smart object.]]
             return: void * @warn_unused; [[A pointer to data or $null.]]
@@ -1243,10 +1193,6 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base, Efl.Gfx.Stac
       Efl.Gfx.Base.position.get;
       Efl.Gfx.Base.color.set;
       Efl.Gfx.Base.color.get;
-<<<<<<< HEAD
-      Efl.Gfx.Base.size.set;
-      Efl.Gfx.Base.size.get;
-=======
       Efl.Gfx.Base.color_part.set;
       Efl.Gfx.Base.color_part.get;
       Efl.Gfx.Base.size.set;
@@ -1259,7 +1205,6 @@ abstract Evas.Object (Eo.Base, Evas.Common_Interface, Efl.Gfx.Base, Efl.Gfx.Stac
       Efl.Gfx.Stack.stack_above;
       Efl.Gfx.Stack.raise;
       Efl.Gfx.Stack.lower;
->>>>>>> opensource/master
    }
    events {
        mouse,in; [[Mouse In Event ]]

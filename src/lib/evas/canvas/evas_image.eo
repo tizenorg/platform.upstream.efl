@@ -480,9 +480,6 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image, Efl.Gfx.Fill, Efl.Gfx.View, 
             data: void *; [[The data pointer to be passed to $func.]]
          }
       }
-<<<<<<< HEAD
-      data_copy {
-=======
       @property data_copy {
          set {
             [[Replaces the raw image data of the given image object.
@@ -508,7 +505,6 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image, Efl.Gfx.Fill, Efl.Gfx.View, 
          }
       }
       @property animated_frame {
->>>>>>> opensource/master
          set {
             [[Set the frame to current frame of an image object.
 
@@ -681,39 +677,6 @@ class Evas.Image (Evas.Object, Efl.File, Efl.Image, Efl.Gfx.Fill, Efl.Gfx.View, 
                        the Evas_Object_Image.]]
          }
       }
-<<<<<<< HEAD
-      orient {
-         set {
-            /*@
-            Set the image orientation.
-
-            This function allows to rotate or flip the image.
-
-            @see evas_object_image_orient_get()
-            @see @ref Evas_Image_Orient
-
-            @since 1.14*/
-         }
-         get {
-            /*@
-            Get the image orientation.
-
-            @return The image orientation @ref Evas_Image_Orient
-
-            @see evas_object_image_orient_set()
-            @see @ref Evas_Image_Orient
-
-            @since 1.14*/
-         }
-         values {
-            Evas_Image_Orient orient; /*@ The image orientation @ref Evas_Image_Orient
-            Default is #EVAS_IMAGE_ORIENT_NONE. */
-         }
-      }
-   }
-   methods {
-=======
->>>>>>> opensource/master
       preload_begin {
          [[Begin preloading an image object's image data in the background.]]
          legacy: null;

@@ -87,11 +87,7 @@ _evas_object_eo_base_constructor(Eo *eo_obj, Evas_Object_Protected_Data *obj)
 {
    Eo *parent = NULL;
 
-<<<<<<< HEAD
-   eo_do_super(eo_obj, MY_CLASS, eo_constructor());
-=======
    eo_obj = eo_do_super_ret(eo_obj, MY_CLASS, eo_obj, eo_constructor());
->>>>>>> opensource/master
    eo_do(eo_obj, evas_obj_type_set(MY_CLASS_NAME));
    eo_manual_free_set(eo_obj, EINA_TRUE);
 
@@ -1228,13 +1224,9 @@ evas_object_hide(Evas_Object *eo_obj)
 EAPI Eina_Bool
 evas_object_visible_get(const Evas_Object *obj)
 {
-<<<<<<< HEAD
-   return eo_do((Evas_Object *)obj, efl_gfx_visible_get());
-=======
    Eina_Bool ret;
 
    return eo_do_ret((Evas_Object *)obj, ret, efl_gfx_visible_get());
->>>>>>> opensource/master
 }
 
 static void
@@ -1486,8 +1478,6 @@ _evas_object_efl_gfx_base_color_set(Eo *eo_obj, Evas_Object_Protected_Data *obj,
    evas_object_change(eo_obj, obj);
 }
 
-<<<<<<< HEAD
-=======
 EOLIAN static Eina_Bool
 _evas_object_efl_gfx_base_color_part_set(Eo *obj, Evas_Object_Protected_Data *pd,
                                          const char *part,
@@ -1499,7 +1489,6 @@ _evas_object_efl_gfx_base_color_part_set(Eo *obj, Evas_Object_Protected_Data *pd
    return EINA_TRUE;
 }
 
->>>>>>> opensource/master
 EAPI void
 evas_object_color_get(const Evas_Object *obj, int *r, int *g, int *b, int *a)
 {
@@ -1632,11 +1621,7 @@ _evas_object_eo_base_dbg_info_get(Eo *eo_obj, Evas_Object_Protected_Data *obj EI
 
    eo_do(eo_obj,
          visible = efl_gfx_visible_get(),
-<<<<<<< HEAD
-         layer = evas_obj_layer_get(),
-=======
          layer = efl_gfx_stack_layer_get(),
->>>>>>> opensource/master
          name = evas_obj_name_get(),
          efl_gfx_position_get(&x, &y),
          efl_gfx_size_get(&w, &h),

@@ -1780,9 +1780,6 @@ typedef enum _Edje_Action_Type
    EDJE_ACTION_TYPE_MO                       = 25, /**< @since 1.15 @brief Mo action value */
    EDJE_ACTION_TYPE_LAST                     = 26  /**< Last action value */
 #endif
-   //EDJE_ACTION_TYPE_MO                       = 25, /**< @since 1.15 @brief Mo action value */
-   //EDJE_ACTION_TYPE_LAST                     = 26  /**< Last action value */
-   //
 } Edje_Action_Type;
 
 /**

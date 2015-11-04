@@ -22,32 +22,8 @@ struct _Render_Engine
 };
 
 /* LOCAL FUNCTIONS */
-<<<<<<< HEAD
-Eina_Bool
-_render_engine_swapbuf_busy_check(void *data)
-{
-   Evas *evas = data;
-   Evas_Public_Data *epd;
-   Render_Engine *re = NULL;
-
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   /* try to get evas public data */
-   if (!(epd = eo_data_scope_get(evas, EVAS_CANVAS_CLASS)))
-     return 0;
-
-   if (!(re = epd->engine.data.output))
-     return 0;
-
-   return _evas_outbuf_buffer_busy_check(re->generic.ob);
-}
-
-Render_Engine *
-_render_engine_swapbuf_setup(int w, int h, unsigned int rotation, unsigned int depth, Eina_Bool alpha, struct wl_shm *shm, struct wl_surface *surface)
-=======
 Render_Engine *
 _render_engine_swapbuf_setup(int w, int h, unsigned int rotation, unsigned int depth, Eina_Bool alpha, struct wl_shm *shm, struct wl_surface *surface, struct wl_display *disp)
->>>>>>> opensource/master
 {
    Render_Engine *re;
    Outbuf *ob;
@@ -59,25 +35,14 @@ _render_engine_swapbuf_setup(int w, int h, unsigned int rotation, unsigned int d
    /* try to allocate space for new render engine */
    if (!(re = calloc(1, sizeof(Render_Engine)))) return NULL;
 
-<<<<<<< HEAD
-   ob = _evas_outbuf_setup(w, h, rotation, depth, alpha, shm, surface);
-   if (!ob) goto err;
-
-   if (!evas_render_engine_software_generic_init(&re->generic, ob,
-                                                 _evas_outbuf_swapmode_get,
-                                                 _evas_outbuf_rotation_get,
-                                                 NULL,
-                                                 NULL,
-=======
    ob = _evas_outbuf_setup(w, h, rotation, depth, alpha, shm, surface, disp);
    if (!ob) goto err;
 
-   if (!evas_render_engine_software_generic_init(&re->generic, ob, 
+   if (!evas_render_engine_software_generic_init(&re->generic, ob,
                                                  _evas_outbuf_swap_mode_get,
                                                  _evas_outbuf_rotation_get,
                                                  NULL,
-                                                 NULL, 
->>>>>>> opensource/master
+                                                 NULL,
                                                  _evas_outbuf_update_region_new,
                                                  _evas_outbuf_update_region_push,
                                                  _evas_outbuf_update_region_free,
@@ -86,10 +51,6 @@ _render_engine_swapbuf_setup(int w, int h, unsigned int rotation, unsigned int d
                                                  _evas_outbuf_free,
                                                  w, h))
      goto err;
-<<<<<<< HEAD
-
-   re->outbuf_reconfigure = _evas_outbuf_reconfigure;
-=======
 
    re->outbuf_reconfigure = _evas_outbuf_reconfigure;
 
@@ -105,7 +66,6 @@ _render_engine_swapbuf_setup(int w, int h, unsigned int rotation, unsigned int d
      }
 
    evas_render_engine_software_generic_merge_mode_set(&re->generic, merge_mode);
->>>>>>> opensource/master
 
    /* return allocated render engine */
    return re;
@@ -121,15 +81,9 @@ static void *
 eng_info(Evas *eo_evas EINA_UNUSED)
 {
    Evas_Engine_Info_Wayland_Shm *einfo;
-<<<<<<< HEAD
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
-=======
-
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
->>>>>>> opensource/master
    /* try to allocate space for new engine info */
    if (!(einfo = calloc(1, sizeof(Evas_Engine_Info_Wayland_Shm))))
      return NULL;
@@ -137,10 +91,6 @@ eng_info(Evas *eo_evas EINA_UNUSED)
    /* fill in engine info */
    einfo->magic.magic = rand();
    einfo->render_mode = EVAS_RENDER_MODE_BLOCKING;
-<<<<<<< HEAD
-   einfo->func.busy_check = _render_engine_swapbuf_busy_check;
-=======
->>>>>>> opensource/master
 
    /* return allocated engine info */
    return einfo;
@@ -179,49 +129,18 @@ eng_setup(Evas *eo_evas, void *info)
    if (!(re = epd->engine.data.output))
      {
         /* if we have no engine data, assume we have not initialized yet */
-<<<<<<< HEAD
-        evas_common_cpu_init();
-        evas_common_blend_init();
-        evas_common_image_init();
-        evas_common_convert_init();
-        evas_common_scale_init();
-        evas_common_rectangle_init();
-        evas_common_polygon_init();
-        evas_common_line_init();
-        evas_common_font_init();
-        evas_common_draw_init();
-        evas_common_tilebuf_init();
+        evas_common_init();
 
         re = _render_engine_swapbuf_setup(epd->output.w, epd->output.h,
                                           einfo->info.rotation,
                                           einfo->info.depth,
                                           einfo->info.destination_alpha,
                                           einfo->info.wl_shm,
-                                          einfo->info.wl_surface);
-
-        if (re)
-          {
-             re->generic.ob->info = einfo;
-             if (re->generic.ob->surface)
-               {
-                  re->generic.ob->surface->callback.released = einfo->callback.released;
-                  re->generic.ob->surface->callback.data = einfo->callback.data;
-               }
-          }
-=======
-        evas_common_init();
-
-        re = _render_engine_swapbuf_setup(epd->output.w, epd->output.h,
-                                          einfo->info.rotation, 
-                                          einfo->info.depth, 
-                                          einfo->info.destination_alpha,
-                                          einfo->info.wl_shm, 
                                           einfo->info.wl_surface,
                                           einfo->info.wl_disp);
 
-        if (re) 
+        if (re)
           re->generic.ob->info = einfo;
->>>>>>> opensource/master
         else
           goto err;
      }
@@ -229,34 +148,16 @@ eng_setup(Evas *eo_evas, void *info)
      {
         Outbuf *ob;
 
-<<<<<<< HEAD
         ob = _evas_outbuf_setup(epd->output.w, epd->output.h,
                                 einfo->info.rotation, einfo->info.depth,
                                 einfo->info.destination_alpha,
-                                einfo->info.wl_shm,
-                                einfo->info.wl_surface);
-        if (ob)
-          {
-             ob->info = einfo;
-             if (ob->surface)
-               {
-                  ob->surface->callback.released = einfo->callback.released;
-                  ob->surface->callback.data = einfo->callback.data;
-               }
-             evas_render_engine_software_generic_update(&re->generic, ob,
-                                                        epd->output.w,
-=======
-        ob = _evas_outbuf_setup(epd->output.w, epd->output.h, 
-                                einfo->info.rotation, einfo->info.depth, 
-                                einfo->info.destination_alpha, 
                                 einfo->info.wl_shm, einfo->info.wl_surface,
                                 einfo->info.wl_disp);
         if (ob)
           {
              ob->info = einfo;
-             evas_render_engine_software_generic_update(&re->generic, ob, 
-                                                        epd->output.w, 
->>>>>>> opensource/master
+             evas_render_engine_software_generic_update(&re->generic, ob,
+                                                        epd->output.w,
                                                         epd->output.h);
           }
      }
@@ -277,12 +178,7 @@ eng_setup(Evas *eo_evas, void *info)
    return 1;
 
 err:
-<<<<<<< HEAD
-   evas_common_font_shutdown();
-   evas_common_image_shutdown();
-=======
    evas_common_shutdown();
->>>>>>> opensource/master
    return 0;
 }
 
@@ -331,13 +227,8 @@ eng_output_resize(void *data, int w, int h)
 
    if (einfo->info.edges) resize = EINA_TRUE;
 
-<<<<<<< HEAD
-   re->outbuf_reconfigure(re->generic.ob, dx, dy, w, h,
-                          einfo->info.rotation, einfo->info.depth,
-=======
    re->outbuf_reconfigure(re->generic.ob, dx, dy, w, h, 
                           einfo->info.rotation, einfo->info.depth, 
->>>>>>> opensource/master
                           einfo->info.destination_alpha, resize);
 
    evas_common_tilebuf_free(re->generic.tb);

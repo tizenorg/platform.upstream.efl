@@ -1109,7 +1109,6 @@ EAPI void ecore_wl_subsurf_sync_set(Ecore_Wl_Subsurf *ess, Eina_Bool val);
  */
 EAPI void ecore_wl_subsurf_opaque_region_set(Ecore_Wl_Subsurf *ess, int x, int y, int w, int h);
 
-<<<<<<< HEAD
 /**
  * Set keygrab value of the window.
  *
@@ -1124,6 +1123,7 @@ EAPI Eina_Bool ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key
  */
 EAPI Eina_Bool ecore_wl_window_keygrab_unset(Ecore_Wl_Window *win, const char *key, int mod, int any_mod);
 
+<<<<<<< HEAD
 EAPI void ecore_wl_window_conformant_set(Ecore_Wl_Window *win, unsigned int is_conformant);
 EAPI Eina_Bool ecore_wl_window_conformant_get(Ecore_Wl_Window *win);
 

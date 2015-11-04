@@ -1,4 +1,5 @@
 #include "evas_engine.h"
+#include <sys/mman.h>
 
 /* local variables */
 static Outbuf *_evas_gl_drm_window = NULL;
@@ -191,24 +192,18 @@ _evas_outbuf_egl_setup(Outbuf *ob)
    ctx_attr[1] = 2;
    ctx_attr[2] = EGL_NONE;
 
-   cfg_attr[n++] = EGL_BUFFER_SIZE;
-   cfg_attr[n++] = 32;
-   cfg_attr[n++] = EGL_DEPTH_SIZE;
-   cfg_attr[n++] = EGL_DONT_CARE;
-   cfg_attr[n++] = EGL_STENCIL_SIZE;
-   cfg_attr[n++] = EGL_DONT_CARE;
    cfg_attr[n++] = EGL_RENDERABLE_TYPE;
    cfg_attr[n++] = EGL_OPENGL_ES2_BIT;
    cfg_attr[n++] = EGL_SURFACE_TYPE;
    cfg_attr[n++] = EGL_WINDOW_BIT;
-#if 0
+
    cfg_attr[n++] = EGL_RED_SIZE;
    cfg_attr[n++] = 1;
    cfg_attr[n++] = EGL_GREEN_SIZE;
    cfg_attr[n++] = 1;
    cfg_attr[n++] = EGL_BLUE_SIZE;
    cfg_attr[n++] = 1;
-#endif
+
 
    cfg_attr[n++] = EGL_ALPHA_SIZE;
    if (ob->destination_alpha) cfg_attr[n++] = 1;
@@ -359,11 +354,27 @@ _evas_outbuf_egl_setup(Outbuf *ob)
 
    evas_outbuf_use(ob);
    glsym_evas_gl_common_context_resize(ob->gl_context,
-                                       ob->w, ob->h, ob->rotation);
+                                       ob->w, ob->h, ob->rotation, 1);
 
    ob->surf = EINA_TRUE;
 
    return EINA_TRUE;
+}
+
+Ecore_Drm_Output*
+_evas_outbuf_output_find(unsigned int crtc_id)
+{
+   Ecore_Drm_Device *dev;
+   Ecore_Drm_Output *output;
+   Eina_List *devs = ecore_drm_devices_get();
+   Eina_List *l, *ll;
+
+   EINA_LIST_FOREACH(devs, l, dev)
+     EINA_LIST_FOREACH(dev->outputs, ll, output)
+       if (ecore_drm_output_crtc_id_get(output) == crtc_id)
+         return output;
+
+   return NULL;
 }
 
 Outbuf *
@@ -577,7 +588,7 @@ evas_outbuf_reconfigure(Outbuf *ob, int w, int h, int rot, Outbuf_Depth depth)
 
    re->generic.software.ob->gl_context->references--;
 
-   glsym_evas_gl_common_context_resize(nob->gl_context, w, h, rot);
+   glsym_evas_gl_common_context_resize(nob->gl_context, w, h, rot, 1);
 }
 
 Render_Engine_Swap_Mode
@@ -838,4 +849,42 @@ evas_outbuf_gl_context_use(Context_3D *ctx)
    if (eglMakeCurrent(ctx->display, ctx->surface,
                       ctx->surface, ctx->context) == EGL_FALSE)
      ERR("eglMakeCurrent() failed.");
+}
+
+void
+eng_outbuf_copy(Outbuf *ob, void *buffer, int stride, int width EINA_UNUSED, int height, uint format EINA_UNUSED,
+                int sx EINA_UNUSED, int sy EINA_UNUSED, int sw EINA_UNUSED, int sh EINA_UNUSED,
+                int dx EINA_UNUSED, int dy EINA_UNUSED, int dw EINA_UNUSED, int dh EINA_UNUSED)
+{
+   Ecore_Drm_Output *output;
+   uint fb_handle, fb_fmt;
+   int fb_w, fb_h;
+   void *data;
+   struct drm_mode_map_dumb arg = {0,};
+   int fd = -1;
+
+   output = _evas_outbuf_output_find(ob->info->info.crtc_id);
+
+   /* TODO: should find the better way to find current framebuffer */
+   ecore_drm_output_current_fb_info_get(output, &fb_handle, &fb_w, &fb_h, &fb_fmt);
+   fd = ecore_drm_device_fd_get(ob->info->info.dev);
+
+   arg.handle = fb_handle;
+   if (drmIoctl(fd, DRM_IOCTL_MODE_MAP_DUMB, &arg))
+     {
+        DBG("dump map failed");
+        return;
+     }
+
+   data = mmap(NULL, fb_w * fb_h * 4, PROT_READ|PROT_WRITE, MAP_SHARED,
+               fd, arg.offset);
+   if (data == MAP_FAILED)
+     {
+        DBG("mmap failed");
+        return;
+     }
+
+   memcpy(buffer, data, stride * height);
+
+   munmap(data, fb_w * fb_h * 4);
 }

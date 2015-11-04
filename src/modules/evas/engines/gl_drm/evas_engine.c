@@ -71,27 +71,7 @@ Evas_GL_Preload_Render_Call glsym_evas_gl_preload_render_lock = NULL;
 Evas_GL_Preload_Render_Call glsym_evas_gl_preload_render_unlock = NULL;
 Evas_GL_Preload_Render_Call glsym_evas_gl_preload_render_relax = NULL;
 
-<<<<<<< HEAD
-/* local structures */
-typedef struct _Native Native;
-struct _Native
-{
-   Evas_Native_Surface ns;
-   struct wl_buffer *wl_buf;
-   void *egl_surface;
-};
-
-/* local function prototype types */
-typedef void (*_eng_fn) (void);
-typedef _eng_fn (*glsym_func_eng_fn) ();
-typedef void (*glsym_func_void) ();
-typedef void *(*glsym_func_void_ptr) ();
-typedef int (*glsym_func_int) ();
-typedef unsigned int (*glsym_func_uint) ();
-typedef const char *(*glsym_func_const_char_ptr) ();
-=======
 glsym_func_void_ptr glsym_evas_gl_common_current_context_get = NULL;
->>>>>>> opensource/master
 
 /* dynamic loaded local egl function pointers */
 _eng_fn (*glsym_eglGetProcAddress)(const char *a) = NULL;
@@ -121,17 +101,6 @@ static const char *evgl_eng_string_get(void *data);
 static void *evgl_eng_proc_address_get(const char *name);
 static int evgl_eng_rotation_angle_get(void *data);
 
-<<<<<<< HEAD
-static void _re_winfree(Render_Engine *re);
-
-/* local variables */
-static Eina_Bool initted = EINA_FALSE;
-static int gl_wins = 0;
-
-/* local inline functions */
-
-=======
->>>>>>> opensource/master
 /* function tables - filled in later (func and parent func) */
 static Evas_Func func, pfunc;
 static const EVGL_Interface evgl_funcs =
@@ -748,12 +717,6 @@ eng_info(Evas *eo_e EINA_UNUSED)
    info->magic.magic = rand();
    info->render_mode = EVAS_RENDER_MODE_BLOCKING;
 
-   /* setup drm page flip done and vblank event handlers.
-    * then these will be called when drm event occurrs.
-    */
-   info->func.flip = evas_drm_outbuf_event_flip;
-   info->func.vblank = evas_drm_outbuf_event_vblank;
-
    return info;
 }
 
@@ -1003,15 +966,17 @@ eng_output_free(void *data)
    re = (Render_Engine *)data;
    if (re)
      {
+        Evas_Engine_Info_GL_Drm *info;
+
         glsym_evas_gl_preload_render_relax(eng_preload_make_current, eng_get_ob(re));
 
         if (gl_wins == 1) glsym_evgl_engine_shutdown(re);
 
+        info = eng_get_ob(re)->info;
         /* NB: evas_render_engine_software_generic_clean() frees ob */
         evas_render_engine_software_generic_clean(&re->generic.software);
 
-        eng_gbm_shutdown(eng_get_ob(re)->info);
-
+        eng_gbm_shutdown(info);
         gl_wins--;
 
         free(re);
@@ -1050,7 +1015,6 @@ eng_output_dump(void *data)
    _re_winfree(re);
 }
 
-<<<<<<< HEAD
 static void
 eng_output_copy(void *data, void *buffer, int stride, int width, int height, uint format, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh)
 {
@@ -1065,106 +1029,6 @@ eng_output_copy(void *data, void *buffer, int stride, int width, int height, uin
    eng_outbuf_copy(ob, buffer, stride, width, height, format, sx, sy, sw, sh, dx, dy, dw, dh);
 }
 
-static void
-_native_cb_bind(void *data EINA_UNUSED, void *image)
-{
-   Evas_GL_Image *img;
-   Native *n;
-
-   if (!(img = image)) return;
-   if (!(n = img->native.data)) return;
-
-   if (n->ns.type == EVAS_NATIVE_SURFACE_WL)
-     {
-        if (n->egl_surface)
-          {
-             if (glsym_glEGLImageTargetTexture2DOES)
-               {
-                  glsym_glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, n->egl_surface);
-                  if (eglGetError() != EGL_SUCCESS)
-                    ERR("glEGLImageTargetTexture2DOES() failed.");
-               }
-             else
-               ERR("Try glEGLImageTargetTexture2DOES on EGL with no support");
-          }
-     }
-   else if (n->ns.type == EVAS_NATIVE_SURFACE_OPENGL)
-     {
-        glBindTexture(GL_TEXTURE_2D, n->ns.data.opengl.texture_id);
-        GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-     }
-}
-
-static void
-_native_cb_unbind(void *data EINA_UNUSED, void *image)
-{
-   Evas_GL_Image *img;
-   Native *n;
-
-   if (!(img = image)) return;
-   if (!(n = img->native.data)) return;
-
-   if (n->ns.type == EVAS_NATIVE_SURFACE_WL)
-     {
-        //glBindTexture(GL_TEXTURE_2D, 0); //really need?
-        GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-     }
-   else if (n->ns.type == EVAS_NATIVE_SURFACE_OPENGL)
-     {
-        glBindTexture(GL_TEXTURE_2D, 0);
-        GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-     }
-}
-
-static void
-_native_cb_free(void *data, void *image)
-{
-   Render_Engine *re;
-   Outbuf *ob;
-   Evas_GL_Image *img;
-   Native *n;
-   uint32_t texid;
-   void *wlid;
-
-   if (!(re = (Render_Engine *)data)) return;
-   if (!(img = image)) return;
-   if (!(n = img->native.data)) return;
-   if (!(ob = eng_get_ob(re))) return;
-
-   if (n->ns.type == EVAS_NATIVE_SURFACE_WL)
-     {
-        wlid = (void*)n->wl_buf;
-        eina_hash_del(ob->gl_context->shared->native_wl_hash, &wlid, img);
-        if (n->egl_surface)
-          {
-             if (glsym_eglDestroyImage)
-               {
-                  glsym_eglDestroyImage(eng_get_ob(re)->egl_disp,
-                                        n->egl_surface);
-                  if (eglGetError() != EGL_SUCCESS)
-                    ERR("eglDestroyImage() failed.");
-               }
-             else
-               ERR("Try eglDestroyImage on EGL with  no support");
-          }
-     }
-   else if (n->ns.type == EVAS_NATIVE_SURFACE_OPENGL)
-     {
-        texid = n->ns.data.opengl.texture_id;
-        eina_hash_del(ob->gl_context->shared->native_tex_hash, &texid, img);
-     }
-
-   img->native.data = NULL;
-   img->native.func.data = NULL;
-   img->native.func.bind = NULL;
-   img->native.func.unbind = NULL;
-   img->native.func.free = NULL;
-
-   free(n);
-}
-
-=======
->>>>>>> opensource/master
 static void *
 eng_image_native_set(void *data, void *image, void *native)
 {
@@ -1290,15 +1154,10 @@ eng_image_native_set(void *data, void *image, void *native)
                   EGLint attribs[3];
                   int format, yinvert = 1;
 
-<<<<<<< HEAD
-                  glsym_eglQueryWaylandBufferWL(ob->egl_disp, wl_buf, EVAS_GL_TEXTURE_FORMAT, &format);
-                  if ((format != EGL_TEXTURE_RGB) && (format != EGL_TEXTURE_RGBA))
-=======
                   glsym_eglQueryWaylandBufferWL(ob->egl.disp, wl_buf,
                                                 EGL_TEXTURE_FORMAT, &format);
                   if ((format != EGL_TEXTURE_RGB) &&
                       (format != EGL_TEXTURE_RGBA))
->>>>>>> opensource/master
                     {
                        ERR("eglQueryWaylandBufferWL() %d format is not supported ", format);
                        glsym_evas_gl_common_image_free(img);
@@ -1311,30 +1170,20 @@ eng_image_native_set(void *data, void *image, void *native)
                   attribs[2] = EVAS_GL_NONE;
 
                   memcpy(&(n->ns), ns, sizeof(Evas_Native_Surface));
-<<<<<<< HEAD
-                  glsym_eglQueryWaylandBufferWL(ob->egl_disp, wl_buf, EVAS_GL_WAYLAND_Y_INVERTED_WL, &yinvert);
-                  eina_hash_add(ob->gl_context->shared->native_wl_hash, &wlid, img);
-=======
                   if (glsym_eglQueryWaylandBufferWL(ob->egl.disp, wl_buf,
-                                                    EGL_WAYLAND_Y_INVERTED_WL,
+                                                    EVAS_GL_WAYLAND_Y_INVERTED_WL,
                                                     &yinvert) == EGL_FALSE)
                     yinvert = 1;
                   eina_hash_add(ob->gl_context->shared->native_wl_hash,
                                 &wlid, img);
->>>>>>> opensource/master
 
                   n->wl_buf = wl_buf;
                   if (glsym_eglCreateImage)
                     n->egl_surface = glsym_eglCreateImage(ob->egl.disp,
                                                           NULL,
-<<<<<<< HEAD
                                                           EVAS_GL_WAYLAND_BUFFER_WL,
                                                           wl_buf,
                                                           attribs);
-=======
-                                                          EGL_WAYLAND_BUFFER_WL,
-                                                          wl_buf, attribs);
->>>>>>> opensource/master
                   else
                     {
                        ERR("Try eglCreateImage on EGL with no support");
@@ -1429,17 +1278,6 @@ module_open(Evas_Module *em)
    func = pfunc;
 
    /* now to override methods */
-<<<<<<< HEAD
-#define ORD(f) EVAS_API_OVERRIDE(f, &func, eng_)
-   ORD(info);
-   ORD(info_free);
-   ORD(setup);
-   ORD(canvas_alpha_get);
-   ORD(output_free);
-   ORD(output_dump);
-   ORD(image_native_set);
-   ORD(output_copy);
-=======
    EVAS_API_OVERRIDE(info, &func, eng_);
    EVAS_API_OVERRIDE(info_free, &func, eng_);
    EVAS_API_OVERRIDE(setup, &func, eng_);
@@ -1447,7 +1285,7 @@ module_open(Evas_Module *em)
    EVAS_API_OVERRIDE(output_free, &func, eng_);
    EVAS_API_OVERRIDE(output_dump, &func, eng_);
    EVAS_API_OVERRIDE(image_native_set, &func, eng_);
->>>>>>> opensource/master
+   EVAS_API_OVERRIDE(output_copy, &func, eng_);
 
    /* Mesa's EGL driver loads wayland egl by default. (called by eglGetProcaddr() )
     * implicit env set (EGL_PLATFORM=drm) prevent that. */

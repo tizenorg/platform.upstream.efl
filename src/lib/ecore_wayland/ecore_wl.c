@@ -89,7 +89,6 @@ static const struct tizen_keyrouter_listener _ecore_tizen_keyrouter_listener =
 };
 //
 
-<<<<<<< HEAD
 static const struct tizen_policy_listener _ecore_tizen_policy_listener =
 {
    _ecore_wl_cb_conformant,

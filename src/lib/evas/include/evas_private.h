@@ -1448,6 +1448,7 @@ struct _Evas_Func
    void  (*texture_image_set)            (void *data, void *texture, void *image);
    void *(*texture_image_get)            (void *data, void *texture);
 
+   void  (*output_copy)                  (void *data, void *buffer, int stride, int width, int height, uint format, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh);
    Ector_Surface *(*ector_create)        (void *data);
    void  (*ector_destroy)                (void *data, Ector_Surface *surface);
    void  (*ector_begin)                  (void *data, void *context, Ector_Surface *ector, void *surface, int x, int y, Eina_Bool do_async);

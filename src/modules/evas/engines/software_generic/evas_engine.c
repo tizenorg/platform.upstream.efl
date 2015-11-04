@@ -4464,6 +4464,7 @@ static Evas_Func func =
      NULL, // eng_texture_filter_get
      NULL, // eng_texture_image_set
      NULL, // eng_texture_image_get
+     NULL, // eng_output_copy
      eng_ector_create,
      eng_ector_destroy,
      eng_ector_begin,

@@ -49,25 +49,10 @@ _extnbuf_new(const char *base, int id, Eina_Bool sys, int num,
 
    if (b->am_owner)
      {
-<<<<<<< HEAD
-        const char *s = NULL;
-        
-#if defined(HAVE_GETUID) && defined(HAVE_GETEUID)
-        if (getuid() == geteuid())
-#endif
-          {
-             s = getenv("XDG_RUNTIME_DIR");
-             if (!s) s = getenv("TMPDIR");
-          }
         //TIZEN ONLY (150908): security issue. To access any application, it needs smack rule.
-        //if (!s) s = "/tmp";
-        s = "/run/.efl";
+        //b->lockfd = eina_file_mkstemp("ee-lock-XXXXXX", &tmp);
+        b->lockfd = mkstemp("/run/.efl/ee-lock-XXXXXX");
         //
-        snprintf(file, sizeof(file), "%s/ee-lock-XXXXXX", s);
-        b->lockfd = mkstemp(file);
-=======
-        b->lockfd = eina_file_mkstemp("ee-lock-XXXXXX", &tmp);
->>>>>>> opensource/master
         if (b->lockfd < 0) goto err;
         b->lock = eina_stringshare_add(file);
         if (!b->lock) goto err;

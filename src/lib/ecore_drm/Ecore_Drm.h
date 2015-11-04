@@ -136,27 +136,6 @@ struct _Ecore_Drm_Event_Activate
    Eina_Bool active;
 };
 
-<<<<<<< HEAD
-struct _Ecore_Drm_Event_Page_Flip
-{
-   int          fd;
-   unsigned int sequence;
-   unsigned int sec;
-   unsigned int usec;
-   void        *data;
-};
-
-struct _Ecore_Drm_Event_Vblank
-{
-   int          fd;
-   unsigned int sequence;
-   unsigned int sec;
-   unsigned int usec;
-   void        *data;
-};
-
-=======
->>>>>>> opensource/master
 struct _Ecore_Drm_Event_Output
 {
    unsigned int id;
@@ -168,7 +147,7 @@ struct _Ecore_Drm_Event_Output
    int transform;
    const char *make;
    const char *model;
-<<<<<<< HEAD
+   const char *name; /** @since 1.15 */
    Eina_Bool plug : 1;
 };
 
@@ -188,12 +167,6 @@ struct _Ecore_Drm_Event_Input_Device_Del
    Ecore_Drm_Seat_Capabilities caps; /* capabilities on a device */
 };
 
-=======
-   const char *name; /** @since 1.15 */
-   Eina_Bool plug : 1;
-};
-
->>>>>>> opensource/master
 /* opaque structure to represent a drm device */
 typedef struct _Ecore_Drm_Device Ecore_Drm_Device;
 
@@ -224,38 +197,22 @@ typedef struct _Ecore_Drm_Sprite Ecore_Drm_Sprite;
 /* structure to inform drm activation state */
 typedef struct _Ecore_Drm_Event_Activate Ecore_Drm_Event_Activate;
 
-<<<<<<< HEAD
-/* sturcture to inform drm page flip */
-typedef struct _Ecore_Drm_Event_Page_Flip Ecore_Drm_Event_Page_Flip;
-
-/* sturcture to inform drm vblank */
-typedef struct _Ecore_Drm_Event_Vblank Ecore_Drm_Event_Vblank;
-
 /* sturcture to inform new input device added */
 typedef struct _Ecore_Drm_Event_Input_Device_Add Ecore_Drm_Event_Input_Device_Add;
 
 /* sturcture to inform old input device deleted */
 typedef struct _Ecore_Drm_Event_Input_Device_Del Ecore_Drm_Event_Input_Device_Del;
 
-=======
->>>>>>> opensource/master
 /* structure to inform drm output plug events */
 /** @since 1.14 */
 typedef struct _Ecore_Drm_Event_Output Ecore_Drm_Event_Output;
 
-<<<<<<< HEAD
-=======
 /** @since 1.14 */
 typedef void (*Ecore_Drm_Pageflip_Cb)(void *data);
 
->>>>>>> opensource/master
 EAPI extern int ECORE_DRM_EVENT_ACTIVATE;
-EAPI extern int ECORE_DRM_EVENT_PAGE_FLIP;
-EAPI extern int ECORE_DRM_EVENT_VBLANK;
 EAPI extern int ECORE_DRM_EVENT_INPUT_DEVICE_ADD;
 EAPI extern int ECORE_DRM_EVENT_INPUT_DEVICE_DEL;
-
-EAPI extern int ECORE_DRM_EVENT_OUTPUT; /**< @since 1.14 */
 
 EAPI extern int ECORE_DRM_EVENT_OUTPUT; /**< @since 1.14 */
 
@@ -283,9 +240,6 @@ EAPI extern int ECORE_DRM_EVENT_SEAT_ADD; /**< @since 1.14 */
 EAPI int ecore_drm_init(void);
 EAPI int ecore_drm_shutdown(void);
 
-<<<<<<< HEAD
-EAPI Eina_List *ecore_drm_devices_get(void);
-=======
 /**
  * Find a drm device in the system.
  *
@@ -298,7 +252,6 @@ EAPI Eina_List *ecore_drm_devices_get(void);
  * 
  * @ingroup Ecore_Drm_Device_Group
  */
->>>>>>> opensource/master
 EAPI Ecore_Drm_Device *ecore_drm_device_find(const char *name, const char *seat);
 
 /**
@@ -594,11 +547,6 @@ EAPI void ecore_drm_output_repaint(Ecore_Drm_Output *output);
  */
 EAPI void ecore_drm_output_size_get(Ecore_Drm_Device *dev, int output, int *w, int *h);
 
-/* This is ugly, will remove after rebaseing on 1.14 */
-EAPI unsigned int ecore_drm_output_crtc_id_get(Ecore_Drm_Output *output);
-EAPI void ecore_drm_output_current_fb_info_set(Ecore_Drm_Output *output, unsigned int handle, int w, int h, unsigned int format);
-EAPI void ecore_drm_output_current_fb_info_get(Ecore_Drm_Output *output, unsigned int *handle, int *w, int *h, unsigned int *format);
-
 /**
  * TODO: Doxy
  * @since 1.12
@@ -710,22 +658,6 @@ EAPI Eina_Bool ecore_drm_launcher_connect(Ecore_Drm_Device *dev);
 EAPI void ecore_drm_launcher_disconnect(Ecore_Drm_Device *dev);
 
 /**
-<<<<<<< HEAD
- * Set the dpms level of an Ecore_Drm_Output
- *
- * This function will set the DPMS level of an Ecore_Drm_Output
- *
- * @param output The Ecore_Drm_Output to set the dpms level on
- * @param level The level to set
- *
- * @ingroup Ecore_Drm_Output_Group
- * @since 1.15
- */
-EAPI void ecore_drm_output_dpms_set(Ecore_Drm_Output *output, int level);
-
-/**
-=======
->>>>>>> opensource/master
  * Get the output position of Ecore_Drm_Output
  *
  * This function will give the output position of Ecore_Drm_Output
@@ -808,13 +740,6 @@ EAPI Eina_Stringshare *ecore_drm_output_model_get(Ecore_Drm_Output *output);
 EAPI Eina_Stringshare *ecore_drm_output_make_get(Ecore_Drm_Output *output);
 
 /**
-<<<<<<< HEAD
- * @since tizen 3.0
- */
-EAPI Eina_List *ecore_drm_seat_evdev_list_get(Ecore_Drm_Seat *seat);
-EAPI const char *ecore_drm_evdev_name_get(Ecore_Drm_Evdev *evdev);
-EAPI const char *ecore_drm_evdev_sysname_get(Ecore_Drm_Evdev *evdev);
-=======
  * Get the name of Ecore_Drm_Output
  *
  * This function will give the name of Ecore_Drm_Output
@@ -1039,12 +964,23 @@ EAPI Eina_Bool ecore_drm_output_possible_crtc_get(Ecore_Drm_Output *output, unsi
  */
 EAPI Eina_Bool ecore_drm_output_mode_set(Ecore_Drm_Output *output, Ecore_Drm_Output_Mode *mode, int x, int y);
 
+/**
+ * @since tizen 3.0
+ */
+EAPI Eina_List *ecore_drm_seat_evdev_list_get(Ecore_Drm_Seat *seat);
+EAPI const char *ecore_drm_evdev_name_get(Ecore_Drm_Evdev *evdev);
+EAPI const char *ecore_drm_evdev_sysname_get(Ecore_Drm_Evdev *evdev);
+
+/* This is ugly, will remove after rebaseing on 1.14 */
+EAPI unsigned int ecore_drm_output_crtc_id_get(Ecore_Drm_Output *output);
+EAPI void ecore_drm_output_current_fb_info_set(Ecore_Drm_Output *output, unsigned int handle, int w, int h, unsigned int format);
+EAPI void ecore_drm_output_current_fb_info_get(Ecore_Drm_Output *output, unsigned int *handle, int *w, int *h, unsigned int *format);
+
 # ifdef __cplusplus
 }
 # endif
 
 # undef EAPI
 # define EAPI
->>>>>>> opensource/master
 
 #endif

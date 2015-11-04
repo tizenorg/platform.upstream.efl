@@ -112,16 +112,7 @@ struct _Ecore_Drm_Output
    unsigned int conn_id;
    unsigned int conn_type;
    drmModeCrtcPtr crtc;
-<<<<<<< HEAD
-   Eeze_Udev_Watch *watch;
    drmModePropertyPtr dpms;
-
-   int x, y;
-   int drm_fd;
-   unsigned int mw, mh;
-=======
-   drmModePropertyPtr dpms;
->>>>>>> opensource/master
 
    int x, y, phys_width, phys_height;
 
@@ -145,13 +136,6 @@ struct _Ecore_Drm_Output
 
    Ecore_Drm_Backlight *backlight;   
 
-<<<<<<< HEAD
-   /* this is ugly */
-   unsigned int curr_fb_handle;
-   int curr_fb_w;
-   int curr_fb_h;
-   int curr_fb_format;
-=======
    Eina_Bool primary : 1;
    Eina_Bool connected : 1;
    Eina_Bool enabled : 1;
@@ -161,7 +145,12 @@ struct _Ecore_Drm_Output
    Eina_Bool pending_destroy : 1;
    Eina_Bool pending_flip : 1;
    Eina_Bool pending_vblank : 1;
->>>>>>> opensource/master
+
+   /* this is ugly */
+   unsigned int curr_fb_handle;
+   int curr_fb_w;
+   int curr_fb_h;
+   int curr_fb_format;
 };
 
 struct _Ecore_Drm_Seat
@@ -264,7 +253,6 @@ struct _Ecore_Drm_Sprite
 typedef void (*Ecore_Drm_Open_Cb)(void *data, int fd, Eina_Bool b);
 
 void _ecore_drm_event_activate_send(Eina_Bool active);
-void _ecore_drm_event_output_send(const Ecore_Drm_Output *output, Eina_Bool plug);
 
 Eina_Bool _ecore_drm_launcher_device_open(const char *device, Ecore_Drm_Open_Cb callback, void *data, int flags);
 int _ecore_drm_launcher_device_open_no_pending(const char *device, int flags);

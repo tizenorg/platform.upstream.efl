@@ -68,13 +68,7 @@ _ecore_drm_tty_setup(Ecore_Drm_Device *dev)
      }
 
    if (kmode != KD_TEXT)
-<<<<<<< HEAD
-     {
-        WRN("Virtual Terminal already in KD_GRAPHICS mode");
-     }
-=======
      WRN("Virtual Terminal already in KD_GRAPHICS mode");
->>>>>>> opensource/master
 
    if (ioctl(dev->tty.fd, VT_ACTIVATE, minor(st.st_rdev)) < 0)
      {

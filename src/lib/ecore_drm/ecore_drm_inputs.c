@@ -80,7 +80,6 @@ _seat_create(Ecore_Drm_Input *input, const char *seat)
    return s;
 }
 
-<<<<<<< HEAD
 static void
 _ecore_drm_event_input_device_add_free(void *data EINA_UNUSED, void *ev)
 {
@@ -105,7 +104,8 @@ _ecore_drm_event_input_device_del_free(void *data EINA_UNUSED, void *ev)
    eina_stringshare_del(e->seatname);
 
    free(e);
-=======
+}
+
 static Ecore_Drm_Seat *
 _seat_get(Ecore_Drm_Input *input, const char *seat)
 {
@@ -117,7 +117,6 @@ _seat_get(Ecore_Drm_Input *input, const char *seat)
      if (!strcmp(s->name, seat)) return s;
 
    return _seat_create(input, seat);
->>>>>>> opensource/master
 }
 
 static void 
@@ -327,13 +326,7 @@ ecore_drm_inputs_destroy(Ecore_Drm_Device *dev)
    Ecore_Drm_Seat *seat;
    Ecore_Drm_Evdev *edev;
 
-<<<<<<< HEAD
-   /* check for valid device */
-   if (!dev) return;
-
-=======
    EINA_SAFETY_ON_NULL_RETURN(dev);
->>>>>>> opensource/master
    EINA_LIST_FREE(dev->seats, seat)
      {
         EINA_LIST_FREE(seat->devices, edev)

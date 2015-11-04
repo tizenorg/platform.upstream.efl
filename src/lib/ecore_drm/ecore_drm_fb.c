@@ -242,6 +242,9 @@ ecore_drm_fb_send(Ecore_Drm_Device *dev, Ecore_Drm_Fb *fb, Ecore_Drm_Pageflip_Cb
      {
         if ((!output->enabled) || (!output->current_mode)) continue;
 
+        ecore_drm_output_current_fb_info_set(output, fb->hdl, fb->w, fb->h,
+                                             DRM_FORMAT_ARGB8888);
+
         if (drmModePageFlip(dev->drm.fd, output->crtc_id, fb->id,
                             DRM_MODE_PAGE_FLIP_EVENT, cb) < 0)
           {

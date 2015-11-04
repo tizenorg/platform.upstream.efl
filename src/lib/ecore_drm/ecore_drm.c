@@ -11,8 +11,6 @@ static int _ecore_drm_init_count = 0;
 int _ecore_drm_log_dom = -1;
 
 EAPI int ECORE_DRM_EVENT_ACTIVATE = 0;
-EAPI int ECORE_DRM_EVENT_PAGE_FLIP = 0;
-EAPI int ECORE_DRM_EVENT_VBLANK = 0;
 EAPI int ECORE_DRM_EVENT_INPUT_DEVICE_ADD = 0;
 EAPI int ECORE_DRM_EVENT_INPUT_DEVICE_DEL = 0;
 
@@ -89,16 +87,10 @@ ecore_drm_init(void)
    if (!eeze_init()) goto eeze_err;
 
    ECORE_DRM_EVENT_ACTIVATE = ecore_event_type_new();
-<<<<<<< HEAD
-   ECORE_DRM_EVENT_PAGE_FLIP = ecore_event_type_new();
-   ECORE_DRM_EVENT_VBLANK = ecore_event_type_new();
-   ECORE_DRM_EVENT_OUTPUT = ecore_event_type_new();
-   ECORE_DRM_EVENT_INPUT_DEVICE_ADD = ecore_event_type_new();
-   ECORE_DRM_EVENT_INPUT_DEVICE_DEL = ecore_event_type_new();
-=======
    ECORE_DRM_EVENT_OUTPUT = ecore_event_type_new();
    ECORE_DRM_EVENT_SEAT_ADD = ecore_event_type_new();
->>>>>>> opensource/master
+   ECORE_DRM_EVENT_INPUT_DEVICE_ADD = ecore_event_type_new();
+   ECORE_DRM_EVENT_INPUT_DEVICE_DEL = ecore_event_type_new();
 
    /* return init count */
    return _ecore_drm_init_count;

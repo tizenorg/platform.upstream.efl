@@ -12,10 +12,6 @@ static inline Eina_Bool
 _ecore_drm_logind_vt_get(Ecore_Drm_Device *dev)
 {
    int ret;
-<<<<<<< HEAD
-   char *tty, *p;
-=======
->>>>>>> opensource/master
 
    ret = sd_session_get_vt(dev->session, &dev->vt);
    if (ret < 0)
@@ -24,22 +20,7 @@ _ecore_drm_logind_vt_get(Ecore_Drm_Device *dev)
         return EINA_FALSE;
      }
 
-<<<<<<< HEAD
-   p = strchr(tty, 't');
-   dev->vt = UINT_MAX;
-   if (p)
-     {
-        while (p[0] && (!isdigit(p[0])))
-          p++;
-        if (p[0])
-          dev->vt = strtoul(p, NULL, 10);
-     }
-   free(tty);
-
-   return dev->vt != UINT_MAX;
-=======
    return EINA_TRUE;
->>>>>>> opensource/master
 }
 #endif
 

@@ -5,34 +5,16 @@
 #include "ecore_drm_private.h"
 #include <dlfcn.h>
 
-<<<<<<< HEAD
-static Eina_List *drm_devices;
-=======
 #define INSIDE(x, y, xx, yy, ww, hh) \
    (((x) < ((xx) + (ww))) && ((y) < ((yy) + (hh))) && \
        ((x) >= (xx)) && ((y) >= (yy)))
 
 static Eina_List *drm_devices;
 static int flip_count = 0;
->>>>>>> opensource/master
 
 static void 
 _ecore_drm_device_cb_page_flip(int fd EINA_UNUSED, unsigned int frame EINA_UNUSED, unsigned int sec EINA_UNUSED, unsigned int usec EINA_UNUSED, void *data)
 {
-<<<<<<< HEAD
-   Ecore_Drm_Event_Page_Flip *e;
-
-   e = calloc(1, sizeof(Ecore_Drm_Event_Page_Flip));
-   if (!e)
-     return;
-
-   e->fd = fd;
-   e->sequence = frame;
-   e->sec = sec;
-   e->usec = usec;
-   e->data = data;
-   ecore_event_add(ECORE_DRM_EVENT_PAGE_FLIP, e, NULL, NULL);
-=======
    Ecore_Drm_Pageflip_Callback *cb;
 
    /* DBG("Drm Page Flip Event"); */
@@ -71,26 +53,11 @@ _ecore_drm_device_cb_page_flip(int fd EINA_UNUSED, unsigned int frame EINA_UNUSE
    /*   } */
    /* else if (!output->pending_vblank) */
    /*   ecore_drm_output_repaint(output); */
->>>>>>> opensource/master
 }
 
 static void 
 _ecore_drm_device_cb_vblank(int fd EINA_UNUSED, unsigned int frame EINA_UNUSED, unsigned int sec EINA_UNUSED, unsigned int usec EINA_UNUSED, void *data)
 {
-<<<<<<< HEAD
-   Ecore_Drm_Event_Vblank *e;
-
-   e = calloc(1, sizeof(Ecore_Drm_Event_Vblank));
-   if (!e)
-     return;
-
-   e->fd = fd;
-   e->sequence = frame;
-   e->sec = sec;
-   e->usec = usec;
-   e->data = data;
-   ecore_event_add(ECORE_DRM_EVENT_VBLANK, e, NULL, NULL);
-=======
    Ecore_Drm_Sprite *sprite;
    Ecore_Drm_Output *output;
 
@@ -106,7 +73,6 @@ _ecore_drm_device_cb_vblank(int fd EINA_UNUSED, unsigned int frame EINA_UNUSED, 
    sprite->next_fb = NULL;
 
    if (!output->pending_flip) _ecore_drm_output_frame_finish(output);
->>>>>>> opensource/master
 }
 
 static Eina_Bool 
@@ -362,9 +328,6 @@ ecore_drm_device_open(Ecore_Drm_Device *dev)
         return EINA_FALSE;
      }
 
-<<<<<<< HEAD
-   if (!getenv("ECORE_DRM_DEVICE_USER_HANDLER"))
-=======
    memset(&dev->drm_ctx, 0, sizeof(dev->drm_ctx));
    dev->drm_ctx.version = DRM_EVENT_CONTEXT_VERSION;
    dev->drm_ctx.page_flip_handler = _ecore_drm_device_cb_page_flip;
@@ -377,17 +340,14 @@ ecore_drm_device_open(Ecore_Drm_Device *dev)
      eeze_udev_watch_add(EEZE_UDEV_TYPE_DRM, events,
                          _ecore_drm_device_cb_output_event, dev);
 
->>>>>>> opensource/master
+   if (!getenv("ECORE_DRM_DEVICE_USER_HANDLER"))
    dev->drm.hdlr = 
      ecore_main_fd_handler_add(dev->drm.fd, ECORE_FD_READ, 
                                _ecore_drm_device_cb_event, dev, NULL, NULL);
 
-<<<<<<< HEAD
-=======
    /* dev->drm.idler =  */
    /*   ecore_idle_enterer_add(_ecore_drm_device_cb_idle, dev); */
 
->>>>>>> opensource/master
    return EINA_TRUE;
 }
 
@@ -414,30 +374,12 @@ ecore_drm_device_close(Ecore_Drm_Device *dev)
    return EINA_TRUE;
 }
 
-<<<<<<< HEAD
-EAPI Eina_List *
-=======
 EAPI const Eina_List *
->>>>>>> opensource/master
 ecore_drm_devices_get(void)
 {
    return drm_devices;
 }
 
-<<<<<<< HEAD
-/**
- * Get if a given Ecore_Drm_Device is master
- * 
- * This function will check if the given drm device is set to master
- * 
- * @param dev The Ecore_Drm_Device to check
- * 
- * @return EINA_TRUE if device is master, EINA_FALSE otherwise
- * 
- * @ingroup Ecore_Drm_Device_Group
- */
-=======
->>>>>>> opensource/master
 EAPI Eina_Bool 
 ecore_drm_device_master_get(Ecore_Drm_Device *dev)
 {

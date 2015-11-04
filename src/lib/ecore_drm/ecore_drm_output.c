@@ -22,17 +22,6 @@ static const char *conn_types[] =
 };
 
 EAPI int ECORE_DRM_EVENT_OUTPUT = 0;
-<<<<<<< HEAD
-
-/* local functions */
-
-static drmModePropertyPtr
-_ecore_drm_output_property_get(int fd, drmModeConnectorPtr conn, const char *name)
-{
-   drmModePropertyPtr prop;
-   int i = 0;
-
-=======
 
 static void
 _ecore_drm_output_event_free(void *data EINA_UNUSED, void *event)
@@ -85,20 +74,10 @@ _ecore_drm_output_property_get(int fd, drmModeConnectorPtr conn, const char *nam
    drmModePropertyPtr prop;
    int i = 0;
 
->>>>>>> opensource/master
    for (; i < conn->count_props; i++)
      {
         if (!(prop = drmModeGetProperty(fd, conn->props[i])))
           continue;
-<<<<<<< HEAD
-
-        if (!strcmp(prop->name, name)) return prop;
-
-        drmModeFreeProperty(prop);
-     }
-
-   return NULL;
-=======
 
         if (!strcmp(prop->name, name)) return prop;
 
@@ -212,48 +191,7 @@ _ecore_drm_output_edid_find(Ecore_Drm_Output *output, drmModeConnector *conn)
      }
 
    drmModeFreePropertyBlob(blob);
->>>>>>> opensource/master
 }
-
-//static Eina_Bool 
-//_ecore_drm_output_software_setup(Ecore_Drm_Device *dev, Ecore_Drm_Output *output)
-//{
-//   unsigned int i = 0;
-//   int w = 0, h = 0;
-//
-//   if ((!dev) || (!output)) return EINA_FALSE;
-//
-//   if (output->current_mode)
-//     {
-//        w = output->current_mode->width;
-//        h = output->current_mode->height;
-//     }
-//   else
-//     {
-//        w = 1024;
-//        h = 768;
-//     }
-//
-//   for (i = 0; i < NUM_FRAME_BUFFERS; i++)
-//     {
-//        if (!(output->dumb[i] = ecore_drm_fb_create(dev, w, h)))
-//          {
-//             ERR("Could not create dumb framebuffer %d", i);
-//             goto err;
-//          }
-//     }
-//
-//   return EINA_TRUE;
-//
-//err:
-//   for (i = 0; i < NUM_FRAME_BUFFERS; i++)
-//     {
-//        if (output->dumb[i]) ecore_drm_fb_destroy(output->dumb[i]);
-//        output->dumb[i] = NULL;
-//     }
-//
-//   return EINA_FALSE;
-//}
 
 static void 
 _ecore_drm_output_software_render(Ecore_Drm_Output *output)
@@ -512,15 +450,6 @@ _ecore_drm_output_create(Ecore_Drm_Device *dev, drmModeRes *res, drmModeConnecto
 
    output->x = x;
    output->y = y;
-<<<<<<< HEAD
-   output->mw = conn->mmWidth;
-   output->mh = conn->mmHeight;
-
-   output->subpixel = conn->subpixel;
-   output->make = eina_stringshare_add("unknown");
-   output->model = eina_stringshare_add("unknown");
-
-=======
    output->dev = dev;
    output->cloned = cloned;
    output->phys_width = conn->mmWidth;
@@ -534,7 +463,6 @@ _ecore_drm_output_create(Ecore_Drm_Device *dev, drmModeRes *res, drmModeConnecto
    output->connected = (conn->connection == DRM_MODE_CONNECTED);
    output->enabled = output->connected;
    output->conn_type = conn->connector_type;
->>>>>>> opensource/master
    if (conn->connector_type < ALEN(conn_types))
      type = conn_types[conn->connector_type];
    else
@@ -551,7 +479,6 @@ _ecore_drm_output_create(Ecore_Drm_Device *dev, drmModeRes *res, drmModeConnecto
 
    /* store original crtc so we can restore VT settings */
    output->crtc = drmModeGetCrtc(dev->drm.fd, output->crtc_id);
-   output->dpms = _ecore_drm_output_property_get(dev->drm.fd, conn, "DPMS");
 
    /* get if dpms is supported */
    output->dpms = _ecore_drm_output_property_get(dev->drm.fd, conn, "DPMS");
@@ -589,20 +516,11 @@ _ecore_drm_output_create(Ecore_Drm_Device *dev, drmModeRes *res, drmModeConnecto
           goto err;
      }
 
-<<<<<<< HEAD
-   dev->use_hw_accel = EINA_FALSE;
-   /* do not create drm fb dumb object here. object will be created by evas engine */
-   //if (!_ecore_drm_output_software_setup(dev, output))
-   //  goto mode_err;
-   //else
-   //  DBG("Setup Output %d for Software Rendering", output->crtc_id);
-=======
    if (current) output->current_mode = current;
    else if (preferred) output->current_mode = preferred;
    else if (best) output->current_mode = best;
 
    if (!output->current_mode) goto err;
->>>>>>> opensource/master
 
    output->current_mode->flags |= DRM_MODE_TYPE_DEFAULT;
 
@@ -610,9 +528,6 @@ _ecore_drm_output_create(Ecore_Drm_Device *dev, drmModeRes *res, drmModeConnecto
    output->backlight = 
      _ecore_drm_output_backlight_init(output, conn->connector_type);
 
-<<<<<<< HEAD
-   _ecore_drm_event_output_send(output, EINA_TRUE);
-=======
    /* parse edid */
    _ecore_drm_output_edid_find(output, conn);
 
@@ -646,7 +561,6 @@ _ecore_drm_output_create(Ecore_Drm_Device *dev, drmModeRes *res, drmModeConnecto
             (mode->flags & DRM_MODE_TYPE_DEFAULT) ? ", current" : "",
             (conn->count_modes == 0) ? ", built-in" : "");
      }
->>>>>>> opensource/master
 
    return output;
 
@@ -968,42 +882,6 @@ free_plane:
    drmModeFreePlaneResources(pres);
 }
 
-static void
-_ecore_drm_event_output_free(void *data EINA_UNUSED, void *event)
-{
-   Ecore_Drm_Event_Output *e = event;
-
-   eina_stringshare_del(e->make);
-   eina_stringshare_del(e->model);
-   free(event);
-}
-
-void
-_ecore_drm_event_output_send(const Ecore_Drm_Output *output, Eina_Bool plug)
-{
-   Ecore_Drm_Event_Output *e;
-
-   if (!(e = calloc(1, sizeof(Ecore_Drm_Event_Output)))) return;
-   e->plug = plug;
-   if (plug)
-     {
-        e->id = output->crtc_id;
-        e->w = output->current_mode->width;
-        e->h = output->current_mode->height;
-        e->x = output->x;
-        e->y = output->y;
-        e->phys_width = output->mw;
-        e->phys_height = output->mh;
-        e->refresh = output->current_mode->refresh;
-        e->subpixel_order = output->subpixel;
-        e->make = eina_stringshare_ref(output->make);
-        e->model = eina_stringshare_ref(output->model);
-        e->transform = 0;
-     }
-   ecore_event_add(ECORE_DRM_EVENT_OUTPUT, e,
-                   _ecore_drm_event_output_free, NULL);
-}
-
 /* public functions */
 
 /**
@@ -1081,15 +959,7 @@ next:
 
    ret = EINA_TRUE;
    if (eina_list_count(dev->outputs) < 1) 
-<<<<<<< HEAD
-     {
-        ret = EINA_FALSE;
-        free(dev->crtcs);
-        dev->crtcs = NULL;
-     }
-=======
      ret = EINA_FALSE;
->>>>>>> opensource/master
 
    /* free resources */
    drmModeFreeResources(res);
@@ -1119,19 +989,7 @@ ecore_drm_output_enable(Ecore_Drm_Output *output)
    output->enabled = EINA_TRUE;
    ecore_drm_output_dpms_set(output, DRM_MODE_DPMS_ON);
 
-<<<<<<< HEAD
-   ecore_drm_output_dpms_set(output, DRM_MODE_DPMS_ON);
-
-   mode = output->current_mode;
-   if (drmModeSetCrtc(output->drm_fd, output->crtc_id, output->current->id, 
-                      0, 0, &output->conn_id, 1, &mode->info) < 0)
-     {
-        ERR("Could not set output crtc: %m");
-        return EINA_FALSE;
-     }
-=======
    _ecore_drm_output_event_send(output, EINA_TRUE);
->>>>>>> opensource/master
 
    return EINA_TRUE;
 }
@@ -1286,19 +1144,6 @@ ecore_drm_outputs_geometry_get(Ecore_Drm_Device *dev, int *x, int *y, int *w, in
 }
 
 EAPI void
-<<<<<<< HEAD
-ecore_drm_output_dpms_set(Ecore_Drm_Output *output, int level)
-{
-   EINA_SAFETY_ON_NULL_RETURN(output);
-   EINA_SAFETY_ON_NULL_RETURN(output->dpms);
-
-   drmModeConnectorSetProperty(output->dev->drm.fd, output->conn_id,
-                               output->dpms->prop_id, level);
-}
-
-EAPI void
-=======
->>>>>>> opensource/master
 ecore_drm_output_position_get(Ecore_Drm_Output *output, int *x, int *y)
 {
    EINA_SAFETY_ON_NULL_RETURN(output);
@@ -1310,10 +1155,6 @@ ecore_drm_output_position_get(Ecore_Drm_Output *output, int *x, int *y)
 EAPI void
 ecore_drm_output_current_resolution_get(Ecore_Drm_Output *output, int *w, int *h, unsigned int *refresh)
 {
-<<<<<<< HEAD
-   EINA_SAFETY_ON_NULL_RETURN(output);
-
-=======
    if (w) *w = 0;
    if (h) *h = 0;
    if (refresh) *refresh = 0;
@@ -1322,7 +1163,6 @@ ecore_drm_output_current_resolution_get(Ecore_Drm_Output *output, int *w, int *h
 
    if (!output->current_mode) return;
 
->>>>>>> opensource/master
    if (w) *w = output->current_mode->width;
    if (h) *h = output->current_mode->height;
    if (refresh) *refresh = output->current_mode->refresh;
@@ -1333,14 +1173,8 @@ ecore_drm_output_physical_size_get(Ecore_Drm_Output *output, int *w, int *h)
 {
    EINA_SAFETY_ON_NULL_RETURN(output);
 
-<<<<<<< HEAD
-   //FIXME: This needs to be set when EDID parsing works
-   if (w) *w = 0;
-   if (h) *h = 0;
-=======
    if (w) *w = output->phys_width;
    if (h) *h = output->phys_height;
->>>>>>> opensource/master
 }
 
 EAPI unsigned int
@@ -1367,8 +1201,6 @@ ecore_drm_output_make_get(Ecore_Drm_Output *output)
    return output->make;
 }
 
-<<<<<<< HEAD
-=======
 EAPI void
 ecore_drm_output_dpms_set(Ecore_Drm_Output *output, int level)
 {
@@ -1393,7 +1225,6 @@ ecore_drm_output_gamma_set(Ecore_Drm_Output *output, uint16_t size, uint16_t *r,
      ERR("Failed to set output gamma: %m");
 }
 
->>>>>>> opensource/master
 EAPI unsigned int
 ecore_drm_output_crtc_id_get(Ecore_Drm_Output *output)
 {
@@ -1402,32 +1233,6 @@ ecore_drm_output_crtc_id_get(Ecore_Drm_Output *output)
    return output->crtc_id;
 }
 
-<<<<<<< HEAD
-EAPI void
-ecore_drm_output_current_fb_info_set(Ecore_Drm_Output *output, unsigned int handle, int w, int h, unsigned int format)
-{
-   EINA_SAFETY_ON_NULL_RETURN(output);
-
-   output->curr_fb_handle = handle;
-   output->curr_fb_w = w;
-   output->curr_fb_h = h;
-   output->curr_fb_format = format;
-}
-
-EAPI void
-ecore_drm_output_current_fb_info_get(Ecore_Drm_Output *output, unsigned int *handle, int *w, int *h, unsigned int *format)
-{
-   EINA_SAFETY_ON_NULL_RETURN(output);
-
-   if (handle)
-     *handle = output->curr_fb_handle;
-   if (w)
-     *w = output->curr_fb_w;
-   if (h)
-     *h = output->curr_fb_h;
-   if (format)
-     *format = output->curr_fb_format;
-=======
 EAPI unsigned int
 ecore_drm_output_crtc_buffer_get(Ecore_Drm_Output *output)
 {
@@ -1679,5 +1484,30 @@ ecore_drm_output_mode_set(Ecore_Drm_Output *output, Ecore_Drm_Output_Mode *mode,
      }
 
    return ret;
->>>>>>> opensource/master
+}
+
+EAPI void
+ecore_drm_output_current_fb_info_set(Ecore_Drm_Output *output, unsigned int handle, int w, int h, unsigned int format)
+{
+   EINA_SAFETY_ON_NULL_RETURN(output);
+
+   output->curr_fb_handle = handle;
+   output->curr_fb_w = w;
+   output->curr_fb_h = h;
+   output->curr_fb_format = format;
+}
+
+EAPI void
+ecore_drm_output_current_fb_info_get(Ecore_Drm_Output *output, unsigned int *handle, int *w, int *h, unsigned int *format)
+{
+   EINA_SAFETY_ON_NULL_RETURN(output);
+
+   if (handle)
+     *handle = output->curr_fb_handle;
+   if (w)
+     *w = output->curr_fb_w;
+   if (h)
+     *h = output->curr_fb_h;
+   if (format)
+     *format = output->curr_fb_format;
 }

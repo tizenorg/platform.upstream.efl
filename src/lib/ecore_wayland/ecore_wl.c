@@ -88,7 +88,6 @@ static const struct wl_callback_listener _ecore_wl_anim_listener =
    _ecore_wl_animator_callback
 };
 
-<<<<<<< HEAD
 // TIZEN_ONLY(20150722): Add ecore_wl_window_keygrab_* APIs
 static const struct tizen_keyrouter_listener _ecore_tizen_keyrouter_listener =
 {
@@ -96,6 +95,7 @@ static const struct tizen_keyrouter_listener _ecore_tizen_keyrouter_listener =
 };
 //
 
+<<<<<<< HEAD
 static const struct tizen_policy_listener _ecore_tizen_policy_listener =
 {
    _ecore_wl_cb_conformant,
@@ -652,15 +652,12 @@ _ecore_wl_shutdown(Eina_Bool close)
           wl_compositor_destroy(_ecore_wl_disp->wl.compositor);
         if (_ecore_wl_disp->wl.subcompositor)
           wl_subcompositor_destroy(_ecore_wl_disp->wl.subcompositor);
-<<<<<<< HEAD
 // TIZEN_ONLY(20150722): Add ecore_wl_window_keygrab_* APIs
         if (_ecore_wl_disp->wl.keyrouter)
           tizen_keyrouter_destroy(_ecore_wl_disp->wl.keyrouter);
 //
-=======
         if (_ecore_wl_disp->cursor_theme)
           wl_cursor_theme_destroy(_ecore_wl_disp->cursor_theme);
->>>>>>> opensource/master
         if (_ecore_wl_disp->wl.display)
           {
              wl_registry_destroy(_ecore_wl_disp->wl.registry);

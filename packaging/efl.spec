@@ -46,6 +46,7 @@ BuildRequires:  libXtst-devel
 BuildRequires:  pkgconfig(xi)
 BuildRequires:  pkgconfig(ice)
 BuildRequires:  pkgconfig(sm)
+BuildRequires:  pkgconfig(ibus-1.0)
 %endif
 
 BuildRequires:  glib2-devel
@@ -56,7 +57,6 @@ BuildRequires:  curl-devel
 BuildRequires:  pkgconfig(vconf)
 BuildRequires:  pkgconfig(xkbcommon)
 BuildRequires:  systemd-devel
-BuildRequires:  pkgconfig(ibus-1.0)
 
 #eldbus
 BuildRequires:  dbus-devel
@@ -618,6 +618,7 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
     --with-opengl=es \
     --enable-tile-rotate \
     --disable-rpath \
+    --disable-ibus \
 %endif
 %if %{with x}
     --with-opengl=es \

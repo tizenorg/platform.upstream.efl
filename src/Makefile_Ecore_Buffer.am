@@ -45,23 +45,6 @@ bin_ecore_buffer_bq_mgr_DEPENDENCIES = @USE_ECORE_INTERNAL_LIBS@ @USE_ECORE_BUFF
 
 ### Backends
 
-ecorebuffershmdir = $(libdir)/ecore_buffer/modules/shm/$(MODULE_ARCH)
-ecorebuffershm_LTLIBRARIES = modules/ecore_buffer/shm/module.la
-
-modules_ecore_buffer_shm_module_la_SOURCES = \
-   modules/ecore_buffer/shm/ecore_buffer_shm.c
-modules_ecore_buffer_shm_module_la_CPPFLAGS = \
-   -I$(top_builddir)/src/lib/efl \
-   @ECORE_BUFFER_CFLAGS@ \
-   -I$(top_srcdir)/src/modules/ecore_buffer/shm
-modules_ecore_buffer_shm_module_la_LIBADD = \
-   @ECORE_BUFFER_LIBS@ \
-   @USE_ECORE_BUFFER_INTERNAL_LIBS@
-modules_ecore_buffer_shm_module_la_DEPENDENCIES = \
-   @USE_ECORE_BUFFER_INTERNAL_LIBS@
-modules_ecore_buffer_shm_module_la_LDFLAGS = -module @EFL_LTMODULE_FLAGS@
-modules_ecore_buffer_shm_module_la_LIBTOOLFLAGS = --tag=disable-static
-
 if BUILD_ECORE_BUFFER_X11_DRI2
 ecorebufferx11dri2dir = $(libdir)/ecore_buffer/modules/x11_dri2/$(MODULE_ARCH)
 ecorebufferx11dri2_LTLIBRARIES = modules/ecore_buffer/x11_dri2/module.la

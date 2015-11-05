@@ -1,3 +1,5 @@
+#if 0
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -212,10 +214,12 @@ comp_func_source_over_sse2(uint * __restrict dest, const uint * __restrict src, 
      }
 }
 #endif
+#endif
 
 void
 init_draw_helper_neon()
 {
+#if 0
 #ifdef BUILD_NEON
    if (eina_cpu_features_get() & EINA_CPU_NEON)
      {
@@ -228,4 +232,6 @@ init_draw_helper_neon()
         func_for_mode[ECTOR_ROP_BLEND] = comp_func_source_over_neon;
       }
 #endif
+#endif
 }
+

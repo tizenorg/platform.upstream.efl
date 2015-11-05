@@ -29,20 +29,6 @@ lib_ecore_buffer_libecore_buffer_la_LIBADD = @ECORE_BUFFER_LIBS@
 lib_ecore_buffer_libecore_buffer_la_DEPENDENCIES = @ECORE_BUFFER_INTERNAL_LIBS@
 lib_ecore_buffer_libecore_buffer_la_LDFLAGS = @EFL_LTLIBRARY_FLAGS@
 
-### Binary
-bqmgr_bindir=$(libdir)/ecore_buffer/bin/$(MODULE_ARCH)
-bqmgr_bin_PROGRAMS = bin/ecore_buffer/bq_mgr
-
-bin_ecore_buffer_bq_mgr_SOURCES = \
-bin/ecore_buffer/bq_mgr_protocol.c \
-bin/ecore_buffer/bq_mgr.c
-
-bin_ecore_buffer_bq_mgr_CPPFLAGS = \
--I$(top_builddir)/src/lib/efl \
-@ECORE_BUFFER_CFLAGS@
-bin_ecore_buffer_bq_mgr_LDADD = @USE_ECORE_INTERNAL_LIBS@ @USE_ECORE_BUFFER_LIBS@
-bin_ecore_buffer_bq_mgr_DEPENDENCIES = @USE_ECORE_INTERNAL_LIBS@ @USE_ECORE_BUFFER_INTERNAL_LIBS@
-
 ### Backends
 
 if BUILD_ECORE_BUFFER_X11_DRI2

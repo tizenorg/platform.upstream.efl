@@ -341,11 +341,6 @@ _efl_vg_shape_eo_base_destructor(Eo *obj, Efl_VG_Shape_Data *pd EINA_UNUSED)
    eo_do_super(obj, MY_CLASS, eo_destructor());
 }
 
-EAPI double
-evas_vg_shape_stroke_scale_get(Eo *obj)
-{
-   return eo_do(obj, efl_gfx_shape_stroke_scale_get());
-
 static Eina_Bool
 _efl_vg_shape_efl_vg_base_interpolate(Eo *obj,
                                       Efl_VG_Shape_Data *pd,

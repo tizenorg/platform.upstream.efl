@@ -309,19 +309,18 @@ mixin Efl.Gfx.Shape
         }
       }
       append_arc {
-        /*@
-          Append an arc that enclosed in the given rectangle (x, y, w, h).
+        [[Append an arc that enclosed in the given rectangle (x, y, w, h).
           The angle is defined in counter clock wise , use -ve angle for clockwise arc.
 
           @since 1.14
-        */
+        ]]
         params {
-          @in x: double; /*@ X co-ordinate of the rect.*/
-          @in y: double; /*@ Y co-ordinate of the rect.*/
-          @in w: double; /*@ width of the rect.*/
-          @in h: double; /*@ height of the rect.*/
-          @in start_angle: double; /*@ Angle at which the arc will start*/
-          @in sweep_length: double; /*@ Length of the arc.*/
+          @in x: double; [[@ X co-ordinate of the rect.]]
+          @in y: double; [[@ Y co-ordinate of the rect.]]
+          @in w: double; [[@ width of the rect.]]
+          @in h: double; [[@ height of the rect.]]
+          @in start_angle: double; [[@ Angle at which the arc will start]]
+          @in sweep_length: double; [[@ Length of the arc.]]
         }
       }
       append_close {

@@ -1384,7 +1384,7 @@ AC_ARG_ENABLE([wayland],
    [want_wayland="no"])
 
 if test "${want_wayland}" = "yes"; then
-   EFL_PKG_CHECK_STRICT([wayland-client >= 1.8.0])
+   EFL_PKG_CHECK_STRICT([wayland-client >= 1.7.0])
 fi
 
 # Wayland IVI-Shell
@@ -4584,7 +4584,7 @@ EFL_LIB_END([Elocation])
 
 ### Add Wayland server library if test is enabled
 if test "x${want_tests}" = "xyes" -a "x${want_wayland}" = "xyes"; then
-   EFL_DEPEND_PKG([ECORE_WAYLAND_SRV], [WAYLAND], [wayland-server >= 1.8.0])
+   EFL_DEPEND_PKG([ECORE_WAYLAND_SRV], [WAYLAND], [wayland-server >= 1.7.0])
    EFL_EVAL_PKGS([ECORE_WAYLAND_SRV])
 fi
 

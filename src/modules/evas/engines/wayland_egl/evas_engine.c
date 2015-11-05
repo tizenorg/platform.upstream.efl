@@ -1033,7 +1033,7 @@ _native_cb_bind(void *data EINA_UNUSED, void *image)
     {
         if (n->egl_surface)
           {
-            void *surface = glsym_evgl_native_surface_buffer_get(n->egl_surface);
+            void *surface = glsym_evgl_native_surface_buffer_get(n->egl_surface, NULL);
             if (glsym_glEGLImageTargetTexture2DOES)
               {
                 glsym_glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, surface);

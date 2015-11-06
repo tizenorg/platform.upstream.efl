@@ -130,7 +130,6 @@ pc/eolian.pc \
 pc/efl.pc \
 pc/emile.pc \
 pc/eet.pc \
-pc/ector.pc \
 pc/evas.pc \
 pc/ecore.pc \
 pc/ecore-con.pc \

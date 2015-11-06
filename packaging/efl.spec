@@ -127,6 +127,15 @@ Requires: %{name}-data = %{version}-%{release}
 %description -n eina
 Eina is a data type library.
 
+%package -n eina-tools
+Summary: Eina Tools
+Group:     Graphics & UI Framework/Utilities
+Requires:  eina = %{version}-%{release}
+Provides:  eina-bin
+
+%description -n eina-tools
+The eina tools package the eina binary utility.
+
 #%package -n eina-examples
 #Summary:  Examples for the eina package
 #Group:    Graphics & UI Framework/Testing
@@ -142,6 +151,22 @@ Requires: eina = %{version}-%{release}
 
 %description -n eina-devel
 Development files for eina.
+
+############ Emile
+%package -n emile
+Summary: EFL serialization, compression and crypto library
+Requires: %{name}-data = %{version}-%{release}
+
+%description -n emile
+EFL serialization, compression and crypto library
+
+%package -n emile-devel
+Summary:  Development components for the emile package
+Group:    Graphics & UI Framework/Development
+Requires: emile = %{version}-%{release}
+
+%description -n emile-devel
+Development files for emile.
 
 ############ Eet
 %package -n eet
@@ -648,6 +673,9 @@ install -m 0644 %SOURCE100 %{buildroot}%{_tmpfilesdir}/efl.conf
 %post -n eina -p /sbin/ldconfig
 %postun -n eina -p /sbin/ldconfig
 
+%post -n emile -p /sbin/ldconfig
+%postun -n emile -p /sbin/ldconfig
+
 %post -n eet -p /sbin/ldconfig
 %postun -n eet -p /sbin/ldconfig
 
@@ -717,6 +745,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %defattr(-,root,root,-)
 %{_datadir}/locale/*/*/*.mo
 %{_libdir}/libefl.so.*
+%{_bindir}/efl_debug*
 
 %files -n %{name}-devel
 %manifest %{name}.manifest
@@ -735,6 +764,10 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/libeina.so.*
 %{_bindir}/eina-bench-cmp
 
+%files -n eina-tools
+%manifest %{name}.manifest
+%{_bindir}/eina_btlog
+
 #%files -n eina-examples
 #%manifest %{name}.manifest
 #%defattr(-,root,root,-)
@@ -750,6 +783,20 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/pkgconfig/eina*.pc
 %{_libdir}/cmake/Eina*/*.cmake
 
+%files -n emile
+%manifest %{name}.manifest
+%defattr(-,root,root,-)
+%license COPYING
+%{_libdir}/libemile.so.*
+
+%files -n emile-devel
+%manifest %{name}.manifest
+%defattr(-,root,root,-)
+%{_includedir}/emile-*1/*.h*
+%{_libdir}/libemile.so
+%{_libdir}/pkgconfig/emile*.pc
+%{_libdir}/cmake/Emile*/*.cmake
+
 %files -n eet
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
@@ -761,6 +808,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_bindir}/eet
 %{_bindir}/vieet
 %{_bindir}/diffeet
+%{_bindir}/eetpack
 
 #%files -n eet-examples
 #%manifest %{name}.manifest
@@ -798,6 +846,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_datadir}/gdb/auto-load/usr/lib*/*
 %{_libdir}/cmake/Eo/*.cmake
 %{_libdir}/cmake/EoCxx/*.cmake
+/usr/share/eolian/include/eo-*1/*.eot
 
 %files -n ector
 %manifest %{name}.manifest
@@ -808,6 +857,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
 %{_includedir}/ector-*1/*.h*
+%{_includedir}/ector-*1/*/*.h*
 %{_libdir}/libector.so
 %{_libdir}/pkgconfig/ector*.pc
 
@@ -839,6 +889,8 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/libevas.so
 %{_libdir}/pkgconfig/evas*.pc
 %{_libdir}/cmake/Evas*/*.cmake
+/usr/share/eolian/include/evas-*1/*.eot
+/usr/share/evas/filters/lua/*.lua
 
 %files -n ecore
 %manifest %{name}.manifest
@@ -962,6 +1014,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_includedir}/eio-1/*
 %{_libdir}/libeio.so
 %{_libdir}/pkgconfig/eio*.pc
+%{_libdir}/cmake/Eio*/*.cmake
 
 %files -n edje
 %manifest %{name}.manifest
@@ -990,6 +1043,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/libedje.so
 %{_libdir}/pkgconfig/edje*.pc
 %{_libdir}/cmake/Edje/*.cmake
+/usr/share/eolian/include/edje-*1/*.eot
 
 %files -n eeze
 %manifest %{name}.manifest
@@ -1047,7 +1101,7 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/edje/modules/emotion/*/module.so
 %{_libdir}/emotion/modules/*/*/module.so
 %{_datadir}/emotion/*
-%{_bindir}/emotion_test
+%{_bindir}/emotion_test*
 
 #%files -n emotion-examples
 #%manifest %{name}.manifest

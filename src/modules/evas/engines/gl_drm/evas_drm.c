@@ -24,7 +24,7 @@ _evas_drm_crtc_buffer_get(int fd, int crtc_id)
 }
 
 Ecore_Drm_Output*
-evas_drm_output_find(unsigned int crtc_id)
+evas_drm_output_find_from_crtc(unsigned int crtc_id)
 {
    Ecore_Drm_Device *dev;
    Ecore_Drm_Output *output;
@@ -34,6 +34,22 @@ evas_drm_output_find(unsigned int crtc_id)
    EINA_LIST_FOREACH(devs, l, dev)
      EINA_LIST_FOREACH(dev->outputs, ll, output)
        if (ecore_drm_output_crtc_id_get(output) == crtc_id)
+         return output;
+
+   return NULL;
+}
+
+Ecore_Drm_Output*
+evas_drm_output_find_from_connector(unsigned int conn_id)
+{
+   Ecore_Drm_Device *dev;
+   Ecore_Drm_Output *output;
+   Eina_List *devs = ecore_drm_devices_get();
+   Eina_List *l, *ll;
+
+   EINA_LIST_FOREACH(devs, l, dev)
+     EINA_LIST_FOREACH(dev->outputs, ll, output)
+       if (ecore_drm_output_connector_id_get(output) == conn_id)
          return output;
 
    return NULL;
@@ -159,12 +175,15 @@ evas_drm_gbm_shutdown(Evas_Engine_Info_GL_Drm *info)
 Eina_Bool
 evas_drm_outbuf_setup(Outbuf *ob)
 {
+   Ecore_Drm_Output *output;
    drmModeRes *res;
    drmModeConnector *conn;
    drmModePlaneResPtr pres;
    drmModeEncoder *enc;
-   drmModeModeInfo crtc_mode;
-   int i = 0;
+   drmModeModeInfo crtc_mode = {0,};
+   drmModeModeInfo *mode_info;
+   int i = 0, ret;
+   Eina_Bool need_setcrtc = EINA_FALSE;
 
    /* check for valid Output buffer */
    if ((!ob) || (ob->priv.fd < 0)) return EINA_FALSE;
@@ -223,10 +242,41 @@ evas_drm_outbuf_setup(Outbuf *ob)
           }
 
         /* record the crtc id */
-        ob->priv.crtc = crtc_id;
+        if (crtc_id != -1)
+          ob->priv.crtc = crtc_id;
+        else
+          {
+             output = evas_drm_output_find_from_connector(conn->connector_id);
+             ob->priv.crtc = ecore_drm_output_crtc_id_get(output);
+
+             mode_info = (drmModeModeInfo*)ecore_drm_output_mode_info_get(output);
+             if (mode_info)
+               memcpy(&crtc_mode, mode_info, sizeof(drmModeModeInfo));
+             else
+               ERR("can't find mode for crtc:%d connect:%d", ob->priv.crtc, ob->priv.conn);
+
+             need_setcrtc = EINA_TRUE;
+          }
 
         /* get the current framebuffer */
-        ob->priv.fb = _evas_drm_crtc_buffer_get(ob->priv.fd, crtc_id);
+        ob->priv.fb = _evas_drm_crtc_buffer_get(ob->priv.fd, ob->priv.crtc);
+        if (ob->priv.fb == 0)
+          {
+             uint32_t width, height;
+             uint32_t handle;
+
+             ob->bufmgr = tbm_bufmgr_init(ob->priv.fd);
+
+             width = conn->modes[0].hdisplay;
+             height = conn->modes[0].vdisplay;
+
+             ob->default_bo = tbm_bo_alloc(ob->bufmgr, width * height * 4, TBM_BO_SCANOUT);
+             handle = tbm_bo_get_handle(ob->default_bo, TBM_DEVICE_DEFAULT).u32;
+
+             ret = drmModeAddFB(ob->priv.fd, width, height, 32, 32,
+                                width * 4, handle, &(ob->priv.fb));
+             if (ret) ERR("Failed to AddFB: %m");
+          }
 
         memset(&ob->priv.mode, 0, sizeof(ob->priv.mode));
 
@@ -244,18 +294,28 @@ evas_drm_outbuf_setup(Outbuf *ob)
 
           }
 
-        if ((!ob->priv.mode.hdisplay) && (crtc_mode.clock != 0))
+        if (crtc_mode.clock != 0)
           memcpy(&ob->priv.mode, &crtc_mode, sizeof(ob->priv.mode));
+        else
+          {
+             mode_info = (drmModeModeInfo*)ecore_drm_output_mode_info_get(output);
+             if (mode_info)
+               memcpy(&ob->priv.mode, mode_info, sizeof(ob->priv.mode));
+             else
+               ERR("can't find mode for crtc:%d connect:%d", ob->priv.crtc, ob->priv.conn);
+          }
 
         DBG("Output Current Mode: %d: %d %d", ob->priv.conn,
             ob->priv.mode.hdisplay, ob->priv.mode.vdisplay);
 
-        if ((ob->priv.mode.hdisplay != conn->modes[0].hdisplay) ||
+        if (need_setcrtc ||
+            (ob->priv.mode.hdisplay != conn->modes[0].hdisplay) ||
             (ob->priv.mode.vdisplay != conn->modes[0].vdisplay))
           {
              /* set new crtc mode */
-             drmModeSetCrtc(ob->priv.fd, ob->priv.crtc, ob->priv.fb, 0, 0,
+             ret = drmModeSetCrtc(ob->priv.fd, ob->priv.crtc, ob->priv.fb, 0, 0,
                             &ob->priv.conn, 1, &ob->priv.mode);
+             if (ret) ERR("Failed to set crtc: %m");
           }
 
         /* free connector resources */
@@ -341,7 +401,7 @@ evas_drm_framebuffer_send(Outbuf *ob, Buffer *buffer)
 
         if (!ob->output)
           {
-             ob->output = evas_drm_output_find(ob->priv.crtc);
+             ob->output = evas_drm_output_find_from_crtc(ob->priv.crtc);
              EINA_SAFETY_ON_NULL_RETURN_VAL(ob->output, EINA_FALSE);
           }
 

@@ -1554,7 +1554,7 @@ _anim_cb_animate(void *data, struct wl_callback *callback, uint32_t serial EINA_
    wdata = ee->engine.data;
    wl_callback_destroy(callback);
    wdata->anim_callback = NULL;
-   ecore_evas_manual_render_set(ee, 0);
+//   ecore_evas_manual_render_set(ee, 0);
 }
 
 static const struct wl_callback_listener _anim_listener =
@@ -1572,7 +1572,7 @@ _ecore_evas_wl_common_render_pre(void *data, Evas *evas EINA_UNUSED, void *event
    wdata->anim_callback =
      wl_surface_frame(ecore_wl_window_surface_get(wdata->win));
    wl_callback_add_listener(wdata->anim_callback, &_anim_listener, ee);
-   ecore_evas_manual_render_set(ee, 1);
+//   ecore_evas_manual_render_set(ee, 1);
 }
 
 void 

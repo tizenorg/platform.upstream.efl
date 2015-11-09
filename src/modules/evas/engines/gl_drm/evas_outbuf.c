@@ -6,10 +6,10 @@ static Outbuf *_evas_gl_drm_window = NULL;
 static EGLContext context = EGL_NO_CONTEXT;
 static int win_count = 0;
 
-#ifdef EGL_MESA_platform_gbm
-static PFNEGLGETPLATFORMDISPLAYEXTPROC dlsym_eglGetPlatformDisplayEXT = NULL;
-static PFNEGLCREATEPLATFORMWINDOWSURFACEEXTPROC dlsym_eglCreatePlatformWindowSurfaceEXT = NULL;
-#endif
+//#ifdef EGL_MESA_platform_gbm
+//static PFNEGLGETPLATFORMDISPLAYEXTPROC dlsym_eglGetPlatformDisplayEXT = NULL;
+//static PFNEGLCREATEPLATFORMWINDOWSURFACEEXTPROC dlsym_eglCreatePlatformWindowSurfaceEXT = NULL;
+//#endif
 
 static void
 _evas_outbuf_gbm_surface_destroy(Outbuf *ob)
@@ -158,14 +158,14 @@ _evas_outbuf_init(void)
 {
    static int _init = 0;
    if (_init) return EINA_TRUE;
-#ifdef EGL_MESA_platform_gbm
-   dlsym_eglGetPlatformDisplayEXT = (PFNEGLGETPLATFORMDISPLAYEXTPROC)
-         eglGetProcAddress("eglGetPlatformDisplayEXT");
-   EINA_SAFETY_ON_NULL_RETURN_VAL(dlsym_eglGetPlatformDisplayEXT, EINA_FALSE);
-   dlsym_eglCreatePlatformWindowSurfaceEXT = (PFNEGLCREATEPLATFORMWINDOWSURFACEEXTPROC)
-         eglGetProcAddress("eglCreatePlatformWindowSurfaceEXT");
-   EINA_SAFETY_ON_NULL_RETURN_VAL(dlsym_eglCreatePlatformWindowSurfaceEXT, EINA_FALSE);
-#endif
+//#ifdef EGL_MESA_platform_gbm
+//   dlsym_eglGetPlatformDisplayEXT = (PFNEGLGETPLATFORMDISPLAYEXTPROC)
+//         eglGetProcAddress("eglGetPlatformDisplayEXT");
+//   EINA_SAFETY_ON_NULL_RETURN_VAL(dlsym_eglGetPlatformDisplayEXT, EINA_FALSE);
+//   dlsym_eglCreatePlatformWindowSurfaceEXT = (PFNEGLCREATEPLATFORMWINDOWSURFACEEXTPROC)
+//         eglGetProcAddress("eglCreatePlatformWindowSurfaceEXT");
+//   EINA_SAFETY_ON_NULL_RETURN_VAL(dlsym_eglCreatePlatformWindowSurfaceEXT, EINA_FALSE);
+//#endif
    _init = 1;
    return EINA_TRUE;
 }
@@ -210,12 +210,12 @@ _evas_outbuf_egl_setup(Outbuf *ob)
    else cfg_attr[n++] = 0;
    cfg_attr[n++] = EGL_NONE;
 
-#ifdef EGL_MESA_platform_gbm
-   ob->egl.disp =
-     dlsym_eglGetPlatformDisplayEXT(EGL_PLATFORM_GBM_MESA, ob->info->info.gbm, NULL);
-#else
+//#ifdef EGL_MESA_platform_gbm
+//   ob->egl.disp =
+//     dlsym_eglGetPlatformDisplayEXT(EGL_PLATFORM_GBM_MESA, ob->info->info.gbm, NULL);
+//#else
    ob->egl.disp = eglGetDisplay((EGLNativeDisplayType)ob->info->info.gbm);
-#endif
+//#endif
    if (ob->egl.disp  == EGL_NO_DISPLAY)
      {
         ERR("eglGetDisplay() fail. code=%#x", eglGetError());
@@ -276,15 +276,15 @@ _evas_outbuf_egl_setup(Outbuf *ob)
           }
      }
 
-#ifdef EGL_MESA_platform_gbm
-   ob->egl.surface[0] =
-     dlsym_eglCreatePlatformWindowSurfaceEXT(ob->egl.disp, ob->egl.config,
-                                             ob->surface, NULL);
-#else
+//#ifdef EGL_MESA_platform_gbm
+//   ob->egl.surface[0] =
+//     dlsym_eglCreatePlatformWindowSurfaceEXT(ob->egl.disp, ob->egl.config,
+//                                             ob->surface, NULL);
+//#else
    ob->egl.surface[0] =
      eglCreateWindowSurface(ob->egl.disp, ob->egl.config,
                             (EGLNativeWindowType)ob->surface, NULL);
-#endif
+//#endif
    if (ob->egl.surface[0] == EGL_NO_SURFACE)
      {
         ERR("eglCreateWindowSurface() fail for %p. code=%#x",
@@ -398,7 +398,7 @@ evas_outbuf_new(Evas_Engine_Info_GL_Drm *info, int w, int h, Render_Engine_Swap_
    ob->destination_alpha = info->info.destination_alpha;
    /* ob->vsync = info->info.vsync; */
    ob->swap_mode = swap_mode;
-   ob->priv.num = 2;
+   ob->priv.num = 4;
 
    if ((num = getenv("EVAS_GL_DRM_BUFFERS")))
      {
@@ -616,7 +616,8 @@ evas_outbuf_buffer_state_get(Outbuf *ob)
 
         return swap_mode;
      }
-   else
+   else if ((ob->swap_mode != MODE_AUTO) &&
+            (ob->swap_mode != MODE_FULL))
      {
         int delta;
 

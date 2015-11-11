@@ -865,7 +865,6 @@ ecore_wl_window_find(unsigned int id)
    return win;
 }
 
-EAPI void
 EAPI Ecore_Wl_Window_Type
 ecore_wl_window_type_get(Ecore_Wl_Window *win)
 {

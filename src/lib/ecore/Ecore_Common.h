@@ -248,6 +248,10 @@ EAPI void ecore_main_loop_glib_always_integrate_disable(void);
  * handlers, etc. Once everything is done, before entering again on idle state,
  * any callback set as @c Idle_Enterer will be called.
  *
+ * This function should be called once only from the same thread that
+ * initted ecore, eina etc. (ecore_init(), eina_init(), ...) and should never
+ * be nested. Never call it from within an instance of itself.
+ *
  * Each main loop iteration is done by calling ecore_main_loop_iterate()
  * internally.
  *
@@ -953,7 +957,7 @@ typedef enum _Ecore_Exe_Flags Ecore_Exe_Flags;
 
 /**
  * @enum _Ecore_Exe_Win32_Priority
- * Defines the priority of the proccess.
+ * Defines the priority of the process.
  */
 enum _Ecore_Exe_Win32_Priority
 {
@@ -1053,7 +1057,7 @@ EAPI void ecore_exe_run_priority_set(int pri);
 /**
  * Gets the priority at which to launch processes
  *
- * This gets ths priority of launched processes. See
+ * This gets the priority of launched processes. See
  * ecore_exe_run_priority_set() for details. This just returns the value set
  * by this call.
  *
@@ -2481,7 +2485,7 @@ EAPI void ecore_app_args_set(int argc, const char **argv);
  * @param argc A pointer to the return value to hold argc
  * @param argv A pointer to the return value to hold argv
  *
- * When called, this funciton returns the arguments for the program stored by
+ * When called, this function returns the arguments for the program stored by
  * ecore_app_args_set(). The integer pointed to by @p argc will be filled, if
  * the pointer is not NULL, and the string array pointer @p argv will be filled
  * also if the pointer is not NULL. The values they are filled with will be the
@@ -3066,22 +3070,13 @@ EAPI double ecore_timer_precision_get(void);
 EAPI void ecore_timer_precision_set(double precision);
 
 /**
- * Creates a timer to call the given function in the given period of time.
- * @param   in   The interval in seconds.
- * @param   func The given function.  If @p func returns 1, the timer is
- *               rescheduled for the next interval @p in.
- * @param   data Data to pass to @p func when it is called.
- * @return  A timer object on success.  @c NULL on failure.
+ * This function returns a human readable text-based log for Ecore_Timer events.
  *
- * This function adds a timer and returns its handle on success and NULL on
- * failure. The function @p func will be called every @p in seconds. The
- * function will be passed the @p data pointer as its parameter.
+ * @return a heap allocated string or NULL. It MUST be freed manually by the
+ * caller using `free`.
  *
- * When the timer @p func is called, it must return a value of either 1
- * (or ECORE_CALLBACK_RENEW) or 0 (or ECORE_CALLBACK_CANCEL).
- * If it returns 1, it will be called again at the next tick, or if it returns
- * 0 it will be deleted automatically making any references/handles for it
- * invalid.
+ * It only contains an useful implementation if EFL is built in debug build
+ * profile, but it's safe to call it for any build profile.
  */
 EAPI char *ecore_timer_dump(void);
 

@@ -1,4 +1,4 @@
-EFL_VERSION([1], [13], [1], [release])
+EFL_VERSION([1], [16], [0], [release])
 AC_INIT([efl], [efl_version], [enlightenment-devel@lists.sourceforge.net])
 
 AC_PREREQ([2.60])
@@ -136,6 +136,12 @@ case "${build_tests}" in
      ;;
 esac
 
+AC_ARG_WITH([ecore-con-http-test-url],
+   [AS_HELP_STRING([--with-ecore-con-http-test-url=http://username:password@example.com],[Url of http server for testing with username and password])],[ECORE_CON_HTTP_TEST_URL=${withval}][AC_DEFINE_UNQUOTED([ECORE_CON_HTTP_TEST_URL],["$withval"],[Http url for testing])])
+
+AC_ARG_WITH([ecore-con-ftp-test-url],
+   [AS_HELP_STRING([--with-ecore-con-ftp-test-url=ftp://username:password@ftp.example.com?file=filename&directory=dir],[Url of ftp server for testing with username, password, complete filepath for upload with optional directory])],[ECORE_CON_FTP_TEST_URL=${withval}][AC_DEFINE_UNQUOTED([ECORE_CON_FTP_TEST_URL],["$withval"],[Ftp url for testing])])
+
 dbusservicedir="${datadir}/dbus-1/services"
 AC_ARG_WITH([dbus-services],
    [AS_HELP_STRING([--with-dbus-services=DBUS_SERVICES],[specify a directory to store dbus service files.])],
@@ -223,6 +229,7 @@ esac
 AC_SUBST([MODULE_ARCH])
 AC_DEFINE_UNQUOTED([MODULE_ARCH], ["${MODULE_ARCH}"], ["Module architecture"])
 AC_DEFINE_UNQUOTED([SHARED_LIB_SUFFIX], ["${MODULE_EXT}"], [Suffix for shared objects])
+AC_DEFINE_UNQUOTED([EXEEXT], ["${EXEEXT}"], [Suffix for binary objects])
 
 # TODO: move me to m4 file that setups the windows related variables
 AM_CONDITIONAL([HAVE_WIN32], [test "x${have_win32}" = "xyes"])
@@ -342,7 +349,6 @@ AM_CONDITIONAL([EFL_ENABLE_TESTS], [test "${want_tests}" = "yes"])
 # check for crypto/tls library to use
 case "$build_crypto" in
    gnutls)
-      CFOPT_WARNING="xyes"
       EFL_DEPEND_PKG([crypto], [GNUTLS], [gnutls >= 2.12.16])
 
       AM_PATH_LIBGCRYPT([], [:],
@@ -416,18 +422,7 @@ sys/mman.h \
 netinet/in.h \
 ])
 
-have_inotify="${ac_cv_header_sys_inotify_h}"
-AM_CONDITIONAL([HAVE_INOTIFY], [test "x${have_inotify}" = "xyes"])
-
-have_notify_win32="${have_win32}"
-AC_DEFINE_IF([HAVE_NOTIFY_WIN32],
-   [test "x${have_notify_win32}" = "xyes"], [1],
-   [File monitoring with Windows notification])
-AM_CONDITIONAL([HAVE_NOTIFY_WIN32], [test "x${have_notify_win32}" = "xyes"])
-
-
 EFL_CHECK_PATH_MAX
-
 
 #### Checks for types
 
@@ -581,6 +576,21 @@ case $host_cpu in
        CFLAGS="${CFLAGS_save}"
     fi
     ;;
+  aarch64*)
+    if test "x${want_neon}" = "xyes"; then
+       build_cpu_neon="yes"
+       AC_MSG_CHECKING([whether to use NEON instructions])
+       AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <arm_neon.h>]], [[volatile uint32x4_t test = vdupq_n_u32(0x1);]])],[
+           AC_MSG_RESULT([yes])
+           AC_DEFINE([BUILD_NEON], [1], [Build NEON Code])
+           AC_DEFINE([BUILD_NEON_INTRINSICS], [1], [Build NEON Intrinsics])
+           build_cpu_neon="yes"
+       	 ],[
+	   AC_MSG_RESULT([no])
+           build_cpu_neon="no"
+       	 ])
+    fi
+    ;;
 esac
 
 AC_SUBST([ALTIVEC_CFLAGS])
@@ -621,18 +631,30 @@ AC_DEFINE_IF([HAVE_ATFILE_SOURCE],
 
 
 ######################  EFL  ######################
-build_gui="yes"
-AC_ARG_ENABLE([gui],
-   [AS_HELP_STRING([--disable-gui],[disable GUI libraries @<:@default=enable@:>@])],
+
+want_libeeze="yes"
+AC_ARG_ENABLE([libeeze],
+   [AS_HELP_STRING([--disable-libeeze],[disable Eeze device library @<:@default=enable@:>@])],
    [
     if test "x${enableval}" = "xyes"; then
-       build_gui="yes"
-       CFOPT_WARNING="yes"
+       want_libeeze="yes"
     else
-       build_gui="no"
+       want_libeeze="no"
+       CFOPT_WARNING="yes"
     fi
    ])
-AM_CONDITIONAL([BUILD_GUI], [test "x${build_gui}" = "xyes"])
+
+build_libeeze="yes"
+if test "x${want_libeeze}" = "xyes" ; then
+    if test "x${have_linux}" = "xyes" ; then
+        build_libeeze="yes"
+    else
+        build_libeeze="no"
+        want_libeeze="no"
+    fi
+else
+    build_libeeze="no"
+fi
 
 AC_ARG_ENABLE([systemd],
    [AS_HELP_STRING([--enable-systemd],[Enable systemd support. @<:@default=disabled@:>@])],
@@ -674,16 +696,10 @@ AM_CONDITIONAL([HAVE_SYSTEMD_USER_SESSION], [test "x${have_systemd_user_session}
 AC_SUBST([USER_SESSION_DIR])
 
 if test "x${have_systemd_pkg}" = "xauto" -o "x${have_systemd_pkg}" = "xyes"; then
-   PKG_CHECK_MODULES([SYSTEMD], [libsystemd-daemon >= 192 libsystemd-journal >= 192],
+   PKG_CHECK_MODULES([SYSTEMD], [libsystemd >= 209],
    [have_systemd_pkg="yes"],
    [have_systemd_pkg="no"])
 fi
-
-PKG_CHECK_MODULES(SYSTEMD_LOGIN, [libsystemd-login >= 198],
-                  [have_systemd_login=yes], [have_systemd_login=no])
-AS_IF([test "x$have_systemd_login" = "xyes"],
-      [AC_DEFINE([HAVE_SYSTEMD_LOGIN], [1], [Have systemd-login])])
-AM_CONDITIONAL(HAVE_SYSTEMD_LOGIN, test "x$have_systemd_login" = "xyes")
 
 # check for systemd library if requested
 if test "x${want_systemd}" = "xyes" -a "x${have_systemd_pkg}" = "xno"; then
@@ -691,7 +707,7 @@ if test "x${want_systemd}" = "xyes" -a "x${have_systemd_pkg}" = "xno"; then
 fi
 
 AM_CONDITIONAL([WANT_SYSTEMD], [test "${want_systemd}" = "yes"])
-
+AM_CONDITIONAL([HAVE_SYSTEMD], [test "${want_systemd}" = "yes" -a "${have_systemd_pkg}" = "yes"])
 #### Platform-dependent
 DL_LIBS=""
 DL_INTERNAL_LIBS=""
@@ -827,6 +843,12 @@ case "${build_profile}" in
      ;;
 esac
 
+PKG_CHECK_MODULES(UNWIND, [libunwind libunwind-generic],
+                  [have_unwind=yes], [have_unwind=no])
+AS_IF([test "x$have_unwind" = "xyes"],
+      [AC_DEFINE([HAVE_UNWIND], [1], [Have libunwind])])
+AM_CONDITIONAL(HAVE_UNWIND, test "x$have_unwind" = "xyes")
+
 EINA_CONFIG([HAVE_ALLOCA_H], [test "x${ac_cv_working_alloca_h}" = "xyes"])
 EINA_CONFIG([SAFETY_CHECKS], [test "x${have_safety_checks}" = "xyes"])
 EINA_CONFIG([DEFAULT_MEMPOOL], [test "x${want_default_mempool}" = "xyes"])
@@ -853,6 +875,9 @@ AC_ARG_ENABLE([magic-debug],
    [have_magic_debug="yes"])
 
 EINA_CONFIG([MAGIC_DEBUG], [test "x${have_magic_debug}" = "xyes"])
+
+AC_ARG_WITH([xattr-tests-path],
+   [AS_HELP_STRING([--with-xattr-tests-path=DIR],[path of xattr enabled directory to create test files])],[XATTR_TEST_DIR=${withval}][AC_DEFINE_UNQUOTED([XATTR_TEST_DIR],["$withval"], [xattr enabled directory])])
 
 ### Checks for programs
 
@@ -895,7 +920,7 @@ AC_DEFINE_IF([EINA_COW_MAGIC_ON],
    [test "x${want_cow_magic}" = "xyes" ],
    [1], [Turn on Eina_Magic in Eina_Cow])
 
-EFL_OPTIONAL_DEPEND_PKG([EINA], [${want_systemd}], [SYSTEMD], [libsystemd-journal])
+EFL_OPTIONAL_DEPEND_PKG([EINA], [${want_systemd}], [SYSTEMD], [libsystemd])
 
 EFL_EVAL_PKGS([EINA])
 
@@ -965,6 +990,7 @@ EFL_ADD_CFLAGS([EINA], [${EFL_PTHREAD_CFLAGS}])
 
 EINA_CONFIG([HAVE_PTHREAD_BARRIER], [test "x${efl_have_pthread_barrier}" = "xyes"])
 EINA_CONFIG([HAVE_PTHREAD_AFFINITY], [test "x${efl_have_setaffinity}" = "xyes"])
+EINA_CONFIG([HAVE_PTHREAD_SETNAME], [test "x${efl_have_setname}" = "xyes"])
 EINA_CONFIG([HAVE_DEBUG_THREADS], [test "x${want_debug_threads}" = "xyes"])
 EINA_CONFIG([HAVE_POSIX_SPINLOCK], [test "x${efl_have_posix_threads_spinlock}" = "xyes"])
 EINA_CONFIG([HAVE_OSX_SPINLOCK], [test "x${efl_have_osx_spinlock}" = "xyes"])
@@ -980,7 +1006,6 @@ EFL_ADD_FEATURE([EINA], [systemd-journal], [${want_systemd}])
 
 EFL_LIB_END([Eina])
 #### End of Eina
-
 
 #### Eina CXX
 EFL_LIB_START([Eina_Cxx])
@@ -1004,64 +1029,6 @@ EFL_EVAL_PKGS([EINA_CXX])
 
 EFL_LIB_END([Eina_Cxx])
 #### End of Eina CXX
-
-#### Eet
-
-EFL_LIB_START([Eet])
-
-### Default values
-
-### Additional options to configure
-
-### Checks for programs
-
-### Checks for libraries
-
-## Compatibility layers
-EFL_PLATFORM_DEPEND([EET], [evil])
-
-EFL_ADD_LIBS([EET], [-lm])
-
-# Cryptography support
-if test "$build_crypto" != "none" ; then
-   AC_DEFINE([HAVE_CIPHER], [1], [Have cipher support built in eet])
-   AC_DEFINE([HAVE_SIGNATURE], [1], [Have signature support for eet file])
-   EFL_CRYPTO_DEPEND([EET])
-fi
-
-EFL_CHECK_LIBS([EET], [libjpeg zlib])
-
-EFL_INTERNAL_DEPEND_PKG([EET], [eina])
-
-EFL_EVAL_PKGS([EET])
-
-### Checks for header files
-
-### Checks for types
-
-### Checks for structures
-
-### Checks for compiler characteristics
-
-### Checks for linker characteristics
-
-### Checks for library functions
-
-### Check availability
-
-EFL_LIB_END([Eet])
-#### End of Eet
-
-#### Eet CXX
-EFL_LIB_START([Eet_Cxx])
-
-EFL_INTERNAL_DEPEND_PKG([EET_CXX], [Eina_Cxx])
-EFL_INTERNAL_DEPEND_PKG([EET_CXX], [Eet])
-
-EFL_EVAL_PKGS([EET_CXX])
-
-EFL_LIB_END([Eet_Cxx])
-#### End of Eet CXX
 
 #### Eo
 
@@ -1102,6 +1069,117 @@ EFL_CHECK_FUNCS([EO], [dladdr])
 
 EFL_LIB_END([Eo])
 #### End of Eo
+
+#### Eet CXX
+EFL_LIB_START([Eet_Cxx])
+
+EFL_INTERNAL_DEPEND_PKG([EET_CXX], [Eina_Cxx])
+EFL_INTERNAL_DEPEND_PKG([EET_CXX], [Eet])
+
+EFL_EVAL_PKGS([EET_CXX])
+
+EFL_LIB_END([Eet_Cxx])
+#### End of Eet CXX
+
+#### Emile
+
+EFL_LIB_START([Emile])
+
+### Default values
+
+### Additional options to configure
+
+### Checks for programs
+
+### Checks for libraries
+
+EFL_CHECK_LIBS([EMILE], [libjpeg])
+
+## Compatibility layers
+EFL_PLATFORM_DEPEND([EMILE], [evil])
+
+EFL_ADD_LIBS([EMILE], [-lm])
+
+# Cryptography support
+if test "$build_crypto" != "none" ; then
+   AC_DEFINE([HAVE_CIPHER], [1], [Have cipher support built in emile])
+   AC_DEFINE([HAVE_SIGNATURE], [1], [Have signature support in emile])
+   EFL_CRYPTO_DEPEND([EMILE])
+fi
+
+EFL_CHECK_LIBS([EMILE], [zlib])
+
+EFL_INTERNAL_DEPEND_PKG([EMILE], [eina])
+
+EFL_EVAL_PKGS([EMILE])
+
+### Checks for header files
+
+### Checks for types
+
+### Checks for structures
+
+### Checks for compiler characteristics
+
+### Checks for linker characteristics
+
+### Checks for library functions
+
+### Check availability
+
+EFL_ADD_FEATURE([EMILE], [crypto], [${build_crypto}])
+
+EFL_LIB_END([Emile])
+#### End of Emile
+
+
+#### Eet
+
+EFL_LIB_START([Eet])
+
+### Default values
+
+### Additional options to configure
+
+### Checks for programs
+
+### Checks for libraries
+
+EFL_CHECK_LIBS([EET], [libjpeg])
+
+## Compatibility layers
+EFL_PLATFORM_DEPEND([EET], [evil])
+
+EFL_ADD_LIBS([EET], [-lm])
+
+# Cryptography support
+if test "$build_crypto" != "none" ; then
+   AC_DEFINE([HAVE_CIPHER], [1], [Have cipher support built in eet])
+   AC_DEFINE([HAVE_SIGNATURE], [1], [Have signature support for eet file])
+   EFL_CRYPTO_DEPEND([EET])
+fi
+
+EFL_INTERNAL_DEPEND_PKG([EET], [eina])
+EFL_INTERNAL_DEPEND_PKG([EET], [emile])
+
+EFL_EVAL_PKGS([EET])
+
+### Checks for header files
+
+### Checks for types
+
+### Checks for structures
+
+### Checks for compiler characteristics
+
+### Checks for linker characteristics
+
+### Checks for library functions
+
+### Check availability
+
+EFL_LIB_END([Eet])
+#### End of Eet
 
 #### Eo CXX
 EFL_LIB_START([Eo_Cxx])
@@ -1230,7 +1308,8 @@ EFL_LIB_END([ECTOR])
 #### End of Ector
 
 #### Evas
-EFL_LIB_START_OPTIONAL([Evas], [test "x${build_gui}" = "xyes"])
+
+EFL_LIB_START([Evas])
 
 ### Additional options to configure
 
@@ -1305,7 +1384,7 @@ AC_ARG_ENABLE([wayland],
    [want_wayland="no"])
 
 if test "${want_wayland}" = "yes"; then
-   EFL_PKG_CHECK_STRICT([wayland-client >= 1.3.0])
+   EFL_PKG_CHECK_STRICT([wayland-client >= 1.7.0])
 fi
 
 # Wayland IVI-Shell
@@ -1371,11 +1450,11 @@ AC_ARG_ENABLE([cocoa],
     ],
     [want_cocoa="no"])
 
- if test "${want_cocoa}" = "yes"; then
-    #test cocoa requirements (objc and Cocoa/Cocoa.h)
- 	cocoa_ldflags=""
-   have_cocoa="no"
-   m4_ifdef([AC_PROG_OBJC],
+if test "${want_cocoa}" = "yes"; then
+   #test cocoa requirements (objc and Cocoa/Cocoa.h)
+    cocoa_ldflags=""
+    have_cocoa="no"
+    m4_ifdef([AC_PROG_OBJC],
       [
        if test "x${have_gnu_objc}" = "xyes" ; then
           AC_LANG_PUSH([Objective C])
@@ -1410,6 +1489,38 @@ window = [[NSWindow alloc]
 fi
 AC_SUBST(cocoa_ldflags)
 
+if test "x${want_cocoa}" = "xyes"; then
+    #test cocoa requirements (objc and Cocoa/Cocoa.h)
+    cocoa_coreservices_ldflags=""
+    have_cocoa_coreservices="no"
+    m4_ifdef([AC_PROG_OBJC],
+      [
+       if test "x${have_gnu_objc}" = "xyes" ; then
+          AC_LANG_PUSH([Objective C])
+          LIBS_save="$LIBS"
+          LIBS="$LIBS -framework CoreServices"
+          AC_LINK_IFELSE(
+             [AC_LANG_PROGRAM(
+                 [[
+#include <CoreServices/CoreServices.h>
+                 ]],
+                 [[
+//test function here
+                 ]])],
+             [
+              have_cocoa_coreservices="yes"
+              cocoa_coreservices_ldflags="-framework CoreServices"
+             ],
+             [have_cocoa_coreservices="no"])
+          LIBS="$LIBS_save"
+          AC_MSG_CHECKING([whether Cocoa CoreServices framework is supported])
+          AC_MSG_RESULT([${have_cocoa_coreservices}])
+          AC_LANG_POP([Objective C])
+       fi
+   ])
+fi
+AC_SUBST(cocoa_coreservices_ldflags)
+
 # Drm
 AC_ARG_ENABLE([drm],
    [AS_HELP_STRING([--enable-drm],[enable drm engine. @<:@default=disabled@:>@])],
@@ -1421,18 +1532,6 @@ AC_ARG_ENABLE([drm],
     fi
    ],
    [want_drm="no"])
-
-want_drm_hw_accel="no"
-AC_ARG_ENABLE([drm-hw-accel],
-   [AS_HELP_STRING([--enable-drm-hw-accel],[enable drm hardware acceleration. @<:@default=disabled@:>@])],
-   [
-    if test "x${enableval}" = "xyes" ; then
-       want_drm_hw_accel="yes"
-    else
-       want_drm_hw_accel="no"
-    fi
-   ],
-   [want_drm_hw_accel="no"])
 
 
 AC_ARG_ENABLE([gl-drm],
@@ -1610,8 +1709,8 @@ AC_ARG_ENABLE([ecore-buffer],
     else
        want_ecore_buffer="no"
     fi
-  ],
-  [want_ecore_buffer="no"])
+   ],
+   [want_ecore_buffer="no"])
 
 # Image Loaders
 
@@ -1667,6 +1766,7 @@ EFL_INTERNAL_DEPEND_PKG([EVAS], [eo])
 EFL_INTERNAL_DEPEND_PKG([EVAS], [eet])
 EFL_INTERNAL_DEPEND_PKG([EVAS], [eina])
 EFL_INTERNAL_DEPEND_PKG([EVAS], [efl])
+EFL_INTERNAL_DEPEND_PKG([EVAS], [emile])
 EFL_INTERNAL_DEPEND_PKG([EVAS], [ector])
 
 EFL_ADD_LIBS([EVAS], [-lm])
@@ -1854,13 +1954,13 @@ AC_SUBST([have_evas_engine_gl_xcb])
 if test "x$have_evas_engine_gl_sdl" = "xyes" || test "x$have_evas_engine_gl_sdl" = "xstatic" ; then
    AC_CHECK_DECL([SDL_GL_CONTEXT_MAJOR_VERSION],
       [AC_DEFINE([HAVE_SDL_GL_CONTEXT_VERSION], [1], [SDL_GL version attributes present])],,
-      [#include <SDL/SDL_video.h>])
+      [#include <SDL2/SDL_video.h>])
 fi
 
 if test "${with_opengl}" = "es"; then
    AC_CHECK_DECL([SDL_OPENGLES],
       [AC_DEFINE([HAVE_SDL_FLAG_OPENGLES], [1], [SDL_OPENGLES flag is present])],,
-      [#include <SDL/SDL_video.h>])
+      [#include <SDL2/SDL_video.h>])
 fi
 
 # OpenGL common
@@ -2083,81 +2183,7 @@ EFL_ADD_FEATURE([EVAS], [cserve], [${want_evas_cserve2}])
 EFL_ADD_FEATURE([EVAS], [tile-rotate])
 EFL_ADD_FEATURE([EVAS], [dither-mask], [${build_evas_dither_mask}])
 
-EFL_LIB_END_OPTIONAL([Evas])
-
-if test "x${build_gui}" = "xno"; then
-   AM_CONDITIONAL([BUILD_ENGINE_BUFFER], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_BUFFER], [false])
-   AM_CONDITIONAL([BUILD_ENGINE_FB], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_FB], [false])
-   AM_CONDITIONAL([BUILD_ENGINE_PSL1GHT], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_PSL1GHT], [false])
-   AM_CONDITIONAL([BUILD_ENGINE_GL_COCOA], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_GL_COCOA], [false])
-   AM_CONDITIONAL([BUILD_ENGINE_GL_SDL], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_GL_SDL], [false])
-   AM_CONDITIONAL([BUILD_ENGINE_SOFTWARE_GDI], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_SOFTWARE_GDI], [false])
-   AM_CONDITIONAL([BUILD_ENGINE_SOFTWARE_DDRAW], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_SOFTWARE_DDRAW], [false])
-   AM_CONDITIONAL([BUILD_ENGINE_WAYLAND_EGL], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_WAYLAND_EGL], [false])
-   AM_CONDITIONAL([BUILD_ENGINE_WAYLAND_SHM], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_WAYLAND_SHM], [false])
-   AM_CONDITIONAL([BUILD_ENGINE_DRM], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_DRM], [false])
-   AM_CONDITIONAL([BUILD_ENGINE_SOFTWARE_XCB], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_SOFTWARE_XCB], [false])
-   AM_CONDITIONAL([BUILD_ENGINE_SOFTWARE_XLIB], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_SOFTWARE_XLIB], [false])
-   AM_CONDITIONAL([BUILD_ENGINE_SOFTWARE_X11], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_SOFTWARE_X11], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_SOFTWARE_GENERIC], [false])
-   AM_CONDITIONAL([BUILD_ENGINE_GL_XCB], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_GL_XCB], [false])
-   AM_CONDITIONAL([BUILD_ENGINE_GL_XLIB], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_GL_XLIB], [false])
-   AM_CONDITIONAL([BUILD_ENGINE_GL_X11], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_GL_X11], [false])
-   AM_CONDITIONAL([BUILD_ENGINE_GL_COMMON], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_GL_COMMON], [false])
-   AM_CONDITIONAL([BUILD_LOADER_BMP], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_BMP], [false])
-   AM_CONDITIONAL([BUILD_LOADER_EET], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_EET], [false])
-   AM_CONDITIONAL([BUILD_LOADER_GENERIC], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_GENERIC], [false])
-   AM_CONDITIONAL([BUILD_LOADER_GIF], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_GIF], [false])
-   AM_CONDITIONAL([BUILD_LOADER_ICO], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_ICO], [false])
-   AM_CONDITIONAL([BUILD_LOADER_JPEG], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_JPEG], [false])
-   AM_CONDITIONAL([BUILD_LOADER_JP2K], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_JP2K], [false])
-   AM_CONDITIONAL([BUILD_LOADER_PMAPS], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_PMAPS], [false])
-   AM_CONDITIONAL([BUILD_LOADER_PNG], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_PNG], [false])
-   AM_CONDITIONAL([BUILD_LOADER_PSD], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_PSD], [false])
-   AM_CONDITIONAL([BUILD_LOADER_TGA], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_TGA], [false])
-   AM_CONDITIONAL([BUILD_LOADER_TIFF], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_TIFF], [false])
-   AM_CONDITIONAL([BUILD_LOADER_WBMP], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_WBMP], [false])
-   AM_CONDITIONAL([BUILD_LOADER_WEBP], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_WEBP], [false])
-   AM_CONDITIONAL([BUILD_LOADER_XPM], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_XPM], [false])
-   AM_CONDITIONAL([BUILD_LOADER_TGV], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_TGV], [false])
-   AM_CONDITIONAL([BUILD_LOADER_DDS], [false])
-   AM_CONDITIONAL([EVAS_STATIC_BUILD_DDS], [false])
-   AM_CONDITIONAL([EVAS_CSERVE2], [false])
-fi
-
+EFL_LIB_END([Evas])
 #### End of Evas
 
 #### Edje CXX
@@ -2268,9 +2294,6 @@ AC_ARG_ENABLE([gstreamer1],
     fi
    ],
    [want_gstreamer1="yes"])
-if test "x${build_gui}" = "xno"; then
-   want_gstreamer1="no"
-fi
 
 AC_ARG_ENABLE([tizen],
    [AS_HELP_STRING([--enable-tizen],[enable tizen support. @<:@default=disabled@:>@])],
@@ -2330,7 +2353,7 @@ if test "x${have_glib}" = "xno"; then
    want_g_main_loop="no"
 fi
 
-EFL_OPTIONAL_DEPEND_PKG([ECORE], [${want_systemd}], [SYSTEMD], [libsystemd-daemon])
+EFL_OPTIONAL_DEPEND_PKG([ECORE], [${want_systemd}], [SYSTEMD], [libsystemd])
 
 EFL_ADD_FEATURE([ECORE], [systemd-daemon], [${want_systemd}])
 EFL_ADD_FEATURE([ECORE], [glib])
@@ -2548,6 +2571,7 @@ EFL_INTERNAL_DEPEND_PKG([ECORE_CON], [eo])
 EFL_INTERNAL_DEPEND_PKG([ECORE_CON], [eet])
 EFL_INTERNAL_DEPEND_PKG([ECORE_CON], [eina])
 EFL_INTERNAL_DEPEND_PKG([ECORE_CON], [ecore])
+EFL_INTERNAL_DEPEND_PKG([ECORE_CON], [emile])
 
 EFL_ADD_LIBS([ECORE_CON], [-lm])
 
@@ -2563,7 +2587,7 @@ else
    ecore_con_resolver="fork"
 fi
 
-EFL_OPTIONAL_DEPEND_PKG([ECORE_CON], [${want_systemd}], [SYSTEMD], [libsystemd-daemon])
+EFL_OPTIONAL_DEPEND_PKG([ECORE_CON], [${want_systemd}], [SYSTEMD], [libsystemd])
 
 EFL_ADD_FEATURE([ECORE_CON], [cares])
 EFL_ADD_FEATURE([ECORE_CON], [local-sockets], [${want_ecore_con_local_sockets}])
@@ -2687,7 +2711,7 @@ EFL_LIB_END([Ecore_File])
 
 
 #### Ecore_Input
-EFL_LIB_START_OPTIONAL([Ecore_Input], [test "x${build_gui}" = "xyes"])
+EFL_LIB_START([Ecore_Input])
 
 ### Additional options to configure
 
@@ -2715,12 +2739,12 @@ EFL_INTERNAL_DEPEND_PKG([ECORE_INPUT], [eina])
 
 ### Checks for library functions
 
-EFL_LIB_END_OPTIONAL([Ecore_Input])
+EFL_LIB_END([Ecore_Input])
 #### End of Ecore_Input
 
 
 #### Ecore_Input_Evas
-EFL_LIB_START_OPTIONAL([Ecore_Input_Evas], [test "x${build_gui}" = "xyes"])
+EFL_LIB_START([Ecore_Input_Evas])
 
 ### Additional options to configure
 
@@ -2738,6 +2762,7 @@ EFL_INTERNAL_DEPEND_PKG([ECORE_INPUT_EVAS], [evas])
 EFL_INTERNAL_DEPEND_PKG([ECORE_INPUT_EVAS], [efl])
 EFL_INTERNAL_DEPEND_PKG([ECORE_INPUT_EVAS], [eo])
 EFL_INTERNAL_DEPEND_PKG([ECORE_INPUT_EVAS], [eina])
+EFL_INTERNAL_DEPEND_PKG([ECORE_INPUT_EVAS], [emile])
 
 ### Checks for header files
 
@@ -2751,7 +2776,7 @@ EFL_INTERNAL_DEPEND_PKG([ECORE_INPUT_EVAS], [eina])
 
 ### Checks for library functions
 
-EFL_LIB_END_OPTIONAL([Ecore_Input_Evas])
+EFL_LIB_END([Ecore_Input_Evas])
 #### End of Ecore_Input_Evas
 
 
@@ -2992,7 +3017,7 @@ have_libmount_new="no"
 have_libmount_old="no"
 have_eeze_mount="no"
 
-EFL_LIB_START_OPTIONAL([Eeze], [test "${have_linux}" = "yes"])
+EFL_LIB_START_OPTIONAL([Eeze], [test "x${build_libeeze}" = "xyes"])
 
 ### Additional options to configure
 AC_ARG_WITH([mount],
@@ -3016,6 +3041,7 @@ EFL_INTERNAL_DEPEND_PKG([EEZE], [eo])
 EFL_INTERNAL_DEPEND_PKG([EEZE], [ecore-file])
 EFL_INTERNAL_DEPEND_PKG([EEZE], [ecore-con])
 EFL_INTERNAL_DEPEND_PKG([EEZE], [eet])
+EFL_INTERNAL_DEPEND_PKG([EEZE], [emile])
 
 EFL_DEPEND_PKG([EEZE], [UDEV], [libudev >= 148])
 
@@ -3185,10 +3211,6 @@ AC_ARG_ENABLE([audio],
    ],
    [want_audio="yes"])
 
-if test "x${build_gui}" = "xno"; then
-   want_audio="no"
-fi
-
 EFL_LIB_START_OPTIONAL([Ecore_Audio], [test "${want_audio}" = "yes"])
 
 ### Additional options to configure
@@ -3213,6 +3235,54 @@ AC_ARG_ENABLE([pulseaudio],
    ],
    [want_pulseaudio="yes"])
 
+if test "x${have_darwin}" = "xyes"; then
+   want_pulseaudio="no"
+   want_alsa="no"
+   want_coreaudio="yes"
+else
+   want_coreaudio="no"
+fi
+
+
+# CoreAudio flags
+if test "x${want_coreaudio}" = "xyes"; then
+   coreaudio_ldflags=""
+   have_coreaudio="no"
+   LIBS_save="$LIBS"
+   LIBS="$LIBS -framework CoreAudio"
+   AC_LINK_IFELSE(
+      [AC_LANG_PROGRAM(
+	 [[
+#include <CoreAudio/CoreAudio.h>
+	 ]],
+	 [[
+UInt32 size;
+AudioDeviceID dev_id;
+AudioObjectPropertyAddress prop = {
+   kAudioHardwarePropertyDefaultOutputDevice,
+   kAudioObjectPropertyScopeGlobal,
+   kAudioObjectPropertyElementMaster
+};
+size = sizeof(AudioDeviceID);
+AudioObjectGetPropertyData(kAudioObjectSystemObject, &prop, 0, NULL,
+		           &size, &dev_id);
+	 ]])],
+	 [
+	  have_coreaudio="yes"
+	  coreaudio_ldflags="-framework CoreAudio"
+	 ],
+	 [have_coreaudio="no"])
+      LIBS="$LIBS_save"
+      AC_MSG_CHECKING([whether Apple CoreAudio framework is supported])
+      AC_MSG_RESULT([${have_coreaudio}])
+fi
+AC_SUBST(coreaudio_ldflags)
+if test "x${have_coreaudio}" = "xyes"; then
+   AC_DEFINE([HAVE_COREAUDIO], [1], [CoreAudio support enabled])
+else
+   AC_DEFINE([HAVE_COREAUDIO], [0], [CoreAudio support disabled])
+fi
+
 
 ### Default values
 
@@ -3226,6 +3296,7 @@ EFL_INTERNAL_DEPEND_PKG([ECORE_AUDIO], [ecore])
 EFL_INTERNAL_DEPEND_PKG([ECORE_AUDIO], [eet])
 EFL_INTERNAL_DEPEND_PKG([ECORE_AUDIO], [eo])
 EFL_INTERNAL_DEPEND_PKG([ECORE_AUDIO], [eina])
+EFL_INTERNAL_DEPEND_PKG([ECORE_AUDIO], [emile])
 
 EFL_ADD_LIBS([ECORE_AUDIO], [-lm])
 
@@ -3238,6 +3309,7 @@ EFL_EVAL_PKGS([ECORE_AUDIO])
 EFL_ADD_FEATURE([ECORE_AUDIO], [alsa])
 EFL_ADD_FEATURE([ECORE_AUDIO], [pulseaudio])
 EFL_ADD_FEATURE([ECORE_AUDIO], [sndfile])
+EFL_ADD_FEATURE([ECORE_AUDIO], [coreaudio])
 
 ### Checks for header files
 
@@ -3254,6 +3326,7 @@ EFL_ADD_FEATURE([ECORE_AUDIO], [sndfile])
 EFL_LIB_END_OPTIONAL([Ecore_Audio])
 AM_CONDITIONAL([HAVE_ECORE_AUDIO_PULSE], [test "x${want_pulseaudio}" = "xyes"])
 AM_CONDITIONAL([HAVE_ECORE_AUDIO_SNDFILE], [test "x${want_sndfile}" = "xyes"])
+AM_CONDITIONAL([HAVE_ECORE_AUDIO_CORE_AUDIO], [test "x${want_coreaudio}" = "xyes"])
 
 #### End of Ecore_Audio
 
@@ -3547,7 +3620,6 @@ if test "x${want_x11_xlib}" = "xyes" ; then
    ECORE_CHECK_X_EXTENSION([Xdpms], [dpms.h], [Xext], [DPMSQueryExtension])
    ECORE_CHECK_X_EXTENSION([Xfixes], [Xfixes.h], [Xfixes], [XFixesExpandRegion])
    ECORE_CHECK_X_EXTENSION([Xinerama], [Xinerama.h], [Xinerama], [XineramaQueryScreens])
-   #ECORE_CHECK_X_EXTENSION([Xprint], [Print.h], [Xp], [XpQueryScreens])
    ECORE_CHECK_X_EXTENSION([Xrandr], [Xrandr.h], [Xrandr], [XRRGetScreenResourcesCurrent])
    ECORE_CHECK_X_EXTENSION([Xrender], [Xrender.h], [Xrender], [XRenderFindVisualFormat])
    ECORE_CHECK_X_EXTENSION([Xtest], [XTest.h], [Xtst], [XTestFakeKeyEvent])
@@ -3587,7 +3659,7 @@ fi
 if test "${want_x11_xcb}" = "yes"; then
 dnl note: added pixman-1 as ecore_xcb_region uses that
    EFL_DEPEND_PKG([ECORE_X], [ECORE_X_XCB],
-      [x11-xcb xcb xcb-shm xcb-event xcb-icccm >= 0.3.8 xcb-util >= 0.3.8 xcb-image xcb-keysyms >= 0.3.8 xcb-composite xcb-present xcb-damage xcb-dpms xcb-randr xcb-render xcb-screensaver xcb-shape xcb-sync xcb-xfixes xcb-xinerama xcb-xtest xcb-renderutil pixman-1]) #xcb-xprint
+      [x11-xcb xcb xcb-shm xcb-event xcb-icccm >= 0.3.8 xcb-util >= 0.3.8 xcb-image xcb-keysyms >= 0.3.8 xcb-composite xcb-present xcb-damage xcb-dpms xcb-randr xcb-render xcb-screensaver xcb-shape xcb-sync xcb-xfixes xcb-xinerama xcb-xtest xcb-renderutil pixman-1])
 
 dnl TODO: remove these ifdefs from code!
    AC_DEFINE([ECORE_XCB_COMPOSITE], [1], [Build support for XCB composite])
@@ -3600,7 +3672,6 @@ dnl TODO: remove these ifdefs from code!
    AC_DEFINE([ECORE_XCB_SYNC], [1], [Build support for XCB sync])
    AC_DEFINE([ECORE_XCB_XFIXES], [1], [Build support for XCB xfixes])
    AC_DEFINE([ECORE_XCB_XINERAMA], [1], [Build support for XCB xinerama])
-   #AC_DEFINE([ECORE_XCB_XPRINT], [1], [Build support for XCB xprint])
    AC_DEFINE([ECORE_XCB_XTEST], [1], [Build support for XCB xtest])
    AC_DEFINE([ECORE_XCB_CURSOR], [1], [Build support for XCB cursor])
 
@@ -3643,7 +3714,7 @@ AM_CONDITIONAL([HAVE_ECORE_X_XCB], [test "${want_x11_xcb}" = "yes"])
 
 
 #### Ecore_Imf
-EFL_LIB_START_OPTIONAL([Ecore_Imf], [test "x${build_gui}" = "xyes"])
+EFL_LIB_START([Ecore_Imf])
 
 ### Additional options to configure
 
@@ -3759,18 +3830,12 @@ EFL_ADD_FEATURE([ECORE_IMF], [wayland], [${want_ecore_imf_wayland}])
 
 ### Checks for library functions
 
-EFL_LIB_END_OPTIONAL([Ecore_Imf])
-if test "x${build_gui}" = "xno"; then
-   AM_CONDITIONAL([BUILD_ECORE_IMF_IBUS], [false])
-   AM_CONDITIONAL([BUILD_ECORE_IMF_SCIM], [false])
-   AM_CONDITIONAL([BUILD_ECORE_IMF_XIM], [false])
-   AM_CONDITIONAL([BUILD_ECORE_IMF_WAYLAND], [false])
-fi
+EFL_LIB_END([Ecore_Imf])
 #### End of Ecore_Imf
 
 
 #### Ecore_Imf_Evas
-EFL_LIB_START_OPTIONAL([Ecore_Imf_Evas], [test "x${build_gui}" = "xyes"])
+EFL_LIB_START([Ecore_Imf_Evas])
 
 ### Additional options to configure
 
@@ -3789,6 +3854,7 @@ EFL_INTERNAL_DEPEND_PKG([ECORE_IMF_EVAS], [evas])
 EFL_INTERNAL_DEPEND_PKG([ECORE_IMF_EVAS], [efl])
 EFL_INTERNAL_DEPEND_PKG([ECORE_IMF_EVAS], [eo])
 EFL_INTERNAL_DEPEND_PKG([ECORE_IMF_EVAS], [eina])
+EFL_INTERNAL_DEPEND_PKG([ECORE_IMF_EVAS], [emile])
 
 ### Checks for header files
 
@@ -3802,12 +3868,12 @@ EFL_INTERNAL_DEPEND_PKG([ECORE_IMF_EVAS], [eina])
 
 ### Checks for library functions
 
-EFL_LIB_END_OPTIONAL([Ecore_Imf_Evas])
+EFL_LIB_END([Ecore_Imf_Evas])
 #### End of Ecore_Imf_Evas
 
 
 #### Ecore_Evas
-EFL_LIB_START_OPTIONAL([Ecore_Evas], [test "x${build_gui}" = "xyes"])
+EFL_LIB_START([Ecore_Evas])
 
 ### Additional options to configure
 
@@ -3840,6 +3906,7 @@ EFL_INTERNAL_DEPEND_PKG([ECORE_EVAS], [evas])
 EFL_INTERNAL_DEPEND_PKG([ECORE_EVAS], [efl])
 EFL_INTERNAL_DEPEND_PKG([ECORE_EVAS], [eo])
 EFL_INTERNAL_DEPEND_PKG([ECORE_EVAS], [eina])
+EFL_INTERNAL_DEPEND_PKG([ECORE_EVAS], [emile])
 
 ## modules
 ECORE_EVAS_MODULE([extn], [${want_ecore_evas_extn}])
@@ -3942,7 +4009,7 @@ if test "x${have_ecore_evas_opengl_x11}" = "xyes" || test "x${have_ecore_evas_op
          [have_ecore_x_opengl_xcb="no"])
     else
       have_ecore_x_opengl_xcb="no"
-      AC_MSG_NOTICE(["XCB-based OpenGL explicitly disabled"])
+      AC_MSG_NOTICE([XCB-based OpenGL explicitly disabled])
     fi
 fi
 
@@ -3969,28 +4036,7 @@ EFL_EVAL_PKGS([ECORE_EVAS])
 
 ### Checks for library functions
 
-EFL_LIB_END_OPTIONAL([Ecore_Evas])
-if test "x${build_gui}" = "xno"; then
-   AM_CONDITIONAL([BUILD_ECORE_EVAS_EXTN], [false])
-   AM_CONDITIONAL([BUILD_ECORE_EVAS_EWS], [false])
-   AM_CONDITIONAL([BUILD_ECORE_EVAS_FB], [false])
-   AM_CONDITIONAL([BUILD_ECORE_EVAS_DRM], [false])
-   AM_CONDITIONAL([BUILD_ECORE_EVAS_PSL1GHT], [false])
-   AM_CONDITIONAL([BUILD_ECORE_EVAS_OPENGL_COCOA], [false])
-   AM_CONDITIONAL([BUILD_ECORE_EVAS_SOFTWARE_SDL], [false])
-   AM_CONDITIONAL([BUILD_ECORE_EVAS_OPENGL_SDL], [false])
-   AM_CONDITIONAL([BUILD_ECORE_EVAS_SDL], [false])
-   AM_CONDITIONAL([BUILD_ECORE_EVAS_WAYLAND_SHM], [false])
-   AM_CONDITIONAL([BUILD_ECORE_EVAS_WAYLAND_EGL], [false])
-   AM_CONDITIONAL([BUILD_ECORE_EVAS_WAYLAND], [false])
-   AM_CONDITIONAL([BUILD_ECORE_EVAS_SOFTWARE_GDI], [false])
-   AM_CONDITIONAL([BUILD_ECORE_EVAS_SOFTWARE_DDRAW], [false])
-   AM_CONDITIONAL([BUILD_ECORE_EVAS_WIN32], [false])
-   AM_CONDITIONAL([BUILD_ECORE_EVAS_SOFTWARE_X11], [false])
-   AM_CONDITIONAL([BUILD_ECORE_EVAS_OPENGL_X11], [false])
-   AM_CONDITIONAL([BUILD_ECORE_EVAS_X11], [false])
-fi
-
+EFL_LIB_END([Ecore_Evas])
 #### End of Ecore_Evas
 
 #### Eio
@@ -4010,6 +4056,8 @@ EFL_INTERNAL_DEPEND_PKG([EIO], [ecore])
 EFL_INTERNAL_DEPEND_PKG([EIO], [eet])
 EFL_INTERNAL_DEPEND_PKG([EIO], [eo])
 EFL_INTERNAL_DEPEND_PKG([EIO], [eina])
+EFL_INTERNAL_DEPEND_PKG([EIO], [efl])
+EFL_INTERNAL_DEPEND_PKG([EIO], [emile])
 
 EFL_ADD_LIBS([EIO], [-lm])
 
@@ -4024,6 +4072,27 @@ EFL_ADD_LIBS([EIO], [-lm])
 ### Checks for linker characteristics
 
 ### Checks for library functions
+have_inotify="${ac_cv_header_sys_inotify_h}"
+AM_CONDITIONAL([HAVE_INOTIFY], [test "x${have_inotify}" = "xyes"])
+
+have_notify_win32="${have_win32}"
+AC_DEFINE_IF([HAVE_NOTIFY_WIN32],
+   [test "x${have_notify_win32}" = "xyes"], [1],
+   [File monitoring with Windows notification])
+AM_CONDITIONAL([HAVE_NOTIFY_WIN32], [test "x${have_notify_win32}" = "xyes"])
+
+AC_DEFINE_IF([HAVE_NOTIFY_COCOA],
+   [test "x${have_darwin}" = "xyes"], [1],
+   [File monitoring with fsevent notification])
+AM_CONDITIONAL([HAVE_NOTIFY_COCOA], [test "x${have_darwin}" = "xyes"])
+
+AC_CHECK_FUNC([kevent])
+have_notify_kevent="${ac_cv_func_kevent}"
+AC_DEFINE_IF([HAVE_NOTIFY_KEVENT],
+   [test "x${have_notify_kevent}" = "xyes"], [1],
+   [File monitoring with kqueue/kevent mechanism])
+AM_CONDITIONAL([HAVE_NOTIFY_KEVENT], [test "x${have_notify_kevent}" = "xyes"])
+
 
 EFL_LIB_END([Eio])
 dnl TODO: remove these ifdefs from code!
@@ -4054,9 +4123,10 @@ EFL_PLATFORM_DEPEND([EFREET], [evil])
 EFL_INTERNAL_DEPEND_PKG([EFREET], [eet])
 EFL_INTERNAL_DEPEND_PKG([EFREET], [ecore])
 EFL_INTERNAL_DEPEND_PKG([EFREET], [ecore-file])
-EFL_INTERNAL_DEPEND_PKG([EFREET], [eldbus])
 EFL_INTERNAL_DEPEND_PKG([EFREET], [eo])
 EFL_INTERNAL_DEPEND_PKG([EFREET], [eina])
+EFL_INTERNAL_DEPEND_PKG([EFREET], [emile])
+EFL_INTERNAL_DEPEND_PKG([EFREET], [ecore-ipc])
 
 ### Checks for header files
 
@@ -4087,10 +4157,6 @@ AC_ARG_ENABLE([physics],
    ],
    [want_physics="yes"])
 
-if test "x${build_gui}" = "xno"; then
-   want_physics="no"
-fi
-
 EFL_LIB_START_OPTIONAL([EPhysics], [test "${want_physics}" = "yes"])
 
 ### Additional options to configure
@@ -4107,6 +4173,7 @@ EFL_INTERNAL_DEPEND_PKG([EPHYSICS], [evas])
 EFL_INTERNAL_DEPEND_PKG([EPHYSICS], [efl])
 EFL_INTERNAL_DEPEND_PKG([EPHYSICS], [ecore])
 EFL_INTERNAL_DEPEND_PKG([EPHYSICS], [eo])
+EFL_INTERNAL_DEPEND_PKG([EPHYSICS], [emile])
 
 EFL_DEPEND_PKG([EPHYSICS], [BULLET], [bullet >= 2.80])
 
@@ -4129,12 +4196,12 @@ EFL_LIB_END_OPTIONAL([EPhysics])
 
 
 #### Edje
-EFL_LIB_START_OPTIONAL([Edje], [test "x${build_gui}" = "xyes"])
+EFL_LIB_START([Edje])
 
 ### Additional options to configure
 
 ### Default values
-want_multisense="${want_pulseaudio}"
+
 AC_ARG_ENABLE([multisense],
    [AS_HELP_STRING([--enable-multisense],[Enable multisense support. @<:@default=enabled@:>@])],
    [
@@ -4145,11 +4212,13 @@ AC_ARG_ENABLE([multisense],
        CFOPT_WARNING="xyes"
     fi
    ],
-   [want_multisense="${want_pulseaudio}"])
-
-if test "x${build_gui}" = "xno"; then
-   want_multisense="no"
-fi
+   [
+    if test "x${want_pulseaudio}" = "xyes" -o "x${want_coreaudio}" = "xyes"; then
+       want_multisense="yes"
+    else
+       want_multisense="no"
+    fi
+   ])
 
 # TODO: should we keep or remove these?
 want_edje_program_cache="no"
@@ -4174,6 +4243,8 @@ EFL_INTERNAL_DEPEND_PKG([EDJE], [ecore-imf])
 EFL_INTERNAL_DEPEND_PKG([EDJE], [ecore-imf-evas])
 EFL_INTERNAL_DEPEND_PKG([EDJE], [embryo])
 EFL_INTERNAL_DEPEND_PKG([EDJE], [eio])
+EFL_INTERNAL_DEPEND_PKG([EDJE], [emile])
+EFL_INTERNAL_DEPEND_PKG([EDJE], [efreet])
 
 EFL_OPTIONAL_INTERNAL_DEPEND_PKG([EDJE], [${want_physics}], [ephysics])
 EFL_OPTIONAL_INTERNAL_DEPEND_PKG([EDJE], [${want_multisense}], [ecore-audio])
@@ -4201,8 +4272,7 @@ AC_DEFINE_IF([BUILD_EDJE_FP], [test "${want_fixed_point}" = "yes"],
 
 AM_CONDITIONAL([ENABLE_MULTISENSE], [test "${want_multisense}" = "yes"])
 AC_DEFINE_IF([ENABLE_MULTISENSE], [test "${want_multisense}" = "yes"],
-   [1], [Use Multisense])
-
+  [1], [Use Multisense])
 AC_SUBST([want_multisense])
 AC_SUBST([want_physics])
 
@@ -4222,14 +4292,8 @@ sys/wait.h \
 
 ### Checks for library functions
 
-EFL_LIB_END_OPTIONAL([Edje])
-
-if test "x${build_gui}" = "xno"; then
-   AC_DEFINE([ENABLE_MULTISENSE], [0], [Use Multisense])
-   AM_CONDITIONAL([ENABLE_MULTISENSE], [false])
-fi
+EFL_LIB_END([Edje])
 #### End of Edje
-
 
 #### Edje CXX
 EFL_LIB_START([Edje_Cxx])
@@ -4240,7 +4304,7 @@ EFL_LIB_END([Edje_Cxx])
 #### End of Edje CXX
 
 #### Emotion
-EFL_LIB_START_OPTIONAL([Emotion], [test "x${build_gui}" = "xyes"])
+EFL_LIB_START([Emotion])
 
 ## Compatibility layers
 EFL_PLATFORM_DEPEND([Emotion], [evil])
@@ -4275,6 +4339,17 @@ AC_ARG_ENABLE([v4l2],
    ],
    [want_v4l2="${efl_lib_optional_eeze}"])
 
+AC_ARG_ENABLE([libvlc],
+   [AS_HELP_STRING([--enable-libvlc],[enable libvlc support. @<:@default=disabled@:>@])],
+   [
+    if test "x${enableval}" = "xyes" ; then
+       want_libvlc="yes"
+    else
+       want_libvlc="no"
+    fi
+   ],
+   [want_libvlc="no"])
+
 ### Checks for programs
 
 ### Checks for libraries
@@ -4285,6 +4360,7 @@ EFL_INTERNAL_DEPEND_PKG([EMOTION], [eet])
 EFL_INTERNAL_DEPEND_PKG([EMOTION], [evas])
 EFL_INTERNAL_DEPEND_PKG([EMOTION], [efl])
 EFL_INTERNAL_DEPEND_PKG([EMOTION], [eio])
+EFL_INTERNAL_DEPEND_PKG([EMOTION], [emile])
 
 EFL_OPTIONAL_INTERNAL_DEPEND_PKG([EMOTION], [${efl_lib_optional_eeze}], [eeze])
 EFL_ADD_FEATURE([EMOTION], [v4l2])
@@ -4296,11 +4372,13 @@ have_gst_xoverlay="no"
 EMOTION_MODULE([xine], [${want_xine}])
 EMOTION_MODULE([gstreamer], [${want_gstreamer}])
 EMOTION_MODULE([gstreamer1], [${want_gstreamer1}])
+EMOTION_MODULE([libvlc], [${want_libvlc}])
 EMOTION_MODULE([generic], [${want_emotion_generic}])
 
 EFL_ADD_FEATURE([EMOTION], [xine])
 EFL_ADD_FEATURE([EMOTION], [gstreamer])
 EFL_ADD_FEATURE([EMOTION], [gstreamer1])
+EFL_ADD_FEATURE([EMOTION], [libvlc])
 EFL_ADD_FEATURE([EMOTION], [generic], [${want_emotion_generic}])
 
 EFL_EVAL_PKGS([EMOTION])
@@ -4326,23 +4404,12 @@ fi
 
 ### Check availability
 
-EFL_LIB_END_OPTIONAL([Emotion])
-
-if test "x${build_gui}" = "xno"; then
-   AM_CONDITIONAL([EMOTION_BUILD_XINE], [false])
-   AM_CONDITIONAL([EMOTION_STATIC_BUILD_XINE], [false])
-   AM_CONDITIONAL([EMOTION_BUILD_GSTREAMER], [false])
-   AM_CONDITIONAL([EMOTION_STATIC_BUILD_GSTREAMER], [false])
-   AM_CONDITIONAL([EMOTION_BUILD_GSTREAMER1], [false])
-   AM_CONDITIONAL([EMOTION_STATIC_BUILD_GSTREAMER1], [false])
-   AM_CONDITIONAL([EMOTION_BUILD_GENERIC], [false])
-   AM_CONDITIONAL([EMOTION_STATIC_BUILD_GENERIC], [false])
-fi
+EFL_LIB_END([Emotion])
 #### End of Emotion
 
 
 #### Ethumb
-EFL_LIB_START_OPTIONAL([Ethumb], [test "x${build_gui}" = "xyes"])
+EFL_LIB_START([Ethumb])
 
 ### Default values
 
@@ -4366,6 +4433,7 @@ EFL_INTERNAL_DEPEND_PKG([ETHUMB], [ecore-evas])
 EFL_INTERNAL_DEPEND_PKG([ETHUMB], [ecore-file])
 EFL_INTERNAL_DEPEND_PKG([ETHUMB], [ecore-imf])
 EFL_INTERNAL_DEPEND_PKG([ETHUMB], [edje])
+EFL_INTERNAL_DEPEND_PKG([ETHUMB], [emile])
 
 ## modules
 
@@ -4385,11 +4453,12 @@ EFL_EVAL_PKGS([ETHUMB])
 
 ### Check availability
 
-EFL_LIB_END_OPTIONAL([Ethumb])
+EFL_LIB_END([Ethumb])
 #### End of Ethumb
 
 #### Ethumb_Client
-EFL_LIB_START_OPTIONAL([Ethumb_Client], [test "x${build_gui}" = "xyes"])
+EFL_LIB_START([Ethumb_Client])
+
 ### Default values
 
 ### Additional options to configure
@@ -4410,6 +4479,7 @@ EFL_INTERNAL_DEPEND_PKG([ETHUMB_CLIENT], [edje])
 EFL_INTERNAL_DEPEND_PKG([ETHUMB_CLIENT], [eldbus])
 EFL_INTERNAL_DEPEND_PKG([ETHUMB_CLIENT], [ethumb])
 EFL_INTERNAL_DEPEND_PKG([ETHUMB_CLIENT], [evas])
+EFL_INTERNAL_DEPEND_PKG([ETHUMB_CLIENT], [emile])
 
 EFL_EVAL_PKGS([ETHUMB_CLIENT])
 
@@ -4427,7 +4497,7 @@ EFL_EVAL_PKGS([ETHUMB_CLIENT])
 
 ### Check availability
 
-EFL_LIB_END_OPTIONAL([Ethumb_Client])
+EFL_LIB_END([Ethumb_Client])
 #### End of Ethumb_Client
 
 #### Elua
@@ -4514,7 +4584,7 @@ EFL_LIB_END([Elocation])
 
 ### Add Wayland server library if test is enabled
 if test "x${want_tests}" = "xyes" -a "x${want_wayland}" = "xyes"; then
-   EFL_DEPEND_PKG([ECORE_WAYLAND_SRV], [WAYLAND], [wayland-server >= 1.3.0])
+   EFL_DEPEND_PKG([ECORE_WAYLAND_SRV], [WAYLAND], [wayland-server >= 1.7.0])
    EFL_EVAL_PKGS([ECORE_WAYLAND_SRV])
 fi
 
@@ -4550,14 +4620,12 @@ build_ecore_buffer_tbm="no"
 EFL_LIB_START_OPTIONAL([Ecore_Buffer], [test "${want_ecore_buffer}" = "yes"])
 ### Checks for libraries
 EFL_INTERNAL_DEPEND_PKG([ECORE_BUFFER], [eina])
-EFL_INTERNAL_DEPEND_PKG([ECORE_BUFFER], [ecore])
 EFL_INTERNAL_DEPEND_PKG([ECORE_BUFFER], [eo])
+EFL_INTERNAL_DEPEND_PKG([ECORE_BUFFER], [ecore])
 EFL_DEPEND_PKG([ECORE_BUFFER], [WAYLAND],
-               [wayland-client >= 1.5.0])
-EFL_EVAL_PKGS([ECORE_BUFFER])
+               [wayland-server >= 1.5.0 wayland-client >= 1.5.0])
 
-tbm_version="1.1.0"
-PKG_CHECK_MODULES([TBM], [libtbm >= ${tbm_version}],
+PKG_CHECK_MODULES([TBM], [libtbm >= "1.1.0"],
                   [have_tbm="yes"],
                   [have_tbm="no"])
 
@@ -4617,7 +4685,6 @@ AM_CONDITIONAL([BUILD_ECORE_BUFFER_TBM], [test "${build_ecore_buffer_tbm}" = "ye
 
 #### End of Ecore_Buffer
 
-
 #### src/examples/ephysics/Makefile
 AC_CONFIG_FILES([
 Makefile
@@ -4653,6 +4720,7 @@ pc/evil.pc
 pc/escape.pc
 pc/eina.pc
 pc/eina-cxx.pc
+pc/emile.pc
 pc/eet.pc
 pc/eet-cxx.pc
 pc/eo.pc
@@ -4701,6 +4769,7 @@ pc/ecore-buffer.pc
 pc/ector.pc
 pc/embryo.pc
 pc/eio.pc
+pc/eio-cxx.pc
 pc/eldbus.pc
 pc/efreet.pc
 pc/efreet-mime.pc
@@ -4714,15 +4783,15 @@ pc/ethumb.pc
 pc/ethumb_client.pc
 pc/elocation.pc
 pc/elua.pc
-dbus-services/org.enlightenment.Efreet.service
 dbus-services/org.enlightenment.Ethumb.service
-systemd-services/efreet.service
 systemd-services/ethumb.service
 $po_makefile_in
 cmakeconfig/EflConfig.cmake
 cmakeconfig/EflConfigVersion.cmake:cmakeconfig/EFLConfigVersion.cmake.in
 cmakeconfig/EinaConfig.cmake
 cmakeconfig/EinaConfigVersion.cmake:cmakeconfig/EFLConfigVersion.cmake.in
+cmakeconfig/EioConfig.cmake
+cmakeconfig/EioConfigVersion.cmake:cmakeconfig/EFLConfigVersion.cmake.in
 cmakeconfig/EezeConfig.cmake
 cmakeconfig/EezeConfigVersion.cmake:cmakeconfig/EFLConfigVersion.cmake.in
 cmakeconfig/EoConfig.cmake
@@ -4761,6 +4830,8 @@ cmakeconfig/EmotionConfig.cmake
 cmakeconfig/EmotionConfigVersion.cmake:cmakeconfig/EFLConfigVersion.cmake.in
 cmakeconfig/EluaConfig.cmake
 cmakeconfig/EluaConfigVersion.cmake:cmakeconfig/EFLConfigVersion.cmake.in
+cmakeconfig/EmileConfig.cmake
+cmakeconfig/EmileConfigVersion.cmake:cmakeconfig/EFLConfigVersion.cmake.in
 ])
 
 AC_OUTPUT
@@ -4789,6 +4860,9 @@ case $host_cpu in
   arm*)
     EFL_ADD_FEATURE([cpu], [neon], [${build_cpu_neon}])
     ;;
+  aarch64*)
+    EFL_ADD_FEATURE([cpu], [neon], [${build_cpu_neon}])
+    ;;
 esac
 
 if test "${have_linux}" = "yes"; then
@@ -4807,6 +4881,7 @@ fi
 EFL_ADD_FEATURE([thread], [spinlocks], [${efl_have_spinlock}])
 EFL_ADD_FEATURE([thread], [barrier], [${efl_have_pthread_barrier}])
 EFL_ADD_FEATURE([thread], [affinity], [${efl_have_setaffinity}])
+EFL_ADD_FEATURE([thread], [setname], [${efl_have_setname}])
 
 echo
 echo
@@ -4831,20 +4906,21 @@ echo "  Cryptography..: ${build_crypto}"
 echo "  X11...........: ${with_x11}"
 echo "  OpenGL........: ${with_opengl}"
 echo "  C++11.........: ${have_cxx11}"
-echo "  GUI libs......: ${build_gui}"
-echo "Evas............: ${efl_lib_optional_evas} (${features_evas})"
+echo "Eina............: yes (${features_eina} unwind=$have_unwind)"
+echo "Eo..............: yes (${features_eo})"
+echo "Eolian..........: yes (${features_eolian})"
+echo "Emile...........: yes (${features_emile})"
+echo "Eet.............: yes"
+echo "Evas............: yes (${features_evas})"
 echo "  Engines.......: ${features_evas_engine}"
 echo "  Image Loaders.: ${features_evas_loader}"
 if test "x${have_pixman}" = "xyes" ; then
 echo "  Pixman........: ${features_evas_pixman}"
 fi
-echo "Eo..............: yes (${features_eo})"
-echo "Eolian..........: yes (${features_eolian})"
-echo "Eina............: yes (${features_eina})"
 echo "Ecore...........: yes (${features_ecore})"
 echo "Ecore_Con.......: yes (${features_ecore_con})"
 echo "Ecore_File......: yes"
-echo "Ecore_IMF.......: ${efl_lib_optional_ecore_imf} (${features_ecore_imf})"
+echo "Ecore_IMF.......: yes (${features_ecore_imf})"
 echo "Ecore_X.........: ${with_x11} (${features_ecore_x})"
 echo "Ecore_SDL.......: $want_sdl"
 echo "Ecore_Wayland...: $want_wayland"
@@ -4861,14 +4937,14 @@ echo "Ecore_Win32.....: $have_win32"
 fi
 echo "Ecore_Audio.....: ${efl_lib_optional_ecore_audio} (${features_ecore_audio})"
 echo "Ecore_Avahi.....: yes (${features_ecore_avahi})"
-echo "Ecore_Evas......: ${efl_lib_optional_ecore_evas} (${features_ecore_evas})"
+echo "Ecore_Evas......: yes (${features_ecore_evas})"
 echo "Ector...........: yes"
 echo "Eeze............: ${efl_lib_optional_eeze} (${features_eeze})"
 echo "EPhysics........: ${efl_lib_optional_ephysics}"
-echo "Edje............: ${efl_lib_optional_edje} (${features_edje})"
-echo "Emotion.........: ${efl_lib_optional_emotion} (${features_emotion})"
-echo "Ethumb..........: ${efl_lib_optional_ethumb}"
-echo "Ethumb_Client...: ${efl_lib_optional_ethumb_client}"
+echo "Edje............: yes (${features_edje})"
+echo "Emotion.........: yes (${features_emotion})"
+echo "Ethumb..........: yes"
+echo "Ethumb_Client...: yes"
 echo "Elua............: $have_elua"
 if test "${build_tests}" = "none"; then
 echo "Tests...........: no"
@@ -4931,7 +5007,6 @@ if test "x${have_systemd_pkg}" = "xyes" -a "x${want_systemd}" = "xno"; then
    echo "                ||     ||"
 fi
 
-
 if test -n "$CFOPT_WARNING"; then
   echo "_____________________________________________________________________"
   echo ""
@@ -4957,17 +5032,6 @@ if test -n "$CFOPT_WARNING"; then
     echo "tested code, and possibly unimplemented features in ecore_x. To"
     echo "remove the XCB setup, remove the --with-x11=xcb option to"
     echo "configure."
-    echo "_____________________________________________________________________"
-  fi
-  if test "x${build_crypto}" = "xgnutls"; then
-    echo "_____________________________________________________________________"
-    echo "You have chosen gnutls as the crypto back-end. This will have some"
-    echo "side-effects that can break set-uid root binaries that happen to"
-    echo "link to and/or use EFL. These do actually exist. Gnutls will drop"
-    echo "root privs if it detects being setuid, thus breaking these tools"
-    echo "and their functionality. Only enable gnutls if you REALLY know"
-    echo "what you are doing and are willing to live with broken "
-    echo "functionality."
     echo "_____________________________________________________________________"
   fi
   if test "x${want_physics}" = "xno"; then
@@ -5076,11 +5140,12 @@ if test -n "$CFOPT_WARNING"; then
     echo "Reconsider disabling audio."
     echo "_____________________________________________________________________"
   fi
-  if test "x${want_pulseaudio}" = "xno"; then
+  if test "x${have_darwin}" = "xno" -a "x${want_pulseaudio}" = "xno"; then
     echo "_____________________________________________________________________"
-    echo "The only audio output method supported by Ecore right now is via"
-    echo "Pulseaudio. You have disabled that and likely have broken a whole"
-    echo "bunch of things in the process. Reconsider your configure options."
+    echo "The only audio output method supported by Ecore right now on your"
+    echo "system is via Pulseaudio. You have disabled that and likely have"
+    echo "broken a whole bunch of things in the process. Reconsider your"
+    echo "configure options."
     echo "_____________________________________________________________________"
   fi
   if test "x${want_xinput2}" = "xno"; then
@@ -5134,6 +5199,13 @@ if test -n "$CFOPT_WARNING"; then
     echo "to both as it will break your build if set to eo."
     echo "_____________________________________________________________________"
   fi
+  if test "x${want_libeeze}" = "xno"; then
+    echo "_____________________________________________________________________"
+    echo "Libeeze has been disabled, and it is used heavily for support of"
+    echo "removable devices etc. and disabling this will hurt support for"
+    echo "Enlightenment and its filemanager."
+    echo "_____________________________________________________________________"
+  fi
   echo "_____________________________________________________________________"
   echo ""
   echo "==-- WARNING --=="
@@ -5178,8 +5250,6 @@ if test "x$prefix" != "x/usr"; then
   needs_alert_dbus=0
   if test "$resolved_dbusservicedir" = "${HOME}/.local/share/dbus-1/services"; then
     AC_MSG_NOTICE([installing DBus services in user local "$resolved_dbusservicedir". Only accessible to user $USER])
-  elif echo "$XDG_DATA_DIRS" | grep -e "$resolved_datadir" >/dev/null 2>/dev/null; then
-    AC_MSG_NOTICE([installing DBus services in "$resolved_datadir" set in \$XDG_DATA_DIRS. Every user must have \$XDG_DATA_DIRS containing "$resolved_datadir".])
   elif echo "$resolved_dbusservicedir" | grep -e '^/usr/s' >/dev/null 2>/dev/null; then
     AC_MSG_NOTICE([installing DBus serivces in $resolved_dbusservicedir])
   else
@@ -5190,10 +5260,6 @@ if test "x$prefix" != "x/usr"; then
   if test "$have_systemd_user_session" = "yes"; then
     if test "$resolved_USER_SESSION_DIR" = "${HOME}/.config/systemd/user"; then
       AC_MSG_NOTICE([installing systemd services in user local "$resolved_USER_SESSION_DIR". Only accessible to user $USER])
-    elif echo "$XDG_DATA_DIRS" | grep -e "$base_USER_SESSION_DIR" >/dev/null 2>/dev/null; then
-      AC_MSG_NOTICE([installing systemd services in "$base_USER_SESSION_DIR" set in \$XDG_DATA_DIRS. Every user must have \$XDG_DATA_DIRS containing "$base_USER_SESSION_DIR".])
-    elif echo "$XDG_CONFIG_DIRS" | grep -e "$base_USER_SESSION_DIR" >/dev/null 2>/dev/null; then
-      AC_MSG_NOTICE([installing systemd services in "$base_USER_SESSION_DIR" set in \$XDG_CONFIG_DIRS. Every user must have \$XDG_CONFIG_DIRS containing "$base_USER_SESSION_DIR".])
     elif echo "$resolved_USER_SESSION_DIR" | grep -e '^/usr/s' >/dev/null 2>/dev/null; then
       AC_MSG_NOTICE([installing systemd serivces in $resolved_USER_SESSION_DIR])
     else
@@ -5222,25 +5288,21 @@ if test "x$prefix" != "x/usr"; then
       echo ""
       echo "System-wide installation:"
       echo "  ln -s ${resolved_dbusservicedir}/org.enlightenment.Ethumb.service /usr/share/dbus-1/services/org.enlightenment.Ethumb.service"
-      echo "  ln -s ${resolved_dbusservicedir}/org.enlightenment.Efreet.service /usr/share/dbus-1/services/org.enlightenment.Efreet.service"
       echo ""
       echo "  or add \"${resolved_datadir}\" to \$XDG_DATA_DIRS"
       echo ""
       echo "User installation:"
       echo "  ln -s ${resolved_dbusservicedir}/org.enlightenment.Ethumb.service ~/.local/share/dbus-1/services/org.enlightenment.Ethumb.service"
-      echo "  ln -s ${resolved_dbusservicedir}/org.enlightenment.Efreet.service ~/.local/share/dbus-1/services/org.enlightenment.Efreet.service"
     fi
     if test $needs_alert_systemd -eq 1; then
       echo ""
       echo "System-wide installation:"
       echo "  ln -s ${resolved_USER_SESSION_DIR}/ethumb.service /usr/lib/systemd/user/ethumb.service"
-      echo "  ln -s ${resolved_USER_SESSION_DIR}/efreet.service /usr/lib/systemd/user/efreet.service"
       echo ""
       echo "  or add \"${base_USER_SESSION_DIR}\" to \$XDG_DATA_DIRS or \$XDG_CONFIG_DIRS"
       echo ""
       echo "User installation:"
       echo "  ln -s ${resolved_USER_SESSION_DIR}/ethumb.service ~/.config/systemd/user/ethumb.service"
-      echo "  ln -s ${resolved_USER_SESSION_DIR}/efreet.service ~/.config/systemd/user/efreet.service"
     fi
     echo ""
     echo "#-------------------------------------------------------------------#"
@@ -5258,3 +5320,4 @@ if test "x${efl_deprecated_option}" = "xyes"; then
   echo ""
   echo "#-------------------------------------------------------------------#"
 fi
+

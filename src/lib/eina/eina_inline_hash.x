@@ -19,6 +19,8 @@
 #ifndef EINA_INLINE_HASH_X_
 #define EINA_INLINE_HASH_X_
 
+#include "eina_crc.h"
+
 EAPI extern unsigned int eina_seed;
 
 /*
@@ -144,10 +146,22 @@ eina_hash_murmur3(const char *key, int len)
          k1 = _rotl32(k1, 16);
          k1 *= c2;
          h1 ^= k1;
+      default:
+         break;
      }
 
    h1 ^= len;
 
    return _fmix32(h1);
+}
+
+static inline int
+eina_hash_crc(const char *key, int len)
+{
+   unsigned int crc;
+   unsigned int seed = 0xFFFFFFFF;
+
+   crc = eina_crc(key, len, seed, EINA_TRUE);
+   return (int)crc;
 }
 #endif

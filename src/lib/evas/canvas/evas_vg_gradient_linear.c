@@ -88,17 +88,19 @@ _efl_vg_gradient_linear_render_pre(Eo *obj,
          ector_renderer_prepare());
 }
 
-static void
+static Eo *
 _efl_vg_gradient_linear_eo_base_constructor(Eo *obj,
                                             Efl_VG_Gradient_Linear_Data *pd)
 {
    Efl_VG_Base_Data *nd;
 
-   eo_do_super(obj, MY_CLASS, eo_constructor());
+   obj = eo_do_super_ret(obj, MY_CLASS, obj, eo_constructor());
 
    nd = eo_data_scope_get(obj, EFL_VG_BASE_CLASS);
    nd->render_pre = _efl_vg_gradient_linear_render_pre;
    nd->data = pd;
+
+   return obj;
 }
 
 static void
@@ -116,6 +118,53 @@ _efl_vg_gradient_linear_efl_vg_base_bounds_get(Eo *obj, Efl_VG_Gradient_Linear_D
    EINA_RECTANGLE_SET(r,
                       nd->x + pd->start.x, nd->y + pd->start.y,
                       pd->end.x - pd->start.x, pd->end.y - pd->start.x);
+}
+
+static Eina_Bool
+_efl_vg_gradient_linear_efl_vg_base_interpolate(Eo *obj,
+                                                Efl_VG_Gradient_Linear_Data *pd,
+                                                const Efl_VG_Base *from, const Efl_VG_Base *to,
+                                                double pos_map)
+{
+   Efl_VG_Gradient_Linear_Data *fromd, *tod;
+   double from_map;
+   Eina_Bool r;
+
+   eo_do_super(obj, EFL_VG_GRADIENT_LINEAR_CLASS, r = efl_vg_interpolate(from, to, pos_map));
+
+   if (!r) return EINA_FALSE;
+
+   fromd = eo_data_scope_get(from, EFL_VG_GRADIENT_LINEAR_CLASS);
+   tod = eo_data_scope_get(to, EFL_VG_GRADIENT_LINEAR_CLASS);
+   from_map = 1.0 - pos_map;
+
+#define INTP(Pd, From, To, Member, From_Map, Pos_Map)   \
+   Pd->Member = From->Member * From_Map + To->Member * Pos_Map
+
+   INTP(pd, fromd, tod, start.x, from_map, pos_map);
+   INTP(pd, fromd, tod, start.y, from_map, pos_map);
+   INTP(pd, fromd, tod, end.x, from_map, pos_map);
+   INTP(pd, fromd, tod, end.y, from_map, pos_map);
+
+#undef INTP
+
+   return EINA_TRUE;
+}
+
+static void
+_efl_vg_gradient_linear_efl_vg_base_dup(Eo *obj,
+                                        Efl_VG_Gradient_Linear_Data *pd EINA_UNUSED,
+                                        const Efl_VG_Base *from)
+{
+   Efl_VG_Gradient_Linear_Data *fromd;
+
+   eo_do_super(obj, EFL_VG_GRADIENT_LINEAR_CLASS, efl_vg_dup(from));
+
+   fromd = eo_data_scope_get(from, EFL_VG_GRADIENT_LINEAR_CLASS);
+
+   eo_do(obj,
+         efl_gfx_gradient_linear_start_set(fromd->start.x, fromd->start.y),
+         efl_gfx_gradient_linear_end_set(fromd->end.x, fromd->end.y));
 }
 
 EAPI void

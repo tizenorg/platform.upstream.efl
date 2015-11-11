@@ -17,7 +17,6 @@
 
 #include <xf86drm.h>
 #include <X11/Xmd.h>
-
 #include <dri2/dri2.h>
 
 #include "Ecore_Buffer.h"
@@ -506,7 +505,6 @@ _ecore_buffer_x11_dri2_buffer_import(Ecore_Buffer_Module_Data bmdata EINA_UNUSED
    free(bufs);
 
    return buf;
-
 on_error:
    if (bo) tbm_bo_unref(bo);
    if (bufs) free(bufs);

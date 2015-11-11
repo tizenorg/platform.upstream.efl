@@ -112,7 +112,6 @@ _ecore_timer_add(Ecore_Timer *obj,
 
    if (EINA_UNLIKELY(!eina_main_loop_is()))
      {
-        eo_error_set(obj);
         EINA_MAIN_LOOP_CHECK_RETURN_VAL(EINA_FALSE);
      }
 
@@ -121,7 +120,6 @@ _ecore_timer_add(Ecore_Timer *obj,
 
    if (!func)
      {
-        eo_error_set(obj);
         ERR("callback function must be set up for an object of class: '%s'", MY_CLASS_NAME);
         return EINA_FALSE;
      }
@@ -465,6 +463,17 @@ _ecore_timer_eo_base_destructor(Eo *obj, Ecore_Timer_Data *pd)
    eo_do_super(obj, MY_CLASS, eo_destructor());
 }
 
+EOLIAN static Eo *
+_ecore_timer_eo_base_finalize(Eo *obj, Ecore_Timer_Data *pd)
+{
+   if (!pd->func)
+   {
+      return NULL;
+   }
+
+   return eo_do_super_ret(obj, MY_CLASS, obj, eo_finalize());
+}
+
 void
 _ecore_timer_shutdown(void)
 {
@@ -720,10 +729,12 @@ _ecore_timer_expired_call(double when)
           }
 
         timer->references++;
+        eina_evlog("+timer", timer, 0.0, NULL);
         if (!_ecore_call_task_cb(timer->func, timer->data))
           {
              if (!timer->delete_me) _ecore_timer_del(timer->obj);
           }
+        eina_evlog("-timer", timer, 0.0, NULL);
         timer->references--;
 
         if (timer_current) /* may have changed in recursive main loops */

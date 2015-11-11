@@ -4,6 +4,7 @@
 
 #include <Eina.h>
 #include "eolian_database.h"
+#include "eo_lexer.h"
 
 EAPI const Eolian_Type *
 eolian_type_alias_get_by_name(const char *name)
@@ -113,11 +114,11 @@ eolian_type_struct_field_name_get(const Eolian_Struct_Type_Field *fl)
    return fl->name;
 }
 
-EAPI Eina_Stringshare *
-eolian_type_struct_field_description_get(const Eolian_Struct_Type_Field *fl)
+EAPI const Eolian_Documentation *
+eolian_type_struct_field_documentation_get(const Eolian_Struct_Type_Field *fl)
 {
    EINA_SAFETY_ON_NULL_RETURN_VAL(fl, NULL);
-   return fl->comment;
+   return fl->doc;
 }
 
 EAPI const Eolian_Type *
@@ -155,16 +156,40 @@ eolian_type_enum_field_name_get(const Eolian_Enum_Type_Field *fl)
 }
 
 EAPI Eina_Stringshare *
-eolian_type_enum_field_description_get(const Eolian_Enum_Type_Field *fl)
+eolian_type_enum_field_c_name_get(const Eolian_Enum_Type_Field *fl)
+{
+   Eina_Stringshare *ret;
+   Eina_Strbuf *buf;
+   char *bufp, *p;
+   EINA_SAFETY_ON_NULL_RETURN_VAL(fl, NULL);
+   buf = eina_strbuf_new();
+   if (fl->base_enum->legacy)
+     eina_strbuf_append(buf, fl->base_enum->legacy);
+   else
+     eina_strbuf_append(buf, fl->base_enum->full_name);
+   eina_strbuf_append_char(buf, '_');
+   eina_strbuf_append(buf, fl->name);
+   bufp = eina_strbuf_string_steal(buf);
+   eina_strbuf_free(buf);
+   eina_str_toupper(&bufp);
+   while ((p = strchr(bufp, '.'))) *p = '_';
+   ret = eina_stringshare_add(bufp);
+   free(bufp);
+   return ret;
+}
+
+EAPI const Eolian_Documentation *
+eolian_type_enum_field_documentation_get(const Eolian_Enum_Type_Field *fl)
 {
    EINA_SAFETY_ON_NULL_RETURN_VAL(fl, NULL);
-   return fl->comment;
+   return fl->doc;
 }
 
 EAPI const Eolian_Expression *
-eolian_type_enum_field_value_get(const Eolian_Enum_Type_Field *fl)
+eolian_type_enum_field_value_get(const Eolian_Enum_Type_Field *fl, Eina_Bool force)
 {
    EINA_SAFETY_ON_NULL_RETURN_VAL(fl, NULL);
+   if (!force && !fl->is_public_value) return NULL;
    return fl->value;
 }
 
@@ -176,15 +201,15 @@ eolian_type_enum_legacy_prefix_get(const Eolian_Type *tp)
    return tp->legacy;
 }
 
-EAPI Eina_Stringshare *
-eolian_type_description_get(const Eolian_Type *tp)
+EAPI const Eolian_Documentation *
+eolian_type_documentation_get(const Eolian_Type *tp)
 {
    Eolian_Type_Type tpp;
    EINA_SAFETY_ON_NULL_RETURN_VAL(tp, NULL);
    tpp = eolian_type_type_get(tp);
    EINA_SAFETY_ON_FALSE_RETURN_VAL(tpp != EOLIAN_TYPE_POINTER
                                 && tpp != EOLIAN_TYPE_VOID, NULL);
-   return tp->comment;
+   return tp->doc;
 }
 
 EAPI Eina_Stringshare *
@@ -204,7 +229,25 @@ eolian_type_base_type_get(const Eolian_Type *tp)
    Eolian_Type_Type tpt;
    EINA_SAFETY_ON_NULL_RETURN_VAL(tp, NULL);
    tpt = eolian_type_type_get(tp);
-   EINA_SAFETY_ON_FALSE_RETURN_VAL(tpt == EOLIAN_TYPE_POINTER || tpt == EOLIAN_TYPE_ALIAS, NULL);
+   EINA_SAFETY_ON_FALSE_RETURN_VAL(tpt == EOLIAN_TYPE_POINTER
+                                || tpt == EOLIAN_TYPE_ALIAS
+                                || tpt == EOLIAN_TYPE_REGULAR, NULL);
+   if (tpt == EOLIAN_TYPE_REGULAR)
+     {
+        /* for regular types, try looking up if it belongs to a struct,
+         * enum or an alias... otherwise return NULL
+         * but first check for builtins
+         */
+        int  kw = eo_lexer_keyword_str_to_id(tp->full_name);
+        if (!kw || kw < KW_byte || kw >= KW_true)
+          {
+             Eolian_Declaration *decl = eina_hash_find(_decls, tp->full_name);
+             if (decl && decl->type != EOLIAN_DECL_CLASS
+                      && decl->type != EOLIAN_DECL_VAR)
+               return decl->data;
+          }
+        return NULL;
+     }
    return tp->base_type;
 }
 

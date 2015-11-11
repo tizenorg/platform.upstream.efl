@@ -15,16 +15,6 @@
 #define DBG(...)  EINA_LOG_DOM_DBG(_ecore_buffer_queue_log_dom, __VA_ARGS__)
 #define WARN(...) EINA_LOG_DOM_WARN(_ecore_buffer_queue_log_dom, __VA_ARGS__)
 
-#define NFREE(_func_, _data_)                   \
-do                                              \
-{                                               \
-   if (_data_)                                  \
-     {                                          \
-        _func_(_data_);                         \
-        _data_ = NULL;                          \
-     }                                          \
-} while(0)
-
 #define CALLBACK_CALL(obj, cbname)           \
 do {                                         \
      if (obj->cb.cbname)                     \
@@ -34,9 +24,8 @@ do {                                         \
 extern int _ecore_buffer_queue_log_dom;
 
 const char        *_ecore_buffer_engine_name_get(Ecore_Buffer *buf);
+/* NOTE: if Ecore_Export_Type as a return value is EXPORT_TYPE_FD,
+ * then caller should close the fd after using it. */
 Ecore_Export_Type  _ecore_buffer_export(Ecore_Buffer *buf, int *id);
 Ecore_Buffer      *_ecore_buffer_import(const char *engine, int width, int height, Ecore_Buffer_Format format, Ecore_Export_Type type, int export_id, unsigned int flags);
-void               _ecore_buffer_user_data_set(Ecore_Buffer *buf, const void *key, const void *data);
-void              *_ecore_buffer_user_data_get(Ecore_Buffer *buf, const void *key);
-
 #endif /* _ECORE_BUFFER_PRIVATE_H_ */

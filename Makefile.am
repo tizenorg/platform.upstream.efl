@@ -60,6 +60,7 @@ licenses/COPYING.LGPL \
 licenses/COPYING.GPL \
 licenses/COPYING.BSD \
 licenses/COPYING.SMALL \
+licenses/COPYING.FTL \
 old/ChangeLog.ecore \
 old/ChangeLog.edje \
 old/ChangeLog.eet \
@@ -127,9 +128,8 @@ pc/eina.pc \
 pc/eo.pc \
 pc/eolian.pc \
 pc/efl.pc \
-pc/efl-cxx.pc \
+pc/emile.pc \
 pc/eet.pc \
-pc/ector.pc \
 pc/evas.pc \
 pc/ecore.pc \
 pc/ecore-con.pc \
@@ -142,6 +142,7 @@ pc/ecore-imf-evas.pc \
 pc/ecore-evas.pc \
 pc/ecore-avahi.pc \
 pc/ecore-buffer.pc \
+pc/ector.pc \
 pc/embryo.pc \
 pc/eio.pc \
 pc/eldbus.pc \
@@ -159,10 +160,12 @@ pkgconfig_DATA += \
 pc/eina-cxx.pc \
 pc/evas-cxx.pc \
 pc/ecore-cxx.pc \
+pc/efl-cxx.pc \
 pc/eolian-cxx.pc \
 pc/edje-cxx.pc \
 pc/eet-cxx.pc \
-pc/eo-cxx.pc
+pc/eo-cxx.pc \
+pc/eio-cxx.pc
 endif
 
 if HAVE_ELUA
@@ -261,6 +264,10 @@ if HAVE_ECORE_AUDIO
 pkgconfig_DATA += pc/ecore-audio.pc pc/ecore-audio-cxx.pc
 endif
 
+if HAVE_ECORE_BUFFER
+pkgconfig_DATA += pc/ecore-buffer.pc
+endif
+
 # Cmake configs:
 efl_cmakeconfigdir = $(libdir)/cmake/Efl/
 efl_cmakeconfig_DATA = \
@@ -271,6 +278,11 @@ eina_cmakeconfigdir = $(libdir)/cmake/Eina/
 eina_cmakeconfig_DATA = \
 cmakeconfig/EinaConfig.cmake \
 cmakeconfig/EinaConfigVersion.cmake
+
+eio_cmakeconfigdir = $(libdir)/cmake/Eio/
+eio_cmakeconfig_DATA = \
+cmakeconfig/EioConfig.cmake \
+cmakeconfig/EioConfigVersion.cmake
 
 eeze_cmakeconfigdir = $(libdir)/cmake/Eeze/
 eeze_cmakeconfig_DATA = \
@@ -367,17 +379,20 @@ elua_cmakeconfig_DATA = \
 cmakeconfig/EluaConfig.cmake \
 cmakeconfig/EluaConfigVersion.cmake
 
+emile_cmakeconfigdir = $(libdir)/cmake/Emile
+emile_cmakeconfig_DATA = \
+cmakeconfig/EmileConfig.cmake \
+cmakeconfig/EmileConfigVersion.cmake
+
 # D-Bus services:
 
 servicedir = @dbusservicedir@
 service_DATA = \
-dbus-services/org.enlightenment.Efreet.service \
 dbus-services/org.enlightenment.Ethumb.service
 
 if HAVE_SYSTEMD_USER_SESSION
 systemdunitsdir = @USER_SESSION_DIR@
 systemdunits_DATA = \
-systemd-services/efreet.service \
 systemd-services/ethumb.service
 endif
 EXTRA_DIST += $(systemdunits_DATA)
@@ -401,7 +416,7 @@ lcov-reset:
 	@lcov --zerocounters --directory $(top_builddir)
 
 lcov-report:
-	@mkdir $(top_builddir)/coverage
+	$(MKDIR_P) $(top_builddir)/coverage
 	lcov --capture --compat-libtool --no-external --output-file $(top_builddir)/coverage/coverage.info --directory $(top_builddir) --base-directory $(top_srcdir)/src/
 	lcov --remove $(top_builddir)/coverage/coverage.info '*.h' --output-file $(top_builddir)/coverage/coverage.cleaned.info
 	lcov --remove $(top_builddir)/coverage/coverage.cleaned.info '*/tests/*' --output-file $(top_builddir)/coverage/coverage.cleaned2.info
@@ -421,13 +436,16 @@ endif
 if EFL_ENABLE_COVERAGE
 	@$(MAKE) $(AM_MAKEFLAGS) lcov-report
 endif
+
+check-build:
+	@$(MAKE) $(AM_MAKEFLAGS) -C src check-build
 endif
 
 # benchmark
 
 benchmark:
 	@$(MAKE) $(AM_MAKEFLAGS) -C src benchmark
-	@mkdir benchmark || true
+	$(MKDIR_P) benchmark
 	@cd benchmark && ../src/benchmarks/eo/eo_bench$(EXEEXT) `date +%F_%s`
 
 # examples

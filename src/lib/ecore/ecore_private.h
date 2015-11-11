@@ -3,6 +3,32 @@
 
 #include <assert.h>
 
+#ifdef EAPI
+# undef EAPI
+#endif
+
+#ifdef _WIN32
+# ifdef EFL_ECORE_BUILD
+#  ifdef DLL_EXPORT
+#   define EAPI __declspec(dllexport)
+#  else
+#   define EAPI
+#  endif /* ! DLL_EXPORT */
+# else
+#  define EAPI __declspec(dllimport)
+# endif /* ! EFL_ECORE_BUILD */
+#else
+# ifdef __GNUC__
+#  if __GNUC__ >= 4
+#   define EAPI __attribute__ ((visibility("default")))
+#  else
+#   define EAPI
+#  endif
+# else
+#  define EAPI
+# endif
+#endif /* ! _WIN32 */
+
 extern int _ecore_log_dom;
 #ifdef  _ECORE_DEFAULT_LOG_DOM
 # undef _ECORE_DEFAULT_LOG_DOM
@@ -183,7 +209,8 @@ Ecore_Fd_Handler *
                                       Ecore_Fd_Cb func,
                                       const void *data,
                                       Ecore_Fd_Cb buf_func,
-                                      const void *buf_data);
+                                      const void *buf_data,
+                                      Eina_Bool is_file);
 void      *_ecore_main_fd_handler_del(Ecore_Fd_Handler *fd_handler);
 
 void       _ecore_fd_close_on_exec(int fd);
@@ -285,6 +312,10 @@ _ecore_lock(void)
 static inline void
 _ecore_unlock(void)
 {
+#ifndef HAVE_THREAD_SAFETY
+   /* see _ecore_lock(); no-op unless EINA_HAVE_DEBUG_THREADS is defined */
+   EINA_MAIN_LOOP_CHECK_RETURN;
+#endif
    _ecore_main_lock_count--;
    /* assert(_ecore_main_lock_count == 0); */
 #ifdef HAVE_THREAD_SAFETY
@@ -420,5 +451,8 @@ GENERIC_ALLOC_FREE_HEADER(Ecore_Win32_Handler, ecore_win32_handler);
 extern Eo *_ecore_parent;
 #define ECORE_PARENT_CLASS ecore_parent_class_get()
 const Eo_Class *ecore_parent_class_get(void) EINA_CONST;
+
+#undef EAPI
+#define EAPI
 
 #endif

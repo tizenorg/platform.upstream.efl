@@ -387,10 +387,18 @@ next_token(char *p, char *end, char **new_p, int *delim)
                        else if (is_escaped)
                          is_escaped = 0;
                     }
-                  else if (in_parens)
+                  else if (in_parens != 0 && (!is_escaped))
                     {
-                       if (((*p) == ')') && (!is_escaped))
+                       if (*p == '(')
+                         in_parens++;
+                       else if (*p == ')')
                          in_parens--;
+                       else if (isdelim(*p))
+                         {
+                            ERR("check pair of parens %s:%i.", file_in, line - 1);
+                            err_show();
+                            exit(-1);
+                         }
                     }
                   else
                     {
@@ -401,6 +409,8 @@ next_token(char *p, char *end, char **new_p, int *delim)
                          }
                        else if (*p == '(')
                          in_parens++;
+                       else if (*p == ')')
+                         in_parens--;
 
                        /* check for end-of-token */
                        if (
@@ -972,8 +982,14 @@ compile(void)
                    eina_prefix_lib_get(pfx));
         if (ecore_file_exists(buf2))
           {
-             if (anotate)
-               snprintf(buf, sizeof(buf), "%s -anotate -a %s %s -I%s %s -o %s"
+             if (depfile)
+               snprintf(buf, sizeof(buf), "%s -MMD %s -MT %s %s -I%s %s -o %s"
+                        " -DEFL_VERSION_MAJOR=%d -DEFL_VERSION_MINOR=%d",
+                        buf2, depfile, file_out, file_in,
+                        inc, def, clean_file,
+                        EINA_VERSION_MAJOR, EINA_VERSION_MINOR);
+             else if (annotate)
+               snprintf(buf, sizeof(buf), "%s -annotate -a %s %s -I%s %s -o %s"
                         " -DEFL_VERSION_MAJOR=%d -DEFL_VERSION_MINOR=%d",
                         buf2, watchfile ? watchfile : "/dev/null", file_in,
                         inc, def, clean_file,
@@ -1356,6 +1372,29 @@ check_min_arg_count(int min_required_args)
         err_show();
         exit(-1);
      }
+}
+
+int
+check_range_arg_count(int min_required_args, int max_required_args)
+{
+   int num_args = eina_array_count(&params);
+
+   if (num_args < min_required_args)
+     {
+        ERR("%s:%i got %i arguments, but expected at least %i",
+            file_in, line - 1, num_args, min_required_args);
+        err_show();
+        exit(-1);
+     }
+   else if (num_args > max_required_args)
+     {
+        ERR("%s:%i got %i arguments, but expected at most %i",
+            file_in, line - 1, num_args, max_required_args);
+        err_show();
+        exit(-1);
+     }
+
+   return num_args;
 }
 
 /* simple expression parsing stuff */
@@ -1798,4 +1837,22 @@ strstrip(const char *in, char *out, size_t size)
      }
    *out = '\0';
    return 1;
+}
+
+int
+get_param_index(char *str)
+{
+   int index;
+   char *p;
+
+   for(index = 0; index < get_arg_count(); index++)
+     {
+        p = _parse_param_get(index);
+        if (!p) continue;
+
+        if (!strcmp(str, p))
+          return index;
+     }
+
+   return -1;
 }

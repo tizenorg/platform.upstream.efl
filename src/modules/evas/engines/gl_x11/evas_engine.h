@@ -65,6 +65,7 @@ struct _Outbuf
    EGLSurface       egl_surface[2];
    EGLConfig        egl_config;
    EGLDisplay       egl_disp;
+   Eina_Bool        gles3 : 1;
 #else
    GLXContext       context;
    GLXWindow        glxwin;
@@ -147,6 +148,7 @@ extern Evas_GL_Preload_Render_Call glsym_evas_gl_preload_render_unlock;
 #endif
 
 extern unsigned int   (*glsym_eglSwapBuffersWithDamage) (EGLDisplay a, void *b, const EGLint *d, EGLint c);
+extern unsigned int   (*glsym_eglSetDamageRegionKHR)  (EGLDisplay a, EGLSurface b, EGLint *c, EGLint d);
 
 #else
 
@@ -197,6 +199,7 @@ Evas_Engine_GL_Context *eng_outbuf_gl_context_get(Outbuf *ob);
 void *eng_outbuf_egl_display_get(Outbuf *ob);
 
 Eina_Bool eng_preload_make_current(void *data, void *doit);
+void eng_gl_symbols(void);
 
 static inline int
 _re_wincheck(Outbuf *ob)
@@ -215,4 +218,7 @@ _re_wincheck(Outbuf *ob)
 Eina_Bool __glXMakeContextCurrent(Display *disp, GLXDrawable glxwin,
                                   GLXContext context);
 #endif
+
+extern void (*glsym_evas_gl_context_restore_set) (Eina_Bool enable);
+
 #endif

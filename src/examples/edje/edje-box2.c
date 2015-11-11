@@ -46,8 +46,8 @@ custom_layout(Evas_Object *o, Evas_Object_Box_Data *p, void *data EINA_UNUSED)
 
    evas_object_geometry_get(o, &x, &y, &w, &h);
    count = eina_list_count(p->children);
-   ww = w / (count?:1);
-   hh = h / (count?:1);
+   ww = w / (count ? count : 1);
+   hh = h / (count ? count : 1);
    if (ww < 1) ww = 1;
    if (hh < 1) hh = 1;
 
@@ -201,7 +201,7 @@ main(int argc EINA_UNUSED, char *argv[] EINA_UNUSED)
 	o = last = evas_object_rectangle_add(evas);
         evas_object_size_hint_min_set(o, 50, 50);
         evas_object_resize(o, 50, 50);
-	evas_object_color_set(o, 255, 0, 0, 128);
+	evas_object_color_set(o, 128, 0, 0, 128);
 	evas_object_show(o);
 
 	if (!edje_object_part_box_append(edje_obj, "example/box", o))

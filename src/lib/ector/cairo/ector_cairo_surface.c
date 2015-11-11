@@ -73,7 +73,6 @@ _ector_cairo_surface_ector_generic_surface_renderer_factory_new(Eo *obj,
 
 typedef struct _cairo_surface_t cairo_surface_t;
 
-static void (*cairo_translate)(cairo_t *cr, double tx, double ty) = NULL;
 static void (*cairo_destroy)(cairo_t *cr) = NULL;
 static cairo_surface_t *(*cairo_image_surface_create)(int format,
                                                       int width,
@@ -87,13 +86,9 @@ _ector_cairo_surface_context_set(Eo *obj,
                                  Ector_Cairo_Surface_Data *pd,
                                  cairo_t *ctx)
 {
-   if (pd->internal)
-     {
-        USE(obj, cairo_destroy, );
+   USE(obj, cairo_destroy, );
 
-        if (pd->cairo) cairo_destroy(pd->cairo);
-        pd->internal = EINA_FALSE;
-     }
+   if (pd->cairo) cairo_destroy(pd->cairo);
    if (!ctx)
      {
         USE(obj, cairo_image_surface_create, );
@@ -122,14 +117,16 @@ _ector_cairo_surface_ector_generic_surface_reference_point_set(Eo *obj EINA_UNUS
    pd->current.y = y;
 }
 
-static void
+static Eo *
 _ector_cairo_surface_eo_base_constructor(Eo *obj,
                                          Ector_Cairo_Surface_Data *pd)
 {
-   eo_do_super(obj, ECTOR_CAIRO_SURFACE_CLASS, eo_constructor());
+   obj = eo_do_super_ret(obj, ECTOR_CAIRO_SURFACE_CLASS, obj, eo_constructor());
    _cairo_count++;
 
    _ector_cairo_surface_context_set(obj, pd, NULL);
+
+   return obj;
 }
 
 static void
@@ -137,6 +134,8 @@ _ector_cairo_surface_eo_base_destructor(Eo *obj EINA_UNUSED,
                                         Ector_Cairo_Surface_Data *pd EINA_UNUSED)
 {
    eo_do_super(obj, ECTOR_CAIRO_SURFACE_CLASS, eo_destructor());
+
+   
 
    if (--_cairo_count) return ;
    if (_cairo_so) eina_module_free(_cairo_so);

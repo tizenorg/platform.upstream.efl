@@ -72,18 +72,15 @@ static int EINA_MODULE_LOG_DOM = -1;
 #endif
 #define WRN(...) EINA_LOG_DOM_WARN(EINA_MODULE_LOG_DOM, __VA_ARGS__)
 
+#ifdef INF
+#undef INF
+#endif
+#define INF(...) EINA_LOG_DOM_INFO(EINA_MODULE_LOG_DOM, __VA_ARGS__)
+
 #ifdef DBG
 #undef DBG
 #endif
 #define DBG(...) EINA_LOG_DOM_DBG(EINA_MODULE_LOG_DOM, __VA_ARGS__)
-
-#ifdef _WIN32
-# define SEP_C '\\'
-# define SEP_S "\\"
-#else
-# define SEP_C '/'
-# define SEP_S "/"
-#endif
 
 #define EINA_MODULE_SYMBOL_INIT "__eina_module_init"
 #define EINA_MODULE_SYMBOL_SHUTDOWN "__eina_module_shutdown"
@@ -144,7 +141,7 @@ static void _dir_list_cb(const char *name, const char *path, void *data)
 
         file = alloca(sizeof (char) * length);
 
-        snprintf(file, length, "%s" SEP_S "%s", path, name);
+        snprintf(file, length, "%s" EINA_PATH_SEP_S "%s", path, name);
         m = eina_module_new(file);
         if (!m)
           {
@@ -169,7 +166,7 @@ static void _dir_arch_list_cb(const char *name, const char *path, void *data)
       sizeof(SHARED_LIB_SUFFIX) + 1;
 
    file = alloca(length);
-   snprintf(file, length, "%s" SEP_S "%s" SEP_S "%s" SEP_S "module" SHARED_LIB_SUFFIX,
+   snprintf(file, length, "%s" EINA_PATH_SEP_S "%s" EINA_PATH_SEP_S "%s" EINA_PATH_SEP_S "module" SHARED_LIB_SUFFIX,
             path, name, (char *)(cb_data->data));
    m = eina_module_new(file);
    if (!m)
@@ -325,8 +322,13 @@ EAPI Eina_Bool eina_module_load(Eina_Module *m)
 
    if (!dl_handle)
      {
-        WRN("could not dlopen(\"%s\", %s): %s", m->file, dlerror(), 
-            (flag == RTLD_NOW) ? "RTLD_NOW" : "RTLD_LAZY");
+        struct stat st;
+        if (!stat(m->file, &st))
+          WRN("could not dlopen(\"%s\", %s): %s", m->file, dlerror(),
+              (flag == RTLD_NOW) ? "RTLD_NOW" : "RTLD_LAZY");
+        else
+          DBG("could not dlopen(\"%s\", %s): %s", m->file, dlerror(),
+              (flag == RTLD_NOW) ? "RTLD_NOW" : "RTLD_LAZY");
         return EINA_FALSE;
      }
 
@@ -337,8 +339,7 @@ EAPI Eina_Bool eina_module_load(Eina_Module *m)
    if ((*initcall)() == EINA_TRUE)
       goto ok;
 
-   WRN("could not find eina's entry symbol %s inside module %s, or the init function failed",
-       EINA_MODULE_SYMBOL_INIT, m->file);
+   INF("init function returned false for %s", m->file);
    dlclose(dl_handle);
    return EINA_FALSE;
 ok:
@@ -415,7 +416,7 @@ EAPI char *eina_module_symbol_path_get(const void *symbol, const char *sub_dir)
 
    if (dladdr(symbol, &eina_dl))
      {
-        char *pos = strrchr(eina_dl.dli_fname, SEP_C);
+        char *pos = strrchr(eina_dl.dli_fname, EINA_PATH_SEP_C);
         if (pos)
           {
              char *path;

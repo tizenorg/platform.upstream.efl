@@ -270,7 +270,7 @@ typedef enum
    /** - Backlight
     * @since 1.12
     */
-   EEZE_UDEV_TYPE_BACKLIGHT, 
+   EEZE_UDEV_TYPE_BACKLIGHT,
    /** - Leds
     * @since 1.12
     */
@@ -704,5 +704,8 @@ EAPI void            *eeze_udev_watch_del(Eeze_Udev_Watch *watch);
 #ifdef __cplusplus
 }
 #endif
+
+#undef EAPI
+#define EAPI
 
 #endif

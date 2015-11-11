@@ -39,22 +39,28 @@ _GET_SET_FUNC(b)
 
 extern int my_init_count;
 
-static void
+static Eo *
 _constructor(Eo *obj, void *class_data EINA_UNUSED)
 {
-   eo_do_super(obj, MY_CLASS, eo_constructor());
-
    my_init_count++;
+
+   return eo_do_super_ret(obj, MY_CLASS, obj, eo_constructor());
 }
 
 static Eo*
 _finalize(Eo *obj, void *class_data EINA_UNUSED)
 {
+   Eo *ret;
    Private_Data *pd = class_data;
 
-   if (pd->a < 0) eo_error_set(obj);
+   eo_do_super(obj, MY_CLASS, ret = eo_finalize());
 
-   return eo_do_super(obj, MY_CLASS, eo_finalize());
+   if (pd->a < 0)
+     {
+        return NULL;
+     }
+
+   return ret;
 }
 
 static void
@@ -83,11 +89,10 @@ static Eo_Op_Description op_descs[] = {
      EO_OP_FUNC_OVERRIDE(eo_constructor, _constructor),
      EO_OP_FUNC_OVERRIDE(eo_destructor, _destructor),
      EO_OP_FUNC_OVERRIDE(eo_finalize, _finalize),
-     EO_OP_FUNC(simple_a_set, _a_set, "Set property a"),
-     EO_OP_FUNC(simple_a_get, _a_get, "Get property a"),
-     EO_OP_FUNC(simple_b_set, _b_set, "Set property b"),
-     EO_OP_FUNC(simple_b_get, _b_get, "Get property b"),
-     EO_OP_SENTINEL
+     EO_OP_FUNC(simple_a_set, _a_set),
+     EO_OP_FUNC(simple_a_get, _a_get),
+     EO_OP_FUNC(simple_b_set, _b_set),
+     EO_OP_FUNC(simple_b_get, _b_get),
 };
 
 static const Eo_Class_Description class_desc = {

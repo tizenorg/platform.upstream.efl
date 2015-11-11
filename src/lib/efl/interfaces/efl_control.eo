@@ -2,25 +2,25 @@
 
 interface Efl.Control {
    legacy_prefix: null;
-   properties {
-        priority {
-             /*@ Control the priority of the object. */
+   methods {
+        @property priority {
+             [[Control the priority of the object.]]
              set {
              }
              get {
              }
              values {
-                  int priority; /*@ The priority of the object */
+                  priority: int; [[The priority of the object]]
              }
         }
-        suspend {
-             /*@ Controls whether the object is suspended or not. */
+        @property suspend {
+             [[Controls whether the object is suspended or not.]]
              set {
              }
              get {
              }
              values {
-                  bool suspend; /*@ Controls whether the object is suspended or not. */
+                  suspend: bool; [[Controls whether the object is suspended or not.]]
              }
         }
    }

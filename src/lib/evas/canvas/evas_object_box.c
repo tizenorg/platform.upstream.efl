@@ -221,7 +221,7 @@ _evas_box_internal_append(Eo *o, Evas_Object_Box_Data *priv, Evas_Object *child)
 
    priv->children = eina_list_append(priv->children, opt);
    priv->children_changed = EINA_TRUE;
-   evas_object_smart_callback_call(o, SIG_CHILD_ADDED, opt);
+   eo_do(o, eo_event_callback_call(EVAS_BOX_EVENT_CHILD_ADDED, opt));
 
    return opt;
 }
@@ -237,7 +237,7 @@ _evas_box_internal_prepend(Eo *o, Evas_Object_Box_Data *priv, Evas_Object *child
 
    priv->children = eina_list_prepend(priv->children, opt);
    priv->children_changed = EINA_TRUE;
-   evas_object_smart_callback_call(o, SIG_CHILD_ADDED, opt);
+   eo_do(o, eo_event_callback_call(EVAS_BOX_EVENT_CHILD_ADDED, opt));
 
    return opt;
 }
@@ -261,7 +261,7 @@ _evas_box_internal_insert_before(Eo *o, Evas_Object_Box_Data *priv, Evas_Object 
              priv->children = eina_list_prepend_relative
                 (priv->children, new_opt, opt);
              priv->children_changed = EINA_TRUE;
-             evas_object_smart_callback_call(o, SIG_CHILD_ADDED, new_opt);
+             eo_do(o, eo_event_callback_call(EVAS_BOX_EVENT_CHILD_ADDED, new_opt));
              return new_opt;
           }
      }
@@ -288,7 +288,7 @@ _evas_box_internal_insert_after(Eo *o, Evas_Object_Box_Data *priv, Evas_Object *
              priv->children = eina_list_append_relative
                 (priv->children, new_opt, opt);
              priv->children_changed = EINA_TRUE;
-             evas_object_smart_callback_call(o, SIG_CHILD_ADDED, new_opt);
+             eo_do(o, eo_event_callback_call(EVAS_BOX_EVENT_CHILD_ADDED, new_opt));
              return new_opt;
           }
      }
@@ -311,7 +311,7 @@ _evas_box_internal_insert_at(Eo *o, Evas_Object_Box_Data *priv, Evas_Object *chi
 
         priv->children = eina_list_prepend(priv->children, new_opt);
         priv->children_changed = EINA_TRUE;
-        evas_object_smart_callback_call(o, SIG_CHILD_ADDED, new_opt);
+        eo_do(o, eo_event_callback_call(EVAS_BOX_EVENT_CHILD_ADDED, new_opt));
         return new_opt;
      }
 
@@ -330,7 +330,7 @@ _evas_box_internal_insert_at(Eo *o, Evas_Object_Box_Data *priv, Evas_Object *chi
              priv->children = eina_list_prepend_relative
                 (priv->children, new_opt, opt);
              priv->children_changed = EINA_TRUE;
-             evas_object_smart_callback_call(o, SIG_CHILD_ADDED, new_opt);
+             eo_do(o, eo_event_callback_call(EVAS_BOX_EVENT_CHILD_ADDED, new_opt));
              return new_opt;
           }
      }
@@ -352,7 +352,7 @@ _evas_box_internal_remove(Eo *o, Evas_Object_Box_Data *priv, Evas_Object *child)
              priv->children = eina_list_remove(priv->children, opt);
              eo_do(o, evas_obj_box_internal_option_free(opt));
              priv->children_changed = EINA_TRUE;
-             evas_object_smart_callback_call(o, SIG_CHILD_REMOVED, obj);
+             eo_do(o, eo_event_callback_call(EVAS_BOX_EVENT_CHILD_REMOVED, obj));
 
              return obj;
           }
@@ -380,7 +380,7 @@ _evas_box_internal_remove_at(Eo *o, Evas_Object_Box_Data *priv, unsigned int pos
    priv->children = eina_list_remove_list(priv->children, node);
    eo_do(o, evas_obj_box_internal_option_free(opt));
    priv->children_changed = EINA_TRUE;
-   evas_object_smart_callback_call(o, SIG_CHILD_REMOVED, obj);
+   eo_do(o, eo_event_callback_call(EVAS_BOX_EVENT_CHILD_REMOVED, obj));
    return obj;
 }
 
@@ -455,17 +455,22 @@ _evas_box_evas_object_smart_calculate(Eo *o, Evas_Object_Box_Data *priv)
 EAPI Evas_Object *
 evas_object_box_add(Evas *evas)
 {
+   MAGIC_CHECK(evas, Evas, MAGIC_EVAS);
+   return NULL;
+   MAGIC_CHECK_END();
    Evas_Object *obj = eo_add(MY_CLASS, evas);
    return obj;
 }
 
-EOLIAN static void
+EOLIAN static Eo *
 _evas_box_eo_base_constructor(Eo *obj, Evas_Object_Box_Data *class_data EINA_UNUSED)
 {
-   eo_do_super(obj, MY_CLASS, eo_constructor());
+   obj = eo_do_super_ret(obj, MY_CLASS, obj, eo_constructor());
    eo_do(obj,
          evas_obj_smart_callbacks_descriptions_set(_signals),
          evas_obj_type_set(MY_CLASS_NAME_LEGACY));
+
+   return obj;
 }
 
 EOLIAN static Evas_Object*
@@ -1328,7 +1333,7 @@ _evas_box_layout_flow_horizontal(Eo *o, Evas_Object_Box_Data *priv, Evas_Object_
      (priv, w, &row_count, row_max_h, row_break, row_width, &offset_y, &min_w, &max_h);
 
    inc_y = 0;
-   remain_y = h - (offset_y + max_h);
+   remain_y = h - (priv->pad.v * row_count -1) - (offset_y + max_h);
 
    if (remain_y > 0)
      {
@@ -1348,7 +1353,7 @@ _evas_box_layout_flow_horizontal(Eo *o, Evas_Object_Box_Data *priv, Evas_Object_
         int row_size, remain_x;
 
         row_size = row_break[r] - i;
-        remain_x = (w - row_width[r]);
+        remain_x = (w - (row_width[r] - priv->pad.h));
 
         if (priv->align.h < 0.0)
           {
@@ -1398,6 +1403,9 @@ _evas_box_layout_flow_horizontal(Eo *o, Evas_Object_Box_Data *priv, Evas_Object_
         evas_object_geometry_get(o, &x, NULL, NULL, NULL);
         min_h += row_max_h[r];
         y += row_max_h[r] + inc_y;
+
+        if (r > 0)
+          min_h += priv->pad.v;
      }
 
    evas_object_size_hint_min_set(o, min_w, min_h);
@@ -1685,7 +1693,7 @@ _evas_box_append(Eo *o, Evas_Object_Box_Data *priv, Evas_Object *child)
 {
    Evas_Object_Box_Option *opt = NULL;
 
-   if (!child)
+   if (!child || (evas_object_smart_parent_get(child) == o))
      return NULL;
 
    eo_do(o, opt = evas_obj_box_internal_append(child));
@@ -1836,7 +1844,7 @@ _evas_box_remove_all(Eo *o, Evas_Object_Box_Data *priv, Eina_Bool clear)
 }
 
 EOLIAN static Eina_Iterator*
-_evas_box_iterator_new(Eo *o, Evas_Object_Box_Data *priv)
+_evas_box_iterator_new(const Eo *o, Evas_Object_Box_Data *priv)
 {
    Evas_Object_Box_Iterator *it;
    
@@ -1858,7 +1866,7 @@ _evas_box_iterator_new(Eo *o, Evas_Object_Box_Data *priv)
 }
 
 EOLIAN static Eina_Accessor*
-_evas_box_accessor_new(Eo *o, Evas_Object_Box_Data *priv)
+_evas_box_accessor_new(const Eo *o, Evas_Object_Box_Data *priv)
 {
    Evas_Object_Box_Accessor *it;
 
@@ -1894,13 +1902,13 @@ evas_object_box_children_get(const Evas_Object *o)
 }
 
 EOLIAN static const char*
-_evas_box_option_property_name_get(Eo *o EINA_UNUSED, Evas_Object_Box_Data *_pd EINA_UNUSED, int property EINA_UNUSED)
+_evas_box_option_property_name_get(const Eo *o EINA_UNUSED, Evas_Object_Box_Data *_pd EINA_UNUSED, int property EINA_UNUSED)
 {
    return NULL;
 }
 
 EOLIAN static int
-_evas_box_option_property_id_get(Eo *o EINA_UNUSED, Evas_Object_Box_Data *_pd EINA_UNUSED, const char *name EINA_UNUSED)
+_evas_box_option_property_id_get(const Eo *o EINA_UNUSED, Evas_Object_Box_Data *_pd EINA_UNUSED, const char *name EINA_UNUSED)
 {
    return -1;
 }
@@ -1955,7 +1963,7 @@ evas_object_box_option_property_vget(const Evas_Object *o, Evas_Object_Box_Optio
 }
 
 EOLIAN static Eina_Bool
-_evas_box_option_property_vget(Eo *o EINA_UNUSED, Evas_Object_Box_Data *_pd EINA_UNUSED, Evas_Object_Box_Option *opt EINA_UNUSED, int property EINA_UNUSED, va_list *args EINA_UNUSED)
+_evas_box_option_property_vget(const Eo *o EINA_UNUSED, Evas_Object_Box_Data *_pd EINA_UNUSED, Evas_Object_Box_Option *opt EINA_UNUSED, int property EINA_UNUSED, va_list *args EINA_UNUSED)
 {
    return EINA_FALSE;
 }

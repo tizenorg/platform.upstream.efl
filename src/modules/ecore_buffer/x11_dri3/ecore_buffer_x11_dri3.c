@@ -17,12 +17,12 @@
 #include <Eina.h>
 #include <Ecore.h>
 #include <Ecore_X.h>
+#include <Ecore_Buffer.h>
 
 #include <tbm_bufmgr.h>
 #include <tbm_surface.h>
 #include <tbm_surface_internal.h>
 
-#include <Ecore_Buffer.h>
 #include "ecore_buffer_private.h"
 
 typedef struct _Ecore_Buffer_Module_X11_Dri3_Data Ecore_Buffer_Module_X11_Dri3_Data;
@@ -449,11 +449,10 @@ _ecore_buffer_x11_dri3_buffer_alloc_with_tbm_surface(Ecore_Buffer_Module_Data bm
    return buf;
 }
 
-
 static void
-_ecore_buffer_x11_dri3_buffer_free(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, Ecore_Buffer_Data data)
+_ecore_buffer_x11_dri3_buffer_free(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, Ecore_Buffer_Data bdata)
 {
-   Ecore_Buffer_X11_Dri3_Data *buf = data;
+   Ecore_Buffer_X11_Dri3_Data *buf = bdata;
 
    if (!buf)
      return;
@@ -468,9 +467,9 @@ _ecore_buffer_x11_dri3_buffer_free(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, 
 }
 
 static Ecore_Export_Type
-_ecore_buffer_x11_dri3_buffer_export(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, Ecore_Buffer_Data data, int *id)
+_ecore_buffer_x11_dri3_buffer_export(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, Ecore_Buffer_Data bdata, int *id)
 {
-   Ecore_Buffer_X11_Dri3_Data *buf = data;
+   Ecore_Buffer_X11_Dri3_Data *buf = bdata;
    tbm_bo bo;
 
    if (_buf_get_num_planes(buf->format) != 1)
@@ -549,9 +548,9 @@ _ecore_buffer_x11_dri3_buffer_import(Ecore_Buffer_Module_Data bmdata, int w, int
 }
 
 static Ecore_Pixmap
-_ecore_buffer_x11_dri3_pixmap_get(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, Ecore_Buffer_Data data)
+_ecore_buffer_x11_dri3_pixmap_get(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, Ecore_Buffer_Data bdata)
 {
-   Ecore_Buffer_X11_Dri3_Data *buf = data;
+   Ecore_Buffer_X11_Dri3_Data *buf = bdata;
    Ecore_X_Display *xdpy;
    Ecore_X_Window root;
    tbm_surface_info_s info;
@@ -589,9 +588,9 @@ _ecore_buffer_x11_dri3_pixmap_get(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, E
 }
 
 static void *
-_ecore_buffer_x11_dri3_tbm_bo_get(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, Ecore_Buffer_Data data)
+_ecore_buffer_x11_dri3_tbm_bo_get(Ecore_Buffer_Module_Data bmdata EINA_UNUSED, Ecore_Buffer_Data bdata)
 {
-   Ecore_Buffer_X11_Dri3_Data *buf = data;
+   Ecore_Buffer_X11_Dri3_Data *buf = bdata;
 
    if (!buf)
      return NULL;

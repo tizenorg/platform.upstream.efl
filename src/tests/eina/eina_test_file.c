@@ -30,6 +30,13 @@
 #include "eina_suite.h"
 #include "Eina.h"
 #include "eina_safety_checks.h"
+#include "eina_file_common.h"
+
+#ifdef _WIN32
+# define PATH_SEP_C '\\'
+#else
+# define PATH_SEP_C '/'
+#endif
 
 static int default_dir_rights = 0777;
 const int file_min_offset = 1;
@@ -101,7 +108,7 @@ START_TEST(eina_file_split_simple)
 #endif
 
 #ifdef _WIN32
-   ea = eina_file_split(strdup("\\this\\is\\a\\small\\test"));
+   ea = eina_file_split(strdup("\\this/is\\a/small/test"));
 #else
    ea = eina_file_split(strdup("/this/is/a/small/test"));
 #endif
@@ -119,7 +126,7 @@ START_TEST(eina_file_split_simple)
 #ifdef _WIN32
    ea =
       eina_file_split(strdup(
-                         "this\\\\is\\\\\\a \\more\\complex\\\\\\case\\\\\\"));
+                         "this\\/\\is\\//\\\\a \\more/\\complex///case\\\\\\"));
 #else
    ea = eina_file_split(strdup("this//is///a /more/complex///case///"));
 #endif
@@ -143,7 +150,7 @@ Eina_Tmpstr*
 get_full_path(const char* tmpdirname, const char* filename)
 {
     char full_path[PATH_MAX] = "";
-    eina_str_join(full_path, sizeof(full_path), '/', tmpdirname, filename);
+    eina_str_join(full_path, sizeof(full_path), PATH_SEP_C, tmpdirname, filename);
     return eina_tmpstr_add(full_path);
 }
 
@@ -166,12 +173,26 @@ START_TEST(eina_file_direct_ls_simple)
 {
    eina_init();
 
+   /*
+    * Windows: naming conventions
+    * https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247%28v=vs.85%29.aspx
+    * 1) Do not end a directory with a period
+    * 2) '*' (asterisk) is a reserved character
+    * 3) ':' (colon) is a reserved character
+    */
+
    const char *good_dirs[] =
      {
         "eina_file_direct_ls_simple_dir",
+#ifndef _WIN32
         "a.",
+#endif
         "$a$b",
+#ifndef _WIN32
         "~$a@:-*$b!{}"
+#else
+        "~$a@µ-#$b!{}"
+#endif
      };
    const int good_dirs_count = sizeof(good_dirs) / sizeof(const char *);
    Eina_Tmpstr *test_dirname = get_eina_test_file_tmp_dir();
@@ -214,12 +235,26 @@ START_TEST(eina_file_ls_simple)
 {
    eina_init();
 
+   /*
+    * Windows: naming conventions
+    * https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247%28v=vs.85%29.aspx
+    * 1) Do not end a directory with a period
+    * 2) '*' (asterisk) is a reserved character
+    * 3) ':' (colon) is a reserved character
+    */
+
    const char *good_dirs[] =
      {
         "eina_file_ls_simple_dir",
+#ifndef _WIN32
         "b.",
+#endif
         "$b$a",
+#ifndef _WIN32
         "~$b@:-*$a!{}"
+#else
+        "~$b@µ-#$a!{}"
+#endif
      };
    const int good_dirs_count = sizeof(good_dirs) / sizeof(const char *);
    Eina_Tmpstr *test_dirname = get_eina_test_file_tmp_dir();
@@ -374,15 +409,18 @@ START_TEST(eina_file_map_new_test)
    fail_if(!file2_map);
    correct_map_check = strcmp((char*)file2_map, big_buffer + memory_page_size); 
    fail_if(correct_map_check != 0);  
-  
+
+   eina_file_map_free(e_file, file_map);
+   eina_file_map_free(e_file2, file2_map);
+   eina_file_close(e_file);
+   eina_file_close(e_file2);
+
    unlink(test_file_path);
    unlink(test_file2_path);
+   rmdir(test_dirname);
+
    free(test_file_path);
    free(test_file2_path);
-   eina_file_map_free(e_file, file_map);
-   eina_file_map_free(e_file2, file2_map);   
-   eina_file_close(e_file); 
-   eina_file_close(e_file2);
    eina_tmpstr_del(test_dirname);
 
    eina_shutdown();
@@ -390,7 +428,7 @@ START_TEST(eina_file_map_new_test)
 END_TEST
 
 static const char *virtual_file_data = "this\n"
-  "is a test for the sake of testing\n"
+  "is a test for the sake of testing\r\n"
   "it should detect all the line of this\n"
   "\n"
   "\r\n"
@@ -404,8 +442,7 @@ START_TEST(eina_test_file_virtualize)
    Eina_Iterator *it;
    Eina_File_Line *ln;
    void *map;
-   const unsigned int check[] = { 1, 2, 3, 6, 7 };
-   int i = 0;
+   unsigned int i = 0;
 
    eina_init();
 
@@ -427,13 +464,16 @@ START_TEST(eina_test_file_virtualize)
    it = eina_file_map_lines(f);
    EINA_ITERATOR_FOREACH(it, ln)
      {
-        fail_if(ln->index != check[i]);
         i++;
+        fail_if(ln->index != i);
+
+        if (i == 4 || i == 5)
+          fail_if(ln->length != 0);
      }
    fail_if(eina_iterator_container_get(it) != f);
    eina_iterator_free(it);
 
-   fail_if(i != 5);
+   fail_if(i != 7);
 
    eina_file_close(f);
 
@@ -498,6 +538,149 @@ START_TEST(eina_test_file_path)
 }
 END_TEST
 
+#ifdef XATTR_TEST_DIR
+START_TEST(eina_test_file_xattr)
+{
+   Eina_File *ef;
+   char *filename = "tmpfile";
+   const char *attribute[] =
+     {
+        "user.comment1",
+        "user.comment2",
+        "user.comment3"
+     };
+   const char *data[] =
+     {
+        "This is a test file",
+        "This line is a comment",
+        "This file has extra attributes"
+     };
+   char *ret_str;
+   unsigned int i;
+   Eina_Bool ret;
+   Eina_Tmpstr *test_file_path;
+   Eina_Iterator *it;
+   int fd, count=0;
+   Eina_Xattr *xattr;
+
+   eina_init();
+   test_file_path = get_full_path(XATTR_TEST_DIR, filename);
+
+   fd = open(test_file_path, O_RDONLY | O_CREAT | O_TRUNC, S_IRWXU | S_IRWXG | S_IRWXO);
+   fail_if(fd == 0);
+   close(fd);
+
+   for (i = 0; i < sizeof(attribute) / sizeof(attribute[0]); ++i)
+     {
+        ret = eina_xattr_set(test_file_path, attribute[i], data[i], strlen(data[i]), EINA_XATTR_INSERT);
+        fail_if(ret != EINA_TRUE);
+     }
+
+   ef = eina_file_open(test_file_path, EINA_FALSE);
+   fail_if(!ef);
+
+   it = eina_file_xattr_get(ef);
+   EINA_ITERATOR_FOREACH(it, ret_str)
+     {
+        for (i = 0; i < sizeof (attribute) / sizeof (attribute[0]); i++)
+          if (strcmp(attribute[i], ret_str) == 0)
+            {
+               count++;
+               break;
+            }
+     }
+   fail_if(count != sizeof (attribute) / sizeof (attribute[0]));
+   eina_iterator_free(it);
+
+   count = 0;
+   it = eina_file_xattr_value_get(ef);
+   EINA_ITERATOR_FOREACH(it, xattr)
+     {
+        for (i = 0; i < sizeof (data) / sizeof (data[0]); i++)
+          if (strcmp(attribute[i], xattr->name) == 0 &&
+              strcmp(data[i], xattr->value) == 0)
+            {
+               count++;
+               break;
+            }
+     }
+   fail_if(count != sizeof (data) / sizeof (data[0]));
+   eina_iterator_free(it);
+
+   unlink(test_file_path);
+   eina_tmpstr_del(test_file_path);
+   eina_file_close(ef);
+   eina_shutdown();
+}
+END_TEST
+#endif
+
+START_TEST(eina_test_file_copy)
+{
+   const char *test_file1_name = "EinaCopyFromXXXXXX.txt";
+   const char *test_file2_name = "EinaCopyToXXXXXX.txt";
+   Eina_Tmpstr *test_file1_path, *test_file2_path;
+   const char *data = "abcdefghijklmnopqrstuvwxyz";
+   Eina_File *e_file1, *e_file2;
+   int fd1, fd2, rval;
+   size_t file1_len, file2_len;
+   Eina_Bool ret;
+   void *content1, *content2;
+
+   eina_init();
+
+   fd1 = eina_file_mkstemp(test_file1_name, &test_file1_path);
+   fail_if(fd1 <= 0);
+
+   fd2 = eina_file_mkstemp(test_file2_name, &test_file2_path);
+   fail_if(fd2 <= 0);
+
+   fail_if(write(fd1, data, strlen(data)) != (ssize_t) strlen(data));
+
+   close(fd1);
+   close(fd2);
+
+   //Copy file data
+   ret = eina_file_copy(test_file1_path, test_file2_path, EINA_FILE_COPY_DATA, NULL, NULL);
+   fail_if(ret != EINA_TRUE);
+
+   e_file1 = eina_file_open(test_file1_path, EINA_FALSE);
+   fail_if(!e_file1);
+   file1_len = eina_file_size_get(e_file1);
+
+   e_file2 = eina_file_open(test_file2_path, EINA_FALSE);
+   fail_if(!e_file2);
+   file2_len = eina_file_size_get(e_file2);
+
+   //Check if both the files are same
+   fail_if(e_file1 == e_file2);
+
+   fail_if(file1_len != strlen(data));
+   fail_if(file1_len != file2_len);
+
+   //Check the contents of both the file
+   content1 = eina_file_map_all(e_file1, EINA_FILE_POPULATE);
+   fail_if(content1 == NULL);
+
+   content2 = eina_file_map_all(e_file2, EINA_FILE_POPULATE);
+   fail_if(content2 == NULL);
+
+   rval = memcmp(content1, content2, strlen(data));
+   fail_if(rval != 0);
+
+   eina_file_map_free(e_file1, content1);
+   eina_file_map_free(e_file2, content2);
+   eina_file_close(e_file1);
+   eina_file_close(e_file2);
+   unlink(test_file1_path);
+   unlink(test_file2_path);
+   eina_tmpstr_del(test_file1_path);
+   eina_tmpstr_del(test_file2_path);
+
+   eina_shutdown();
+}
+END_TEST
+
 void
 eina_test_file(TCase *tc)
 {
@@ -508,4 +691,8 @@ eina_test_file(TCase *tc)
    tcase_add_test(tc, eina_test_file_virtualize);
    tcase_add_test(tc, eina_test_file_thread);
    tcase_add_test(tc, eina_test_file_path);
+#ifdef XATTR_TEST_DIR
+   tcase_add_test(tc, eina_test_file_xattr);
+#endif
+   tcase_add_test(tc, eina_test_file_copy);
 }

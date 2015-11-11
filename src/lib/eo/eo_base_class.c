@@ -4,6 +4,8 @@
 
 #include <Eina.h>
 
+#define EO_BASE_BETA
+
 #include "Eo.h"
 #include "eo_ptr_indirection.h"
 #include "eo_private.h"
@@ -32,15 +34,12 @@ typedef struct
    EINA_INLIST;
    Eina_Stringshare *key;
    void *data;
-   eo_key_data_free_func free_func;
 } Eo_Generic_Data_Node;
 
 static void
 _eo_generic_data_node_free(Eo_Generic_Data_Node *node)
 {
    eina_stringshare_del(node->key);
-   if (node->free_func)
-      node->free_func(node->data);
    free(node);
 }
 
@@ -61,7 +60,7 @@ _eo_generic_data_del_all(Eo_Base_Data *pd)
 
 EOLIAN static void
 _eo_base_key_data_set(Eo *obj, Eo_Base_Data *pd,
-          const char *key, const void *data, eo_key_data_free_func free_func)
+          const char *key, const void *data)
 {
    Eo_Generic_Data_Node *node;
 
@@ -73,7 +72,6 @@ _eo_base_key_data_set(Eo *obj, Eo_Base_Data *pd,
    if (!node) return;
    node->key = eina_stringshare_add(key);
    node->data = (void *) data;
-   node->free_func = free_func;
    pd->generic_data = eina_inlist_prepend(pd->generic_data,
          EINA_INLIST_GET(node));
 }
@@ -101,10 +99,11 @@ _eo_base_key_data_get(Eo *obj EINA_UNUSED, Eo_Base_Data *pd, const char *key)
 EOLIAN static void
 _eo_base_parent_set(Eo *obj, Eo_Base_Data *pd, Eo *parent_id)
 {
+   Eina_Bool tmp;
    if (pd->parent == parent_id)
      return;
 
-   if (eo_do(obj, eo_composite_part_is()) && pd->parent)
+   if (eo_do_ret(obj, tmp, eo_composite_part_is()) && pd->parent)
      {
         eo_do(pd->parent, eo_composite_detach(obj));
      }
@@ -126,7 +125,11 @@ _eo_base_parent_set(Eo *obj, Eo_Base_Data *pd, Eo *parent_id)
                  pd->parent, obj);
           }
 
-        eo_xunref(obj, pd->parent);
+        /* Only unref if we don't have a new parent instead. */
+        if (!parent_id)
+          {
+             eo_unref(obj);
+          }
      }
 
    /* Set new parent */
@@ -138,10 +141,8 @@ _eo_base_parent_set(Eo *obj, Eo_Base_Data *pd, Eo *parent_id)
         if (EINA_LIKELY(parent_pd != NULL))
           {
              pd->parent = parent_id;
-             parent_pd->children = eina_list_append(parent_pd->children,
-                   obj);
+             parent_pd->children = eina_list_append(parent_pd->children, obj);
              pd->parent_list = eina_list_last(parent_pd->children);
-             eo_xref(obj, pd->parent);
           }
         else
           {
@@ -400,18 +401,20 @@ _wref_destruct(Eo_Base_Data *pd)
 
 /* XXX: Legacy support, remove when legacy is dead. */
 static Eina_Hash *_legacy_events_hash = NULL;
-static const char *_legacy_event_desc = "Dynamically generated legacy event";
 
 EAPI const Eo_Event_Description *
 eo_base_legacy_only_event_description_get(const char *_event_name)
 {
-   Eina_Stringshare *event_name = eina_stringshare_add(_event_name);
+   char buf[1024];
+   strncpy(buf, _event_name, sizeof(buf) - 1);
+   buf[sizeof(buf) - 1] = '\0';
+   Eina_Stringshare *event_name = eina_stringshare_add(buf);
    Eo_Event_Description *event_desc = eina_hash_find(_legacy_events_hash, event_name);
    if (!event_desc)
      {
         event_desc = calloc(1, sizeof(Eo_Event_Description));
         event_desc->name = event_name;
-        event_desc->doc = _legacy_event_desc;
+        event_desc->legacy_is = EINA_TRUE;
         eina_hash_add(_legacy_events_hash, event_name, event_desc);
      }
    else
@@ -420,6 +423,12 @@ eo_base_legacy_only_event_description_get(const char *_event_name)
      }
 
    return event_desc;
+}
+
+static inline Eina_Bool
+_legacy_event_desc_is(const Eo_Event_Description *desc)
+{
+   return desc->legacy_is;
 }
 
 static void
@@ -575,8 +584,8 @@ _eo_base_event_callback_del(Eo *obj, Eo_Base_Data *pd,
 
    for (cb = pd->callbacks; cb; cb = cb->next)
      {
-        if ((cb->items.item.desc == desc) && (cb->items.item.func == func) &&
-              (cb->func_data == user_data))
+        if (!cb->delete_me && (cb->items.item.desc == desc) &&
+              (cb->items.item.func == func) && (cb->func_data == user_data))
           {
              const Eo_Callback_Array_Item arr[] = { {desc, func}, {NULL, NULL}};
 
@@ -621,7 +630,8 @@ _eo_base_event_callback_array_del(Eo *obj, Eo_Base_Data *pd,
 
    for (cb = pd->callbacks; cb; cb = cb->next)
      {
-        if ((cb->items.item_array == array) && (cb->func_data == user_data))
+        if (!cb->delete_me &&
+              (cb->items.item_array == array) && (cb->func_data == user_data))
           {
              cb->delete_me = EINA_TRUE;
              pd->deletions_waiting = EINA_TRUE;
@@ -641,18 +651,13 @@ _cb_desc_match(const Eo_Event_Description *a, const Eo_Event_Description *b)
    if (!a)
       return EINA_FALSE;
 
-   /* If either is legacy, fallback to string comparison. */
-   if ((a->doc == _legacy_event_desc) || (b->doc == _legacy_event_desc))
+   if (_legacy_event_desc_is(a) && _legacy_event_desc_is(b))
      {
-        /* Take stringshare shortcut if both are legacy */
-        if (a->doc == b->doc)
-          {
-             return (a->name == b->name);
-          }
-        else
-          {
-             return !strcmp(a->name, b->name);
-          }
+        return (a->name == b->name);
+     }
+   else if (_legacy_event_desc_is(a) || _legacy_event_desc_is(b))
+     {
+        return !strcmp(a->name, b->name);
      }
    else
      {
@@ -964,12 +969,14 @@ EAPI const Eina_Value_Type *EO_DBG_INFO_TYPE = &_EO_DBG_INFO_TYPE;
 /* EO_BASE_CLASS stuff */
 #define MY_CLASS EO_BASE_CLASS
 
-EOLIAN static void
+EOLIAN static Eo *
 _eo_base_constructor(Eo *obj, Eo_Base_Data *pd EINA_UNUSED)
 {
    DBG("%p - %s.", obj, eo_class_name_get(MY_CLASS));
 
    _eo_condtor_done(obj);
+
+   return obj;
 }
 
 EOLIAN static void
@@ -979,8 +986,21 @@ _eo_base_destructor(Eo *obj, Eo_Base_Data *pd)
 
    DBG("%p - %s.", obj, eo_class_name_get(MY_CLASS));
 
-   EINA_LIST_FREE(pd->children, child)
-      eo_do(child, eo_parent_set(NULL));
+   // special removal - remove from children list by hand after getting
+   // child handle in case unparent method is overridden and does
+   // extra things like removes other children too later on in the list
+   while (pd->children)
+     {
+        child = eina_list_data_get(pd->children);
+        eo_do(child, eo_parent_set(NULL));
+     }
+
+   if (pd->parent)
+     {
+        ERR("Object '%p' still has a parent at the time of destruction.", obj);
+        eo_ref(obj);
+        eo_do(obj, eo_parent_set(NULL));
+     }
 
    _eo_generic_data_del_all(pd);
    _wref_destruct(pd);
@@ -992,7 +1012,7 @@ _eo_base_destructor(Eo *obj, Eo_Base_Data *pd)
 EOLIAN static Eo *
 _eo_base_finalize(Eo *obj, Eo_Base_Data *pd EINA_UNUSED)
 {
-   return _eo_add_internal_end(obj);
+   return obj;
 }
 
 EOLIAN static void

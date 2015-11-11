@@ -60,7 +60,12 @@ static Evas_Func func, pfunc;
 /* Function table for GL APIs */
 static Evas_GL_API gl_funcs;
 
+Eina_Bool _need_context_restore = EINA_FALSE;
 
+void
+_context_restore(void)
+{
+}
 
 static void *
 eng_info(Evas *e EINA_UNUSED)
@@ -78,8 +83,6 @@ eng_info_free(Evas *e EINA_UNUSED, void *info)
 {
    Evas_Engine_Info_GL_Cocoa *in;
 
-   DBG("Info %p", info);
-   eina_log_domain_unregister(_evas_engine_gl_cocoa_log_dom);
    in = (Evas_Engine_Info_GL_Cocoa *)info;
    free(in);
 }
@@ -111,18 +114,7 @@ eng_setup(Evas *eo_e, void *in)
 	     return 0;
 	  }
 
-	evas_common_cpu_init();
-
-	evas_common_blend_init();
-	evas_common_image_init();
-	evas_common_convert_init();
-	evas_common_scale_init();
-	evas_common_rectangle_init();
-	evas_common_polygon_init();
-	evas_common_line_init();
-	evas_common_font_init();
-	evas_common_draw_init();
-	evas_common_tilebuf_init();
+        evas_common_init();
      }
    else
      {
@@ -153,8 +145,7 @@ eng_output_free(void *data)
    eng_window_free(re->win);
    free(re);
 
-   evas_common_font_shutdown();
-   evas_common_image_shutdown();
+   evas_common_shutdown();
 }
 
 static void
@@ -185,6 +176,7 @@ eng_output_redraws_rect_add(void *data, int x, int y, int w, int h)
 
    DBG("Redraw rect %d %d %d %d", x, y, w, h);
    re = (Render_Engine *)data;
+   eng_window_lock_focus(re->win);
    evas_gl_common_context_resize(re->win->gl_context, re->win->width, re->win->height, 0);
    /* simple bounding box */
    RECTS_CLIP_TO_RECT(x, y, w, h, 0, 0, re->win->width, re->win->height);
@@ -211,6 +203,7 @@ eng_output_redraws_rect_add(void *data, int x, int y, int w, int h)
 	if ((y + h - 1) > re->win->draw.y2) re->win->draw.y2 = y + h - 1;
      }
    re->win->draw.redraw = 1;
+   eng_window_unlock_focus(re->win);
 }
 
 static void
@@ -310,9 +303,9 @@ eng_output_flush(void *data, Evas_Render_Mode render_mode)
 #ifdef VSYNC_TO_SCREEN
    eng_window_vsync_set(1);
 #endif
-
+   eng_window_lock_focus(re->win);
    eng_window_swap_buffers(re->win);
-
+   eng_window_unlock_focus(re->win);
 }
 
 static void
@@ -677,15 +670,12 @@ eng_image_size_set(void *data, void *image, int w, int h)
        ((int)im_old->im->cache_entry.w == w) &&
        ((int)im_old->im->cache_entry.h == h))
      return image;
-   if (im_old)
-     {
-   	im = evas_gl_common_image_new(re->win->gl_context, w, h,
-   				      eng_image_alpha_get(data, image),
-   				      eng_image_colorspace_get(data, image));
-        evas_gl_common_image_free(im_old);
-     }
-   else
-     im = evas_gl_common_image_new(re->win->gl_context, w, h, 1, EVAS_COLORSPACE_ARGB8888);
+
+   im = evas_gl_common_image_new(re->win->gl_context, w, h,
+                                 eng_image_alpha_get(data, image),
+                                 eng_image_colorspace_get(data, image));
+   evas_gl_common_image_free(im_old);
+
    return im;
 }
 
@@ -967,12 +957,6 @@ eng_image_map_surface_new(void *data EINA_UNUSED, int w, int h, int alpha)
 }
 
 static void
-eng_image_map_surface_free(void *data EINA_UNUSED, void *surface)
-{
-   evas_gl_common_image_free(surface);
-}
-
-static void
 eng_image_content_hint_set(void *data, void *image, int hint)
 {
    Render_Engine *re;
@@ -1047,25 +1031,29 @@ eng_font_draw(void *data, void *context, void *surface, Evas_Font_Set *font EINA
    evas_gl_common_context_target_surface_set(re->win->gl_context, surface);
    re->win->gl_context->dc = context;
      {
-        // FIXME: put im into context so we can free it
-	    static RGBA_Image *im = NULL;
-        
-        if (!im)
-          im = (RGBA_Image *)evas_cache_image_empty(evas_common_image_cache_get());
-        im->cache_entry.w = re->win->gl_context->shared->w;
-        im->cache_entry.h = re->win->gl_context->shared->h;
+        if (!re->win->gl_context->font_surface)
+          re->win->gl_context->font_surface = (RGBA_Image *)evas_cache_image_empty(evas_common_image_cache_get());
+        re->win->gl_context->font_surface->cache_entry.w = re->win->gl_context->shared->w;
+        re->win->gl_context->font_surface->cache_entry.h = re->win->gl_context->shared->h;
+
         evas_common_draw_context_font_ext_set(context,
-   					      re->win->gl_context,
-   					      evas_gl_font_texture_new,
-   					      evas_gl_font_texture_free,
-   					      evas_gl_font_texture_draw);
-	    evas_common_font_draw_prepare(intl_props);
-	    evas_common_font_draw(im, context, x, y, intl_props->glyphs);
-	    evas_common_draw_context_font_ext_set(context,
-					      NULL,
-					      NULL,
-					      NULL,
-					      NULL);
+                                              re->win->gl_context,
+                                              evas_gl_font_texture_new,
+                                              evas_gl_font_texture_free,
+                                              evas_gl_font_texture_draw,
+                                              NULL,
+                                              NULL,
+                                              NULL);
+	     evas_common_font_draw_prepare(intl_props);
+	     evas_common_font_draw(re->win->gl_context->font_surface, context, x, y, intl_props->glyphs);
+	     evas_common_draw_context_font_ext_set(context,
+                                              NULL,
+                                              NULL,
+                                              NULL,
+                                              NULL,
+                                              NULL,
+                                              NULL,
+                                              NULL);
      }
 
    return EINA_FALSE;
@@ -1417,7 +1405,6 @@ module_open(Evas_Module *em)
    
    ORD(image_map_draw);
    ORD(image_map_surface_new);
-   ORD(image_map_surface_free);
    
    ORD(image_content_hint_set);
    ORD(image_content_hint_get);

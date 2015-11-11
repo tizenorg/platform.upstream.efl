@@ -46,8 +46,15 @@ extern Eina_Hash *_constantsf;
 extern Eina_Hash *_filenames; /* Hash: filename without extension -> full path */
 extern Eina_Hash *_tfilenames;
 
-/* a hash holding lists of deps */
-extern Eina_Hash *_depclasses;
+/* a hash holding all declarations, for redef checking etc */
+extern Eina_Hash *_decls;
+
+/* holds parsed/currently parsing eot files to keep track */
+extern Eina_Hash *_parsedeos;
+extern Eina_Hash *_parsingeos;
+
+/* for deferred dependency parsing */
+extern Eina_Hash *_defereos;
 
 typedef struct _Eolian_Object
 {
@@ -56,12 +63,20 @@ typedef struct _Eolian_Object
    int column;
 } Eolian_Object;
 
-typedef struct _Eolian_Dependency
+struct _Eolian_Documentation
 {
    Eolian_Object base;
-   Eina_Stringshare *filename;
+   Eina_Stringshare *summary;
+   Eina_Stringshare *description;
+   Eina_Stringshare *since;
+};
+
+struct _Eolian_Declaration
+{
+   Eolian_Declaration_Type type;
    Eina_Stringshare *name;
-} Eolian_Dependency;
+   void *data;
+};
 
 struct _Eolian_Class
 {
@@ -70,7 +85,7 @@ struct _Eolian_Class
    Eina_List *namespaces; /* List Eina_Stringshare * */
    Eina_Stringshare *name;
    Eolian_Class_Type type;
-   Eina_Stringshare *description;
+   Eolian_Documentation *doc;
    Eina_Stringshare *legacy_prefix;
    Eina_Stringshare *eo_prefix;
    Eina_Stringshare *data_type;
@@ -89,8 +104,17 @@ struct _Eolian_Function
    Eolian_Object base;
    Eolian_Object set_base;
    Eina_Stringshare *name;
-   Eina_List *keys; /* list of Eolian_Function_Parameter */
-   Eina_List *params; /* list of Eolian_Function_Parameter */
+   union { /* lists of Eolian_Function_Parameter */
+       Eina_List *params;
+       struct {
+           Eina_List *prop_values;
+           Eina_List *prop_values_get;
+           Eina_List *prop_values_set;
+           Eina_List *prop_keys;
+           Eina_List *prop_keys_get;
+           Eina_List *prop_keys_set;
+       };
+   };
    Eolian_Function_Type type;
    Eolian_Object_Scope scope;
    Eolian_Type *get_ret_type;
@@ -101,11 +125,11 @@ struct _Eolian_Function
    Eolian_Implement *set_impl;
    Eina_Stringshare *get_legacy;
    Eina_Stringshare *set_legacy;
-   Eina_Stringshare *common_description;
-   Eina_Stringshare *get_description;
-   Eina_Stringshare *set_description;
-   Eina_Stringshare *get_return_comment;
-   Eina_Stringshare *set_return_comment;
+   Eolian_Documentation *common_doc;
+   Eolian_Documentation *get_doc;
+   Eolian_Documentation *set_doc;
+   Eolian_Documentation *get_return_doc;
+   Eolian_Documentation *set_return_doc;
    Eina_Bool obj_is_const :1; /* True if the object has to be const. Useful for a few methods. */
    Eina_Bool get_virtual_pure :1;
    Eina_Bool set_virtual_pure :1;
@@ -119,6 +143,7 @@ struct _Eolian_Function
    Eina_Bool set_only_legacy: 1;
    Eina_Bool is_class :1;
    Eina_Bool is_c_only :1;
+   Eina_Bool is_beta :1;
    Eina_List *ctor_of;
    Eolian_Class *klass;
 };
@@ -129,11 +154,11 @@ struct _Eolian_Function_Parameter
    Eina_Stringshare *name;
    Eolian_Type *type;
    Eolian_Expression *value;
-   Eina_Stringshare *description;
+   Eolian_Documentation *doc;
    Eolian_Parameter_Dir param_dir;
-   Eina_Bool is_const_on_get :1; /* True if const in this the get property */
-   Eina_Bool is_const_on_set :1; /* True if const in this the set property */
-   Eina_Bool nonull :1; /* True if this argument cannot be NULL */
+   Eina_Bool nonull :1; /* True if this argument cannot be NULL - deprecated */
+   Eina_Bool nullable :1; /* True if this argument is nullable */
+   Eina_Bool optional :1; /* True if this argument is optional */
 };
 
 struct _Eolian_Type
@@ -147,7 +172,7 @@ struct _Eolian_Type
    Eina_List        *namespaces;
    Eina_Hash        *fields;
    Eina_List        *field_list;
-   Eina_Stringshare *comment;
+   Eolian_Documentation *doc;
    Eina_Stringshare *legacy;
    Eina_Stringshare *freefunc;
    Eina_Bool is_const  :1;
@@ -180,10 +205,11 @@ struct _Eolian_Event
 {
    Eolian_Object base;
    Eina_Stringshare *name;
-   Eina_Stringshare *comment;
+   Eolian_Documentation *doc;
    Eolian_Type *type;
    Eolian_Class *klass;
    int scope;
+   Eina_Bool is_beta :1;
 };
 
 struct _Eolian_Struct_Type_Field
@@ -191,15 +217,17 @@ struct _Eolian_Struct_Type_Field
    Eina_Stringshare *name;
    Eolian_Object     base;
    Eolian_Type      *type;
-   Eina_Stringshare *comment;
+   Eolian_Documentation *doc;
 };
 
 struct _Eolian_Enum_Type_Field
 {
+   Eolian_Type       *base_enum;
    Eina_Stringshare  *name;
    Eolian_Object      base;
    Eolian_Expression *value;
-   Eina_Stringshare  *comment;
+   Eolian_Documentation *doc;
+   Eina_Bool is_public_value :1;
 };
 
 struct _Eolian_Expression
@@ -221,6 +249,8 @@ struct _Eolian_Expression
       };
       Eolian_Value_Union value;
    };
+   Eina_Bool weak_lhs :1;
+   Eina_Bool weak_rhs :1;
 };
 
 struct _Eolian_Variable
@@ -232,7 +262,7 @@ struct _Eolian_Variable
    Eina_List            *namespaces;
    Eolian_Type          *base_type;
    Eolian_Expression    *value;
-   Eina_Stringshare     *comment;
+   Eolian_Documentation *doc;
    Eina_Bool is_extern :1;
 };
 
@@ -242,6 +272,11 @@ int database_shutdown();
 char *database_class_to_filename(const char *cname);
 Eina_Bool database_validate(void);
 Eina_Bool database_class_name_validate(const char *class_name, const Eolian_Class **cl);
+
+void database_decl_add(Eina_Stringshare *name, Eolian_Declaration_Type type,
+                       Eina_Stringshare *file, void *ptr);
+
+void database_doc_del(Eolian_Documentation *doc);
 
 /* types */
 
@@ -277,7 +312,6 @@ void database_parameter_del(Eolian_Function_Parameter *pdesc);
 
 /* implements */
 void database_implement_del(Eolian_Implement *impl);
-void database_implement_constructor_add(Eolian_Implement *impl, const Eolian_Class *klass);
 
 /* constructors */
 void database_constructor_del(Eolian_Constructor *ctor);

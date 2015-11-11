@@ -158,7 +158,6 @@ EAPI void         edje_extern_object_max_size_set (Evas_Object *obj, Evas_Coord 
 EAPI void         edje_extern_object_aspect_set   (Evas_Object *obj, Edje_Aspect_Control aspect, Evas_Coord aw, Evas_Coord ah);
 
 /**
- *
  * @brief Sets the @b EDJ file (and group within it) to load an Edje
  * object's contents from
  *
@@ -189,10 +188,9 @@ EAPI void         edje_extern_object_aspect_set   (Evas_Object *obj, Edje_Aspect
  * @param[in] group The name of the group, in @p file, which implements an
 Edje object
  */
-EAPI Eina_Bool edje_object_file_set(Eo *obj, const char *file, const char *group);
+EAPI Eina_Bool edje_object_file_set(Edje_Object *obj, const char *file, const char *group);
 
 /**
- *
  * @brief Get the file and group name that a given Edje object is bound to
  *
  * This gets the EDJ file's path, with the respective group set for
@@ -210,11 +208,10 @@ EAPI Eina_Bool edje_object_file_set(Eo *obj, const char *file, const char *group
  * @param[out] group The name of the group, in @p file, which implements an
 Edje object
  */
-EAPI void edje_object_file_get(const Eo *obj, const char **file, const char **group);
+EAPI void edje_object_file_get(const Edje_Object *obj, const char **file, const char **group);
 
 
 /**
- *
  * @brief Sets the @b EDJ file (and group within it) to load an Edje
  * object's contents from
  *
@@ -246,7 +243,7 @@ EAPI void edje_object_file_get(const Eo *obj, const char **file, const char **gr
  * @param[in] group The name of the group, in @p file, which implements an
 Edje object
  */
-EAPI Eina_Bool edje_object_mmap_set(Eo *obj, const Eina_File *file, const char *group);
+EAPI Eina_Bool edje_object_mmap_set(Edje_Object *obj, const Eina_File *file, const char *group);
 
 
 #include "edje_object.eo.legacy.h"

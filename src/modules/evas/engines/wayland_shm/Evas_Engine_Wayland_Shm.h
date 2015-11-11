@@ -19,18 +19,9 @@ struct _Evas_Engine_Info_Wayland_Shm
         unsigned int rotation, depth;
         Eina_Bool destination_alpha : 1;
         int edges;
+
+        struct wl_display *wl_disp;
      } info;
-
-   struct
-     {
-        void (*released) (void *data);
-        void *data;
-     } callback;
-
-   struct
-     {
-        Eina_Bool (*busy_check) (void *data);
-     } func;
 
    /* non-blocking or blocking mode */
    Evas_Engine_Render_Mode render_mode;

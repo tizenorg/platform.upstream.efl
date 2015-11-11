@@ -16,25 +16,23 @@ _params_generate(const Eolian_Function *foo, Eolian_Function_Type ftype, Eina_Bo
 {
    Eina_Iterator *itr;
    Eolian_Function_Parameter *param;
+   Eina_Bool is_prop = (ftype == EOLIAN_PROP_GET || ftype == EOLIAN_PROP_SET);
    eina_strbuf_reset(params);
    eina_strbuf_reset(short_params);
-   itr = eolian_property_keys_get(foo);
+   itr = eolian_property_keys_get(foo, ftype);
    EINA_ITERATOR_FOREACH(itr, param)
      {
         const Eolian_Type *ptypet = eolian_parameter_type_get(param);
         const char *pname = eolian_parameter_name_get(param);
         const char *ptype = eolian_type_c_type_get(ptypet);
         Eina_Bool had_star = !!strchr(ptype, '*');
-        Eina_Bool is_const = eolian_parameter_const_attribute_get(param, ftype == EOLIAN_PROP_GET);
         if (eina_strbuf_length_get(params))
           {
              eina_strbuf_append(params, ", ");
              eina_strbuf_append(short_params, ", ");
           }
-        eina_strbuf_append_printf(params, "%s%s%s%s",
-              is_const?"const ":"", ptype,
-              had_star?"":" ",
-              pname);
+        eina_strbuf_append_printf(params, "%s%s%s",
+              ptype, had_star?"":" ", pname);
         eina_strbuf_append_printf(short_params, "%s", pname);
         eina_stringshare_del(ptype);
      }
@@ -42,14 +40,13 @@ _params_generate(const Eolian_Function *foo, Eolian_Function_Type ftype, Eina_Bo
    if (!var_as_ret)
      {
         Eina_Bool add_star = (ftype == EOLIAN_PROP_GET);
-        itr = eolian_function_parameters_get(foo);
+        itr = is_prop ? eolian_property_values_get(foo, ftype) : eolian_function_parameters_get(foo);
         EINA_ITERATOR_FOREACH(itr, param)
           {
              const Eolian_Type *ptypet = eolian_parameter_type_get(param);
              const char *pname = eolian_parameter_name_get(param);
              const char *ptype = eolian_type_c_type_get(ptypet);
              Eolian_Parameter_Dir pdir = eolian_parameter_direction_get(param);
-             Eina_Bool is_const = eolian_parameter_const_attribute_get(param, ftype == EOLIAN_PROP_GET);
              Eina_Bool had_star = !!strchr(ptype, '*');
              if (ftype == EOLIAN_UNRESOLVED || ftype == EOLIAN_METHOD) add_star = (pdir == EOLIAN_OUT_PARAM || pdir == EOLIAN_INOUT_PARAM);
              if (eina_strbuf_length_get(params))
@@ -57,8 +54,7 @@ _params_generate(const Eolian_Function *foo, Eolian_Function_Type ftype, Eina_Bo
                   eina_strbuf_append(params, ", ");
                   eina_strbuf_append(short_params, ", ");
                }
-             eina_strbuf_append_printf(params, "%s%s%s%s%s",
-                   is_const?"const ":"",
+             eina_strbuf_append_printf(params, "%s%s%s%s",
                    ptype, had_star?"":" ", add_star?"*":"", pname);
              eina_strbuf_append_printf(short_params, "%s", pname);
              eina_stringshare_del(ptype);
@@ -118,7 +114,7 @@ _type_exists(const char* type_name, Eina_Strbuf *buffer)
 static Eina_Bool
 _prototype_generate(const Eolian_Function *foo, Eolian_Function_Type ftype, Eina_Strbuf *data_type_buf, Eolian_Implement *impl_desc, Eina_Strbuf *buffer)
 {
-   Eina_Bool var_as_ret = EINA_FALSE, ret_const = EINA_FALSE;
+   Eina_Bool var_as_ret = EINA_FALSE;
    Eina_Strbuf *params = NULL, *short_params = NULL, *super_invok = NULL;
    char func_name[PATH_MAX];
    char impl_name[PATH_MAX];
@@ -147,7 +143,7 @@ _prototype_generate(const Eolian_Function *foo, Eolian_Function_Type ftype, Eina
    const Eolian_Type *rettypet = eolian_function_return_type_get(foo, ftype);
    if (ftype == EOLIAN_PROP_GET && !rettypet)
      {
-        Eina_Iterator *itr = eolian_function_parameters_get(foo);
+        Eina_Iterator *itr = eolian_property_values_get(foo, ftype);
         void *data, *data2;
         /* We want to check if there is only one parameter */
         if (eina_iterator_next(itr, &data) && !eina_iterator_next(itr, &data2))
@@ -155,7 +151,6 @@ _prototype_generate(const Eolian_Function *foo, Eolian_Function_Type ftype, Eina
              Eolian_Function_Parameter *param = data;
              rettypet = eolian_parameter_type_get(param);
              var_as_ret = EINA_TRUE;
-             ret_const = eolian_parameter_const_attribute_get(param, EINA_TRUE);
           }
         eina_iterator_free(itr);
      }
@@ -189,8 +184,8 @@ _prototype_generate(const Eolian_Function *foo, Eolian_Function_Type ftype, Eina
    if (rettypet) rettype = eolian_type_c_type_get(rettypet);
 
    eina_strbuf_append_printf(buffer,
-         "EOLIAN static %s%s\n%s(%sEo *obj, %s *pd%s%s)\n{\n%s\n}\n\n",
-         ret_const?"const ":"", !rettype?"void":rettype,
+         "EOLIAN static %s\n%s(%sEo *obj, %s *pd%s%s)\n{\n%s\n}\n\n",
+         !rettype?"void":rettype,
          func_name,
          eolian_function_object_is_const(foo)?"const ":"",
          !eina_strbuf_length_get(data_type_buf) ? "void" : eina_strbuf_string_get(data_type_buf),
@@ -216,7 +211,6 @@ impl_source_generate(const Eolian_Class *class, Eina_Strbuf *buffer)
    Eina_Iterator *itr;
    const Eolian_Function *foo;
    Eina_Strbuf *begin = eina_strbuf_new();
-   const char *class_name = eolian_class_name_get(class);
    char core_incl[PATH_MAX];
 
    _class_env_create(class, NULL, &class_env);
@@ -241,7 +235,7 @@ impl_source_generate(const Eolian_Class *class, Eina_Strbuf *buffer)
            eina_strbuf_append_printf(data_type_buf, "%s", data_type);
      }
    else
-      eina_strbuf_append_printf(data_type_buf, "%s_Data", class_name);
+      eina_strbuf_append_printf(data_type_buf, "%s_Data", class_env.full_classname);
 
    /* Definition of the structure */
    const char *data_type_str = eina_strbuf_string_get(data_type_buf);
@@ -268,8 +262,8 @@ impl_source_generate(const Eolian_Class *class, Eina_Strbuf *buffer)
                {
                   const char *name = names[eolian_implement_is_prop_get(impl_desc)
                                         | (eolian_implement_is_prop_set(impl_desc) << 1)];
-                  ERR ("Failed to generate implementation of %s%s - missing from class",
-                        name, eolian_implement_full_name_get(impl_desc));
+                  fprintf(stderr, "eolian: failed to generate implementation of '%s%s' - missing from class\n",
+                          name, eolian_implement_full_name_get(impl_desc));
                   goto end;
                }
              switch (ftype)

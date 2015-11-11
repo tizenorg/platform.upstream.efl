@@ -1,9 +1,6 @@
 #include "config.h" 
 
-/*
-#define EFL_EO_API_SUPPORT 1
-#define EFL_BETA_API_SUPPORT 1
-*/
+#define EFL_GFX_FILTER_BETA
 
 #include "Eo.h"
 #include "Evas.h"
@@ -111,7 +108,7 @@ main(int argc, char **argv)
    evas_object_color_set(o, 255, 255, 255, 255);
    evas_object_show(o);
 
-   eo_do(o, evas_obj_text_filter_program_set(filter));
+   eo_do(o, efl_gfx_filter_program_set(filter, wpd.file));
 
    ecore_evas_manual_render(wpd.ee);
    evas_object_geometry_get(o, NULL, NULL, &w, &h);

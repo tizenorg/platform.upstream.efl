@@ -206,7 +206,7 @@ evas_object_smart_clipped_smart_member_del(Evas_Object *eo_obj, Evas_Object *mem
    if (!cso->clipper)
      return;
    evas_object_clip_unset(member);
-   if (!evas_object_clipees_get(cso->clipper))
+   if (!evas_object_clipees_has(cso->clipper))
      evas_object_hide(cso->clipper);
 }
 
@@ -250,10 +250,10 @@ evas_object_smart_clipped_class_get(void)
    return class;
 }
 
-EOLIAN static void
-_evas_smart_clipped_eo_base_constructor(Eo *eo_obj, Evas_Object_Smart_Clipped_Data *class_data EINA_UNUSED)
+EOLIAN static Eo *
+_evas_smart_clipped_eo_base_constructor(Eo *obj, Evas_Object_Smart_Clipped_Data *class_data EINA_UNUSED)
 {
-   eo_do_super(eo_obj, MY_CLASS, eo_constructor());
+   return eo_do_super_ret(obj, MY_CLASS, obj, eo_constructor());
 }
 
 #include "canvas/evas_smart_clipped.eo.c"

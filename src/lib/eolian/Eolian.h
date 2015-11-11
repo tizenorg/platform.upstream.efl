@@ -79,8 +79,7 @@ extern "C" {
  *
  * Recommended reading:
  *
-
- *
+ * @li @ref Eolian
  *
  * @addtogroup Eolian
  * @{
@@ -154,6 +153,18 @@ typedef struct _Eolian_Struct_Type_Field Eolian_Struct_Type_Field;
  */
 typedef struct _Eolian_Enum_Type_Field Eolian_Enum_Type_Field;
 
+/* Declaration information
+ *
+ * @ingroup Eolian
+ */
+typedef struct _Eolian_Declaration Eolian_Declaration;
+
+/* Documentation information
+ *
+ * @ingroup Eolian
+ */
+typedef struct _Eolian_Documentation Eolian_Documentation;
+
 typedef enum
 {
    EOLIAN_UNRESOLVED,
@@ -191,8 +202,6 @@ typedef enum
    EOLIAN_TYPE_UNKNOWN_TYPE,
    EOLIAN_TYPE_VOID,
    EOLIAN_TYPE_REGULAR,
-   EOLIAN_TYPE_REGULAR_STRUCT,
-   EOLIAN_TYPE_REGULAR_ENUM,
    EOLIAN_TYPE_COMPLEX,
    EOLIAN_TYPE_POINTER,
    EOLIAN_TYPE_STRUCT,
@@ -218,7 +227,6 @@ typedef enum
    EOLIAN_EXPR_NULL,
    EOLIAN_EXPR_BOOL,
    EOLIAN_EXPR_NAME,
-   EOLIAN_EXPR_ENUM,
    EOLIAN_EXPR_UNARY,
    EOLIAN_EXPR_BINARY
 } Eolian_Expression_Type;
@@ -305,28 +313,30 @@ typedef enum
    EOLIAN_UNOP_BNOT, /* ~ int */
 } Eolian_Unary_Operator;
 
-/*
- * @brief Parse a given .eo file and fill the database.
- *
- * During parsing, the class described into the .eo file is created with
- * all the information related to this class.
- *
- * @param[in] filename Name of the file to parse.
- * @see eolian_eot_file_parse
- *
- * @ingroup Eolian
- */
-EAPI Eina_Bool eolian_eo_file_parse(const char *filename);
+typedef enum
+{
+   EOLIAN_DECL_UNKNOWN = -1,
+   EOLIAN_DECL_CLASS,
+   EOLIAN_DECL_ALIAS,
+   EOLIAN_DECL_STRUCT,
+   EOLIAN_DECL_ENUM,
+   EOLIAN_DECL_VAR
+} Eolian_Declaration_Type;
 
 /*
- * @brief Parse a given .eot file and fill the database.
+ * @brief Parse the given .eo or .eot file and fill the database.
  *
- * @param[in] filename Name of the file to parse.
- * @see eolian_eo_file_parse
+ * The input can be either a full path to the file or only a filename.
+ * If it's a filename, it must be scanned for first.
+ *
+ * @param[in] filepath Path to the file to parse.
+ * @return EINA_TRUE on success, EINA_FALSE on failure.
+ *
+ * @see eolian_directory_scan
  *
  * @ingroup Eolian
  */
-EAPI Eina_Bool eolian_eot_file_parse(const char *filepath);
+EAPI Eina_Bool eolian_file_parse(const char *filepath);
 
 /*
  * @brief Get an iterator to all .eo file names with paths.
@@ -451,153 +461,6 @@ EAPI Eina_Bool eolian_all_eot_files_parse(void);
 EAPI Eina_Bool eolian_database_validate(void);
 
 /*
- * @brief Show information about a given class.
- *
- * If klass is NULL, this function will print information of
- * all the classes stored into the database.
- *
- * @param[in] klass the class to show
- *
- * @return EINA_TRUE on success, EINA_FALSE otherwise (currently always
- * succeeds).
- *
- * @see eolian_show_typedef
- * @see eolian_show_struct
- * @see eolian_show_enum
- * @see eolian_show_global
- * @see eolian_show_constant
- * @see eolian_show_all
- *
- * @ingroup Eolian
- */
-EAPI Eina_Bool eolian_show_class(const Eolian_Class *klass);
-
-/*
- * @brief Show information about a given typedef.
- *
- * If @c alias is NULL, this function will print information of
- * all the typedefs.
- *
- * @param[in] alias the typedef to show.
- *
- * @return EINA_TRUE on success, EINA_FALSE otherwise (when typedef is not
- * found).
- *
- * @see eolian_show_class
- * @see eolian_show_struct
- * @see eolian_show_enum
- * @see eolian_show_global
- * @see eolian_show_constant
- * @see eolian_show_all
- *
- * @ingroup Eolian
- */
-EAPI Eina_Bool eolian_show_typedef(const char *alias);
-
-/*
- * @brief Show information about a given struct.
- *
- * If @c name is NULL, this function will print information of
- * all the named global structs.
- *
- * @param[in] name the struct to show.
- *
- * @return EINA_TRUE on success, EINA_FALSE otherwise (when struct is not
- * found).
- *
- * @see eolian_show_class
- * @see eolian_show_typedef
- * @see eolian_show_enum
- * @see eolian_show_global
- * @see eolian_show_constant
- * @see eolian_show_all
- *
- * @ingroup Eolian
- */
-EAPI Eina_Bool eolian_show_struct(const char *name);
-
-/*
- * @brief Show information about a given enum.
- *
- * If @c name is NULL, this function will print information of
- * all the enums.
- *
- * @param[in] name the enum to show.
- *
- * @return EINA_TRUE on success, EINA_FALSE otherwise (when enum is not
- * found).
- *
- * @see eolian_show_class
- * @see eolian_show_typedef
- * @see eolian_show_struct
- * @see eolian_show_global
- * @see eolian_show_constant
- * @see eolian_show_all
- *
- * @ingroup Eolian
- */
-EAPI Eina_Bool eolian_show_enum(const char *name);
-
-/*
- * @brief Show information about a given global.
- *
- * If @c name is NULL, this function will print information of
- * all the globals.
- *
- * @param[in] name the global to show.
- *
- * @return EINA_TRUE on success, EINA_FALSE otherwise (when global is not
- * found).
- *
- * @see eolian_show_class
- * @see eolian_show_typedef
- * @see eolian_show_struct
- * @see eolian_show_enum
- * @see eolian_show_constant
- * @see eolian_show_all
- *
- * @ingroup Eolian
- */
-EAPI Eina_Bool eolian_show_global(const char *name);
-
-/*
- * @brief Show information about a given constant.
- *
- * If @c name is NULL, this function will print information of
- * all the constants.
- *
- * @param[in] name the constant to show.
- *
- * @return EINA_TRUE on success, EINA_FALSE otherwise (when constant is not
- * found).
- *
- * @see eolian_show_class
- * @see eolian_show_typedef
- * @see eolian_show_struct
- * @see eolian_show_enum
- * @see eolian_show_global
- * @see eolian_show_all
- *
- * @ingroup Eolian
- */
-EAPI Eina_Bool eolian_show_constant(const char *name);
-
-/*
- * @brief Show information about everything.
- *
- * This will print a complete dump of all information stored in the Eolian
- * database.
- *
- * @see eolian_show_class
- * @see eolian_show_typedef
- * @see eolian_show_struct
- * @see eolian_show_enum
- *
- * @ingroup Eolian
- */
-EAPI void eolian_show_all(void);
-
-/*
  * @brief Gets a class by its name
  *
  * @param[in] class_name name of the class to get.
@@ -680,14 +543,14 @@ EAPI Eolian_Class_Type eolian_class_type_get(const Eolian_Class *klass);
 EAPI Eina_Iterator *eolian_all_classes_get(void);
 
 /*
- * @brief Returns the description of a class.
+ * @brief Returns the documentation of a class.
  *
  * @param[in] klass the class
- * @return the description of a class
+ * @return the documentation of a class
  *
  * @ingroup Eolian
  */
-EAPI Eina_Stringshare *eolian_class_description_get(const Eolian_Class *klass);
+EAPI const Eolian_Documentation *eolian_class_documentation_get(const Eolian_Class *klass);
 
 /*
  * @brief Returns the legacy prefix of a class
@@ -774,16 +637,23 @@ EAPI Eina_Stringshare *eolian_function_name_get(const Eolian_Function *function_
  * @brief Returns the full C name of a function.
  *
  * @param[in] function_id Id of the function
+ * @param[in] ftype The type of function to get the name for
+ * @param[in] use_legacy If true, legacy prefix or name will be used when available
  * @return the function name
  *
  * It's here because the C API names are deduplicated (prefix of function and
  * suffix of prefix merge if applicable) and this helps generators not write
  * the same code over and over.
+ *
+ * If legacy name is supplied for the given type and use_legacy is set, it
+ * will be used. Also, if the given type is PROP_GET or PROPERTY, a "_get"
+ * suffix will be applied when not using legacy name, and "_set" for PROP_SET.
+ *
  * Also, you're responsible for deleting the stringshare.
  *
  * @ingroup Eolian
  */
-EAPI Eina_Stringshare *eolian_function_full_c_name_get(const Eolian_Function *function_id);
+EAPI Eina_Stringshare *eolian_function_full_c_name_get(const Eolian_Function *function_id, Eolian_Function_Type ftype, Eina_Bool use_legacy);
 
 /*
  * @brief Get a function in a class by its name and type
@@ -809,15 +679,15 @@ EAPI const Eolian_Function *eolian_class_function_get_by_name(const Eolian_Class
 EAPI Eina_Stringshare *eolian_function_legacy_get(const Eolian_Function *function_id, Eolian_Function_Type f_type);
 
 /*
- * @brief Returns a description for a function.
+ * @brief Returns a documentation for a function.
  *
  * @param[in] function_id Id of the function
  * @param[in] f_type The function type, for property get/set distinction.
- * @return the description or NULL.
+ * @return the documentation or NULL.
  *
  * @ingroup Eolian
  */
-EAPI Eina_Stringshare *eolian_function_description_get(const Eolian_Function *function_id, Eolian_Function_Type f_type);
+EAPI const Eolian_Documentation *eolian_function_documentation_get(const Eolian_Function *function_id, Eolian_Function_Type f_type);
 
 /*
  * @brief Indicates if a function is virtual pure.
@@ -884,6 +754,16 @@ EAPI Eina_Bool eolian_function_is_class(const Eolian_Function *function_id);
 EAPI Eina_Bool eolian_function_is_c_only(const Eolian_Function *function_id);
 
 /*
+ * @brief Get whether a function is beta.
+ *
+ * @param[in] function_id Id of the function
+ * @return EINA_TRUE and EINA_FALSE respectively
+ *
+ * @ingroup Eolian
+ */
+EAPI Eina_Bool eolian_function_is_beta(const Eolian_Function *function_id);
+
+/*
  * @brief Indicates if a function is a constructing function of a given class.
  *
  * @param[in] klass the class
@@ -893,17 +773,6 @@ EAPI Eina_Bool eolian_function_is_c_only(const Eolian_Function *function_id);
  * @ingroup Eolian
  */
 EAPI Eina_Bool eolian_function_is_constructor(const Eolian_Function *function_id, const Eolian_Class *klass);
-
-/*
- * @brief Returns a parameter of a function pointed by its id.
- *
- * @param[in] function_id Id of the function
- * @param[in] param_name Name of the parameter
- * @return a handle to this parameter.
- *
- * @ingroup Eolian
- */
-EAPI const Eolian_Function_Parameter *eolian_function_parameter_get_by_name(const Eolian_Function *function_id, const char *param_name);
 
 /*
  * @brief Returns an iterator to the parameter handles for a method/ctor/dtor.
@@ -919,21 +788,23 @@ EAPI Eina_Iterator *eolian_function_parameters_get(const Eolian_Function *functi
  * @brief Returns an iterator to the keys params of a given function.
  *
  * @param[in] function_id Id of the function
+ * @param[in] ftype The function type, for property get/set distinction.
  * @return the iterator
  *
  * @ingroup Eolian
  */
-EAPI Eina_Iterator *eolian_property_keys_get(const Eolian_Function *foo_id);
+EAPI Eina_Iterator *eolian_property_keys_get(const Eolian_Function *foo_id, Eolian_Function_Type ftype);
 
 /*
  * @brief Returns an iterator to the values params of a given function.
  *
  * @param[in] function_id Id of the function
+ * @param[in] ftype The function type, for property get/set distinction.
  * @return the iterator
  *
  * @ingroup Eolian
  */
-EAPI Eina_Iterator *eolian_property_values_get(const Eolian_Function *foo_id);
+EAPI Eina_Iterator *eolian_property_values_get(const Eolian_Function *foo_id, Eolian_Function_Type ftype);
 
 /*
  * @brief Get direction of a parameter
@@ -976,28 +847,14 @@ EAPI const Eolian_Expression *eolian_parameter_default_value_get(const Eolian_Fu
 EAPI Eina_Stringshare *eolian_parameter_name_get(const Eolian_Function_Parameter *param);
 
 /*
- * @brief Get description of a parameter
+ * @brief Get documentation of a parameter
  *
  * @param[in] param_desc parameter handle
- * @return the description of the parameter or NULL
+ * @return the documentation of the parameter or NULL
  *
  * @ingroup Eolian
  */
-EAPI Eina_Stringshare *eolian_parameter_description_get(const Eolian_Function_Parameter *param);
-
-/*
- * @brief Indicates if a parameter has a const attribute.
- *
- * This function is relevant for properties, to know if a parameter is a const
- * parameter in the get operation.
- *
- * @param[in] param_desc parameter handle
- * @param[in] is_get indicates if the information needed is for get or set.
- * @return EINA_TRUE if const in get, EINA_FALSE otherwise
- *
- * @ingroup Eolian
- */
-EAPI Eina_Bool eolian_parameter_const_attribute_get(const Eolian_Function_Parameter *param_desc, Eina_Bool is_get);
+EAPI const Eolian_Documentation *eolian_parameter_documentation_get(const Eolian_Function_Parameter *param);
 
 /*
  * @brief Indicates if a parameter cannot be NULL.
@@ -1008,6 +865,26 @@ EAPI Eina_Bool eolian_parameter_const_attribute_get(const Eolian_Function_Parame
  * @ingroup Eolian
  */
 EAPI Eina_Bool eolian_parameter_is_nonull(const Eolian_Function_Parameter *param_desc);
+
+/*
+ * @brief Indicates if a parameter is nullable.
+ *
+ * @param[in] param_desc parameter handle
+ * @return EINA_TRUE if nullable, EINA_FALSE otherwise
+ *
+ * @ingroup Eolian
+ */
+EAPI Eina_Bool eolian_parameter_is_nullable(const Eolian_Function_Parameter *param_desc);
+
+/*
+ * @brief Indicates if a parameter is optional.
+ *
+ * @param[in] param_desc parameter handle
+ * @return EINA_TRUE if optional, EINA_FALSE otherwise
+ *
+ * @ingroup Eolian
+ */
+EAPI Eina_Bool eolian_parameter_is_optional(const Eolian_Function_Parameter *param_desc);
 
 /*
  * @brief Get the return type of a function.
@@ -1040,18 +917,18 @@ EAPI const Eolian_Expression *
 eolian_function_return_default_value_get(const Eolian_Function *foo_id, Eolian_Function_Type ftype);
 
 /*
- * @brief Get the return comment of a function.
+ * @brief Get the return docs of a function.
  *
  * @param[in] function_id id of the function
  * @param[in] ftype type of the function
- * @return the return comment of the function
+ * @return the return docs of the function
  *
  * The type of the function is needed because a given function can represent a
  * property, that can be set and get functions.
  *
  * @ingroup Eolian
  */
-EAPI Eina_Stringshare *eolian_function_return_comment_get(const Eolian_Function *foo_id, Eolian_Function_Type ftype);
+EAPI const Eolian_Documentation *eolian_function_return_documentation_get(const Eolian_Function *foo_id, Eolian_Function_Type ftype);
 
 /*
  * @brief Indicates if a function return is warn-unused.
@@ -1076,6 +953,29 @@ EAPI Eina_Bool eolian_function_return_is_warn_unused(const Eolian_Function *foo_
  * @ingroup Eolian
  */
 EAPI Eina_Bool eolian_function_object_is_const(const Eolian_Function *function_id);
+
+/*
+ * @brief Return the Eolian class associated to the function.
+ *
+ * @param[in] function_id id of the function
+ * @return the class, NULL otherwise
+ *
+ * @ingroup Eolian
+ */
+EAPI const Eolian_Class *eolian_function_class_get(const Eolian_Function *function_id);
+
+/*
+ * @brief Determine if a function is implemented in the inheritance of the given class
+ *
+ * @param[in] function_id id of the function
+ * @param[in] func_type type requested
+ * @param[in] klass the top class to begin with
+ * @return EINA_TRUE if found, EINA_FALSE otherwise
+ *
+ * @ingroup Eolian
+ */
+EAPI Eina_Bool eolian_function_is_implemented(const Eolian_Function *function_id,
+      Eolian_Function_Type func_type, const Eolian_Class *klass);
 
 /*
  * @brief Get full string of an overriding function (implement).
@@ -1254,14 +1154,14 @@ EAPI Eina_Stringshare *eolian_event_name_get(const Eolian_Event *event);
 EAPI const Eolian_Type *eolian_event_type_get(const Eolian_Event *event);
 
 /*
- * @brief Get the description of an event.
+ * @brief Get the documentation of an event.
  *
  * @param[in] event the event handle
- * @return the description or NULL
+ * @return the documentation or NULL
  *
  * @ingroup Eolian
  */
-EAPI Eina_Stringshare *eolian_event_description_get(const Eolian_Event *event);
+EAPI const Eolian_Documentation *eolian_event_documentation_get(const Eolian_Event *event);
 
 /*
  * @brief Returns the scope of an event
@@ -1274,6 +1174,16 @@ EAPI Eina_Stringshare *eolian_event_description_get(const Eolian_Event *event);
 EAPI Eolian_Object_Scope eolian_event_scope_get(const Eolian_Event *event);
 
 /*
+ * @brief Get whether an event is beta.
+ *
+ * @param[in] event the event handle
+ * @return EINA_TRUE and EINA_FALSE respectively
+ *
+ * @ingroup Eolian
+ */
+EAPI Eina_Bool eolian_event_is_beta(const Eolian_Event *event);
+
+/*
  * @brief Returns the C name of an event
  *
  * @param[in] event the event handle
@@ -1284,6 +1194,17 @@ EAPI Eolian_Object_Scope eolian_event_scope_get(const Eolian_Event *event);
  * @ingroup Eolian
  */
 EAPI Eina_Stringshare *eolian_event_c_name_get(const Eolian_Event *event);
+
+/*
+ * @brief Get an event in a class by its name
+ *
+ * @param[in] klass the class
+ * @param[in] event_name name of the event
+ * @return the Eolian_Event if found, NULL otherwise.
+ *
+ * @ingroup Eolian
+ */
+EAPI const Eolian_Event *eolian_class_event_get_by_name(const Eolian_Class *klass, const char *event_name);
 
 /*
  * @brief Indicates if the class constructor has to invoke
@@ -1438,14 +1359,14 @@ EAPI const Eolian_Struct_Type_Field *eolian_type_struct_field_get(const Eolian_T
 EAPI Eina_Stringshare *eolian_type_struct_field_name_get(const Eolian_Struct_Type_Field *fl);
 
 /*
- * @brief Get the description of a field of a struct type.
+ * @brief Get the documentation of a field of a struct type.
  *
  * @param[in] fl the field.
- * @return the description.
+ * @return the documentation.
  *
  * @ingroup Eolian
  */
-EAPI Eina_Stringshare *eolian_type_struct_field_description_get(const Eolian_Struct_Type_Field *fl);
+EAPI const Eolian_Documentation *eolian_type_struct_field_documentation_get(const Eolian_Struct_Type_Field *fl);
 
 /*
  * @brief Get the type of a field of a struct type.
@@ -1493,24 +1414,41 @@ EAPI const Eolian_Enum_Type_Field *eolian_type_enum_field_get(const Eolian_Type 
 EAPI Eina_Stringshare *eolian_type_enum_field_name_get(const Eolian_Enum_Type_Field *fl);
 
 /*
- * @brief Get the description of a field of an enum type.
+ * @brief Get the C name of a field of an enum type.
+ *
+ * The user of the API is responsible for the resulting stringshare.
  *
  * @param[in] fl the field.
- * @return the description.
+ * @return the name.
  *
  * @ingroup Eolian
  */
-EAPI Eina_Stringshare *eolian_type_enum_field_description_get(const Eolian_Enum_Type_Field *fl);
+EAPI Eina_Stringshare *eolian_type_enum_field_c_name_get(const Eolian_Enum_Type_Field *fl);
+
+/*
+ * @brief Get the documentation of a field of an enum type.
+ *
+ * @param[in] fl the field.
+ * @return the documentation.
+ *
+ * @ingroup Eolian
+ */
+EAPI const Eolian_Documentation *eolian_type_enum_field_documentation_get(const Eolian_Enum_Type_Field *fl);
 
 /*
  * @brief Get the value of a field of an enum type.
  *
+ * When the @c force parameter is EINA_FALSE, this will only return values for
+ * fields which are explicitly specified in the eo file, otherwise it will
+ * return a valid expression for any field.
+ *
  * @param[in] fl the field.
- * @return the description.
+ * @param[in] force force the value retrieval.
+ * @return the expression.
  *
  * @ingroup Eolian
  */
-EAPI const Eolian_Expression *eolian_type_enum_field_value_get(const Eolian_Enum_Type_Field *fl);
+EAPI const Eolian_Expression *eolian_type_enum_field_value_get(const Eolian_Enum_Type_Field *fl, Eina_Bool force);
 
 /*
  * @brief Get the legacy prefix of enum field names. When not specified,
@@ -1524,15 +1462,15 @@ EAPI const Eolian_Expression *eolian_type_enum_field_value_get(const Eolian_Enum
 EAPI Eina_Stringshare *eolian_type_enum_legacy_prefix_get(const Eolian_Type *tp);
 
 /*
- * @brief Get the description of a struct/alias type.
+ * @brief Get the documentation of a struct/alias type.
  *
  * @param[in] tp the type.
- * @return the description when @c tp is EOLIAN_TYPE_STRUCT or
+ * @return the documentation when @c tp is EOLIAN_TYPE_STRUCT or
  * EOLIAN_TYPE_STRUCT_OPAQUE, NULL otherwise.
  *
  * @ingroup Eolian
  */
-EAPI Eina_Stringshare *eolian_type_description_get(const Eolian_Type *tp);
+EAPI const Eolian_Documentation *eolian_type_documentation_get(const Eolian_Type *tp);
 
 /*
  * @brief Get the filename of a struct/alias type.
@@ -1545,7 +1483,10 @@ EAPI Eina_Stringshare *eolian_type_description_get(const Eolian_Type *tp);
 EAPI Eina_Stringshare *eolian_type_file_get(const Eolian_Type *tp);
 
 /*
- * @brief Get the base type of a pointer or alias type.
+ * @brief Get the base type of a pointer, alias or regular type.
+ *
+ * For pointers and aliases, it's a simple lookup. For regular types, it
+ * tries to look up alias, struct and enum in that order.
  *
  * @param[in] tp the type.
  * @return the base type when @c tp is a pointer or alias, NULL otherwise.
@@ -1890,14 +1831,14 @@ EAPI Eina_Iterator *eolian_variable_constants_get_by_file(const char *fname);
 EAPI Eolian_Variable_Type eolian_variable_type_get(const Eolian_Variable *var);
 
 /*
- * @brief Get the description of a variable.
+ * @brief Get the documentation of a variable.
  *
  * @param[in] var the variable.
- * @return the description or NULL.
+ * @return the documentation or NULL.
  *
  * @ingroup Eolian
  */
-EAPI Eina_Stringshare *eolian_variable_description_get(const Eolian_Variable *var);
+EAPI const Eolian_Documentation *eolian_variable_documentation_get(const Eolian_Variable *var);
 
 /*
  * @brief Get the filename of a variable.
@@ -1969,6 +1910,121 @@ EAPI Eina_Iterator *eolian_variable_namespaces_get(const Eolian_Variable *var);
  */
 EAPI Eina_Bool eolian_variable_is_extern(const Eolian_Variable *var);
 
+/*
+ * @brief Get a declaration by name.
+ *
+ * @param[in] name the declaration name.
+ * @return the declaration.
+ *
+ * @ingroup Eolian
+ */
+EAPI const Eolian_Declaration *eolian_declaration_get_by_name(const char *name);
+
+/*
+ * @brief Get a list of declarations in a file.
+ *
+ * This function gets an iterator to a list of declarations in a particular
+ * file. Declarations are either a class, a type alias, a struct, an enum
+ * or a variable. This way you can get them all in the original order they
+ * were declared in, which is useful during generation.
+ *
+ * @param[in] fname the filename.
+ * @return the iterator or NULL.
+ *
+ * @ingroup Eolian
+ */
+EAPI Eina_Iterator *eolian_declarations_get_by_file(const char *fname);
+
+/*
+ * @brief Get the type of a declaration
+ *
+ * @param[in] decl the declaration
+ * @return the declaration type
+ *
+ * @ingroup Eolian
+ */
+EAPI Eolian_Declaration_Type eolian_declaration_type_get(const Eolian_Declaration *decl);
+
+/*
+ * @brief Get the name of a declaration
+ *
+ * This matches the full namespaced name of the data it's holding.
+ *
+ * @param[in] decl the declaration
+ * @return the declaration name
+ *
+ * @ingroup Eolian
+ */
+EAPI Eina_Stringshare *eolian_declaration_name_get(const Eolian_Declaration *decl);
+
+/*
+ * @brief Get the class of a class declaration.
+ *
+ * @param[in] decl the declaration
+ * @return the class
+ *
+ * @ingroup Eolian
+ */
+EAPI const Eolian_Class *eolian_declaration_class_get(const Eolian_Declaration *decl);
+
+/*
+ * @brief Get the type of a type (alias, struct, enum) declaration.
+ *
+ * @param[in] decl the declaration
+ * @return the type
+ *
+ * @ingroup Eolian
+ */
+EAPI const Eolian_Type *eolian_declaration_data_type_get(const Eolian_Declaration *decl);
+
+/*
+ * @brief Get the variable of a variable (constant, global) declaration.
+ *
+ * @param[in] decl the declaration
+ * @return the class
+ *
+ * @ingroup Eolian
+ */
+EAPI const Eolian_Variable *eolian_declaration_variable_get(const Eolian_Declaration *decl);
+
+/*
+ * @brief Get the summary of the documentation.
+ *
+ * This should never return NULL unless the input is invalid.
+ *
+ * @param[in] doc the documentation
+ * @return the summary or NULL
+ *
+ * @ingroup Eolian
+ */
+EAPI Eina_Stringshare *eolian_documentation_summary_get(const Eolian_Documentation *doc);
+
+/*
+ * @brief Get the description of the documentation.
+ *
+ * This can return NULL if the description wasn't specified or
+ * if the input is wrong.
+ *
+ * @param[in] doc the documentation
+ * @return the description or NULL
+ *
+ * @ingroup Eolian
+ */
+EAPI Eina_Stringshare *eolian_documentation_description_get(const Eolian_Documentation *doc);
+
+/*
+ * @brief Get the "since" tag of the documentation.
+ *
+ * This can return NULL if the tag wasn't specified or
+ * if the input is wrong.
+ *
+ * @param[in] doc the documentation
+ * @return the description or NULL
+ *
+ * @ingroup Eolian
+ */
+EAPI Eina_Stringshare *eolian_documentation_since_get(const Eolian_Documentation *doc);
+
 #endif
 
 /**
@@ -1978,5 +2034,8 @@ EAPI Eina_Bool eolian_variable_is_extern(const Eolian_Variable *var);
 #ifdef __cplusplus
 } // extern "C" {
 #endif
+
+#undef EAPI
+#define EAPI
 
 #endif

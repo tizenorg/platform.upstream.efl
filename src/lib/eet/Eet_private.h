@@ -2,6 +2,7 @@
 #define _EET_PRIVATE_H
 
 #include <Eina.h>
+#include <Emile.h>
 
 typedef enum _Eet_Convert_Type Eet_Convert_Type;
 
@@ -298,6 +299,16 @@ Eet_Node *
 void
  eet_node_free(Eet_Node *node);
 
+static inline Emile_Compressor_Type
+eet_2_emile_compressor(int comp)
+{
+   switch (comp)
+     {
+      case EET_COMPRESSION_VERYFAST: return EMILE_LZ4HC;
+      case EET_COMPRESSION_SUPERFAST: return EMILE_LZ4HC;
+      default: return EMILE_ZLIB;
+     }
+}
 
 #define GENERIC_ALLOC_FREE_HEADER(TYPE, Type) \
   TYPE *Type##_malloc(unsigned int);		      \
@@ -322,5 +333,7 @@ void eet_mempool_shutdown(void);
 #else /* ifdef DNDEBUG */
 # define EET_ASSERT(Test, Do) if (Test == 0) {abort(); }
 #endif /* ifdef DNDEBUG */
+
+#define EET_MAGIC_SIGN 0x1ee74271
 
 #endif /* ifndef _EET_PRIVATE_H */

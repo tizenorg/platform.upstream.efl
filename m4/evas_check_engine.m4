@@ -478,11 +478,11 @@ if test "x${have_dep}" = "xyes" ; then
    evas_engine_[]$1[]_libs="${evas_engine_[]$1[]_libs} -lGL -lm $gl_pt_lib"
    evas_engine_gl_common_libs="-lGL -lm $gl_pt_lib"
 else
-   AC_CHECK_HEADER([SDL/SDL_opengles.h],
+   AC_CHECK_HEADER([SDL2/SDL_opengles.h],
       [have_egl="yes"],
       [have_egl="no"],
       [
-#include <SDL/SDL_opengles.h>
+#include <SDL2/SDL_opengles.h>
 #include <EGL/egl.h>
       ])
    if test "x${have_egl}" = "xyes" ; then
@@ -560,10 +560,10 @@ else
     gl_library="gl"
 fi
 
-PKG_CHECK_EXISTS([egl >= 7.10 ${gl_library} wayland-client >= 1.3.0 wayland-egl >= 9.2.0],
+PKG_CHECK_EXISTS([egl ${gl_library} wayland-client >= 1.3.0 wayland-egl >= 9.2.0],
    [
     have_dep="yes"
-    requirement="egl >= 7.10 ${gl_library} wayland-client wayland-egl"
+    requirement="egl ${gl_library} wayland-client wayland-egl"
    ],
    [have_dep="no"])
 
@@ -601,24 +601,7 @@ have_hw_dep="no"
 evas_engine_[]$1[]_cflags=""
 evas_engine_[]$1[]_libs=""
 
-if test "x${with_opengl}" = "xes" ; then
-    gl_library="glesv2"
-else
-    gl_library="gl"
-fi
-
 if test "x${have_dep}" = "xyes" ; then
-  AC_MSG_CHECKING([whether to enable Drm hardware acceleration])
-  if test "x${want_drm_hw_accel}" = "xyes" ; then
-    PKG_CHECK_EXISTS([egl >= 7.10 ${gl_library}],
-     [
-      have_hw_dep="yes"
-      requirement="egl >= 7.10 ${gl_library}"
-     ],
-     [have_hw_dep="no"])
-  fi
-  AC_MSG_RESULT([${have_hw_dep}])
-
    if test "x$3" = "xstatic" ; then
       requirements_pc_evas="${requirement} ${requirements_pc_evas}"
       requirements_pc_deps_evas="${requirement} ${requirements_pc_deps_evas}"
@@ -627,12 +610,6 @@ if test "x${have_dep}" = "xyes" ; then
       evas_engine_[]$1[]_libs="${DRM_LIBS}"
    fi
 fi
-
-if test "x${have_hw_dep}" = "xyes" ; then
-  AC_DEFINE(HAVE_DRM_HW_ACCEL, [1], 
-   [Enabled drm hardware accelerated rendering])
-fi
-
 
 AC_SUBST([evas_engine_$1_cflags])
 AC_SUBST([evas_engine_$1_libs])
@@ -652,12 +629,16 @@ have_hw_dep="no"
 evas_engine_[]$1[]_cflags=""
 evas_engine_[]$1[]_libs=""
 
-gl_library="glesv2"
+if test "x${with_opengl}" = "xes" ; then
+   gl_library="glesv2"
+else
+   AC_MSG_ERROR([We currently do not support GL DRM without OpenGL ES. Please consider OpenGL ES if you want to use it.])
+fi
 
-PKG_CHECK_EXISTS([egl >= 7.10 ${gl_library} gbm wayland-client >= 1.3.0],
+PKG_CHECK_EXISTS([egl ${gl_library} gbm wayland-client >= 1.3.0],
    [
     have_dep="yes"
-    requirement="egl >= 7.10 ${gl_library} gbm wayland-client >= 1.3.0"
+    requirement="egl ${gl_library} gbm wayland-client >= 1.3.0"
    ],
    [have_dep="no"])
 

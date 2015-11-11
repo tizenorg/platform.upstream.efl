@@ -1,26 +1,13 @@
 class Consts {
-   properties {
-      a {
-         set {
-            return: bool (true); /*@ comment for property set return */
-         }
-         get {
-         }
-         values {
-            int value; /*@ Value description */
-            char *buffer @const_get;
-         }
-      }
-   }
    methods {
       foo @const {
-         /*@ comment foo */
+         [[comment foo]]
          params {
-            @in int a; /*@ a */
-            @inout char b;
-            @out double c;
+            @in a: int; [[a]]
+            @inout b: char;
+            @out c: double;
          }
-         return: char * (null); /*@ comment for method return */
+         return: char * (null); [[comment for method return]]
       }
    }
 }

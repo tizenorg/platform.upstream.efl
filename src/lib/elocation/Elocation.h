@@ -6,6 +6,7 @@
  */
 
 /**
+ * @page elocation_main Elocation (BETA)
  *
  * @section intro Elocation Use Cases
  *
@@ -65,6 +66,10 @@
 
 #include <Ecore.h>
 #include <Eldbus.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @ingroup Location
@@ -415,6 +420,10 @@ EAPI Eina_Bool elocation_init(void);
  * @since 1.13
  */
 EAPI void elocation_shutdown(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* BETA API */
 

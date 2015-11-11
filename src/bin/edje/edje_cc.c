@@ -13,6 +13,7 @@ static void main_help(void);
 
 Eina_Prefix  *pfx = NULL;
 Eina_List *snd_dirs = NULL;
+Eina_List *mo_dirs = NULL;
 Eina_List *vibration_dirs = NULL;
 Eina_List *img_dirs = NULL;
 Eina_List *fnt_dirs = NULL;
@@ -22,6 +23,7 @@ char      *file_in = NULL;
 char      *tmp_dir = NULL;
 char      *file_out = NULL;
 char      *watchfile = NULL;
+char      *depfile = NULL;
 char      *authors = NULL;
 char      *license = NULL;
 Eina_List *licenses = NULL;
@@ -36,7 +38,7 @@ int        min_quality = 0;
 int        max_quality = 100;
 int        compress_mode = EET_COMPRESSION_HI;
 int        threads = 0;
-int        anotate = 0;
+int        annotate = 0;
 int        no_etc1 = 0;
 int        no_etc2 = 0;
 
@@ -90,12 +92,14 @@ main_help(void)
       "Where OPTIONS is one or more of:\n"
       "\n"
       "-w files.txt             Dump all sources files path into files.txt\n"
-      "-anotate                 Anotate the dumped files.\n"
+      "-annotate                Annotate the dumped files.\n"
+      "-deps files.txt          Dump gnu style include dependencies path into files.txt (overrides -w/-annotate)\n"
       "-id image/directory      Add a directory to look in for relative path images\n"
       "-fd font/directory       Add a directory to look in for relative path fonts\n"
       "-sd sound/directory      Add a directory to look in for relative path sounds samples\n"
       "-vd vibration/directory  Add a directory to look in for relative path vibration samples\n"
       "-dd data/directory       Add a directory to look in for relative path data.file entries\n"
+      "-md mo/directory         Add a directory to look in for relative path mo files\n"
       "-td temp/directory       Directory to store temporary files\n"
       "-l license               Specify the license of a theme (file with license text)\n"
       "-a authors               Specify AUTHORS (file with list of authors)\n"
@@ -113,6 +117,7 @@ main_help(void)
       "-fastdecomp              Use a faster decompression algorithm (LZ4HC) (mutually exclusive with -fastcomp)\n"
       "-threads                 Compile the edje file using multiple parallel threads (by default)\n"
       "-nothreads               Compile the edje file using only the main loop\n"
+      "-V [--version]           show program version\n"
       ,progname);
 }
 
@@ -145,7 +150,7 @@ main(int argc, char **argv)
    progname = ecore_file_file_get(argv[0]);
    eina_log_print_cb_set(_edje_cc_log_cb, NULL);
 
-   tmp_dir = getenv("TMPDIR");
+   tmp_dir = (char *)eina_environment_tmp_get();
 
    img_dirs = eina_list_append(img_dirs, ".");
    
@@ -157,6 +162,11 @@ main(int argc, char **argv)
 	if (!strcmp(argv[i], "-h"))
 	  {
 	     main_help();
+	     exit(0);
+	  }
+	else if ((!strcmp(argv[i], "-V")) || (!strcmp(argv[i], "--version")))
+	  {
+	     printf("Version: %s\n", PACKAGE_VERSION);
 	     exit(0);
 	  }
 	else if (!strcmp(argv[i], "-v"))
@@ -201,6 +211,11 @@ main(int argc, char **argv)
           {
              i++;
              snd_dirs = eina_list_append(snd_dirs, argv[i]);
+          }
+        else if ((!strcmp(argv[i], "-md") || !strcmp(argv[i], "--mo_dir")) && (i < (argc - 1)))
+          {
+             i++;
+             mo_dirs = eina_list_append(mo_dirs, argv[i]);
           }
         else if ((!strcmp(argv[i], "-vd") || !strcmp(argv[i], "--vibration_dir")) && (i < (argc - 1)))
           {
@@ -277,10 +292,16 @@ main(int argc, char **argv)
              watchfile = argv[i];
              unlink(watchfile);
 	  }
-	else if (!strcmp(argv[i], "-anotate"))
+	else if (!strcmp(argv[i], "-annotate"))
 	  {
-             anotate = 1;
+             annotate = 1;
           }
+	else if ((!strcmp(argv[i], "-deps")) && (i < (argc - 1)))
+	  {
+	     i++;
+	     depfile = argv[i];
+	     unlink(depfile);
+	  }
 	else if (!file_in)
 	  file_in = argv[i];
 	else if (!file_out)
@@ -350,7 +371,7 @@ main(int argc, char **argv)
      }
 
    using_file(file_in, 'E');
-   if (anotate) using_file(file_out, 'O');
+   if (annotate) using_file(file_out, 'O');
 
    if (!edje_init())
      exit(-1);

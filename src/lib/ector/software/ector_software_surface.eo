@@ -2,25 +2,25 @@ class Ector.Software.Surface (Ector.Generic.Surface)
 {
    eo_prefix: ector_software_surface;
    legacy_prefix: null;
-   properties {
-      context {
+   methods {
+      @property context {
          set {
 	 }
 	 get {
 	 }
 	 values {
-	    Software_Rasterizer *ctx;
+	    ctx: Software_Rasterizer *;
 	 }
       }
-      surface {
+      @property surface {
          set {
 	 }
 	 get {
 	 }
 	 values {
-	    void *pixels;
-	    uint width;
-	    uint height;
+	    pixels: void *;
+	    width: uint;
+	    height: uint;
 	 }
       }
    }

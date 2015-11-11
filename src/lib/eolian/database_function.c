@@ -14,8 +14,12 @@ database_function_del(Eolian_Function *fid)
 
    if (fid->base.file) eina_stringshare_del(fid->base.file);
    eina_stringshare_del(fid->name);
-   EINA_LIST_FREE(fid->keys, param) database_parameter_del(param);
-   EINA_LIST_FREE(fid->params, param) database_parameter_del(param);
+   EINA_LIST_FREE(fid->prop_values, param) database_parameter_del(param);
+   EINA_LIST_FREE(fid->prop_values_get, param) database_parameter_del(param);
+   EINA_LIST_FREE(fid->prop_values_set, param) database_parameter_del(param);
+   EINA_LIST_FREE(fid->prop_keys, param) database_parameter_del(param);
+   EINA_LIST_FREE(fid->prop_keys_get, param) database_parameter_del(param);
+   EINA_LIST_FREE(fid->prop_keys_set, param) database_parameter_del(param);
    EINA_LIST_FREE(fid->ctor_of, cls_name) eina_stringshare_del(cls_name);
    database_type_del(fid->get_ret_type);
    database_type_del(fid->set_ret_type);
@@ -23,11 +27,11 @@ database_function_del(Eolian_Function *fid)
    database_expr_del(fid->set_ret_val);
    if (fid->get_legacy) eina_stringshare_del(fid->get_legacy);
    if (fid->set_legacy) eina_stringshare_del(fid->set_legacy);
-   if (fid->get_description) eina_stringshare_del(fid->get_description);
-   if (fid->set_description) eina_stringshare_del(fid->set_description);
-   if (fid->common_description) eina_stringshare_del(fid->common_description);
-   if (fid->get_return_comment) eina_stringshare_del(fid->get_return_comment);
-   if (fid->set_return_comment) eina_stringshare_del(fid->set_return_comment);
+   database_doc_del(fid->common_doc);
+   database_doc_del(fid->get_doc);
+   database_doc_del(fid->set_doc);
+   database_doc_del(fid->get_return_doc);
+   database_doc_del(fid->set_return_doc);
    free(fid);
 }
 

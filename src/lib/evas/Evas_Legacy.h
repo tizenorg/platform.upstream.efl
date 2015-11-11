@@ -206,7 +206,7 @@ EAPI void *evas_event_callback_del_full(Evas *e, Evas_Callback_Type type, Evas_E
  * Evas has a stack of callbacks that get called after all the callbacks for
  * an event have triggered (all the objects it triggers on and all the callbacks
  * in each object triggered). When all these have been called, the stack is
- * unwond from most recently to least recently pushed item and removed from the
+ * unwound from most recently to least recently pushed item and removed from the
  * stack calling the callback set for it.
  *
  * This is intended for doing reverse logic-like processing, example - when a
@@ -567,6 +567,241 @@ EAPI void             evas_object_show(Evas_Object *obj) EINA_ARG_NONNULL(1);
  */
 EAPI void             evas_object_hide(Evas_Object *obj) EINA_ARG_NONNULL(1);
 
+/**
+ *
+ * Sets the general/main color of the given Evas object to the given
+ * one.
+ *
+ * @see evas_object_color_get() (for an example)
+ * @note These color values are expected to be premultiplied by @p a.
+ *
+ * @ingroup Evas_Object_Group_Basic
+ *
+ * @param[in] r The red component of the given color.
+ * @param[in] g The green component of the given color.
+ * @param[in] b The blue component of the given color.
+ * @param[in] a The alpha component of the given color.
+ */
+EAPI void evas_object_color_set(Evas_Object *obj, int r, int g, int b, int a);
+
+/**
+ *
+ * Retrieves the general/main color of the given Evas object.
+ *
+ * Retrieves the “main” color's RGB component (and alpha channel)
+ * values, <b>which range from 0 to 255</b>. For the alpha channel,
+ * which defines the object's transparency level, 0 means totally
+ * transparent, while 255 means opaque. These color values are
+ * premultiplied by the alpha value.
+ *
+ * Usually you’ll use this attribute for text and rectangle objects,
+ * where the “main” color is their unique one. If set for objects
+ * which themselves have colors, like the images one, those colors get
+ * modulated by this one.
+ *
+ * @note All newly created Evas rectangles get the default color
+ * values of <code>255 255 255 255</code> (opaque white).
+ *
+ * @note Use @c NULL pointers on the components you're not interested
+ * in: they'll be ignored by the function.
+ *
+ * Example:
+ * @dontinclude evas-object-manipulation.c
+ * @skip int alpha, r, g, b;
+ * @until return
+ *
+ * See the full @ref Example_Evas_Object_Manipulation "example".
+ *
+ * @ingroup Evas_Object_Group_Basic
+ *
+ * @param[out] r The red component of the given color.
+ * @param[out] g The green component of the given color.
+ * @param[out] b The blue component of the given color.
+ * @param[out] a The alpha component of the given color.
+ */
+EAPI void evas_object_color_get(const Evas_Object *obj, int *r, int *g, int *b, int *a);
+
+/**
+ *
+ * Move the given Evas object to the given location inside its canvas' viewport.
+ *
+ * @param[in] x in
+ * @param[in] y in
+ */
+EAPI void evas_object_move(Evas_Object *obj, Evas_Coord x, Evas_Coord y);
+
+/**
+ *
+ * Changes the size of the given Evas object.
+ *
+ * @param[in] w in
+ * @param[in] h in
+ */
+EAPI void evas_object_resize(Evas_Object *obj, Evas_Coord w, Evas_Coord h);
+
+/**
+ *
+ * Retrieves whether or not the given Evas object is visible.
+ *
+ */
+EAPI Eina_Bool evas_object_visible_get(const Evas_Object *obj);
+
+/**
+ *
+ * Sets the layer of its canvas that the given object will be part of.
+ *
+ * If you don't use this function, you'll be dealing with an @b unique
+ * layer of objects, the default one. Additional layers are handy when
+ * you don't want a set of objects to interfere with another set with
+ * regard to @b stacking. Two layers are completely disjoint in that
+ * matter.
+ *
+ * This is a low-level function, which you'd be using when something
+ * should be always on top, for example.
+ *
+ * @warning Be careful, it doesn't make sense to change the layer of
+ * smart objects' children. Smart objects have a layer of their own,
+ * which should contain all their children objects.
+ *
+ * @see evas_object_layer_get()
+ *
+ * @param[in] l The number of the layer to place the object on.
+Must be between #EVAS_LAYER_MIN and #EVAS_LAYER_MAX.
+ */
+EAPI void evas_object_layer_set(Evas_Object *obj, short l);
+
+/**
+ *
+ * Retrieves the layer of its canvas that the given object is part of.
+ *
+ * @return  Number of its layer
+ *
+ * @see evas_object_layer_set()
+ *
+ */
+EAPI short evas_object_layer_get(const Evas_Object *obj);
+
+/**
+ *
+ * Get the Evas object stacked right below @p obj
+ *
+ * @return the #Evas_Object directly below @p obj, if any, or @c NULL,
+ * if none
+ *
+ * This function will traverse layers in its search, if there are
+ * objects on layers below the one @p obj is placed at.
+ *
+ * @see evas_object_layer_get()
+ * @see evas_object_layer_set()
+ * @see evas_object_below_get()
+ *
+ */
+EAPI Evas_Object *evas_object_below_get(const Evas_Object *obj) EINA_WARN_UNUSED_RESULT;
+
+/**
+ *
+ * Get the Evas object stacked right above @p obj
+ *
+ * @return the #Evas_Object directly above @p obj, if any, or @c NULL,
+ * if none
+ *
+ * This function will traverse layers in its search, if there are
+ * objects on layers above the one @p obj is placed at.
+ *
+ * @see evas_object_layer_get()
+ * @see evas_object_layer_set()
+ * @see evas_object_below_get()
+ *
+ */
+EAPI Evas_Object *evas_object_above_get(const Evas_Object *obj) EINA_WARN_UNUSED_RESULT;
+
+/**
+ *
+ * Stack @p obj immediately below @p below
+ *
+ * Objects, in a given canvas, are stacked in the order they get added
+ * to it.  This means that, if they overlap, the highest ones will
+ * cover the lowest ones, in that order. This function is a way to
+ * change the stacking order for the objects.
+ *
+ * This function is intended to be used with <b>objects belonging to
+ * the same layer</b> in a given canvas, otherwise it will fail (and
+ * accomplish nothing).
+ *
+ * If you have smart objects on your canvas and @p obj is a member of
+ * one of them, then @p below must also be a member of the same
+ * smart object.
+ *
+ * Similarly, if @p obj is not a member of a smart object, @p below
+ * must not be either.
+ *
+ * @see evas_object_layer_get()
+ * @see evas_object_layer_set()
+ * @see evas_object_stack_below()
+ *
+ *
+ * @param[in] below the object below which to stack
+ */
+EAPI void evas_object_stack_below(Evas_Object *obj, Evas_Object *below) EINA_ARG_NONNULL(2);
+
+/**
+ *
+ * Raise @p obj to the top of its layer.
+ *
+ * @p obj will, then, be the highest one in the layer it belongs
+ * to. Object on other layers won't get touched.
+ *
+ * @see evas_object_stack_above()
+ * @see evas_object_stack_below()
+ * @see evas_object_lower()
+ *
+ *
+ */
+EAPI void evas_object_raise(Evas_Object *obj);
+
+/**
+ *
+ * Stack @p obj immediately above @p above
+ *
+ * Objects, in a given canvas, are stacked in the order they get added
+ * to it.  This means that, if they overlap, the highest ones will
+ * cover the lowest ones, in that order. This function is a way to
+ * change the stacking order for the objects.
+ *
+ * This function is intended to be used with <b>objects belonging to
+ * the same layer</b> in a given canvas, otherwise it will fail (and
+ * accomplish nothing).
+ *
+ * If you have smart objects on your canvas and @p obj is a member of
+ * one of them, then @p above must also be a member of the same
+ * smart object.
+ *
+ * Similarly, if @p obj is not a member of a smart object, @p above
+ * must not be either.
+ *
+ * @see evas_object_layer_get()
+ * @see evas_object_layer_set()
+ * @see evas_object_stack_below()
+ *
+ *
+ * @param[in] above the object above which to stack
+ */
+EAPI void evas_object_stack_above(Evas_Object *obj, Evas_Object *above) EINA_ARG_NONNULL(2);
+
+/**
+ *
+ * Lower @p obj to the bottom of its layer.
+ *
+ * @p obj will, then, be the lowest one in the layer it belongs
+ * to. Objects on other layers won't get touched.
+ *
+ * @see evas_object_stack_above()
+ * @see evas_object_stack_below()
+ * @see evas_object_raise()
+ *
+ *
+ */
+EAPI void evas_object_lower(Evas_Object *obj);
 
 /**
  *
@@ -1479,16 +1714,16 @@ EAPI Evas_Object *evas_object_rectangle_add(Evas *e) EINA_WARN_UNUSED_RESULT EIN
  * User can create shape objects as well as fill objects and give it to the
  * Evas_Object_Vg for drawing on the screen as well as managing the lifecycle
  * of the objects. enabling reuse of shape objects.
- * 
- * As Evas_Object_Vg is a Evas_Object all the operation that applicable to 
+ *
+ * As Evas_Object_Vg is a Evas_Object all the operation that applicable to
  * a Evas_Object can be performed on it(clipping , map, etc).
  *
  * To create any complex vector graphics you can create a hirarchy of shape
  * and fill objects and give the hirarchy to Evas_Object which  will be
  * responsible for drawing and showing on the screen.
- * 
+ *
  * As the shape object and fill object (linear and radial gradient) have
- * retain mode API, you only have to create it once and set the properties 
+ * retain mode API, you only have to create it once and set the properties
  * and give it to evas_object_vg.
  *
  * Any change in the property of shape/fill object will automaticaly notified
@@ -1684,7 +1919,7 @@ EAPI void evas_vg_node_geometry_set(Eo *obj, int x, int y, int w, int h);
  * @see evas_object_layer_get()
  * @see evas_object_layer_set()
  * @see evas_object_stack_below()
- *
+ * 
  *
  * @param[in] below the object below which to stack
  *
@@ -1714,7 +1949,7 @@ EAPI void evas_vg_node_stack_below(Eo *obj, Eo *below);
  * @see evas_object_layer_get()
  * @see evas_object_layer_set()
  * @see evas_object_stack_below()
- *
+ * 
  *
  * @param[in] above the object above which to stack
  *
@@ -1731,7 +1966,7 @@ EAPI void evas_vg_node_stack_above(Eo *obj, Eo *above);
  * @see evas_object_stack_above()
  * @see evas_object_stack_below()
  * @see evas_object_lower()
- *
+ * 
  */
 EAPI void evas_vg_node_raise(Eo *obj);
 
@@ -1745,7 +1980,7 @@ EAPI void evas_vg_node_raise(Eo *obj);
  * @see evas_object_stack_above()
  * @see evas_object_stack_below()
  * @see evas_object_raise()
- *
+ * 
  *
  *
  */
@@ -1867,7 +2102,7 @@ EAPI Efl_Gfx_Cap evas_vg_shape_stroke_cap_get(Eo *obj);
 /**
  *
  * Sets the cap style to be used for stroking the path.
- * The cap will be used for capping the end point of a
+ * The cap will be used for capping the end point of a 
  * open subpath.
  *
  * @see Efl_Gfx_Cap
@@ -1891,7 +2126,7 @@ EAPI Efl_Gfx_Join evas_vg_shape_stroke_join_get(Eo *obj);
  *
  * Sets the join style to be used for stroking the path.
  * The join style will be used for joining the two line segment
- * while stroking teh path.
+ * while stroking the path.
  *
  * @see Efl_Gfx_Join
  * @since 1.14
@@ -1949,7 +2184,7 @@ EAPI void evas_vg_shape_shape_dup(Eo *obj, Eo *dup_from);
  * Reset the shape data of the shape object.
  *
  * @since 1.14
- *
+ * 
  *
  *
  */
@@ -1957,7 +2192,7 @@ EAPI void evas_vg_shape_shape_reset(Eo *obj);
 
 /**
  *
- * Moves the current point to the given point,
+ * Moves the current point to the given point, 
  * implicitly starting a new subpath and closing the previous one.
  *
  * @see efl_gfx_path_append_close()
@@ -2063,13 +2298,13 @@ EAPI void evas_vg_shape_shape_append_scubic_to(Eo *obj, double x, double y, doub
 /**
  *
  * Append an arc that connects from the current point int the point list
- * to the given point (x,y). The arc is defined by the given radius in
- * x-direction (rx) and radius in y direction (ry) .
+ * to the given point (x,y). The arc is defined by the given radius in 
+ * x-direction (rx) and radius in y direction (ry) . 
  *
  * @note Use this api if you know the end point's of the arc otherwise
- * use more convenient function efl_gfx_path_append_arc()
+ * use more convenient function efl_gfx_path_append_arc_to()
  *
- * @see efl_gfx_path_append_arc()
+ * @see efl_gfx_path_append_arc_to()
  * @since 1.14
  *
  *
@@ -2083,23 +2318,6 @@ EAPI void evas_vg_shape_shape_append_scubic_to(Eo *obj, double x, double y, doub
  *
  */
 EAPI void evas_vg_shape_shape_append_arc_to(Eo *obj, double x, double y, double rx, double ry, double angle, Eina_Bool large_arc, Eina_Bool sweep);
-
-/**
- *
- * Append an arc that enclosed in the given rectangle (x, y, w, h).
- * The angle is defined in counter clock wise , use -ve angle for clockwise arc.
- *
- * @since 1.15
- *
- * @param[in] x X co-ordinate of the rect.
- * @param[in] y Y co-ordinate of the rect.
- * @param[in] w width of the rect.
- * @param[in] h height of the rect.
- * @param[in] start_angle Angle at which the arc will start.
- * @param[in] sweep_length Length of the arc.
- *
- */
-EAPI void evas_vg_shape_shape_append_arc(Eo *obj, double x, double y, double w, double h, double start_angle, double sweep_length);
 
 /**
  *
@@ -2675,6 +2893,146 @@ EAPI void evas_object_image_smooth_scale_set(Eo *obj, Eina_Bool smooth_scale);
  *
  */
 EAPI Eina_Bool evas_object_image_smooth_scale_get(const Eo *obj);
+
+/**
+ *
+ * Sets the tiling mode for the given evas image object's fill.
+ * EVAS_TEXTURE_RESTRICT, or EVAS_TEXTURE_PAD.
+ *
+ * @param[in] spread One of EVAS_TEXTURE_REFLECT, EVAS_TEXTURE_REPEAT,
+ */
+EAPI void evas_object_image_fill_spread_set(Evas_Object *obj, Evas_Fill_Spread spread);
+
+/**
+ *
+ * Retrieves the spread (tiling mode) for the given image object's
+ * fill.
+ *
+ * @return  The current spread mode of the image object.
+ *
+ */
+EAPI Evas_Fill_Spread evas_object_image_fill_spread_get(const Evas_Object *obj);
+
+/**
+ *
+ * Set how to fill an image object's drawing rectangle given the
+ * (real) image bound to it.
+ *
+ * Note that if @p w or @p h are smaller than the dimensions of
+ * @p obj, the displayed image will be @b tiled around the object's
+ * area. To have only one copy of the bound image drawn, @p x and @p y
+ * must be 0 and @p w and @p h need to be the exact width and height
+ * of the image object itself, respectively.
+ *
+ * See the following image to better understand the effects of this
+ * call. On this diagram, both image object and original image source
+ * have @c a x @c a dimensions and the image itself is a circle, with
+ * empty space around it:
+ *
+ * @image html image-fill.png
+ * @image rtf image-fill.png
+ * @image latex image-fill.eps
+ *
+ * @warning The default values for the fill parameters are @p x = 0,
+ * @p y = 0, @p w = 0 and @p h = 0. Thus, if you're not using the
+ * evas_object_image_filled_add() helper and want your image
+ * displayed, you'll have to set valid values with this function on
+ * your object.
+ *
+ * @note evas_object_image_filled_set() is a helper function which
+ * will @b override the values set here automatically, for you, in a
+ * given way.
+ *
+ * @param[in] x The x coordinate (from the top left corner of the bound
+image) to start drawing from.
+ * @param[in] y The y coordinate (from the top left corner of the bound
+image) to start drawing from.
+ * @param[in] w The width the bound image will be displayed at.
+ * @param[in] h The height the bound image will be displayed at.
+ */
+EAPI void evas_object_image_fill_set(Evas_Object *obj, Evas_Coord x, Evas_Coord y, Evas_Coord w, Evas_Coord h);
+
+/**
+ *
+ * Retrieve how an image object is to fill its drawing rectangle,
+ * given the (real) image bound to it.
+ *
+ * @note Use @c NULL pointers on the fill components you're not
+ * interested in: they'll be ignored by the function.
+ *
+ * See @ref evas_object_image_fill_set() for more details.
+ *
+ * @param[out] x The x coordinate (from the top left corner of the bound
+image) to start drawing from.
+ * @param[out] y The y coordinate (from the top left corner of the bound
+image) to start drawing from.
+ * @param[out] w The width the bound image will be displayed at.
+ * @param[out] h The height the bound image will be displayed at.
+ */
+EAPI void evas_object_image_fill_get(const Evas_Object *obj, Evas_Coord *x, Evas_Coord *y, Evas_Coord *w, Evas_Coord *h);
+
+/**
+ *
+ * Sets the size of the given image object.
+ *
+ * This function will scale down or crop the image so that it is
+ * treated as if it were at the given size. If the size given is
+ * smaller than the image, it will be cropped. If the size given is
+ * larger, then the image will be treated as if it were in the upper
+ * left hand corner of a larger image that is otherwise transparent.
+ *
+ * @param[in] w The new width of the image.
+ * @param[in] h The new height of the image.
+ */
+EAPI void evas_object_image_size_set(Evas_Object *obj, int w, int h);
+
+/**
+ *
+ * Retrieves the size of the given image object.
+ *
+ * See @ref evas_object_image_size_set() for more details.
+ *
+ * @param[out] w The new width of the image.
+ * @param[out] h The new height of the image.
+ */
+EAPI void evas_object_image_size_get(const Evas_Object *obj, int *w, int *h);
+
+/*
+ * Converts the raw image data of the given image object to the
+ * specified colorspace.
+ *
+ * Note that this function does not modify the raw image data.  If the
+ * requested colorspace is the same as the image colorspace nothing is
+ * done and @c NULL is returned. You should use
+ * evas_object_image_colorspace_get() to check the current image
+ * colorspace.
+ *
+ * See @ref evas_object_image_colorspace_get.
+ *
+ * @return data A newly allocated data in the format specified by to_cspace.
+ *
+ * @param[in] to_cspace The colorspace to which the image raw data will be converted.
+ */
+/** @deprecated evas_object_image_data_convert */
+EAPI void *evas_object_image_data_convert(Evas_Object *obj, Evas_Colorspace to_cspace) EINA_WARN_UNUSED_RESULT EINA_DEPRECATED;
+
+/*
+ * Import pixels from given source to a given canvas image object.
+ *
+ * This function imports pixels from a given source to a given canvas image.
+ *
+ * @param[in] pixels The pixel's source to be imported.
+ */
+/** @deprecated evas_object_image_pixels_import */
+EAPI Eina_Bool evas_object_image_pixels_import(Evas_Object *obj, Evas_Pixel_Import_Source *pixels) EINA_ARG_NONNULL(2) EINA_DEPRECATED;
+
+/*
+ * Reload an image object's image data.
+ *
+ * This function reloads the image data bound to image object @p obj.
+ */
+/** @deprecated evas_object_image_reload */
+EAPI void evas_object_image_reload(Evas_Object *obj) EINA_DEPRECATED;
 
 #include "canvas/evas_image.eo.legacy.h"
 

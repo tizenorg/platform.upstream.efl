@@ -62,6 +62,9 @@ _shm_pool_make(struct wl_shm *shm, int size, void **data)
         goto fd_err;
      }
 
+   /* NB: Commented out. Used for debugging rendering issues */
+   /* memset(*data, 127, size); */
+
    /* create wl_shm_pool using fd */
    pool = wl_shm_create_pool(shm, fd, size);
 
@@ -96,7 +99,7 @@ err:
    return NULL;
 }
 
-static void
+static void 
 _shm_pool_destroy(Shm_Pool *pool)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -123,7 +126,7 @@ _shm_pool_allocate(Shm_Pool *pool, size_t size, int *offset)
    return (char *)pool->data + *offset;
 }
 
-static void
+static void 
 _shm_pool_reset(Shm_Pool *pool)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -131,25 +134,22 @@ _shm_pool_reset(Shm_Pool *pool)
    pool->used = 0;
 }
 
-static void
-_shm_frame_release(void *data, struct wl_callback *callback, uint32_t timestamp EINA_UNUSED)
-{
-   Shm_Surface *surf;
+/* static void  */
+/* _shm_frame_release(void *data, struct wl_callback *callback, uint32_t timestamp EINA_UNUSED) */
+/* { */
+/*    Shm_Surface *surf; */
 
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+/*    LOGFN(__FILE__, __LINE__, __FUNCTION__); */
 
-   if (!(surf = data)) return;
-   if (callback != surf->frame_cb) return;
+/*    if (!(surf = data)) return; */
 
-   wl_callback_destroy(surf->frame_cb);
-   surf->frame_cb = NULL;
-   surf->redraw = EINA_FALSE;
-}
+/*    wl_callback_destroy(callback); */
+/* } */
 
-static const struct wl_callback_listener _shm_frame_listener =
-{
-   _shm_frame_release
-};
+/* static const struct wl_callback_listener _shm_frame_listener =  */
+/* { */
+/*    _shm_frame_release */
+/* }; */
 
 static Shm_Data *
 _shm_data_create_from_pool(Shm_Pool *pool, int w, int h, Eina_Bool alpha)
@@ -176,11 +176,11 @@ _shm_data_create_from_pool(Shm_Pool *pool, int w, int h, Eina_Bool alpha)
         goto err;
      }
 
-   if (alpha)
+   if (alpha) 
      wl_format = WL_SHM_FORMAT_ARGB8888;
 
-   data->buffer =
-     wl_shm_pool_create_buffer(pool->pool, offset, w, h,
+   data->buffer = 
+     wl_shm_pool_create_buffer(pool->pool, offset, w, h, 
                                (w * sizeof(int)), wl_format);
    if (!data->buffer)
      {
@@ -195,7 +195,7 @@ err:
    return NULL;
 }
 
-static void
+static void 
 _shm_data_create(Shm_Pool *alt_pool, Shm_Data **ret, Shm_Surface *surface, int w, int h)
 {
    Shm_Pool *pool;
@@ -231,7 +231,7 @@ out:
    if (ret) *ret = data;
 }
 
-static void
+static void 
 _shm_data_destroy(Shm_Data *data)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -241,7 +241,7 @@ _shm_data_destroy(Shm_Data *data)
    free(data);
 }
 
-static void
+static void 
 _shm_buffer_release(void *data, struct wl_buffer *buffer)
 {
    Shm_Surface *surf;
@@ -265,22 +265,17 @@ _shm_buffer_release(void *data, struct wl_buffer *buffer)
                   _shm_leaf_create(surf, leaf, surf->w, surf->h);
                }
 
-             if (surf->callback.released)
-               {
-                  surf->callback.released(surf->callback.data);
-               }
-
              break;
           }
      }
 }
 
-static const struct wl_buffer_listener _shm_buffer_listener =
+static const struct wl_buffer_listener _shm_buffer_listener = 
 {
    _shm_buffer_release
 };
 
-static Eina_Bool
+static Eina_Bool 
 _shm_leaf_create(Shm_Surface *surface, Shm_Leaf *leaf, int w, int h)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -295,13 +290,14 @@ _shm_leaf_create(Shm_Surface *surface, Shm_Leaf *leaf, int w, int h)
    leaf->w = w;
    leaf->h = h;
    leaf->valid = EINA_TRUE;
-
+   leaf->drawn = EINA_FALSE;
+   leaf->age = 0;
    wl_buffer_add_listener(leaf->data->buffer, &_shm_buffer_listener, surface);
 
    return EINA_TRUE;
 }
 
-static void
+static void 
 _shm_leaf_release(Shm_Leaf *leaf)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -313,7 +309,7 @@ _shm_leaf_release(Shm_Leaf *leaf)
 }
 
 Shm_Surface *
-_evas_shm_surface_create(struct wl_shm *shm, struct wl_surface *surface, int w, int h, int num_buff, Eina_Bool alpha)
+_evas_shm_surface_create(struct wl_display *disp, struct wl_shm *shm, struct wl_surface *surface, int w, int h, int num_buff, Eina_Bool alpha)
 {
    Shm_Surface *surf;
    int i = 0;
@@ -326,6 +322,7 @@ _evas_shm_surface_create(struct wl_shm *shm, struct wl_surface *surface, int w, 
    surf->dy = 0;
    surf->w = w;
    surf->h = h;
+   surf->disp = disp;
    surf->shm = shm;
    surf->surface = surface;
    surf->num_buff = num_buff;
@@ -349,7 +346,7 @@ err:
    return NULL;
 }
 
-void
+void 
 _evas_shm_surface_destroy(Shm_Surface *surface)
 {
    int i = 0;
@@ -362,7 +359,7 @@ _evas_shm_surface_destroy(Shm_Surface *surface)
    free(surface);
 }
 
-void
+void 
 _evas_shm_surface_reconfigure(Shm_Surface *surface, int dx, int dy, int w, int h, int num_buff, uint32_t flags)
 {
    int i = 0, resize = 0;
@@ -397,8 +394,8 @@ _evas_shm_surface_reconfigure(Shm_Surface *surface, int dx, int dy, int w, int h
 
         if ((resize) && (!surface->leaf[i].resize_pool))
           {
-             surface->leaf[i].resize_pool =
-               _shm_pool_create(surface->shm, 10 * 1024 * 1024);
+             surface->leaf[i].resize_pool = 
+               _shm_pool_create(surface->shm, 6 * 1024 * 1024);
           }
 
         if (!_shm_leaf_create(surface, &surface->leaf[i], w, h))
@@ -409,31 +406,97 @@ _evas_shm_surface_reconfigure(Shm_Surface *surface, int dx, int dy, int w, int h
      }
 }
 
-void
-_evas_shm_surface_swap(Shm_Surface *surface, Eina_Rectangle *rects, unsigned int count)
+static Shm_Leaf *
+_evas_shm_surface_wait(Shm_Surface *surface)
 {
-   Shm_Leaf *leaf = NULL;
-   int i = 0;
+   int iterations = 0, i;
 
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   for (; i < surface->num_buff; i++)
+   while (iterations++ < 10)
      {
-        if (surface->leaf[i].busy) continue;
-        if ((!leaf) || (leaf->valid))
+        for (i = 0; i < surface->num_buff; i++)
           {
-             leaf = &surface->leaf[i];
-             break;
+             if (surface->leaf[i].busy) continue;
+             if (surface->leaf[i].valid) return &surface->leaf[i];
+          }
+
+        wl_display_dispatch_pending(surface->disp);
+     }
+   return NULL;
+}
+
+Eina_Bool
+_evas_shm_surface_assign(Shm_Surface *surface)
+{
+   int i;
+
+   surface->current = _evas_shm_surface_wait(surface);
+
+   /* If we ran out of buffers we're in trouble, reset all ages */
+   if (!surface->current)
+     {
+        WRN("No free SHM buffers, dropping a frame");
+        for (i = 0; i < surface->num_buff; i++)
+          {
+             if (surface->leaf[i].valid)
+               {
+                  surface->leaf[i].drawn = EINA_FALSE;
+                  surface->leaf[i].age = 0;
+               }
+          }
+        return EINA_FALSE;
+     }
+
+   /* Increment ages of all valid buffers */
+   for (i = 0; i < surface->num_buff; i++)
+     {
+        if (surface->leaf[i].valid && surface->leaf[i].drawn)
+          {
+             surface->leaf[i].age++;
+             if (surface->leaf[i].age > surface->num_buff)
+               {
+                  surface->leaf[i].age = 0;
+                  surface->leaf[i].drawn = EINA_FALSE;
+               }
           }
      }
 
-   if (!leaf)
+   return EINA_TRUE;
+}
+
+void *
+_evas_shm_surface_data_get(Shm_Surface *surface, int *w, int *h)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (w) *w = 0;
+   if (h) *h = 0;
+
+   if (!surface->current)
      {
         /* WRN("All buffers held by server"); */
-        return;
+        return NULL;
      }
 
-   /* DBG("Current Leaf %d", (int)(leaf - &surface->leaf[0])); */
+   /* DBG("Leaf Data Get %d", (int)(leaf - &surface->leaf[0])); */
+
+   if (w) *w = surface->current->w;
+   if (h) *h = surface->current->h;
+
+   return surface->current->data->map;
+}
+
+void
+_evas_shm_surface_post(Shm_Surface *surface, Eina_Rectangle *rects, unsigned int count)
+{
+   /* struct wl_callback *frame_cb; */
+   Shm_Leaf *leaf;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   leaf = surface->current;
+   if (!leaf) return;
+
+   if (!surface->surface) return;
 
    wl_surface_attach(surface->surface, leaf->data->buffer, 0, 0);
 
@@ -449,87 +512,13 @@ _evas_shm_surface_swap(Shm_Surface *surface, Eina_Rectangle *rects, unsigned int
    else
      wl_surface_damage(surface->surface, 0, 0, leaf->w, leaf->h);
 
+   /* frame_cb = wl_surface_frame(surface->surface); */
+   /* wl_callback_add_listener(frame_cb, &_shm_frame_listener, surface); */
+
    wl_surface_commit(surface->surface);
 
-   leaf->busy = 1;
-   surface->dx = 0;
-   surface->dy = 0;
-   surface->redraw = EINA_TRUE;
-   surface->last_buff = surface->curr_buff;
-   surface->curr_buff = (int)(leaf - &surface->leaf[0]);
-}
-
-void *
-_evas_shm_surface_data_get(Shm_Surface *surface, int *w, int *h)
-{
-   Shm_Leaf *leaf = NULL;
-   int i = 0;
-
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   if (w) *w = 0;
-   if (h) *h = 0;
-
-   for (; i < surface->num_buff; i++)
-     {
-        if (surface->leaf[i].busy) continue;
-        if ((!leaf) || (leaf->valid))
-          {
-             leaf = &surface->leaf[i];
-             break;
-          }
-     }
-
-   if (!leaf)
-     {
-        /* WRN("All buffers held by server"); */
-             return NULL;
-     }
-
-   /* DBG("Leaf Data Get %d", (int)(leaf - &surface->leaf[0])); */
-
-   if (w) *w = leaf->w;
-   if (h) *h = leaf->h;
-
-   return leaf->data->map;
-}
-
-void
-_evas_shm_surface_redraw(Shm_Surface *surface)
-{
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   if (surface->frame_cb)
-     {
-        if (!surface->redraw) return;
-        wl_callback_destroy(surface->frame_cb);
-     }
-
-   if (!surface->surface) return;
-
-   surface->frame_cb = wl_surface_frame(surface->surface);
-   wl_callback_add_listener(surface->frame_cb, &_shm_frame_listener, surface);
-}
-
-Eina_Bool
-_evas_shm_surface_busy_check(Shm_Surface *surface)
-{
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   Shm_Leaf *leaf = NULL;
-   int i = 0;
-
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   for (; i < surface->num_buff; i++)
-     {
-        if (surface->leaf[i].busy) continue;
-        if ((!leaf) || (leaf->valid))
-          {
-             leaf = &surface->leaf[i];
-             break;
-          }
-     }
-
-   return (!leaf)? EINA_TRUE : EINA_FALSE;
+   leaf->busy = EINA_TRUE;
+   leaf->drawn = EINA_TRUE;
+   leaf->age = 0;
+   surface->current = NULL;
 }

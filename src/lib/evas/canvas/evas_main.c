@@ -62,6 +62,7 @@ evas_init(void)
    }
 #endif
    _evas_preload_thread_init();
+   evas_filter_init();
 
    evas_thread_init();
 
@@ -119,6 +120,12 @@ evas_shutdown(void)
    evas_object_image_load_opts_cow = NULL;
    evas_object_image_state_cow = NULL;
 
+   evas_filter_shutdown();
+   eina_cow_del(evas_object_filter_cow);
+   eina_cow_del(evas_object_mask_cow);
+   evas_object_filter_cow = NULL;
+   evas_object_mask_cow = NULL;
+
    evas_thread_shutdown();
    _evas_preload_thread_shutdown();
    evas_async_events_shutdown();
@@ -148,10 +155,10 @@ evas_new(void)
    return eo_obj;
 }
 
-EOLIAN static void
+EOLIAN static Eo *
 _evas_canvas_eo_base_constructor(Eo *eo_obj, Evas_Public_Data *e)
 {
-   eo_do_super(eo_obj, MY_CLASS, eo_constructor());
+   eo_obj = eo_do_super_ret(eo_obj, MY_CLASS, eo_obj, eo_constructor());
 
    e->evas = eo_obj;
    e->output.render_method = RENDER_METHOD_INVALID;
@@ -168,7 +175,7 @@ _evas_canvas_eo_base_constructor(Eo *eo_obj, Evas_Public_Data *e)
 
 #define EVAS_ARRAY_SET(E, Array) \
    eina_array_step_set(&E->Array, sizeof (E->Array), \
-		       ((1024 * sizeof (void*)) - sizeof (E->Array)) / sizeof (void*));
+                       ((1024 * sizeof (void*)) - sizeof (E->Array)) / sizeof (void*));
 
    EVAS_ARRAY_SET(e, delete_objects);
    EVAS_ARRAY_SET(e, active_objects);
@@ -177,6 +184,7 @@ _evas_canvas_eo_base_constructor(Eo *eo_obj, Evas_Public_Data *e)
    EVAS_ARRAY_SET(e, pending_objects);
    EVAS_ARRAY_SET(e, obscuring_objects);
    EVAS_ARRAY_SET(e, temporary_objects);
+   EVAS_ARRAY_SET(e, snapshot_objects);
    EVAS_ARRAY_SET(e, clip_changes);
    EVAS_ARRAY_SET(e, scie_unref_queue);
    EVAS_ARRAY_SET(e, image_unref_queue);
@@ -184,6 +192,10 @@ _evas_canvas_eo_base_constructor(Eo *eo_obj, Evas_Public_Data *e)
    EVAS_ARRAY_SET(e, texts_unref_queue);
 
 #undef EVAS_ARRAY_SET
+   eina_lock_new(&(e->lock_objects));
+   eina_spinlock_new(&(e->render.lock));
+
+   return eo_obj;
 }
 
 EAPI void
@@ -206,9 +218,11 @@ _evas_canvas_eo_base_destructor(Eo *eo_e, Evas_Public_Data *e)
    int i;
    Eina_Bool del;
 
+   evas_canvas_async_block(e);
    if (e->walking_list == 0) evas_render_idle_flush(eo_e);
 
    if (e->walking_list > 0) return;
+
    evas_render_idle_flush(eo_e);
 
    _evas_post_event_callback_free(eo_e);
@@ -265,6 +279,8 @@ _evas_canvas_eo_base_destructor(Eo *eo_e, Evas_Public_Data *e)
 
    if (e->engine.func)
      {
+        e->engine.func->ector_destroy(e->engine.data.output,
+                                      e->engine.ector);
         e->engine.func->context_free(e->engine.data.output,
                                      e->engine.data.context);
         e->engine.func->output_free(e->engine.data.output);
@@ -288,6 +304,7 @@ _evas_canvas_eo_base_destructor(Eo *eo_e, Evas_Public_Data *e)
    eina_array_flush(&e->pending_objects);
    eina_array_flush(&e->obscuring_objects);
    eina_array_flush(&e->temporary_objects);
+   eina_array_flush(&e->snapshot_objects);
    eina_array_flush(&e->clip_changes);
    eina_array_flush(&e->scie_unref_queue);
    eina_array_flush(&e->image_unref_queue);
@@ -298,6 +315,9 @@ _evas_canvas_eo_base_destructor(Eo *eo_e, Evas_Public_Data *e)
      free(touch_point);
 
    _evas_device_cleanup(eo_e);
+
+   eina_lock_free(&(e->lock_objects));
+   eina_spinlock_free(&(e->render.lock));
 
    e->magic = 0;
    eo_do_super(eo_e, MY_CLASS, eo_destructor());
@@ -318,6 +338,7 @@ _evas_canvas_output_method_set(Eo *eo_e, Evas_Public_Data *e, int render_method)
    if (em->id_engine != render_method) return;
    if (!evas_module_load(em)) return;
 
+   evas_canvas_async_block(e);
    /* set the correct render */
    e->output.render_method = render_method;
    e->engine.func = (em->functions);
@@ -352,11 +373,15 @@ _evas_canvas_engine_info_get(Eo *eo_e EINA_UNUSED, Evas_Public_Data *e)
 EOLIAN static Eina_Bool
 _evas_canvas_engine_info_set(Eo *eo_e, Evas_Public_Data *e, Evas_Engine_Info *info)
 {
+   Eina_Bool res;
+
    if (!info) return EINA_FALSE;
    if (info != e->engine.info) return EINA_FALSE;
    if (info->magic != e->engine.info_magic) return EINA_FALSE;
 
-   return (Eina_Bool)e->engine.func->setup(eo_e, info);
+   evas_canvas_async_block(e);
+   res = e->engine.func->setup(eo_e, info);
+   return res;
 }
 
 EOLIAN static void
@@ -366,6 +391,7 @@ _evas_canvas_output_size_set(Eo *eo_e, Evas_Public_Data *e, int w, int h)
    if (w < 1) w = 1;
    if (h < 1) h = 1;
 
+   evas_canvas_async_block(e);
    e->output.w = w;
    e->output.h = h;
    e->output.changed = 1;
@@ -394,6 +420,7 @@ _evas_canvas_output_viewport_set(Eo *eo_e EINA_UNUSED, Evas_Public_Data *e, Evas
 	x = 0;
 	y = 0;
      }
+   evas_canvas_async_block(e);
    e->viewport.x = x;
    e->viewport.y = y;
    e->viewport.w = w;
@@ -418,6 +445,7 @@ _evas_canvas_output_framespace_set(Eo *eo_e EINA_UNUSED, Evas_Public_Data *e, Ev
 {
    if ((x == e->framespace.x) && (y == e->framespace.y) &&
        (w == e->framespace.w) && (h == e->framespace.h)) return;
+   evas_canvas_async_block(e);
    e->framespace.x = x;
    e->framespace.y = y;
    e->framespace.w = w;
@@ -437,28 +465,28 @@ _evas_canvas_output_framespace_get(Eo *eo_e EINA_UNUSED, Evas_Public_Data *e, Ev
 }
 
 EOLIAN static Evas_Coord
-_evas_canvas_coord_screen_x_to_world(Eo *eo_e EINA_UNUSED, Evas_Public_Data *e, int x)
+_evas_canvas_coord_screen_x_to_world(const Eo *eo_e EINA_UNUSED, Evas_Public_Data *e, int x)
 {
    if (e->output.w == e->viewport.w) return e->viewport.x + x;
    else return (long long)e->viewport.x + (((long long)x * (long long)e->viewport.w) / (long long)e->output.w);
 }
 
 EOLIAN static Evas_Coord
-_evas_canvas_coord_screen_y_to_world(Eo *eo_e EINA_UNUSED, Evas_Public_Data *e, int y)
+_evas_canvas_coord_screen_y_to_world(const Eo *eo_e EINA_UNUSED, Evas_Public_Data *e, int y)
 {
    if (e->output.h == e->viewport.h) return e->viewport.y + y;
    else return (long long)e->viewport.y + (((long long)y * (long long)e->viewport.h) / (long long)e->output.h);
 }
 
 EOLIAN static int
-_evas_canvas_coord_world_x_to_screen(Eo *eo_e EINA_UNUSED, Evas_Public_Data *e, Evas_Coord x)
+_evas_canvas_coord_world_x_to_screen(const Eo *eo_e EINA_UNUSED, Evas_Public_Data *e, Evas_Coord x)
 {
    if (e->output.w == e->viewport.w) return x - e->viewport.x;
    else return (int)((((long long)x - (long long)e->viewport.x) * (long long)e->output.w) /  (long long)e->viewport.w);
 }
 
 EOLIAN static int
-_evas_canvas_coord_world_y_to_screen(Eo *eo_e EINA_UNUSED, Evas_Public_Data *e, Evas_Coord y)
+_evas_canvas_coord_world_y_to_screen(const Eo *eo_e EINA_UNUSED, Evas_Public_Data *e, Evas_Coord y)
 {
    if (e->output.h == e->viewport.h) return y - e->viewport.y;
    else return (int)((((long long)y - (long long)e->viewport.y) * (long long)e->output.h) /  (long long)e->viewport.h);
@@ -667,6 +695,14 @@ EOLIAN static Evas *
 _evas_canvas_evas_common_interface_evas_get(Eo *eo_e, Evas_Public_Data *e EINA_UNUSED)
 {
    return (Evas *)eo_e;
+}
+
+Ector_Surface *
+evas_ector_get(Evas_Public_Data *e)
+{
+   if (!e->engine.ector)
+     e->engine.ector = e->engine.func->ector_create(e->engine.data.output);
+   return e->engine.ector;
 }
 
 #include "canvas/evas_canvas.eo.c"

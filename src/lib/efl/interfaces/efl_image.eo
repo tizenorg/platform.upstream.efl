@@ -1,65 +1,55 @@
 interface Efl.Image {
    legacy_prefix: null;
-   properties {
-      animated {
+   methods {
+      @property animated {
          get {
-            /*@
-              Check if an image  can be animated (have multiple frames)
-
-              @return whether the image support animation
-             */
+            [[Check if an image  can be animated (have multiple frames)]]
          }
          values {
-              bool is_animated; /*@ If it's animated or not. */
+              is_animated: bool; [[If it's animated or not.]]
          }
       }
-      load_size {
+      @property load_size {
          set {
-            /*@
-              Set the loading size of an image. The image will be loaded into memory as if it was
-              the set size instead of the original size. This can save a lot of memory, and is
-              important for scalable types like svg.
-            */
+            [[Set the loading size of an image. The image will be loaded into
+              memory as if it was the set size instead of the original size.
+              This can save a lot of memory, and is important for scalable
+              types like svg.
+            ]]
          }
          get {
          }
          values {
-            int w; /*@ The new width of the image's load size. */
-            int h; /*@ The new height of the image's load size. */
+            w: int; [[The new width of the image's load size.]]
+            h: int; [[The new height of the image's load size.]]
          }
       }
-      smooth_scale {
+      @property smooth_scale {
          set {
-            /*@
-            Sets whether to use high-quality image scaling algorithm on the
-            given image.
+            [[Sets whether to use high-quality image scaling algorithm on the
+              given image.
 
-            When enabled, a higher quality image scaling algorithm is used when
-            scaling images to sizes other than the source image's original
-            one. This gives better results but is more computationally
-            expensive.
-            */
+              When enabled, a higher quality image scaling algorithm is used
+              when scaling images to sizes other than the source image's
+              original one. This gives better results but is more
+              computationally expensive.
+            ]]
          }
          get {
-            /*@
-            Retrieves whether the given image is using high-quality
-            image scaling algorithm.
-
-            @return Whether smooth scale is being used.
-            */
+            [[Retrieves whether the given image is using high-quality
+              image scaling algorithm.
+            ]]
          }
          values {
-            bool smooth_scale; /*@ Whether to use smooth scale or not. */
+            smooth_scale: bool; [[Whether to use smooth scale or not.]]
          }
       }
-      ratio {
+      @property ratio {
          get {
-            /*@
-              The native ration of the image object
-            */
+            [[The native ration of the image object]]
          }
          values {
-            double ratio; /*@ The image's ratio */
+            ratio: double; [[The image's ratio]]
          }
       }
    }

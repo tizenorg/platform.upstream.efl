@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 
+#define EFL_GFX_FILTER_BETA
 #include "evas_suite.h"
 #include "Evas.h"
 #include "Ecore_Evas.h"
@@ -16,10 +17,12 @@
 
 #define TEST_FONT_NAME "DejaVuSans,UnDotum"
 #define TEST_FONT_SOURCE TESTS_SRC_DIR "/TestFont.eet"
+#define EVAS_DATA_DIR TESTS_SRC_DIR "/../../lib/evas"
 
 #define START_FILTER_TEST() \
    Ecore_Evas *ee; Evas *evas; \
    Evas_Object *to; \
+   setenv("EVAS_DATA_DIR", EVAS_DATA_DIR, 1); \
    evas_init(); \
    ecore_evas_init(); \
    ee = ecore_evas_buffer_new(1, 1); \
@@ -65,6 +68,8 @@ START_TEST(evas_filter_parser)
    // It's practically impossible to test all combinations since the language
    // itself is full featured. Let's just ensure that our main functions exist
    // and that calling them (kinda) works.
+
+   setenv("EVAS_DATA_DIR", EVAS_DATA_DIR, 1);
 
 #define CHECK_FILTER(_a, _v) do { \
    pgm = evas_filter_program_new("evas_suite", EINA_TRUE); \
@@ -137,17 +142,21 @@ START_TEST(evas_filter_parser)
       NULL
    };
 
+   fprintf(stderr, "Evas filters tests: start invalid cases. Ignore the following ERRs.\n");
    fail_if(evas_filter_program_parse(NULL, "blend()"));
 
    pgm = evas_filter_program_new("evas_suite", EINA_TRUE);
-   fail_if(evas_filter_program_parse(NULL, NULL));
+   fail_if(evas_filter_program_parse(pgm, NULL));
+   fprintf(stderr, "Evas filters tests: end of invalid cases.\n");
    evas_filter_program_del(pgm);
 
    for (int k = 0; good[k]; k++)
      CHKGOOD(good[k]);
 
+   fprintf(stderr, "Evas filters tests: start invalid cases. Ignore the following ERRs.\n");
    for (int k = 0; bad[k]; k++)
      CHKBAAD(bad[k]);
+   fprintf(stderr, "Evas filters tests: end of invalid cases.\n");
 
    // All colors
    static const char *colors [] = {
@@ -179,12 +188,15 @@ START_TEST(evas_filter_parser)
       "White"
    };
 
+#if 0
+   // New color class defaults to black
    static const char *colors_bad[] = {
       "newcolor",
       "ABC",
       "#ZZZ",
       "#-10"
    };
+#endif
 
    for (size_t c = 0; c < sizeof(colors) / sizeof(colors[0]); c++)
      {
@@ -193,12 +205,16 @@ START_TEST(evas_filter_parser)
         CHKGOOD(buf);
      }
 
+#if 0
+   fprintf(stderr, "Evas filters tests: start invalid cases. Ignore the following ERRs.\n");
    for (size_t c = 0; c < sizeof(colors_bad) / sizeof(colors_bad[0]); c++)
      {
         char buf[64];
         sprintf(buf, "blend { color = '%s' }", colors_bad[c]);
         CHKBAAD(buf);
      }
+   fprintf(stderr, "Evas filters tests: end of invalid cases.\n");
+#endif
 
    // fillmodes are parsed when converting from instructions to commands
 }
@@ -252,7 +268,7 @@ static struct Filter_Test_Case _test_cases[] = {
    { 0, 0, 0, 0, "a = buffer ({ 'alpha' }) blend ({ dst = a }) bump ({ a,compensate=yes,specular=10.0 })", NULL },
 
    { 7, 7, 7, 7, "a = buffer ({ 'alpha' }) b = buffer ({ 'rgba' }) blend ({ dst = b, color = '#330' }) displace ({ map = b, src = input, dst = a, intensity = 7 }) blend ({ a })", NULL },
-   { 7, 7, 7, 7, "a = buffer ({ 'alpha' }) b = buffer ({ 'rgba' }) blend ({ dst = b, color = '#330' }) blend ({ dst = a }) displace ({ map = b, src = a, intensity = 7 })", NULL },
+   { 7, 7, 7, 7, "a = buffer ({ 'rgba' }) b = buffer ({ 'rgba' }) blend ({ dst = b, color = '#330' }) blend ({ dst = a }) displace ({ map = b, src = a, intensity = 7 })", NULL },
    { 7, 7, 7, 7, "a = buffer ({ 'rgba' }) b = buffer ({ 'rgba' }) blend ({ dst = b, color = '#330' }) blend ({ dst = a }) displace ({ map = b, src = a, intensity = 7 })", NULL },
    { 7, 7, 7, 7, "a = buffer ({ 'rgba' }) b = buffer ({ 'rgba' }) blend ({ dst = b, color = '#330' }) blend ({ dst = a }) displace ({ map = b, src = a, intensity = 7, flags = 'default' })", NULL },
    { 7, 7, 7, 7, "a = buffer ({ 'rgba' }) b = buffer ({ 'rgba' }) blend ({ dst = b, color = '#330' }) blend ({ dst = a }) displace ({ map = b, src = a, intensity = 7, flags = 'nearest' })", NULL },
@@ -271,14 +287,14 @@ static struct Filter_Test_Case _test_cases[] = {
    { 5, 5, 5, 5, "a = buffer ({ 'alpha' }) blur ({ 5,dst = a }) bump ({ a, azimuth = 45.0, color = 'yellow' })", NULL },
 
    // Proxy tests  ({ RECT as a proxy object })
-   { 0, 0, 0, 0, "m = buffer ({ src = rect }) mask ({ m, fillmode = 'none' })", "rect" },
-   { 0, 0, 0, 0, "m = buffer ({ src = rect }) mask ({ m, fillmode = 'repeat_x_stretch_y' })", "rect" },
-   { 0, 0, 0, 0, "m = buffer ({ src = rect }) mask ({ m, fillmode = 'repeat' })", "rect" },
-   { 0, 0, 0, 0, "m = buffer ({ src = rect }) mask ({ m, fillmode = 'stretch' })", "rect" },
-   { 0, 0, 0, 0, "m = buffer ({ src = rect }) b = buffer ({ 'rgba' }) blend ({ m,dst = b, fillmode = 'repeat_x_stretch_y' }) blend ()", "rect" },
+   { 0, 0, 0, 0, "m = buffer ({ src = 'rect' }) mask ({ m, fillmode = 'none' })", "rect" },
+   { 0, 0, 0, 0, "m = buffer ({ src = 'rect' }) mask ({ m, fillmode = 'repeat_x_stretch_y' })", "rect" },
+   { 0, 0, 0, 0, "m = buffer ({ src = 'rect' }) mask ({ m, fillmode = 'repeat' })", "rect" },
+   { 0, 0, 0, 0, "m = buffer ({ src = 'rect' }) mask ({ m, fillmode = 'stretch' })", "rect" },
+   { 0, 0, 0, 0, "m = buffer ({ src = 'rect' }) b = buffer ({ 'rgba' }) blend ({ m,dst = b, fillmode = 'repeat_x_stretch_y' }) blend ()", "rect" },
 
    // Padding_set
-   { 11, 22, 33, 44, "padding_set ({ 11,22,33,44 }) blend ()"}
+   { 11, 22, 33, 44, "padding_set ({ 11,22,33,44 }) blend ()", NULL }
 };
 
 static const int _test_cases_count = sizeof(_test_cases) / sizeof(_test_cases[0]);
@@ -290,7 +306,7 @@ START_TEST(evas_filter_text_padding_test)
    int l, r, t, b;
 
    evas_object_geometry_get(to, &x, &y, &w, &h);
-   printf("Geometry: %dx%d+%d,%d\n", w, h, x, y);
+   //fprintf(stderr, "Geometry: %dx%d+%d,%d\n", w, h, x, y);
 
    for (int k = 0; k < _test_cases_count; k++)
      {
@@ -300,10 +316,10 @@ START_TEST(evas_filter_text_padding_test)
         // Don't test proxy cases here.
         if (tc->source) continue;
 
-        eo_do(to, evas_obj_text_filter_program_set(tc->code));
+        eo_do(to, efl_gfx_filter_program_set(tc->code, "evas_test_filter"));
         evas_object_text_style_pad_get(to, &l, &r, &t, &b);
         evas_object_geometry_get(to, NULL, NULL, &W, &H);
-        printf("Case %d: %dx%d for padding %d,%d,%d,%d\n", k, W, H, l, r, t, b);
+        //fprintf(stderr, "Case %d: %dx%d for padding %d,%d,%d,%d\n", k, W, H, l, r, t, b);
 
         if ((l != tc->l) || (r != tc->r) || (t != tc->t) || (b != tc->b))
           fail("Failed on invalid padding with '%s'\n", tc->code);
@@ -340,12 +356,12 @@ _ecore_evas_pixels_check(Ecore_Evas *ee)
             || (rgba[ALPHA] < rgba[GREEN])
             || (rgba[ALPHA] < rgba[BLUE]))
           {
-             printf("Invalid RGBA values!\n");
+             fprintf(stderr, "Invalid RGBA values!\n");
              return EINA_FALSE;
           }
      }
 
-   if (!nonzero) printf("All pixels are empty!\n");
+   if (!nonzero) fprintf(stderr, "All pixels are empty!\n");
    return nonzero;
 }
 
@@ -388,14 +404,14 @@ START_TEST(evas_filter_text_render_test)
              evas_object_show(o);
              eo_do(to,
                    efl_gfx_color_set(255, 255, 255, 255),
-                   evas_obj_text_filter_source_set(tc->source, o),
-                   evas_obj_text_filter_program_set(tc->code));
+                   efl_gfx_filter_source_set(tc->source, o),
+                   efl_gfx_filter_program_set(tc->code, "evas_test_filter"));
           }
         else
           {
              eo_do(to,
                    efl_gfx_color_set(255, 255, 255, 255),
-                   evas_obj_text_filter_program_set(tc->code));
+                   efl_gfx_filter_program_set(tc->code, "evas_test_filter"));
           }
 
         evas_object_geometry_get(to, NULL, NULL, &w, &h);

@@ -1,168 +1,123 @@
-class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
+class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties, Evas.Filter)
 {
    legacy_prefix: evas_object_text;
    eo_prefix: evas_obj_text;
-   properties {
-      shadow_color {
+   methods {
+      @property shadow_color {
+         [[Controls the shadow color for the given text object.
+
+           Shadow effects, which are fading colors decorating the text
+           underneath it, will just be shown if the object is set to one of
+           the following styles:
+
+           - @Evas.Text_Style_Type.shadow
+           - @Evas.Text_Style_Type.outline_shadow
+           - @Evas.Text_Style_Type.far_shadow
+           - @Evas.Text_Style_Type.outline_soft_shadow
+           - @Evas.Text_Style_Type.soft_shadow
+           - @Evas.Text_Style_Type.far_soft_shadow
+
+           One can also change the direction where the shadow grows to, with
+           @.style
+
+           See @.shadow_color]]
          set {
-            /*@
-            Sets the shadow color for the given text object.
-
-            Shadow effects, which are fading colors decorating the text
-            underneath it, will just be shown if the object is set to one of
-            the following styles:
-
-            - #EVAS_TEXT_STYLE_SHADOW
-            - #EVAS_TEXT_STYLE_OUTLINE_SHADOW
-            - #EVAS_TEXT_STYLE_FAR_SHADOW
-            - #EVAS_TEXT_STYLE_OUTLINE_SOFT_SHADOW
-            - #EVAS_TEXT_STYLE_SOFT_SHADOW
-            - #EVAS_TEXT_STYLE_FAR_SOFT_SHADOW
-
-            One can also change the direction where the shadow grows to, with
-            evas_object_text_style_set().
-
-            @see evas_object_text_shadow_color_get() */
          }
          get {
-            /*@
-            Retrieves the shadow color for the given text object.
-
-            @note Use @c NULL pointers on the color components you're not
-            interested in: they'll be ignored by the function.
-
-            @see evas_object_text_shadow_color_set() for more details. */
+            [[Note: Use $NULL pointers on the color components you're not
+            interested in: they'll be ignored by the function.]]
          }
          values {
-            int r; /*@ The red component of the given color. */
-            int g; /*@ The green component of the given color. */
-            int b; /*@ The blue component of the given color. */
-            int a; /*@ The alpha component of the given color. */
+            r: int; [[The red component of the given color.]]
+            g: int; [[The green component of the given color.]]
+            b: int; [[The blue component of the given color.]]
+            a: int; [[The alpha component of the given color.]]
          }
       }
-      ellipsis {
+      @property ellipsis {
+         [[Conttrols the ellipsis that should be used for the text object.
+
+          This is a value between 0.0 and 1.0 indicating the position of the text
+          to be shown. 0.0 means the start will be shown and the end trimmed, 1.0
+          means the beginning will be trimmed and the end will be shown, and any value
+          in between will cause ellipsis to be added in both end of the text and the
+          requested part to be shown.
+          -1.0 means ellipsis is turned off.
+
+          @since 1.8]]
          set {
-            /*@
-            @brief Sets the ellipsis that should be used for the text object.
-
-            This is a value between 0.0 and 1.0 indicating the position of the text
-            to be shown. 0.0 means the start will be shown and the end trimmed, 1.0
-            means the beginning will be trimmed and the end will be shown, and any value
-            in between will cause ellipsis to be added in both end of the text and the
-            requested part to be shown.
-            -1.0 means ellipsis is turned off.
-
-            @since 1.8 */
          }
          get {
-            /*@
-            @brief Gets the ellipsis currently set on the text object.
-
-            @return The ellipsis set on the text object. The ellipsis is -1.0.
-            @see evas_object_text_ellipsis_set.
-            @since 1.8 */
          }
          values {
-            double ellipsis(-1); /*@ the ellipsis. */
+            ellipsis: double(-1); [[the ellipsis. Allowed values: -1.0 or 0.0-1.0]]
          }
       }
-      bidi_delimiters {
+      @property bidi_delimiters {
+         [[Sets the BiDi delimiters used in the textblock.
+
+           BiDi delimiters are use for in-paragraph separation of bidi segments. This
+           is useful for example in recipients fields of e-mail clients where bidi
+           oddities can occur when mixing RTL and LTR.
+
+           @since 1.1]]
          set {
-            /*@
-            @brief Sets the BiDi delimiters used in the textblock.
-
-            BiDi delimiters are use for in-paragraph separation of bidi segments. This
-            is useful for example in recipients fields of e-mail clients where bidi
-            oddities can occur when mixing RTL and LTR.
-
-            @since 1.1 */
          }
          get {
-            /*@
-            @brief Gets the BiDi delimiters used in the textblock.
-
-            BiDi delimiters are use for in-paragraph separation of bidi segments. This
-            is useful for example in recipients fields of e-mail clients where bidi
-            oddities can occur when mixing RTL and LTR.
-
-            @return A null terminated string of delimiters, e.g ",|". If empty, returns NULL.
-            @since 1.1 */
          }
          values {
-            const(char)* delim; /*@ A null terminated string of delimiters, e.g ",|". */
+            delim: const(char)*; [[A null terminated string of delimiters, e.g ",|".]]
          }
       }
-      outline_color {
+      @property outline_color {
+         [[Controlss the outline color for the given text object.
+
+           Outline effects (colored lines around text glyphs) will just be
+           shown if the object is set to one of the following styles:
+           - @Evas.Text_Style_Type.outline
+           - @Evas.Text_Style_Type.soft_outline
+           - @Evas.Text_Style_Type.outline_shadow
+           - @Evas.Text_Style_Type.outline_soft_shadow]]
          set {
-            /*@
-            Sets the outline color for the given text object.
-
-            Outline effects (colored lines around text glyphs) will just be
-            shown if the object is set to one of the following styles:
-            - #EVAS_TEXT_STYLE_OUTLINE
-            - #EVAS_TEXT_STYLE_SOFT_OUTLINE
-            - #EVAS_TEXT_STYLE_OUTLINE_SHADOW
-            - #EVAS_TEXT_STYLE_OUTLINE_SOFT_SHADOW
-
-            @see evas_object_text_outline_color_get() */
          }
          get {
-            /*@
-            Retrieves the outline color for the given text object.
-
-            @note Use @c NULL pointers on the color components you're not
-            interested in: they'll be ignored by the function.
-
-            @see evas_object_text_outline_color_set() for more details. */
          }
          values {
-            int r; /*@ The red component of the given color. */
-            int g; /*@ The green component of the given color. */
-            int b; /*@ The blue component of the given color. */
-            int a; /*@ The alpha component of the given color. */
+            r: int; [[The red component of the given color.]]
+            g: int; [[The green component of the given color.]]
+            b: int; [[The blue component of the given color.]]
+            a: int; [[The alpha component of the given color.]]
          }
       }
-      glow2_color {
+      @property glow2_color {
+         [[Sets the 'glow 2' color for the given text object.
+
+           'Glow 2' effects, which are glowing colors decorating the text's
+           (immediate) surroundings, will just be shown if the object is set
+           to the @Evas.Text_Style_Type.glow style. See also
+           @.glow_color.]]
          set {
-            /*@
-            Sets the 'glow 2' color for the given text object.
-
-            'Glow 2' effects, which are glowing colors decorating the text's
-            (immediate) surroundings, will just be shown if the object is set
-            to the #EVAS_TEXT_STYLE_GLOW style. See also
-            evas_object_text_glow_color_set().
-
-            @see evas_object_text_glow2_color_get() */
          }
          get {
-            /*@
-            Retrieves the 'glow 2' color for the given text object.
-
-            @note Use @c NULL pointers on the color components you're not
-            interested in: they'll be ignored by the function.
-
-            @see evas_object_text_glow2_color_set() for more details. */
          }
          values {
-            int r; /*@ The red component of the given color. */
-            int g; /*@ The green component of the given color. */
-            int b; /*@ The blue component of the given color. */
-            int a; /*@ The alpha component of the given color. */
+            r: int; [[The red component of the given color.]]
+            g: int; [[The green component of the given color.]]
+            b: int; [[The blue component of the given color.]]
+            a: int; [[The alpha component of the given color.]]
          }
       }
-      style {
-         set {
-            /*@
-            Sets the style to apply on the given text object.
+      @property style {
+            [[Controls the style to apply on the given text object.
 
-            Text object styles are one of the values in
-            #Evas_Text_Style_Type. Some of those values are combinations of
-            more than one style, and some account for the direction of the
-            rendering of shadow effects.
+              Text object styles are one of the values in @Evas.Text_Style_Type
+              Some of those values are combinations of more than one style,
+              and some account for the direction of the rendering of shadow effects.
 
-            @note One may use the helper macros #EVAS_TEXT_STYLE_BASIC_SET and
-            #EVAS_TEXT_STYLE_SHADOW_DIRECTION_SET to assemble a style value.
+              Note: One may use the helper macros #EVAS_TEXT_STYLE_BASIC_SET and
+              #EVAS_TEXT_STYLE_SHADOW_DIRECTION_SET to assemble a style value.]]
 
+            /* FIXME-doc:
             The following figure illustrates the text styles:
 
             @image html text-styles.png
@@ -174,187 +129,123 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
             @see evas_object_text_outline_color_set()
             @see evas_object_text_glow_color_set()
             @see evas_object_text_glow2_color_set() */
-         }
-         get {
-            /*@
-            Retrieves the style on use on the given text object.
-
-            @return the style type in use.
-
-            @see evas_object_text_style_set() for more details. */
-         }
-         values {
-            Evas_Text_Style_Type style; /*@ a style type. */
-         }
-      }
-      glow_color {
          set {
-            /*@
-            Sets the glow color for the given text object.
-
-            Glow effects, which are glowing colors decorating the text's
-            surroundings, will just be shown if the object is set to the
-            #EVAS_TEXT_STYLE_GLOW style.
-
-            @note Glow effects are placed from a short distance of the text
-            itself, but no touching it. For glowing effects right on the
-            borders of the glyphs, see 'glow 2' effects
-            (evas_object_text_glow2_color_set()).
-
-            @see evas_object_text_glow_color_get() */
          }
          get {
-            /*@
-            Retrieves the glow color for the given text object.
-
-            @note Use @c NULL pointers on the color components you're not
-            interested in: they'll be ignored by the function.
-
-            @see evas_object_text_glow_color_set() for more details. */
          }
          values {
-            int r; /*@ The red component of the given color. */
-            int g; /*@ The green component of the given color. */
-            int b; /*@ The blue component of the given color. */
-            int a; /*@ The alpha component of the given color. */
+            style: Evas.Text_Style_Type; [[a style type.]]
          }
       }
-      filter_program {
+      @property glow_color {
+         [[Sets the glow color for the given text object.
+
+           Glow effects, which are glowing colors decorating the text's
+           surroundings, will just be shown if the object is set to the
+           @Evas.Text_Style_Type.glow style.
+
+           Note: Glow effects are placed from a short distance of the text
+           itself, but no touching it. For glowing effects right on the
+           borders of the glyphs, see 'glow 2' effects.]]
          set {
-            /*@ Set an Evas filter program on this Text Object.
-
-            If the program fails to compile (syntax error, invalid
-            buffer name, etc...), the standard text effects will be
-            applied instead (SHADOW, etc...). switch back to the
-            standard text effects.
-
-            @since 1.9
-            @note EXPERIMENTAL FEATURE. This is an unstable API,
-            please use only for testing purposes.
-            @see @ref evasfiltersref "Evas filters reference"
-            */
-            legacy: null;
+         }
+         get {
          }
          values {
-            const(char)* program; /*@ The program code, as defined
-              by the @ref evasfiltersref "Evas filters script language".
-              Pass NULL to remove the former program and switch back
-              to the standard text effect */
+            r: int; [[The red component of the given color.]]
+            g: int; [[The green component of the given color.]]
+            b: int; [[The blue component of the given color.]]
+            a: int; [[The alpha component of the given color.]]
          }
       }
-      filter_source {
-         set {
-            /*@ Bind an object to use as a mask or texture with Evas Filters.
-
-            This will create automatically a new RGBA buffer containing
-            the source object's pixels (as it is rendered).
-
-            @since 1.9
-            @note EXPERIMENTAL FEATURE. This is an unstable API,
-            please use only for testing purposes.
-            @see @ref evasfiltersref "Evas filters reference" */
-            legacy: null;
+      @property max_descent {
+         get {
+            return: Evas.Coord;
+         }
+      }
+      @property style_pad {
+         get {
+            [[Gets the text style pad of a text object.]]
          }
          values {
-            const(char)* name; /*@ Object name as used in the program code */
-            Eo* eobj; /*@ Eo object to use through proxy rendering */
+            l: int; [[The left pad (or $NULL).]]
+            r: int; [[The right pad (or $NULL).]]
+            t: int; [[The top pad (or $NULL).]]
+            b: int; [[The bottom pad (or $NULL).]]
          }
       }
-      max_descent {
+      @property direction {
          get {
-            return: Evas_Coord;
+            [[Retrieves the direction of the text currently being displayed in the
+            text object.]]
+
+            return: Evas.BiDi_Direction;
          }
       }
-      style_pad {
+      @property ascent {
          get {
-            /*@
-            Gets the text style pad of a text object. */
-         }
-         values {
-            int l; /*@ The left pad (or @c NULL). */
-            int r; /*@ The right pad (or @c NULL). */
-            int t; /*@ The top pad (or @c NULL). */
-            int b; /*@ The bottom pad (or @c NULL). */
+            return: Evas.Coord;
          }
       }
-      direction {
+      @property horiz_advance {
          get {
-            /*@
-            Retrieves the direction of the text currently being displayed in the
-            text object.
-            @return the direction of the text */
-            return: Evas_BiDi_Direction;
+            return: Evas.Coord;
          }
       }
-      ascent {
+      @property inset {
          get {
-            return: Evas_Coord;
+            return: Evas.Coord;
          }
       }
-      horiz_advance {
+      @property max_ascent {
          get {
-            return: Evas_Coord;
+            return: Evas.Coord;
          }
       }
-      inset {
+      @property vert_advance {
          get {
-            return: Evas_Coord;
+            return: Evas.Coord;
          }
       }
-      max_ascent {
+      @property descent {
          get {
-            return: Evas_Coord;
+            return: Evas.Coord;
          }
       }
-      vert_advance {
-         get {
-            return: Evas_Coord;
-         }
-      }
-      descent {
-         get {
-            return: Evas_Coord;
-         }
-      }
-   }
-   methods {
       last_up_to_pos @const {
-         /*@ Returns the logical position of the last char in the text up to the pos given. this is NOT the position of the last char because of the possibility of RTL in the text. */
+         [[Returns the logical position of the last char in the text up to the pos given. this is NOT the position of the last char because of the possibility of RTL in the text.]]
          return: int(-1);
          params {
-            @in Evas_Coord x; /*@ in */
-            @in Evas_Coord y; /*@ in */
+            @in x: Evas.Coord;
+            @in y: Evas.Coord;
          }
       }
       char_coords_get @const {
          return: int;
          params {
-            @in Evas_Coord x; /*@ in */
-            @in Evas_Coord y; /*@ in */
-            @out Evas_Coord cx; /*@ out */
-            @out Evas_Coord cy; /*@ out */
-            @out Evas_Coord cw; /*@ out */
-            @out Evas_Coord ch; /*@ out */
+            @in x: Evas.Coord;
+            @in y: Evas.Coord;
+            @out cx: Evas.Coord;
+            @out cy: Evas.Coord;
+            @out cw: Evas.Coord;
+            @out ch: Evas.Coord;
          }
       }
       char_pos_get @const {
-         /*@
-         Retrieve position and dimension information of a character within a text @c Evas_Object.
+         [[Retrieve position and dimension information of a character within a text @Evas.Object
 
          This function is used to obtain the X, Y, width and height of the character
-         located at @p pos within the @c Evas_Object @p obj. @p obj must be a text object
-         as created with evas_object_text_add(). Any of the @c Evas_Coord parameters (@p cx,
-         @p cy, @p cw, @p ch) may be @c NULL in which case no value will be assigned to that
-         parameter.
+         located at $pos within the @Evas.Object $obj. $obj must be a text object
+         Any of the $Evas_Coord parameters ($cx, $cy, $cw, $ch) may be $NULL in which case no value will be assigned to that
+         parameter.]]
 
-         @return @c EINA_FALSE on success, @c EINA_TRUE on error. */
-         return: bool;
+         return: bool; [[$false on success, $true otherwise]]
          params {
-            @in int pos; /*@ The character position to request co-ordinates for. */
-            @out Evas_Coord cx; /*@ A pointer to an @c Evas_Coord to store the X value in (can be NULL). */
-            @out Evas_Coord cy; /*@ A pointer to an @c Evas_Coord to store the Y value in (can be NULL). */
-            @out Evas_Coord cw; /*@ A pointer to an @c Evas_Coord to store the Width value in (can be NULL). */
-            @out Evas_Coord ch; /*@ A pointer to an @c Evas_Coord to store the Height value in (can be NULL). */
+            @in pos: int; [[The character position to request co-ordinates for.]]
+            @out cx: Evas.Coord; [[A pointer to an @Evas.Coord to store the X value in (can be NULL).]]
+            @out cy: Evas.Coord; [[A pointer to an @Evas.Coord to store the Y value in (can be NULL).]]
+            @out cw: Evas.Coord; [[A pointer to an @Evas.Coord to store the Width value in (can be NULL).]]
+            @out ch: Evas.Coord; [[A pointer to an @Evas.Coord to store the Height value in (can be NULL).]]
          }
       }
    }
@@ -369,5 +260,9 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties)
       Efl.Text_Properties.font.set;
       Efl.Text_Properties.font_source.get;
       Efl.Text_Properties.font_source.set;
+      Efl.Gfx.Filter.program.set;
+      Evas.Filter.input_alpha;
+      Evas.Filter.input_render;
+      Evas.Filter.dirty;
    }
 }

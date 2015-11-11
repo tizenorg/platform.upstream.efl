@@ -55,9 +55,9 @@ struct _Evas_Engine_Info_GL_X11
    unsigned char indirect : 1; // use indirect rendering
    unsigned char swap_mode : 4; // what swap mode to assume
 
-   /*window surface should be made with these config*/
-    int          depth_bits;
-    int          stencil_bits;
-    int          msaa_bits;
+   /* window surface should be made with these config */
+   int           depth_bits;
+   int           stencil_bits;
+   int           msaa_bits;
 };
 #endif

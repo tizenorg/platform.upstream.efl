@@ -15,9 +15,10 @@
 typedef struct _Ecore_Buffer_Module Ecore_Buffer_Module;
 typedef struct _Ecore_Buffer_Cb_Data Ecore_Buffer_Cb_Data;
 
-struct _Ecore_Buffer_Module {
-     Ecore_Buffer_Backend *be;
-     Ecore_Buffer_Module_Data data;
+struct _Ecore_Buffer_Module
+{
+   Ecore_Buffer_Backend *be;
+   Ecore_Buffer_Module_Data data;
 };
 
 struct _Ecore_Buffer
@@ -417,7 +418,7 @@ ecore_buffer_free_callback_add(Ecore_Buffer *buf, Ecore_Buffer_Cb func, void *da
 
    Ecore_Buffer_Cb_Data *free_cb;
 
-   free_cb = calloc(sizeof(Ecore_Buffer_Cb_Data), 1);
+   free_cb = calloc(1, sizeof(Ecore_Buffer_Cb_Data));
    if (!free_cb)
      return;
 
@@ -521,34 +522,4 @@ _ecore_buffer_import(const char *engine, int width, int height, Ecore_Buffer_For
    bo->buffer_data = bo_data;
 
    return bo;
-}
-
-void
-_ecore_buffer_user_data_set(Ecore_Buffer *buffer, const void *key, const void *data)
-{
-   EINA_SAFETY_ON_NULL_RETURN(buffer);
-   EINA_SAFETY_ON_NULL_RETURN(key);
-
-   if (buffer->data)
-     eina_hash_del(buffer->data, key, NULL);
-
-   if (data)
-     {
-        if (!buffer->data)
-          buffer->data = eina_hash_string_superfast_new(NULL);
-
-        eina_hash_add(buffer->data, key, data);
-     }
-}
-
-void *
-_ecore_buffer_user_data_get(Ecore_Buffer *buffer, const void *key)
-{
-   EINA_SAFETY_ON_NULL_RETURN_VAL(buffer, NULL);
-   EINA_SAFETY_ON_NULL_RETURN_VAL(key, NULL);
-
-   if (!buffer->data)
-     return NULL;
-
-   return eina_hash_find(buffer->data, key);
 }

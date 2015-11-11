@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#if defined (__MacOSX__) || (defined (__MACH__) && defined (__APPLE__))
+#if defined (__MacOSX__) || (defined (__MACH__) && defined (__APPLE__)) || defined (__FreeBSD__)
 # include <libgen.h>
 #endif
 
@@ -136,7 +136,7 @@ static Eina_Bool _input_attach_internal(Eo *eo_obj, Eo *in)
 
   eo_do(in, eo_event_callback_add(ECORE_AUDIO_IN_EVENT_IN_SAMPLERATE_CHANGED, _update_samplerate_cb, eo_obj));
 
-  eo_do(in, eo_key_data_set("pulse_data", stream, NULL));
+  eo_do(in, eo_key_data_set("pulse_data", stream));
 
 
   pa_stream_set_write_callback(stream, _write_cb, in);
@@ -184,6 +184,7 @@ _ecore_audio_out_pulse_ecore_audio_out_input_detach(Eo *eo_obj, Ecore_Audio_Out_
 {
   pa_stream *stream = NULL;
   Eina_Bool ret2 = EINA_FALSE;
+  pa_operation *op;
 
   eo_do_super(eo_obj, MY_CLASS, ret2 = ecore_audio_obj_out_input_detach(in));
   if (!ret2)
@@ -192,8 +193,14 @@ _ecore_audio_out_pulse_ecore_audio_out_input_detach(Eo *eo_obj, Ecore_Audio_Out_
   eo_do(in, stream = eo_key_data_get("pulse_data"));
 
   pa_stream_set_write_callback(stream, NULL, NULL);
-  pa_operation_unref(pa_stream_drain(stream, _drain_cb, NULL));
+  op = pa_stream_drain(stream, _drain_cb, NULL);
+  if (!op)
+    {
+       ERR("Failed to drain PulseAudio stream.");
+       return EINA_FALSE;
+    }
 
+  pa_operation_unref(op);
   return EINA_TRUE;
 }
 
@@ -255,14 +262,14 @@ static void _state_job(void *data EINA_UNUSED)
    class_vars.state_job = NULL;
 }
 
-EOLIAN static void
+EOLIAN static Eo *
 _ecore_audio_out_pulse_eo_base_constructor(Eo *eo_obj, Ecore_Audio_Out_Pulse_Data *_pd EINA_UNUSED)
 {
   int argc;
   char **argv;
   Ecore_Audio_Output *out_obj = eo_data_scope_get(eo_obj, ECORE_AUDIO_OUT_CLASS);
 
-  eo_do_super(eo_obj, MY_CLASS, eo_constructor());
+  eo_obj = eo_do_super_ret(eo_obj, MY_CLASS, eo_obj, eo_constructor());
 
   out_obj->need_writer = EINA_FALSE;
 
@@ -281,6 +288,8 @@ _ecore_audio_out_pulse_eo_base_constructor(Eo *eo_obj, Ecore_Audio_Out_Pulse_Dat
   class_vars.outputs = eina_list_append(class_vars.outputs, eo_obj);
   if (class_vars.state_job) eo_del(class_vars.state_job);
   class_vars.state_job = ecore_job_add(_state_job, NULL);
+
+  return eo_obj;
 }
 
 EOLIAN static void

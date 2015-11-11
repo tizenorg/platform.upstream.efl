@@ -10,10 +10,19 @@
 #include <sys/resource.h>
 #endif
 
+#ifdef _WIN32
+# include <winsock2.h>
+# include <libgen.h>
+#endif
+
 #include <Eina.h>
 #include <Eet.h>
 #include <Ecore.h>
 #include <Ecore_File.h>
+
+#ifndef O_BINARY
+# define O_BINARY 0
+#endif
 
 #define EFREET_MODULE_LOG_DOM _efreet_desktop_cache_log_dom
 static int _efreet_desktop_cache_log_dom = -1;
@@ -207,7 +216,7 @@ cache_lock_file(void)
     int lockfd;
 
     snprintf(file, sizeof(file), "%s/efreet/desktop_data.lock", efreet_cache_home_get());
-    lockfd = open(file, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+    lockfd = open(file, O_CREAT | O_BINARY | O_RDWR, S_IRUSR | S_IWUSR);
     if (lockfd < 0) return -1;
     efreet_fsetowner(lockfd);
 

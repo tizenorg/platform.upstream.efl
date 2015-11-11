@@ -94,12 +94,11 @@
  *            <ul>
  *              <li>@ref sec_collections_group_parts_description_relatives "Relatives (rel1/rel2)"</li>
  *              <li>@ref sec_collections_group_parts_description_image "Image"</li>
+ *              <li>@ref sec_collections_group_parts_description_proxy "Proxy"</li>
+ *              <li>@ref sec_collections_group_parts_description_fill "Fill"</li>
  *              <ul>
- *                <li>@ref sec_collections_group_parts_description_image_fill "Fill"</li>
- *                <ul>
- *                  <li>@ref sec_collections_group_parts_description_image_fill_origin "Origin"</li>
- *                  <li>@ref sec_collections_group_parts_description_image_fill_size "Size"</li>
- *                </ul>
+ *                <li>@ref sec_collections_group_parts_description_fill_origin "Origin"</li>
+ *                <li>@ref sec_collections_group_parts_description_fill_size "Size"</li>
  *              </ul>
  *              <li>@ref sec_collections_group_parts_description_text "Text"</li>
  *              <li>@ref sec_collections_group_parts_description_box "Box"</li>
@@ -8539,27 +8538,30 @@ st_collections_group_parts_part_description_image_scale_hint(void)
 				      NULL);
 }
 
-/** @edcsubsection{collections_group_parts_description_image_fill,
- *                 Group.Parts.Part.Description.Image.Fill} */
+/** @edcsubsection{collections_group_parts_description_fill,
+ *                 Group.Parts.Part.Description.Fill} */
 
 /**
     @page edcref
     @block
         fill
     @context
-        image {
-            ..
-            fill {
-                type: SCALE;
-                smooth: 0-1;
-                origin { }
-                size { }
+        part { type: [IMAGE or PROXY];
+            description {
+                ..
+                fill {
+                    type: SCALE;
+                    smooth: 0-1;
+                    origin { }
+                    size { }
+                }
+                ..
             }
             ..
         }
     @description
-        The fill method is an optional block that defines the way an IMAGE part
-        is going to be displayed inside its container.
+        The fill method is an optional block that defines the way an IMAGE or
+        PROXY part is going to be displayed inside its container.
         It can be used for tiling (repeating the image) or displaying only
         part of an image. See @ref evas_object_image_fill_set() documentation
         for more details.
@@ -8723,8 +8725,8 @@ st_collections_group_parts_part_description_fill_type(void)
                            NULL);
 }
 
-/** @edcsubsection{collections_group_parts_description_image_fill_origin,
- *                 Group.Parts.Part.Description.Image.Fill.Origin} */
+/** @edcsubsection{collections_group_parts_description_fill_origin,
+ *                 Group.Parts.Part.Description.Fill.Origin} */
 
 /**
     @page edcref
@@ -8847,8 +8849,8 @@ st_collections_group_parts_part_description_fill_origin_offset(void)
    fill->pos_abs_y = parse_int(1);
 }
 
-/** @edcsubsection{collections_group_parts_description_image_fill_size,
- *                 Group.Parts.Part.Description.Image.Fill.Size} */
+/** @edcsubsection{collections_group_parts_description_fill_size,
+ *                 Group.Parts.Part.Description.Fill.Size} */
 
 /**
     @page edcref
@@ -9811,6 +9813,52 @@ static void st_collections_group_parts_part_description_table_padding(void)
    ed->table.padding.y = parse_int_range(1, 0, 0x7fffffff);
 }
 
+/**
+   @edcsubsection{collections_group_parts_description_proxy,
+                  Group.Parts.Part.Description.Proxy}
+ */
+
+/**
+    @page edcref
+
+    @block
+        proxy
+    @context
+        part { type: PROXY;
+            description {
+                ..
+                proxy {
+                    source_clip:    1;
+                    source_visible: 1;
+                }
+                ..
+            }
+        }
+    @description
+        State flags used for proxy objects.
+    @endblock
+
+    @property
+        source_clip
+    @parameters
+        [0 or 1]
+    @effect
+        Sets the 'source_clip' property on this PROXY object. True by default,
+        this means the proxy will be clipped by its source clipper. False
+        means the source clipper is ignored when rendering the proxy.
+    @endproperty
+
+    @property
+        source_visible
+    @parameters
+        [0 or 1]
+    @effect
+        Sets the 'source_visible' property on this PROXY object. True by
+        default, meaning both the proxy and its source object will be visible.
+        If false, the source object will not be visible. False is equivalent
+        to setting the 'no_render' flag on the source object itself.
+    @endproperty
+*/
 static void
 st_collections_group_parts_part_description_proxy_source_clip(void)
 {
@@ -9829,8 +9877,27 @@ st_collections_group_parts_part_description_proxy_source_clip(void)
    ed->proxy.source_clip = parse_bool(0);
 }
 
+static void
+st_collections_group_parts_part_description_proxy_source_visible(void)
+{
+   Edje_Part_Description_Proxy *ed;
+
+   check_arg_count(1);
+
+   if (current_part->type != EDJE_PART_TYPE_PROXY)
+     {
+        ERR("parse error %s:%i. proxy attributes in non-PROXY part.",
+            file_in, line - 1);
+        exit(-1);
+     }
+
+   ed = (Edje_Part_Description_Proxy*) current_desc;
+   ed->proxy.source_visible = parse_bool(0);
+}
+
 /**
-   @edcsubsection{collections_group_parts_description_positon,Position}
+   @edcsubsection{collections_group_parts_description_positon,
+                  Group.Parts.Part.Description.Position}
  */
 
 /**
@@ -9978,7 +10045,8 @@ st_collections_group_parts_part_description_position_space(void)
 }
 
 /**
-   @edcsubsection{collections_group_parts_description_camera,Properties}
+   @edcsubsection{collections_group_parts_description_camera,
+                  Group.Parts.Part.Description.Properties}
  */
 
 /**
@@ -9987,7 +10055,7 @@ st_collections_group_parts_part_description_position_space(void)
     @block
         properties
     @context
-        part {
+        part { type: CAMERA;
             description {
                 ..
                 properties {
@@ -10030,7 +10098,8 @@ st_collections_group_parts_part_description_camera_properties(void)
 }
 
 /**
-   @edcsubsection{collections_group_parts_description_properties,Properties}
+   @edcsubsection{collections_group_parts_description_properties,
+                  Group.Parts.Part.Description.Properties}
  */
 
 /**
@@ -10039,7 +10108,7 @@ st_collections_group_parts_part_description_camera_properties(void)
     @block
         properties
     @context
-        part {
+        part { type: [LIGHT or MESH_NODE];
             description {
                 ..
                 properties {
@@ -10363,7 +10432,8 @@ st_collections_group_parts_part_description_properties_shade(void)
 }
 
 /**
-   @edcsubsection{collections_group_parts_description_orientation,Orientation}
+   @edcsubsection{collections_group_parts_description_orientation,
+                  Group.Parts.Part.Description.Orientation}
  */
 
 /**
@@ -10372,7 +10442,7 @@ st_collections_group_parts_part_description_properties_shade(void)
     @block
         orientation
     @context
-        part {
+        part { type: [CAMERA or MESH_NODE or LIGHT];
             description {
                 ..
                 orientation {
@@ -10394,7 +10464,7 @@ st_collections_group_parts_part_description_properties_shade(void)
     @parameters
         [x] [y] [z]
     @effect
-        Indicates a target point for CAMERA and MESH_NODE or for LIGHt to see or
+        Indicates a target point for CAMERA and MESH_NODE or for LIGHT to see or
         to illuminate.
     @endproperty
 */
@@ -10588,7 +10658,8 @@ st_collections_group_parts_part_description_orientation_quaternion(void)
 }
 
 /**
-   @edcsubsection{collections_group_parts_description_texture,Texture}
+   @edcsubsection{collections_group_parts_description_texture,
+                  Group.Parts.Part.Description.Texture}
  */
 
 /**
@@ -10954,24 +11025,6 @@ st_collections_group_parts_part_description_mesh_geometry(void)
             file_in, line - 1);
         exit(-1);
      }
-}
-
-static void
-st_collections_group_parts_part_description_proxy_source_visible(void)
-{
-   Edje_Part_Description_Proxy *ed;
-
-   check_arg_count(1);
-
-   if (current_part->type != EDJE_PART_TYPE_PROXY)
-     {
-        ERR("parse error %s:%i. proxy attributes in non-PROXY part.",
-            file_in, line - 1);
-        exit(-1);
-     }
-
-   ed = (Edje_Part_Description_Proxy*) current_desc;
-   ed->proxy.source_visible = parse_bool(0);
 }
 
 static void
@@ -11380,7 +11433,7 @@ st_collections_group_parts_part_description_physics_backface_cull(void)
 #endif
 
 /** @edcsubsection{collections_group_parts_description_physics_movement_freedom,
- *                 Group.Parts.Part.Description.Physics.Movement Freedom} */
+ *                 Group.Parts.Part.Description.Physics.Movement_Freedom} */
 
 /**
     @page edcref
@@ -12053,7 +12106,7 @@ st_collections_group_parts_part_description_perspective_focal(void)
         filter
     @context
         part {
-            type: [IMAGE or TEXT];
+            type: [IMAGE or TEXT or PROXY or SNAPSHOT];
             ..
             description {
                 ..
@@ -12076,7 +12129,7 @@ st_collections_group_parts_part_description_perspective_focal(void)
             }
         }
     @description
-        Applies a series of image filters to a TEXT or IMAGE part.
+        Applies a series of image filters to a TEXT, IMAGE, PROXY or SNAPSHOT part.
         For more information, please refer to the page
         @ref evasfiltersref "Evas filters reference".
     @endblock

@@ -340,10 +340,9 @@ ecore_drm_device_open(Ecore_Drm_Device *dev)
      eeze_udev_watch_add(EEZE_UDEV_TYPE_DRM, events,
                          _ecore_drm_device_cb_output_event, dev);
 
-   if (!getenv("ECORE_DRM_DEVICE_USER_HANDLER"))
-   dev->drm.hdlr = 
-     ecore_main_fd_handler_add(dev->drm.fd, ECORE_FD_READ, 
-                               _ecore_drm_device_cb_event, dev, NULL, NULL);
+   dev->drm.hdlr =
+      ecore_main_fd_handler_add(dev->drm.fd, ECORE_FD_READ,
+                                _ecore_drm_device_cb_event, dev, NULL, NULL);
 
    /* dev->drm.idler =  */
    /*   ecore_idle_enterer_add(_ecore_drm_device_cb_idle, dev); */

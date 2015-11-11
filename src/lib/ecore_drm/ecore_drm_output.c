@@ -562,6 +562,8 @@ _ecore_drm_output_create(Ecore_Drm_Device *dev, drmModeRes *res, drmModeConnecto
             (conn->count_modes == 0) ? ", built-in" : "");
      }
 
+   _ecore_drm_output_event_send(output, EINA_TRUE);
+
    return output;
 
 err:

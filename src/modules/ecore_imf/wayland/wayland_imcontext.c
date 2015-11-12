@@ -36,6 +36,9 @@
 
 static Ecore_Event_Filter   *_ecore_event_filter_handler = NULL;
 static Ecore_IMF_Context    *_active_ctx                 = NULL;
+
+static Ecore_Event_Handler  *_ecore_event_conformant_handler = NULL;
+
 //
 static Ecore_IMF_Input_Panel_State _input_panel_state    = ECORE_IMF_INPUT_PANEL_STATE_HIDE;
 
@@ -163,6 +166,40 @@ unregister_key_handler()
      {
         ecore_event_filter_del(_ecore_event_filter_handler);
         _ecore_event_filter_handler = NULL;
+     }
+}
+
+static Eina_Bool
+_ecore_event_cb_conformant_change(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
+{
+   Ecore_Evas *ee;
+   Ecore_Wl_Event_Conformant_Change *ev;
+
+   ev = event;
+   ee = ecore_event_window_match(ev->win);
+   if (!ee) return ECORE_CALLBACK_PASS_ON;
+
+   if (ev->part_type == ECORE_WL_KEYBOARD_PART && _active_ctx)
+     ecore_imf_context_input_panel_event_callback_call(_active_ctx, ECORE_IMF_INPUT_PANEL_GEOMETRY_EVENT, 0);
+
+   return ECORE_CALLBACK_PASS_ON;
+}
+
+EAPI void
+register_ecore_event_handler()
+{
+   if (!_ecore_event_conformant_handler)
+     _ecore_event_conformant_handler = ecore_event_handler_add(ECORE_WL_EVENT_CONFORMANT_CHANGE,
+                                            _ecore_event_cb_conformant_change, NULL);
+}
+
+EAPI void
+unregister_ecore_event_handler()
+{
+   if (_ecore_event_conformant_handler)
+     {
+        ecore_event_handler_del(_ecore_event_conformant_handler);
+        _ecore_event_conformant_handler = NULL;
      }
 }
 //
@@ -704,11 +741,6 @@ text_input_input_panel_state(void                 *data EINA_UNUSED,
     ecore_imf_context_input_panel_event_callback_call(imcontext->ctx,
                                                       ECORE_IMF_INPUT_PANEL_STATE_EVENT,
                                                       _input_panel_state);
-    if (state == WL_TEXT_INPUT_INPUT_PANEL_STATE_HIDE ||
-        state == WL_TEXT_INPUT_INPUT_PANEL_STATE_SHOW)
-        ecore_imf_context_input_panel_event_callback_call(imcontext->ctx,
-                                                          ECORE_IMF_INPUT_PANEL_GEOMETRY_EVENT,
-                                                          0);
 }
 
 static void

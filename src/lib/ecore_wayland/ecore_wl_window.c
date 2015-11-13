@@ -103,62 +103,64 @@ _ecore_wl_window_shell_surface_init(Ecore_Wl_Window *win)
    char *env;
 #endif
 
-   if ((win->type == ECORE_WL_WINDOW_TYPE_DND) ||
-       (win->type == ECORE_WL_WINDOW_TYPE_NONE)) return;
+   if ((win->type != ECORE_WL_WINDOW_TYPE_DND) &&
+       (win->type != ECORE_WL_WINDOW_TYPE_NONE))
+     {
 #ifdef USE_IVI_SHELL
-   if ((!win->ivi_surface) && (_ecore_wl_disp->wl.ivi_application))
-     {
-        if (win->parent && win->parent->ivi_surface)
-          win->ivi_surface_id = win->parent->ivi_surface_id + 1;
-        else if ((env = getenv("ECORE_IVI_SURFACE_ID")))
-          win->ivi_surface_id = atoi(env);
-        else
-          win->ivi_surface_id = IVI_SURFACE_ID + getpid();
-
-        win->ivi_surface =
-          ivi_application_surface_create(_ecore_wl_disp->wl.ivi_application,
-                                         win->ivi_surface_id, win->surface);
-     }
-
-   if (!win->ivi_surface)
-     {
-#endif
-        if (_ecore_wl_disp->wl.xdg_shell)
+        if ((!win->ivi_surface) && (_ecore_wl_disp->wl.ivi_application))
           {
-             if (win->xdg_surface) return;
-             win->xdg_surface =
-               xdg_shell_get_xdg_surface(_ecore_wl_disp->wl.xdg_shell,
-                                         win->surface);
-             if (!win->xdg_surface) return;
-             if (win->title)
-               xdg_surface_set_title(win->xdg_surface, win->title);
-             if (win->class_name)
-               xdg_surface_set_app_id(win->xdg_surface, win->class_name);
-             xdg_surface_set_user_data(win->xdg_surface, win);
-             xdg_surface_add_listener(win->xdg_surface,
-                                      &_ecore_xdg_surface_listener, win);
-          }
-        else if (_ecore_wl_disp->wl.shell)
-          {
-             if (win->shell_surface) return;
-             win->shell_surface =
-               wl_shell_get_shell_surface(_ecore_wl_disp->wl.shell,
-                                          win->surface);
-             if (!win->shell_surface) return;
+             if (win->parent && win->parent->ivi_surface)
+               win->ivi_surface_id = win->parent->ivi_surface_id + 1;
+             else if ((env = getenv("ECORE_IVI_SURFACE_ID")))
+               win->ivi_surface_id = atoi(env);
+             else
+               win->ivi_surface_id = IVI_SURFACE_ID + getpid();
 
-             if (win->title)
-               wl_shell_surface_set_title(win->shell_surface, win->title);
-
-             if (win->class_name)
-               wl_shell_surface_set_class(win->shell_surface, win->class_name);
+             win->ivi_surface =
+                ivi_application_surface_create(_ecore_wl_disp->wl.ivi_application,
+                                               win->ivi_surface_id, win->surface);
           }
 
-        if (win->shell_surface)
-          wl_shell_surface_add_listener(win->shell_surface,
-                                        &_ecore_wl_shell_surface_listener, win);
-#ifdef USE_IVI_SHELL
-     }
+        if (!win->ivi_surface)
+          {
 #endif
+             if (_ecore_wl_disp->wl.xdg_shell)
+               {
+                  if (win->xdg_surface) return;
+                  win->xdg_surface =
+                     xdg_shell_get_xdg_surface(_ecore_wl_disp->wl.xdg_shell,
+                                               win->surface);
+                  if (!win->xdg_surface) return;
+                  if (win->title)
+                    xdg_surface_set_title(win->xdg_surface, win->title);
+                  if (win->class_name)
+                    xdg_surface_set_app_id(win->xdg_surface, win->class_name);
+                  xdg_surface_set_user_data(win->xdg_surface, win);
+                  xdg_surface_add_listener(win->xdg_surface,
+                                           &_ecore_xdg_surface_listener, win);
+               }
+             else if (_ecore_wl_disp->wl.shell)
+               {
+                  if (win->shell_surface) return;
+                  win->shell_surface =
+                     wl_shell_get_shell_surface(_ecore_wl_disp->wl.shell,
+                                                win->surface);
+                  if (!win->shell_surface) return;
+
+                  if (win->title)
+                    wl_shell_surface_set_title(win->shell_surface, win->title);
+
+                  if (win->class_name)
+                    wl_shell_surface_set_class(win->shell_surface, win->class_name);
+               }
+
+             if (win->shell_surface)
+               wl_shell_surface_add_listener(win->shell_surface,
+                                             &_ecore_wl_shell_surface_listener, win);
+#ifdef USE_IVI_SHELL
+          }
+#endif
+     }
 
    if (_ecore_wl_disp->wl.tz_policy)
      {

@@ -114,6 +114,7 @@ _device_output_set(Ecore_Drm_Evdev *edev)
         ev->multi.y = ev->y;
         ev->multi.root.x = ev->x;
         ev->multi.root.y = ev->y;
+        ev->dev_name = eina_stringshare_add(edev->path);
 
         ecore_event_add(ECORE_EVENT_MOUSE_MOVE, ev, NULL, NULL);
      }
@@ -375,6 +376,7 @@ _device_handle_key(struct libinput_device *device, struct libinput_event_keyboar
    _device_modifiers_update(edev);
 
    e->modifiers = edev->xkb.modifiers;
+   e->dev_name = eina_stringshare_add(edev->path);
 
    if (state)
      ecore_event_add(ECORE_EVENT_KEY_DOWN, e, NULL, NULL);
@@ -431,6 +433,7 @@ _device_pointer_motion(Ecore_Drm_Evdev *edev, struct libinput_event_pointer *eve
    ev->multi.y = ev->y;
    ev->multi.root.x = ev->x;
    ev->multi.root.y = ev->y;
+   ev->dev_name = eina_stringshare_add(edev->path);
 
    ecore_event_add(ECORE_EVENT_MOUSE_MOVE, ev, NULL, NULL);
 }
@@ -524,6 +527,7 @@ _device_handle_button(struct libinput_device *device, struct libinput_event_poin
    ev->multi.y = ev->y;
    ev->multi.root.x = ev->x;
    ev->multi.root.y = ev->y;
+   ev->dev_name = eina_stringshare_add(edev->path);
 
    if (state)
      {
@@ -595,6 +599,7 @@ _device_handle_axis(struct libinput_device *device, struct libinput_event_pointe
    ev->y = edev->seat->ptr.iy;
    ev->root.x = ev->x;
    ev->root.y = ev->y;
+   ev->dev_name = eina_stringshare_add(edev->path);
 
 #if LIBINPUT_HIGHER_08
    axis = LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL;
@@ -630,6 +635,7 @@ _ecore_drm_evdev_device_create(Ecore_Drm_Seat *seat, struct libinput_device *dev
    edev->seat = seat;
    edev->device = device;
    edev->path = eina_stringshare_add(libinput_device_get_sysname(device));
+   edev->fd = -1;
 
    devices = eeze_udev_find_by_filter("input", NULL, edev->path);
    if (eina_list_count(devices) >= 1)
@@ -717,6 +723,7 @@ _device_handle_touch_event_send(Ecore_Drm_Evdev *edev, struct libinput_event_tou
    ev->multi.y = ev->y;
    ev->multi.root.x = ev->x;
    ev->multi.root.y = ev->y;
+   ev->dev_name = eina_stringshare_add(edev->path);
 
    if (state == ECORE_EVENT_MOUSE_BUTTON_DOWN)
      {
@@ -792,6 +799,7 @@ _device_handle_touch_motion_send(Ecore_Drm_Evdev *edev, struct libinput_event_to
    ev->multi.y = ev->y;
    ev->multi.root.x = ev->x;
    ev->multi.root.y = ev->y;
+   ev->dev_name = eina_stringshare_add(edev->path);
 
    ecore_event_add(ECORE_EVENT_MOUSE_MOVE, ev, NULL, NULL);
 }

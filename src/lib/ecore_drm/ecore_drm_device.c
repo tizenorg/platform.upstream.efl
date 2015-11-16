@@ -494,10 +494,20 @@ ecore_drm_device_fd_get(Ecore_Drm_Device *dev)
 EAPI void 
 ecore_drm_device_window_set(Ecore_Drm_Device *dev, unsigned int window)
 {
+   Eina_List *l, *ll;
+   Ecore_Drm_Seat *seat = NULL;
+   Ecore_Drm_Evdev *edev = NULL;
+
    /* check for valid device */
    EINA_SAFETY_ON_TRUE_RETURN((!dev) || (dev->drm.fd < 0));
 
    dev->window = window;
+
+   EINA_LIST_FOREACH(dev->seats, l , seat)
+     {
+        EINA_LIST_FOREACH(seat->devices, ll, edev)
+          _ecore_drm_device_info_send(window, edev, EINA_TRUE);
+     }
 }
 
 EAPI const char *

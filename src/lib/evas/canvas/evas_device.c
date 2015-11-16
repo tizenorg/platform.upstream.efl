@@ -73,6 +73,10 @@ evas_device_pop(Evas *eo_e)
    return;
    MAGIC_CHECK_END();
    Evas_Public_Data *e = eo_data_scope_get(eo_e, EVAS_CANVAS_CLASS);
+
+   // resolving crash issue
+   if (!e->cur_device) return;
+
    dev = eina_array_pop(e->cur_device);
    if (dev) _evas_device_unref(dev);
 }
@@ -276,6 +280,9 @@ _evas_device_unref(Evas_Device *dev)
 {
    dev->ref--;
    if (dev->ref > 0) return;
+   Evas_Public_Data *e = eo_data_scope_get(dev->evas, EVAS_CANVAS_CLASS);
+   e->devices = eina_list_remove(e->devices, dev);
+   evas_event_callback_call(dev->evas, EVAS_CALLBACK_DEVICE_CHANGED, dev);
    if (dev->name) eina_stringshare_del(dev->name);
    if (dev->desc) eina_stringshare_del(dev->desc);
    dev->magic = 0;

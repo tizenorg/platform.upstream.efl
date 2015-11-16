@@ -119,6 +119,38 @@ _seat_get(Ecore_Drm_Input *input, const char *seat)
    return _seat_create(input, seat);
 }
 
+static void
+_ecore_event_device_info_free(void *data EINA_UNUSED, void *ev)
+{
+   Ecore_Event_Device_Info *e;
+
+   e = ev;
+   eina_stringshare_del(e->name);
+   eina_stringshare_del(e->identifier);
+   eina_stringshare_del(e->seatname);
+
+   free(e);
+}
+
+void
+_ecore_drm_device_info_send(unsigned int window, Ecore_Drm_Evdev *edev, Eina_Bool flag)
+{
+   Ecore_Event_Device_Info *e;
+
+   if (!(e = calloc(1, sizeof(Ecore_Event_Device_Info)))) return;
+
+   e->name = eina_stringshare_add(libinput_device_get_name(edev->device));
+   e->identifier = eina_stringshare_add(edev->path);
+   e->seatname = eina_stringshare_add(edev->seat->name);
+   e->caps = edev->seat_caps;
+   e->window = window;
+
+   if (flag)
+     ecore_event_add(ECORE_EVENT_DEVICE_ADD, e, _ecore_event_device_info_free, NULL);
+   else
+     ecore_event_add(ECORE_EVENT_DEVICE_DEL, e, _ecore_event_device_info_free, NULL);
+}
+
 static void 
 _device_added(Ecore_Drm_Input *input, struct libinput_device *device)
 {
@@ -160,10 +192,13 @@ _device_added(Ecore_Drm_Input *input, struct libinput_device *device)
                    ev,
                    _ecore_drm_event_input_device_add_free,
                    NULL);
+
+   if (input->dev->window != 0)
+     _ecore_drm_device_info_send(input->dev->window, edev, EINA_TRUE);
 }
 
 static void 
-_device_removed(Ecore_Drm_Input *input EINA_UNUSED, struct libinput_device *device)
+_device_removed(Ecore_Drm_Input *input, struct libinput_device *device)
 {
    Ecore_Drm_Evdev *edev;
    Ecore_Drm_Event_Input_Device_Del *ev;
@@ -184,6 +219,9 @@ _device_removed(Ecore_Drm_Input *input EINA_UNUSED, struct libinput_device *devi
                    ev,
                    _ecore_drm_event_input_device_del_free,
                    NULL);
+
+   if (input->dev->window != 0)
+     _ecore_drm_device_info_send(input->dev->window, edev, EINA_FALSE);
 
    /* remove this evdev from the seat's list of devices */
    edev->seat->devices = eina_list_remove(edev->seat->devices, edev);

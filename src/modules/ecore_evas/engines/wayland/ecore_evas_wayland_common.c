@@ -1568,6 +1568,8 @@ _ecore_evas_wl_common_render_pre(void *data, Evas *evas EINA_UNUSED, void *event
    Ecore_Evas *ee = data;
    Ecore_Evas_Engine_Wl_Data *wdata;
 
+   if (!ee->visible) return;
+
    wdata = ee->engine.data;
    wdata->anim_callback =
      wl_surface_frame(ecore_wl_window_surface_get(wdata->win));

@@ -865,13 +865,25 @@ ecore_wl_window_find(unsigned int id)
    return win;
 }
 
-EAPI void
+EAPI Ecore_Wl_Window_Type
+ecore_wl_window_type_get(Ecore_Wl_Window *win)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!win) return;
+   return win->type;
+}
+
+EAPI void 
 ecore_wl_window_type_set(Ecore_Wl_Window *win, Ecore_Wl_Window_Type type)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!win) return;
    win->type = type;
+
+   if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
+     tizen_policy_set_type(_ecore_wl_disp->wl.tz_policy, win->surface, (uint32_t)type);
 }
 
 EAPI void

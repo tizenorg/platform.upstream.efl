@@ -22,7 +22,6 @@
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 #include <drm_fourcc.h>
-#include <tbm_bufmgr.h>
 
 #include <signal.h>
 #include <sys/ioctl.h>
@@ -145,9 +144,6 @@ struct _Outbuf
      } priv;
 
    Ecore_Drm_Output *output;
-
-   tbm_bufmgr bufmgr;
-   tbm_bo default_bo;
 };
 
 struct _Context_3D
@@ -201,8 +197,7 @@ void evas_drm_outbuf_framebuffer_set(Outbuf *ob, Buffer *buffer);
 Eina_Bool evas_drm_framebuffer_send(Outbuf *ob, Buffer *buffer);
 void evas_drm_outbuf_event_flip(int fd, unsigned int seq, unsigned int sec, unsigned int usec, void *data);
 void evas_drm_outbuf_event_vblank(int fd, unsigned int seq, unsigned int sec, unsigned int usec, void *data);
-Ecore_Drm_Output* evas_drm_output_find_from_crtc(unsigned int crtc_id);
-Ecore_Drm_Output* evas_drm_output_find_from_connector(unsigned int conn_id);
+Ecore_Drm_Output* evas_drm_output_find(unsigned int crtc_id);
 void eng_outbuf_copy(Outbuf *ob, void *buffer, int stride, int width, int height, uint format, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh);
 
 static inline Outbuf *

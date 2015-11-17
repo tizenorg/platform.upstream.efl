@@ -693,7 +693,7 @@ eng_outbuf_copy(Outbuf *ob, void *buffer, int stride, int width EINA_UNUSED, int
    void *data;
    struct drm_mode_map_dumb arg = {0,};
 
-   output = evas_drm_output_find_from_crtc(ob->priv.crtc);
+   output = evas_drm_output_find(ob->priv.crtc);
 
    /* TODO: should find the better way to find current framebuffer */
    ecore_drm_output_current_fb_info_get(output, &fb_handle, &fb_w, &fb_h, &fb_fmt);

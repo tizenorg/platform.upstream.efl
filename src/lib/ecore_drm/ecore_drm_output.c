@@ -296,12 +296,12 @@ static Ecore_Drm_Output *
 _ecore_drm_output_create(Ecore_Drm_Device *dev, drmModeRes *res, drmModeConnector *conn, int x, int y)
 {
    Ecore_Drm_Output *output;
-   Ecore_Drm_Output_Mode *mode, *best_mode = NULL, *preferred_mode = NULL;
+   Ecore_Drm_Output_Mode *mode;
    const char *conn_name;
    char name[32];
    int i = 0;
    drmModeEncoder *enc;
-   drmModeModeInfo crtc_mode = {0,};
+   drmModeModeInfo crtc_mode;
    drmModeCrtc *crtc;
    Eina_List *l;
 
@@ -361,9 +361,6 @@ _ecore_drm_output_create(Ecore_Drm_Device *dev, drmModeRes *res, drmModeConnecto
              ERR("Failed to add mode to output");
              goto mode_err;
           }
-
-        if (conn->modes[i].type & DRM_MODE_TYPE_PREFERRED)
-          preferred_mode = mode;
      }
 
    EINA_LIST_REVERSE_FOREACH(output->modes, l, mode)
@@ -373,17 +370,13 @@ _ecore_drm_output_create(Ecore_Drm_Device *dev, drmModeRes *res, drmModeConnecto
              output->current_mode = mode;
              break;
           }
-        best_mode = mode;
      }
 
    if ((!output->current_mode) && (crtc_mode.clock != 0))
-     output->current_mode = _ecore_drm_output_mode_add(output, &crtc_mode);
-   else if (!output->current_mode && preferred_mode)
-     output->current_mode = preferred_mode;
-   else if (!output->current_mode && best_mode)
-     output->current_mode = best_mode;
-
-   if (!output->current_mode) goto mode_err;
+     {
+        output->current_mode = _ecore_drm_output_mode_add(output, &crtc_mode);
+        if (!output->current_mode) goto mode_err;
+     }
 
    dev->use_hw_accel = EINA_FALSE;
    /* do not create drm fb dumb object here. object will be created by evas engine */
@@ -684,6 +677,7 @@ ecore_drm_outputs_create(Ecore_Drm_Device *dev)
    Ecore_Drm_Output *output = NULL;
    drmModeConnector *conn;
    drmModeRes *res;
+   drmModeCrtc *crtc;
    int i = 0, x = 0, y = 0;
 
    /* DBG("Create outputs for %d", dev->drm.fd); */
@@ -722,6 +716,8 @@ ecore_drm_outputs_create(Ecore_Drm_Device *dev)
         if ((conn->connection == DRM_MODE_CONNECTED) && 
             (conn->count_modes > 0))
           {
+             drmModeEncoder *enc;
+
              /* create output for this connector */
              if (!(output = _ecore_drm_output_create(dev, res, conn, x, y)))
                {
@@ -733,7 +729,25 @@ ecore_drm_outputs_create(Ecore_Drm_Device *dev)
 
              output->drm_fd = dev->drm.fd;
 
-             x += output->current_mode->width;
+             if (!(enc = drmModeGetEncoder(dev->drm.fd, conn->encoder_id)))
+               {
+                  drmModeFreeConnector(conn);
+                  _ecore_drm_output_free(output);
+                  continue;
+               }
+
+             if (!(crtc = drmModeGetCrtc(dev->drm.fd, enc->crtc_id)))
+               {
+                  drmModeFreeEncoder(enc);
+                  drmModeFreeConnector(conn);
+                  _ecore_drm_output_free(output);
+                  continue;
+               }
+
+             x += crtc->width;
+
+             drmModeFreeCrtc(crtc);
+             drmModeFreeEncoder(enc);
 
              events = (EEZE_UDEV_EVENT_ADD | EEZE_UDEV_EVENT_REMOVE);
 
@@ -1030,23 +1044,6 @@ ecore_drm_output_crtc_id_get(Ecore_Drm_Output *output)
    EINA_SAFETY_ON_NULL_RETURN_VAL(output, 0);
 
    return output->crtc_id;
-}
-
-EAPI unsigned int
-ecore_drm_output_connector_id_get(Ecore_Drm_Output *output)
-{
-   EINA_SAFETY_ON_NULL_RETURN_VAL(output, 0);
-
-   return output->conn_id;
-}
-
-EAPI void*
-ecore_drm_output_mode_info_get(Ecore_Drm_Output *output)
-{
-   EINA_SAFETY_ON_NULL_RETURN_VAL(output, NULL);
-   EINA_SAFETY_ON_NULL_RETURN_VAL(output->current_mode, NULL);
-
-   return (void*)&output->current_mode->info;
 }
 
 EAPI void

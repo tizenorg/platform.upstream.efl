@@ -175,7 +175,7 @@ evas_drm_gbm_shutdown(Evas_Engine_Info_GL_Drm *info)
 Eina_Bool
 evas_drm_outbuf_setup(Outbuf *ob)
 {
-   Ecore_Drm_Output *output;
+   Ecore_Drm_Output *output = NULL;
    drmModeRes *res;
    drmModeConnector *conn;
    drmModePlaneResPtr pres;
@@ -241,12 +241,13 @@ evas_drm_outbuf_setup(Outbuf *ob)
              drmModeFreeEncoder(enc);
           }
 
+        output = evas_drm_output_find_from_connector(conn->connector_id);
+
         /* record the crtc id */
         if (crtc_id != -1)
           ob->priv.crtc = crtc_id;
         else
           {
-             output = evas_drm_output_find_from_connector(conn->connector_id);
              ob->priv.crtc = ecore_drm_output_crtc_id_get(output);
 
              mode_info = (drmModeModeInfo*)ecore_drm_output_mode_info_get(output);

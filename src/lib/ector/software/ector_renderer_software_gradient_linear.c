@@ -13,6 +13,7 @@
 static void
 _update_linear_data(Ector_Renderer_Software_Gradient_Data *gdata)
 {
+   update_color_table(gdata);
    gdata->linear.x1 = gdata->gld->start.x;
    gdata->linear.y1 = gdata->gld->start.y;
 
@@ -65,20 +66,20 @@ static Eina_Bool
 _ector_renderer_software_gradient_linear_ector_renderer_software_base_fill(Eo *obj EINA_UNUSED,
                                                                            Ector_Renderer_Software_Gradient_Data *pd)
 {
-   // lazy creation of color table
-   update_color_table(pd);
    ector_software_rasterizer_linear_gradient_set(pd->surface->software, pd);
 
    return EINA_TRUE;
 }
 
-void
+Eo *
 _ector_renderer_software_gradient_linear_eo_base_constructor(Eo *obj,
                                                              Ector_Renderer_Software_Gradient_Data *pd)
 {
-   eo_do_super(obj, ECTOR_RENDERER_SOFTWARE_GRADIENT_LINEAR_CLASS, eo_constructor());
+   obj = eo_do_super_ret(obj, ECTOR_RENDERER_SOFTWARE_GRADIENT_LINEAR_CLASS, obj, eo_constructor());
    pd->gd  = eo_data_xref(obj, ECTOR_RENDERER_GENERIC_GRADIENT_MIXIN, obj);
    pd->gld = eo_data_xref(obj, ECTOR_RENDERER_GENERIC_GRADIENT_LINEAR_MIXIN, obj);
+
+   return obj;
 }
 
 void
@@ -105,6 +106,22 @@ _ector_renderer_software_gradient_linear_efl_gfx_gradient_base_stop_set(Eo *obj,
                efl_gfx_gradient_stop_set(colors, length));
 
    destroy_color_table(pd);
+}
+
+static unsigned int
+_ector_renderer_software_gradient_linear_ector_renderer_generic_base_crc_get(Eo *obj, Ector_Renderer_Software_Gradient_Data *pd)
+{
+   unsigned int crc;
+
+   eo_do_super(obj, ECTOR_RENDERER_SOFTWARE_GRADIENT_LINEAR_CLASS,
+               crc = ector_renderer_crc_get());
+
+   crc = eina_crc((void*) pd->gd->s, sizeof (Efl_Gfx_Gradient_Spread), crc, EINA_FALSE);
+   if (pd->gd->colors_count)
+     crc = eina_crc((void*) pd->gd->colors, sizeof (Efl_Gfx_Gradient_Stop) * pd->gd->colors_count, crc, EINA_FALSE);
+   crc = eina_crc((void*) pd->gld, sizeof (Ector_Renderer_Generic_Gradient_Linear_Data), crc, EINA_FALSE);
+
+   return crc;
 }
 
 #include "ector_renderer_software_gradient_linear.eo.c"

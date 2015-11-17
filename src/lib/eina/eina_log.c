@@ -29,17 +29,17 @@
 #include <assert.h>
 #include <errno.h>
 
-#if defined HAVE_EXECINFO_H && defined HAVE_BACKTRACE && defined HAVE_BACKTRACE_SYMBOLS
-# include <execinfo.h>
-# define EINA_LOG_BACKTRACE
-#endif
-
 #ifdef HAVE_SYSTEMD
 # include <systemd/sd-journal.h>
 #endif
 
 #ifdef HAVE_EVIL
 # include <Evil.h>
+#endif
+
+#include "eina_debug.h"
+#ifdef EINA_HAVE_DEBUG
+# define EINA_LOG_BACKTRACE
 #endif
 
 #include "eina_config.h"
@@ -121,7 +121,7 @@ static Eina_Bool _disable_timing = EINA_TRUE;
 static int _abort_level_on_critical = EINA_LOG_LEVEL_CRITICAL;
 
 #ifdef EINA_LOG_BACKTRACE
-static int _backtrace_level = -1;
+static int _backtrace_level = 2; // CRI & ERR by default
 #endif
 
 static Eina_Bool _threads_enabled = EINA_FALSE;
@@ -1202,7 +1202,8 @@ eina_log_print_unlocked(int domain,
        EINA_UNLIKELY(domain < 0))
      {
         if (file && fnc && fmt)
-           fprintf(
+          {
+             fprintf(
               stderr,
               "CRI: %s:%d %s() eina_log_print() unknown domain %d, original message format '%s'\n",
               file,
@@ -1210,12 +1211,15 @@ eina_log_print_unlocked(int domain,
               fnc,
               domain,
               fmt);
+          }
         else
-           fprintf(
+          {
+             fprintf(
               stderr,
               "CRI: eina_log_print() unknown domain %d, original message format '%s'\n",
               domain,
               fmt ? fmt : "");
+          }
 
         if (_abort_on_critical)
            abort();
@@ -1580,10 +1584,12 @@ eina_log_color_disable_set(Eina_Bool disabled)
 
    for (i = 0; i < _log_domains_count; i++)
      {
+        if (_log_domains[i].deleted)
+          continue;
+
         domain = &_log_domains[i];
 
-        if (domain->domain_str)
-          free((char *)domain->domain_str);
+        free((char *)domain->domain_str);
 
         if ((domain->color) && (!_disable_color))
           domain->domain_str = eina_log_domain_str_get(domain->name, domain->color);
@@ -1843,21 +1849,11 @@ eina_log_domain_registered_level_set(int domain, int level)
 }
 
 #ifdef EINA_LOG_BACKTRACE
-# define DISPLAY_BACKTRACE(File, Level)			\
-  if (EINA_UNLIKELY(Level < _backtrace_level))		\
-    {							\
-      void *bt[256];					\
-      char **strings;					\
-      int btlen;					\
-      int i;						\
-      							\
-      btlen = backtrace((void **)bt, 256);		\
-      strings = backtrace_symbols((void **)bt, btlen);	\
-      fprintf(File, "*** Backtrace ***\n");		\
-      for (i = 0; i < btlen; ++i)			\
-	fprintf(File, "%s\n", strings[i]);		\
-      free(strings);					\
-    }
+# define DISPLAY_BACKTRACE(File, Level) \
+   if (EINA_UNLIKELY(Level < _backtrace_level)) { \
+      fprintf(File, "*** Backtrace ***\n"); \
+      EINA_BT(File); \
+   }
 #else
 # define DISPLAY_BACKTRACE(File, Level)
 #endif

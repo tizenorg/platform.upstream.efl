@@ -29,7 +29,6 @@ lib_eolian_libeolian_la_SOURCES = \
                                   lib/eolian/database_constructor_api.c \
                                   lib/eolian/database_event.c \
                                   lib/eolian/database_event_api.c \
-                                  lib/eolian/database_print.c \
                                   lib/eolian/database_expr.c \
                                   lib/eolian/database_expr_api.c \
                                   lib/eolian/database_var.c \
@@ -59,6 +58,8 @@ bin_eolian_eolian_gen_SOURCES = \
                 bin/eolian/legacy_generator.h \
                 bin/eolian/types_generator.c \
                 bin/eolian/types_generator.h \
+                bin/eolian/docs_generator.c \
+                bin/eolian/docs_generator.h \
                 bin/eolian/main.c
 
 bin_eolian_eolian_gen_CPPFLAGS = -I$(top_builddir)/src/lib/efl @EOLIAN_CFLAGS@
@@ -92,7 +93,12 @@ tests/eolian/data/free_func.eo \
 tests/eolian/data/nmsp1_class1.eo \
 tests/eolian/data/nmsp1_nmsp11_class2.eo \
 tests/eolian/data/nmsp2_class1.eo \
-tests/eolian/data/no_nmsp.eo
+tests/eolian/data/null.eo \
+tests/eolian/data/no_nmsp.eo \
+tests/eolian/data/import.eo \
+tests/eolian/data/decl.eo \
+tests/eolian/data/docs.eo \
+tests/eolian/data/import_types.eot
 
 EOLIAN_TESTS_EOS_GENERATED = \
 $(EOLIAN_TESTS_EOS:%.eo=%.eo.c)\
@@ -131,4 +137,7 @@ tests/eolian/data/class_simple_ref.c \
 tests/eolian/data/override_ref.c \
 tests/eolian/data/class_simple_ref_eo.h \
 tests/eolian/data/class_simple_ref_legacy.h \
+tests/eolian/data/import_types_ref.h \
+tests/eolian/data/docs_ref.h \
+tests/eolian/data/docs_ref_legacy.h \
 $(EOLIAN_TESTS_EOS)

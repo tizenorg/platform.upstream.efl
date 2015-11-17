@@ -1,32 +1,38 @@
+import evas_types;
+
 class Evas.Out (Eo.Base)
 {
    eo_prefix: evas_out;
    legacy_prefix: evas_output;
-   properties {
-      view {
+   methods {
+      @property view {
          set {
-            /*@ Sets the viewport region of the canvas that the output displays This sets both the viewport region in the canvas that displays on the given output, but also the viewport size will match the output resolution 1:1. */
+            [[Sets the viewport region of the canvas that the output displays.
+
+              This sets both the viewport region in the canvas that displays
+              on the given output, but also the viewport size will match the 
+              output resolution 1:1.]]
          }
          get {
-            /*@ Gets the viewport region of the canvas that the output displays */
+            [[Gets the viewport region of the canvas that the output displays.]]
          }
          values {
-            Evas_Coord x;
-            Evas_Coord y;
-            Evas_Coord w;
-            Evas_Coord h;
+            x: Evas.Coord;
+            y: Evas.Coord;
+            w: Evas.Coord;
+            h: Evas.Coord;
          }
       }
-      engine_info {
+      @property engine_info {
          set {
-            /*@ Sets the engine specific output parameters for a given output. */
+            [[Sets the engine specific output parameters for a given output.]]
             return: bool;
          }
          get {
-            /*@ Gets the engine specific output parameters for a given output. */
+            [[Gets the engine specific output parameters for a given output.]]
          }
          values {
-            Evas_Engine_Info *info; /*@ The engine parameters */
+            info: Evas_Engine_Info *; [[The engine parameters.]]
          }
       }
    }

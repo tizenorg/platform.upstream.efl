@@ -1,9 +1,7 @@
 #ifndef ECTOR_DRAWHELPER_PRIVATE_H
 #define ECTOR_DRAWHELPER_PRIVATE_H
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include "ector_private.h"
 
 #ifndef MIN
 #define MIN( a, b )  ( (a) < (b) ? (a) : (b) )
@@ -16,13 +14,6 @@
 #ifndef uint
 typedef unsigned int uint;
 #endif
-
-static inline int Alpha(uint c)
-{
-   return c>>24;
-}
-
-
 
 #define ECTOR_ARGB_JOIN(a,r,g,b) \
         (((a) << 24) + ((r) << 16) + ((g) << 8) + (b))
@@ -55,13 +46,21 @@ static inline int Alpha(uint c)
       } \
    }
 
+static inline int
+alpha_inverse(int color)
+{
+   color = ~color;
+   return A_VAL(&color);
+}
+
 static inline void
 _ector_memfill(uint *dest, int length, uint value)
 {
+   int n;
    if (!length)
      return;
 
-   int n = (length + 7) / 8;
+   n = (length + 7) / 8;
    switch (length & 0x07)
      {
         case 0: do { *dest++ = value;
@@ -76,7 +75,7 @@ _ector_memfill(uint *dest, int length, uint value)
      }
 }
 
-static inline uint 
+static inline uint
 INTERPOLATE_PIXEL_256(uint x, uint a, uint y, uint b)
 {
    uint t = (x & 0xff00ff) * a + (y & 0xff00ff) * b;
@@ -90,8 +89,13 @@ INTERPOLATE_PIXEL_256(uint x, uint a, uint y, uint b)
 
 typedef void (*RGBA_Comp_Func)(uint *dest, const uint *src, int length, uint mul_col, uint const_alpha);
 typedef void (*RGBA_Comp_Func_Solid)(uint *dest, int length, uint color, uint const_alpha);
+
 extern RGBA_Comp_Func_Solid func_for_mode_solid[ECTOR_ROP_LAST];
 extern RGBA_Comp_Func func_for_mode[ECTOR_ROP_LAST];
+
+void init_drawhelper_gradient();
+void init_draw_helper_sse2();
+void init_draw_helper_neon();
 
 void init_draw_helper();
 

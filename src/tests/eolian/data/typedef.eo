@@ -1,13 +1,34 @@
 type Evas.Coord: int; /* Simple type definition */
 type List_Objects: own(list<Eo *>*); /* A little more complex */
 
+type @extern Evas.Pants: float; /* not generated */
+
+type Undef: __undefined_type; /* not generated */
+
+enum Enum.Bar
+{
+   legacy: bar;
+   first_item  = 0,
+   second_item,
+   last_item
+}
+
+enum Elm.Object.Select_mode
+{
+   default = 0,
+   always,
+   none,
+   display_only,
+   max
+}
+
 class Typedef {
    methods {
       foo {
          params {
-            int idx;
+            idx: int;
          }
-         return: own(char*); /*@ comment for method return */
+         return: own(char*);
       }
    }
 }

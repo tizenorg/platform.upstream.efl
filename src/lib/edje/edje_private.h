@@ -14,6 +14,10 @@
 # endif
 #endif
 
+#ifdef ENABLE_NLS
+# include <libintl.h>
+#endif
+
 #include <locale.h>
 #include <libgen.h>
 #include <string.h>
@@ -48,6 +52,7 @@
 # include <Ecore_IMF_Evas.h>
 #endif
 #include <Embryo.h>
+#include <Efreet.h>
 
 #ifdef HAVE_EIO
 # include <Eio.h>
@@ -58,6 +63,31 @@
 #endif
 
 #include "Edje.h"
+#ifdef EAPI
+# undef EAPI
+#endif
+
+#ifdef _WIN32
+# ifdef EFL_EDJE_BUILD
+#  ifdef DLL_EXPORT
+#   define EAPI __declspec(dllexport)
+#  else
+#   define EAPI
+#  endif /* ! DLL_EXPORT */
+# else
+#  define EAPI __declspec(dllimport)
+# endif /* ! EFL_EDJE_BUILD */
+#else
+# ifdef __GNUC__
+#  if __GNUC__ >= 4
+#   define EAPI __attribute__ ((visibility("default")))
+#  else
+#   define EAPI
+#  endif
+# else
+#  define EAPI
+# endif
+#endif
 
 EAPI extern int _edje_default_log_dom ;
 
@@ -223,11 +253,6 @@ struct _Edje_Color
    unsigned char  r, g, b, a;
 };
 
-struct _Edje_Float_Color
-{
-   FLOAT_T  r, g, b, a;
-};
-
 struct _Edje_Map_Color
 {
    int idx;
@@ -252,6 +277,7 @@ struct _Edje_Aspect
 struct _Edje_String
 {
    const char *str;
+   const char *translated;
    unsigned int id;
 };
 
@@ -273,7 +299,6 @@ typedef struct _Edje_Position                        Edje_Position;
 typedef struct _Edje_Size                            Edje_Size;
 typedef struct _Edje_Rectangle                       Edje_Rectangle;
 typedef struct _Edje_Color                           Edje_Color;
-typedef struct _Edje_Float_Color                     Edje_Float_Color;
 typedef struct _Edje_Map_Color                       Edje_Map_Color;
 typedef struct _Edje_Aspect_Prefer                   Edje_Aspect_Prefer;
 typedef struct _Edje_Aspect                          Edje_Aspect;
@@ -304,6 +329,11 @@ typedef struct _Edje_Plugin                          Edje_Plugin;
 typedef struct _Edje_Sound_Sample                    Edje_Sound_Sample;
 typedef struct _Edje_Sound_Tone                      Edje_Sound_Tone;
 typedef struct _Edje_Sound_Directory                 Edje_Sound_Directory;
+typedef struct _Edje_Mo                              Edje_Mo;
+typedef struct _Edje_Mo_Directory                    Edje_Mo_Directory;
+typedef struct _Edje_Gfx_Filter                      Edje_Gfx_Filter;
+typedef struct _Edje_Gfx_Filter_Directory            Edje_Gfx_Filter_Directory;
+
 typedef struct _Edje_Vibration_Sample                Edje_Vibration_Sample;
 typedef struct _Edje_Vibration_Directory             Edje_Vibration_Directory;
 typedef struct _Edje_Program                         Edje_Program;
@@ -325,6 +355,7 @@ typedef struct _Edje_Part_Description_External       Edje_Part_Description_Exter
 typedef struct _Edje_Part_Description_Mesh_Node      Edje_Part_Description_Mesh_Node;
 typedef struct _Edje_Part_Description_Light          Edje_Part_Description_Light;
 typedef struct _Edje_Part_Description_Camera         Edje_Part_Description_Camera;
+typedef struct _Edje_Part_Description_Snapshot       Edje_Part_Description_Snapshot;
 typedef struct _Edje_Part_Description_Common         Edje_Part_Description_Common;
 typedef struct _Edje_Part_Description_Spec_Fill      Edje_Part_Description_Spec_Fill;
 typedef struct _Edje_Part_Description_Spec_Border    Edje_Part_Description_Spec_Border;
@@ -336,6 +367,8 @@ typedef struct _Edje_Part_Description_Spec_Table     Edje_Part_Description_Spec_
 typedef struct _Edje_Part_Description_Spec_Mesh_Node Edje_Part_Description_Spec_Mesh_Node;
 typedef struct _Edje_Part_Description_Spec_Light     Edje_Part_Description_Spec_Light;
 typedef struct _Edje_Part_Description_Spec_Camera    Edje_Part_Description_Spec_Camera;
+typedef struct _Edje_Part_Description_Spec_Filter    Edje_Part_Description_Spec_Filter;
+typedef struct _Edje_Part_Description_Spec_Filter_Data Edje_Part_Description_Spec_Filter_Data;
 typedef struct _Edje_Physics_Face                    Edje_Physics_Face;
 typedef struct _Edje_Patterns                        Edje_Patterns;
 typedef struct _Edje_Part_Box_Animation              Edje_Part_Box_Animation;
@@ -356,7 +389,6 @@ typedef struct _Edje_Calc_Params_Map Edje_Calc_Params_Map;
 typedef struct _Edje_Calc_Params_Physics Edje_Calc_Params_Physics;
 typedef struct _Edje_Pending_Program Edje_Pending_Program;
 typedef struct _Edje_Text_Style Edje_Text_Style;
-typedef struct _Edje_Color_Class Edje_Color_Class;
 typedef struct _Edje_Text_Class Edje_Text_Class;
 typedef struct _Edje_Var Edje_Var;
 typedef struct _Edje_Var_Int Edje_Var_Int;
@@ -508,6 +540,8 @@ struct _Edje_File
    Edje_Model_Directory           *model_dir;
    Edje_Sound_Directory           *sound_dir;
    Edje_Vibration_Directory       *vibration_dir;
+   Edje_Mo_Directory              *mo_dir;
+   Edje_Gfx_Filter_Directory      *filter_dir;
 
    Eina_List                      *styles;
    // TIZEN_ONLY(20150110): Add plugin keyword.
@@ -536,6 +570,7 @@ struct _Edje_File
 
    Eet_File                       *ef;
    Eina_File                      *f;
+   char                            fid[8+8+8+2];
 
    unsigned char                   free_strings : 1;
    unsigned char                   dangling : 1;
@@ -643,7 +678,6 @@ struct _Edje_Model_Directory
 struct _Edje_Model_Directory_Entry
 {
    const char *entry; /* the nominal name of the model - if any */
-   int   source_type; /* alternate source mode. 0 = none */
    int   id; /* the id no. of the image */
 };
 
@@ -685,6 +719,19 @@ struct _Edje_Sound_Directory
    unsigned int tones_count;
 };
 
+struct _Edje_Mo /*Mo Sample*/
+{
+   const char *locale; /* the nominal name of the Mo */
+   char *mo_src;  /* Mo source file */
+   int   id; /* the id no. of the Mo file */
+};
+
+struct _Edje_Mo_Directory
+{
+   Edje_Mo *mo_entries;  /* an array of Edje_Mo entries */
+   unsigned int mo_entries_count;
+};
+
 struct _Edje_Vibration_Sample
 {
    const char *name;
@@ -697,6 +744,19 @@ struct _Edje_Vibration_Directory
    Edje_Vibration_Sample *samples;  /* an array of Edje_Sound_Sample entries */
    unsigned int samples_count;
 };
+
+struct _Edje_Gfx_Filter
+{
+   const char *name;
+   const char *script;
+};
+
+struct _Edje_Gfx_Filter_Directory
+{
+   Edje_Gfx_Filter *filters; /* sorted array (by strcmp() on name) */
+   int              filters_count;
+};
+
 /*----------*/
 
 struct _Edje_Program /* a conditional program to be run */
@@ -741,6 +801,7 @@ struct _Edje_Program /* a conditional program to be run */
       FLOAT_T  v2; /* other value for drag actions */
       FLOAT_T  v3; /* other value for drag actions */
       FLOAT_T  v4; /* other value for drag actions */
+      Eina_Bool use_duration_factor; /* use duration factor or not */
    } tween;
 
    Eina_List  *targets; /* list of target parts to apply the state to */
@@ -803,7 +864,8 @@ struct _Edje_Limit
       TYPE      EXTERNAL;         \
       TYPE      MESH_NODE;        \
       TYPE      LIGHT;            \
-      TYPE      CAMERA;
+      TYPE      CAMERA;           \
+      TYPE      SNAPSHOT;
 
 struct _Edje_Part_Collection_Directory_Entry
 {
@@ -1113,6 +1175,7 @@ struct _Edje_Part
    unsigned char          repeat_events; /* it will repeat events to objects below */
    unsigned char          anti_alias;
    Evas_Event_Flags       ignore_flags;
+   Evas_Event_Flags       mask_flags;
    unsigned char          scale; /* should certain properties scale with edje scale factor? */
    Edje_3D_Vec            scale_3d;
    unsigned char          precise_is_inside;
@@ -1125,6 +1188,7 @@ struct _Edje_Part
    unsigned char          access; /* it will be used accessibility feature */
    Edje_Part_Api          api;
    unsigned char          nested_children_count;
+   unsigned char          no_render; /* for proxy sources and masks, since 1.15 */
 };
 
 struct _Edje_Part_Image_Id
@@ -1155,9 +1219,11 @@ struct _Edje_Part_Description_Common
    Edje_Position step; /* size stepping by n pixels, 0 = none */
    Edje_Aspect_Prefer aspect;
 
-   char      *color_class; /* how to modify the color */
+   const char      *color_class; /* how to modify the color */
    Edje_Color color;
    Edje_Color color2;
+
+   int        clip_to_id; /* state clip override @since 1.15 */
 
    struct {
       FLOAT_T        relative_x;
@@ -1175,6 +1241,9 @@ struct _Edje_Part_Description_Common
          int id_center;
          FLOAT_T x, y, z;
       } rot;
+      struct {
+         FLOAT_T x, y;
+      } zoom;
       Edje_Map_Color **colors;    /* List of the Edje_Map_Color */
       unsigned int colors_count;
       Eina_Bool backcull;
@@ -1255,6 +1324,27 @@ struct _Edje_Part_Description_Spec_Border
    FLOAT_T        scale_by; /* when border scale above is enabled, border width OUTPUT is scaled by the object or global scale factor. this value adds another multiplier that the global scale is multiplued by first. if <= 0.0 it is not used, and if 1.0 it i s "ineffective" */
 };
 
+struct _Edje_Part_Description_Spec_Filter_Data
+{
+   Eina_Stringshare *name;
+   Eina_Stringshare *value;
+   // below data not in edj
+   Eina_Bool         invalid_cc : 1;
+};
+
+struct _Edje_Part_Description_Spec_Filter
+{
+   const char    *code;
+   const char    *name;
+   Eina_List     *sources; /* "part" or "buffer:part" */
+   Edje_Part_Description_Spec_Filter_Data *data; /* array */
+   unsigned int   data_count;
+   // below data not in edj
+   Eina_Bool      checked_data : 1; // checked whether this is a data item or embedded string
+   Eina_Bool      sources_set : 1;
+   Eina_Bool      no_free : 1;
+};
+
 struct _Edje_Part_Description_Spec_Image
 {
    Edje_Part_Description_Spec_Fill   fill;
@@ -1281,12 +1371,11 @@ struct _Edje_Part_Description_Spec_Proxy
 struct _Edje_Part_Description_Spec_Text
 {
    Edje_String    text; /* if "" or NULL, then leave text unchanged */
+   char          *domain;
    char          *text_class; /* how to apply/modify the font */
    Edje_String    style; /* the text style if a textblock */
    Edje_String    font; /* if a specific font is asked for */
    Edje_String    repch; /* replacement char for password mode entry */
-   Edje_String    filter; /* special effects */
-   Eina_List     *filter_sources; /* proxy sources for special effects */
 
    Edje_Alignment align; /* text alignment within bounds */
    Edje_Color     color3;
@@ -1341,8 +1430,8 @@ struct _Edje_Part_Description_Spec_Mesh_Node
 
       Eina_Bool               set;
 
-      Evas_3D_Mesh_Primitive  primitive;
-      Evas_3D_Vertex_Assembly assembly;
+      Evas_Canvas3D_Mesh_Primitive  primitive;
+      Evas_Canvas3D_Vertex_Assembly assembly;
    } mesh;
 
    struct {
@@ -1350,30 +1439,32 @@ struct _Edje_Part_Description_Spec_Mesh_Node
       unsigned int           tweens_count;
       int                    id;
 
+      Eina_Bool              need_texture;
+      Eina_Bool              textured;
       Eina_Bool              set;
 
-      Evas_3D_Shade_Mode shade;
-      Evas_3D_Wrap_Mode wrap1;
-      Evas_3D_Wrap_Mode wrap2;
-      Evas_3D_Texture_Filter filter1;
-      Evas_3D_Texture_Filter filter2;
+      Evas_Canvas3D_Wrap_Mode wrap1;
+      Evas_Canvas3D_Wrap_Mode wrap2;
+      Evas_Canvas3D_Texture_Filter filter1;
+      Evas_Canvas3D_Texture_Filter filter2;
    } texture;
 
    struct {
-      Edje_Float_Color      ambient;
-      Edje_Float_Color      diffuse;
-      Edje_Float_Color      specular;
+      Edje_Color            ambient;
+      Edje_Color            diffuse;
+      Edje_Color            specular;
       Eina_Bool             normal;
       FLOAT_T               shininess;
+      Evas_Canvas3D_Shade_Mode    shade;
 
-      Evas_3D_Material_Attrib material_attrib;
+      Evas_Canvas3D_Material_Attrib material_attrib;
    } properties;
 
    AABB     aabb1;
    AABB     aabb2;
 
    struct {
-      Evas_3D_Node_Orientation_Type      type;
+      Evas_Canvas3D_Node_Orientation_Type      type;
       FLOAT_T                            data[6];
       int                                look_to; /* -1 = whole part collection, or part ID */
    } orientation;
@@ -1388,9 +1479,9 @@ struct _Edje_Part_Description_Spec_Mesh_Node
 struct _Edje_Part_Description_Spec_Light
 {
    struct {
-      Edje_Float_Color      ambient;
-      Edje_Float_Color      diffuse;
-      Edje_Float_Color      specular;
+      Edje_Color            ambient;
+      Edje_Color            diffuse;
+      Edje_Color            specular;
    } properties;
 
    struct {
@@ -1400,7 +1491,7 @@ struct _Edje_Part_Description_Spec_Light
    } position;
 
    struct {
-      Evas_3D_Node_Orientation_Type      type;
+      Evas_Canvas3D_Node_Orientation_Type      type;
       FLOAT_T                            data[6];
       int                                look_to; /* -1 = whole part collection, or part ID */
    } orientation;
@@ -1411,8 +1502,8 @@ struct _Edje_Part_Description_Spec_Camera
    struct {
       Evas_Real       fovy;
       Evas_Real       aspect;
-      /* Evas_Real       near; */
-      /* Evas_Real       far; */
+      Evas_Real       frustum_near;
+      Evas_Real       frustum_far;
    } camera;
 
    struct {
@@ -1421,29 +1512,37 @@ struct _Edje_Part_Description_Spec_Camera
    } position;
 
    struct {
-      Evas_3D_Node_Orientation_Type      type;
+      Evas_Canvas3D_Node_Orientation_Type      type;
       FLOAT_T                            data[6];
       int                                look_to; /* -1 = whole part collection, or part ID */
    } orientation;
 };
 
-
 struct _Edje_Part_Description_Image
 {
    Edje_Part_Description_Common common;
    Edje_Part_Description_Spec_Image image;
+   Edje_Part_Description_Spec_Filter filter;
 };
 
 struct _Edje_Part_Description_Proxy
 {
    Edje_Part_Description_Common common;
    Edje_Part_Description_Spec_Proxy proxy;
+   Edje_Part_Description_Spec_Filter filter;
+};
+
+struct _Edje_Part_Description_Snapshot
+{
+   Edje_Part_Description_Common common;
+   Edje_Part_Description_Spec_Filter filter;
 };
 
 struct _Edje_Part_Description_Text
 {
    Edje_Part_Description_Common common;
    Edje_Part_Description_Spec_Text text;
+   Edje_Part_Description_Spec_Filter filter;
 };
 
 struct _Edje_Part_Description_Box
@@ -1504,6 +1603,7 @@ struct _Edje
    const char           *path;
    const char           *group;
    const char           *parent;
+   const char           *language;
 
    Evas_Object          *obj; /* the smart object */
    Edje_File            *file; /* the file the data comes form */
@@ -1546,6 +1646,8 @@ struct _Edje
 #ifdef HAVE_EPHYSICS
    EPhysics_World       *world;
 #endif
+
+   double                duration_scale;
 
    Eina_List            *user_defined;
 
@@ -1615,6 +1717,9 @@ struct _Edje_Calc_Params_Map
       int x, y, z;
       int focal;
    } persp; // 16
+   struct {
+      FLOAT_T x, y;
+   } zoom; //16
    Edje_Map_Color **colors;
    unsigned int colors_count;
 };
@@ -1690,6 +1795,7 @@ struct _Edje_Calc_Params
 #ifdef HAVE_EPHYSICS
    const Edje_Calc_Params_Physics *physics; // 90
 #endif
+   Edje_Real_Part  *clip_to; /* state clip override @since 1.15 */
    unsigned char    persp_on : 1;
    unsigned char    lighted : 1;
    unsigned char    mapped : 1;
@@ -1752,8 +1858,6 @@ struct _Edje_Real_Part_Text
    const char            *text; // 4
    const char            *font; // 4
    const char            *style; // 4
-   const char            *filter; // 4
-   Eina_List             *filter_sources; // 4
    Edje_Position          offset; // 8
    short                  size; // 2
    struct {
@@ -1767,6 +1871,7 @@ struct _Edje_Real_Part_Text
       const char         *in_font; // 4
       FLOAT_T             align_x, align_y; // 16
    } cache;
+   Edje_Part_Description_Spec_Filter filter; // 8
 }; // 88
 // FIXME make text a potiner to struct and alloc at end
 // if part type is TEXT move common members textblock +
@@ -1794,6 +1899,7 @@ struct _Edje_Real_Part
    Edje_Part                *part; // 4
    Evas_Object              *object; // 4
    Evas_Object              *nested_smart; // 4
+   Eo                       *node; // 4
    Edje_Real_Part_Drag      *drag; // 4
    Edje_Part_Description_Common *chosen_description; // 4
    // WITH EDJE_CALC_CACHE: 307
@@ -1880,14 +1986,6 @@ struct _Edje_Text_Style
       signed   char x, y; /* offset */
       unsigned char alpha;
    } members[32];
-};
-
-struct _Edje_Color_Class
-{
-   const char    *name;
-   unsigned char  r, g, b, a;
-   unsigned char  r2, g2, b2, a2;
-   unsigned char  r3, g3, b3, a3;
 };
 
 struct _Edje_Text_Class
@@ -2162,6 +2260,11 @@ extern Eina_Mempool *_edje_real_part_state_mp;
 extern Eina_Cow *_edje_calc_params_map_cow;
 extern Eina_Cow *_edje_calc_params_physics_cow;
 
+extern Eina_Hash       *_edje_file_hash;
+
+extern const char      *_edje_language;
+extern const char      *_edje_cache_path;
+
 EAPI extern Eina_Mempool *_emp_RECTANGLE;
 EAPI extern Eina_Mempool *_emp_TEXT;
 EAPI extern Eina_Mempool *_emp_IMAGE;
@@ -2176,6 +2279,7 @@ EAPI extern Eina_Mempool *_emp_SPACER;
 EAPI extern Eina_Mempool *_emp_MESH_NODE;
 EAPI extern Eina_Mempool *_emp_LIGHT;
 EAPI extern Eina_Mempool *_emp_CAMERA;
+EAPI extern Eina_Mempool *_emp_SNAPSHOT;
 EAPI extern Eina_Mempool *_emp_part;
 
 void  _edje_part_pos_set(Edje *ed, Edje_Real_Part *ep, int mode, FLOAT_T pos, FLOAT_T v1, FLOAT_T v2, FLOAT_T v3, FLOAT_T v4);
@@ -2261,7 +2365,7 @@ void           _edje_text_recalc_apply(Edje *ed,
                                        Edje_Real_Part *ep,
                                        Edje_Calc_Params *params,
                                        Edje_Part_Description_Text *chosen_desc,
-				       Eina_Bool calc_only);
+                                       Eina_Bool calc_only);
 Evas_Font_Size _edje_text_size_calc(Evas_Font_Size size, Edje_Text_Class *tc);
 const char *   _edje_text_class_font_get(Edje *ed,
                                          Edje_Part_Description_Text *chosen_desc,
@@ -2281,6 +2385,7 @@ void              _edje_color_class_on_del(Edje *ed, Edje_Part *ep);
 void              _edje_color_class_members_free(void);
 void              _edje_color_class_hash_free(void);
 
+const char       * _edje_find_alias(Eina_Hash *aliased, char *src, int *length);
 Edje_Text_Class  *_edje_text_class_find(Edje *ed, const char *text_class);
 void              _edje_text_class_member_add(Edje *ed, const char *text_class);
 void              _edje_text_class_member_del(Edje *ed, const char *text_class);
@@ -2394,8 +2499,8 @@ void          _edje_message_queue_process   (void);
 void          _edje_message_queue_clear     (void);
 void          _edje_message_del             (Edje *ed);
 
-void _edje_textblock_styles_add(Edje *ed);
-void _edje_textblock_styles_del(Edje *ed);
+void _edje_textblock_styles_add(Edje *ed, Edje_Real_Part *ep);
+void _edje_textblock_styles_del(Edje *ed, Edje_Part *pt);
 void _edje_textblock_styles_cache_free(Edje *ed, const char *text_class);
 void _edje_textblock_style_all_update(Edje *ed);
 void _edje_textblock_style_parse_and_fix(Edje_File *edf);
@@ -2647,6 +2752,8 @@ void _edje_object_orientation_inform(Evas_Object *obj);
 void _edje_lib_ref(void);
 void _edje_lib_unref(void);
 
+void _edje_language_signal_emit(Edje *ed, Evas_Object *obj, char *signal);
+
 void _edje_subobj_register(Edje *ed, Evas_Object *ob);
 void _edje_subobj_unregister(Edje *ed, Evas_Object *ob);
 
@@ -2817,6 +2924,15 @@ typedef Eina_Bool (*Edje_Module_Plugin_Run) (const Evas_Object *obj, const char 
 #endif
 //
 
+Eina_Bool _edje_part_mouse_events_get(Edje *ed, Edje_Real_Part *rp);
+void _edje_part_mouse_events_set(Edje *ed, Edje_Real_Part *rp, Eina_Bool mouse_events);
+Eina_Bool _edje_part_repeat_events_get(Edje *ed, Edje_Real_Part *rp);
+void _edje_part_repeat_events_set(Edje *ed, Edje_Real_Part *rp, Eina_Bool repeat_events);
+Evas_Event_Flags _edje_part_ignore_flags_get(Edje *ed, Edje_Real_Part *rp);
+void _edje_part_ignore_flags_set(Edje *ed, Edje_Real_Part *rp, Evas_Event_Flags ignore_flags);
+Evas_Event_Flags _edje_part_mask_flags_get(Edje *ed, Edje_Real_Part *rp);
+void _edje_part_mask_flags_set(Edje *ed, Edje_Real_Part *rp, Evas_Event_Flags mask_flags);
+
 #ifdef HAVE_LIBREMIX
 #include <remix/remix.h>
 #endif
@@ -2835,5 +2951,8 @@ typedef Eina_Bool (*MULTISENSE_FACTORY_INIT_FUNC) (Edje_Multisense_Env *);
 #ifdef HAVE_LIBREMIX
 typedef RemixBase* (*MULTISENSE_SOUND_PLAYER_GET_FUNC) (Edje_Multisense_Env *);
 #endif
+
+#undef EAPI
+#define EAPI
 
 #endif

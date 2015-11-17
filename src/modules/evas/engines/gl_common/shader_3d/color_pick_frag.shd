@@ -1,0 +1,24 @@
+#ifndef GL_ES
+   uniform float uColorPick;
+#else
+   uniform vec4  uColorPick;
+#endif
+FRAGMENT_SHADER_USE_ALPHA_TEST_GLES
+
+void main()
+{
+   vec4 color;
+
+#ifndef GL_ES
+   color = vec4(uColorPick);
+#else
+   color = uColorPick;
+#endif
+
+#ifdef ALPHA_TEST_ENABLED
+   FRAGMENT_SHADER_ALPHA_TEST_GLES_APPLY(color)
+#else
+   gl_FragColor = color;
+#endif //ALPHA_TEST_ENABLED
+}
+

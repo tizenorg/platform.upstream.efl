@@ -1,8 +1,130 @@
+#ifdef BUILD_NEON
+#include <arm_neon.h>
+#endif
 /* blend pixel --> dst */
 
 #ifdef BUILD_NEON
 static void
 _op_blend_p_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
+#ifdef BUILD_NEON_INTRINSICS
+   uint16x8_t ad00_16x8;
+   uint16x8_t ad01_16x8;
+   uint16x8_t ad10_16x8;
+   uint16x8_t ad11_16x8;
+   uint32x4_t ad0_32x4;
+   uint32x4_t ad1_32x4;
+   uint32x4_t alpha0_32x4;
+   uint32x4_t alpha1_32x4;
+   uint32x4_t cond0_32x4;
+   uint32x4_t cond1_32x4;
+   uint32x4_t d0_32x4;
+   uint32x4_t d1_32x4;
+   uint32x4_t s0_32x4;
+   uint32x4_t s1_32x4;
+   uint32x4_t x0_32x4;
+   uint32x4_t x1_32x4;
+   uint8x16_t ad0_8x16;
+   uint8x16_t ad1_8x16;
+   uint8x16_t alpha0_8x16;
+   uint8x16_t alpha1_8x16;
+   uint8x16_t d0_8x16;
+   uint8x16_t d1_8x16;
+   uint8x16_t x0_8x16;
+   uint8x16_t x1_8x16;
+   uint8x8_t ad00_8x8;
+   uint8x8_t ad01_8x8;
+   uint8x8_t ad10_8x8;
+   uint8x8_t ad11_8x8;
+   uint8x8_t alpha00_8x8;
+   uint8x8_t alpha01_8x8;
+   uint8x8_t alpha10_8x8;
+   uint8x8_t alpha11_8x8;
+   uint8x8_t d00_8x8;
+   uint8x8_t d01_8x8;
+   uint8x8_t d10_8x8;
+   uint8x8_t d11_8x8;
+
+   x1_8x16 = vdupq_n_u8(0x1);
+   x1_32x4 = vreinterpretq_u32_u8(x1_8x16);
+   x0_8x16 = vdupq_n_u8(0x0);
+   x0_32x4 = vreinterpretq_u32_u8(x0_8x16);
+
+   DATA32 *start = d;
+   int size = l;
+   DATA32 *end = start + (size & ~7);
+   while (start < end)
+   {
+      s0_32x4 = vld1q_u32(s);
+      s1_32x4 = vld1q_u32(s+4);
+
+      d0_32x4 = vld1q_u32(start);
+      d1_32x4 = vld1q_u32(start+4);
+
+      d0_8x16 = vreinterpretq_u8_u32(d0_32x4);
+      d1_8x16 = vreinterpretq_u8_u32(d1_32x4);
+      d00_8x8 = vget_low_u8(d0_8x16);
+      d01_8x8 = vget_high_u8(d0_8x16);
+      d10_8x8 = vget_low_u8(d1_8x16);
+      d11_8x8 = vget_high_u8(d1_8x16);
+
+      alpha0_32x4 = vshrq_n_u32(s0_32x4, 24);
+      alpha1_32x4 = vshrq_n_u32(s1_32x4, 24);
+
+      alpha0_32x4 = vmulq_u32(x1_32x4, alpha0_32x4);
+      alpha1_32x4 = vmulq_u32(x1_32x4, alpha1_32x4);
+
+      alpha0_8x16 = vreinterpretq_u8_u32(alpha0_32x4);
+      alpha1_8x16 = vreinterpretq_u8_u32(alpha1_32x4);
+
+      alpha0_8x16 = vsubq_u8(x0_8x16, alpha0_8x16);
+      alpha1_8x16 = vsubq_u8(x0_8x16, alpha1_8x16);
+
+      alpha0_32x4 = vreinterpretq_u32_u8(alpha0_8x16);
+      alpha1_32x4 = vreinterpretq_u32_u8(alpha1_8x16);
+
+      alpha10_8x8 = vget_low_u8(alpha1_8x16);
+      alpha11_8x8 = vget_high_u8(alpha1_8x16);
+      alpha00_8x8 = vget_low_u8(alpha0_8x16);
+      alpha01_8x8 = vget_high_u8(alpha0_8x16);
+
+      ad00_16x8 = vmull_u8(alpha00_8x8, d00_8x8);
+      ad01_16x8 = vmull_u8(alpha01_8x8, d01_8x8);
+      ad10_16x8 = vmull_u8(alpha10_8x8, d10_8x8);
+      ad11_16x8 = vmull_u8(alpha11_8x8, d11_8x8);
+      ad00_8x8 = vshrn_n_u16(ad00_16x8,8);
+      ad01_8x8 = vshrn_n_u16(ad01_16x8,8);
+      ad10_8x8 = vshrn_n_u16(ad10_16x8,8);
+      ad11_8x8 = vshrn_n_u16(ad11_16x8,8);
+
+      ad0_8x16 = vcombine_u8(ad00_8x8, ad01_8x8);
+      ad1_8x16 = vcombine_u8(ad10_8x8, ad11_8x8);
+      ad0_32x4 = vreinterpretq_u32_u8(ad0_8x16);
+      ad1_32x4 = vreinterpretq_u32_u8(ad1_8x16);
+
+      cond0_32x4 = vceqq_u32(alpha0_32x4, x0_32x4);
+      cond1_32x4 = vceqq_u32(alpha1_32x4, x0_32x4);
+
+      ad0_32x4 = vbslq_u32(cond0_32x4, d0_32x4, ad0_32x4);
+      ad1_32x4 = vbslq_u32(cond1_32x4, d1_32x4, ad1_32x4);
+
+      d0_32x4 = vaddq_u32(s0_32x4, ad0_32x4);
+      d1_32x4 = vaddq_u32(s1_32x4, ad1_32x4);
+
+      vst1q_u32(start, d0_32x4);
+      vst1q_u32(start+4, d1_32x4);
+
+      s+=8;
+      start+=8;
+   }
+   end += (size & 7);
+   while (start <  end)
+   {
+      int alpha;
+      alpha = 256 - (*s >> 24);
+      *start = *s++ + MUL_256(alpha, *start);
+      start++;
+   }
+#else
 #define AP "blend_p_dp_"
   asm volatile (
 	".fpu neon					\n\t"
@@ -30,8 +152,10 @@ _op_blend_p_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
 
 		"vmul.u32	d8,	d16, d8		\n\t"
 
+		"vmovl.u8	q9,	d4		\n\t"
 		"vmull.u8	q6,	d4,d8		\n\t"
-		"vqrshrn.u16	d8,	q6, #8		\n\t"
+		"vadd.u16	q6,	q6, q9		\n\t"
+		"vshrn.u16	d8,	q6, #8		\n\t"
 		// Add to 's'
 		"vqadd.u8	q2,	q4,q0		\n\t"
 
@@ -61,8 +185,10 @@ _op_blend_p_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
 
 		"vmul.u32	d8,	d16, d8		\n\t"
 
+		"vmovl.u8	q9,	d4		\n\t"
 		"vmull.u8	q6,	d4,d8		\n\t"
-		"vqrshrn.u16	d8,	q6, #8		\n\t"
+		"vadd.u16	q6,	q6, q9		\n\t"
+		"vshrn.u16	d8,	q6, #8		\n\t"
 		// Add to 's'
 		"vqadd.u8	d4,	d8,d0		\n\t"
 		"vstr		d4,	[%[d]]		\n\t"
@@ -87,13 +213,18 @@ _op_blend_p_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
 		// Multiply into all fields
 		"vmul.u32	q4,	q8,q4		\n\t"
 
+		"vmovl.u8	q9,	d4		\n\t"
+		"vmovl.u8	q10,	d5		\n\t"
 		// a * d  (clobbering 'd'/q7)
 		"vmull.u8	q6,	d4,d8		\n\t"
 		"vmull.u8	q2,	d5,d9		\n\t"
 
+		"vadd.u16	q6,	q6, q9		\n\t"
+		"vadd.u16	q2,	q2, q10		\n\t"
+
 		// Shift & narrow it
-		"vqrshrn.u16	d8,	q6, #8		\n\t"
-		"vqrshrn.u16	d9,	q2, #8		\n\t"
+		"vshrn.u16	d8,	q6, #8		\n\t"
+		"vshrn.u16	d9,	q2, #8		\n\t"
 
 		// Add to s
 		"vqadd.u8	q2,	q4,q0		\n\t"
@@ -126,6 +257,10 @@ _op_blend_p_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
 		"vmul.u32	q4,	q8,q4		\n\t"
 			"vmul.u32	q5,	q8,q5	\n\t"
 
+		"vmovl.u8	q9,	d4		\n\t"
+		"vmovl.u8	q10,	d5		\n\t"
+		"vmovl.u8	q11,	d6		\n\t"
+		"vmovl.u8	q12,	d7		\n\t"
 
 		// a * d  (clobbering 'd'/q7)
 		"vmull.u8	q6,	d4,d8		\n\t"
@@ -133,13 +268,18 @@ _op_blend_p_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
 			"vmull.u8	q7,	d6,d10	\n\t"
 			"vmull.u8	q3,	d7,d11	\n\t"
 
+		"vadd.u16	q6,	q6, q9		\n\t"
+		"vadd.u16	q2,	q2, q10		\n\t"
+		"vadd.u16	q7,	q7, q11		\n\t"
+		"vadd.u16	q3,	q3, q12		\n\t"
+
 		"cmp	 %[tmp], %[d]\n\t"
 
 		// Shift & narrow it
-		"vqrshrn.u16	d8,	q6, #8		\n\t"
-		"vqrshrn.u16	d9,	q2, #8		\n\t"
-			"vqrshrn.u16	d10,	q7, #8	\n\t"
-			"vqrshrn.u16	d11,	q3, #8	\n\t"
+		"vshrn.u16	d8,	q6, #8		\n\t"
+		"vshrn.u16	d9,	q2, #8		\n\t"
+			"vshrn.u16	d10,	q7, #8	\n\t"
+			"vshrn.u16	d11,	q3, #8	\n\t"
 
 
 		// Add to s
@@ -171,8 +311,10 @@ _op_blend_p_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
 
 		"vmul.u32	d8,	d16, d8		\n\t"
 
+		"vmovl.u8	q9,	d4		\n\t"
 		"vmull.u8	q6,	d4,d8		\n\t"
-		"vqrshrn.u16	d8,	q6, #8		\n\t"
+		"vadd.u16	q6,	q6, q9		\n\t"
+		"vshrn.u16	d8,	q6, #8		\n\t"
 		// Add to 's'
 		"vqadd.u8	d4,	d8,d0		\n\t"
 
@@ -195,8 +337,10 @@ _op_blend_p_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
 
 		"vmul.u32	d8,	d8, d16		\n\t"
 
+		"vmovl.u8	q9,	d4		\n\t"
 		"vmull.u8	q6,	d8,d4		\n\t"
-		"vqrshrn.u16	d8,	q6, #8		\n\t"
+		"vadd.u16	q6,	q6, q9		\n\t"
+		"vshrn.u16	d8,	q6, #8		\n\t"
 		// Add to 's'
 		"vqadd.u8	d0,	d0,d8		\n\t"
 		"vst1.32	d0[0],	[%[d]]		\n\t"
@@ -216,11 +360,130 @@ _op_blend_p_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
           : "q0", "q1", "q2","q3", "q4","q5","q6", "q7","q8","memory" // clobbered
    );
 #undef AP
-
+#endif
 }
 
 static void
 _op_blend_pas_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
+#ifdef BUILD_NEON_INTRINSICS
+   uint16x8_t ad00_16x8;
+   uint16x8_t ad01_16x8;
+   uint16x8_t ad10_16x8;
+   uint16x8_t ad11_16x8;
+   uint32x4_t ad0_32x4;
+   uint32x4_t ad1_32x4;
+   uint32x4_t alpha0_32x4;
+   uint32x4_t alpha1_32x4;
+   uint32x4_t cond0_32x4;
+   uint32x4_t cond1_32x4;
+   uint32x4_t d0_32x4;
+   uint32x4_t d1_32x4;
+   uint32x4_t s0_32x4;
+   uint32x4_t s1_32x4;
+   uint32x4_t x0_32x4;
+   uint32x4_t x1_32x4;
+   uint8x16_t ad0_8x16;
+   uint8x16_t ad1_8x16;
+   uint8x16_t alpha0_8x16;
+   uint8x16_t alpha1_8x16;
+   uint8x16_t d0_8x16;
+   uint8x16_t d1_8x16;
+   uint8x16_t x0_8x16;
+   uint8x16_t x1_8x16;
+   uint8x8_t ad00_8x8;
+   uint8x8_t ad01_8x8;
+   uint8x8_t ad10_8x8;
+   uint8x8_t ad11_8x8;
+   uint8x8_t alpha00_8x8;
+   uint8x8_t alpha01_8x8;
+   uint8x8_t alpha10_8x8;
+   uint8x8_t alpha11_8x8;
+   uint8x8_t d00_8x8;
+   uint8x8_t d01_8x8;
+   uint8x8_t d10_8x8;
+   uint8x8_t d11_8x8;
+
+   x1_8x16 = vdupq_n_u8(0x1);
+   x1_32x4 = vreinterpretq_u32_u8(x1_8x16);
+   x0_8x16 = vdupq_n_u8(0x0);
+   x0_32x4 = vreinterpretq_u32_u8(x0_8x16);
+
+   DATA32 *start = d;
+   int size = l;
+   DATA32 *end = start + (size & ~7);
+   while (start < end)
+   {
+      s0_32x4 = vld1q_u32(s);
+      s1_32x4 = vld1q_u32(s+4);
+
+      d0_32x4 = vld1q_u32(start);
+      d1_32x4 = vld1q_u32(start+4);
+
+      d0_8x16 = vreinterpretq_u8_u32(d0_32x4);
+      d1_8x16 = vreinterpretq_u8_u32(d1_32x4);
+      d00_8x8 = vget_low_u8(d0_8x16);
+      d01_8x8 = vget_high_u8(d0_8x16);
+      d10_8x8 = vget_low_u8(d1_8x16);
+      d11_8x8 = vget_high_u8(d1_8x16);
+
+      alpha0_32x4 = vshrq_n_u32(s0_32x4, 24);
+      alpha1_32x4 = vshrq_n_u32(s1_32x4, 24);
+
+      alpha0_32x4 = vmulq_u32(x1_32x4, alpha0_32x4);
+      alpha1_32x4 = vmulq_u32(x1_32x4, alpha1_32x4);
+
+      alpha0_8x16 = vreinterpretq_u8_u32(alpha0_32x4);
+      alpha1_8x16 = vreinterpretq_u8_u32(alpha1_32x4);
+
+      alpha0_8x16 = vsubq_u8(x0_8x16, alpha0_8x16);
+      alpha1_8x16 = vsubq_u8(x0_8x16, alpha1_8x16);
+
+      alpha0_32x4 = vreinterpretq_u32_u8(alpha0_8x16);
+      alpha1_32x4 = vreinterpretq_u32_u8(alpha1_8x16);
+
+      alpha10_8x8 = vget_low_u8(alpha1_8x16);
+      alpha11_8x8 = vget_high_u8(alpha1_8x16);
+      alpha00_8x8 = vget_low_u8(alpha0_8x16);
+      alpha01_8x8 = vget_high_u8(alpha0_8x16);
+
+      ad00_16x8 = vmull_u8(alpha00_8x8, d00_8x8);
+      ad01_16x8 = vmull_u8(alpha01_8x8, d01_8x8);
+      ad10_16x8 = vmull_u8(alpha10_8x8, d10_8x8);
+      ad11_16x8 = vmull_u8(alpha11_8x8, d11_8x8);
+      ad00_8x8 = vshrn_n_u16(ad00_16x8,8);
+      ad01_8x8 = vshrn_n_u16(ad01_16x8,8);
+      ad10_8x8 = vshrn_n_u16(ad10_16x8,8);
+      ad11_8x8 = vshrn_n_u16(ad11_16x8,8);
+
+      ad0_8x16 = vcombine_u8(ad00_8x8, ad01_8x8);
+      ad1_8x16 = vcombine_u8(ad10_8x8, ad11_8x8);
+      ad0_32x4 = vreinterpretq_u32_u8(ad0_8x16);
+      ad1_32x4 = vreinterpretq_u32_u8(ad1_8x16);
+
+      cond0_32x4 = vceqq_u32(alpha0_32x4, x0_32x4);
+      cond1_32x4 = vceqq_u32(alpha1_32x4, x0_32x4);
+
+      ad0_32x4 = vbslq_u32(cond0_32x4, d0_32x4, ad0_32x4);
+      ad1_32x4 = vbslq_u32(cond1_32x4, d1_32x4, ad1_32x4);
+
+      d0_32x4 = vaddq_u32(s0_32x4, ad0_32x4);
+      d1_32x4 = vaddq_u32(s1_32x4, ad1_32x4);
+
+      vst1q_u32(start, d0_32x4);
+      vst1q_u32(start+4, d1_32x4);
+
+      s+=8;
+      start+=8;
+   }
+   end += (size & 7);
+   while (start <  end)
+   {
+      int alpha;
+      alpha = 256 - (*s >> 24);
+      *start = *s++ + MUL_256(alpha, *start);
+      start++;
+   }
+#else
 #define AP "blend_pas_dp_"
    DATA32 *e = d + l,*tmp  = e + 32,*pl=(void*)912;
       asm volatile (
@@ -247,10 +510,12 @@ _op_blend_pas_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
 		// Mulitply into all fields
 		"vmul.u32	d8,	d8, d16			\n\t"
 
+		"vmovl.u8	q9,	d4			\n\t"
 		// Multiply out
 		"vmull.u8	q6,	d8, d4			\n\t"
+		"vadd.u16	q6,	q6, q9			\n\t"
 
-		"vqrshrn.u16	d8,	q6, #8			\n\t"
+		"vshrn.u16	d8,	q6, #8			\n\t"
 
 		// Add to s
 		"vqadd.u8	d0,	d0,d8			\n\t"
@@ -278,10 +543,12 @@ _op_blend_pas_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
 		// Mulitply into all fields
 		"vmul.u32	d8,	d8, d16			\n\t"
 
+		"vmovl.u8	q9,	d4			\n\t"
 		// Multiply out
 		"vmull.u8	q6,	d8, d4			\n\t"
+		"vadd.u16	q6,	q6, q9			\n\t"
 
-		"vqrshrn.u16	d8,	q6, #8			\n\t"
+		"vshrn.u16	d8,	q6, #8			\n\t"
 
 		// Add to s
 		"vqadd.u8	d0,	d0,d8			\n\t"
@@ -316,18 +583,28 @@ _op_blend_pas_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
 			"vmul.u32	q5,	q5, q8		\n\t"
 		"pld	[%[pl]]					\n\t"
 
+		"vmovl.u8	q9,	d4			\n\t"
+		"vmovl.u8	q10,	d5			\n\t"
+		"vmovl.u8	q11,	d6			\n\t"
+		"vmovl.u8	q12,	d7			\n\t"
+
 		// Multiply out
 		"vmull.u8	q6,	d8, d4			\n\t"
 			"vmull.u8	q7,	d10, d6		\n\t"
 		"vmull.u8	q2,	d9, d5			\n\t"
 			"vmull.u8	q3,	d11, d7		\n\t"
 
+		"vadd.u16	q6,	q6, q9			\n\t"
+		"vadd.u16	q2,	q2, q10			\n\t"
+		"vadd.u16	q7,	q7, q11			\n\t"
+		"vadd.u16	q3,	q3, q12			\n\t"
+
 		"add	%[pl], %[d], #32			\n\t"
 
-		"vqrshrn.u16	d8,	q6, #8			\n\t"
-			"vqrshrn.u16	d10,	q7, #8		\n\t"
-		"vqrshrn.u16	d9,	q2, #8			\n\t"
-			"vqrshrn.u16	d11,	q3, #8		\n\t"
+		"vshrn.u16	d8,	q6, #8			\n\t"
+			"vshrn.u16	d10,	q7, #8		\n\t"
+		"vshrn.u16	d9,	q2, #8			\n\t"
+			"vshrn.u16	d11,	q3, #8		\n\t"
 		"pld	[%[pl]]					\n\t"
 
 		"cmp 		%[tmp], %[pl]			\n\t"
@@ -360,10 +637,12 @@ _op_blend_pas_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
 		// Mulitply into all fields
 		"vmul.u32	d8,	d8, d16			\n\t"
 
+		"vmovl.u8	q9,	d4			\n\t"
 		// Multiply out
 		"vmull.u8	q6,	d8, d4			\n\t"
+		"vadd.u16	q6,	q6, q9			\n\t"
 
-		"vqrshrn.u16	d8,	q6, #8			\n\t"
+		"vshrn.u16	d8,	q6, #8			\n\t"
 
 		// Add to s
 		"vqadd.u8	d0,	d0,d8			\n\t"
@@ -389,9 +668,11 @@ _op_blend_pas_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
 		"vmul.u32	d8,	d8, d16			\n\t"
 
 		// Multiply out
+		"vmovl.u8	q9,	d4			\n\t"
 		"vmull.u8	q6,	d8, d4			\n\t"
+		"vadd.u16	q6,	q6, q9			\n\t"
 
-		"vqrshrn.u16	d8,	q6, #8			\n\t"
+		"vshrn.u16	d8,	q6, #8			\n\t"
 
 		// Add to s
 		"vqadd.u8	d0,	d0,d8			\n\t"
@@ -407,6 +688,7 @@ _op_blend_pas_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
 		 "q0","q1","q2","q3","q4","q5","q6","q7","q8","memory"
       );
 #undef AP
+#endif
 }
 
 #define _op_blend_pan_dp_neon NULL
@@ -463,8 +745,114 @@ init_blend_pixel_pt_funcs_neon(void)
 #ifdef BUILD_NEON
 static void
 _op_blend_rel_p_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
-   DATA32 *e = d + l;
-   while (d < e) {
+   uint16x8_t cs0_16x8;
+   uint16x8_t cs1_16x8;
+   uint16x8_t ld0_16x8;
+   uint16x8_t ld1_16x8;
+   uint32x4_t c_32x4;
+   uint32x4_t cond_32x4;
+   uint32x4_t cs_32x4;
+   uint32x4_t d_32x4;
+   uint32x4_t l_32x4;
+   uint32x4_t ld_32x4;
+   uint32x4_t s_32x4;
+   uint32x4_t x0_32x4;
+   uint32x4_t x1_32x4;
+   uint8x16_t c_8x16;
+   uint8x16_t cs_8x16;
+   uint8x16_t d_8x16;
+   uint8x16_t l_8x16;
+   uint8x16_t ld_8x16;
+   uint8x16_t s_8x16;
+   uint8x16_t x0_8x16;
+   uint8x16_t x1_8x16;
+   uint8x8_t c0_8x8;
+   uint8x8_t c1_8x8;
+   uint8x8_t cs0_8x8;
+   uint8x8_t cs1_8x8;
+   uint8x8_t d0_8x8;
+   uint8x8_t d1_8x8;
+   uint8x8_t l0_8x8;
+   uint8x8_t l1_8x8;
+   uint8x8_t ld0_8x8;
+   uint8x8_t ld1_8x8;
+   uint8x8_t s0_8x8;
+   uint8x8_t s1_8x8;
+
+   x1_8x16 = vdupq_n_u8(0x1);
+   x1_32x4 = vreinterpretq_u32_u8(x1_8x16);
+   x0_8x16 = vdupq_n_u8(0x0);
+   x0_32x4 = vreinterpretq_u32_u8(x0_8x16);
+
+   DATA32 *end = d + (l & ~3);
+   while (d < end)
+   {
+      // load 4 elements from d
+      d_32x4 = vld1q_u32(d);
+      d_8x16 = vreinterpretq_u8_u32(d_32x4);
+      d0_8x8 = vget_low_u8(d_8x16);
+      d1_8x8 = vget_high_u8(d_8x16);
+
+      // load 4 elements from s
+      s_32x4 = vld1q_u32(s);
+      s_8x16 = vreinterpretq_u8_u32(s_32x4);
+      s0_8x8 = vget_low_u8(s_8x16);
+      s1_8x8 = vget_high_u8(s_8x16);
+
+      // calculate l = 256 - (*s >> 24)
+      l_32x4 = vshrq_n_u32(s_32x4, 24);
+      l_32x4 = vmulq_u32(x1_32x4, l_32x4);
+      l_8x16 = vreinterpretq_u8_u32(l_32x4);
+      l_8x16 = vsubq_u8(x0_8x16, l_8x16);
+      l0_8x8 = vget_low_u8(l_8x16);
+      l1_8x8 = vget_high_u8(l_8x16);
+
+      // multiply MUL_256(l, *d)
+      ld0_16x8 = vmull_u8(l0_8x8, d0_8x8);
+      ld1_16x8 = vmull_u8(l1_8x8, d1_8x8);
+      ld0_8x8 = vshrn_n_u16(ld0_16x8,8);
+      ld1_8x8 = vshrn_n_u16(ld1_16x8,8);
+      ld_8x16 = vcombine_u8(ld0_8x8, ld1_8x8);
+      ld_32x4 = vreinterpretq_u32_u8(ld_8x16);
+
+      // select d where l should be 256
+      cond_32x4 = vceqq_u32(l_32x4, x0_32x4);
+      ld_32x4 = vbslq_u32(cond_32x4, d_32x4, ld_32x4);
+
+      // calculate 1 + (*d >> 24)
+      c_32x4 = vshrq_n_u32(d_32x4, 24);
+      c_32x4 = vmulq_u32(x1_32x4, c_32x4);
+      c_8x16 = vreinterpretq_u8_u32(c_32x4);
+      c_8x16 = vaddq_u8(c_8x16, x1_8x16);
+      c0_8x8 = vget_low_u8(c_8x16);
+      c1_8x8 = vget_high_u8(c_8x16);
+
+      // multiply MUL_256(l, *d)
+      cs0_16x8 = vmull_u8(c0_8x8, s0_8x8);
+      cs1_16x8 = vmull_u8(c1_8x8, s1_8x8);
+      cs0_8x8 = vshrn_n_u16(cs0_16x8,8);
+      cs1_8x8 = vshrn_n_u16(cs1_16x8,8);
+      cs_8x16 = vcombine_u8(cs0_8x8, cs1_8x8);
+      cs_32x4 = vreinterpretq_u32_u8(cs_8x16);
+
+      // select s where c should be 256
+      c_32x4 = vreinterpretq_u32_u8(c_8x16);
+      cond_32x4 = vceqq_u32(c_32x4, x0_32x4);
+      cs_32x4 = vbslq_u32(cond_32x4, s_32x4, cs_32x4);
+
+      // add up everything
+      d_32x4 = vaddq_u32(cs_32x4, ld_32x4);
+
+      // save result
+      vst1q_u32(d, d_32x4);
+
+      d+=4;
+      s+=4;
+   }
+
+   end += (l & 3);
+   while (d < end)
+   {
       l = 256 - (*s >> 24);
       c = 1 + (*d >> 24);
       *d = MUL_256(c, *s) + MUL_256(l, *d);
@@ -475,8 +863,74 @@ _op_blend_rel_p_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
 
 static void
 _op_blend_rel_pan_dp_neon(DATA32 *s, DATA8 *m, DATA32 c, DATA32 *d, int l) {
-   DATA32 *e = d + l;
-   while (d < e) {
+   uint16x8_t cs0_16x8;
+   uint16x8_t cs1_16x8;
+   uint32x4_t c_32x4;
+   uint32x4_t cond_32x4;
+   uint32x4_t cs_32x4;
+   uint32x4_t d_32x4;
+   uint32x4_t s_32x4;
+   uint32x4_t x0_32x4;
+   uint32x4_t x1_32x4;
+   uint8x16_t c_8x16;
+   uint8x16_t cs_8x16;
+   uint8x16_t s_8x16;
+   uint8x16_t x0_8x16;
+   uint8x16_t x1_8x16;
+   uint8x8_t c0_8x8;
+   uint8x8_t c1_8x8;
+   uint8x8_t cs0_8x8;
+   uint8x8_t cs1_8x8;
+   uint8x8_t s0_8x8;
+   uint8x8_t s1_8x8;
+
+   x1_8x16 = vdupq_n_u8(0x1);
+   x1_32x4 = vreinterpretq_u32_u8(x1_8x16);
+   x0_8x16 = vdupq_n_u8(0x0);
+   x0_32x4 = vreinterpretq_u32_u8(x0_8x16);
+   DATA32 *end = d + (l & ~3);
+   while (d < end)
+   {
+      // load 4 elements from d
+      d_32x4 = vld1q_u32(d);
+
+      // load 4 elements from s
+      s_32x4 = vld1q_u32(s);
+      s_8x16 = vreinterpretq_u8_u32(s_32x4);
+      s0_8x8 = vget_low_u8(s_8x16);
+      s1_8x8 = vget_high_u8(s_8x16);
+
+      // calculate 1 + (*d >> 24)
+      c_32x4 = vshrq_n_u32(d_32x4, 24);
+      c_32x4 = vmulq_u32(x1_32x4, c_32x4);
+      c_8x16 = vreinterpretq_u8_u32(c_32x4);
+      c_8x16 = vaddq_u8(c_8x16, x1_8x16);
+      c0_8x8 = vget_low_u8(c_8x16);
+      c1_8x8 = vget_high_u8(c_8x16);
+
+      // multiply MUL_256(l, *d)
+      cs0_16x8 = vmull_u8(c0_8x8, s0_8x8);
+      cs1_16x8 = vmull_u8(c1_8x8, s1_8x8);
+      cs0_8x8 = vshrn_n_u16(cs0_16x8,8);
+      cs1_8x8 = vshrn_n_u16(cs1_16x8,8);
+      cs_8x16 = vcombine_u8(cs0_8x8, cs1_8x8);
+      cs_32x4 = vreinterpretq_u32_u8(cs_8x16);
+
+      // select s where c should be 256
+      c_32x4 = vreinterpretq_u32_u8(c_8x16);
+      cond_32x4 = vceqq_u32(c_32x4, x0_32x4);
+      cs_32x4 = vbslq_u32(cond_32x4, s_32x4, cs_32x4);
+
+      // save result
+      vst1q_u32(d, cs_32x4);
+
+      d+=4;
+      s+=4;
+   }
+
+   end += (l & 3);
+   while (d < end)
+   {
       c = 1 + (*d >> 24);
       *d++ = MUL_256(c, *s);
       s++;

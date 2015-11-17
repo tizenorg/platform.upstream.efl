@@ -13,51 +13,45 @@ typedef Eo Class_Simple;
 
 
 #endif
-/**
- * Class Desc Simple
+/** Class Desc Simple
+ *
+ * @ingroup Class_Simple
  */
 
 /**
+ * @brief Common desc for a
  *
- * Common desc for a
  * comment a.set
  *
  * @param[in] value Value description
+ *
+ * @return comment for property set return
+ *
+ * @ingroup Class_Simple
  */
 EAPI Eina_Bool evas_object_simple_a_set(Class_Simple *obj, int value);
 
 /**
+ * @brief Common desc for a
  *
- * Common desc for a
- * 
+ * @return Value description
  *
+ * @ingroup Class_Simple
  */
 EAPI int evas_object_simple_a_get(const Class_Simple *obj);
-
-/**
- *
- * No description supplied.
- *
- */
 EAPI void evas_object_simple_b_set(Class_Simple *obj);
 
 /**
+ * @brief comment foo
  *
- * comment foo
- * 
+ * @param[in,out] b
+ * @param[out] c
  *
- * @param[in] a a
- * @param[inout] b No description supplied.
- * @param[out] c No description supplied.
+ * @return comment for method return
+ *
+ * @ingroup Class_Simple
  */
 EAPI char *evas_object_simple_foo(Class_Simple *obj, int a, char *b, double *c);
-
-/**
- *
- * No description supplied.
- *
- * @param[in] x No description supplied.
- */
 EAPI int evas_object_simple_bar(Class_Simple *obj, int x);
 
 #endif

@@ -8,66 +8,38 @@
 #define GREEN_MASK 0x00ff00
 #define BLUE_MASK 0x0000ff
 
-static Eina_Bool 
-_evas_outbuf_buffer_new(Outbuf *ob, Buffer *buff)
+static void
+_evas_outbuf_cb_pageflip(void *data)
 {
-   buff->w = ob->w;
-   buff->h = ob->h;
-   if (buff->w < ob->priv.mode.hdisplay) buff->w = ob->priv.mode.hdisplay;
-   if (buff->h < ob->priv.mode.vdisplay) buff->h = ob->priv.mode.vdisplay;
+   Outbuf *ob;
+   Ecore_Drm_Fb *fb;
 
-   /* create a dumb framebuffer */
-   if (!evas_drm_framebuffer_create(ob->priv.fd, buff, ob->depth))
-     return EINA_FALSE;
+   if (!(ob = data)) return;
 
-   return EINA_TRUE;
-}
+   /* DBG("Outbuf Pagelip Done"); */
 
-static void 
-_evas_outbuf_buffer_put(Outbuf *ob, Buffer *buffer, Eina_Rectangle *rects, unsigned int count)
-{
-   /* validate input params */
-   if ((!ob) || (!buffer)) return;
+   if ((fb = ob->priv.buffer[ob->priv.curr]))
+     fb->pending_flip = EINA_FALSE;
 
-#ifdef DRM_MODE_FEATURE_DIRTYFB
-   drmModeClip *clip;
-   unsigned int i = 0;
-   int ret;
-
-   clip = alloca(count * sizeof(drmModeClip));
-   for (i = 0; i < count; i++)
-     {
-        clip[i].x1 = rects[i].x;
-        clip[i].y1 = rects[i].y;
-        clip[i].x2 = rects[i].w;
-        clip[i].y2 = rects[i].h;
-     }
-
-   /* DBG("Marking FB Dirty: %d", buffer->fb); */
-   ret = drmModeDirtyFB(ob->priv.fd, buffer->fb, clip, count);
-   if (ret)
-     {
-        if (ret == -EINVAL)
-          ERR("Could not set FB Dirty: %m");
-     }
-#endif
+   ob->priv.last = ob->priv.curr;
+   ob->priv.curr = (ob->priv.curr + 1) % ob->priv.num;
 }
 
 static void 
 _evas_outbuf_buffer_swap(Outbuf *ob, Eina_Rectangle *rects, unsigned int count)
 {
-   Buffer *buff;
+   Ecore_Drm_Fb *buff;
 
-   buff = &(ob->priv.buffer[ob->priv.curr]);
-
-   /* if this buffer is not valid, we need to set it */
-   if (!buff->valid) evas_drm_outbuf_framebuffer_set(ob, buff);
+   buff = ob->priv.buffer[ob->priv.curr];
 
    /* mark the fb as dirty */
-   _evas_outbuf_buffer_put(ob, buff, rects, count);
+   ecore_drm_fb_dirty(buff, rects, count);
+
+   /* if this buffer is not valid, we need to set it */
+   ecore_drm_fb_set(ob->info->info.dev, buff);
 
    /* send this buffer to the crtc */
-   evas_drm_framebuffer_send(ob, buff);
+   ecore_drm_fb_send(ob->info->info.dev, buff, _evas_outbuf_cb_pageflip, ob);
 }
 
 Outbuf *
@@ -84,37 +56,21 @@ evas_outbuf_setup(Evas_Engine_Info_Drm *info, int w, int h)
    ob->w = w;
    ob->h = h;
 
+   ob->info = info;
    ob->depth = info->info.depth;
    ob->rotation = info->info.rotation;
    ob->destination_alpha = info->info.destination_alpha;
    ob->vsync = info->info.vsync;
 
-   /* set drm card fd */
-   ob->priv.fd = info->info.fd;
-
-   /* try to setup the drm card for this outbuf */
-   if (!evas_drm_outbuf_setup(ob))
-     {
-        ERR("Could not setup output");
-        free(ob);
-        return NULL;
-     }
-
-   if (ob->w < ob->priv.mode.hdisplay) ob->w = ob->priv.mode.hdisplay;
-   if (ob->h < ob->priv.mode.vdisplay) ob->h = ob->priv.mode.vdisplay;
-
-   info->info.output = ob->priv.fb;
-
-   ob->priv.num = NUM_BUFFERS;
+   /* default to double-buffer */
+   ob->priv.num = 2;
 
    /* check for buffer override */
    if ((num = getenv("EVAS_DRM_BUFFERS")))
      {
         ob->priv.num = atoi(num);
-
-        /* cap maximum # of buffers */
         if (ob->priv.num <= 0) ob->priv.num = 1;
-        else if (ob->priv.num > 3) ob->priv.num = 3;
+        else if (ob->priv.num > 4) ob->priv.num = 4;
      }
 
    /* check for vsync override */
@@ -124,17 +80,25 @@ evas_outbuf_setup(Evas_Engine_Info_Drm *info, int w, int h)
    /* try to create buffers */
    for (; i < ob->priv.num; i++)
      {
-        if (!_evas_outbuf_buffer_new(ob, &(ob->priv.buffer[i])))
-          break;
+        ob->priv.buffer[i] = 
+          ecore_drm_fb_create(ob->info->info.dev, ob->w, ob->h);
+        if (!ob->priv.buffer[i])
+          {
+             ERR("Failed to create buffer %d", i);
+             break;
+          }
+
+        DBG("Evas Engine Created Dumb Buffer");
+        DBG("\tFb: %d", ob->priv.buffer[i]->id);
+        DBG("\tHandle: %d", ob->priv.buffer[i]->hdl);
+        DBG("\tStride: %d", ob->priv.buffer[i]->stride);
+        DBG("\tSize: %d", ob->priv.buffer[i]->size);
+        DBG("\tW: %d\tH: %d",
+            ob->priv.buffer[i]->w, ob->priv.buffer[i]->h);
      }
 
    /* set the front buffer to be the one on the crtc */
-   evas_drm_outbuf_framebuffer_set(ob, &(ob->priv.buffer[0]));
-
-   /* set back buffer as first one to draw into */
-   /* ob->priv.curr = (ob->priv.num - 1); */
-
-   ob->info = info;
+   ecore_drm_fb_set(info->info.dev, ob->priv.buffer[0]);
 
    return ob;
 }
@@ -146,7 +110,7 @@ evas_outbuf_free(Outbuf *ob)
 
    /* destroy the old buffers */
    for (; i < ob->priv.num; i++)
-     evas_drm_framebuffer_destroy(ob->priv.fd, &(ob->priv.buffer[i]));
+     ecore_drm_fb_destroy(ob->priv.buffer[i]);
 
    /* free allocate space for outbuf */
    free(ob);
@@ -177,26 +141,24 @@ evas_outbuf_reconfigure(Outbuf *ob, int w, int h, int rot, Outbuf_Depth depth)
      {
         ob->w = w;
         ob->h = h;
-        if (ob->w < ob->priv.mode.hdisplay) ob->w = ob->priv.mode.hdisplay;
-        if (ob->h < ob->priv.mode.vdisplay) ob->h = ob->priv.mode.vdisplay;
      }
    else
      {
         ob->w = h;
         ob->h = w;
-        if (ob->w < ob->priv.mode.vdisplay) ob->w = ob->priv.mode.vdisplay;
-        if (ob->h < ob->priv.mode.hdisplay) ob->h = ob->priv.mode.hdisplay;
      }
 
    /* destroy the old buffers */
    for (; i < ob->priv.num; i++)
-     evas_drm_framebuffer_destroy(ob->priv.fd, &(ob->priv.buffer[i]));
+     ecore_drm_fb_destroy(ob->priv.buffer[i]);
 
    for (i = 0; i < ob->priv.num; i++)
      {
-        if (!_evas_outbuf_buffer_new(ob, &(ob->priv.buffer[i])))
+        ob->priv.buffer[i] = 
+          ecore_drm_fb_create(ob->info->info.dev, ob->w, ob->h);
+        if (!ob->priv.buffer[i])
           {
-             CRI("Failed to create buffer");
+             ERR("Failed to create buffer %d", i);
              break;
           }
      }
@@ -210,9 +172,7 @@ evas_outbuf_buffer_state_get(Outbuf *ob)
    /* check for valid output buffer */
    if (!ob) return MODE_FULL;
 
-   delta = (ob->priv.last - ob->priv.curr +
-            (ob->priv.last > ob->priv.last ?
-             0 : ob->priv.num)) % ob->priv.num;
+   delta = (ob->priv.last - ob->priv.curr + ob->priv.num) % ob->priv.num;
 
    /* This is the number of frame since last frame */
    switch (delta)
@@ -223,6 +183,8 @@ evas_outbuf_buffer_state_get(Outbuf *ob)
         return MODE_DOUBLE;
       case 2:
         return MODE_TRIPLE;
+      case 3:
+        return MODE_QUADRUPLE;
       default:
         return MODE_FULL;
      }
@@ -290,7 +252,7 @@ evas_outbuf_update_region_push(Outbuf *ob, RGBA_Image *update, int x, int y, int
    Eina_Rectangle rect = {0, 0, 0, 0}, pr;
    DATA32 *src;
    DATA8 *dst;
-   Buffer *buff;
+   Ecore_Drm_Fb *buff;
    int bpp = 0, bpl = 0;
    int rx = 0, ry = 0;
 
@@ -304,8 +266,8 @@ evas_outbuf_update_region_push(Outbuf *ob, RGBA_Image *update, int x, int y, int
    if (!(src = update->image.data)) return;
 
    /* check for valid desination data */
-   buff = &(ob->priv.buffer[ob->priv.curr]);
-   if (!(dst = buff->data)) return;
+   buff = ob->priv.buffer[ob->priv.curr];
+   if (!(dst = buff->mmap)) return;
 
    if ((ob->rotation == 0) || (ob->rotation == 180))
      {
@@ -489,15 +451,15 @@ evas_outbuf_flush(Outbuf *ob, Tilebuf_Rect *rects EINA_UNUSED, Evas_Render_Mode 
 }
 
 int
-evas_outbuf_get_rot(Outbuf *ob)
+evas_outbuf_rot_get(Outbuf *ob)
 {
-   return ob->info->info.rotation;
+   return ob->rotation;
 }
 
 void
 evas_outbuf_copy(Outbuf *ob, void *buffer, int stride, int width, int height, uint format, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh)
 {
-   Buffer *buff = &(ob->priv.buffer[ob->priv.last]);
+   Ecore_Drm_Fb *buff = ob->priv.buffer[ob->priv.last];
 
-   memcpy (buffer, buff->data, stride * height);
+   memcpy (buffer, buff->mmap, stride * height);
 }

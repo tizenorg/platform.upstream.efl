@@ -12,7 +12,7 @@
 # define IVI_SURFACE_ID 6000
 # endif
 
-# include <xdg-shell-client-protocol.h>
+# include "xdg-shell-client-protocol.h"
 # include <tizen-extension-client-protocol.h>
 # include "tizen-policy-ext-client-protocol.h"
 
@@ -75,6 +75,7 @@ struct _Ecore_Wl_Display
         struct wl_shell *shell;
         struct xdg_shell *xdg_shell;
         struct wl_shell *desktop_shell;
+        struct session_recovery *session_recovery;
 # ifdef USE_IVI_SHELL
         struct ivi_application *ivi_application;
 # endif
@@ -130,9 +131,6 @@ struct _Ecore_Wl_Window
    struct tizen_resource *tz_resource;
    unsigned int resource_id;
    unsigned int tz_rotation_serial;
-
-   struct wl_region *opaque_region;
-   struct wl_region *input_region;
 
    struct xdg_surface *xdg_surface;
    struct xdg_popup *xdg_popup;
@@ -283,6 +281,8 @@ struct _Ecore_Wl_Input
      {
         Ecore_Timer *tmr;
         unsigned int sym, key, time;
+        double rate, delay;
+        Eina_Bool enabled : 1;
      } repeat;
 };
 
@@ -327,11 +327,15 @@ extern Ecore_Wl_Display *_ecore_wl_disp;
 void _ecore_wl_window_init(void);
 void _ecore_wl_window_shutdown(void);
 Eina_Hash *_ecore_wl_window_hash_get(void);
+// TIZEN_ONLY(20150722): Add ecore_wl_window_keygrab_* APIs
 Eina_Hash *_ecore_wl_keygrab_hash_get(void);
+//
+void _ecore_wl_window_shell_surface_init(Ecore_Wl_Window *win);
 
 void _ecore_wl_output_add(Ecore_Wl_Display *ewd, unsigned int id);
 void _ecore_wl_output_del(Ecore_Wl_Output *output);
 
+void _ecore_wl_input_setup(Ecore_Wl_Input *input);
 void _ecore_wl_input_add(Ecore_Wl_Display *ewd, unsigned int id);
 void _ecore_wl_input_del(Ecore_Wl_Input *input);
 void _ecore_wl_input_pointer_xy_get(int *x, int *y);

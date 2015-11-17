@@ -1,52 +1,53 @@
 class Object_Impl (Base) {
-   properties {
-      a {
+   methods {
+      @property a {
          set {
+            values {
+                value: const(list<int>)*;
+            }
             return: bool (false);
          }
          get {
          }
          keys {
-            const(char)* part;
+            part: const(char)*;
          }
          values {
-            own(list<int>*) value @const_set;
+            value: own(list<int>*);
          }
       }
-      b {
+      @property b {
          set {
          }
          get {
             /* set as virtual pure - no implementation expected */
          }
          values {
-            own(list<int>*) value;
+            value: own(list<int>*);
          }
       }
-   }
-   methods {
       constructor_1 {
          params {
-            @in int a;
-            @in char b;
+            @in a: int;
+            @in b: char;
          }
       }
       constructor_2 {
       }
       foo1 {
-         /*@ comment foo */
+         [[comment foo]]
          params {
-            @in int a; /*@ a */
-            @inout char b;
-            @out double c;
+            @in a: int; [[a]]
+            @inout b: char;
+            @out c: double;
          }
-         return: char * (null); /*@ comment for method return */
+         return: char * (null); [[comment for method return]]
       }
       foo2 @const {
-         /*@ comment foo */
+         [[comment foo]]
          params {
-            @in int a;
-            @in const(char)* b;
+            @in a: int;
+            @in b: const(char)*;
          }
       }
       pure_foo3 {

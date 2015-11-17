@@ -1,4 +1,9 @@
-#include "shader/evas_gl_shaders.x"
+#include "config.h"
+#ifdef WORDS_BIGENDIAN
+# include "shader/evas_gl_shaders_bigendian.x"
+#else
+# include "shader/evas_gl_shaders.x"
+#endif
 
 /////////////////////////////////////////////
 static void
@@ -78,10 +83,10 @@ _evas_gl_common_shader_program_binary_init(Evas_GL_Program *p,
    glBindAttribLocation(p->prog, SHAD_TEXUV3, "tex_coord3");
    glBindAttribLocation(p->prog, SHAD_TEXA,   "tex_coorda");
    glBindAttribLocation(p->prog, SHAD_TEXSAM, "tex_sample");
-   glBindAttribLocation(p->prog, SHAD_TEXM,   "tex_coordm");
+   glBindAttribLocation(p->prog, SHAD_MASK,   "mask_coord");
+   glBindAttribLocation(p->prog, SHAD_MASKSAM, "tex_masksample");
 
    glGetProgramiv(p->prog, GL_LINK_STATUS, &ok);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
    if (!ok)
      {
         gl_compile_link_error(p->prog, "load a program object");
@@ -114,14 +119,12 @@ _evas_gl_common_shader_program_binary_save(Evas_GL_Program *p,
    if (!glsym_glGetProgramBinary) return 0;
 
    glGetProgramiv(p->prog, GL_PROGRAM_BINARY_LENGTH, &length);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
    if (length <= 0) return 0;
 
    data = malloc(length);
    if (!data) return 0;
 
    glsym_glGetProgramBinary(p->prog, length, &size, &format, data);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 
    if (length != size)
      {
@@ -140,8 +143,8 @@ _evas_gl_common_shader_program_binary_save(Evas_GL_Program *p,
 
 static int
 _evas_gl_common_shader_program_source_init(Evas_GL_Program *p,
-                                           Evas_GL_Program_Source *vert,
-                                           Evas_GL_Program_Source *frag,
+                                           const char *vert,
+                                           const char *frag,
                                            const char *name)
 {
    GLint ok;
@@ -149,32 +152,24 @@ _evas_gl_common_shader_program_source_init(Evas_GL_Program *p,
    p->vert = glCreateShader(GL_VERTEX_SHADER);
    p->frag = glCreateShader(GL_FRAGMENT_SHADER);
 
-   glShaderSource(p->vert, 1,
-                  (const char **)&(vert->src), NULL);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+   glShaderSource(p->vert, 1, &vert, NULL);
    glCompileShader(p->vert);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
    ok = 0;
    glGetShaderiv(p->vert, GL_COMPILE_STATUS, &ok);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
    if (!ok)
      {
         gl_compile_link_error(p->vert, "compile vertex shader");
-        ERR("Abort compile of shader vert (%s): %s", name, vert->src);
+        ERR("Abort compile of shader vert (%s): %s", name, vert);
         return 0;
      }
-   glShaderSource(p->frag, 1,
-                  (const char **)&(frag->src), NULL);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+   glShaderSource(p->frag, 1, &frag, NULL);
    glCompileShader(p->frag);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
    ok = 0;
    glGetShaderiv(p->frag, GL_COMPILE_STATUS, &ok);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
    if (!ok)
      {
         gl_compile_link_error(p->frag, "compile fragment shader");
-        ERR("Abort compile of shader frag (%s): %s", name, frag->src);
+        ERR("Abort compile of shader frag (%s): %s", name, frag);
         return 0;
      }
 
@@ -182,43 +177,35 @@ _evas_gl_common_shader_program_source_init(Evas_GL_Program *p,
 #ifdef GL_GLES
 #else
    if ((glsym_glGetProgramBinary) && (glsym_glProgramParameteri))
-      glsym_glProgramParameteri(p->prog, GL_PROGRAM_BINARY_RETRIEVABLE_HINT,
-                                GL_TRUE);
+     {
+        glsym_glProgramParameteri(p->prog, GL_PROGRAM_BINARY_RETRIEVABLE_HINT,
+                                  GL_TRUE);
+     }
 #endif
    glAttachShader(p->prog, p->vert);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
    glAttachShader(p->prog, p->frag);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
 
    glBindAttribLocation(p->prog, SHAD_VERTEX, "vertex");
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
    glBindAttribLocation(p->prog, SHAD_COLOR,  "color");
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
    glBindAttribLocation(p->prog, SHAD_TEXUV,  "tex_coord");
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
    glBindAttribLocation(p->prog, SHAD_TEXUV2, "tex_coord2");
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
    glBindAttribLocation(p->prog, SHAD_TEXUV3, "tex_coord3");
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-   glBindAttribLocation(p->prog, SHAD_TEXA, "tex_coorda");
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+   glBindAttribLocation(p->prog, SHAD_TEXA,   "tex_coorda");
    glBindAttribLocation(p->prog, SHAD_TEXSAM, "tex_sample");
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-   glBindAttribLocation(p->prog, SHAD_TEXM, "tex_coordm");
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
+   glBindAttribLocation(p->prog, SHAD_MASK,   "mask_coord");
+   glBindAttribLocation(p->prog, SHAD_MASKSAM, "tex_masksample");
 
    glLinkProgram(p->prog);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
    ok = 0;
    glGetProgramiv(p->prog, GL_LINK_STATUS, &ok);
-   GLERR(__FUNCTION__, __FILE__, __LINE__, "");
    if (!ok)
      {
         gl_compile_link_error(p->prog, "link fragment and vertex shaders");
-        ERR("Abort compile of shader frag (%s): %s", name, frag->src);
-        ERR("Abort compile of shader vert (%s): %s", name, vert->src);
+        ERR("Abort compile of shader frag (%s): %s", name, frag);
+        ERR("Abort compile of shader vert (%s): %s", name, vert);
         return 0;
      }
+
    return 1;
 }
 
@@ -283,16 +270,14 @@ _evas_gl_common_shader_binary_save(Evas_GL_Shared *shared)
    Eet_File *et = NULL; //check eet file
    int tmpfd;
    int res = 0;
-   char bin_dir_path[PATH_MAX] = {0,};
-   char bin_file_path[PATH_MAX] = {0,};
-   char tmp_file[PATH_MAX] = {0,};
+   char bin_dir_path[PATH_MAX];
+   char bin_file_path[PATH_MAX];
+   char tmp_file[PATH_MAX];
    unsigned int i;
 
    if (!evas_gl_common_file_cache_dir_check(bin_dir_path, sizeof(bin_dir_path)))
      {
-        if (bin_dir_path[0] != '\0')
-          res = evas_gl_common_file_cache_mkpath(bin_dir_path);
-
+        res = evas_gl_common_file_cache_mkpath(bin_dir_path);
         if (!res) return 0; /* we can't make directory */
      }
 
@@ -356,7 +341,8 @@ evas_gl_common_shader_program_init_done(void)
 #ifdef GL_GLES
    glReleaseShaderCompiler();
 #else
-   if (glsym_glReleaseShaderCompiler) glsym_glReleaseShaderCompiler();
+   if (glsym_glReleaseShaderCompiler)
+     glsym_glReleaseShaderCompiler();
 #endif
 }
 
@@ -366,4 +352,64 @@ evas_gl_common_shader_program_shutdown(Evas_GL_Program *p)
    if (p->vert) glDeleteShader(p->vert);
    if (p->frag) glDeleteShader(p->frag);
    if (p->prog) glDeleteProgram(p->prog);
+}
+
+Evas_GL_Shader
+evas_gl_common_img_shader_select(Shader_Type type, Shader_Sampling sam, int nomul, int afill, int bgra, int mask, int masksam)
+{
+   // 256 combinaisons including many impossible
+   static Evas_GL_Shader _shaders[4 * 2 * 2 * 2 * 2 * 4 * 2];
+   static Eina_Bool init = EINA_FALSE;
+   int idx;
+
+   if (EINA_UNLIKELY(!init))
+     {
+        unsigned int k;
+
+        init = EINA_TRUE;
+        for (k = 0; k < (sizeof(_shaders) / sizeof(_shaders[0])); k++)
+          _shaders[k] = SHADER_IMG;
+
+        for (k = 0; k < (sizeof(_shaders_source) / sizeof(_shaders_source[0])); k++)
+          {
+             if (_shaders_source[k].type == SHD_IMAGE)
+               {
+                  idx = _shaders_source[k].sam << 6;       // 2 bits
+                  idx |= _shaders_source[k].masksam << 4;  // 2 bits
+                  idx |= _shaders_source[k].bgra << 3;     // bool
+                  idx |= _shaders_source[k].mask << 2;     // bool
+                  idx |= _shaders_source[k].nomul << 1;    // bool
+                  idx |= _shaders_source[k].afill;         // bool
+                  _shaders[idx] = _shaders_source[k].id;
+               }
+             else if (_shaders_source[k].type == SHD_IMAGENATIVE)
+               {
+                  idx = _shaders_source[k].sam << 6;       // 2 bits
+                  idx |= _shaders_source[k].masksam << 4;  // 2 bits
+                  idx |= _shaders_source[k].bgra << 3;     // bool
+                  idx |= _shaders_source[k].mask << 2;     // bool
+                  idx |= _shaders_source[k].nomul << 1;    // bool
+                  idx |= _shaders_source[k].afill;         // bool
+                  idx += (4 * 2 * 2 * 2 * 2 * 4);
+                  _shaders[idx] = _shaders_source[k].id;
+               }
+          }
+     }
+
+   idx = sam << 6;
+   idx |= masksam << 4;
+   idx |= bgra << 3;
+   idx |= mask << 2;
+   idx |= nomul << 1;
+   idx |= afill;
+   if (type == SHD_IMAGENATIVE) idx += (4 * 2 * 2 * 2 * 2 * 4);
+   return _shaders[idx];
+}
+
+const char *
+evas_gl_common_shader_name_get(Evas_GL_Shader shd)
+{
+   if (shd < (sizeof(_shaders_source) / sizeof(_shaders_source[0])))
+     return _shaders_source[shd].name;
+   return "UNKNOWN";
 }

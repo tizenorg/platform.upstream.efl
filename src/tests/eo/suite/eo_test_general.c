@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 
+#define EO_BASE_BETA
+
 #include "Eo.h"
 #include "eo_suite.h"
 #include "eo_test_class_simple.h"
@@ -132,10 +134,14 @@ START_TEST(eo_signals)
 
         /* Call Eo event with legacy and non-legacy callbacks. */
         _eo_signals_cb_current = 0;
+        eo_do(obj, eo_event_callback_priority_add(EV_A_CHANGED2, -1000, _eo_signals_a_changed_never, (void *) 1));
         eo_do(obj, eo_event_callback_priority_add(EV_A_CHANGED, -100, _eo_signals_a_changed_cb, (void *) 1));
         eo_do(obj, eo_event_callback_add(a_desc, _eo_signals_a_changed_cb2, NULL));
         eo_do(obj, simple_a_set(1));
         ck_assert_int_eq(_eo_signals_cb_flag, 0x3);
+
+        /* We don't need this one anymore. */
+        eo_do(obj, eo_event_callback_del(EV_A_CHANGED2, _eo_signals_a_changed_never, (void *) 1));
 
         /* Call legacy event with legacy and non-legacy callbacks. */
         int a = 3;
@@ -271,6 +277,7 @@ END_TEST
 
 START_TEST(eo_composite_tests)
 {
+   Eina_Bool tmp;
    eo_init();
 
    Eo *obj = eo_add(SIMPLE_CLASS, NULL);
@@ -280,7 +287,7 @@ START_TEST(eo_composite_tests)
 
    eo_do(obj, eo_composite_attach(obj2));
    eo_do(obj2, eo_parent_set(NULL));
-   fail_if(eo_do(obj2, eo_composite_part_is()));
+   fail_if(eo_do_ret(obj2, tmp, eo_composite_part_is()));
 
    eo_unref(obj2);
    eo_unref(obj);
@@ -293,12 +300,12 @@ static Eina_Bool _man_should_con = EINA_TRUE;
 static Eina_Bool _man_should_des = EINA_TRUE;
 static const Eo_Class *cur_klass = NULL;
 
-static void
+static Eo *
 _man_con(Eo *obj, void *data EINA_UNUSED, va_list *list EINA_UNUSED)
 {
    if (_man_should_con)
       eo_manual_free_set(obj, EINA_TRUE);
-   eo_do_super(obj, cur_klass, eo_constructor());
+   return eo_do_super_ret(obj, cur_klass, obj, eo_constructor());
 }
 
 static void
@@ -312,7 +319,6 @@ _man_des(Eo *obj, void *data EINA_UNUSED, va_list *list EINA_UNUSED)
 static Eo_Op_Description op_descs[] = {
      EO_OP_FUNC_OVERRIDE(eo_constructor, _man_con),
      EO_OP_FUNC_OVERRIDE(eo_destructor, _man_des),
-     EO_OP_SENTINEL
 };
 
 START_TEST(eo_man_free)
@@ -461,6 +467,29 @@ START_TEST(eo_refs)
    ck_assert_int_eq(eo_ref_get(obj2), 1);
    ck_assert_int_eq(eo_ref_get(obj3), 2);
 
+   /* Setting and removing parents. */
+   obj = eo_add(SIMPLE_CLASS, NULL);
+   obj2 = eo_ref(eo_add(SIMPLE_CLASS, obj));
+   obj3 = eo_ref(eo_add(SIMPLE_CLASS, NULL));
+
+   eo_do(obj2, eo_parent_set(obj3));
+   eo_do(obj3, eo_parent_set(obj));
+   ck_assert_int_eq(eo_ref_get(obj2), 2);
+   ck_assert_int_eq(eo_ref_get(obj3), 2);
+
+   eo_do(obj2, eo_parent_set(NULL));
+   eo_do(obj3, eo_parent_set(NULL));
+   ck_assert_int_eq(eo_ref_get(obj2), 1);
+   ck_assert_int_eq(eo_ref_get(obj3), 1);
+
+   eo_do(obj2, eo_parent_set(obj));
+   eo_do(obj3, eo_parent_set(obj));
+   ck_assert_int_eq(eo_ref_get(obj2), 1);
+   ck_assert_int_eq(eo_ref_get(obj3), 1);
+
+   eo_del(obj);
+   eo_del(obj2);
+   eo_del(obj3);
 
    /* Just check it doesn't seg atm. */
    obj = eo_add(SIMPLE_CLASS, NULL);
@@ -544,31 +573,21 @@ START_TEST(eo_weak_reference)
 }
 END_TEST
 
-static void
-_fake_free_func(void *data)
-{
-   if (!data)
-      return;
-
-   int *a = data;
-   ++*a;
-}
-
 START_TEST(eo_generic_data)
 {
    eo_init();
    Eo *obj = eo_add(SIMPLE_CLASS, NULL);
    void *data = NULL;
 
-   eo_do(obj, eo_key_data_set("test1", (void *) 1, NULL));
+   eo_do(obj, eo_key_data_set("test1", (void *) 1));
    eo_do(obj, data = eo_key_data_get("test1"));
    fail_if(1 != (intptr_t) data);
    eo_do(obj, eo_key_data_del("test1"));
    eo_do(obj, data = eo_key_data_get("test1"));
    fail_if(data);
 
-   eo_do(obj, eo_key_data_set("test1", (void *) 1, NULL));
-   eo_do(obj, eo_key_data_set("test2", (void *) 2, NULL));
+   eo_do(obj, eo_key_data_set("test1", (void *) 1));
+   eo_do(obj, eo_key_data_set("test2", (void *) 2));
    eo_do(obj, data = eo_key_data_get("test1"));
    fail_if(1 != (intptr_t) data);
    eo_do(obj, data = eo_key_data_get("test2"));
@@ -586,33 +605,7 @@ START_TEST(eo_generic_data)
    eo_do(obj, data = eo_key_data_get("test1"));
    fail_if(data);
 
-   int a = 0;
-   eo_do(obj, eo_key_data_set("test3", &a, _fake_free_func));
-   eo_do(obj, data = eo_key_data_get("test3"));
-   fail_if(&a != data);
-   eo_do(obj, eo_key_data_get("test3"));
-   eo_do(obj, eo_key_data_del("test3"));
-   fail_if(a != 1);
-
-   a = 0;
-   eo_do(obj, eo_key_data_set("test3", &a, _fake_free_func));
-   eo_do(obj, eo_key_data_set("test3", NULL, _fake_free_func));
-   fail_if(a != 1);
-   a = 0;
-   data = (void *) 123;
-   eo_do(obj, eo_key_data_set(NULL, &a, _fake_free_func));
-   eo_do(obj, data = eo_key_data_get(NULL));
-   fail_if(data);
-   eo_do(obj, eo_key_data_del(NULL));
-
-   a = 0;
-   eo_do(obj, eo_key_data_set("test3", &a, _fake_free_func));
-   eo_do(obj, eo_key_data_set("test3", NULL, NULL));
-   fail_if(a != 1);
-   eo_do(obj, eo_key_data_set("test3", &a, _fake_free_func));
-
    eo_unref(obj);
-   fail_if(a != 2);
 
    eo_shutdown();
 }
@@ -680,8 +673,6 @@ START_TEST(eo_magic_checks)
         fail_if(wref);
         fail_if(parent);
 
-        eo_error_set((Eo *) buf);
-
         fail_if(eo_data_scope_get((Eo *) buf, SIMPLE_CLASS));
 
         eo_do(obj, eo_composite_attach((Eo *) buf));
@@ -734,9 +725,8 @@ EO_FUNC_BODY(multi_a_print, Eina_Bool, EINA_FALSE);
 EO_FUNC_BODY(multi_class_hi_print, Eina_Bool, EINA_FALSE);
 
 static Eo_Op_Description _multi_do_op_descs[] = {
-     EO_OP_FUNC(multi_a_print, _a_print, "Print property a"),
-     EO_OP_FUNC(multi_class_hi_print, _class_hi_print, "Print Hi"),
-     EO_OP_SENTINEL
+     EO_OP_FUNC(multi_a_print, _a_print),
+     EO_OP_FUNC(multi_class_hi_print, _class_hi_print),
 };
 
 START_TEST(eo_multiple_do)
@@ -803,7 +793,7 @@ START_TEST(eo_add_do_and_custom)
    obj = eo_add(SIMPLE_CLASS, NULL, finalized = eo_finalized_get());
    fail_if(finalized);
 
-   finalized = eo_do(obj, eo_finalized_get());
+   eo_do(obj, finalized = eo_finalized_get());
    fail_if(!finalized);
    eo_unref(obj);
 
@@ -908,7 +898,6 @@ _eo_add_failures_finalize(Eo *obj EINA_UNUSED, void *class_data EINA_UNUSED)
 
 static Eo_Op_Description _eo_add_failures_op_descs[] = {
      EO_OP_FUNC_OVERRIDE(eo_finalize, _eo_add_failures_finalize),
-     EO_OP_SENTINEL
 };
 
 START_TEST(eo_add_failures)
@@ -936,6 +925,39 @@ START_TEST(eo_add_failures)
 }
 END_TEST
 
+START_TEST(eo_parts)
+{
+   int a = 0;
+
+   eo_init();
+
+   Eo *obj = eo_add(SIMPLE_CLASS, NULL);
+
+   eo_do(obj, simple_a_set(3), a = simple_a_get());
+   ck_assert_int_eq(a, 3);
+
+   eo_do_part(obj, simple_part_get("test"),
+         simple_a_set(7),
+         a = simple_a_get()
+         );
+   ck_assert_int_eq(a, 7);
+
+   eo_do(obj, simple_a_set(3), a = simple_a_get());
+   ck_assert_int_eq(a, 3);
+
+   /* Faking a call, just asserting NULL as the part to check default values. */
+   eo_do_part(obj, NULL,
+         simple_a_set(7),
+         a = simple_a_get()
+         );
+   ck_assert_int_eq(a, 0);
+
+   eo_del(obj);
+
+   eo_shutdown();
+}
+END_TEST
+
 void eo_test_general(TCase *tc)
 {
    tcase_add_test(tc, eo_simple);
@@ -953,4 +975,5 @@ void eo_test_general(TCase *tc)
    tcase_add_test(tc, eo_add_do_and_custom);
    tcase_add_test(tc, eo_pointers_indirection);
    tcase_add_test(tc, eo_add_failures);
+   tcase_add_test(tc, eo_parts);
 }

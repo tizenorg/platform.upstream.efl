@@ -1,6 +1,32 @@
 #ifndef _ECORE_EVAS_PRIVATE_H
 #define _ECORE_EVAS_PRIVATE_H
 
+#ifdef EAPI
+# undef EAPI
+#endif
+
+#ifdef _WIN32
+# ifdef EFL_ECORE_EVAS_BUILD
+#  ifdef DLL_EXPORT
+#   define EAPI __declspec(dllexport)
+#  else
+#   define EAPI
+#  endif /* ! DLL_EXPORT */
+# else
+#  define EAPI __declspec(dllimport)
+# endif /* ! EFL_ECORE_EVAS_BUILD */
+#else
+# ifdef __GNUC__
+#  if __GNUC__ >= 4
+#   define EAPI __attribute__ ((visibility("default")))
+#  else
+#   define EAPI
+#  endif
+# else
+#  define EAPI
+# endif
+#endif /* ! _WIN32 */
+
 #define ECORE_MAGIC_EVAS 0x76543211
 
 /** Log domain macros and variables **/
@@ -164,6 +190,7 @@ struct _Ecore_Evas
    Eina_Bool   alpha  : 1;
    Eina_Bool   transparent  : 1;
    Eina_Bool   in  : 1;
+   Eina_Bool   events_block  : 1; /* @since 1.14 */
 
    Eina_Hash  *data;
 
@@ -297,7 +324,7 @@ struct _Ecore_Evas
       0 : sync_draw_done is sent by ecore_evas
       1 : sync_draw_done is sent by gl
     */
-   char          gl_sync_draw_done;
+   signed char   gl_sync_draw_done;
 
    unsigned char ignore_events : 1;
    unsigned char manual_render : 1;
@@ -396,5 +423,7 @@ const Eina_List *_ecore_evas_available_engines_get(void);
 void _ecore_evas_engine_init(void);
 void _ecore_evas_engine_shutdown(void);
 
-#endif
+#undef EAPI
+#define EAPI
 
+#endif

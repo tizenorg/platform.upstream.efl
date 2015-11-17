@@ -3,28 +3,30 @@
 struct _Shared_Buffer
 {
    Ecore_Buffer *buffer;
-   Shared_Buffer_State state;
-   struct bq_buffer *proxy;
+   struct bq_buffer *resource;
+   const char *engine;
    int w, h;
    int format;
    unsigned int flags;
-   const char *backend;
+   Shared_Buffer_State state;
 };
 
 Shared_Buffer *
-_shared_buffer_new(struct bq_buffer *proxy, int w, int h, int format, unsigned int flags)
+_shared_buffer_new(const char *engine, struct bq_buffer *resource, int w, int h, int format, unsigned int flags)
 {
    Shared_Buffer *sb;
 
-   sb = calloc(sizeof(Shared_Buffer), 1);
+   sb = calloc(1, sizeof(Shared_Buffer));
    if (!sb)
      return NULL;
 
-   sb->proxy = proxy;
+   sb->engine = eina_stringshare_add(engine);
+   sb->resource = resource;
    sb->w = w;
    sb->h = h;
    sb->format = format;
    sb->flags = flags;
+   sb->state = SHARED_BUFFER_STATE_NEW;
 
    return sb;
 }
@@ -32,18 +34,18 @@ _shared_buffer_new(struct bq_buffer *proxy, int w, int h, int format, unsigned i
 void
 _shared_buffer_free(Shared_Buffer *sb)
 {
-   if (!sb)
-     return;
+   EINA_SAFETY_ON_NULL_RETURN(sb);
 
+   if (sb->engine) eina_stringshare_del(sb->engine);
    free(sb);
 }
 
 Eina_Bool
-_shared_buffer_info_get(Shared_Buffer *sb, int *w, int *h, int *format, unsigned int *flags)
+_shared_buffer_info_get(Shared_Buffer *sb, const char **engine, int *w, int *h, int *format, unsigned int *flags)
 {
-   if (!sb)
-     return EINA_FALSE;
+   EINA_SAFETY_ON_NULL_RETURN_VAL(sb, EINA_FALSE);
 
+   if (engine) *engine = sb->engine;
    if (w) *w = sb->w;
    if (h) *h = sb->h;
    if (format) *format = sb->format;
@@ -55,8 +57,7 @@ _shared_buffer_info_get(Shared_Buffer *sb, int *w, int *h, int *format, unsigned
 Eina_Bool
 _shared_buffer_buffer_set(Shared_Buffer *sb, Ecore_Buffer *buffer)
 {
-   if (!sb)
-     return EINA_FALSE;
+   EINA_SAFETY_ON_NULL_RETURN_VAL(sb, EINA_FALSE);
 
    if (sb->buffer)
      {
@@ -72,43 +73,39 @@ _shared_buffer_buffer_set(Shared_Buffer *sb, Ecore_Buffer *buffer)
 Ecore_Buffer *
 _shared_buffer_buffer_get(Shared_Buffer *sb)
 {
-   if (!sb)
-     return NULL;
+   EINA_SAFETY_ON_NULL_RETURN_VAL(sb, NULL);
 
    return sb->buffer;
 }
 
 Eina_Bool
-_shared_buffer_proxy_set(Shared_Buffer *sb, struct bq_buffer *proxy)
+_shared_buffer_resource_set(Shared_Buffer *sb, struct bq_buffer *resource)
 {
-   if (!sb)
-     return EINA_FALSE;
+   EINA_SAFETY_ON_NULL_RETURN_VAL(sb, EINA_FALSE);
 
-   if (sb->proxy)
+   if (sb->resource)
      {
-        ERR("Already exist proxy");
+        ERR("Already exist resource");
         return EINA_FALSE;
      }
 
-   sb->proxy = proxy;
+   sb->resource = resource;
 
    return EINA_TRUE;
 }
 
 struct bq_buffer *
-_shared_buffer_proxy_get(Shared_Buffer *sb)
+_shared_buffer_resource_get(Shared_Buffer *sb)
 {
-   if (!sb)
-     return NULL;
+   EINA_SAFETY_ON_NULL_RETURN_VAL(sb, NULL);
 
-   return sb->proxy;
+   return sb->resource;
 }
 
 void
 _shared_buffer_state_set(Shared_Buffer *sb, Shared_Buffer_State state)
 {
-   if (!sb)
-     return;
+   EINA_SAFETY_ON_NULL_RETURN(sb);
 
    sb->state = state;
 }
@@ -116,8 +113,7 @@ _shared_buffer_state_set(Shared_Buffer *sb, Shared_Buffer_State state)
 Shared_Buffer_State
 _shared_buffer_state_get(Shared_Buffer *sb)
 {
-   if (!sb)
-     return SHARED_BUFFER_STATE_UNKNOWN;
+   EINA_SAFETY_ON_NULL_RETURN_VAL(sb, SHARED_BUFFER_STATE_UNKNOWN);
 
    return sb->state;
 }
@@ -125,8 +121,7 @@ _shared_buffer_state_get(Shared_Buffer *sb)
 const char *
 _shared_buffer_state_string_get(Shared_Buffer *sb)
 {
-   if (!sb)
-     return "INVALID_OBJECT";
+   EINA_SAFETY_ON_NULL_RETURN_VAL(sb, "INVAILD OBJECT");
 
    switch (sb->state)
      {
@@ -135,7 +130,7 @@ _shared_buffer_state_string_get(Shared_Buffer *sb)
       case SHARED_BUFFER_STATE_SUBMIT:
          return "SHARED_BUFFER_STATE_SUBMIT";
       case SHARED_BUFFER_STATE_DEQUEUE:
-         return "SHARED_BUFFER_STATE_SUBMIT";
+         return "SHARED_BUFFER_STATE_DEQUEUE";
       case SHARED_BUFFER_STATE_ATTACH:
          return "SHARED_BUFFER_STATE_ATTACH";
       case SHARED_BUFFER_STATE_IMPORT:

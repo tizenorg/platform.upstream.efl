@@ -1,6 +1,8 @@
 #ifndef _EO_PRIVATE_H
 #define _EO_PRIVATE_H
 
+#define EO_BASE_BETA
+
 #include <Eo.h>
 #include <Eina.h>
 
@@ -60,7 +62,7 @@ extern int _eo_log_dom;
 typedef uintptr_t Eo_Id;
 typedef struct _Eo_Class _Eo_Class;
 typedef struct _Eo_Object _Eo_Object;
-typedef struct _Eo_Base Eo_Base;
+typedef struct _Eo_Header Eo_Header;
 
 /* Retrieves the pointer to the object from the id */
 static inline _Eo_Object *_eo_obj_pointer_get(const Eo_Id obj_id);
@@ -74,10 +76,9 @@ static inline void _eo_id_release(const Eo_Id obj_id);
 /* Free all the entries and the tables */
 static inline void _eo_free_ids_tables(void);
 
-Eo *_eo_add_internal_end(Eo *obj);
 void _eo_condtor_done(Eo *obj);
 
-struct _Eo_Base
+struct _Eo_Header
 {
 #ifndef HAVE_EO_ID
      EINA_MAGIC
@@ -87,7 +88,7 @@ struct _Eo_Base
 
 struct _Eo_Object
 {
-     Eo_Base header;
+     Eo_Header header;
      const _Eo_Class *klass;
 #ifdef EO_DEBUG
      Eina_Inlist *xrefs;
@@ -99,7 +100,6 @@ struct _Eo_Object
      int refcount;
      int datarefcount;
 
-     Eina_Bool do_error:1;
      Eina_Bool condtor_done:1;
      Eina_Bool finalized:1;
 
@@ -133,7 +133,7 @@ typedef struct
 
 struct _Eo_Class
 {
-   Eo_Base header;
+   Eo_Header header;
 
    const _Eo_Class *parent;
    const Eo_Class_Description *desc;
@@ -179,7 +179,7 @@ typedef struct
 } Eo_Xref_Node;
 
 static inline
-Eo *_eo_header_id_get(const Eo_Base *header)
+Eo *_eo_header_id_get(const Eo_Header *header)
 {
 #ifdef HAVE_EO_ID
    return (Eo *) header->id;
@@ -191,13 +191,13 @@ Eo *_eo_header_id_get(const Eo_Base *header)
 static inline
 Eo_Class *_eo_class_id_get(const _Eo_Class *klass)
 {
-   return _eo_header_id_get((Eo_Base *) klass);
+   return _eo_header_id_get((Eo_Header *) klass);
 }
 
 static inline
 Eo *_eo_id_get(const _Eo_Object *obj)
 {
-   return _eo_header_id_get((Eo_Base *) obj);
+   return _eo_header_id_get((Eo_Header *) obj);
 }
 
 static inline void
@@ -218,7 +218,7 @@ _eo_del_internal(const char *file, int line, _Eo_Object *obj)
 
    _eo_condtor_reset(obj);
 
-   eo_do(_eo_id_get(obj), eo_destructor(););
+   eo_do(_eo_id_get(obj), eo_destructor());
 
    if (!obj->condtor_done)
      {

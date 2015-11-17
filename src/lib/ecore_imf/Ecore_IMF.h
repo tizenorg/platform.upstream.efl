@@ -502,7 +502,7 @@ struct _Ecore_IMF_Event_Mouse_Down
  */
 struct _Ecore_IMF_Event_Mouse_Up
 {
-   int button;                             /**< The button which has been pressed */
+   int button;                             /**< The button which has been released */
    struct {
       int x, y;
    } output;
@@ -603,9 +603,9 @@ struct _Ecore_IMF_Event_Key_Down
    const char                   *string;    /**< A UTF8 string if this keystroke has produced a visible string to be ADDED */
    const char                   *compose;   /**< A UTF8 string if this keystroke has modified a string in the middle of being composed - this string replaces the previous one */
    unsigned int                  timestamp; /**< The timestamp when the event occurred */
-   const char                   *dev_name;  /**< The device name of the key pressed */
-   Ecore_IMF_Device_Class        dev_class; /**< The device class of the key pressed */
-   Ecore_IMF_Device_Subclass     dev_subclass; /**< The device subclass of the key pressed */
+   const char                   *dev_name;  /**< The device name of the key pressed @since 1.14 */
+   Ecore_IMF_Device_Class        dev_class; /**< The device class of the key pressed @since 1.14 */
+   Ecore_IMF_Device_Subclass     dev_subclass; /**< The device subclass of the key pressed @since 1.14 */
 };
 
 /**
@@ -614,16 +614,16 @@ struct _Ecore_IMF_Event_Key_Down
  */
 struct _Ecore_IMF_Event_Key_Up
 {
-   const char                   *keyname;   /**< The string name of the key pressed */
+   const char                   *keyname;   /**< The string name of the key released */
    Ecore_IMF_Keyboard_Modifiers  modifiers; /**< The keyboard modifiers active when the event has been emitted */
    Ecore_IMF_Keyboard_Locks      locks;     /**< The keyboard locks active when the event has been emitted */
    const char                   *key;       /**< The logical key : (eg shift+1 == exclamation) */
    const char                   *string;    /**< A UTF8 string if this keystroke has produced a visible string to be ADDED */
    const char                   *compose;   /**< A UTF8 string if this keystroke has modified a string in the middle of being composed - this string replaces the previous one */
    unsigned int                  timestamp; /**< The timestamp when the event occurred */
-   const char                   *dev_name;  /**< The device name of the key released */
-   Ecore_IMF_Device_Class        dev_class; /**< The device class of the key released */
-   Ecore_IMF_Device_Subclass     dev_subclass; /**< The device subclass of the key released */
+   const char                   *dev_name;  /**< The device name of the key released @since 1.14 */
+   Ecore_IMF_Device_Class        dev_class; /**< The device class of the key released @since 1.14 */
+   Ecore_IMF_Device_Subclass     dev_subclass; /**< The device subclass of the key released @since 1.14 */
 };
 
 /**
@@ -1870,5 +1870,8 @@ EAPI Ecore_IMF_BiDi_Direction      ecore_imf_context_bidi_direction_get(Ecore_IM
 #ifdef __cplusplus
 }
 #endif
+
+#undef EAPI
+#define EAPI
 
 #endif

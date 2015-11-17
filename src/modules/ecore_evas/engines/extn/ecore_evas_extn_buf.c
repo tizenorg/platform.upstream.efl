@@ -17,8 +17,10 @@ _extnbuf_new(const char *base, int id, Eina_Bool sys, int num,
 {
    Extnbuf *b;
    char file[PATH_MAX];
-   mode_t mode = S_IRUSR | S_IWUSR;
+   mode_t mode = S_IRUSR;
+   int prot = PROT_READ;
    int page_size;
+   Eina_Tmpstr *tmp = NULL;
 
    page_size = eina_cpu_page_size();
 
@@ -35,26 +37,22 @@ _extnbuf_new(const char *base, int id, Eina_Bool sys, int num,
    snprintf(file, sizeof(file), "/%s-%i.%i", base, id, num);
    b->file = eina_stringshare_add(file);
    if (!b->file) goto err;
-   
-   if (sys) mode |= S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-   
+
+
+   if (sys) mode |= S_IRGRP | S_IROTH;
+
+   if (owner)
+     {
+        mode |= S_IWUSR;
+        prot |= PROT_WRITE;
+     }
+
    if (b->am_owner)
      {
-        const char *s = NULL;
-        
-#if defined(HAVE_GETUID) && defined(HAVE_GETEUID)
-        if (getuid() == geteuid())
-#endif
-          {
-             s = getenv("XDG_RUNTIME_DIR");
-             if (!s) s = getenv("TMPDIR");
-          }
         //TIZEN ONLY (150908): security issue. To access any application, it needs smack rule.
-        //if (!s) s = "/tmp";
-        s = "/run/.efl";
+        //b->lockfd = eina_file_mkstemp("ee-lock-XXXXXX", &tmp);
+        b->lockfd = mkstemp("/run/.efl/ee-lock-XXXXXX");
         //
-        snprintf(file, sizeof(file), "%s/ee-lock-XXXXXX", s);
-        b->lockfd = mkstemp(file);
         if (b->lockfd < 0) goto err;
         b->lock = eina_stringshare_add(file);
         if (!b->lock) goto err;
@@ -64,14 +62,14 @@ _extnbuf_new(const char *base, int id, Eina_Bool sys, int num,
      }
    else
      {
-        b->fd = shm_open(b->file, O_RDWR, mode);
+        b->fd = shm_open(b->file, O_RDONLY, mode);
         if (b->fd < 0) goto err;
      }
-   b->addr = mmap(NULL, b->size, PROT_READ | PROT_WRITE, MAP_SHARED,
-                  b->fd, 0);
+   b->addr = mmap(NULL, b->size, prot, MAP_SHARED, b->fd, 0);
    if (b->addr == MAP_FAILED) goto err;
    return b;
 err:
+   if (tmp) eina_tmpstr_del(tmp);
    _extnbuf_free(b);
    return NULL;
 }

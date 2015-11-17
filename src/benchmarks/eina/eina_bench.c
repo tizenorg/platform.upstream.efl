@@ -37,6 +37,9 @@ struct _Eina_Benchmark_Case
 
 static const Eina_Benchmark_Case etc[] = {
    { "Hash", eina_bench_hash, EINA_TRUE },
+   { "Hash_Short_Key", eina_bench_crc_hash_short, EINA_TRUE },
+   { "Hash_Medium_Key", eina_bench_crc_hash_medium, EINA_TRUE },
+   { "Hash_Large_key", eina_bench_crc_hash_large, EINA_TRUE },
    { "Array vs List vs Inlist", eina_bench_array, EINA_TRUE },
    { "Stringshare", eina_bench_stringshare, EINA_TRUE },
    { "Convert", eina_bench_convert, EINA_TRUE },
@@ -68,6 +71,10 @@ static void _mempool_shutdown(void)
    eina_module_list_free(_modules);
    if (_modules)
      {
+        Eina_Array_Iterator it;
+        char* module;
+        unsigned int i;
+
         EINA_ARRAY_ITER_NEXT(_modules, i, module, it)
           free(module);
         eina_array_free(_modules);

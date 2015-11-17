@@ -27,8 +27,60 @@
 
 #include "ecore_file_private.h"
 
+/*
+ * FIXME: the following functions will certainly not work on Windows:
+ * ecore_file_file_get()
+ * ecore_file_app_exe_get()
+ * ecore_file_escape_name()
+ */
+
 int _ecore_file_log_dom = -1;
 static int _ecore_file_init_count = 0;
+
+static Eina_Bool
+_ecore_file_stat(const char *file,
+                 long long *mtime,
+                 long long *size,
+                 mode_t *mode,
+                 Eina_Bool *is_dir,
+                 Eina_Bool *is_reg)
+{
+   struct stat st;
+#ifdef _WIN32
+   /*
+    * On Windows, stat() returns -1 is file is a path finishing with
+    * a slash or blackslash
+    * see https://msdn.microsoft.com/en-us/library/14h5k7ff.aspx
+    * ("Return Value" section)
+    *
+    * so we ensure that file never finishes with \ or /
+    */
+   char f[MAX_PATH];
+   size_t len;
+
+   len = strlen(file);
+   if ((len + 1) > MAX_PATH)
+     return EINA_FALSE;
+
+   memcpy(f, file, len + 1);
+   if ((f[len - 1] == '/') || (f[len - 1] == '\\'))
+     f[len - 1] = '\0';
+
+   if (stat(f, &st) < 0)
+     return EINA_FALSE;
+#else
+   if (stat(file, &st) < 0)
+     return EINA_FALSE;
+#endif
+
+   if (mtime) *mtime = st.st_mtime;
+   if (size) *size = st.st_size;
+   if (mode) *mode = st.st_mode;
+   if (is_dir) *is_dir = S_ISDIR(st.st_mode);
+   if (is_reg) *is_reg = S_ISREG(st.st_mode);
+
+   return EINA_TRUE;
+}
 
 /* externally accessible functions */
 
@@ -134,10 +186,12 @@ ecore_file_shutdown()
 EAPI long long
 ecore_file_mod_time(const char *file)
 {
-   struct stat st;
+   long long time;
 
-   if (stat(file, &st) < 0) return 0;
-   return st.st_mtime;
+   if (!_ecore_file_stat(file, &time, NULL, NULL, NULL, NULL))
+     return 0;
+
+   return time;
 }
 
 /**
@@ -152,10 +206,12 @@ ecore_file_mod_time(const char *file)
 EAPI long long
 ecore_file_size(const char *file)
 {
-   struct stat st;
+   long long size;
 
-   if (stat(file, &st) < 0) return 0;
-   return st.st_size;
+   if (!_ecore_file_stat(file, NULL, &size, NULL, NULL, NULL))
+     return 0;
+
+   return size;
 }
 
 /**
@@ -170,12 +226,17 @@ ecore_file_size(const char *file)
 EAPI Eina_Bool
 ecore_file_exists(const char *file)
 {
+#ifdef _WIN32
+   /* I prefer not touching the specific UNIX code... */
+   return _ecore_file_stat(file, NULL, NULL, NULL, NULL, NULL);
+#else
    struct stat st;
    if (!file) return EINA_FALSE;
 
    /*Workaround so that "/" returns a true, otherwise we can't monitor "/" in ecore_file_monitor*/
    if (stat(file, &st) < 0 && strcmp(file, "/")) return EINA_FALSE;
    return EINA_TRUE;
+#endif
 }
 
 /**
@@ -191,11 +252,12 @@ ecore_file_exists(const char *file)
 EAPI Eina_Bool
 ecore_file_is_dir(const char *file)
 {
-   struct stat st;
+   Eina_Bool is_dir;
 
-   if (stat(file, &st) < 0) return EINA_FALSE;
-   if (S_ISDIR(st.st_mode)) return EINA_TRUE;
-   return EINA_FALSE;
+   if (!_ecore_file_stat(file, NULL, NULL, NULL, &is_dir, NULL))
+     return EINA_FALSE;
+
+   return is_dir;
 }
 
 static mode_t default_mode = S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
@@ -206,15 +268,15 @@ static mode_t default_mode = S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S
  * @param  dir The name of the directory to create
  * @return @c EINA_TRUE on successful creation, @c EINA_FALSE otherwise.
  *
- * This function creates the directory @p dir with the mode S_IRUSR |
- * S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH. On
- * success, it returns @c EINA_TRUE, @c EINA_FALSE otherwise.
+ * This function creates the directory @p dir, with the mode S_IRUSR |
+ * S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH on UNIX
+ * (mode is unsued on Windows). On success, it returns @c EINA_TRUE,
+ * @c EINA_FALSE otherwise.
  */
 EAPI Eina_Bool
 ecore_file_mkdir(const char *dir)
 {
-   if (mkdir(dir, default_mode) < 0) return EINA_FALSE;
-   return EINA_TRUE;
+   return (mkdir(dir, default_mode) == 0);
 }
 
 /**
@@ -299,16 +361,21 @@ ecore_file_mksubdirs(const char *base, const char **subdirs)
    i = 0;
    for (; *subdirs; subdirs++)
      {
+#ifdef HAVE_ATFILE_SOURCE
         struct stat st;
+#endif
+        Eina_Bool is_dir;
 
 #ifndef HAVE_ATFILE_SOURCE
         eina_strlcpy(buf + baselen, *subdirs, sizeof(buf) - baselen);
-        if (stat(buf, &st) == 0)
+        if (_ecore_file_stat(buf, NULL, NULL, NULL, &is_dir, NULL))
+          {
 #else
         if (fstatat(fd, *subdirs, &st, 0) == 0)
-#endif
           {
-             if (S_ISDIR(st.st_mode))
+             is_dir = S_ISDIR(st.st_mode);
+#endif
+             if (is_dir)
                {
                   i++;
                   continue;
@@ -319,7 +386,7 @@ ecore_file_mksubdirs(const char *base, const char **subdirs)
              if (errno == ENOENT)
                {
 #ifndef HAVE_ATFILE_SOURCE
-                  if (mkdir(buf, default_mode) == 0)
+                  if (ecore_file_mkdir(buf))
 #else
                   if (mkdirat(fd, *subdirs, default_mode) == 0)
 #endif
@@ -399,21 +466,25 @@ ecore_file_remove(const char *file)
 EAPI Eina_Bool
 ecore_file_recursive_rm(const char *dir)
 {
+#ifndef _WIN32
    struct stat st;
+#endif
+   Eina_Bool is_dir;
 
 #ifdef _WIN32
    char buf[PATH_MAX];
 
    if (readlink(dir, buf, sizeof(buf) - 1) > 0)
      return ecore_file_unlink(dir);
-   if (stat(dir, &st) == -1)
+   if (!_ecore_file_stat(buf, NULL, NULL, NULL, &is_dir, NULL))
      return EINA_FALSE;
 #else
    if (lstat(dir, &st) == -1)
      return EINA_FALSE;
+   is_dir = S_ISDIR(st.st_mode);
 #endif
 
-   if (S_ISDIR(st.st_mode))
+   if (is_dir)
      {
         Eina_File_Direct_Info *info;
         Eina_Iterator *it;
@@ -443,7 +514,7 @@ ecore_file_recursive_rm(const char *dir)
 static inline Eina_Bool
 _ecore_file_mkpath_if_not_exists(const char *path)
 {
-   struct stat st;
+   Eina_Bool is_dir;
 
    /* Windows: path like C: or D: etc are valid, but stat() returns an error */
 #ifdef _WIN32
@@ -454,9 +525,9 @@ _ecore_file_mkpath_if_not_exists(const char *path)
      return EINA_TRUE;
 #endif
 
-   if (stat(path, &st) < 0)
+   if (!_ecore_file_stat(path, NULL, NULL, NULL, &is_dir, NULL))
      return ecore_file_mkdir(path);
-   else if (!S_ISDIR(st.st_mode))
+   else if (!is_dir)
      return EINA_FALSE;
    else
      return EINA_TRUE;
@@ -587,13 +658,14 @@ ecore_file_mv(const char *src, const char *dst)
         // it resides on a different mount point.
         if (errno == EXDEV)
           {
-             struct stat st;
+             mode_t mode;
+             Eina_Bool is_reg;
 
              // Make sure this is a regular file before
              // we do anything fancy.
-             if (stat(src, &st) == -1)
+             if (!_ecore_file_stat(src, NULL, NULL, &mode, NULL, &is_reg))
                  goto FAIL;
-             if (S_ISREG(st.st_mode))
+             if (is_reg)
                {
                   char *dir;
 
@@ -613,7 +685,7 @@ ecore_file_mv(const char *src, const char *dst)
                     goto FAIL;
 
                   // Set file permissions of temp file to match src
-                  if (chmod(buf, st.st_mode) == -1) goto FAIL;
+                  if (chmod(buf, mode) == -1) goto FAIL;
 
                   // Try to atomically move temp file to dst
                   if (rename(buf, dst))
@@ -703,6 +775,16 @@ ecore_file_file_get(const char *path)
    if (!path) return NULL;
    if ((result = strrchr(path, '/'))) result++;
    else result = (char *)path;
+
+#ifdef _WIN32
+   char *result_backslash = NULL;
+   if ((result_backslash = strrchr(path, '\\')))
+     {
+        result_backslash++;
+        if (result_backslash > result) result = result_backslash;
+     }
+#endif
+
    return result;
 }
 
@@ -849,155 +931,70 @@ ecore_file_ls(const char *dir)
  * @brief Return the executable from the given command.
  *
  * @param app The application command, with parameters.
- * @return The executable from @p app as a newly allocated string. Arguments 
- * are removed and escape characters are handled. If @p app is @c NULL, or 
- * on failure, the function returns @c NULL. When not needed anymore, the 
+ * @return The executable from @p app as a newly allocated string. Arguments
+ * are removed and escape characters are handled. If @p app is @c NULL, or
+ * on failure, the function returns @c NULL. When not needed anymore, the
  * returned value must be freed.
  */
 EAPI char *
 ecore_file_app_exe_get(const char *app)
 {
-   char *p, *pp, *exe1 = NULL, *exe2 = NULL;
-   char *exe = NULL;
-   int in_quot_dbl = 0, in_quot_sing = 0, restart = 0;
+   Eina_Strbuf *buf;
+   char *exe;
+   const char *p;
+   Eina_Bool in_qout_double = EINA_FALSE;
+   Eina_Bool in_qout_single = EINA_FALSE;
 
    if (!app) return NULL;
-
-   p = (char *)app;
-restart:
-   while ((*p) && (isspace((unsigned char)*p))) p++;
-   exe1 = p;
-   while (*p)
+   buf = eina_strbuf_new();
+   if (!buf) return NULL;
+   p = app;
+   if ((p[0] == '~') && (p[1] == '/'))
      {
-        if (in_quot_sing)
+        const char *home = eina_environment_home_get();
+        if (home) eina_strbuf_append(buf, home);
+        p++;
+     }
+   for (; *p; p++)
+     {
+        if (in_qout_double)
           {
-             if (*p == '\'')
-               in_quot_sing = 0;
+             if (*p == '\\')
+               {
+                  if (p[1]) p++;
+                  eina_strbuf_append_char(buf, *p);
+               }
+             else if (*p == '"') in_qout_double = EINA_FALSE;
+             else eina_strbuf_append_char(buf, *p);
           }
-        else if (in_quot_dbl)
+        else if (in_qout_single)
           {
-             if (*p == '\"')
-               in_quot_dbl = 0;
+             if (*p == '\\')
+               {
+                  if (p[1]) p++;
+                  eina_strbuf_append_char(buf, *p);
+               }
+             else if (*p == '\'') in_qout_single = EINA_FALSE;
+             else eina_strbuf_append_char(buf, *p);
           }
         else
           {
-             if (*p == '\'')
-               in_quot_sing = 1;
-             else if (*p == '\"')
-               in_quot_dbl = 1;
-             if ((isspace((unsigned char)*p)) && ((p <= app) || (p[-1] == '\\')))
-               break;
-          }
-        p++;
-     }
-   exe2 = p;
-   if (exe2 == exe1) return NULL;
-   if (*exe1 == '~')
-     {
-        char *homedir;
-        int len;
-
-        /* Skip ~ */
-        exe1++;
-
-        homedir = getenv("HOME");
-        if (!homedir) return NULL;
-        len = strlen(homedir);
-        exe = malloc(len + exe2 - exe1 + 2);
-        if (!exe) return NULL;
-        pp = exe;
-        if (len)
-          {
-             strcpy(exe, homedir);
-             pp += len;
-             if (*(pp - 1) != '/')
+             if (*p == '\\')
                {
-                  *pp = '/';
-                  pp++;
+                  if (p[1]) p++;
+                  eina_strbuf_append_char(buf, *p);
                }
-          }
-     }
-   else
-     {
-        exe = malloc(exe2 - exe1 + 1);
-        if (!exe) return NULL;
-        pp = exe;
-     }
-   p = exe1;
-   restart = 0;
-   in_quot_dbl = 0;
-   in_quot_sing = 0;
-   while (*p)
-     {
-        if (in_quot_sing)
-          {
-             if (*p == '\'')
-               in_quot_sing = 0;
+             else if (*p == '"') in_qout_double = EINA_TRUE;
+             else if (*p == '\'') in_qout_single = EINA_TRUE;
              else
                {
-                  *pp = *p;
-                  pp++;
+                  if (isspace((unsigned char)(*p))) break;
+                  eina_strbuf_append_char(buf, *p);
                }
           }
-        else if (in_quot_dbl)
-          {
-             if (*p == '\"')
-               in_quot_dbl = 0;
-             else
-               {
-                  /* technically this is wrong. double quotes also accept
-                   * special chars:
-                   *
-                   * $, `, \
-                   */
-                  *pp = *p;
-                  pp++;
-               }
-          }
-        else
-          {
-             /* technically we should handle special chars:
-              *
-              * $, `, \, etc.
-              */
-             if ((p > exe1) && (p[-1] == '\\'))
-               {
-                  if (*p != '\n')
-                    {
-                       *pp = *p;
-                       pp++;
-                    }
-               }
-             else if ((p > exe1) && (*p == '='))
-               {
-                  restart = 1;
-                  *pp = *p;
-                  pp++;
-               }
-             else if (*p == '\'')
-               in_quot_sing = 1;
-             else if (*p == '\"')
-               in_quot_dbl = 1;
-             else if (isspace((unsigned char)*p))
-               {
-                  if (restart)
-                    {
-                       if (exe) free(exe);
-                       exe = NULL;
-                       goto restart;
-                    }
-                  else
-                    break;
-               }
-             else
-               {
-                  *pp = *p;
-                  pp++;
-               }
-          }
-        p++;
      }
-   *pp = 0;
+   exe = eina_strbuf_string_steal(buf);
+   eina_strbuf_free(buf);
    return exe;
 }
 
@@ -1060,7 +1057,7 @@ ecore_file_escape_name(const char *filename)
             *q = 'n';
             q++;
             p++;
-	    continue;
+            continue;
           }
 
         *q = *p;

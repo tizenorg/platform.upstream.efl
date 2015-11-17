@@ -9,6 +9,12 @@ local M = {}
 
 local dom
 
+local type_type = eolian.type_type
+local class_type = eolian.class_type
+local func_type = eolian.function_type
+local obj_scope = eolian.object_scope
+local param_dir = eolian.parameter_dir
+
 cutil.init_module(function()
     dom = log.Domain("lualian")
     if not dom:is_valid() then
@@ -81,7 +87,7 @@ local build_calln = function(tps, expr, isin)
 end
 
 local typeconv = function(tps, expr, isin)
-    if tps:type_get() == eolian.type_type.POINTER then
+    if tps:type_get() == type_type.POINTER then
         local base = tps:base_type_get()
         local f = (isin and known_ptr_in or known_ptr_out)[base:c_type_get()]
         if f then return f(expr) end
@@ -164,7 +170,7 @@ local Method = Node:clone {
 
         local meth = self.method
         local pars = meth:parameters_get()
-        local rett = meth:return_type_get(eolian.function_type.METHOD)
+        local rett = meth:return_type_get(func_type.METHOD)
 
         local proto = {
             name    = meth:name_get()
@@ -177,9 +183,7 @@ local Method = Node:clone {
         local allocs = {}
         proto.allocs = allocs
 
-        proto.full_name = meth:full_c_name_get()
-
-        local dirs = eolian.parameter_dir
+        proto.full_name = meth:full_c_name_get(func_type.METHOD)
 
         local fulln = proto.full_name
 
@@ -190,13 +194,13 @@ local Method = Node:clone {
         for v in pars do
             local dir, tps, nm = v:direction_get(), v:type_get(), kw_t(v:name_get())
             local tp = tps:c_type_get()
-            if dir == dirs.OUT or dir == dirs.INOUT then
-                if dir == dirs.INOUT then
+            if dir == param_dir.OUT or dir == param_dir.INOUT then
+                if dir == param_dir.INOUT then
                     args[#args + 1] = nm
                 end
                 cargs [#cargs  + 1] = tp .. " *" .. nm
                 vargs [#vargs  + 1] = nm
-                allocs[#allocs + 1] = { tp, nm, (dir == dirs.INOUT)
+                allocs[#allocs + 1] = { tp, nm, (dir == param_dir.INOUT)
                     and typeconv(tps, nm, true) or nil }
                 rets  [#rets   + 1] = typeconv(tps, nm .. "[0]", false)
             else
@@ -248,7 +252,7 @@ local Method = Node:clone {
 local Property = Method:clone {
     __ctor = function(self, prop, ftype)
         self.property = prop
-        self.isget    = (ftype == eolian.function_type.PROP_GET)
+        self.isget    = (ftype == func_type.PROP_GET)
         self.ftype    = ftype
     end,
 
@@ -256,8 +260,8 @@ local Property = Method:clone {
         if self.cached_proto then return self.cached_proto end
 
         local prop = self.property
-        local keys = prop:property_keys_get():to_array()
-        local vals = prop:property_values_get():to_array()
+        local keys = prop:property_keys_get(self.ftype):to_array()
+        local vals = prop:property_values_get(self.ftype):to_array()
         local rett = prop:return_type_get(self.ftype)
 
         local proto = {
@@ -274,9 +278,7 @@ local Property = Method:clone {
         local allocs = {}
         proto.allocs = allocs
 
-        proto.full_name = prop:full_c_name_get() .. proto.suffix
-
-        local dirs = eolian.parameter_dir
+        proto.full_name = prop:full_c_name_get(self.ftype)
 
         local fulln = proto.full_name
         if #keys > 0 then
@@ -330,26 +332,29 @@ local Property = Method:clone {
     generate_prop = function(self, props)
         local proto = self:gen_proto()
         local prop = props[proto.name]
-        if prop then
-            if self.isget then
-                prop[3] = "true"
-            else
-                prop[4] = "true"
-            end
-            return false
-        else
-            props[proto.name] = { proto.nkeys, math.max(proto.nvals, 1),
-                tostring(self.isget), tostring(not self.isget) }
-            return true
+        local hasprop = true
+        if not prop then
+            prop = { 0, 0, 0, 0, "false", "false" }
+            props[proto.name] = prop
+            hasprop = false
         end
+        if self.isget then
+            prop[1] = proto.nkeys
+            prop[3] = math.max(proto.nvals, 1)
+            prop[5] = "true"
+        else
+            prop[2] = proto.nkeys
+            prop[4] = math.max(proto.nvals, 1)
+            prop[6] = "true"
+        end
+        return not hasprop
     end
 }
 
 local Event = Node:clone {
-    __ctor = function(self, ename, etype, edesc, ecname)
+    __ctor = function(self, ename, etype, ecname)
         self.ename  = ename
         self.etype  = etype
-        self.edesc  = edesc
         self.ecname = ecname
     end,
 
@@ -380,10 +385,11 @@ local gen_ns = function(klass, s)
 end
 
 local Mixin = Node:clone {
-    __ctor = function(self, klass, ch, evs)
+    __ctor = function(self, iface, klass, ch, evs)
         self.klass    = klass
         self.children = ch
         self.events   = evs
+        self.iface    = iface
     end,
 
     generate = function(self, s)
@@ -399,6 +405,13 @@ local Mixin = Node:clone {
         s:write("__body = {\n")
         self:gen_children(s)
         s:write("}\n")
+
+        local knu = self.klass:full_name_get():gsub("%.", "_")
+        if not self.iface then
+            s:write(("__body[\"__mixin_%s\"] = true\n"):format(knu))
+        else
+            s:write(("__body[\"__iface_%s\"] = true\n"):format(knu))
+        end
     end,
 
     gen_ffi = function(self, s)
@@ -425,9 +438,9 @@ local build_pn = function(fn, pn)
 end
 
 local Class = Node:clone {
-    __ctor = function(self, klass, parent, mixins, ch, evs)
+    __ctor = function(self, klass, parents, mixins, ch, evs)
         self.klass      = klass
-        self.parent     = parent
+        self.parents    = parents
         self.interfaces = interfaces
         self.mixins     = mixins
         self.children   = ch
@@ -466,23 +479,25 @@ end
         local ctors = self.klass:constructors_get()
         if not ctors then return end
         -- collect constructor information
-        local ftp = eolian.function_type
-        local dir = eolian.parameter_dir
         s:write("    __eo_ctor = function(self, ")
         local cfuncs, parnames, upars = {}, {}, {}
         for ctor in ctors do
             local cfunc = ctor:function_get()
             local cn = cfunc:name_get()
             local tp = cfunc:type_get()
-            if tp == ftp.PROPERTY or tp == ftp.PROP_SET or tp == ftp.METHOD then
+            if tp == func_type.PROPERTY or tp == func_type.PROP_SET
+            or tp == func_type.METHOD then
                 cfuncs[#cfuncs + 1] = cfunc
-                if tp ~= ftp.METHOD then
-                    for par in cfunc:property_keys_get() do
+                if tp ~= func_type.METHOD then
+                    for par in cfunc:property_keys_get(func_type.PROP_SET) do
                         parnames[#parnames + 1] = build_pn(cn, par:name_get())
                     end
                 end
-                for par in cfunc:parameters_get() do
-                    if par:direction_get() ~= dir.OUT then
+                local iter = (tp ~= func_type.METHOD)
+                    and cfunc:property_values_get(func_type.PROP_SET)
+                    or  cfunc:parameters_get()
+                for par in iter do
+                    if par:direction_get() ~= param_dir.OUT then
                         parnames[#parnames + 1] = build_pn(cn, par:name_get())
                     end
                 end
@@ -498,20 +513,24 @@ end
         -- write ctor body
         local j = 1
         for i, cfunc in ipairs(cfuncs) do
+            local tp = cfunc:type_get()
             s:write("        self:", cfunc:name_get())
-            if cfunc:type_get() ~= ftp.METHOD then
+            if cfunc:type_get() ~= func_type.METHOD then
                 s:write("_set")
             end
             s:write("(")
             local fpars = {}
-            if cfunc:type_get() ~= ftp.METHOD then
-                for par in cfunc:property_keys_get() do
+            if tp ~= func_type.METHOD then
+                for par in cfunc:property_keys_get(func_type.PROP_SET) do
                     fpars[#fpars + 1] = parnames[j]
                     j = j + 1
                 end
             end
-            for par in cfunc:parameters_get() do
-                if par:direction_get() ~= dir.OUT then
+            local iter = (tp ~= func_type.METHOD)
+                and cfunc:property_values_get(func_type.PROP_SET)
+                or  cfunc:parameters_get()
+            for par in iter do
+                if par:direction_get() ~= param_dir.OUT then
                     fpars[#fpars + 1] = parnames[j]
                     j = j + 1
                 end
@@ -541,13 +560,22 @@ local File = Node:clone {
         local ckls = self.children[1]
 
         local kn  = kls:full_name_get()
-        local par = ckls.parent
 
         dom:log(log.level.INFO, "Generating for file: " .. self.fname)
         dom:log(log.level.INFO, "  Class            : " .. kn)
 
         local knu = kn:gsub("%.", "_")
-        local paru = par and ('"' .. par:gsub("%.", "_") .. '"') or "nil"
+
+        local pars = ckls.parents or {}
+        local mins = ckls.mixins  or {}
+
+        -- serialize both
+        local pv = {}
+        local mv = {}
+        for i = 1, #pars do pv[i] = '"' .. pars[i]:gsub("%.", "_") .. '"' end
+        for i = 1, #mins do mv[i] = '"' .. mins[i]:gsub("%.", "_") .. '"' end
+        pars = (#pars > 0) and ("{" .. table.concat(pv, ", ") .. "}") or "nil"
+        mins = (#mins > 0) and ("{" .. table.concat(mv, ", ") .. "}") or "nil"
 
         s:write(([[
 -- EFL LuaJIT bindings: %s (class %s)
@@ -565,20 +593,12 @@ local __body
 
 local init = function()
     __class = __lib.%s()
-    eo.class_register("%s", %s, __body, __class)
-]]):format(self.fname, kn, kls:c_get_function_name_get(), knu, paru))
-
-        if ckls.mixins then for i, v in ipairs(ckls.mixins) do
-            s:write(("    eo.class_mixin(\"%s\", \"%s\")\n"):format(knu,
-                v:gsub("%.", "_")))
-        end end
-
-        s:write([[
+    eo.class_register("%s", %s, %s, __body, __class)
 end
 
 cutil.init_module(init, function() end)
 
-]])
+]]):format(self.fname, kn, kls:c_get_function_name_get(), knu, pars, mins))
 
         self:gen_children(s)
 
@@ -600,26 +620,25 @@ return M
 
 local gen_contents = function(klass)
     local cnt = {}
-    local ft  = eolian.function_type
     -- first try properties
-    local props = klass:functions_get(ft.PROPERTY):to_array()
+    local props = klass:functions_get(func_type.PROPERTY):to_array()
     for i, v in ipairs(props) do
-        if v:scope_get() == eolian.object_scope.PUBLIC and not v:is_c_only() then
+        if v:scope_get() == obj_scope.PUBLIC and not v:is_c_only() then
             local ftype  = v:type_get()
-            local fread  = (ftype == ft.PROPERTY or ftype == ft.PROP_GET)
-            local fwrite = (ftype == ft.PROPERTY or ftype == ft.PROP_SET)
+            local fread  = (ftype == func_type.PROPERTY or ftype == func_type.PROP_GET)
+            local fwrite = (ftype == func_type.PROPERTY or ftype == func_type.PROP_SET)
             if fwrite then
-                cnt[#cnt + 1] = Property(v, ft.PROP_SET)
+                cnt[#cnt + 1] = Property(v, func_type.PROP_SET)
             end
             if fread then
-                cnt[#cnt + 1] = Property(v, ft.PROP_GET)
+                cnt[#cnt + 1] = Property(v, func_type.PROP_GET)
             end
         end
     end
     -- then methods
-    local meths = klass:functions_get(ft.METHOD):to_array()
+    local meths = klass:functions_get(func_type.METHOD):to_array()
     for i, v in ipairs(meths) do
-        if v:scope_get() == eolian.object_scope.PUBLIC and not v:is_c_only() then
+        if v:scope_get() == obj_scope.PUBLIC and not v:is_c_only() then
             cnt[#cnt + 1] = Method(v)
         end
     end
@@ -627,38 +646,34 @@ local gen_contents = function(klass)
     local evs = {}
     local events = klass:events_get():to_array()
     for i, v in ipairs(events) do
-        evs[#evs + 1] = Event(v:name_get(), v:type_get(), v:description_get(),
-            v:c_name_get())
+        evs[#evs + 1] = Event(v:name_get(), v:type_get(), v:c_name_get())
     end
     return cnt, evs
 end
 
-local gen_mixin = function(klass)
-    return Mixin(klass, gen_contents(klass))
-end
-
 local gen_class = function(klass)
-    local inherits = klass:inherits_get():to_array()
-    local parent
-    local mixins = {}
-    local ct = eolian.class_type
-    local n = 1
-    if inherits[n] then
-        local tp = eolian.class_get_by_name(inherits[n]):type_get()
-        if tp == ct.REGULAR or tp == ct.ABSTRACT then
-            parent = inherits[n]
-            n = n + 1
-        end
+    local tp = klass:type_get()
+    if tp == class_type.UNKNOWN then
+        error(klass:full_name_get() .. ": unknown type")
+    elseif tp == class_type.MIXIN or tp == class_type.INTERFACE then
+        return Mixin(tp == class_type.INTERFACE, klass, gen_contents(klass))
     end
-    for i = n, #inherits do
+    local inherits = klass:inherits_get():to_array()
+    -- figure out the correct lookup order
+    local parents = {}
+    local mixins  = {} -- also includes ifaces, they're separated later
+    for i = 1, #inherits do
         local v = inherits[i]
         local tp = eolian.class_get_by_name(v):type_get()
-        if tp == ct.UNKNOWN then
+        if tp == class_type.REGULAR or tp == class_type.ABSTRACT then
+            parents[#parents + 1] = v
+        elseif tp == class_type.INTERFACE or tp == class_type.MIXIN then
+            mixins[#mixins + 1] = v
+        else
             error(klass:full_name_get() .. ": unknown inherit " .. v)
         end
-        mixins[#mixins + 1] = v
     end
-    return Class(klass, parent, mixins, gen_contents(klass))
+    return Class(klass, parents, mixins, gen_contents(klass))
 end
 
 M.include_dir = function(dir)
@@ -676,7 +691,7 @@ M.system_directory_scan = function()
 end
 
 M.generate = function(fname, fstream)
-    if not eolian.eo_file_parse(fname) then
+    if not eolian.file_parse(fname) then
         error("Failed parsing file: " .. fname)
     end
     if not eolian.database_validate() then
@@ -684,17 +699,7 @@ M.generate = function(fname, fstream)
     end
     local sfn = fname:match(".*[\\/](.+)$") or fname
     local klass = eolian.class_get_by_file(sfn)
-    local tp = klass:type_get()
-    local ct = eolian.class_type
-    local cl
-    if tp == ct.MIXIN or tp == ct.INTERFACE then
-        cl = gen_mixin(klass)
-    elseif tp == ct.REGULAR or tp == ct.ABSTRACT then
-        cl = gen_class(klass)
-    else
-        error(klass:full_name_get() .. ": unknown type")
-    end
-    File(fname, klass, { cl }):generate(fstream or io.stdout)
+    File(fname, klass, { gen_class(klass) }):generate(fstream or io.stdout)
 end
 
 return M

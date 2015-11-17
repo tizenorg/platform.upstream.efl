@@ -10,8 +10,7 @@
 static Eina_Bool
 node_error(const Eolian_Object *obj, const char *msg)
 {
-   eina_log_print(_eolian_log_dom, EINA_LOG_LEVEL_ERR, obj->file, "",
-                  obj->line, "%s at column %d", msg, obj->column);
+   fprintf(stderr, "eolian:%s:%d:%d: %s\n", obj->file, obj->line, obj->column, msg);
    return EINA_FALSE;
 }
 
@@ -507,25 +506,16 @@ eval_exp(const Eolian_Expression *expr, Eolian_Expression_Mask mask,
                 if (!split_enum_name(expr->value.s, &fulln, &memb))
                   return expr_error(expr, "undefined variable");
 
+                /* assert int here, as we're clearly dealing with enum */
+                if (!(mask & EOLIAN_MASK_INT))
+                  return expr_type_error(expr, EOLIAN_MASK_INT, mask);
+
                 etp = eolian_type_alias_get_by_name(fulln);
-                while (etp && etp->type == EOLIAN_TYPE_ALIAS)
-                  {
-                     etp = eolian_type_base_type_get(etp);
-                     if (etp->type == EOLIAN_TYPE_ENUM)
-                       break;
-                     if (etp->type == EOLIAN_TYPE_REGULAR_ENUM)
-                       break;
-                     if (etp->type != EOLIAN_TYPE_REGULAR)
-                       {
-                          etp = NULL;
-                          break;
-                       }
-                     etp = eolian_type_alias_get_by_name(etp->full_name);
-                  }
+                while (etp && (etp->type == EOLIAN_TYPE_ALIAS
+                            || etp->type == EOLIAN_TYPE_REGULAR))
+                  etp = eolian_type_base_type_get(etp);
 
-                if (etp && etp->type == EOLIAN_TYPE_REGULAR_ENUM)
-                  etp = eolian_type_enum_get_by_name(etp->full_name);
-
+                if (!etp) etp = eolian_type_enum_get_by_name(fulln);
                 if (!etp || etp->type != EOLIAN_TYPE_ENUM)
                   {
                      free(fulln);
@@ -533,7 +523,7 @@ eval_exp(const Eolian_Expression *expr, Eolian_Expression_Mask mask,
                   }
 
                 fl = eolian_type_enum_field_get(etp, memb);
-                if (fl) exp = eolian_type_enum_field_value_get(fl);
+                if (fl) exp = eolian_type_enum_field_value_get(fl, EINA_TRUE);
                 free(fulln);
 
                 if (!exp)
@@ -544,37 +534,6 @@ eval_exp(const Eolian_Expression *expr, Eolian_Expression_Mask mask,
 
            if (!exp)
              return expr_error(expr, "undefined variable");
-
-           return eval_exp(exp, mask, out);
-        }
-      case EOLIAN_EXPR_ENUM:
-        {
-           const Eolian_Type *etp;
-           const Eolian_Expression *exp = NULL;
-           const Eolian_Enum_Type_Field *fl;
-
-           char *fulln = NULL, *memb = NULL;
-           if (!split_enum_name(expr->value.s, &fulln, &memb))
-             {
-                return expr_error(expr, "invalid enum");
-             }
-
-           etp = eolian_type_enum_get_by_name(fulln);
-           if (etp && etp->type == EOLIAN_TYPE_REGULAR_ENUM)
-             etp = eolian_type_enum_get_by_name(etp->full_name);
-
-           if (!etp)
-             {
-                free(fulln);
-                return expr_error(expr, "invalid enum");
-             }
-
-           fl = eolian_type_enum_field_get(etp, memb);
-           if (fl) exp = eolian_type_enum_field_value_get(fl);
-           free(fulln);
-
-           if (!exp)
-             return expr_error(expr, "invalid enum field");
 
            return eval_exp(exp, mask, out);
         }
@@ -612,12 +571,12 @@ database_expr_del(Eolian_Expression *expr)
    if (expr->base.file) eina_stringshare_del(expr->base.file);
    if (expr->type == EOLIAN_EXPR_BINARY)
      {
-        database_expr_del(expr->lhs);
-        database_expr_del(expr->rhs);
+        if (!expr->weak_lhs) database_expr_del(expr->lhs);
+        if (!expr->weak_rhs) database_expr_del(expr->rhs);
      }
    else if (expr->type == EOLIAN_EXPR_UNARY)
      {
-        database_expr_del(expr->expr);
+        if (!expr->weak_lhs) database_expr_del(expr->expr);
      }
    else if (expr->type == EOLIAN_EXPR_STRING)
      {

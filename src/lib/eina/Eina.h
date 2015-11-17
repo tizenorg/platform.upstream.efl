@@ -263,6 +263,14 @@ extern "C" {
 #include <eina_cow.h>
 #include <eina_thread_queue.h>
 #include <eina_matrix.h>
+#include <eina_crc.h>
+#include <eina_evlog.h>
+#include <eina_util.h>
+#include <eina_quaternion.h>
+#include <eina_bezier.h>
+
+#undef EAPI
+#define EAPI
 
 #ifdef __cplusplus
 }

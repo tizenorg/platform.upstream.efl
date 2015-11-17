@@ -49,7 +49,7 @@ evas_common_draw_context_cutouts_add(Cutout_Rects* rects,
 
    if (rects->max < (rects->active + 1))
      {
-        rects->max += 128;
+        rects->max += 512;
         rects->rects = (Cutout_Rect *)realloc(rects->rects, sizeof(Cutout_Rect) * rects->max);
      }
 
@@ -66,7 +66,7 @@ evas_common_draw_context_cutouts_add(Cutout_Rects* rects,
 static inline int
 evas_object_is_opaque(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj)
 {
-   if (obj->is_smart) return 0;
+   if (obj->is_smart || obj->no_render) return 0;
    /* If clipped: Assume alpha */
    if (obj->cur->cache.clip.a == 255)
      {
@@ -74,6 +74,9 @@ evas_object_is_opaque(Evas_Object *eo_obj, Evas_Object_Protected_Data *obj)
         if ((obj->cur->clipper && obj->cur->clipper->mask->is_mask) ||
             (obj->clip.mask))
           return 0;
+        /* Non masked snapshot are supposed to be opaque */
+        if (obj->cur->snapshot)
+          return 1;
         if (obj->func->is_opaque)
           return obj->func->is_opaque(eo_obj, obj, obj->private_data);
         return 1;
@@ -118,6 +121,7 @@ evas_object_is_source_invisible(Evas_Object *eo_obj EINA_UNUSED, Evas_Object_Pro
      return obj->parent_cache.src_invisible;
    if ((obj->proxy->proxies || obj->proxy->proxy_textures) && obj->proxy->src_invisible) return 1;
    if (!obj->smart.parent) return 0;
+   if (obj->mask->is_mask) return 0;
    Evas_Object_Protected_Data *smart_parent_pd =
       eo_data_scope_get(obj->smart.parent, EVAS_OBJECT_CLASS);
    obj->parent_cache.src_invisible =
@@ -365,6 +369,26 @@ evas_object_clip_recalc(Evas_Object_Protected_Data *obj)
         state_write->cache.clip.dirty = EINA_FALSE;
      }
    EINA_COW_STATE_WRITE_END(obj, state_write, cur);
+}
+
+static inline void
+evas_object_async_block(Evas_Object_Protected_Data *obj)
+{
+   if ((obj) && (obj->layer) && (obj->layer->evas))
+     {
+        eina_lock_take(&(obj->layer->evas->lock_objects));
+        eina_lock_release(&(obj->layer->evas->lock_objects));
+     }
+}
+
+static inline void
+evas_canvas_async_block(Evas_Public_Data *e)
+{
+   if (e)
+     {
+        eina_lock_take(&(e->lock_objects));
+        eina_lock_release(&(e->lock_objects));
+     }
 }
 
 #endif

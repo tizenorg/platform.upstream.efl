@@ -1,46 +1,44 @@
 class Override (Base) {
-   properties {
-      a {
-         set {
-         }
-         get {
-         }
-      }
-      b {
-         set {
-         }
-         get {
-         }
-         keys {
-              int idx;
-         }
-         values {
-              float a;
-              char b;
-              int c;
-         }
-      }
-      c {
-         set {
-         }
-         get {
-         }
-         keys {
-              int idx;
-         }
-         values {
-              int c(50);
-         }
-      }
-   }
    methods {
+      @property a {
+         set {
+         }
+         get {
+         }
+      }
+      @property b {
+         set {
+         }
+         get {
+         }
+         keys {
+              idx: int;
+         }
+         values {
+              a: float;
+              b: char;
+              c: int;
+         }
+      }
+      @property c {
+         set {
+         }
+         get {
+         }
+         keys {
+              idx: int;
+         }
+         values {
+              c: int(50);
+         }
+      }
       foo {
       }
       bar {
            params {
-                @in int idx;
-                @out int a (250);
-                @out char *str (null);
+                @in idx: int;
+                @out a: int (250);
+                @out str: char * (null);
            }
       }
    }

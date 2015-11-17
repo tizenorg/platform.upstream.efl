@@ -225,7 +225,6 @@ _ecore_con_local_win32_client_read_server_thread(void *data)
           }
      }
 
-   printf(" ### %s\n", __FUNCTION__);
    svr->read_stopped = EINA_TRUE;
    _endthreadex(0);
    return 0;
@@ -264,7 +263,6 @@ _ecore_con_local_win32_server_read_client_thread(void *data)
           }
      }
 
-   printf(" ### %s\n", __FUNCTION__);
    host_svr->read_stopped = EINA_TRUE;
    _endthreadex(0);
    return 0;
@@ -384,7 +382,6 @@ _ecore_con_local_win32_listening(void *data)
 
    DBG("Client connected");
 
-   printf(" ### %s\n", __FUNCTION__);
    _endthreadex(0);
    return 0;
 }
@@ -404,13 +401,13 @@ ecore_con_local_listen(Ecore_Con_Server *obj)
      }
 
    if ((svr->type & ECORE_CON_TYPE) == ECORE_CON_LOCAL_USER)
-     snprintf(buf, sizeof(buf), "\\\\.\\pipe\\%s", svr->name);
+     snprintf(buf, sizeof(buf), "\\\\.\\pipe\\%s%ld", svr->name, GetProcessId(GetCurrentProcess()));
    else if ((svr->type & ECORE_CON_TYPE) == ECORE_CON_LOCAL_SYSTEM)
      {
         const char *computername;
 
         computername = getenv("COMPUTERNAME");
-        snprintf(buf, sizeof(buf), "\\\\%s\\pipe\\%s", computername, svr->name);
+        snprintf(buf, sizeof(buf), "\\\\%s\\pipe\\%s%ld", computername, svr->name, GetProcessId(GetCurrentProcess()));
      }
 
    svr->path = strdup(buf);
@@ -488,8 +485,10 @@ ecore_con_local_win32_server_del(Ecore_Con_Server *obj)
      return;
 
    svr->read_stop = 1;
-   while (!svr->read_stopped)
-     Sleep(100);
+   /* FIXME: we should try to stop these thread in one way or another */
+   /* should we use ecore_thread ? */
+   /* while (!svr->read_stopped) */
+   /*   Sleep(100); */
 
    if (svr->event_peek)
      CloseHandle(svr->event_peek);
@@ -547,7 +546,7 @@ ecore_con_local_connect(Ecore_Con_Server *obj,
 
    if ((svr->type & ECORE_CON_TYPE) == ECORE_CON_LOCAL_ABSTRACT)
      {
-        ERR("Your system does not support abstract sockets!");
+        WRN("Your system does not support abstract sockets!");
         return EINA_FALSE;
      }
 
@@ -576,14 +575,14 @@ ecore_con_local_connect(Ecore_Con_Server *obj,
         /* if pipe not busy, we exit */
         if (GetLastError() != ERROR_PIPE_BUSY)
           {
-             ERR("Connection to a server failed");
+             DBG("Connection to a server failed");
              return EINA_FALSE;
           }
 
         /* pipe busy, so we wait for it */
         if (!WaitNamedPipe(buf, NMPWAIT_WAIT_FOREVER))
           {
-             ERR("Can not wait for a server");
+             DBG("Can not wait for a server");
              goto close_pipe;
           }
      }

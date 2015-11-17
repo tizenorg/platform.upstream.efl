@@ -1140,8 +1140,7 @@ EAPI Eina_Tiler *eina_tiler_new(int w, int h)
 {
    Eina_Tiler *t;
 
-   if ((w <= 0) || (h <= 0))
-     return NULL;
+   EINA_SAFETY_ON_TRUE_RETURN_VAL((w <= 0) || (h <= 0), NULL);
 
    t = calloc(1, sizeof(Eina_Tiler));
    t->last.add.w = -1;
@@ -1190,6 +1189,7 @@ EAPI void eina_tiler_tile_size_set(Eina_Tiler *t, int w, int h)
    EINA_MAGIC_CHECK_TILER(t);
    if ((w <= 0) || (h <= 0))
       return;
+   if ((t->tile.w == w) && (t->tile.h == h)) return;
 
    if (w == 1 || h == 1) t->rounding = EINA_FALSE;
    t->tile.w = w;

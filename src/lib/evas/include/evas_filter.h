@@ -4,11 +4,38 @@
 #include "evas_common_private.h"
 #include "evas_private.h"
 
+#ifdef EAPI
+# undef EAPI
+#endif
+
+#ifdef _WIN32
+# ifdef EFL_EVAS_BUILD
+#  ifdef DLL_EXPORT
+#   define EAPI __declspec(dllexport)
+#  else
+#   define EAPI
+#  endif /* ! DLL_EXPORT */
+# else
+#  define EAPI __declspec(dllimport)
+# endif /* ! EFL_EVAS_BUILD */
+#else
+# ifdef __GNUC__
+#  if __GNUC__ >= 4
+#   define EAPI __attribute__ ((visibility("default")))
+#  else
+#   define EAPI
+#  endif
+# else
+#  define EAPI
+# endif
+#endif /* ! _WIN32 */
+
 typedef struct _Evas_Filter_Context Evas_Filter_Context;
 typedef struct _Evas_Filter_Command Evas_Filter_Command;
 typedef struct _Evas_Filter_Instruction Evas_Filter_Instruction;
 typedef struct _Evas_Filter_Buffer Evas_Filter_Buffer;
 typedef struct _Evas_Filter_Proxy_Binding Evas_Filter_Proxy_Binding;
+typedef struct _Evas_Filter_Program_State  Evas_Filter_Program_State;
 typedef enum _Evas_Filter_Mode Evas_Filter_Mode;
 typedef enum _Evas_Filter_Blur_Type Evas_Filter_Blur_Type;
 typedef enum _Evas_Filter_Channel Evas_Filter_Channel;
@@ -26,6 +53,7 @@ typedef void (* Evas_Filter_Cb) (Evas_Filter_Context *ctx, void *data, Eina_Bool
 #define EVAS_FILTER_BUFFER_INPUT_ID  1
 #define EVAS_FILTER_BUFFER_OUTPUT_ID 2
 
+/** @internal */
 enum _Evas_Filter_Mode
 {
    EVAS_FILTER_MODE_BLEND,        /**< Blend with current context render_op */
@@ -40,6 +68,7 @@ enum _Evas_Filter_Mode
    EVAS_FILTER_MODE_LAST
 };
 
+/** @internal */
 enum _Evas_Filter_Blur_Type
 {
    EVAS_FILTER_BLUR_DEFAULT  = 0x0, // Default blur (GAUSSIAN or series of BOX)
@@ -48,6 +77,7 @@ enum _Evas_Filter_Blur_Type
    EVAS_FILTER_BLUR_LAST,
 };
 
+/** @internal */
 enum _Evas_Filter_Channel
 {
    EVAS_FILTER_CHANNEL_ALPHA = 0,
@@ -57,6 +87,7 @@ enum _Evas_Filter_Channel
    EVAS_FILTER_CHANNEL_RGB   = 4
 };
 
+/** @internal */
 enum _Evas_Filter_Displacement_Flags
 {
    EVAS_FILTER_DISPLACE_NEAREST  = 0x0,   /**< Interpolate between pixels (linear interpolation) */
@@ -66,12 +97,14 @@ enum _Evas_Filter_Displacement_Flags
    EVAS_FILTER_DISPLACE_BITMASK  = 0x3
 };
 
+/** @internal */
 enum _Evas_Filter_Bump_Flags
 {
    EVAS_FILTER_BUMP_NORMAL       = 0x0,
    EVAS_FILTER_BUMP_COMPENSATE   = 0x1    /**< Compensate for darkening (diffuse light) or brightening (specular light) of zero gradient surfaces */
 };
 
+/** @internal */
 enum _Evas_Filter_Fill_Mode
 {
    EVAS_FILTER_FILL_MODE_NONE               = 0x0,
@@ -85,6 +118,7 @@ enum _Evas_Filter_Fill_Mode
    EVAS_FILTER_FILL_MODE_STRETCH_XY         = EVAS_FILTER_FILL_MODE_STRETCH_X | EVAS_FILTER_FILL_MODE_STRETCH_Y
 };
 
+/** @internal */
 enum _Evas_Filter_Transform_Flags
 {
    EVAS_FILTER_TRANSFORM_VFLIP = 1
@@ -92,19 +126,21 @@ enum _Evas_Filter_Transform_Flags
 
 /* Parser stuff (high level API) */
 EAPI Evas_Filter_Program *evas_filter_program_new(const char *name, Eina_Bool input_alpha);
+EAPI Eina_Bool           evas_filter_program_state_set(Evas_Filter_Program *pgm, Evas_Object *eo_obj, Evas_Object_Protected_Data *obj, const char *cur_state, double cur_val, const char *next_state, double next_val, double pos);
 EAPI Eina_Bool           evas_filter_program_parse(Evas_Filter_Program *pgm, const char *str);
 EAPI void                evas_filter_program_del(Evas_Filter_Program *pgm);
 Eina_Bool                evas_filter_context_program_use(Evas_Filter_Context *ctx, Evas_Filter_Program *pgm);
 EAPI Eina_Bool           evas_filter_program_padding_get(Evas_Filter_Program *pgm, int *l, int *r, int *t, int *b);
 EAPI void                evas_filter_program_source_set_all(Evas_Filter_Program *pgm, Eina_Hash *sources);
 void                     evas_filter_context_proxy_render_all(Evas_Filter_Context *ctx, Eo *eo_obj, Eina_Bool do_async);
+void                     evas_filter_program_data_set_all(Evas_Filter_Program *pgm, Eina_Inlist *data);
 
 /* Filter context (low level) */
 Evas_Filter_Context     *evas_filter_context_new(Evas_Public_Data *evas, Eina_Bool async);
 void                     evas_filter_context_destroy(Evas_Filter_Context *ctx);
 void                     evas_filter_context_post_run_callback_set(Evas_Filter_Context *ctx, Evas_Filter_Cb cb, void *data);
 #define                  evas_filter_context_autodestroy(ctx) evas_filter_context_post_run_callback_set(ctx, ((Evas_Filter_Cb) evas_filter_context_destroy), ctx)
-Eina_Bool                evas_filter_context_buffers_allocate_all(Evas_Filter_Context *ctx, unsigned w, unsigned h);
+Eina_Bool                evas_filter_context_buffers_allocate_all(Evas_Filter_Context *ctx);
 
 int                      evas_filter_buffer_empty_new(Evas_Filter_Context *ctx, Eina_Bool alpha_only);
 int                      evas_filter_buffer_image_new(Evas_Filter_Context *ctx, void *image);
@@ -128,6 +164,7 @@ Eina_Bool                evas_filter_target_set(Evas_Filter_Context *ctx, void *
  * @param oy             Y offset in the destination buffer
  * @param fillmode       Specifies whether to repeat or stretch the input onto its destination, and on which axes
  * @return               Filter command ID or -1 in case of error
+ * @internal
  */
 int                      evas_filter_command_blend_add(Evas_Filter_Context *ctx, void *draw_context, int inbuf, int outbuf, int ox, int oy, Evas_Filter_Fill_Mode fillmode);
 
@@ -144,6 +181,7 @@ int                      evas_filter_command_blend_add(Evas_Filter_Context *ctx,
  * @param oy             Y offset in the destination buffer
  * @param count          Number of times to repeat the operation (used for smooth fast blurs with box blur)
  * @return               Filter command ID or -1 in case of error
+ * @internal
  */
 int                      evas_filter_command_blur_add(Evas_Filter_Context *ctx, void *draw_context, int inbuf, int outbuf, Evas_Filter_Blur_Type type, int dx, int dy, int ox, int oy, int count);
 
@@ -154,6 +192,7 @@ int                      evas_filter_command_blur_add(Evas_Filter_Context *ctx, 
  * @param buf            Buffer: ALPHA or RGBA
  * @return               Filter command ID or -1 in case of error
  * @note The current draw context's render operation is ignored (always uses COPY mode).
+ * @internal
  */
 int                      evas_filter_command_fill_add(Evas_Filter_Context *ctx, void *draw_context, int buf);
 
@@ -166,6 +205,7 @@ int                      evas_filter_command_fill_add(Evas_Filter_Context *ctx, 
  * @param curve          The data points to use, must contain 256 values.
  * @param channel        Which channel to apply the curve (red, green, blue, alpha or RGB)
  * @return               Filter command ID or -1 in case of error
+ * @internal
  */
 int                      evas_filter_command_curve_add(Evas_Filter_Context *ctx, void *draw_context, int inbuf, int outbuf, DATA8 *curve /* 256 elements */, Evas_Filter_Channel channel);
 
@@ -178,6 +218,7 @@ int                      evas_filter_command_curve_add(Evas_Filter_Context *ctx,
  * @param radius         Number of pixels to grow by. If negative, shrink instead of grow
  * @param smooth         Use smooth blur and curve for grow (default: true)
  * @return               Filter command ID or -1 in case of error
+ * @internal
  */
 int                      evas_filter_command_grow_add(Evas_Filter_Context *ctx, void *draw_context, int inbuf, int outbuf, int radius, Eina_Bool smooth);
 
@@ -192,6 +233,7 @@ int                      evas_filter_command_grow_add(Evas_Filter_Context *ctx, 
  * @param intensity      Maximum offset possible, if the map's value is maximal at this point (ie. 0 or 255)
  * @param fillmode       Specifies how to repeat and stretch the map to fit the target size
  * @return               Filter command ID or -1 in case of error
+ * @internal
  */
 int                      evas_filter_command_displacement_map_add(Evas_Filter_Context *ctx, void *draw_context, int inbuf, int outbuf, int dispbuf, Evas_Filter_Displacement_Flags flags, int intensity, Evas_Filter_Fill_Mode fillmode);
 
@@ -205,6 +247,7 @@ int                      evas_filter_command_displacement_map_add(Evas_Filter_Co
  * @param fillmode       Specifies how to repeat and stretch the mask to fit the target size
  * @return               Filter command ID or -1 in case of error
  * @note For the moment, inbuf can only be ALPHA, and output must be RGBA if mask is RGBA as well
+ * @internal
  */
 int                      evas_filter_command_mask_add(Evas_Filter_Context *ctx, void *draw_context, int inbuf, int maskbuf, int outbuf, Evas_Filter_Fill_Mode fillmode);
 
@@ -225,6 +268,7 @@ int                      evas_filter_command_mask_add(Evas_Filter_Context *ctx, 
  * @param flags            Optional flags: compensation for darkening
  * @param fillmode         Specifies how to repeat and stretch the map to fit the target size
  * @return                 Filter command ID or -1 in case of error
+ * @internal
  */
 int                      evas_filter_command_bump_map_add(Evas_Filter_Context *ctx, void *draw_context, int inbuf, int bumpbuf, int outbuf, float azimuth, float elevation, float depth, float specular_factor, DATA32 black, DATA32 color, DATA32 white, Evas_Filter_Bump_Flags flags, Evas_Filter_Fill_Mode fillmode);
 
@@ -238,6 +282,7 @@ int                      evas_filter_command_bump_map_add(Evas_Filter_Context *c
  * @param ox             X offset
  * @param oy             Y offset
  * @return               Filter command ID or -1 in case of error
+ * @internal
  */
 int                      evas_filter_command_transform_add(Evas_Filter_Context *ctx, void *draw_context, int inbuf, int outbuf, Evas_Filter_Transform_Flags flags, int ox, int oy);
 
@@ -249,5 +294,15 @@ struct _Evas_Filter_Proxy_Binding
    Eina_Stringshare *name;
 };
 
-#endif
+struct _Evas_Filter_Data_Binding
+{
+   EINA_INLIST;
+   Eina_Stringshare *name;
+   Eina_Stringshare *value;
+   Eina_Bool execute : 1;
+};
 
+#undef EAPI
+#define EAPI
+
+#endif

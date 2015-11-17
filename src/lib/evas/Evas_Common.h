@@ -2,6 +2,8 @@
 # error You shall not include this header directly
 #endif
 
+#include "canvas/evas_types.eot.h"
+
 /**
  * @def EVAS_VERSION_MAJOR
  * The major number of evas version
@@ -55,86 +57,6 @@ EAPI extern Evas_Version * evas_version;
  * @todo finish api documentation
  */
 
-/* BiDi exposed stuff */
-/*FIXME: document */
-typedef enum _Evas_BiDi_Direction
-{
-   EVAS_BIDI_DIRECTION_NATURAL,
-   EVAS_BIDI_DIRECTION_NEUTRAL = EVAS_BIDI_DIRECTION_NATURAL,
-   EVAS_BIDI_DIRECTION_LTR,
-   EVAS_BIDI_DIRECTION_RTL
-} Evas_BiDi_Direction;
-
-/**
- * Identifier of callbacks to be set for Evas canvases or Evas
- * objects.
- *
- * The following figure illustrates some Evas callbacks:
- *
- * @image html evas-callbacks.png
- * @image rtf evas-callbacks.png
- * @image latex evas-callbacks.eps
- *
- * @see evas_object_event_callback_add()
- * @see evas_event_callback_add()
- */
-typedef enum _Evas_Callback_Type
-{
-   /*
-    * The following events are only for use with Evas objects, with
-    * evas_object_event_callback_add():
-    */
-   EVAS_CALLBACK_MOUSE_IN, /**< Mouse In Event */
-   EVAS_CALLBACK_MOUSE_OUT, /**< Mouse Out Event */
-   EVAS_CALLBACK_MOUSE_DOWN, /**< Mouse Button Down Event */
-   EVAS_CALLBACK_MOUSE_UP, /**< Mouse Button Up Event */
-   EVAS_CALLBACK_MOUSE_MOVE, /**< Mouse Move Event */
-   EVAS_CALLBACK_MOUSE_WHEEL, /**< Mouse Wheel Event */
-   EVAS_CALLBACK_MULTI_DOWN, /**< Multi-touch Down Event */
-   EVAS_CALLBACK_MULTI_UP, /**< Multi-touch Up Event */
-   EVAS_CALLBACK_MULTI_MOVE, /**< Multi-touch Move Event */
-   EVAS_CALLBACK_FREE, /**< Object Being Freed (Called after Del) */
-   EVAS_CALLBACK_KEY_DOWN, /**< Key Press Event */
-   EVAS_CALLBACK_KEY_UP, /**< Key Release Event */
-   EVAS_CALLBACK_FOCUS_IN, /**< Focus In Event */
-   EVAS_CALLBACK_FOCUS_OUT, /**< Focus Out Event */
-   EVAS_CALLBACK_SHOW, /**< Show Event */
-   EVAS_CALLBACK_HIDE, /**< Hide Event */
-   EVAS_CALLBACK_MOVE, /**< Move Event */
-   EVAS_CALLBACK_RESIZE, /**< Resize Event */
-   EVAS_CALLBACK_RESTACK, /**< Restack Event */
-   EVAS_CALLBACK_DEL, /**< Object Being Deleted (called before Free) */
-   EVAS_CALLBACK_HOLD, /**< Events go on/off hold */
-   EVAS_CALLBACK_CHANGED_SIZE_HINTS, /**< Size hints changed event */
-   EVAS_CALLBACK_IMAGE_PRELOADED, /**< Image has been preloaded */
-
-   /*
-    * The following events are only for use with Evas canvases, with
-    * evas_event_callback_add():
-    */
-   EVAS_CALLBACK_CANVAS_FOCUS_IN, /**< Canvas got focus as a whole */
-   EVAS_CALLBACK_CANVAS_FOCUS_OUT, /**< Canvas lost focus as a whole */
-   EVAS_CALLBACK_RENDER_FLUSH_PRE, /**< Called just before rendering is updated on the canvas target */
-   EVAS_CALLBACK_RENDER_FLUSH_POST, /**< Called just after rendering is updated on the canvas target */
-   EVAS_CALLBACK_CANVAS_OBJECT_FOCUS_IN, /**< Canvas object got focus */
-   EVAS_CALLBACK_CANVAS_OBJECT_FOCUS_OUT, /**< Canvas object lost focus */
-   EVAS_CALLBACK_CANVAS_VIEWPORT_RESIZE, /**< Canvas viewport resized @since 1.15 */
-
-   /*
-    * More Evas object event types - see evas_object_event_callback_add():
-    */
-   EVAS_CALLBACK_IMAGE_UNLOADED, /**< Image data has been unloaded (by some mechanism in Evas that throw out original image data) */
-
-   EVAS_CALLBACK_RENDER_PRE, /**< Called just before rendering starts on the canvas target @since 1.2 */
-   EVAS_CALLBACK_RENDER_POST, /**< Called just after rendering stops on the canvas target @since 1.2 */
-
-   EVAS_CALLBACK_IMAGE_RESIZE, /**< Image size is changed @since 1.8 */
-   EVAS_CALLBACK_DEVICE_CHANGED, /**< Devices added, removed or changed on canvas @since 1.8 */
-
-   EVAS_CALLBACK_AXIS_UPDATE, /**< Input device changed value on some axis @since 1.13 */
-   EVAS_CALLBACK_LAST /**< kept as last element/sentinel -- not really an event */
-} Evas_Callback_Type; /**< The types of events triggering a callback */
-
 /**
  * @def EVAS_CALLBACK_PRIORITY_BEFORE
  * Slightly more prioritized than default.
@@ -167,63 +89,6 @@ typedef enum _Evas_Callback_Type
  * @since 1.1
  */
 typedef Eo_Callback_Priority Evas_Callback_Priority;
-
-/**
- * Flags for Mouse Button events
- */
-typedef enum _Evas_Button_Flags
-{
-   EVAS_BUTTON_NONE = 0, /**< No extra mouse button data */
-   EVAS_BUTTON_DOUBLE_CLICK = (1 << 0), /**< This mouse button press was the 2nd press of a double click */
-   EVAS_BUTTON_TRIPLE_CLICK = (1 << 1) /**< This mouse button press was the 3rd press of a triple click */
-} Evas_Button_Flags; /**< Flags for Mouse Button events */
-
-/**
- * Flags for Events
- */
-typedef enum _Evas_Event_Flags
-{
-   EVAS_EVENT_FLAG_NONE = 0, /**< No fancy flags set */
-   EVAS_EVENT_FLAG_ON_HOLD = (1 << 0), /**< This event is being delivered but should be put "on hold" until the on hold flag is unset. The event should be used for informational purposes and maybe some indications visually, but not actually perform anything */
-   EVAS_EVENT_FLAG_ON_SCROLL = (1 << 1) /**< This event flag indicates the event occurs while scrolling; for example, DOWN event occurs during scrolling; the event should be used for informational purposes and maybe some indications visually, but not actually perform anything */
-} Evas_Event_Flags; /**< Flags for Events */
-
-/**
- * State of Evas_Coord_Touch_Point
- */
-typedef enum _Evas_Touch_Point_State
-{
-   EVAS_TOUCH_POINT_DOWN, /**< Touch point is pressed down */
-   EVAS_TOUCH_POINT_UP, /**< Touch point is released */
-   EVAS_TOUCH_POINT_MOVE, /**< Touch point is moved */
-   EVAS_TOUCH_POINT_STILL, /**< Touch point is not moved after pressed */
-   EVAS_TOUCH_POINT_CANCEL /**< Touch point is cancelled */
-} Evas_Touch_Point_State;
-
-/**
- * Flags for Font Hinting
- * @ingroup Evas_Font_Group
- */
-typedef enum _Evas_Font_Hinting_Flags
-{
-   EVAS_FONT_HINTING_NONE, /**< No font hinting */
-   EVAS_FONT_HINTING_AUTO, /**< Automatic font hinting */
-   EVAS_FONT_HINTING_BYTECODE /**< Bytecode font hinting */
-} Evas_Font_Hinting_Flags; /**< Flags for Font Hinting */
-
-/**
- * How to pack items into cells in a table.
- * @ingroup Evas_Object_Table
- *
- * @see evas_object_table_homogeneous_set() for an explanation of the function of
- * each one.
- */
-typedef enum _Evas_Object_Table_Homogeneous_Mode
-{
-   EVAS_OBJECT_TABLE_HOMOGENEOUS_NONE = 0,
-   EVAS_OBJECT_TABLE_HOMOGENEOUS_TABLE = 1,
-   EVAS_OBJECT_TABLE_HOMOGENEOUS_ITEM = 2
-} Evas_Object_Table_Homogeneous_Mode; /**< Table cell pack mode. */
 
 typedef struct _Evas_Coord_Rectangle       Evas_Coord_Rectangle; /**< A generic rectangle handle */
 typedef struct _Evas_Point                 Evas_Point;   /**< integer point */
@@ -272,19 +137,6 @@ typedef struct _Evas_Smart_Interface         Evas_Smart_Interface;
 typedef struct _Evas_Smart_Cb_Description Evas_Smart_Cb_Description;
 
 /**
- * @typedef Evas_Map
- *
- * An opaque handle to map points
- *
- * @see evas_map_new()
- * @see evas_map_free()
- * @see evas_map_dup()
- *
- * @ingroup Evas_Object_Group_Map
- */
-typedef struct _Evas_Map Evas_Map;
-
-/**
  * @typedef Evas
  *
  * An opaque handle to an Evas canvas.
@@ -319,8 +171,6 @@ typedef Eo                 Evas_Object;
 typedef Eo      Efl_VG;
 
 typedef void                        Evas_Performance; /**< An Evas Performance handle */
-typedef struct _Evas_Modifier       Evas_Modifier; /**< An opaque type containing information on which modifier keys are registered in an Evas canvas */
-typedef struct _Evas_Lock           Evas_Lock; /**< An opaque type containing information on which lock keys are registered in an Evas canvas */
 typedef struct _Evas_Smart          Evas_Smart; /**< An Evas Smart Object handle */
 typedef struct _Evas_Native_Surface Evas_Native_Surface; /**< A generic datatype for engine specific native surface information */
 
@@ -334,10 +184,6 @@ typedef struct _Evas_Native_Surface Evas_Native_Surface; /**< A generic datatype
  */
 typedef struct _Evas_Video_Surface Evas_Video_Surface;
 
-typedef unsigned long long         Evas_Modifier_Mask;  /**< An Evas modifier mask type */
-
-typedef int                        Evas_Coord;/**< A type for coordinates */;
-typedef int                        Evas_Font_Size; /**< A type for font size */
 typedef int                        Evas_Angle; /**< A type for angle */
 
 struct _Evas_Coord_Rectangle /** A rectangle in Evas_Coord */
@@ -395,25 +241,7 @@ struct _Evas_Precision_Position /** A position with precision*/
    Evas_Coord_Precision_Point canvas; /**< position on the canvas */
 };
 
-typedef enum _Evas_Aspect_Control
-{
-   EVAS_ASPECT_CONTROL_NONE = 0, /**< Preference on scaling unset */
-   EVAS_ASPECT_CONTROL_NEITHER = 1, /**< Same effect as unset preference on scaling */
-   EVAS_ASPECT_CONTROL_HORIZONTAL = 2, /**< Use all horizontal container space to place an object, using the given aspect */
-   EVAS_ASPECT_CONTROL_VERTICAL = 3, /**< Use all vertical container space to place an object, using the given aspect */
-   EVAS_ASPECT_CONTROL_BOTH = 4 /**< Use all horizontal @b and vertical container spaces to place an object (never growing it out of those bounds), using the given aspect */
-} Evas_Aspect_Control; /**< Aspect types/policies for scaling size hints, used for evas_object_size_hint_aspect_set() */
-
-typedef enum _Evas_Display_Mode
-{
-   EVAS_DISPLAY_MODE_NONE = 0, /**<Default mode */
-   EVAS_DISPLAY_MODE_COMPRESS = 1, /**< Use this mode when you want to give compress display mode hint to an object */
-   EVAS_DISPLAY_MODE_EXPAND = 2, /**< Use this mode when you want to give expand display mode hint to an object */
-   EVAS_DISPLAY_MODE_DONT_CHANGE = 3 /**< Use this mode when an object should not change its display mode */
-} Evas_Display_Mode; /**< object's display mode type related with compress/expand or etc mode */
-
 typedef struct _Evas_Pixel_Import_Source Evas_Pixel_Import_Source; /**< A source description of pixels for importing pixels */
-typedef struct _Evas_Engine_Info         Evas_Engine_Info; /**< A generic Evas Engine information structure */
 typedef struct _Evas_Device              Evas_Device; /**< A source device handle - where the event came from */
 typedef struct _Evas_Event_Mouse_Down    Evas_Event_Mouse_Down; /**< Event structure for #EVAS_CALLBACK_MOUSE_DOWN event callbacks */
 typedef struct _Evas_Event_Mouse_Up      Evas_Event_Mouse_Up; /**< Event structure for #EVAS_CALLBACK_MOUSE_UP event callbacks */
@@ -428,7 +256,6 @@ typedef struct _Evas_Event_Key_Down      Evas_Event_Key_Down; /**< Event structu
 typedef struct _Evas_Event_Key_Up        Evas_Event_Key_Up; /**< Event structure for #EVAS_CALLBACK_KEY_UP event callbacks */
 typedef struct _Evas_Event_Hold          Evas_Event_Hold; /**< Event structure for #EVAS_CALLBACK_HOLD event callbacks */
 typedef struct _Evas_Event_Render_Post   Evas_Event_Render_Post; /**< Event structure that may come with #EVAS_CALLBACK_RENDER_POST event callbacks @since 1.8 */
-typedef struct _Evas_Axis                Evas_Axis; /**< Details for a single device axis state @since 1.13 */
 typedef struct _Evas_Event_Axis_Update   Evas_Event_Axis_Update; /**< Event structure for #EVAS_CALLBACK_AXIS_UPDATE event callbacks @since 1.13 */
 
 typedef enum _Evas_Alloc_Error
@@ -479,11 +306,9 @@ typedef enum _Evas_Native_Surface_Type
    EVAS_NATIVE_SURFACE_X11,  /**< X Window system based type. pixmap id or visual of the pixmap */
    EVAS_NATIVE_SURFACE_OPENGL, /**< OpenGL system based type. texture or framebuffer id*/
    EVAS_NATIVE_SURFACE_WL, /**< Wayland system based type. buffer of surface */
-   // TIZEN ONLY (20150112) : NOT FIXED
-   EVAS_NATIVE_SURFACE_TIZEN,
-   EVAS_NATIVE_SURFACE_TBM,    /**< Tizen system based type. This is used for tizen buffer manager. */
-   EVAS_NATIVE_SURFACE_EVASGL, /**< Evas GL based type. evas gl surface */
-   //
+   EVAS_NATIVE_SURFACE_TIZEN, /**< @deprecated Kept for ABI compatibility. DO NOT USE. */
+   EVAS_NATIVE_SURFACE_TBM, /**< Tizen system based type. tbm surface @since 1.14  */
+   EVAS_NATIVE_SURFACE_EVASGL, /**< Evas GL based type. evas gl surface @since 1.14 */
 } Evas_Native_Surface_Type;
 
 /**
@@ -496,7 +321,9 @@ typedef enum _Evas_Native_Surface_Type
  * EVAS_NATIVE_SURFACE_OPENGL, on the other hand, you need to set union data
  * with opengl.texture_id or opengl.framebuffer_id and so on.
  * If you need to set the native surface as EVAS_NATIVE_SURFACE_WL,
- * you need to set union data with wl.legacy_buffer. The version field
+ * you need to set union data with wl.legacy_buffer.
+ * If you need to set the native surface as EVAS_NATIVE_SURFACE_TBM,
+ * you need to set union data with tbm surface. The version field
  * should be set with EVAS_NATIVE_SURFACE_VERSION in order to check abi
  * break in your application on the different efl library versions.
  *
@@ -534,19 +361,14 @@ struct _Evas_Native_Surface
       {
          void *legacy_buffer; /**< wayland client buffer to use */
       } wl; /**< Set this struct fields if surface data is Wayland based. */
-
       struct
       {
-         void *buffer; /**< tbm surface */
-         int   rot; /**< rotation (0, 90, 180, 270) */
-         float ratio; /**< width/height ratio of the source image */
-         int   flip; /**< flip (0:none, 1:horizontal, 2:vertical, 3:both) */
-      } tbm; /**< Set this struct fields if your surface data is Tizen based. */
+         void *buffer; /**< tbm surface buffer to use @since 1.14 */
+      } tbm; /**< Set this struct fields if surface data is Tizen based. @since 1.14 */
       struct
       {
-         void *surface; /**< evas gl surface to use */
-      } evasgl; /**< Set this struct fields if surface data is Evas GL based. */
-      //
+         void *surface; /**< evas gl surface to use @since 1.14 */
+      } evasgl; /**< Set this struct fields if surface data is Evas GL based. @since 1.14 */
    } data; /**< Choose one union data according to your surface. */
 };
 
@@ -605,26 +427,6 @@ typedef enum _Evas_Video_Surface_Caps
 #define evas_object_size_hint_fill_get   evas_object_size_hint_align_get /**< Convenience macro to make it easier to understand that align is also used for fill properties (as fill is mutually exclusive to align) */
 #define evas_object_size_hint_expand_set evas_object_size_hint_weight_set /**< Convenience macro to make it easier to understand that weight is also used for expand properties */
 #define evas_object_size_hint_expand_get evas_object_size_hint_weight_get /**< Convenience macro to make it easier to understand that weight is also used for expand properties */
-
-/**
- * How the object should be rendered to output.
- * @ingroup Evas_Object_Group_Extras
- */
-typedef enum _Evas_Render_Op
-{
-   EVAS_RENDER_BLEND = 0, /**< default op: d = d*(1-sa) + s */
-   EVAS_RENDER_BLEND_REL = 1, /**< d = d*(1 - sa) + s*da */
-   EVAS_RENDER_COPY = 2, /**< d = s */
-   EVAS_RENDER_COPY_REL = 3, /**< d = s*da */
-   EVAS_RENDER_ADD = 4, /* d = d + s */
-   EVAS_RENDER_ADD_REL = 5, /**< d = d + s*da */
-   EVAS_RENDER_SUB = 6, /**< d = d - s */
-   EVAS_RENDER_SUB_REL = 7, /* d = d - s*da */
-   EVAS_RENDER_TINT = 8, /**< d = d*s + d*(1 - sa) + s*(1 - da) */
-   EVAS_RENDER_TINT_REL = 9, /**< d = d*(1 - sa + s) */
-   EVAS_RENDER_MASK = 10, /**< d = d*sa */
-   EVAS_RENDER_MUL = 11 /**< d = d*s */
-} Evas_Render_Op; /**< How the object should be rendered to output. */
 
 typedef enum _Evas_Border_Fill_Mode
 {
@@ -689,7 +491,7 @@ typedef enum _Evas_Device_Subclass
    EVAS_DEVICE_SUBCLASS_TRACKPAD, /**< A trackpad style mouse @since 1.8 */
    EVAS_DEVICE_SUBCLASS_TRACKPOINT, /**< A trackpoint style mouse @since 1.8 */
    EVAS_DEVICE_SUBCLASS_TRACKBALL, /**< A trackball style mouse @since 1.8 */
-} Evas_Device_Subclass; /**< A general class of device @since 1.8 */
+} Evas_Device_Subclass; /**< A general subclass of device @since 1.8 */
 
 struct _Evas_Engine_Info /** Generic engine information. Generic info is useless */
 {
@@ -934,28 +736,6 @@ struct _Evas_Event_Axis_Update
    Evas_Device *dev;
 };
 
-/**
- * How the mouse pointer should be handled by Evas.
- *
- * In the mode #EVAS_OBJECT_POINTER_MODE_AUTOGRAB, when a mouse button
- * is pressed down over an object and held, with the mouse pointer
- * being moved outside of it, the pointer still behaves as being bound
- * to that object, albeit out of its drawing region. When the button
- * is released, the event will be fed to the object, that may check if
- * the final position is over it or not and do something about it.
- *
- * In the mode #EVAS_OBJECT_POINTER_MODE_NOGRAB, the pointer will
- * always be bound to the object right below it.
- *
- * @ingroup Evas_Object_Group_Extras
- */
-typedef enum _Evas_Object_Pointer_Mode
-{
-   EVAS_OBJECT_POINTER_MODE_AUTOGRAB, /**< default, X11-like */
-   EVAS_OBJECT_POINTER_MODE_NOGRAB, /**< pointer always bound to the object right below it */
-   EVAS_OBJECT_POINTER_MODE_NOGRAB_NO_REPEAT_UPDOWN /**< useful on object with "repeat events" enabled, where mouse/touch up and down events WONT be repeated to objects and these objects wont be auto-grabbed. @since 1.2 */
-} Evas_Object_Pointer_Mode; /**< How the mouse pointer should be handled by Evas. */
-
 typedef void      (*Evas_Smart_Cb)(void *data, Evas_Object *obj, void *event_info);  /**< Evas smart objects' "smart callback" function signature */
 typedef void      (*Evas_Event_Cb)(void *data, Evas *e, void *event_info);  /**< Evas event callback function signature */
 typedef Eina_Bool (*Evas_Object_Event_Post_Cb)(void *data, Evas *e);  /**< Evas object event (post) callback function signature */
@@ -1150,7 +930,7 @@ EAPI int               evas_async_events_process(void);
  * @param event_info Information about the event.
  * @param func The callback function pointer.
  *
- * @return EINA_FALSE if an error occured, EINA_TRUE otherwise.
+ * @return EINA_FALSE if an error occurred, EINA_TRUE otherwise.
  *
  * This is the way, for a routine running outside evas' main thread,
  * to report an asynchronous event. A callback function is informed,
@@ -1446,7 +1226,7 @@ EAPI void              evas_render_updates_free(Eina_List *updates);
  * part of the canvas @p e will automatically be deleted when the canvas
  * is freed.
  *
- * @return the device node created or NULL if an error occured.
+ * @return the device node created or NULL if an error occurred.
  *
  * @see evas_device_del
  * @since 1.8
@@ -1654,7 +1434,7 @@ EAPI Evas_Device_Class evas_device_class_get(const Evas_Device *dev);
  * @param dev The device to modify
  * @param clas The sub-class to set
  *
- * This sets the sub-class of a device whihc gives much more detailed usage
+ * This sets the sub-class of a device which gives much more detailed usage
  * within a broader category.
  *
  * @since 1.8
@@ -2297,7 +2077,7 @@ EAPI void            evas_map_util_quat_rotate(Evas_Map *m, double qx, double qy
  *
  * This is used to apply lighting calculations (from a single light source)
  * to a given map. The R, G and B values of each vertex will be modified to
- * reflect the lighting based on the lixth point coordinates, the light
+ * reflect the lighting based on the light point coordinates, the light
  * color and the ambient color, and at what angle the map is facing the
  * light source. A surface should have its points be declared in a
  * clockwise fashion if the face is "facing" towards you (as opposed to
@@ -3319,36 +3099,6 @@ EAPI Eina_Bool                     evas_object_image_extension_can_load_fast_get
   do { x = ((x) & ~EVAS_TEXT_STYLE_MASK_SHADOW_DIRECTION) | (s); } while (0)
 
 /**
- * @typedef Evas_Text_Style_Type
- *
- * Types of styles to be applied on text objects. The @c
- * EVAS_TEXT_STYLE_SHADOW_DIRECTION_* ones are to be ORed together with others
- * imposing shadow, to change shadow's direction
- */
-typedef enum _Evas_Text_Style_Type
-{
-   EVAS_TEXT_STYLE_PLAIN,      /**< plain, standard text */
-   EVAS_TEXT_STYLE_SHADOW,      /**< text with shadow underneath */
-   EVAS_TEXT_STYLE_OUTLINE,      /**< text with an outline */
-   EVAS_TEXT_STYLE_SOFT_OUTLINE,      /**< text with a soft outline */
-   EVAS_TEXT_STYLE_GLOW,      /**< text with a glow effect */
-   EVAS_TEXT_STYLE_OUTLINE_SHADOW,      /**< text with both outline and shadow effects */
-   EVAS_TEXT_STYLE_FAR_SHADOW,      /**< text with (far) shadow underneath */
-   EVAS_TEXT_STYLE_OUTLINE_SOFT_SHADOW,      /**< text with outline and soft shadow effects combined */
-   EVAS_TEXT_STYLE_SOFT_SHADOW,      /**< text with (soft) shadow underneath */
-   EVAS_TEXT_STYLE_FAR_SOFT_SHADOW,      /**< text with (far soft) shadow underneath */
-
-   /* OR these to modify shadow direction (3 bits needed) */
-   EVAS_TEXT_STYLE_SHADOW_DIRECTION_BOTTOM_RIGHT = (0x0 << 4),      /**< shadow growing to bottom right */
-   EVAS_TEXT_STYLE_SHADOW_DIRECTION_BOTTOM = (0x1 << 4),            /**< shadow growing to the bottom */
-   EVAS_TEXT_STYLE_SHADOW_DIRECTION_BOTTOM_LEFT = (0x2 << 4),       /**< shadow growing to bottom left */
-   EVAS_TEXT_STYLE_SHADOW_DIRECTION_LEFT = (0x3 << 4),              /**< shadow growing to the left */
-   EVAS_TEXT_STYLE_SHADOW_DIRECTION_TOP_LEFT = (0x4 << 4),          /**< shadow growing to top left */
-   EVAS_TEXT_STYLE_SHADOW_DIRECTION_TOP = (0x5 << 4),               /**< shadow growing to the top */
-   EVAS_TEXT_STYLE_SHADOW_DIRECTION_TOP_RIGHT = (0x6 << 4),         /**< shadow growing to top right */
-   EVAS_TEXT_STYLE_SHADOW_DIRECTION_RIGHT = (0x7 << 4)             /**< shadow growing to the right */
-} Evas_Text_Style_Type;
-/**
  * @}
  */
 
@@ -3505,8 +3255,10 @@ typedef struct _Evas_Textblock_Cursor             Evas_Textblock_Cursor;
 /**
  * @typedef Evas_Object_Textblock_Node_Format
  * A format node.
+ *
+ * XXX: Adapter for legacy.
  */
-typedef struct _Evas_Object_Textblock_Node_Format Evas_Object_Textblock_Node_Format;
+typedef struct _Evas_Textblock_Node_Format Evas_Object_Textblock_Node_Format;
 
 typedef struct _Evas_Textblock_Rectangle          Evas_Textblock_Rectangle;
 struct _Evas_Textblock_Rectangle
@@ -4133,44 +3885,6 @@ EAPI Eina_Bool                                evas_textblock_cursor_eol_get(cons
  *
  * @{
  */
-
-/**
- * @typedef Evas_Textgrid_Palette
- *
- * The palette to use for the foreground and background colors.
- *
- * @since 1.7
- */
-typedef enum
-{
-   EVAS_TEXTGRID_PALETTE_NONE,     /**< No palette is used */
-   EVAS_TEXTGRID_PALETTE_STANDARD, /**< standard palette (around 16 colors) */
-   EVAS_TEXTGRID_PALETTE_EXTENDED, /**< extended palette (at max 256 colors) */
-   EVAS_TEXTGRID_PALETTE_LAST      /**< ignore it */
-} Evas_Textgrid_Palette;
-
-/**
- * @typedef Evas_Textgrid_Font_Style
- *
- * The style to give to each character of the grid.
- *
- * @since 1.7
- */
-typedef enum
-{
-   EVAS_TEXTGRID_FONT_STYLE_NORMAL = (1 << 0), /**< Normal style */
-   EVAS_TEXTGRID_FONT_STYLE_BOLD   = (1 << 1), /**< Bold style */
-   EVAS_TEXTGRID_FONT_STYLE_ITALIC = (1 << 2)  /**< Oblique style */
-} Evas_Textgrid_Font_Style;
-
-/**
- * @typedef Evas_Textgrid_Cell
- *
- * The values that describes each cell.
- *
- * @since 1.7
- */
-typedef struct _Evas_Textgrid_Cell Evas_Textgrid_Cell;
 
 /**
  * @struct _Evas_Textgrid_Cell
@@ -5731,7 +5445,7 @@ EAPI const Eina_List        *evas_font_path_global_list(void) EINA_WARN_UNUSED_R
 
 /**
  * Reinitialize FontConfig. If FontConfig has to be reinitialized
- * according to changes of system enviroments(ex. Changing font config files), it will be useful.
+ * according to changes of system environments(ex. Changing font config files), it will be useful.
  *
  * @ingroup Evas_Font_Path_Group
  * @since 1.14

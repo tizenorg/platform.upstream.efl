@@ -49,19 +49,20 @@ _try_swap_stack(Eo *obj EINA_UNUSED, void *class_data)
      }
 }
 
-static void
-_constructor(Eo *obj EINA_UNUSED, void *class_data EINA_UNUSED, int v)
+static Eo *
+_constructor(Eo *obj, void *class_data EINA_UNUSED, int v)
 {
    Thread_Test_Public_Data *pd = class_data;
 
    pd->v = v;
+
+   return obj;
 }
 
 static Eo_Op_Description op_descs[] = {
-     EO_OP_FUNC(thread_test_constructor, _constructor, "Constructor."),
-     EO_OP_FUNC(thread_test_v_get, _v_get, "Get property v."),
-     EO_OP_FUNC(thread_test_try_swap_stack, _try_swap_stack, "Swap call stack frames if it is not thread safe."),
-     EO_OP_SENTINEL
+     EO_OP_FUNC(thread_test_constructor, _constructor),
+     EO_OP_FUNC(thread_test_v_get, _v_get),
+     EO_OP_FUNC(thread_test_try_swap_stack, _try_swap_stack),
 };
 
 static const Eo_Class_Description class_desc = {

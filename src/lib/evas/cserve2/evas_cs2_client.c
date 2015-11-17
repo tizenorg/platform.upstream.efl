@@ -94,25 +94,6 @@ static unsigned int _glyph_request_server_send(Font_Entry *fe, Font_Hint_Flags h
 #define UNIX_PATH_MAX sizeof(((struct sockaddr_un *)NULL)->sun_path)
 #endif
 
-static inline Eina_Bool
-_memory_zero_cmp(void *data, size_t len)
-{
-   const int *idata = data;
-   const char *cdata;
-   int remain;
-
-   if (!data || !len) return EINA_TRUE;
-
-   for (remain = len / sizeof(idata); remain > 0; --remain)
-     if (*idata++ != 0) return EINA_FALSE;
-
-   cdata = (const char*) idata;
-   for (remain = ((const char*) data + len) - cdata; remain > 0; --remain)
-     if (*cdata++ != 0) return EINA_FALSE;
-
-   return EINA_TRUE;
-}
-
 static void
 _file_entry_free(void *data)
 {
@@ -154,12 +135,12 @@ _socket_path_set(char *path)
         env = getenv("XDG_RUNTIME_DIR");
         if (!env || !env[0])
           {
-             env = getenv("HOME");
+             env = eina_environment_home_get();
              if (!env || !env[0])
                {
-                  env = getenv("TMPDIR");
+                  env = eina_environment_tmp_get();
                   if (!env || !env[0])
-                  env = "/tmp";
+                    env = "/tmp";
                }
           }
 
@@ -909,9 +890,10 @@ _build_absolute_path(const char *path, char buf[], int size)
      len = eina_strlcpy(p, path, size);
    else if (path[0] == '~')
      {
-        const char *home = getenv("HOME");
-        if (!home)
-          return 0;
+        const char *home = eina_environment_home_get();
+
+        if (!home) return 0;
+
         len = eina_strlcpy(p, home, size);
         size -= len + 1;
         p += len;
@@ -2143,7 +2125,7 @@ _glyph_request_cb(void *data, const void *msg, int size)
    return EINA_TRUE;
 
 end:
-   ERR("An unknown error occured when waiting for glyph data!");
+   ERR("An unknown error occurred when waiting for glyph data!");
    free(grd);
    return EINA_TRUE;
 }

@@ -561,7 +561,7 @@ ecore_ipc_server_clients_get(Ecore_Ipc_Server *svr)
 /**
  * Sends a message to the given IPC server.
  *
- * The content of the parameters, excluding the @p svr paramter, is up to
+ * The content of the parameters, excluding the @p svr parameter, is up to
  * the client.
  *
  * @param   svr      The given IPC server.
@@ -1506,12 +1506,11 @@ _ecore_ipc_event_server_data(void *data EINA_UNUSED, int ev_type EINA_UNUSED, vo
                     }
                   svr->prev.i = msg;
                   offset += (s + msg.size);
-                  if ((svr->buf_size == offset) && ((svr->buf) || (buf)))
+                  if ((svr->buf_size == offset) && (svr->buf))
                     {
                        if (svr->buf) free(svr->buf);
                        svr->buf = NULL;
                        svr->buf_size = 0;
-                       if (buf) free(buf);
                        return ECORE_CALLBACK_CANCEL;
                     }
                   goto redo;

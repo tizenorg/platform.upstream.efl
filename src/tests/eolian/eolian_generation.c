@@ -42,6 +42,8 @@ _files_compare (const char *ref_filename, const char *tmp_filename)
    if (fread(tmp_content, tmp_filesize, 1, tmp_file) != 1)
      goto end;
    tmp_content[tmp_filesize] = '\0';
+   while (tmp_content[tmp_filesize - 1] == '\n')
+     tmp_content[--tmp_filesize] = '\0';
 
    fseek(ref_file, 0, SEEK_END);
    long ref_filesize = ftell(ref_file);
@@ -51,6 +53,8 @@ _files_compare (const char *ref_filename, const char *tmp_filename)
    if (fread(ref_content, ref_filesize, 1, ref_file) != 1)
      goto end;
    ref_content[ref_filesize] = '\0';
+   while (ref_content[ref_filesize - 1] == '\n')
+     ref_content[--ref_filesize] = '\0';
 
    if (tmp_filesize != ref_filesize) goto end;
 
@@ -72,15 +76,9 @@ _eolian_gen_execute(const char *eo_filename, const char *options, const char *ou
 
    if (getenv("EFL_RUN_IN_TREE"))
      {
-#ifdef _WIN32
         snprintf(eolian_gen_path, sizeof(eolian_gen_path),
-              "%s/src/bin/eolian/eolian_gen.exe",
-              PACKAGE_BUILD_DIR);
-#else
-        snprintf(eolian_gen_path, sizeof(eolian_gen_path),
-              "%s/src/bin/eolian/eolian_gen",
-              PACKAGE_BUILD_DIR);
-#endif
+              "%s/src/bin/eolian/eolian_gen%s",
+              PACKAGE_BUILD_DIR, EXEEXT);
      }
    if (eolian_gen_path[0] == '\0')
       return -1;
@@ -181,6 +179,42 @@ START_TEST(eolian_functions_descriptions)
 }
 END_TEST
 
+START_TEST(eolian_import)
+{
+   char output_filepath[PATH_MAX] = "";
+   snprintf(output_filepath, PATH_MAX, "%s/eolian_import_types.h",
+#ifdef HAVE_EVIL
+         (char *)evil_tmpdir_get()
+#else
+         "/tmp"
+#endif
+         );
+   remove(output_filepath);
+   fail_if(0 != _eolian_gen_execute(PACKAGE_DATA_DIR"/data/import_types.eot", "--gh", output_filepath));
+   fail_if(!_files_compare(PACKAGE_DATA_DIR"/data/import_types_ref.h", output_filepath));
+   remove(output_filepath);
+}
+END_TEST
+
+START_TEST(eolian_docs)
+{
+   char output_filepath[PATH_MAX] = "";
+   snprintf(output_filepath, PATH_MAX, "%s/eolian_output.h",
+#ifdef HAVE_EVIL
+         (char *)evil_tmpdir_get()
+#else
+         "/tmp"
+#endif
+         );
+   remove(output_filepath);
+   fail_if(0 != _eolian_gen_execute(PACKAGE_DATA_DIR"/data/docs.eo", "--eo --gh", output_filepath));
+   fail_if(!_files_compare(PACKAGE_DATA_DIR"/data/docs_ref.h", output_filepath));
+   remove(output_filepath);
+   fail_if(0 != _eolian_gen_execute(PACKAGE_DATA_DIR"/data/docs.eo", "--legacy --gh", output_filepath));
+   fail_if(!_files_compare(PACKAGE_DATA_DIR"/data/docs_ref_legacy.h", output_filepath));
+}
+END_TEST
+
 void eolian_generation_test(TCase *tc)
 {
    tcase_add_test(tc, eolian_types_generation);
@@ -188,5 +222,7 @@ void eolian_generation_test(TCase *tc)
    tcase_add_test(tc, eolian_override_generation);
    tcase_add_test(tc, eolian_dev_impl_code);
    tcase_add_test(tc, eolian_functions_descriptions);
+   tcase_add_test(tc, eolian_import);
+   tcase_add_test(tc, eolian_docs);
 }
 

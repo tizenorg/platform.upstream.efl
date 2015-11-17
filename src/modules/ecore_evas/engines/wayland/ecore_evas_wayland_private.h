@@ -35,15 +35,6 @@ struct _Ecore_Evas_Engine_Wl_Data
 #ifdef BUILD_ECORE_EVAS_WAYLAND_EGL
    struct wl_egl_window *egl_win;
 #endif
-#ifdef BUILD_ECORE_EVAS_WAYLAND_SHM
-   struct
-     {
-        Eina_Bool (*busy_check) (void *data);
-     } func;
-   Eina_Bool wait_buffer_release : 1;
-#endif
-   Eina_Bool frame_pending : 1;
-   struct wl_callback *frame_callback;
    struct
      {
         unsigned char supported: 1;
@@ -51,6 +42,7 @@ struct _Ecore_Evas_Engine_Wl_Data
         unsigned char done : 1;
         Ecore_Job    *manual_mode_job;
      } wm_rot;
+   struct wl_callback *anim_callback;
 };
 
 Ecore_Evas_Interface_Wayland *_ecore_evas_wl_interface_new(void);
@@ -92,6 +84,7 @@ void _ecore_evas_wl_common_post_render(Ecore_Evas *ee);
 int  _ecore_evas_wl_common_render(Ecore_Evas *ee);
 void _ecore_evas_wl_common_screen_geometry_get(const Ecore_Evas *ee, int *x, int *y, int *w, int *h);
 void _ecore_evas_wl_common_screen_dpi_get(const Ecore_Evas *ee, int *xdpi, int *ydpi);
+void _ecore_evas_wl_common_render_pre(void *data, Evas *evas EINA_UNUSED, void *event);
 void _ecore_evas_wl_common_render_updates(void *data, Evas *evas, void *event);
 void _ecore_evas_wl_common_rotation_set(Ecore_Evas *ee, int rotation, int resize);
 void _ecore_evas_wl_common_borderless_set(Ecore_Evas *ee, Eina_Bool on);
@@ -114,7 +107,6 @@ void _ecore_evas_wayland_shm_resize(Ecore_Evas *ee, int location);
 void _ecore_evas_wayland_shm_resize_edge_set(Ecore_Evas *ee, int edge);
 void _ecore_evas_wayland_shm_transparent_do(Ecore_Evas *ee, int transparent);
 void _ecore_evas_wayland_shm_alpha_do(Ecore_Evas *ee, int transparent);
-void _ecore_evas_wayland_shm_buffer_released(void *data);
 void _ecore_evas_wayland_shm_window_rotate(Ecore_Evas *ee, int rotation, int resize);
 #endif
 

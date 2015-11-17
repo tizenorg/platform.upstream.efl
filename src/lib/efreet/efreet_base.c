@@ -288,14 +288,8 @@ efreet_dirs_init(void)
       }
     else
 #endif
-      efreet_home_dir = getenv("HOME");
+      efreet_home_dir = eina_environment_home_get();
 
-#ifdef _WIN32
-    if (!efreet_home_dir || efreet_home_dir[0] == '\0')
-      {
-         efreet_home_dir = getenv("USERPROFILE");
-      }
-#endif
     if (!efreet_home_dir || efreet_home_dir[0] == '\0')
       efreet_home_dir = "/tmp";
 
@@ -308,14 +302,18 @@ efreet_dirs_init(void)
 
     /* xdg_data_dirs */
 #ifdef _WIN32
-    snprintf(buf, sizeof(buf), "%s\\Efl;" DATA_DIR ";/usr/share;/usr/local/share", getenv("APPDATA"));
+    snprintf(buf, sizeof(buf), "%s\\Efl;" DATA_DIR ";", getenv("APPDATA"));
     xdg_data_dirs = efreet_dirs_get("XDG_DATA_DIRS", buf);
 #else
     xdg_data_dirs = efreet_dirs_get("XDG_DATA_DIRS",
                                     DATA_DIR ":/usr/share:/usr/local/share");
 #endif
     /* xdg_config_dirs */
+#ifdef _WIN32
+    xdg_config_dirs = efreet_dirs_get("XDG_CONFIG_DIRS", getenv("APPDATA"));
+#else
     xdg_config_dirs = efreet_dirs_get("XDG_CONFIG_DIRS", "/etc/xdg");
+#endif
 
     /* xdg_runtime_dir */
 #if defined(HAVE_GETUID) && defined(HAVE_GETEUID)

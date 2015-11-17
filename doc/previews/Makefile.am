@@ -1,4 +1,3 @@
-if BUILD_GUI
 if EFL_BUILD_DOC
 
 .PHONY: doc
@@ -24,11 +23,12 @@ AM_CPPFLAGS = \
 -I$(top_builddir)/src/lib/ecore_evas \
 -DEFL_BETA_API_SUPPORT=1 \
 -DEFL_EO_API_SUPPORT=1 \
-@ECORE_EVAS_LDFLAGS@
+@ECORE_EVAS_CFLAGS@
 
 LDADD = \
 $(top_builddir)/src/lib/eina/libeina.la \
 $(top_builddir)/src/lib/eo/libeo.la \
+$(top_builddir)/src/lib/efl/libefl.la \
 $(top_builddir)/src/lib/eet/libeet.la \
 $(top_builddir)/src/lib/evas/libevas.la \
 $(top_builddir)/src/lib/ecore/libecore.la \
@@ -44,8 +44,8 @@ PREVIEWS = blend blur bump curve grow mask transform \
 example_1 padding
 
 previews-data: preview_text_filter
-	$(mkdir_p) $(DATADIR)
-	$(mkdir_p) $(HTMLDIR)
+	$(MKDIR_P) $(DATADIR)
+	$(MKDIR_P) $(HTMLDIR)
 	@for a in $(PREVIEWS) ; do \
 		echo "  GEN      filter_$${a}.png" ; \
 		FONT="Sans" ; \
@@ -55,7 +55,7 @@ previews-data: preview_text_filter
 		if [ -e ${top_srcdir}/doc/previews/filter_$${a}.sh ] ; then \
 			source ${top_srcdir}/doc/previews/filter_$${a}.sh ; \
 		fi ; \
-		$(top_builddir)/doc/previews/preview_text_filter "$${TEXT}" "$${FILTER}" "$(DATADIR)/filter_$${a}.png" "$${FONT}" "$${SIZE}" ; \
+		EVAS_DATA_DIR="$(top_srcdir)/src/lib/evas" $(top_builddir)/doc/previews/preview_text_filter "$${TEXT}" "$${FILTER}" "$(DATADIR)/filter_$${a}.png" "$${FONT}" "$${SIZE}" ; \
 		cp "$(DATADIR)/filter_$${a}.png" "$(HTMLDIR)/" ; \
 	done
 
@@ -65,9 +65,9 @@ endif
 
 
 endif
-endif
 
 EXTRA_DIST = preview_text_filter.c
 
 clean-local:
 	rm -rf $(DATADIR)
+

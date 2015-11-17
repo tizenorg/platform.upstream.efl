@@ -1,8 +1,94 @@
+#ifdef BUILD_NEON
+#include <arm_neon.h>
+#endif
 /* blend color --> dst */
 
 #ifdef BUILD_NEON
 static void
 _op_blend_c_dp_neon(DATA32 *s EINA_UNUSED, DATA8 *m EINA_UNUSED, DATA32 c, DATA32 *d, int l) {
+#ifdef BUILD_NEON_INTRINSICS
+   uint16x8_t temp00_16x8;
+   uint16x8_t temp01_16x8;
+   uint16x8_t temp10_16x8;
+   uint16x8_t temp11_16x8;
+   uint32x4_t temp0_32x4;
+   uint32x4_t temp1_32x4;
+   uint32x4_t c_32x4;
+   uint32x4_t d0_32x4;
+   uint32x4_t d1_32x4;
+   uint8x16_t d0_8x16;
+   uint8x16_t d1_8x16;
+   uint8x16_t temp0_8x16;
+   uint8x16_t temp1_8x16;
+   uint8x8_t alpha_8x8;
+   uint8x8_t d00_8x8;
+   uint8x8_t d01_8x8;
+   uint8x8_t d10_8x8;
+   uint8x8_t d11_8x8;
+   uint8x8_t temp00_8x8;
+   uint8x8_t temp01_8x8;
+   uint8x8_t temp10_8x8;
+   uint8x8_t temp11_8x8;
+
+   // alpha can only be 0 if color is 0x0. In that case we can just return.
+   // Otherwise we can assume alpha != 0. This allows more optimization in
+   // NEON code.
+
+   if(!c)
+      return;
+
+   DATA32 *start = d;
+   int size = l;
+   DATA32 *end = start + (size & ~7);
+
+   unsigned char alpha;
+   alpha = ~(c >> 24) + 1; // 256 - (c >> 24)
+   alpha_8x8 = vdup_n_u8(alpha);
+
+   c_32x4 = vdupq_n_u32(c);
+
+   while (start < end)
+   {
+      d0_32x4 = vld1q_u32(start);
+      d1_32x4 = vld1q_u32(start+4);
+      d0_8x16 = vreinterpretq_u8_u32(d0_32x4);
+      d1_8x16 = vreinterpretq_u8_u32(d1_32x4);
+
+      d00_8x8 = vget_low_u8(d0_8x16);
+      d01_8x8 = vget_high_u8(d0_8x16);
+      d10_8x8 = vget_low_u8(d1_8x16);
+      d11_8x8 = vget_high_u8(d1_8x16);
+
+      temp00_16x8 = vmull_u8(alpha_8x8, d00_8x8);
+      temp01_16x8 = vmull_u8(alpha_8x8, d01_8x8);
+      temp10_16x8 = vmull_u8(alpha_8x8, d10_8x8);
+      temp11_16x8 = vmull_u8(alpha_8x8, d11_8x8);
+
+      temp00_8x8 = vshrn_n_u16(temp00_16x8,8);
+      temp01_8x8 = vshrn_n_u16(temp01_16x8,8);
+      temp10_8x8 = vshrn_n_u16(temp10_16x8,8);
+      temp11_8x8 = vshrn_n_u16(temp11_16x8,8);
+
+      temp0_8x16 = vcombine_u8(temp00_8x8, temp01_8x8);
+      temp1_8x16 = vcombine_u8(temp10_8x8, temp11_8x8);
+
+      temp0_32x4 = vreinterpretq_u32_u8(temp0_8x16);
+      temp1_32x4 = vreinterpretq_u32_u8(temp1_8x16);
+
+      d0_32x4 = vaddq_u32(c_32x4, temp0_32x4);
+      d1_32x4 = vaddq_u32(c_32x4, temp1_32x4);
+
+      vst1q_u32(start, d0_32x4);
+      vst1q_u32(start+4, d1_32x4);
+      start+=8;
+   }
+   end += (size & 7);
+   while (start <  end)
+   {
+      *start = c + MUL_256(alpha, *start);
+      start++;
+   }
+#else
 	DATA32 *e, *tmp = 0;
 #define AP	"B_C_DP"
    asm volatile (
@@ -142,7 +228,7 @@ _op_blend_c_dp_neon(DATA32 *s EINA_UNUSED, DATA8 *m EINA_UNUSED, DATA32 c, DATA3
 
 	);
 #undef AP
-
+#endif
 }
 
 #define _op_blend_caa_dp_neon _op_blend_c_dp_neon
@@ -190,13 +276,95 @@ init_blend_color_pt_funcs_neon(void)
 #ifdef BUILD_NEON
 static void
 _op_blend_rel_c_dp_neon(DATA32 *s EINA_UNUSED, DATA8 *m EINA_UNUSED, DATA32 c, DATA32 *d, int l) {
-   DATA32 *e;
-   int alpha = 256 - (c >> 24);
-   UNROLL8_PLD_WHILE(d, l, e,
-                     {
-                        *d = MUL_SYM(*d >> 24, c) + MUL_256(alpha, *d);
-                        d++;
-                     });
+   uint16x8_t ad0_16x8;
+   uint16x8_t ad1_16x8;
+   uint16x8_t dc0_16x8;
+   uint16x8_t dc1_16x8;
+   uint16x8_t x255_16x8;
+   uint32x2_t c_32x2;
+   uint32x4_t ad_32x4;
+   uint32x4_t d_32x4;
+   uint32x4_t dc_32x4;
+   uint32x4_t x1_32x4;
+   uint8x16_t ad_8x16;
+   uint8x16_t d_8x16;
+   uint8x16_t dc_8x16;
+   uint8x16_t x1_8x16;
+   uint8x8_t ad0_8x8;
+   uint8x8_t ad1_8x8;
+   uint8x8_t alpha_8x8;
+   uint8x8_t c_8x8;
+   uint8x8_t d0_8x8;
+   uint8x8_t d1_8x8;
+   uint8x8_t dc0_8x8;
+   uint8x8_t dc1_8x8;
+
+   // alpha can only be 0 if color is 0x0. In that case we can just return.
+   // Otherwise we can assume alpha != 0. This allows more optimization in
+   // NEON code.
+
+   if(!c)
+      return;
+
+   unsigned char alpha;
+   alpha = ~(c >> 24) + 1; // 256 - (c >> 24)
+
+   alpha_8x8 = vdup_n_u8(alpha);
+   c_32x2 = vdup_n_u32(c);
+   c_8x8 = vreinterpret_u8_u32(c_32x2);
+   x1_8x16 = vdupq_n_u8(0x1);
+   x1_32x4 = vreinterpretq_u32_u8(x1_8x16);
+   x255_16x8 = vdupq_n_u16(0xff);
+
+   DATA32 *end = d + (l & ~3);
+   while (d < end)
+   {
+      // load 4 elements from d
+      d_32x4 = vld1q_u32(d);
+      d_8x16 = vreinterpretq_u8_u32(d_32x4);
+      d0_8x8 = vget_low_u8(d_8x16);
+      d1_8x8 = vget_high_u8(d_8x16);
+
+      // multiply MUL_256(alpha, *d);
+      ad0_16x8 = vmull_u8(alpha_8x8, d0_8x8);
+      ad1_16x8 = vmull_u8(alpha_8x8, d1_8x8);
+      ad0_8x8 = vshrn_n_u16(ad0_16x8,8);
+      ad1_8x8 = vshrn_n_u16(ad1_16x8,8);
+      ad_8x16 = vcombine_u8(ad0_8x8, ad1_8x8);
+      ad_32x4 = vreinterpretq_u32_u8(ad_8x16);
+
+      // shift (*d >> 24)
+      dc_32x4 = vshrq_n_u32(d_32x4, 24);
+      dc_32x4 = vmulq_u32(x1_32x4, dc_32x4);
+      dc_8x16 = vreinterpretq_u8_u32(dc_32x4);
+      dc0_8x8 = vget_low_u8(dc_8x16);
+      dc1_8x8 = vget_high_u8(dc_8x16);
+
+      // multiply MUL_256(*d >> 24, sc);
+      dc0_16x8 = vmull_u8(dc0_8x8, c_8x8);
+      dc1_16x8 = vmull_u8(dc1_8x8, c_8x8);
+      dc0_16x8 = vaddq_u16(dc0_16x8, x255_16x8);
+      dc1_16x8 = vaddq_u16(dc1_16x8, x255_16x8);
+      dc0_8x8 = vshrn_n_u16(dc0_16x8, 8);
+      dc1_8x8 = vshrn_n_u16(dc1_16x8, 8);
+      dc_8x16 = vcombine_u8(dc0_8x8, dc1_8x8);
+
+      // add up everything
+      dc_32x4 = vreinterpretq_u32_u8(dc_8x16);
+      d_32x4 = vaddq_u32(dc_32x4, ad_32x4);
+
+      // save result
+      vst1q_u32(d, d_32x4);
+
+      d+=4;
+   }
+
+   end += (l & 3);
+   while (d < end)
+   {
+      *d = MUL_SYM(*d >> 24, c) + MUL_256(alpha, *d);
+      d++;
+   }
 }
 
 #define _op_blend_rel_caa_dp_neon _op_blend_rel_c_dp_neon

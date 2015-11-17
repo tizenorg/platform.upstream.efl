@@ -8,15 +8,14 @@
 
 #define MY_CLASS SIMPLE3_CLASS
 
-static void
+static Eo *
 _constructor(Eo *obj, void *class_data EINA_UNUSED, va_list *list EINA_UNUSED)
 {
-   (void) obj;
+   return obj;
 }
 
 static Eo_Op_Description op_descs[] = {
      EO_OP_FUNC_OVERRIDE(eo_constructor, _constructor),
-     EO_OP_SENTINEL
 };
 
 static const Eo_Class_Description class_desc = {

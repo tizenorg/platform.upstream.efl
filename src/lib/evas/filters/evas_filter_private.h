@@ -4,6 +4,41 @@
 #include "evas_filter.h"
 #include "evas_private.h"
 
+/* logging variables */
+extern int _evas_filter_log_dom;
+#define EVAS_FILTER_LOG_COLOR EINA_COLOR_LIGHTBLUE
+
+#ifdef DEBUG
+# define FILTERS_DEBUG
+#endif
+
+#ifdef ERR
+# undef ERR
+#endif
+#define ERR(...) EINA_LOG_DOM_ERR(_evas_filter_log_dom, __VA_ARGS__)
+#ifdef INF
+# undef INF
+#endif
+#define INF(...) EINA_LOG_DOM_INFO(_evas_filter_log_dom, __VA_ARGS__)
+#ifdef WRN
+# undef WRN
+#endif
+#define WRN(...) EINA_LOG_DOM_WARN(_evas_filter_log_dom, __VA_ARGS__)
+#ifdef CRI
+# undef CRI
+#endif
+#define CRI(...) EINA_LOG_DOM_CRIT(_evas_filter_log_dom, __VA_ARGS__)
+#ifdef DBG
+# undef DBG
+#endif
+#define DBG(...) EINA_LOG_DOM_DBG(_evas_filter_log_dom, __VA_ARGS__)
+
+#ifdef FILTERS_DEBUG
+# define XDBG(...) DBG(__VA_ARGS__)
+#else
+# define XDBG(...) do {} while (0)
+#endif
+
 // This is a potential optimization.
 #define DIV_USING_BITSHIFT 1
 
@@ -57,8 +92,8 @@
 # define DEBUG_TIME_END() \
    clock_gettime(CLOCK_MONOTONIC, &ts2); \
    long long int t = 1000000LL * (ts2.tv_sec - ts1.tv_sec) \
-   + (ts2.tv_nsec - ts1.tv_nsec) / 1000LL; \
-   INF("TIME SPENT: %lldus", t);
+   + (ts2.tv_nsec - ts1.tv_nsec) / 1000LL; (void) t; \
+   XDBG("TIME SPENT: %lldus", t);
 #else
 # define DEBUG_TIME_BEGIN() do {} while(0)
 # define DEBUG_TIME_END() do {} while(0)
@@ -202,11 +237,8 @@ struct _Evas_Filter_Buffer
    Evas_Object *proxy;
 
    Eina_Bool alpha_only : 1;  // 1 channel (A) instead of 4 (RGBA)
-   Eina_Bool allocated : 1;   // allocated on demand, belongs to this context
-   Eina_Bool allocated_gl : 1; // allocated on demand the glimage
    Eina_Bool transient : 1;   // temporary buffer (automatic allocation)
    Eina_Bool locked : 1;      // internal flag
-   Eina_Bool stolen : 1;      // stolen by the client
    Eina_Bool delete_me : 1;   // request delete asap (after released by client)
    Eina_Bool dirty : 1;       // Marked as dirty as soon as a command writes to it
 };
@@ -239,8 +271,10 @@ Evas_Filter_Buffer *_filter_buffer_data_new(Evas_Filter_Context *ctx, void *data
 #define             evas_filter_buffer_alloc_new(ctx, w, h, a) _filter_buffer_data_new(ctx, NULL, w, h, a)
 Evas_Filter_Buffer *evas_filter_temporary_buffer_get(Evas_Filter_Context *ctx, int w, int h, Eina_Bool alpha_only);
 Evas_Filter_Buffer *evas_filter_buffer_scaled_get(Evas_Filter_Context *ctx, Evas_Filter_Buffer *src, unsigned w, unsigned h);
-Eina_Bool evas_filter_interpolate(DATA8* output /* 256 values */, DATA8* points /* pairs x + y */, int point_count, Evas_Filter_Interpolation_Mode mode);
+Eina_Bool           evas_filter_interpolate(DATA8* output /* 256 values */, int *points /* 256 values */, Evas_Filter_Interpolation_Mode mode);
 Evas_Filter_Command *_evas_filter_command_get(Evas_Filter_Context *ctx, int cmdid);
 int evas_filter_smallest_pow2_larger_than(int val);
+
+void evas_filter_parser_shutdown(void);
 
 #endif // EVAS_FILTER_PRIVATE_H

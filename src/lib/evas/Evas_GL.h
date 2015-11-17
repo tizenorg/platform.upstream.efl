@@ -4,6 +4,32 @@
 #include <Evas.h>
 //#include <GL/gl.h>
 
+#ifdef EAPI
+# undef EAPI
+#endif
+
+#ifdef _WIN32
+# ifdef EFL_EVAS_BUILD
+#  ifdef DLL_EXPORT
+#   define EAPI __declspec(dllexport)
+#  else
+#   define EAPI
+#  endif /* ! DLL_EXPORT */
+# else
+#  define EAPI __declspec(dllimport)
+# endif /* ! EFL_EVAS_BUILD */
+#else
+# ifdef __GNUC__
+#  if __GNUC__ >= 4
+#   define EAPI __attribute__ ((visibility("default")))
+#  else
+#   define EAPI
+#  endif
+# else
+#  define EAPI
+# endif
+#endif /* ! _WIN32 */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -821,7 +847,7 @@ EAPI Evas_GL_Context         *evas_gl_current_context_get (Evas_GL *evas_gl) EIN
 /**
  * @brief Returns the Evas GL surface object in use or set by @ref evas_gl_make_current
  *
- * @param evas_gl The given Evas_GL object
+ * @param[in] evas_gl The given Evas_GL object
  *
  * @return The current surface for the calling thread, or @c NULL in case of
  *         failure and when there is no current surface in this thread.
@@ -836,6 +862,23 @@ EAPI Evas_GL_Context         *evas_gl_current_context_get (Evas_GL *evas_gl) EIN
  */
 EAPI Evas_GL_Surface         *evas_gl_current_surface_get (Evas_GL *evas_gl) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1);
 
+/**
+ * @brief Get current Evas GL
+ *
+ * @param[out] context  Optional return value for the current context
+ * @param[out] surface  Optional return value for the current surface
+ *
+ * @return The current Evas GL, ie. the last Evas GL passed to evas_gl_make_current
+ *
+ * @see evas_gl_make_current
+ *
+ * @note This can be used to restore a previous context, for instance if you
+ *       are writing a library that needs to work transparently with Evas GL,
+ *       and may not have control over the other Evas GL objects.
+ *
+ * @since 1.16
+ */
+EAPI Evas_GL                 *evas_gl_current_evas_gl_get (Evas_GL_Context **context, Evas_GL_Surface **surface) EINA_WARN_UNUSED_RESULT;
 
 
 /*-------------------------------------------------------------------------
@@ -2226,6 +2269,15 @@ typedef signed int       GLfixed;      // Changed khronos_int32_t
 #define GL_COVERAGE_COMPONENT4_NV         0x8ED1
 #define GL_COVERAGE_ATTACHMENT_NV         0x8ED2
 #define GL_COVERAGE_BUFFERS_NV            0x8ED3
+#ifdef GL_COVERAGE_SAMPLES_NV
+# undef GL_COVERAGE_SAMPLES_NV
+/* Extract from the multisample_coverage spec:
+ * (Note:  Earlier versions of this extension included a token
+ *   COVERAGE_SAMPLES_NV that was an alias for SAMPLES/SAMPLES_ARB.  This was
+ *   removed to avoid a name collision with a similar COVERAGE_SAMPLES_NV
+ *   token from the NV_coverage_sample extension to OpenGL ES.)
+ */
+#endif
 #define GL_COVERAGE_SAMPLES_NV            0x8ED4
 #define GL_COVERAGE_ALL_FRAGMENTS_NV      0x8ED5
 #define GL_COVERAGE_EDGE_FRAGMENTS_NV     0x8ED6
@@ -3780,6 +3832,7 @@ typedef unsigned long long EvasGLTime;
 #define EVAS_GL_KHR_wait_sync 1
 
 /**
+ * @anchor evasgl_sync_values
  * @name Constants used to define and wait for Sync objects.
  * @{
  */
@@ -4106,9 +4159,10 @@ struct _Evas_GL_API
     * @li @c EVAS_GL_NATIVE_SURFACE_TIZEN (Tizen platform only):<br/>
     * Requires the @c EVAS_GL_TIZEN_image_native_surface extension.
     *
+    * @deprecated
     * @note Please consider using @ref evasglCreateImageForContext instead.
     */
-   EvasGLImage  (*evasglCreateImage) (int target, void* buffer, const int* attrib_list) EINA_WARN_UNUSED_RESULT;
+   EvasGLImage  (*evasglCreateImage) (int target, void* buffer, const int* attrib_list) EINA_WARN_UNUSED_RESULT EINA_DEPRECATED;
 
    /**
     * @anchor evasglDestroyImage
@@ -4116,6 +4170,9 @@ struct _Evas_GL_API
     * Destroy an image created by either @ref evasglCreateImage or @ref evasglCreateImageForContext.
     *
     * Requires the @c EVAS_GL_image extension.
+    *
+    * @note Unlike in pure EGL, the display pointer needs not be passed in, as
+    * Evas GL will use the same EGLDisplay as used in the create function.
     */
    void         (*evasglDestroyImage) (EvasGLImage image);
 
@@ -4430,30 +4487,102 @@ EvasGLImage *img = glapi->evasglCreateImageForContext
    /**
     * @name Evas GL Sync object functions
     * @since_tizen 2.3
+    * @since 1.12
     * @{ */
+
    /**
     * @anchor evasglCreateSync
-    * @brief Requires the extension @c EGL_KHR_fence_sync, similar to eglCreateSyncKHR.
+    * @brief Create a synchronization primitive which can be tested or waited upon.
+    *
+    * @note Requires the extension @c EGL_KHR_fence_sync, similar to eglCreateSyncKHR.
+    *
+    * @param evas_gl      The current Evas_GL connection
+    * @param type         One of: @c EVAS_GL_SYNC_FENCE or @c EVAS_GL_SYNC_REUSABLE
+    * @param attrib_list  Optional attributes list, terminated by @c EVAS_GL_NONE
+    *                     The supported attributes depend on the driver extensions,
+    *                     please refer to the EGL specifications for more information.
+    *
+    * @return A new sync object (EvasGLSync)
+    * @since 1.12
     */
    EvasGLSync   (*evasglCreateSync) (Evas_GL *evas_gl, unsigned int type, const int *attrib_list);
-   /** @anchor evasglDestroySync
-    * @brief Requires the extension @c EGL_KHR_fence_sync, similar to eglDestroySyncKHR.
+   /**
+    * @anchor evasglDestroySync
+    * @brief Destroys a sync object created by @c evasglCreateSync.
+    *
+    * @note Requires the extension @c EGL_KHR_fence_sync, similar to eglDestroySyncKHR.
+    *
+    * @param evas_gl     The current Evas_GL connection
+    * @param sync        A valid sync object created by @c evasglCreateSync
+    *
+    * @return @c EINA_TRUE in case of success, @c EINA_FALSE in case of failure
+    *         (in which case evas_gl_error_get() should return an error code)
+    * @since 1.12
     */
    Eina_Bool    (*evasglDestroySync) (Evas_GL *evas_gl, EvasGLSync sync);
-   /** @anchor evasglClientWaitSync
-    * @brief Requires the extension @c EGL_KHR_fence_sync, similar to eglClientWaitSyncKHR.
+
+   /**
+    * @anchor evasglClientWaitSync
+    * @brief Block and wait until for sync object is signaled or timeout is reached
+    *
+    * @param evas_gl     The current Evas_GL connection
+    * @param sync        A valid sync object created by evasglCreateSync
+    * @param timeout     A relative timeout in nanoseconds
+    *
+    * @note Requires the extension @c EGL_KHR_reusable_sync, similarly to eglClientWaitSyncKHR.
+    *
+    * @return @c EVAS_GL_TIMEOUT_EXPIRED if the sync failed and timeout was reached,
+    *         @c EVAS_GL_CONDITION_SATISFIED if the sync was signaled,
+    *         or 0 in case of failure (in which case evas_gl_error_get() should return an error code)
+    * @since 1.12
     */
    int          (*evasglClientWaitSync) (Evas_GL *evas_gl, EvasGLSync sync, int flags, EvasGLTime timeout);
-   /** @anchor evasglSignalSync
-    * @brief Requires the extension @c EGL_KHR_reusable_sync, similar to eglSignalSyncKHR.
+
+   /**
+    * @anchor evasglSignalSync
+    * @brief Signal a sync object, unlocking all threads waiting on it
+    *
+    * @param evas_gl     The current Evas_GL connection
+    * @param sync        A valid sync object created by evasglCreateSync
+    *
+    * @note Requires the extension @c EGL_KHR_reusable_sync or @c EGL_KHR_wait_sync, similarly to eglSignalSyncKHR.
+    *
+    * @return @c EINA_TRUE in case of success, or
+    *         @c EINA_FALSE in case of failure (in which case evas_gl_error_get() should return an error code)
+    * @since 1.12
     */
    Eina_Bool    (*evasglSignalSync) (Evas_GL *evas_gl, EvasGLSync sync, unsigned mode);
-   /** @anchor evasglGetSyncAttrib
-    * @brief Requires the extension @c EGL_KHR_fence_sync, similar to eglGetSyncAttribKHR.
+
+   /**
+    * @anchor evasglGetSyncAttrib
+    * @brief Query a sync object for its properties
+    *
+    * @param evas_gl     The current Evas_GL connection
+    * @param sync        A valid sync object created by evasglCreateSync
+    * @param attribute   Which attribute to query, can be one of: @c EVAS_GL_SYNC_STATUS, @c EVAS_GL_SYNC_TYPE or @c EVAS_GL_SYNC_CONDITION
+    * @param value       Return value or the query, see @ref evasgl_sync_values "sync object".
+    *
+    * @note Requires the extension @c EGL_KHR_fence_sync, similar to eglGetSyncAttribKHR.
+    *
+    * @return @c EINA_TRUE in case of success, or
+    *         @c EINA_FALSE in case of failure (in which case evas_gl_error_get() should return an error code)
+    * @since 1.12
     */
    Eina_Bool    (*evasglGetSyncAttrib) (Evas_GL *evas_gl, EvasGLSync sync, int attribute, int *value);
-   /** @anchor evasglWaitSync
-    * @brief Requires the extension @c EGL_KHR_wait_sync, similar to eglWaitSyncKHR.
+
+   /**
+    * @anchor evasglWaitSync
+    * @brief Wait on an EvasGLSync without blocking, see @c EGL_KHR_wait_sync for more information
+    *
+    * @param evas_gl     The current Evas_GL connection
+    * @param sync        A valid sync object created by evasglCreateSync
+    * @param flags       Must be 0
+    *
+    * @note Requires the extension @c EGL_KHR_wait_sync, similar to eglWaitSyncKHR.
+    *
+    * @return @c EINA_TRUE in case of success, or
+    *         @c EINA_FALSE in case of failure (in which case evas_gl_error_get() should return an error code)
+    * @since 1.12
     */
    int          (*evasglWaitSync) (Evas_GL *evas_gl, EvasGLSync sync, int flags);
    /** @} */
@@ -4614,6 +4743,9 @@ EvasGLImage *img = glapi->evasglCreateImageForContext
 #ifdef __cplusplus
 }
 #endif
+
+#undef EAPI
+#define EAPI
 
 #endif
 /**

@@ -17,9 +17,10 @@
 # include <subsurface-client-protocol.h>
 #endif
 
-#include <xdg-shell-client-protocol.h>
-#define XDG_VERSION 4
-#include <tizen-extension-client-protocol.h>
+#include "xdg-shell-client-protocol.h"
+#define XDG_VERSION 5
+
+#include "session-recovery-client-protocol.h"
 
 /* local function prototypes */
 static int _ecore_wl_shutdown(Eina_Bool close);
@@ -98,6 +99,7 @@ static const struct tizen_policy_listener _ecore_tizen_policy_listener =
    _ecore_wl_cb_supported_aux_hints,
    _ecore_wl_cb_allowed_aux_hint,
 };
+
 static void 
 xdg_shell_ping(void *data EINA_UNUSED, struct xdg_shell *shell, uint32_t serial)
 {
@@ -108,6 +110,17 @@ static const struct xdg_shell_listener xdg_shell_listener =
 {
    xdg_shell_ping,
 };
+
+/* static void */
+/* _ecore_wl_uuid_receive(void *data EINA_UNUSED, struct session_recovery *session_recovery EINA_UNUSED, const char *uuid) */
+/* { */
+/*    DBG("UUID assigned from compositor: %s", uuid); */
+/* } */
+
+/* static const struct session_recovery_listener _ecore_wl_session_recovery_listener = */
+/* { */
+/*    _ecore_wl_uuid_receive, */
+/* }; */
 
 /* external variables */
 int _ecore_wl_log_dom = -1;
@@ -156,7 +169,13 @@ _ecore_wl_init_wait(void)
    while (!_ecore_wl_disp->init_done)
      {
         ret = wl_display_dispatch(_ecore_wl_disp->wl.display);
-        assert(ret != -1);
+        if ((ret < 0) && ((errno != EAGAIN) && (errno != EINVAL)))
+          {
+             /* raise exit signal */
+             ERR("Wayland socket error: %s", strerror(errno));
+             abort();
+             break;
+          }
      }
 }
 
@@ -219,13 +238,11 @@ ecore_wl_init(const char *name)
         ECORE_WL_EVENT_AUX_HINT_ALLOWED = ecore_event_type_new();
      }
 
-   if (!(_ecore_wl_disp = malloc(sizeof(Ecore_Wl_Display))))
+   if (!(_ecore_wl_disp = calloc(1, sizeof(Ecore_Wl_Display))))
      {
         ERR("Could not allocate memory for Ecore_Wl_Display structure");
         goto exit_ecore_disp;
      }
-
-   memset(_ecore_wl_disp, 0, sizeof(Ecore_Wl_Display));
 
    if (!(_ecore_wl_disp->wl.display = wl_display_connect(name)))
      {
@@ -236,7 +253,7 @@ ecore_wl_init(const char *name)
    _ecore_wl_disp->fd = wl_display_get_fd(_ecore_wl_disp->wl.display);
 
    _ecore_wl_disp->fd_hdl =
-     ecore_main_fd_handler_add(_ecore_wl_disp->fd, 
+     ecore_main_fd_handler_add(_ecore_wl_disp->fd,
                                ECORE_FD_READ | ECORE_FD_WRITE | ECORE_FD_ERROR,
                                _ecore_wl_cb_handle_data, _ecore_wl_disp,
                                NULL, NULL);
@@ -248,6 +265,9 @@ ecore_wl_init(const char *name)
      wl_display_get_registry(_ecore_wl_disp->wl.display);
    wl_registry_add_listener(_ecore_wl_disp->wl.registry,
                             &_ecore_wl_registry_listener, _ecore_wl_disp);
+
+   //session_recovery_add_listener(_ecore_wl_disp->wl.session_recovery,
+                            //&_ecore_wl_session_recovery_listener, _ecore_wl_disp);
 
    if (!_ecore_wl_xkb_init(_ecore_wl_disp))
      {
@@ -305,14 +325,20 @@ ecore_wl_flush(void)
 EAPI void
 ecore_wl_sync(void)
 {
-   int ret = 0;
+
+   int ret;
    if ((!_ecore_wl_disp) || (!_ecore_wl_disp->wl.display)) return;
    _ecore_wl_sync_wait(_ecore_wl_disp);
-   while (_ecore_wl_disp->sync_ref_count > 0 && ret != -1)
+   while (_ecore_wl_disp->sync_ref_count > 0)
      {
         ret = wl_display_dispatch(_ecore_wl_disp->wl.display);
-        if (ret == -1)
-          CRI("dispatch failed: %s(%d)", strerror(errno), errno);
+        if ((ret < 0) && ((errno != EAGAIN) && (errno != EINVAL)))
+          {
+             /* raise exit signal */
+             ERR("Wayland socket error: %s", strerror(errno));
+             abort();
+             break;
+          }
      }
 }
 
@@ -444,6 +470,9 @@ ecore_wl_dpi_get(void)
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!_ecore_wl_disp) return 0;
+
+   _ecore_wl_init_wait();
+
    if (!_ecore_wl_disp->output) return 75;
 
    mw = _ecore_wl_disp->output->mw;
@@ -458,9 +487,18 @@ ecore_wl_dpi_get(void)
 EAPI void
 ecore_wl_display_iterate(void)
 {
+   int ret;
    if ((!_ecore_wl_disp) || (!_ecore_wl_disp->wl.display)) return;
    if (!_ecore_wl_server_mode)
-     wl_display_dispatch(_ecore_wl_disp->wl.display);
+     {
+        ret = wl_display_dispatch(_ecore_wl_disp->wl.display);
+        if ((ret < 0) && ((errno != EAGAIN) && (errno != EINVAL)))
+          {
+             /* raise exit signal */
+             ERR("Wayland socket error: %s", strerror(errno));
+             abort();
+          }
+     }
 }
 
 /* @since 1.8 */
@@ -468,6 +506,8 @@ EAPI Eina_Bool
 ecore_wl_animator_source_set(Ecore_Animator_Source source)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (_ecore_wl_server_mode) return EINA_FALSE;
 
    /* FIXME: check existing source. If custom, disable anim_callbacks */
 
@@ -554,8 +594,8 @@ _ecore_wl_shutdown(Eina_Bool close)
 
         EINA_INLIST_FOREACH_SAFE(_ecore_wl_disp->globals, tmp, global)
           {
-             _ecore_wl_disp->globals = 
-               eina_inlist_remove(_ecore_wl_disp->globals, 
+             _ecore_wl_disp->globals =
+               eina_inlist_remove(_ecore_wl_disp->globals,
                                   EINA_INLIST_GET(global));
              free(global->interface);
              free(global);
@@ -563,6 +603,8 @@ _ecore_wl_shutdown(Eina_Bool close)
 
         _ecore_wl_xkb_shutdown(_ecore_wl_disp);
 
+        if (_ecore_wl_disp->wl.session_recovery)
+          session_recovery_destroy(_ecore_wl_disp->wl.session_recovery);
 #ifdef USE_IVI_SHELL
         if (_ecore_wl_disp->wl.ivi_application)
           ivi_application_destroy(_ecore_wl_disp->wl.ivi_application);
@@ -588,6 +630,8 @@ _ecore_wl_shutdown(Eina_Bool close)
         if (_ecore_wl_disp->wl.keyrouter)
           tizen_keyrouter_destroy(_ecore_wl_disp->wl.keyrouter);
 //
+        if (_ecore_wl_disp->cursor_theme)
+          wl_cursor_theme_destroy(_ecore_wl_disp->cursor_theme);
         if (_ecore_wl_disp->wl.display)
           {
              wl_registry_destroy(_ecore_wl_disp->wl.registry);
@@ -620,13 +664,13 @@ _ecore_wl_cb_idle_enterer(void *data)
    ret = wl_display_get_error(ewd->wl.display);
    if (ret < 0) goto err;
 
+   ret = wl_display_dispatch_pending(ewd->wl.display);
+   if (ret < 0) goto err;
+
    ret = wl_display_flush(ewd->wl.display);
    if ((ret < 0) && (errno == EAGAIN))
      ecore_main_fd_handler_active_set(ewd->fd_hdl,
                                       (ECORE_FD_READ | ECORE_FD_WRITE));
-
-   ret = wl_display_dispatch_pending(ewd->wl.display);
-   if (ret < 0) goto err;
 
    return ECORE_CALLBACK_RENEW;
 
@@ -636,6 +680,7 @@ err:
         _ecore_wl_fatal_error = EINA_TRUE;
 
         /* raise exit signal */
+        ERR("Wayland socket error: %s", strerror(errno));
         _ecore_wl_signal_exit();
 
         return ECORE_CALLBACK_CANCEL;
@@ -690,7 +735,7 @@ _ecore_wl_cb_handle_data(void *data, Ecore_Fd_Handler *hdl)
 }
 
 static void
-_ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned int id, const char *interface, unsigned int version EINA_UNUSED)
+_ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned int id, const char *interface, unsigned int version)
 {
    Ecore_Wl_Display *ewd;
    Ecore_Wl_Global *global;
@@ -720,6 +765,11 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
      _ecore_wl_output_add(ewd, id);
    else if (!strcmp(interface, "wl_seat"))
      _ecore_wl_input_add(ewd, id);
+   else if (!strcmp(interface, "session_recovery"))
+     {
+        ewd->wl.session_recovery =
+          wl_registry_bind(registry, id, &session_recovery_interface, 1);
+     }
 #ifdef USE_IVI_SHELL
    else if (!strcmp(interface, "ivi_application"))
      {
@@ -729,11 +779,20 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
 #endif
    else if (!strcmp(interface, "xdg_shell") && !getenv("EFL_WAYLAND_DONT_USE_XDG_SHELL"))
      {
-        ewd->wl.xdg_shell = 
+        Eina_Hash *h;
+        Eina_Iterator *it;
+        Ecore_Wl_Window *win;
+
+        ewd->wl.xdg_shell =
           wl_registry_bind(registry, id, &xdg_shell_interface, 1);
         xdg_shell_use_unstable_version(ewd->wl.xdg_shell, XDG_VERSION);
         xdg_shell_add_listener(ewd->wl.xdg_shell, &xdg_shell_listener,
                                ewd->wl.display);
+        h = _ecore_wl_window_hash_get();
+        it = eina_hash_iterator_data_new(h);
+        EINA_ITERATOR_FOREACH(it, win)
+          if (win->surface)
+            _ecore_wl_window_shell_surface_init(win);
      }
    else if (!strcmp(interface, "wl_shell"))
      {
@@ -745,15 +804,11 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
         ewd->wl.shm = wl_registry_bind(registry, id, &wl_shm_interface, 1);
 
         if (ewd->input)
+          _ecore_wl_input_setup(ewd->input);
+        else if (!ewd->cursor_theme)
           {
              ewd->cursor_theme =
-               wl_cursor_theme_load(ewd->input->cursor_theme_name,
-                                    ewd->input->cursor_size, ewd->wl.shm);
-          }
-        else
-          {
-             ewd->cursor_theme = 
-               wl_cursor_theme_load(NULL, ECORE_WL_DEFAULT_CURSOR_SIZE, 
+               wl_cursor_theme_load(NULL, ECORE_WL_DEFAULT_CURSOR_SIZE,
                                     ewd->wl.shm);
           }
      }

@@ -54,6 +54,8 @@ static Ecore_IMF_Context_Class ibus_imf_class = {
     NULL,
     NULL,
     NULL,
+    NULL,
+    NULL,
     NULL
 };
 
@@ -63,7 +65,14 @@ static Ecore_IMF_Context *im_module_exit (void);
 static Eina_Bool
 im_module_init(void)
 {
-    ecore_main_loop_glib_integrate();
+   const char *s;
+
+   if (!getenv("DISPLAY")) return EINA_FALSE;
+   if ((s = getenv("ELM_DISPLAY")))
+     {
+        if (strcmp(s, "x11")) return EINA_FALSE;
+     }
+   ecore_main_loop_glib_integrate();
     ibus_init();
     ecore_imf_module_register(&ibus_im_info, im_module_create, im_module_exit);
 

@@ -3,25 +3,26 @@ class Ecore.Animator (Eo.Base)
    eo_prefix: ecore_animator;
    methods {
       timeline_constructor {
-         /*@ Constructor. */
+         [[Constructor.]]
          legacy: null;
          params {
-            @in double runtime;
-            @in Ecore_Timeline_Cb func;
-            @in const(void)* data;
+            @in runtime: double;
+            @in func: Ecore_Timeline_Cb;
+            @in data: const(void)*;
          }
       }
       constructor {
-         /*@ Constructor. */
+         [[Constructor.]]
          legacy: null;
          params {
-            @in Ecore_Task_Cb func;
-            @in const(void)* data;
+            @in func: Ecore_Task_Cb;
+            @in data: const(void)*;
          }
       }
    }
    implements {
       Eo.Base.destructor;
+      Eo.Base.finalize;
       Eo.Base.event_freeze;
       Eo.Base.event_thaw;
    }

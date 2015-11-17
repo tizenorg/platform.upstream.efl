@@ -18,12 +18,12 @@ _add_and_print_set(Eo *obj, void *class_data EINA_UNUSED, int x)
 
 extern int my_init_count;
 
-static void
+static Eo *
 _constructor(Eo *obj, void *class_data EINA_UNUSED)
 {
-   eo_do_super(obj, MY_CLASS, eo_constructor());
-
    my_init_count++;
+
+   return eo_do_super_ret(obj, MY_CLASS, obj, eo_constructor());
 }
 
 static void
@@ -37,10 +37,9 @@ _destructor(Eo *obj, void *class_data EINA_UNUSED)
 EAPI EO_VOID_FUNC_BODYV(mixin_add_and_print, EO_FUNC_CALL(x), int x);
 
 static Eo_Op_Description op_descs[] = {
-     EO_OP_FUNC(mixin_add_and_print, _add_and_print_set, "Add A + B + param and print it"),
+     EO_OP_FUNC(mixin_add_and_print, _add_and_print_set),
      EO_OP_FUNC_OVERRIDE(eo_constructor, _constructor),
      EO_OP_FUNC_OVERRIDE(eo_destructor, _destructor),
-     EO_OP_SENTINEL
 };
 
 static const Eo_Class_Description class_desc = {

@@ -1,101 +1,102 @@
+import eina_types;
+
 abstract Ector.Renderer.Generic.Base (Eo.Base)
 {
    eo_prefix: ector_renderer;
    legacy_prefix: null;
-   properties {
-      transformation {
+   methods {
+      @property transformation {
          set {
 	 }
 	 get {
 	 }
 	 values {
-	    const(Eina_Matrix3) *m;
+	    m: const(Eina_Matrix3) *;
 	 }
       }
-      origin {
+      @property origin {
          set {
 	 }
 	 get {
 	 }
 	 values {
-	    double x;
-	    double y;
+	    x: double;
+	    y: double;
 	 }
       }
-      visibility {
+      @property visibility {
          set {
-            /*@ Makes the given Ector renderer visible or invisible. */
+            [[Makes the given Ector renderer visible or invisible.]]
 	 }
 	 get {
-            /*@ Retrieves whether or not the given Ector renderer is visible. */
+            [[Retrieves whether or not the given Ector renderer is visible.]]
 	 }
 	 values {
-	    bool v; /*@ @c EINA_TRUE if to make the object visible, @c EINA_FALSE otherwise */
+	    v: bool; [[true if to make the object visible, false otherwise]]
 	 }
       }
-      color {
+      @property color {
          set {
-            /*@
-            Sets the general/main color of the given Ector renderer to the given
-            one.
+            [[Sets the general/main color of the given Ector renderer to the
+              given one.
 
-            @note These color values are expected to be premultiplied by @p a.
-
-            @ingroup Ector_Renderer_Group_Basic */
+              These color values are expected to be premultiplied by alpha.
+            ]]
          }
          get {
-            /*@
-            Retrieves the general/main color of the given Ector renderer.
+            [[Retrieves the general/main color of the given Ector renderer.
 
-            Retrieves the “main” color's RGB component (and alpha channel)
-            values, <b>which range from 0 to 255</b>. For the alpha channel,
-            which defines the object's transparency level, 0 means totally
-            transparent, while 255 means opaque. These color values are
-            premultiplied by the alpha value.
+              Retrieves the main color's RGB component (and alpha channel)
+              values, which range from 0 to 255. For the alpha channel,
+              which defines the object's transparency level, 0 means totally
+              transparent, while 255 means opaque. These color values are
+              premultiplied by the alpha value.
 
-            @note Use @c NULL pointers on the components you're not interested
-            in: they'll be ignored by the function.
-
-            @ingroup Ector_Renderer_Group_Basic */
+              Use null pointers on the components you're not interested in,
+              they'll be ignored by the function.
+            ]]
 	 }
 	 values {
-            int r; /*@ The red component of the given color. */
-            int g; /*@ The green component of the given color. */
-            int b; /*@ The blue component of the given color. */
-            int a; /*@ The alpha component of the given color. */
+            r: int; [[The red component of the given color.]]
+            g: int; [[The green component of the given color.]]
+            b: int; [[The blue component of the given color.]]
+            a: int; [[The alpha component of the given color.]]
 	 }
       }
-      mask {
+      @property mask {
          set {
 	 }
 	 get {
 	 }
 	 values {
-	    Ector_Renderer *r;
+	    r: Ector_Renderer *;
 	 }
       }
-      quality {
+      @property quality {
          set {
 	 }
 	 get {
 	 }
 	 values {
-	    Ector_Quality q;
+	    q: Ector_Quality;
 	 }
       }
-   }
-   methods {
+      @property crc {
+         get {
+            return: uint;
+	 }
+      }
       bounds_get {
 	 params {
-	    @out Eina_Rectangle r;
+	    @out r: Eina.Rectangle;
 	 }
       }
       draw {
          return: bool @warn_unused;
 	 params {
-	    @in Ector_Rop op;
-	    @in array<Eina_Rectangle *> *clips; /*@ array of Eina_Rectangle clip */
-	    @in uint mul_col;
+	    @in op: Ector_Rop;
+	    @in clips: array<Eina.Rectangle *> *; [[array of @Eina.Rectangle clip]]
+	    @in mul_col: uint;
 	 }
       }
       prepare {

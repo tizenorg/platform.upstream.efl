@@ -1049,6 +1049,29 @@ _native_cb_bind(void *data EINA_UNUSED, void *image)
      {
         glBindTexture(GL_TEXTURE_2D, n->ns.data.opengl.texture_id);
      }
+   else if (n->ns.type == EVAS_NATIVE_SURFACE_EVASGL)
+     {
+        if (n->egl_surface)
+          {
+             Eina_Bool is_egl_image;
+             void *surface = glsym_evgl_native_surface_buffer_get(n->egl_surface, &is_egl_image);
+             if (is_egl_image)
+               {
+                  if (glsym_glEGLImageTargetTexture2DOES)
+                    {
+                       glsym_glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, surface);
+                       if (eglGetError() != EGL_SUCCESS)
+                         ERR("glEGLImageTargetTexture2DOES() failed.");
+                    }
+                  else
+                    ERR("Try glEGLImageTargetTexture2DOES on EGL with no support");
+               }
+             else
+               {
+                  glBindTexture(GL_TEXTURE_2D, (GLuint)(uintptr_t)surface);
+               }
+          }
+     }
 }
 
 static void
@@ -1068,6 +1091,10 @@ _native_cb_unbind(void *data EINA_UNUSED, void *image)
      {
         glBindTexture(GL_TEXTURE_2D, 0);
      }
+  else if (n->ns.type == EVAS_NATIVE_SURFACE_EVASGL)
+    {
+      // nothing
+    }
 }
 
 static void

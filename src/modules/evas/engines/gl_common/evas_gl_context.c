@@ -1081,6 +1081,7 @@ evas_gl_common_context_newframe(Evas_Engine_GL_Context *gc)
    gc->state.current.cur_texv = 0;
    gc->state.current.cur_texa = 0;
    gc->state.current.cur_texm = 0;
+   gc->state.current.tex_target = GL_TEXTURE_2D;
    gc->state.current.render_op = 0;
    gc->state.current.smooth = 0;
    gc->state.current.blend = 0;
@@ -1110,6 +1111,7 @@ evas_gl_common_context_newframe(Evas_Engine_GL_Context *gc)
         gc->pipe[i].shader.cur_texv = 0;
         gc->pipe[i].shader.cur_texa = 0;
         gc->pipe[i].shader.cur_texm = 0;
+        gc->pipe[i].shader.tex_target = GL_TEXTURE_2D;
         gc->pipe[i].shader.render_op = EVAS_RENDER_BLEND;
         gc->pipe[i].shader.smooth = 0;
         gc->pipe[i].shader.blend = 0;
@@ -1149,7 +1151,7 @@ evas_gl_common_context_newframe(Evas_Engine_GL_Context *gc)
    else glUseProgram(gc->state.current.cur_prog);
 
    glActiveTexture(GL_TEXTURE0);
-   glBindTexture(GL_TEXTURE_2D, gc->pipe[0].shader.cur_tex);
+   glBindTexture(gc->pipe[0].shader.tex_target, gc->pipe[0].shader.cur_tex);
 
    _evas_gl_common_viewport_set(gc,1);
 }
@@ -1238,6 +1240,7 @@ evas_gl_common_context_target_surface_set(Evas_Engine_GL_Context *gc,
    gc->state.current.cur_texv = 0;
    gc->state.current.cur_texa = 0;
    gc->state.current.cur_texm = 0;
+   gc->state.current.tex_target = GL_TEXTURE_2D;
    gc->state.current.render_op = -1;
    gc->state.current.smooth = -1;
    gc->state.current.blend = -1;
@@ -2094,9 +2097,15 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
    Shader_Sampling sam = 0, masksam = 0;
    int yinvert = 0;
    Shader_Type shd_in = SHD_IMAGE;
+   int tex_target = GL_TEXTURE_2D;
 
-   if ((tex->im) && (tex->im->native.data))
-     shd_in = SHD_IMAGENATIVE;
+   if (tex->im)
+     {
+        if (tex->im->native.data)
+          shd_in = SHD_IMAGENATIVE;
+        if (tex->im->native.target == GL_TEXTURE_EXTERNAL_OES)
+          tex_target = GL_TEXTURE_EXTERNAL_OES;
+     }
 
    if (!!mtex)
      {
@@ -2147,6 +2156,7 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
    gc->pipe[pn].shader.cur_tex = pt->texture;
    gc->pipe[pn].shader.cur_texm = mtex ? mtex->pt->texture : 0;
    gc->pipe[pn].shader.cur_prog = prog;
+   gc->pipe[pn].shader.tex_target = tex_target;
    gc->pipe[pn].shader.smooth = smooth;
    gc->pipe[pn].shader.mask_smooth = mask_smooth;
    gc->pipe[pn].shader.blend = blend;
@@ -3149,7 +3159,7 @@ shader_array_flush(Evas_Engine_GL_Context *gc)
                }
 #endif
              glActiveTexture(GL_TEXTURE0);
-             glBindTexture(GL_TEXTURE_2D, gc->pipe[i].shader.cur_tex);
+             glBindTexture(gc->pipe[i].shader.tex_target, gc->pipe[i].shader.cur_tex);
           }
         if (gc->pipe[i].array.im)
           {
@@ -3157,7 +3167,7 @@ shader_array_flush(Evas_Engine_GL_Context *gc)
              if (gc->pipe[i].array.im->tex->pt->dyn.img)
                {
                   secsym_glEGLImageTargetTexture2DOES
-                        (GL_TEXTURE_2D, gc->pipe[i].array.im->tex->pt->dyn.img);
+                        (gc->pipe[i].array.im->tex->pt->dyn.target, gc->pipe[i].array.im->tex->pt->dyn.img);
                }
              else
 #endif
@@ -3723,6 +3733,7 @@ shader_array_flush(Evas_Engine_GL_Context *gc)
         gc->state.current.cur_texa  = gc->pipe[i].shader.cur_texa;
         gc->state.current.cur_texu  = gc->pipe[i].shader.cur_texu;
         gc->state.current.cur_texv  = gc->pipe[i].shader.cur_texv;
+        gc->state.current.tex_target = gc->pipe[i].shader.tex_target;
         gc->state.current.render_op = gc->pipe[i].shader.render_op;
 //        gc->state.current.cx        = gc->pipe[i].shader.cx;
 //        gc->state.current.cy        = gc->pipe[i].shader.cy;

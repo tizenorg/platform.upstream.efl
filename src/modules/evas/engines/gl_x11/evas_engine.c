@@ -1976,7 +1976,7 @@ _native_bind_cb(void *data EINA_UNUSED, void *image)
          {
             if (glsym_glEGLImageTargetTexture2DOES)
               {
-                 glsym_glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, n->surface);
+                 glsym_glEGLImageTargetTexture2DOES(im->native.target, n->surface);
                  GLERRV("glsym_glEGLImageTargetTexture2DOES");
               }
             else
@@ -1999,7 +1999,7 @@ _native_bind_cb(void *data EINA_UNUSED, void *image)
     }
   else if (n->ns.type == EVAS_NATIVE_SURFACE_OPENGL)
     {
-       glBindTexture(GL_TEXTURE_2D, n->ns.data.opengl.texture_id);
+       glBindTexture(im->native.target, n->ns.data.opengl.texture_id);
     }
   else if (n->ns.type == EVAS_NATIVE_SURFACE_TBM)
     {
@@ -2008,7 +2008,7 @@ _native_bind_cb(void *data EINA_UNUSED, void *image)
          {
             if (glsym_glEGLImageTargetTexture2DOES)
               {
-                 glsym_glEGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, n->surface);
+                 glsym_glEGLImageTargetTexture2DOES(im->native.target, n->surface);
                  GLERRV("glsym_glEGLImageTargetTexture2DOES");
               }
              else
@@ -2027,7 +2027,7 @@ _native_bind_cb(void *data EINA_UNUSED, void *image)
 #ifdef GL_GLES
                  if (glsym_glEGLImageTargetTexture2DOES)
                    {
-                      glsym_glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, buffer);
+                      glsym_glEGLImageTargetTexture2DOES(im->native.target, buffer);
                       GLERRV("glsym_glEGLImageTargetTexture2DOES");
                    }
                  else
@@ -2085,7 +2085,7 @@ _native_unbind_cb(void *data EINA_UNUSED, void *image)
      }
    else if (n->ns.type == EVAS_NATIVE_SURFACE_OPENGL)
      {
-        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(im->native.target, 0);
      }
    else if (n->ns.type == EVAS_NATIVE_SURFACE_TBM)
      {

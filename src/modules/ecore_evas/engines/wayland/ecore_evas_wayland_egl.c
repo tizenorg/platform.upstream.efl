@@ -116,8 +116,8 @@ static Ecore_Evas_Engine_Func _ecore_wl_engine_func =
 
 /* external functions */
 EAPI Ecore_Evas *
-ecore_evas_wayland_egl_new_internal(const char *disp_name, unsigned int parent,
-				      int x, int y, int w, int h, Eina_Bool frame)
+ecore_evas_wayland_egl_options_new_internal(const char *disp_name, unsigned int parent,
+                                            int x, int y, int w, int h, Eina_Bool frame, const int *opt)
 {
    Ecore_Wl_Window *p = NULL;
    Ecore_Wl_Global *global;
@@ -254,6 +254,42 @@ ecore_evas_wayland_egl_new_internal(const char *disp_name, unsigned int parent,
 
    if ((einfo = (Evas_Engine_Info_Wayland_Egl *)evas_engine_info_get(ee->evas)))
      {
+        if (opt)
+          {
+             int op;
+
+             for (op = 0; opt[op]; op++)
+               {
+                  if (opt[op] == ECORE_EVAS_OPT_VSYNC)
+                    {
+                       op++;
+                       einfo->vsync = opt[op];
+                    }
+#ifdef EVAS_ENGINE_WAYLAND_EGL_SWAP_MODE_EXISTS
+                  else if (opt[op] == ECORE_EVAS_OPT_SWAP_MODE)
+                    {
+                       op++;
+                       einfo->swap_mode = opt[op];
+                    }
+#endif
+                  else if (opt[op] == ECORE_EVAS_OPT_GL_DEPTH)
+                    {
+                       op++;
+                       einfo->depth_bits = opt[op];
+                    }
+                  else if (opt[op] == ECORE_EVAS_OPT_GL_STENCIL)
+                    {
+                       op++;
+                       einfo->stencil_bits = opt[op];
+                    }
+                  else if (opt[op] == ECORE_EVAS_OPT_GL_MSAA)
+                    {
+                       op++;
+                       einfo->msaa_bits = opt[op];
+                    }
+               }
+          }
+
         einfo->info.display = ecore_wl_display_get();
         einfo->info.compositor = ecore_wl_compositor_get();
         einfo->info.destination_alpha = EINA_TRUE;
@@ -304,6 +340,13 @@ ecore_evas_wayland_egl_new_internal(const char *disp_name, unsigned int parent,
  ee_err:
    ecore_wl_shutdown();
    return NULL;
+}
+
+EAPI Ecore_Evas *
+ecore_evas_wayland_egl_new_internal(const char *disp_name, unsigned int parent,
+                                    int x, int y, int w, int h, Eina_Bool frame)
+{
+   return ecore_evas_wayland_egl_options_new_internal(disp_name, parent, x, y, w, h, frame, NULL);
 }
 
 static void 

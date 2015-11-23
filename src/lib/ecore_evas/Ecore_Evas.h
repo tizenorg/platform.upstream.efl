@@ -149,6 +149,22 @@ typedef enum _Ecore_Evas_Object_Associate_Flags
   ECORE_EVAS_OBJECT_ASSOCIATE_DEL = 1 << 2
 } Ecore_Evas_Object_Associate_Flags;
 
+#define ECORE_EVAS_OPT_NONE         0
+#define ECORE_EVAS_OPT_INDIRECT     1
+#define ECORE_EVAS_OPT_VSYNC        2
+#define ECORE_EVAS_OPT_SWAP_MODE    3
+#define ECORE_EVAS_OPT_GL_DEPTH     4
+#define ECORE_EVAS_OPT_GL_STENCIL   5
+#define ECORE_EVAS_OPT_GL_MSAA      6
+#define ECORE_EVAS_OPT_LAST         7
+
+#define ECORE_EVAS_SWAP_MODE_AUTO      0
+#define ECORE_EVAS_SWAP_MODE_FULL      1
+#define ECORE_EVAS_SWAP_MODE_COPY      2
+#define ECORE_EVAS_SWAP_MODE_DOUBLE    3
+#define ECORE_EVAS_SWAP_MODE_TRIPLE    4
+#define ECORE_EVAS_SWAP_MODE_QUADRUPLE 5
+
 /* module setup/shutdown calls */
 
 EAPI int         ecore_evas_engine_type_supported_get(Ecore_Evas_Engine_Type engine);
@@ -1174,20 +1190,20 @@ EAPI Ecore_Evas     *ecore_evas_software_x11_pixmap_new(const char *disp_name, E
  */
 EAPI Ecore_X_Pixmap ecore_evas_software_x11_pixmap_get(const Ecore_Evas *ee);
 
-#define ECORE_EVAS_GL_X11_OPT_NONE         0
-#define ECORE_EVAS_GL_X11_OPT_INDIRECT     1
-#define ECORE_EVAS_GL_X11_OPT_VSYNC        2
-#define ECORE_EVAS_GL_X11_OPT_SWAP_MODE    3
-#define ECORE_EVAS_GL_X11_OPT_GL_DEPTH     4
-#define ECORE_EVAS_GL_X11_OPT_GL_STENCIL   5
-#define ECORE_EVAS_GL_X11_OPT_GL_MSAA      6
-#define ECORE_EVAS_GL_X11_OPT_LAST         7
+#define ECORE_EVAS_GL_X11_OPT_NONE         ECORE_EVAS_OPT_NONE
+#define ECORE_EVAS_GL_X11_OPT_INDIRECT     ECORE_EVAS_OPT_INDIRECT
+#define ECORE_EVAS_GL_X11_OPT_VSYNC        ECORE_EVAS_OPT_VSYNC
+#define ECORE_EVAS_GL_X11_OPT_SWAP_MODE    ECORE_EVAS_OPT_SWAP_MODE
+#define ECORE_EVAS_GL_X11_OPT_GL_DEPTH     ECORE_EVAS_OPT_GL_DEPTH
+#define ECORE_EVAS_GL_X11_OPT_GL_STENCIL   ECORE_EVAS_OPT_GL_STENCIL
+#define ECORE_EVAS_GL_X11_OPT_GL_MSAA      ECORE_EVAS_OPT_GL_MSAA
+#define ECORE_EVAS_GL_X11_OPT_LAST         ECORE_EVAS_OPT_LAST
 
-#define ECORE_EVAS_GL_X11_SWAP_MODE_AUTO   0
-#define ECORE_EVAS_GL_X11_SWAP_MODE_FULL   1
-#define ECORE_EVAS_GL_X11_SWAP_MODE_COPY   2
-#define ECORE_EVAS_GL_X11_SWAP_MODE_DOUBLE 3
-#define ECORE_EVAS_GL_X11_SWAP_MODE_TRIPLE 4
+#define ECORE_EVAS_GL_X11_SWAP_MODE_AUTO   ECORE_EVAS_SWAP_MODE_AUTO
+#define ECORE_EVAS_GL_X11_SWAP_MODE_FULL   ECORE_EVAS_SWAP_MODE_FULL
+#define ECORE_EVAS_GL_X11_SWAP_MODE_COPY   ECORE_EVAS_SWAP_MODE_COPY
+#define ECORE_EVAS_GL_X11_SWAP_MODE_DOUBLE ECORE_EVAS_SWAP_MODE_DOUBLE
+#define ECORE_EVAS_GL_X11_SWAP_MODE_TRIPLE ECORE_EVAS_SWAP_MODE_TRIPLE
 
 /**
  * @brief Create Ecore_Evas using opengl x11.
@@ -1310,6 +1326,7 @@ EAPI Ecore_DirectFB_Window *ecore_evas_directfb_window_get(const Ecore_Evas *ee)
 
 EAPI Ecore_Evas     *ecore_evas_wayland_shm_new(const char *disp_name, unsigned int parent, int x, int y, int w, int h, Eina_Bool frame);
 EAPI Ecore_Evas     *ecore_evas_wayland_egl_new(const char *disp_name, unsigned int parent, int x, int y, int w, int h, Eina_Bool frame);
+EAPI Ecore_Evas     *ecore_evas_wayland_egl_options_new(const char *disp_name, unsigned int parent, int x, int y, int w, int h, Eina_Bool frame, const int *opt);
 EAPI void            ecore_evas_wayland_resize(Ecore_Evas *ee, int location);
 EAPI void            ecore_evas_wayland_move(Ecore_Evas *ee, int x, int y);
 

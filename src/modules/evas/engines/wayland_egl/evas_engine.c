@@ -730,6 +730,26 @@ evgl_eng_pbuffer_surface_destroy(void *data, void *surface)
    return 1;
 }
 
+static void
+evgl_eng_native_win_surface_config_get(void *data, int *win_depth,
+                                         int *win_stencil, int *win_msaa)
+{
+   Render_Engine *re = data;
+   if (!re) return;
+
+   if (win_depth)
+     *win_depth = eng_get_ob(re)->detected.depth_buffer_size;
+   if (win_stencil)
+     *win_stencil = eng_get_ob(re)->detected.stencil_buffer_size;
+   if (win_msaa)
+     *win_msaa = eng_get_ob(re)->detected.msaa;
+
+   DBG("Window config(depth %d, stencil %d, msaa %d)",
+       eng_get_ob(re)->detected.depth_buffer_size,
+       eng_get_ob(re)->detected.stencil_buffer_size,
+       eng_get_ob(re)->detected.msaa);
+}
+
 static const EVGL_Interface evgl_funcs =
 {
    evgl_eng_display_get,
@@ -749,7 +769,7 @@ static const EVGL_Interface evgl_funcs =
    NULL, // OpenGL-ES 1
    NULL, // OpenGL-ES 1
    NULL, // OpenGL-ES 1
-   NULL, // native_win_surface_config_get
+   evgl_eng_native_win_surface_config_get,
 };
 
 /* engine functions */
@@ -871,7 +891,8 @@ eng_setup(Evas *evas, void *info)
              glsym_evas_gl_preload_init();
           }
 
-        ob = eng_window_new(evas, inf, epd->output.w, epd->output.h, swap_mode);
+        ob = eng_window_new(evas, inf, epd->output.w, epd->output.h, swap_mode,
+                            inf->depth_bits, inf->stencil_bits, inf->msaa_bits);
         if (!ob) goto ob_err;
 
         if (!evas_render_engine_gl_generic_init(&re->generic, ob,
@@ -935,7 +956,8 @@ eng_setup(Evas *evas, void *info)
                   ob->gl_context->references++;
                   gl_wins--;
 
-                  ob = eng_window_new(evas, inf, epd->output.w, epd->output.h, swap_mode);
+                  ob = eng_window_new(evas, inf, epd->output.w, epd->output.h, swap_mode,
+                                      inf->depth_bits, inf->stencil_bits, inf->msaa_bits);
                   if (!ob) goto ob_err;
 
                   eng_window_use(ob);

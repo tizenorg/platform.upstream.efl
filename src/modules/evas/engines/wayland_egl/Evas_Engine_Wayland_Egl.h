@@ -45,6 +45,11 @@ struct _Evas_Engine_Info_Wayland_Egl
    Eina_Bool vsync : 1;
    Eina_Bool indirect : 1;
    unsigned char swap_mode : 4;
+
+   /* window surface should be made with these config */
+   int           depth_bits;
+   int           stencil_bits;
+   int           msaa_bits;
 };
 
 #endif

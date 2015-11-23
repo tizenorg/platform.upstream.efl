@@ -10,7 +10,8 @@ static EGLContext context = EGL_NO_CONTEXT;
 static int win_count = 0;
 
 Outbuf *
-eng_window_new(Evas *evas, Evas_Engine_Info_Wayland_Egl *einfo, int w, int h, Render_Engine_Swap_Mode swap_mode)
+eng_window_new(Evas *evas, Evas_Engine_Info_Wayland_Egl *einfo, int w, int h, Render_Engine_Swap_Mode swap_mode,
+                          int depth_bits, int stencil_bits, int msaa_bits)
 {
    Outbuf *gw;
    int context_attrs[3];
@@ -19,6 +20,7 @@ eng_window_new(Evas *evas, Evas_Engine_Info_Wayland_Egl *einfo, int w, int h, Re
    int num_config, n = 0;
    const GLubyte *vendor, *renderer, *version;
    Eina_Bool blacklist = EINA_FALSE;
+   int val = 0;
 
    /* try to allocate space for our window */
    if (!(gw = calloc(1, sizeof(Outbuf))))
@@ -37,6 +39,9 @@ eng_window_new(Evas *evas, Evas_Engine_Info_Wayland_Egl *einfo, int w, int h, Re
    gw->depth = einfo->info.depth;
    gw->alpha = einfo->info.destination_alpha;
    gw->rot = einfo->info.rotation;
+   gw->depth_bits = depth_bits;
+   gw->stencil_bits = stencil_bits;
+   gw->msaa_bits = msaa_bits;
 
    context_attrs[0] = EGL_CONTEXT_CLIENT_VERSION;
    context_attrs[1] = 2;
@@ -59,9 +64,16 @@ eng_window_new(Evas *evas, Evas_Engine_Info_Wayland_Egl *einfo, int w, int h, Re
    config_attrs[n++] = EGL_ALPHA_SIZE;
    config_attrs[n++] = gw->alpha;
    config_attrs[n++] = EGL_DEPTH_SIZE;
-   config_attrs[n++] = 0;
+   config_attrs[n++] = gw->depth_bits;
    config_attrs[n++] = EGL_STENCIL_SIZE;
-   config_attrs[n++] = 0;
+   config_attrs[n++] = gw->stencil_bits;
+   if (msaa_bits > 0)
+     {
+        config_attrs[n++] = EGL_SAMPLE_BUFFERS;
+        config_attrs[n++] = 1;
+        config_attrs[n++] = EGL_SAMPLES;
+        config_attrs[n++] = gw->msaa_bits;
+     }
    config_attrs[n++] = EGL_NONE;
 
    /* FIXME: Remove this line as soon as eglGetDisplay() autodetection
@@ -169,6 +181,16 @@ eng_window_new(Evas *evas, Evas_Engine_Info_Wayland_Egl *einfo, int w, int h, Re
         eng_window_free(gw);
         return NULL;
      }
+
+   eglGetConfigAttrib(gw->egl_disp, gw->egl_config, EGL_DEPTH_SIZE, &val);
+   gw->detected.depth_buffer_size = val;
+   DBG("Detected depth size %d", val);
+   eglGetConfigAttrib(gw->egl_disp, gw->egl_config, EGL_STENCIL_SIZE, &val);
+   gw->detected.stencil_buffer_size = val;
+   DBG("Detected stencil size %d", val);
+   eglGetConfigAttrib(gw->egl_disp, gw->egl_config, EGL_SAMPLES, &val);
+   gw->detected.msaa = val;
+   DBG("Detected msaa %d", val);
 
    if (!(gw->gl_context = glsym_evas_gl_common_context_new()))
      {

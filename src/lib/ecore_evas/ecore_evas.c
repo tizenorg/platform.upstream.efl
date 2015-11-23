@@ -3991,6 +3991,20 @@ ecore_evas_wayland_egl_new(const char *disp_name, unsigned int parent,
    return new(disp_name, parent, x, y, w, h, frame);
 }
 
+EAPI Ecore_Evas *
+ecore_evas_wayland_egl_options_new(const char *disp_name, unsigned int parent,
+                              int x, int y, int w, int h, Eina_Bool frame, const int *opt)
+{
+   Ecore_Evas *(*new)(const char *, unsigned int, int, int, int, int, Eina_Bool, const int *);
+   Eina_Module *m = _ecore_evas_engine_load("wayland");
+   EINA_SAFETY_ON_NULL_RETURN_VAL(m, NULL);
+
+   new = eina_module_symbol_get(m, "ecore_evas_wayland_egl_options_new_internal");
+   EINA_SAFETY_ON_NULL_RETURN_VAL(new, NULL);
+
+   return new(disp_name, parent, x, y, w, h, frame, opt);
+}
+
 EAPI void
 ecore_evas_wayland_resize(Ecore_Evas *ee, int location)
 {

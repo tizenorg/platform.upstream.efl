@@ -622,6 +622,26 @@ _ecore_drm_output_free(Ecore_Drm_Output *output)
    free(output);
 }
 
+static void
+_ecore_drm_output_cb_vblank(void *data)
+{
+   Ecore_Drm_Sprite *sprite;
+   Ecore_Drm_Output *output;
+
+   /* DBG("Drm VBlank Event"); */
+
+   if (!(sprite = data)) return;
+
+   output = sprite->output;
+   output->pending_vblank = EINA_FALSE;
+
+   ecore_drm_output_fb_release(output, sprite->current_fb);
+   sprite->current_fb = sprite->next_fb;
+   sprite->next_fb = NULL;
+
+   if (!output->pending_flip) _ecore_drm_output_frame_finish(output);
+}
+
 void 
 _ecore_drm_output_frame_finish(Ecore_Drm_Output *output)
 {
@@ -1075,6 +1095,7 @@ ecore_drm_output_repaint(Ecore_Drm_Output *output)
              .request.type = (DRM_VBLANK_RELATIVE | DRM_VBLANK_EVENT),
              .request.sequence = 1,
           };
+        Ecore_Drm_VBlank_Callback *cb;
 
         if (((!sprite->current_fb) && (!sprite->next_fb)) || 
             (!ecore_drm_sprites_crtc_supported(output, sprite->crtcs)))
@@ -1085,7 +1106,14 @@ ecore_drm_output_repaint(Ecore_Drm_Output *output)
 
         ecore_drm_sprites_fb_set(sprite, id, flags);
 
-        vbl.request.signal = (unsigned long)sprite;
+        if ((cb = calloc(1, sizeof(Ecore_Drm_VBlank_Callback))))
+          {
+             cb->output = output;
+             cb->func = _ecore_drm_output_cb_vblank;
+             cb->data = sprite;
+          }
+
+        vbl.request.signal = (unsigned long)cb;
         ret = drmWaitVBlank(dev->drm.fd, &vbl);
         if (ret) ERR("Error Wait VBlank: %m");
 
@@ -1512,4 +1540,40 @@ ecore_drm_output_current_fb_info_get(Ecore_Drm_Output *output, unsigned int *han
      *h = output->curr_fb_h;
    if (format)
      *format = output->curr_fb_format;
+}
+
+EAPI Eina_Bool
+ecore_drm_output_wait_vblank(Ecore_Drm_Output *output, int interval, Ecore_Drm_VBlank_Cb func, void *data)
+{
+   Ecore_Drm_Device *dev;
+   Ecore_Drm_VBlank_Callback *cb;
+   drmVBlank vbl;
+   int ret;
+
+   EINA_SAFETY_ON_NULL_RETURN_VAL(output, EINA_FALSE);
+   EINA_SAFETY_ON_NULL_RETURN_VAL(func, EINA_FALSE);
+
+   dev = output->dev;
+
+   if (!(cb = calloc(1, sizeof(Ecore_Drm_VBlank_Callback))))
+     return EINA_FALSE;
+
+   cb->output = output;
+   cb->func = func;
+   cb->data = data;
+
+   vbl.request.type = (DRM_VBLANK_RELATIVE | DRM_VBLANK_EVENT);
+   if (output->pipe > 0)
+     vbl.request.type |= DRM_VBLANK_SECONDARY;
+   vbl.request.sequence = interval;
+   vbl.request.signal = (unsigned long)cb;
+
+   ret = drmWaitVBlank(dev->drm.fd, &vbl);
+   if (ret)
+     {
+        ERR("Error Wait VBlank: %m");
+        return EINA_FALSE;
+     }
+
+   return EINA_TRUE;
 }

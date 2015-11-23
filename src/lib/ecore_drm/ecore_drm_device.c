@@ -58,21 +58,13 @@ _ecore_drm_device_cb_page_flip(int fd EINA_UNUSED, unsigned int frame EINA_UNUSE
 static void 
 _ecore_drm_device_cb_vblank(int fd EINA_UNUSED, unsigned int frame EINA_UNUSED, unsigned int sec EINA_UNUSED, unsigned int usec EINA_UNUSED, void *data)
 {
-   Ecore_Drm_Sprite *sprite;
-   Ecore_Drm_Output *output;
+   Ecore_Drm_VBlank_Callback *cb;
 
    /* DBG("Drm VBlank Event"); */
 
-   if (!(sprite = data)) return;
-
-   output = sprite->output;
-   output->pending_vblank = EINA_FALSE;
-
-   ecore_drm_output_fb_release(output, sprite->current_fb);
-   sprite->current_fb = sprite->next_fb;
-   sprite->next_fb = NULL;
-
-   if (!output->pending_flip) _ecore_drm_output_frame_finish(output);
+   if (!(cb = data)) return;
+   if (cb->func) cb->func(cb->data);
+   free(cb);
 }
 
 #if 0

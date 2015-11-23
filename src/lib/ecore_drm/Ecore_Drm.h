@@ -971,6 +971,9 @@ EAPI Eina_List *ecore_drm_seat_evdev_list_get(Ecore_Drm_Seat *seat);
 EAPI const char *ecore_drm_evdev_name_get(Ecore_Drm_Evdev *evdev);
 EAPI const char *ecore_drm_evdev_sysname_get(Ecore_Drm_Evdev *evdev);
 
+typedef void (*Ecore_Drm_VBlank_Cb)(void *data);
+EAPI Eina_Bool  ecore_drm_output_wait_vblank(Ecore_Drm_Output *output, int interval, Ecore_Drm_VBlank_Cb func, void *data);
+
 /* This is ugly, will remove after rebaseing on 1.14 */
 EAPI unsigned int ecore_drm_output_crtc_id_get(Ecore_Drm_Output *output);
 EAPI void ecore_drm_output_current_fb_info_set(Ecore_Drm_Output *output, unsigned int handle, int w, int h, unsigned int format);

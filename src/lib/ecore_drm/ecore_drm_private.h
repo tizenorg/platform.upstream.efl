@@ -88,6 +88,13 @@ typedef struct _Ecore_Drm_Pageflip_Callback
    int count;
 } Ecore_Drm_Pageflip_Callback;
 
+typedef struct _Ecore_Drm_VBlank_Callback
+{
+   Ecore_Drm_Output *output;
+   Ecore_Drm_VBlank_Cb func;
+   void *data;
+} Ecore_Drm_VBlank_Callback;
+
 typedef enum _Ecore_Drm_Backlight_Type
 {
    ECORE_DRM_BACKLIGHT_RAW,

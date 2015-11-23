@@ -67,6 +67,21 @@ _ecore_drm_device_cb_vblank(int fd EINA_UNUSED, unsigned int frame EINA_UNUSED, 
    free(cb);
 }
 
+static Eina_Bool
+_ecore_drm_device_cb_event(void *data, Ecore_Fd_Handler *hdlr EINA_UNUSED)
+{
+   Ecore_Drm_Device *dev;
+   int ret;
+
+   if (!(dev = data)) return ECORE_CALLBACK_RENEW;
+
+   ret = drmHandleEvent(dev->drm.fd, &dev->drm_ctx);
+   if (ret < 0)
+     ERR("drmHandleEvent Failed: %m");
+
+   return ECORE_CALLBACK_RENEW;
+}
+
 #if 0
 static Eina_Bool 
 _ecore_drm_device_cb_idle(void *data)
@@ -318,6 +333,10 @@ ecore_drm_device_open(Ecore_Drm_Device *dev)
      eeze_udev_watch_add(EEZE_UDEV_TYPE_DRM, events,
                          _ecore_drm_device_cb_output_event, dev);
 
+   dev->drm.hdlr =
+     ecore_main_fd_handler_add(dev->drm.fd, ECORE_FD_READ,
+                               _ecore_drm_device_cb_event, dev, NULL, NULL);
+
    /* dev->drm.idler =  */
    /*   ecore_idle_enterer_add(_ecore_drm_device_cb_idle, dev); */
 
@@ -335,6 +354,9 @@ ecore_drm_device_close(Ecore_Drm_Device *dev)
 
    /* close xkb context */
    if (dev->xkb_ctx) xkb_context_unref(dev->xkb_ctx);
+
+   if (dev->drm.hdlr) ecore_main_fd_handler_del(dev->drm.hdlr);
+   dev->drm.hdlr = NULL;
 
    _ecore_drm_launcher_device_close(dev->drm.name, dev->drm.fd);
 

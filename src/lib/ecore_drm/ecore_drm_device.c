@@ -5,6 +5,11 @@
 #include "ecore_drm_private.h"
 #include <dlfcn.h>
 
+#ifdef ECORE_DRM_DEVICE_SUPPORT_SPRD
+#include <sprd_drmif.h>
+struct sprd_drm_device *sprd_dev = NULL;
+#endif
+
 #define INSIDE(x, y, xx, yy, ww, hh) \
    (((x) < ((xx) + (ww))) && ((y) < ((yy) + (hh))) && \
        ((x) >= (xx)) && ((y) >= (yy)))
@@ -261,6 +266,53 @@ ecore_drm_device_free(Ecore_Drm_Device *dev)
    free(dev);
 }
 
+#ifdef ECORE_DRM_DEVICE_SUPPORT_SPRD
+static Eina_Bool
+_ecore_drm_device_sprd_check(int fd)
+{
+   drmVersionPtr drm_info;
+   int drmIRQ = 78;
+   int length = 0;
+
+   if (sprd_dev)
+     {
+        ERR("sprd_dev already exist.");
+        return EINA_FALSE;
+     }
+
+   drm_info = drmGetVersion(fd);
+   length = drm_info->name_len;
+
+   if (length != 4)
+     {
+        drmFreeVersion(drm_info);
+        return EINA_FALSE;
+     }
+   if (strncmp("sprd", drm_info->name, 4))
+     {
+        drmFreeVersion(drm_info);
+        return EINA_FALSE;
+     }
+   drmFreeVersion(drm_info);
+
+   if (drmCtlInstHandler(fd, drmIRQ))
+     {
+        ERR("drmCtlInstHandler fail.");
+        return EINA_FALSE;
+     }
+
+   sprd_dev = sprd_device_create(fd);
+   if (sprd_dev == NULL)
+     {
+        ERR("sprd_device_create fail.(fd:%d)", fd);
+        return EINA_FALSE;
+     }
+
+   DBG("sprd_device_create done.(fd:%d)", fd);
+   return EINA_TRUE;
+}
+#endif
+
 EAPI Eina_Bool 
 ecore_drm_device_open(Ecore_Drm_Device *dev)
 {
@@ -275,6 +327,16 @@ ecore_drm_device_open(Ecore_Drm_Device *dev)
    dev->drm.fd = 
      _ecore_drm_launcher_device_open_no_pending(dev->drm.name, O_RDWR);
    if (dev->drm.fd < 0) return EINA_FALSE;
+
+#ifdef ECORE_DRM_DEVICE_SUPPORT_SPRD
+   /* add for sprd device */
+   if (_ecore_drm_device_sprd_check(dev->drm.fd) == EINA_FALSE)
+     {
+        _ecore_drm_launcher_device_close(dev->drm.name, dev->drm.fd);
+        dev->drm.fd = -1;
+        return EINA_FALSE;
+     }
+#endif
 
    DBG("Opened Device %s : %d", dev->drm.name, dev->drm.fd);
 
@@ -346,6 +408,14 @@ ecore_drm_device_open(Ecore_Drm_Device *dev)
 EAPI Eina_Bool 
 ecore_drm_device_close(Ecore_Drm_Device *dev)
 {
+#ifdef ECORE_DRM_DEVICE_SUPPORT_SPRD
+   if (sprd_dev)
+     {
+        sprd_device_destroy(sprd_dev);
+        sprd_dev = NULL;
+     }
+#endif
+
    /* check for valid device */
    EINA_SAFETY_ON_NULL_RETURN_VAL(dev, EINA_FALSE);
 

@@ -101,6 +101,9 @@ BuildRequires:  pkgconfig(libtbm)
 BuildRequires:  pkgconfig(libdrm)
 BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(wayland-server)
+%if ("%{?tizen_target_name}" == "TM1")
+BuildRequires:  pkgconfig(libdrm_sprd)
+%endif
 
 ############ efl
 Provides: efl-data
@@ -620,6 +623,9 @@ Development files for elua
 %setup -q
 cp %{SOURCE1001} .
 
+%if ("%{?tizen_target_name}" == "TM1")
+CFLAGS+=" -DECORE_DRM_DEVICE_SUPPORT_SPRD "
+%endif
 
 %build
 

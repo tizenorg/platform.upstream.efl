@@ -166,6 +166,11 @@ struct _Ecore_Drm_Seat
    const char *name;
    Ecore_Drm_Input *input;
    Eina_List *devices;
+   struct
+     {
+        int ix, iy;
+        double dx, dy;
+     } ptr;
 };
 
 struct _Ecore_Drm_Input
@@ -207,7 +212,6 @@ struct _Ecore_Drm_Evdev
 
    struct 
      {
-        int ix, iy;
         int minx, miny, maxw, maxh;
         double dx, dy;
         unsigned int last, prev;

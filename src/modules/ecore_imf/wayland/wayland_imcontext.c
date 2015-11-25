@@ -33,12 +33,16 @@
 
 // TIZEN_ONLY(20150708): Support back key
 #define BACK_KEY "XF86Back"
+#define HIDE_TIMER_INTERVAL     0.05
+
+static Eina_Bool _clear_hide_timer();
 
 static Ecore_Event_Filter   *_ecore_event_filter_handler = NULL;
 static Ecore_IMF_Context    *_active_ctx                 = NULL;
 
 static Ecore_Event_Handler  *_ecore_event_conformant_handler = NULL;
 
+static Ecore_Timer          *_hide_timer  = NULL;
 //
 static Ecore_IMF_Input_Panel_State _input_panel_state    = ECORE_IMF_INPUT_PANEL_STATE_HIDE;
 
@@ -200,6 +204,55 @@ unregister_ecore_event_handler()
      {
         ecore_event_handler_del(_ecore_event_conformant_handler);
         _ecore_event_conformant_handler = NULL;
+     }
+
+   _clear_hide_timer();
+}
+
+static Eina_Bool _clear_hide_timer()
+{
+   if (_hide_timer)
+     {
+        ecore_timer_del(_hide_timer);
+        _hide_timer = NULL;
+        return EINA_TRUE;
+     }
+
+   return EINA_FALSE;
+}
+
+static void _send_input_panel_hide_request(Ecore_IMF_Context *ctx)
+{
+   WaylandIMContext *imcontext = (WaylandIMContext *)ecore_imf_context_data_get(ctx);
+   if (imcontext && imcontext->text_input)
+     wl_text_input_hide_input_panel(imcontext->text_input);
+}
+
+static Eina_Bool _hide_timer_handler(void *data)
+{
+   Ecore_IMF_Context *ctx = (Ecore_IMF_Context *)data;
+   _send_input_panel_hide_request(ctx);
+
+   _hide_timer = NULL;
+   return ECORE_CALLBACK_CANCEL;
+}
+
+static void _input_panel_hide_timer_start(void *data)
+{
+   if (!_hide_timer)
+     _hide_timer = ecore_timer_add(HIDE_TIMER_INTERVAL, _hide_timer_handler, data);
+}
+
+static void _input_panel_hide(Ecore_IMF_Context *ctx, Eina_Bool instant)
+{
+   if (instant || (_hide_timer && ecore_timer_pending_get(_hide_timer) <= 0.0))
+     {
+        _clear_hide_timer();
+        _send_input_panel_hide_request(ctx);
+     }
+   else
+     {
+        _input_panel_hide_timer_start(ctx);
      }
 }
 //
@@ -435,6 +488,7 @@ show_input_panel(Ecore_IMF_Context *ctx)
 
    if (ecore_imf_context_input_panel_enabled_get(ctx))
      {
+        _clear_hide_timer();
         _input_panel_state = ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW;
         wl_text_input_show_input_panel(imcontext->text_input);
         wl_text_input_activate(imcontext->text_input, seat,
@@ -918,7 +972,7 @@ wayland_im_context_focus_out(Ecore_IMF_Context *ctx)
    if (imcontext->text_input)
      {
         if (ecore_imf_context_input_panel_enabled_get(ctx))
-          wl_text_input_hide_input_panel(imcontext->text_input);
+          _input_panel_hide(ctx, EINA_FALSE);
 
         wl_text_input_deactivate(imcontext->text_input,
                                  ecore_wl_input_seat_get(imcontext->input));
@@ -1029,7 +1083,10 @@ wayland_im_context_show(Ecore_IMF_Context *ctx)
 
    if ((imcontext->text_input) && 
        (ecore_imf_context_input_panel_enabled_get(ctx)))
-     wl_text_input_show_input_panel(imcontext->text_input);
+     {
+        _clear_hide_timer();
+        wl_text_input_show_input_panel(imcontext->text_input);
+     }
 }
 
 EAPI void

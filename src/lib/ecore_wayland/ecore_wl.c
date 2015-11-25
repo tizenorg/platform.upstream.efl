@@ -291,6 +291,7 @@ ecore_wl_init(const char *name)
 
 exit_ecore_disp_connect:
    free(_ecore_wl_disp);
+   _ecore_wl_disp = NULL;
 
 exit_ecore_disp:
    ecore_event_shutdown();

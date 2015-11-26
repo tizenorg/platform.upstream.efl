@@ -790,11 +790,12 @@ _ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard EINA_UN
    if (!(input = data)) return;
 
    win = input->keyboard_focus;
-   if ((!win) || (win->keyboard_device != input) || (!input->xkb.state))
-     return;
-
-   input->display->serial = serial;
-
+// TIZEN_ONLY(20150911): Deal with key event if window is not exist.
+//   if ((!win) || (win->keyboard_device != input) || (!input->xkb.state))
+//     return;
+//
+//   input->display->serial = serial;
+//
    /* xkb rules reflect X broken keycodes, so offset by 8 */
    code = keycode + 8;
    INF("Key[%d] event occurs", code);

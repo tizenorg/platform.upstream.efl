@@ -47,6 +47,7 @@ static void _ecore_wl_cb_conformant_area(void *data EINA_UNUSED, struct tizen_po
 static void _ecore_wl_cb_notification_done(void *data, struct tizen_policy *tizen_policy, struct wl_surface *surface, int32_t level, uint32_t state);
 static void _ecore_wl_cb_transient_for_done(void *data, struct tizen_policy *tizen_policy, uint32_t child_id);
 static void _ecore_wl_cb_scr_mode_done(void *data, struct tizen_policy *tizen_policy, struct wl_surface *surface, uint32_t mode, uint32_t state);
+static void _ecore_wl_cb_iconify_state_changed(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface_resource, uint32_t iconified, uint32_t force);
 static void _ecore_wl_cb_supported_aux_hints(void *data  EINA_UNUSED, struct tizen_policy *tizen_policy  EINA_UNUSED, struct wl_surface *surface_resource, struct wl_array *hints, uint32_t num_hints);
 static void _ecore_wl_cb_allowed_aux_hint(void *data  EINA_UNUSED, struct tizen_policy *tizen_policy  EINA_UNUSED, struct wl_surface *surface_resource, int id);
 static void _ecore_wl_window_conformant_area_send(Ecore_Wl_Window *win, uint32_t conformant_part, uint32_t state);
@@ -96,6 +97,7 @@ static const struct tizen_policy_listener _ecore_tizen_policy_listener =
    _ecore_wl_cb_notification_done,
    _ecore_wl_cb_transient_for_done,
    _ecore_wl_cb_scr_mode_done,
+   _ecore_wl_cb_iconify_state_changed,
    _ecore_wl_cb_supported_aux_hints,
    _ecore_wl_cb_allowed_aux_hint,
 };
@@ -151,6 +153,7 @@ EAPI int ECORE_WL_EVENT_DATA_SOURCE_CANCELLED = 0;
 EAPI int ECORE_WL_EVENT_INTERFACES_BOUND = 0;
 EAPI int ECORE_WL_EVENT_CONFORMANT_CHANGE = 0;
 EAPI int ECORE_WL_EVENT_AUX_HINT_ALLOWED = 0;
+EAPI int ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE = 0;
 
 static void
 _ecore_wl_init_callback(void *data, struct wl_callback *callback, uint32_t serial EINA_UNUSED)
@@ -236,6 +239,7 @@ ecore_wl_init(const char *name)
         ECORE_WL_EVENT_INTERFACES_BOUND = ecore_event_type_new();
         ECORE_WL_EVENT_CONFORMANT_CHANGE = ecore_event_type_new();
         ECORE_WL_EVENT_AUX_HINT_ALLOWED = ecore_event_type_new();
+        ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE = ecore_event_type_new();
      }
 
    if (!(_ecore_wl_disp = calloc(1, sizeof(Ecore_Wl_Display))))
@@ -1379,6 +1383,27 @@ _ecore_wl_cb_transient_for_done(void *data EINA_UNUSED, struct tizen_policy *tiz
 static void
 _ecore_wl_cb_scr_mode_done(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface EINA_UNUSED, uint32_t mode EINA_UNUSED, uint32_t state EINA_UNUSED)
 {
+}
+
+static void
+_ecore_wl_cb_iconify_state_changed(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface_resource, uint32_t iconified, uint32_t force)
+{
+   struct wl_surface *surface = surface_resource;
+   Ecore_Wl_Window *win = NULL;
+   Ecore_Wl_Event_Window_Iconify_State_Change *ev;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!surface) return;
+   win = ecore_wl_window_surface_find(surface);
+   if (!win) return;
+
+   if (!(ev = calloc(1, sizeof(Ecore_Wl_Event_Window_Iconify_State_Change)))) return;
+   ev->win = win->id;
+   ev->iconified = iconified;
+   ev->force = force;
+
+   ecore_event_add(ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE, ev, NULL, NULL);
 }
 
 static void

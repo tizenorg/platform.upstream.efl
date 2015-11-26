@@ -34,7 +34,7 @@ EVAS_SMART_SUBCLASS_NEW(_smart_frame_type, _ecore_evas_wl_frame,
 
 /* local variables */
 static int _ecore_evas_wl_init_count = 0;
-static Ecore_Event_Handler *_ecore_evas_wl_event_hdls[8];
+static Ecore_Event_Handler *_ecore_evas_wl_event_hdls[9];
 
 static void _ecore_evas_wayland_resize(Ecore_Evas *ee, int location);
 
@@ -268,6 +268,28 @@ _ecore_evas_wl_common_cb_aux_hint_allowed(void *data  EINA_UNUSED, int type EINA
              break;
           }
      }
+   return ECORE_CALLBACK_PASS_ON;
+}
+
+static Eina_Bool
+_ecore_evas_wl_common_cb_window_iconify_change(void *data  EINA_UNUSED, int type EINA_UNUSED, void *event)
+{
+   Ecore_Evas *ee;
+   Ecore_Wl_Event_Window_Iconify_State_Change *ev;
+
+   ev = event;
+   ee = ecore_event_window_match(ev->win);
+
+   if (!ee) return ECORE_CALLBACK_PASS_ON;
+   if (!ev->force) return ECORE_CALLBACK_PASS_ON;
+   if (ev->win != ee->prop.window) return ECORE_CALLBACK_PASS_ON;
+
+   if (ee->prop.iconified == ev->iconified)
+     return ECORE_CALLBACK_PASS_ON;
+
+   ee->prop.iconified = ev->iconified;
+   _ecore_evas_wl_common_state_update(ee);
+
    return ECORE_CALLBACK_PASS_ON;
 }
 
@@ -526,6 +548,9 @@ _ecore_evas_wl_common_init(void)
    _ecore_evas_wl_event_hdls[7] =
      ecore_event_handler_add(ECORE_WL_EVENT_AUX_HINT_ALLOWED,
                              _ecore_evas_wl_common_cb_aux_hint_allowed, NULL);
+   _ecore_evas_wl_event_hdls[8] =
+     ecore_event_handler_add(ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE,
+                             _ecore_evas_wl_common_cb_window_iconify_change, NULL);
 
    ecore_event_evas_init();
 

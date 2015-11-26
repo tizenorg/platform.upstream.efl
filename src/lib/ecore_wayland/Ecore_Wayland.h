@@ -75,6 +75,7 @@ typedef struct _Ecore_Wl_Event_Selection_Data_Ready Ecore_Wl_Event_Selection_Dat
 typedef struct _Ecore_Wl_Event_Interfaces_Bound Ecore_Wl_Event_Interfaces_Bound;
 typedef struct _Ecore_Wl_Event_Conformant_Change Ecore_Wl_Event_Conformant_Change;
 typedef struct _Ecore_Wl_Event_Aux_Hint_Allowed Ecore_Wl_Event_Aux_Hint_Allowed;
+typedef struct _Ecore_Wl_Event_Window_Iconify_State_Change Ecore_Wl_Event_Window_Iconify_State_Change;
 
 enum _Ecore_Wl_Window_Type
 {
@@ -353,6 +354,13 @@ struct _Ecore_Wl_Event_Aux_Hint_Allowed
    int id;
 };
 
+struct _Ecore_Wl_Event_Window_Iconify_State_Change
+{
+   unsigned int win;
+   int iconified;
+   int force;
+};
+
 /**
  * @file
  * @brief Ecore functions for dealing with the Wayland window system
@@ -398,6 +406,7 @@ EAPI extern int ECORE_WL_EVENT_SELECTION_DATA_READY; /** @since 1.7 */
 EAPI extern int ECORE_WL_EVENT_INTERFACES_BOUND;
 EAPI extern int ECORE_WL_EVENT_CONFORMANT_CHANGE;
 EAPI extern int ECORE_WL_EVENT_AUX_HINT_ALLOWED;
+EAPI extern int ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE;
 
 /**
  * @defgroup Ecore_Wl_Init_Group Wayland Library Init and Shutdown Functions

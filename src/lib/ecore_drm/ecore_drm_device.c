@@ -513,7 +513,8 @@ EAPI void
 ecore_drm_device_pointer_xy_get(Ecore_Drm_Device *dev, int *x, int *y)
 {
    Ecore_Drm_Seat *seat;
-   Eina_List *l;
+   Ecore_Drm_Evdev *edev;
+   Eina_List *l, *ll;
 
    if (x) *x = 0;
    if (y) *y = 0;
@@ -523,10 +524,17 @@ ecore_drm_device_pointer_xy_get(Ecore_Drm_Device *dev, int *x, int *y)
 
    EINA_LIST_FOREACH(dev->seats, l, seat)
      {
-        if (x) *x = seat->ptr.dx;
-        if (y) *y = seat->ptr.dy;
+        EINA_LIST_FOREACH(seat->devices, ll, edev)
+          {
+             if (!libinput_device_has_capability(edev->device,
+                                                 LIBINPUT_DEVICE_CAP_POINTER))
+               continue;
 
-        return;
+             if (x) *x = seat->ptr.dx;
+             if (y) *y = seat->ptr.dy;
+
+             return;
+          }
      }
 }
 

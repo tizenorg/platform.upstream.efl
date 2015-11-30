@@ -1221,8 +1221,8 @@ object_text_font_cache_dir_add(char *dir)
 	       }
 	     free(tmp);
 	  }
-	free(fdir->data);
 	fdir = eina_list_remove(fdir, fdir->data);
+	free(fdir->data);
      }
 
    /* fonts.alias */

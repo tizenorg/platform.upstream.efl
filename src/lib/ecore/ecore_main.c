@@ -71,6 +71,7 @@
 # define EPOLLPRI     2
 # define EPOLLOUT     4
 # define EPOLLERR     8
+# define EPOLLHUP     16
 
 #define EPOLL_CTL_ADD 1
 #define EPOLL_CTL_DEL 2
@@ -501,6 +502,8 @@ _ecore_main_fdh_epoll_mark_active(void)
         if (ev[i].events & EPOLLOUT)
           fdh->write_active = EINA_TRUE;
         if (ev[i].events & EPOLLERR)
+          fdh->error_active = EINA_TRUE;
+        if (ev[i].events & EPOLLHUP)
           fdh->error_active = EINA_TRUE;
 
         _ecore_try_add_to_call_list(fdh);

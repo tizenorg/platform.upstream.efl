@@ -92,7 +92,7 @@ _evas_outbuf_fb_get(Ecore_Drm_Device *dev, struct gbm_bo *bo)
 static void
 _evas_outbuf_cb_pageflip(void *data)
 {
-   Outbuf *ob;
+   Outbuf *ob, *last=NULL;
    Ecore_Drm_Fb *fb;
    struct gbm_bo *bo;
 
@@ -101,10 +101,12 @@ _evas_outbuf_cb_pageflip(void *data)
    bo = ob->priv.bo[ob->priv.curr];
    if (!bo) return;
 
+   if (ob->priv.last != -1) last = ob->priv.bo[ob->priv.last];
+
    fb = _evas_outbuf_fb_get(ob->info->info.dev, bo);
    if (fb) fb->pending_flip = EINA_FALSE;
 
-   gbm_surface_release_buffer(ob->surface, bo);
+   if (last) gbm_surface_release_buffer(ob->surface, last);
 
    ob->priv.last = ob->priv.curr;
    ob->priv.curr = (ob->priv.curr + 1) % ob->priv.num;
@@ -400,6 +402,7 @@ evas_outbuf_new(Evas_Engine_Info_GL_Drm *info, int w, int h, Render_Engine_Swap_
    /* ob->vsync = info->info.vsync; */
    ob->swap_mode = swap_mode;
    ob->priv.num = 4;
+   ob->priv.last = -1;
 
    if ((num = getenv("EVAS_GL_DRM_BUFFERS")))
      {

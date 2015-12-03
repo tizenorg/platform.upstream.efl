@@ -951,8 +951,11 @@ ecore_wl_window_parent_set(Ecore_Wl_Window *win, Ecore_Wl_Window *parent)
 }
 
 EAPI void
-ecore_wl_window_position_set(Ecore_Wl_Window *win, int x EINA_UNUSED, int y EINA_UNUSED)
+ecore_wl_window_position_set(Ecore_Wl_Window *win, int x, int y)
 {
+   win->allocation.x = x;
+   win->allocation.y = y;
+
    if ((win->surface) && (win->tz_position))
      {
         tizen_position_set(win->tz_position, win->allocation.x, win->allocation.y);

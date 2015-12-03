@@ -872,7 +872,7 @@ ecore_wl_window_type_get(Ecore_Wl_Window *win)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
-   if (!win) return;
+   if (!win) return ECORE_WL_WINDOW_TYPE_NONE;
    return win->type;
 }
 

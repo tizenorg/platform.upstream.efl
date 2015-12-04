@@ -5171,7 +5171,8 @@ _layout_par(Ctxt *c)
 
         it = _ITEM(eina_list_data_get(i));
         /* Skip visually deleted items */
-        if (it->visually_deleted)
+        if (it->visually_deleted ||
+            ((it->type == EVAS_TEXTBLOCK_ITEM_TEXT) && !it->format->font.font))
           {
              //one more chance for ellipsis special cases
              if (c->o->ellip_prev_it == i)

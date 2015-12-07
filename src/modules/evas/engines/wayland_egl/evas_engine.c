@@ -1400,13 +1400,13 @@ eng_image_native_set(void *data, void *image, void *native)
                        return NULL;
                     }
 
-                  attribs[0] = EGL_WAYLAND_PLANE_WL;
+                  attribs[0] = EVAS_GL_WAYLAND_PLANE_WL;
                   attribs[1] = 0; //if plane is 1 then 0, if plane is 2 then 1
                   attribs[2] = EGL_NONE;
 
                   memcpy(&(n->ns), ns, sizeof(Evas_Native_Surface));
                   if (glsym_eglQueryWaylandBufferWL(ob->egl_disp, wl_buf,
-                                                    EGL_WAYLAND_Y_INVERTED_WL,
+                                                    EVAS_GL_WAYLAND_Y_INVERTED_WL,
                                                     &yinvert) == EGL_FALSE)
                     yinvert = 1;
                   eina_hash_add(ob->gl_context->shared->native_wl_hash,
@@ -1416,7 +1416,7 @@ eng_image_native_set(void *data, void *image, void *native)
                   if (glsym_eglCreateImage)
                     n->egl_surface = glsym_eglCreateImage(ob->egl_disp,
                                                           NULL,
-                                                          EGL_WAYLAND_BUFFER_WL,
+                                                          EVAS_GL_WAYLAND_BUFFER_WL,
                                                           wl_buf, attribs);
                   else
                     {

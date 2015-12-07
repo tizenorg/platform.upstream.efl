@@ -1,5 +1,7 @@
 #include "evas_engine.h"
 
+# define SET_RESTORE_CONTEXT() do { if (glsym_evas_gl_context_restore_set) glsym_evas_gl_context_restore_set(EINA_TRUE); } while(0)
+
 /* local function prototypes */
 
 /* local variables */
@@ -127,6 +129,7 @@ eng_window_new(Evas *evas, Evas_Engine_Info_Wayland_Egl *einfo, int w, int h, Re
 
    if (context == EGL_NO_CONTEXT) context = gw->egl_context[0];
 
+   SET_RESTORE_CONTEXT();
    if (eglMakeCurrent(gw->egl_disp, gw->egl_surface[0],
                       gw->egl_surface[0], gw->egl_context[0]) == EGL_FALSE)
      {
@@ -200,6 +203,7 @@ eng_window_free(Outbuf *gw)
         glsym_evas_gl_common_context_free(gw->gl_context);
      }
 
+   SET_RESTORE_CONTEXT();
    eglMakeCurrent(gw->egl_disp, EGL_NO_SURFACE, 
                   EGL_NO_SURFACE, EGL_NO_CONTEXT);
 
@@ -249,6 +253,7 @@ eng_window_use(Outbuf *gw)
           {
              if (gw->egl_surface[0] != EGL_NO_SURFACE)
                {
+                  SET_RESTORE_CONTEXT();
                   if (eglMakeCurrent(gw->egl_disp, gw->egl_surface[0],
                                      gw->egl_surface[0],
                                      gw->egl_context[0]) == EGL_FALSE)
@@ -276,6 +281,7 @@ eng_window_unsurf(Outbuf *gw)
 
    if (_evas_gl_wl_window == gw)
      {
+        SET_RESTORE_CONTEXT();
         eglMakeCurrent(gw->egl_disp, EGL_NO_SURFACE, 
                        EGL_NO_SURFACE, EGL_NO_CONTEXT);
         if (gw->egl_surface[0] != EGL_NO_SURFACE)
@@ -305,6 +311,7 @@ eng_window_resurf(Outbuf *gw)
         return;
      }
 
+   SET_RESTORE_CONTEXT();
    if (eglMakeCurrent(gw->egl_disp, gw->egl_surface[0], gw->egl_surface[0],
                       gw->egl_context[0]) == EGL_FALSE)
      ERR("eglMakeCurrent() failed!");
@@ -594,6 +601,7 @@ eng_gl_context_free(Context_3D *ctx)
 void 
 eng_gl_context_use(Context_3D *ctx)
 {
+   SET_RESTORE_CONTEXT();
    if (eglMakeCurrent(ctx->display, ctx->surface, 
                       ctx->surface, ctx->context) == EGL_FALSE)
      {

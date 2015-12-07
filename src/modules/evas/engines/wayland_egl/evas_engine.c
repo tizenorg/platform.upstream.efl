@@ -86,6 +86,7 @@ Evas_GL_Preload_Render_Call glsym_evas_gl_preload_render_relax = NULL;
 glsym_func_void     glsym_evas_gl_common_error_set = NULL;
 glsym_func_int      glsym_evas_gl_common_error_get = NULL;
 glsym_func_void_ptr glsym_evas_gl_common_current_context_get = NULL;
+void (*glsym_evas_gl_context_restore_set) (Eina_Bool enable) = NULL;
 
 _eng_fn (*glsym_eglGetProcAddress) (const char *a) = NULL;
 void *(*glsym_eglCreateImage) (EGLDisplay a, EGLContext b, EGLenum c, EGLClientBuffer d, const int *e) = NULL;
@@ -158,6 +159,7 @@ gl_symbols(void)
    LINK2GENERIC(evas_gl_common_error_get);
    LINK2GENERIC(evas_gl_common_error_set);
    LINK2GENERIC(evas_gl_common_current_context_get);
+   LINK2GENERIC(evas_gl_context_restore_set);
 
 #define FINDSYM(dst, sym, typ) \
    if (glsym_eglGetProcAddress) { \

@@ -1302,16 +1302,16 @@ eng_image_native_set(void *data, void *image, void *native)
                      return img;
                }
           }
-     }
-   else if ((ns) && (ns->type == EVAS_NATIVE_SURFACE_EVASGL))
-     {
-        buffer = ns->data.evasgl.surface;
-        if (img->native.data)
+        else if (ns->type == EVAS_NATIVE_SURFACE_EVASGL)
           {
-             Evas_Native_Surface *ens = img->native.data;
-             if (ens->data.evasgl.surface == buffer)
-               return img;
-          }
+             buffer = ns->data.evasgl.surface;
+             if (img->native.data)
+               {
+                  Evas_Native_Surface *ens = img->native.data;
+                  if (ens->data.evasgl.surface == buffer)
+                     return img;
+                }
+           }
      }
 
    if ((!ns) && (!img->native.data)) return img;

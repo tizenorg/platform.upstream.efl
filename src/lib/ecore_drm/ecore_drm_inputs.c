@@ -5,15 +5,13 @@
 #include "ecore_drm_private.h"
 
 EAPI int ECORE_DRM_EVENT_SEAT_ADD = -1;
+static Eina_Hash *_fd_hash = NULL;
 
 /* local functions */
 static int 
 _cb_open_restricted(const char *path, int flags, void *data)
 {
    Ecore_Drm_Input *input;
-   Ecore_Drm_Seat *seat;
-   Ecore_Drm_Evdev *edev;
-   Eina_List *l, *ll;
    int fd = -1;
 
    if (!(input = data)) return -1;
@@ -21,18 +19,8 @@ _cb_open_restricted(const char *path, int flags, void *data)
    /* try to open the device */
    fd = _ecore_drm_launcher_device_open_no_pending(path, flags);
    if (fd < 0) ERR("Could not open device");
-
-   EINA_LIST_FOREACH(input->dev->seats, l, seat)
-     {
-        EINA_LIST_FOREACH(seat->devices, ll, edev)
-          {
-             if (strstr(path, edev->path))
-               {
-                  edev->fd = fd;
-                  return fd;
-               }
-          }
-     }
+   if (_fd_hash)
+     eina_hash_add(_fd_hash, path, (void *)(intptr_t)fd);
 
    return fd;
 }
@@ -54,6 +42,9 @@ _cb_close_restricted(int fd, void *data)
              if (edev->fd == fd)
                {
                   _ecore_drm_launcher_device_close(edev->path, fd);
+
+                  /* re-initialize fd after closing */
+                  edev->fd = -1;
                   return;
                }
           }
@@ -177,6 +168,8 @@ _device_added(Ecore_Drm_Input *input, struct libinput_device *device)
         return;
      }
 
+   edev->fd = (int)(intptr_t)eina_hash_find(_fd_hash, edev->path);
+
    /* append this device to the seat */
    seat->devices = eina_list_append(seat->devices, edev);
 
@@ -226,8 +219,12 @@ _device_removed(Ecore_Drm_Input *input, struct libinput_device *device)
    /* remove this evdev from the seat's list of devices */
    edev->seat->devices = eina_list_remove(edev->seat->devices, edev);
 
+   if (_fd_hash)
+     eina_hash_del_by_key(_fd_hash, edev->path);
+
    /* tell launcher to release device */
-   _ecore_drm_launcher_device_close(edev->path, edev->fd);
+   if (edev->fd >= 0)
+     _ecore_drm_launcher_device_close(edev->path, edev->fd);
 
    /* destroy this evdev */
    _ecore_drm_evdev_device_destroy(edev);
@@ -443,4 +440,17 @@ ecore_drm_seat_evdev_list_get(Ecore_Drm_Seat *seat)
 {
    EINA_SAFETY_ON_NULL_RETURN_VAL(seat, NULL);
    return seat->devices;
+}
+
+void
+_ecore_drm_inputs_init(void)
+{
+  _fd_hash = eina_hash_string_superfast_new(NULL);
+}
+
+void
+_ecore_drm_inputs_shutdown(void)
+{
+   eina_hash_free(_fd_hash);
+   _fd_hash = NULL;
 }

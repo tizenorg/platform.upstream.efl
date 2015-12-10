@@ -643,6 +643,7 @@ _ecore_drm_evdev_device_create(Ecore_Drm_Seat *seat, struct libinput_device *dev
 {
    Ecore_Drm_Evdev *edev;
    Eina_List *devices;
+   Ecore_Drm_Device *dev;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(seat, NULL);
 
@@ -686,6 +687,17 @@ _ecore_drm_evdev_device_create(Ecore_Drm_Seat *seat, struct libinput_device *dev
 
         /* TODO: make this configurable */
         edev->mouse.threshold = 250;
+
+        dev = seat->input->dev;
+        if (dev->left_handed == EINA_TRUE)
+          {
+             if (libinput_device_config_left_handed_set(device, 1) !=
+                 LIBINPUT_CONFIG_STATUS_SUCCESS)
+               {
+                  WRN("Failed to set left hand mode about device: %s\n",
+                      libinput_device_get_name(device));
+               }
+          }
      }
 
    if (libinput_device_has_capability(device, LIBINPUT_DEVICE_CAP_TOUCH))

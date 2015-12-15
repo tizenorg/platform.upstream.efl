@@ -1623,7 +1623,7 @@ static const struct wl_callback_listener _anim_listener =
 };
 
 void
-_ecore_evas_wl_common_render_pre(void *data, Evas *evas EINA_UNUSED, void *event EINA_UNUSED)
+_ecore_evas_wl_common_render_flush_pre(void *data, Evas *evas EINA_UNUSED, void *event EINA_UNUSED)
 {
    Ecore_Evas *ee = data;
    Ecore_Evas_Engine_Wl_Data *wdata;

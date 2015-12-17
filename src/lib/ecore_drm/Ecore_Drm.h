@@ -970,6 +970,8 @@ EAPI Eina_Bool ecore_drm_output_mode_set(Ecore_Drm_Output *output, Ecore_Drm_Out
 EAPI Eina_List *ecore_drm_seat_evdev_list_get(Ecore_Drm_Seat *seat);
 EAPI const char *ecore_drm_evdev_name_get(Ecore_Drm_Evdev *evdev);
 EAPI const char *ecore_drm_evdev_sysname_get(Ecore_Drm_Evdev *evdev);
+EAPI Eina_Bool ecore_drm_evdev_key_remap_enable(Ecore_Drm_Evdev *edev, Eina_Bool enable);
+EAPI Eina_Bool ecore_drm_evdev_key_remap_set(Ecore_Drm_Evdev *edev, int *from_keys, int *to_keys, int num);
 
 typedef void (*Ecore_Drm_VBlank_Cb)(void *data);
 EAPI Eina_Bool  ecore_drm_output_wait_vblank(Ecore_Drm_Output *output, int interval, Ecore_Drm_VBlank_Cb func, void *data);

@@ -237,6 +237,9 @@ struct _Ecore_Drm_Evdev
         unsigned int depressed, latched, locked, group;
      } xkb;
 
+     Eina_Hash *key_remap_hash;
+     Eina_Bool key_remap_enabled;
+
    /* Ecore_Drm_Evdev_Capabilities caps; */
    Ecore_Drm_Seat_Capabilities seat_caps;
 };

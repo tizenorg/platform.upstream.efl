@@ -1752,14 +1752,12 @@ ecore_wl_window_clipboard_geometry_get(Ecore_Wl_Window *win, int *x, int *y, int
 }
 
 EAPI void
-ecore_wl_window_clipboard_state_set(Ecore_Wl_Window *win, Eina_Bool on)
+ecore_wl_window_clipboard_state_set(Ecore_Wl_Window *win, Ecore_Wl_Clipboard_State state)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
    if (!win) return;
 
-   if (on) win->clipboard.state = ECORE_WL_CLIPBOARD_STATE_ON;
-   else if(!on) win->clipboard.state = ECORE_WL_CLIPBOARD_STATE_OFF;
-
+   win->clipboard.state = state;
 }
 
 EAPI Ecore_Wl_Clipboard_State
@@ -1802,13 +1800,12 @@ ecore_wl_window_keyboard_geometry_get(Ecore_Wl_Window *win, int *x, int *y, int 
 }
 
 EAPI void
-ecore_wl_window_keyboard_state_set(Ecore_Wl_Window *win, Eina_Bool on)
+ecore_wl_window_keyboard_state_set(Ecore_Wl_Window *win, Ecore_Wl_Virtual_Keyboard_State state)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
    if (!win) return;
 
-   if (on) win->keyboard.state = ECORE_WL_VIRTUAL_KEYBOARD_STATE_ON;
-   else if (!on) win->keyboard.state = ECORE_WL_VIRTUAL_KEYBOARD_STATE_OFF;
+   win->keyboard.state = state;
 }
 
 EAPI Ecore_Wl_Virtual_Keyboard_State

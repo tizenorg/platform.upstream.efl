@@ -1318,7 +1318,9 @@ _ecore_wl_cb_conformant_area(void *data EINA_UNUSED, struct tizen_policy *tizen_
    Ecore_Wl_Window *win = NULL;
    int org_x, org_y, org_w, org_h;
    Eina_Bool changed = EINA_FALSE;
+   Ecore_Wl_Indicator_State ind_state;
    Ecore_Wl_Virtual_Keyboard_State kbd_state;
+   Ecore_Wl_Clipboard_State clip_state;
 
    if (!surface) return;
    win = ecore_wl_window_surface_find(surface);
@@ -1332,9 +1334,14 @@ _ecore_wl_cb_conformant_area(void *data EINA_UNUSED, struct tizen_policy *tizen_
              ecore_wl_window_indicator_geometry_set(win, x, y, w, h);
              changed = EINA_TRUE;
           }
-        if (state != ecore_wl_window_indicator_state_get(win))
+
+        /* The given state is based on the visibility value of indicator.
+         * Thus we need to add 1 to it before comparing with indicator state.
+         */
+        ind_state =  ecore_wl_window_indicator_state_get(win);
+        if ((state + 1) != ind_state)
           {
-             ecore_wl_window_indicator_state_set(win, state);
+             ecore_wl_window_indicator_state_set(win, state + 1);
              changed = EINA_TRUE;
           }
      }
@@ -1365,9 +1372,14 @@ _ecore_wl_cb_conformant_area(void *data EINA_UNUSED, struct tizen_policy *tizen_
              ecore_wl_window_clipboard_geometry_set(win, x, y, w, h);
              changed = EINA_TRUE;
           }
-        if (state != ecore_wl_window_clipboard_state_get(win))
+
+        /* The given state is based on the visibility value of clipboard window.
+         * Thus we need to add 1 to it before comparing with clipboard state.
+         */
+        clip_state = ecore_wl_window_clipboard_state_get(win);
+        if ((state + 1) != clip_state)
           {
-             ecore_wl_window_clipboard_state_set(win, state);
+             ecore_wl_window_clipboard_state_set(win, state + 1);
              changed = EINA_TRUE;
           }
      }

@@ -1146,12 +1146,12 @@ EAPI Ecore_Wl_Indicator_Opacity_Mode ecore_wl_window_indicator_opacity_get(Ecore
 
 EAPI void ecore_wl_window_clipboard_geometry_set(Ecore_Wl_Window *win, int x, int y, int w, int h);
 EAPI Eina_Bool ecore_wl_window_clipboard_geometry_get(Ecore_Wl_Window *win, int *x, int *y, int *w, int *h);
-EAPI void ecore_wl_window_clipboard_state_set(Ecore_Wl_Window *win, Eina_Bool on);
+EAPI void ecore_wl_window_clipboard_state_set(Ecore_Wl_Window *win, Ecore_Wl_Clipboard_State state);
 EAPI Ecore_Wl_Clipboard_State ecore_wl_window_clipboard_state_get(Ecore_Wl_Window *win);
 
 EAPI void ecore_wl_window_keyboard_geometry_set(Ecore_Wl_Window *win, int x, int y, int w, int h);
 EAPI Eina_Bool ecore_wl_window_keyboard_geometry_get(Ecore_Wl_Window *win, int *x, int *y, int *w, int *h);
-EAPI void ecore_wl_window_keyboard_state_set(Ecore_Wl_Window *win, Eina_Bool on);
+EAPI void ecore_wl_window_keyboard_state_set(Ecore_Wl_Window *win, Ecore_Wl_Virtual_Keyboard_State state);
 EAPI Ecore_Wl_Virtual_Keyboard_State ecore_wl_window_keyboard_state_get(Ecore_Wl_Window *win);
 
 EAPI void ecore_wl_window_rotation_preferred_rotation_set(Ecore_Wl_Window *win, int rot);

@@ -80,43 +80,10 @@ _device_output_set(Ecore_Drm_Evdev *edev)
    if (libinput_device_has_capability(edev->device, 
                                       LIBINPUT_DEVICE_CAP_POINTER))
      {
-        Ecore_Drm_Input *pointer_input;
-        Ecore_Event_Mouse_Move *ev;
-
         edev->seat->ptr.ix = edev->seat->ptr.dx = edev->output->current_mode->width / 2;
         edev->seat->ptr.iy = edev->seat->ptr.dy = edev->output->current_mode->height / 2;
         edev->mouse.dx = edev->seat->ptr.dx;
         edev->mouse.dy = edev->seat->ptr.dy;
-
-        /* send a fake motion event to let other know the initial pos of mouse */
-        if (!(pointer_input = edev->seat->input)) return;
-        if (!(ev = calloc(1, sizeof(Ecore_Event_Mouse_Move)))) return;
-
-        ev->window = (Ecore_Window)pointer_input->dev->window;
-        ev->event_window = (Ecore_Window)pointer_input->dev->window;
-        ev->root_window = (Ecore_Window)pointer_input->dev->window;
-
-        _device_modifiers_update(edev);
-        ev->modifiers = edev->xkb.modifiers;
-        ev->same_screen = 1;
-
-        ev->x = edev->seat->ptr.ix;
-        ev->y = edev->seat->ptr.iy;
-        ev->root.x = ev->x;
-        ev->root.y = ev->y;
-        ev->multi.device = edev->mt_slot;
-        ev->multi.radius = 1;
-        ev->multi.radius_x = 1;
-        ev->multi.radius_y = 1;
-        ev->multi.pressure = 1.0;
-        ev->multi.angle = 0.0;
-        ev->multi.x = ev->x;
-        ev->multi.y = ev->y;
-        ev->multi.root.x = ev->x;
-        ev->multi.root.y = ev->y;
-        ev->dev_name = eina_stringshare_add(edev->path);
-
-        ecore_event_add(ECORE_EVENT_MOUSE_MOVE, ev, NULL, NULL);
      }
 }
 

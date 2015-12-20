@@ -656,7 +656,6 @@ ecore_drm_device_pointer_left_handed_set(Ecore_Drm_Device *dev, Eina_Bool left_h
 {
    Ecore_Drm_Seat *seat = NULL;
    Ecore_Drm_Evdev *edev = NULL;
-   int cur_left_handed = 0;
    Eina_List *l = NULL, *l2 = NULL;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(dev, EINA_FALSE);

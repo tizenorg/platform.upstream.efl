@@ -41,9 +41,9 @@ static Ecore_Event_Filter   *_ecore_event_filter_handler = NULL;
 static Ecore_IMF_Context    *_active_ctx                 = NULL;
 static Ecore_IMF_Context    *_hide_req_ctx               = NULL;
 
-static Ecore_Event_Handler  *_ecore_event_conformant_handler = NULL;
-
 static Ecore_Timer          *_hide_timer  = NULL;
+
+static Eina_Rectangle        _keyboard_geometry = {0, 0, 0, 0};
 //
 static Ecore_IMF_Input_Panel_State _input_panel_state    = ECORE_IMF_INPUT_PANEL_STATE_HIDE;
 
@@ -143,7 +143,7 @@ key_up_cb(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 }
 
 static Eina_Bool
-_ecore_event_filter_cb(void *data, void *loop_data, int type, void *event)
+_ecore_event_filter_cb(void *data, void *loop_data EINA_UNUSED, int type, void *event)
 {
    if (type == ECORE_EVENT_KEY_DOWN)
      {
@@ -171,40 +171,6 @@ unregister_key_handler()
      {
         ecore_event_filter_del(_ecore_event_filter_handler);
         _ecore_event_filter_handler = NULL;
-     }
-}
-
-static Eina_Bool
-_ecore_event_cb_conformant_change(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
-{
-   Ecore_Evas *ee;
-   Ecore_Wl_Event_Conformant_Change *ev;
-
-   ev = event;
-   ee = ecore_event_window_match(ev->win);
-   if (!ee) return ECORE_CALLBACK_PASS_ON;
-
-   if (ev->part_type == ECORE_WL_KEYBOARD_PART && _active_ctx)
-     ecore_imf_context_input_panel_event_callback_call(_active_ctx, ECORE_IMF_INPUT_PANEL_GEOMETRY_EVENT, 0);
-
-   return ECORE_CALLBACK_PASS_ON;
-}
-
-EAPI void
-register_ecore_event_handler()
-{
-   if (!_ecore_event_conformant_handler)
-     _ecore_event_conformant_handler = ecore_event_handler_add(ECORE_WL_EVENT_CONFORMANT_CHANGE,
-                                            _ecore_event_cb_conformant_change, NULL);
-}
-
-EAPI void
-unregister_ecore_event_handler()
-{
-   if (_ecore_event_conformant_handler)
-     {
-        ecore_event_handler_del(_ecore_event_conformant_handler);
-        _ecore_event_conformant_handler = NULL;
      }
 
    _clear_hide_timer();
@@ -798,6 +764,41 @@ text_input_input_panel_state(void                 *data EINA_UNUSED,
     ecore_imf_context_input_panel_event_callback_call(imcontext->ctx,
                                                       ECORE_IMF_INPUT_PANEL_STATE_EVENT,
                                                       _input_panel_state);
+
+    if (state == WL_TEXT_INPUT_INPUT_PANEL_STATE_HIDE)
+      {
+        static Evas_Coord scr_w = 0, scr_h = 0;
+        if (scr_w == 0 || scr_h == 0)
+          {
+            ecore_wl_sync();
+            ecore_wl_screen_size_get(&scr_w, &scr_h);
+          }
+         _keyboard_geometry.x = 0;
+         _keyboard_geometry.y = scr_h;
+         _keyboard_geometry.w = 0;
+         _keyboard_geometry.h = 0;
+         ecore_imf_context_input_panel_event_callback_call(imcontext->ctx, ECORE_IMF_INPUT_PANEL_GEOMETRY_EVENT, 0);
+      }
+}
+
+static void
+text_input_input_panel_geometry(void                 *data EINA_UNUSED,
+                                struct wl_text_input *text_input EINA_UNUSED,
+                                uint32_t              x,
+                                uint32_t              y,
+                                uint32_t              w,
+                                uint32_t              h)
+{
+    WaylandIMContext *imcontext = (WaylandIMContext *)data;
+
+    if (_keyboard_geometry.x != (int)x || _keyboard_geometry.y != (int)y || _keyboard_geometry.w != (int)w || _keyboard_geometry.h != (int)h)
+      {
+         _keyboard_geometry.x = x;
+         _keyboard_geometry.y = y;
+         _keyboard_geometry.w = w;
+         _keyboard_geometry.h = h;
+         ecore_imf_context_input_panel_event_callback_call(imcontext->ctx, ECORE_IMF_INPUT_PANEL_GEOMETRY_EVENT, 0);
+      }
 }
 
 static void
@@ -880,7 +881,8 @@ static const struct wl_text_input_listener text_input_listener =
    text_input_language,
    text_input_text_direction,
    text_input_selection_region,
-   text_input_private_command
+   text_input_private_command,
+   text_input_input_panel_geometry
 };
 
 EAPI void
@@ -1288,13 +1290,17 @@ wayland_im_context_prediction_allow_set(Ecore_IMF_Context *ctx,
 }
 
 EAPI void
-wayland_im_context_input_panel_geometry_get(Ecore_IMF_Context *ctx,
+wayland_im_context_input_panel_geometry_get(Ecore_IMF_Context *ctx EINA_UNUSED,
                                             int *x, int *y, int *w, int *h)
 {
-   WaylandIMContext *imcontext = (WaylandIMContext *)ecore_imf_context_data_get(ctx);
-
-   if (imcontext->window)
-     ecore_wl_window_keyboard_geometry_get(imcontext->window, x, y, w, h);
+   if (x)
+     *x = _keyboard_geometry.x;
+   if (y)
+     *y = _keyboard_geometry.y;
+   if (w)
+     *w = _keyboard_geometry.w;
+   if (h)
+     *h = _keyboard_geometry.h;
 }
 
 EAPI void

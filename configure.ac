@@ -2581,6 +2581,10 @@ EFL_INTERNAL_DEPEND_PKG([ECORE_CON], [eet])
 EFL_INTERNAL_DEPEND_PKG([ECORE_CON], [eina])
 EFL_INTERNAL_DEPEND_PKG([ECORE_CON], [ecore])
 EFL_INTERNAL_DEPEND_PKG([ECORE_CON], [emile])
+### TIZEN ONLY (151223): request e19 compositor to create sockets
+EFL_INTERNAL_DEPEND_PKG([ECORE_CON], [ecore-wayland])
+PKG_CHECK_MODULES([ECORE_CON], [wayland-server tizen-extension-client])
+### TIZEN ONLY: END
 
 EFL_ADD_LIBS([ECORE_CON], [-lm])
 

@@ -30,9 +30,11 @@ include Makefile_Eolian.am
 include Makefile_Ector.am
 include Makefile_Evas.am
 include Makefile_Ecore.am
-include Makefile_Ecore_Con.am
-include Makefile_Ecore_Ipc.am
-include Makefile_Ecore_File.am
+### TIZEN ONLY (151223): request e19 compositor to create sockets
+#include Makefile_Ecore_Con.am
+#include Makefile_Ecore_Ipc.am
+#include Makefile_Ecore_File.am
+### TIZEN ONLY: END
 include Makefile_Ecore_Input.am
 include Makefile_Ecore_Input_Evas.am
 include Makefile_Ecore_Cocoa.am
@@ -40,6 +42,11 @@ include Makefile_Ecore_FB.am
 include Makefile_Ecore_Psl1ght.am
 include Makefile_Ecore_SDL.am
 include Makefile_Ecore_Wayland.am
+### TIZEN ONLY (151223): request e19 compositor to create sockets
+include Makefile_Ecore_Con.am
+include Makefile_Ecore_Ipc.am
+include Makefile_Ecore_File.am
+###
 include Makefile_Ecore_Win32.am
 include Makefile_Ecore_X.am
 include Makefile_Ecore_IMF.am

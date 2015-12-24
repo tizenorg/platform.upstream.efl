@@ -16,6 +16,7 @@ BuildRequires:  pkgconfig(check)
 BuildRequires:  pkgconfig(libinput)
 BuildRequires:  zlib-devel
 BuildRequires:  gettext-tools
+BuildRequires:  hyphen-devel
 
 %if %{with wayland}
 BuildRequires:  pkgconfig(gles20)
@@ -711,6 +712,8 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
     --enable-lua-old \
     --enable-ecore-buffer \
     --disable-gstreamer1 \
+    --enable-hyphen \
+    --with-dictionaries-hyphen-dir=/usr/share/hyphen/ \
     --enable-i-really-know-what-i-am-doing-and-that-this-will-probably-break-things-and-i-will-fix-them-myself-and-send-patches-aba
 
 

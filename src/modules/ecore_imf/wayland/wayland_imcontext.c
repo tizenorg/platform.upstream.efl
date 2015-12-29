@@ -39,6 +39,7 @@ static Eina_Bool _clear_hide_timer();
 
 static Ecore_Event_Filter   *_ecore_event_filter_handler = NULL;
 static Ecore_IMF_Context    *_active_ctx                 = NULL;
+static Ecore_IMF_Context    *_hide_req_ctx               = NULL;
 
 static Ecore_Event_Handler  *_ecore_event_conformant_handler = NULL;
 
@@ -223,6 +224,7 @@ static Eina_Bool _clear_hide_timer()
 
 static void _send_input_panel_hide_request(Ecore_IMF_Context *ctx)
 {
+   _hide_req_ctx = NULL;
    WaylandIMContext *imcontext = (WaylandIMContext *)ecore_imf_context_data_get(ctx);
    if (imcontext && imcontext->text_input)
      wl_text_input_hide_input_panel(imcontext->text_input);
@@ -253,6 +255,7 @@ static void _input_panel_hide(Ecore_IMF_Context *ctx, Eina_Bool instant)
    else
      {
         _input_panel_hide_timer_start(ctx);
+        _hide_req_ctx = ctx;
      }
 }
 //
@@ -906,6 +909,9 @@ wayland_im_context_del(Ecore_IMF_Context *ctx)
    // TIZEN_ONLY(20150708): Support back key
    if (_active_ctx == ctx)
      _active_ctx = NULL;
+
+   if (_hide_req_ctx == ctx && _hide_timer)
+      _input_panel_hide(ctx, EINA_TRUE);
    //
 
    if (imcontext->language)

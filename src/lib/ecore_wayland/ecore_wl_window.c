@@ -26,6 +26,8 @@ static void _ecore_wl_window_cb_available_angles_done(void *data, struct tizen_r
 static void _ecore_wl_window_cb_preferred_angle_done(void *data, struct tizen_rotation *tizen_rotation, uint32_t angle);
 static void _ecore_wl_window_cb_angle_change(void *data, struct tizen_rotation *tizen_rotation, uint32_t angle, uint32_t serial);
 static void _ecore_wl_window_cb_resource_id(void *data, struct tizen_resource *tizen_resource, uint32_t id);
+static void _ecore_wl_window_iconified_set(Ecore_Wl_Window *win, Eina_Bool iconified, Eina_Bool send_event);
+
 
 /* local variables */
 static Eina_Hash *_windows = NULL;
@@ -637,6 +639,11 @@ ecore_wl_window_activate(Ecore_Wl_Window *win)
 
    if (!win) return;
 
+   Eina_Bool iconic = EINA_FALSE;
+   iconic = ecore_wl_window_iconified_get(win);
+   if (iconic)
+     ecore_wl_window_iconified_set(win, EINA_FALSE);
+
    if (_ecore_wl_disp->wl.tz_policy)
      tizen_policy_activate(_ecore_wl_disp->wl.tz_policy, win->surface);
 }
@@ -1000,54 +1007,7 @@ ecore_wl_window_role_set(Ecore_Wl_Window *win, const char *role)
 EAPI void
 ecore_wl_window_iconified_set(Ecore_Wl_Window *win, Eina_Bool iconified)
 {
-   struct wl_array states;
-   uint32_t *s;
-
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   if (!win) return;
-
-   if (iconified)
-     {
-        if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
-          {
-             tizen_policy_iconify(_ecore_wl_disp->wl.tz_policy, win->surface);
-             win->iconified = EINA_TRUE;
-          }
-        else if (win->xdg_surface)
-          {
-             xdg_surface_set_minimized(win->xdg_surface);
-             win->minimized = iconified;
-          }
-        else if (win->shell_surface)
-          {
-             /* TODO: handle case of iconifying a wl_shell surface */
-          }
-     }
-   else
-     {
-        if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
-          {
-             tizen_policy_uniconify(_ecore_wl_disp->wl.tz_policy, win->surface);
-             win->iconified = EINA_FALSE;
-          }
-        else if (win->xdg_surface)
-          {
-             win->type = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
-             wl_array_init(&states);
-             s = wl_array_add(&states, sizeof(*s));
-             *s = XDG_SURFACE_STATE_ACTIVATED;
-             _ecore_xdg_handle_surface_configure(win, win->xdg_surface, win->saved.w, win->saved.h, &states, 0);
-             wl_array_release(&states);
-          }
-        else if (win->shell_surface)
-          {
-             wl_shell_surface_set_toplevel(win->shell_surface);
-             win->type = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
-             _ecore_wl_window_configure_send(win,
-                                             win->saved.w, win->saved.h, 0);
-          }
-     }
+   _ecore_wl_window_iconified_set(win, iconified, EINA_TRUE);
 }
 
 EAPI Eina_Bool
@@ -1061,6 +1021,12 @@ ecore_wl_window_iconified_get(Ecore_Wl_Window *win)
      return win->iconified;
    else
      return win->minimized;
+}
+
+EAPI void
+ecore_wl_window_iconify_state_update(Ecore_Wl_Window *win, Eina_Bool iconified, Eina_Bool send_event)
+{
+   _ecore_wl_window_iconified_set(win, iconified, send_event);
 }
 
 EAPI Ecore_Wl_Window *
@@ -1535,6 +1501,72 @@ _ecore_wl_window_cb_resource_id(void *data, struct tizen_resource *tizen_resourc
    ev->data[0] = (unsigned int)id;
    win->resource_id = (unsigned int)id;
    ecore_event_add(ECORE_WL_EVENT_WINDOW_SHOW, ev, NULL, NULL);
+}
+
+static void
+_ecore_wl_window_iconified_set(Ecore_Wl_Window *win, Eina_Bool iconified, Eina_Bool send_event)
+{
+   struct wl_array states;
+   uint32_t *s;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!win) return;
+
+   if (iconified)
+     {
+        if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
+          {
+             if (send_event)
+               tizen_policy_iconify(_ecore_wl_disp->wl.tz_policy, win->surface);
+             win->iconified = EINA_TRUE;
+          }
+        else if (win->xdg_surface)
+          {
+             xdg_surface_set_minimized(win->xdg_surface);
+             win->minimized = iconified;
+          }
+        else if (win->shell_surface)
+          {
+             /* TODO: handle case of iconifying a wl_shell surface */
+          }
+     }
+   else
+     {
+        if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
+          {
+             if (send_event)
+               tizen_policy_uniconify(_ecore_wl_disp->wl.tz_policy, win->surface);
+             win->iconified = EINA_FALSE;
+          }
+        else if (win->xdg_surface)
+          {
+             win->type = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
+             wl_array_init(&states);
+             s = wl_array_add(&states, sizeof(*s));
+             *s = XDG_SURFACE_STATE_ACTIVATED;
+             _ecore_xdg_handle_surface_configure(win, win->xdg_surface, win->saved.w, win->saved.h, &states, 0);
+             wl_array_release(&states);
+          }
+        else if (win->shell_surface)
+          {
+             wl_shell_surface_set_toplevel(win->shell_surface);
+             win->type = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
+             _ecore_wl_window_configure_send(win,
+                                             win->saved.w, win->saved.h, 0);
+          }
+     }
+
+   if (send_event)
+     {
+        Ecore_Wl_Event_Window_Iconify_State_Change *ev;
+
+        if (!(ev = calloc(1, sizeof(Ecore_Wl_Event_Window_Iconify_State_Change)))) return;
+        ev->win = win->id;
+        ev->iconified = iconified;
+        ev->force = 0;
+        ecore_event_add(ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE, ev, NULL, NULL);
+     }
 }
 
 static void 

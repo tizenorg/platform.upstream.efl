@@ -759,6 +759,7 @@ EAPI void ecore_wl_window_role_set(Ecore_Wl_Window *win, const char *role);
 EAPI void ecore_wl_window_iconified_set(Ecore_Wl_Window *win, Eina_Bool iconified);
 EAPI Eina_Bool ecore_wl_window_iconified_get(Ecore_Wl_Window *win);
 
+EAPI void ecore_wl_window_iconify_state_update(Ecore_Wl_Window *win, Eina_Bool iconified, Eina_Bool send_event);
 
 EAPI int ecore_wl_window_id_get(Ecore_Wl_Window *win);
 EAPI void ecore_wl_window_title_set(Ecore_Wl_Window *win, const char *title);

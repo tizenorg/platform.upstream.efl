@@ -276,20 +276,23 @@ _ecore_evas_wl_common_cb_window_iconify_change(void *data  EINA_UNUSED, int type
 {
    Ecore_Evas *ee;
    Ecore_Wl_Event_Window_Iconify_State_Change *ev;
+   Ecore_Evas_Engine_Wl_Data *wdata;
 
    ev = event;
    ee = ecore_event_window_match(ev->win);
 
    if (!ee) return ECORE_CALLBACK_PASS_ON;
-   if (!ev->force) return ECORE_CALLBACK_PASS_ON;
    if (ev->win != ee->prop.window) return ECORE_CALLBACK_PASS_ON;
 
    if (ee->prop.iconified == ev->iconified)
      return ECORE_CALLBACK_PASS_ON;
 
    ee->prop.iconified = ev->iconified;
-   _ecore_evas_wl_common_state_update(ee);
 
+   wdata = ee->engine.data;
+   if (wdata && ev->force)
+     ecore_wl_window_iconify_state_update(wdata->win, ev->iconified, EINA_FALSE);
+   _ecore_evas_wl_common_state_update(ee);
    return ECORE_CALLBACK_PASS_ON;
 }
 
@@ -1244,6 +1247,10 @@ _ecore_evas_wl_common_activate(Ecore_Evas *ee)
    if (!ee) return;
    wdata = ee->engine.data;
    ecore_evas_show(ee);
+
+   if (ee->prop.iconified)
+     _ecore_evas_wl_common_iconified_set(ee, EINA_FALSE);
+
    ecore_wl_window_activate(wdata->win);
 }
 

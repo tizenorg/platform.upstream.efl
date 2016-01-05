@@ -1077,15 +1077,10 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
 %license COPYING
-%exclude %{_datadir}/dbus-1/services/org.enlightenment.Efreet.service
-%exclude %{_userunitdir}/efreet.service
-%exclude %{_bindir}/efreetd
-%exclude /usr/lib/debug/usr/bin/efreetd.debug
-%exclude %{_libdir}/efreet/*/efreet_desktop_cache_create
-%exclude %{_libdir}/efreet/*/efreet_icon_cache_create
-%exclude /usr/lib/debug/%{_libdir}/efreet/*/efreet_desktop_cache_create.debug
-%exclude /usr/lib/debug/%{_libdir}/efreet/*/efreet_icon_cache_create.debug
-%exclude /usr/lib/debug/.build-id/*/*
+%{_bindir}/efreetd
+/usr/lib/debug/usr/bin/efreetd.debug
+%{_libdir}/efreet/*/efreet_desktop_cache_create
+%{_libdir}/efreet/*/efreet_icon_cache_create
 %{_libdir}/libefreet.so.*
 %{_libdir}/libefreet_mime.so.*
 %{_libdir}/libefreet_trash.so.*

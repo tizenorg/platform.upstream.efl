@@ -4958,32 +4958,11 @@ _layout_par(Ctxt *c)
               * fast path.
               * Other values of 0.0 <= ellipsis < 1.0 are handled in
               * _layout_par_ellipsis_items */
-             // TIZEN_ONLY(20160104): Fix ellipsis when textblock is resized to formatted h.
-             //if ((it->format->ellipsis == 1.0) && (c->h >= 0) &&
-             //      ((2 * it->h + c->y >
-             //        c->h - c->o->style_pad.t - c->o->style_pad.b) ||
-             //       (!it->format->wrap_word && !it->format->wrap_char &&
-             //        !it->format->wrap_mixed)))
-             int ascent = 0, descent = 0, maxasc = 0, maxdesc = 0;
-             _layout_item_ascent_descent_adjust(c->obj, &ascent, &descent,
-                                                it, it->format);
-
-             if (c->position == TEXTBLOCK_POSITION_START)
-               _layout_item_max_ascent_descent_calc(c->obj, &maxasc, &maxdesc,
-                                                    it, TEXTBLOCK_POSITION_SINGLE);
-             else
-               _layout_item_max_ascent_descent_calc(c->obj, &maxasc, &maxdesc,
-                                                    it, TEXTBLOCK_POSITION_END);
-
-             if (ascent > maxasc) maxasc = ascent;
-             if (descent > maxdesc) maxdesc = descent;
-
              if ((it->format->ellipsis == 1.0) && (c->h >= 0) &&
-                   ((ascent + descent + maxasc + maxdesc + c->y >
+                   ((2 * it->h + c->y >
                      c->h - c->o->style_pad.t - c->o->style_pad.b) ||
                     (!it->format->wrap_word && !it->format->wrap_char &&
                      !it->format->wrap_mixed)))
-             ///////////////////////////////////////////////////////////////
                {
                   _layout_handle_ellipsis(c, it, i);
                   ret = 1;

@@ -253,7 +253,7 @@ _device_remapped_key_get(Ecore_Drm_Evdev *edev, int code)
    void *ret = NULL;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(edev, code);
-   EINA_SAFETY_ON_TRUE_RETURN_VAL(!edev->key_remap_enabled, code);
+   if (!edev->key_remap_enabled) return code;
    EINA_SAFETY_ON_NULL_RETURN_VAL(edev->key_remap_hash, code);
 
    ret = eina_hash_find(edev->key_remap_hash, &code);

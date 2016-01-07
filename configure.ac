@@ -3233,6 +3233,11 @@ if test "x${have_libinput_new}" = "xno";then
   AC_DEFINE_UNQUOTED([LIBINPUT_HIGHER_08], [0], [libinput version >= 0.8])
 fi
 
+have_extra_touch_event="no"
+AC_CHECK_LIB(input, libinput_event_touch_get_major, [have_extra_touch_event="yes"])
+if test "x${have_extra_touch_event}" = "xyes";then
+  AC_DEFINE_UNQUOTED([LIBINPUT_SUPPORT_EXTRA_TOUCH_EVENT], [1], [libinput support extra touch event])
+fi
 
 EFL_EVAL_PKGS([ECORE_DRM])
 

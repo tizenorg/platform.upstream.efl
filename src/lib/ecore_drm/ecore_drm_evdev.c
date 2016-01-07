@@ -715,6 +715,20 @@ _device_handle_touch_event_send(Ecore_Drm_Evdev *edev, struct libinput_event_tou
    ev->multi.radius_y = 1;
    ev->multi.pressure = 1.0;
    ev->multi.angle = 0.0;
+#if LIBINPUT_SUPPORT_EXTRA_TOUCH_EVENT
+   if (libinput_event_get_type(libinput_event_touch_get_base_event(event))
+       == LIBINPUT_EVENT_TOUCH_DOWN)
+     {
+        if (libinput_event_touch_has_minor(event))
+          ev->multi.radius_x = libinput_event_touch_get_minor(event);
+        if (libinput_event_touch_has_major(event))
+          ev->multi.radius_y = libinput_event_touch_get_major(event);
+        if (libinput_event_touch_has_pressure(event))
+          ev->multi.pressure = libinput_event_touch_get_pressure(event);
+        if (libinput_event_touch_has_orientation(event))
+          ev->multi.angle = libinput_event_touch_get_orientation(event);
+     }
+#endif
    ev->multi.x = ev->x;
    ev->multi.y = ev->y;
    ev->multi.root.x = ev->x;
@@ -791,6 +805,16 @@ _device_handle_touch_motion_send(Ecore_Drm_Evdev *edev, struct libinput_event_to
    ev->multi.radius_y = 1;
    ev->multi.pressure = 1.0;
    ev->multi.angle = 0.0;
+#if LIBINPUT_SUPPORT_EXTRA_TOUCH_EVENT
+   if (libinput_event_touch_has_minor(event))
+     ev->multi.radius_x = libinput_event_touch_get_minor(event);
+   if (libinput_event_touch_has_major(event))
+     ev->multi.radius_y = libinput_event_touch_get_major(event);
+   if (libinput_event_touch_has_pressure(event))
+     ev->multi.pressure = libinput_event_touch_get_pressure(event);
+   if (libinput_event_touch_has_orientation(event))
+     ev->multi.angle = libinput_event_touch_get_orientation(event);
+#endif
    ev->multi.x = ev->x;
    ev->multi.y = ev->y;
    ev->multi.root.x = ev->x;

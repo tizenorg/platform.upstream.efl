@@ -755,12 +755,6 @@ _ecore_event_evas_add_evas_device(Evas *e, const char *name, const char *identif
              if ((evas_device_class_get(edev) == clas) &&
                 !(strcmp(evas_device_name_get(edev), identifier)))
                return;
-             else if ((evas_device_class_get(edev) == clas) &&
-                     !(strcmp(evas_device_description_get(edev), name)))
-               {
-                  evas_device_del(edev);
-                  break;
-               }
           }
      }
 

@@ -91,6 +91,11 @@ static void _ecore_wl_input_mouse_down_send(Ecore_Wl_Input *input, Ecore_Wl_Wind
 static void _ecore_wl_input_mouse_up_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, int device, unsigned int button, unsigned int timestamp);
 static void _ecore_wl_input_mouse_wheel_send(Ecore_Wl_Input *input, unsigned int axis, int value, unsigned int timestamp);
 static Ecore_Wl_Mouse_Down_Info *_ecore_wl_mouse_down_info_get(int dev);
+static void _ecore_wl_input_device_manager_cb_device_add(void *data EINA_UNUSED, struct tizen_input_device_manager *tizen_input_device_manager EINA_UNUSED, unsigned int serial EINA_UNUSED, const char *name, struct tizen_input_device *device, struct wl_seat *seat);
+static void _ecore_wl_input_device_manager_cb_device_remove(void *data EINA_UNUSED, struct tizen_input_device_manager *tizen_input_device_manager EINA_UNUSED, unsigned int serial EINA_UNUSED, const char *name, struct tizen_input_device *device, struct wl_seat *seat);
+static void _ecore_wl_input_device_cb_device_info(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, uint32_t class, uint32_t subclass, struct wl_array *axes EINA_UNUSED);
+static void _ecore_wl_input_device_cb_event_device(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, unsigned int serial EINA_UNUSED, const char *name EINA_UNUSED, uint32_t time EINA_UNUSED);
+static void _ecore_wl_input_device_cb_axis(void *data EINA_UNUSED, struct tizen_input_device *tizen_input_device EINA_UNUSED, uint32_t axis_type EINA_UNUSED, wl_fixed_t value EINA_UNUSED);
 
 /* static int _ecore_wl_input_keysym_to_string(unsigned int symbol, char *buffer, int len); */
 
@@ -142,6 +147,19 @@ static const struct wl_data_device_listener _ecore_wl_data_listener =
 static const struct wl_callback_listener _ecore_wl_pointer_surface_listener =
 {
    _ecore_wl_input_cb_pointer_frame
+};
+
+static const struct tizen_input_device_manager_listener _ecore_tizen_input_device_mgr_listener =
+{
+   _ecore_wl_input_device_manager_cb_device_add,
+   _ecore_wl_input_device_manager_cb_device_remove,
+};
+
+static const struct tizen_input_device_listener _ecore_tizen_input_device_listener =
+{
+   _ecore_wl_input_device_cb_device_info,
+   _ecore_wl_input_device_cb_event_device,
+   _ecore_wl_input_device_cb_axis,
 };
 
 /* local variables */
@@ -432,6 +450,8 @@ _ecore_wl_input_add(Ecore_Wl_Display *ewd, unsigned int id)
 void
 _ecore_wl_input_del(Ecore_Wl_Input *input)
 {
+   Ecore_Wl_Input_Device *dev;
+
    if (!input) return;
 
    _pointer_update_stop(input);
@@ -499,6 +519,17 @@ _ecore_wl_input_del(Ecore_Wl_Input *input)
 
    if (input->repeat.tmr) ecore_timer_del(input->repeat.tmr);
    input->repeat.tmr = NULL;
+
+   EINA_LIST_FREE(input->devices, dev)
+     {
+        if (dev->tz_device) tizen_input_device_destroy(dev->tz_device);
+        if (dev->name) eina_stringshare_del(dev->name);
+        if (dev->identifier) eina_stringshare_del(dev->identifier);
+        dev->seat = NULL;
+        free(dev);
+     }
+
+   eina_stringshare_replace(&input->last_device_name, NULL);
 
    free(input);
 }
@@ -896,6 +927,7 @@ _ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard EINA_UN
    e->timestamp = timestamp;
    e->modifiers = input->modifiers;
    e->keycode = code;
+   e->dev_name = input->last_device_name;
 
    if (state)
      ecore_event_add(ECORE_EVENT_KEY_DOWN, e, NULL, NULL);
@@ -1323,6 +1355,7 @@ _ecore_wl_input_mouse_move_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, uns
    ev->multi.y = input->sy;
    ev->multi.root.x = input->sx;
    ev->multi.root.y = input->sy;
+   ev->dev_name = input->last_device_name;
 
    if ((down_info = _ecore_wl_mouse_down_info_get(device)))
      {
@@ -1503,6 +1536,7 @@ _ecore_wl_input_mouse_down_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, int
    ev->multi.y = input->sy;
    ev->multi.root.x = input->sx;
    ev->multi.root.y = input->sy;
+   ev->dev_name = input->last_device_name;
 
    if (win)
      {
@@ -1578,6 +1612,7 @@ _ecore_wl_input_mouse_up_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, int d
    ev->multi.angle = 0.0;
    ev->multi.root.x = input->sx;
    ev->multi.root.y = input->sy;
+   ev->dev_name = input->last_device_name;
 
    if (win)
      {
@@ -1603,6 +1638,7 @@ _ecore_wl_input_mouse_wheel_send(Ecore_Wl_Input *input, unsigned int axis, int v
    ev->y = input->sy;
    /* ev->root.x = input->sx; */
    /* ev->root.y = input->sy; */
+   ev->dev_name = input->last_device_name;
 
    if (axis == WL_POINTER_AXIS_VERTICAL_SCROLL)
      {
@@ -1675,4 +1711,155 @@ void
 _ecore_wl_events_shutdown(void)
 {
    _ecore_wl_mouse_down_info_clear();
+}
+
+static void
+_ecore_wl_input_device_info_free(void *data EINA_UNUSED, void *ev)
+{
+   Ecore_Event_Device_Info *e;
+
+   e = ev;
+   eina_stringshare_del(e->name);
+   eina_stringshare_del(e->identifier);
+   eina_stringshare_del(e->seatname);
+
+   free(e);
+}
+
+void
+_ecore_wl_input_device_info_send(int win_id, const char *name,  const char *identifier, Ecore_Device_Type type, Eina_Bool flag)
+{
+   Ecore_Event_Device_Info *e;
+
+   if (!(e = calloc(1, sizeof(Ecore_Event_Device_Info)))) return;
+
+   e->name = eina_stringshare_add(name);
+   e->identifier = eina_stringshare_add(identifier);
+   e->seatname = eina_stringshare_add(name);
+   e->caps = type;
+   e->window = win_id;
+
+   if (flag)
+     ecore_event_add(ECORE_EVENT_DEVICE_ADD, e, _ecore_wl_input_device_info_free, NULL);
+   else
+     ecore_event_add(ECORE_EVENT_DEVICE_DEL, e, _ecore_wl_input_device_info_free, NULL);
+}
+
+void
+_ecore_wl_input_device_info_broadcast(const char *name, const char *identifier, Ecore_Device_Type type, Eina_Bool flag)
+{
+   Eina_Hash *windows = NULL;
+   Eina_Iterator *itr;
+   Ecore_Wl_Window *win = NULL;
+   void *data;
+
+   windows = _ecore_wl_window_hash_get();
+   if (!windows) return;
+   if (!name) return;
+   itr = eina_hash_iterator_data_new(windows);
+   while (eina_iterator_next(itr, &data))
+     {
+        win = data;
+        _ecore_wl_input_device_info_send(win->id, name, identifier, type, flag);
+     }
+
+   eina_iterator_free(itr);
+}
+
+void
+_ecore_wl_input_device_manager_setup(unsigned int id)
+{
+   _ecore_wl_disp->wl.tz_input_device_manager =
+   wl_registry_bind(_ecore_wl_disp->wl.registry, id, &tizen_input_device_manager_interface, 1);
+
+   tizen_input_device_manager_add_listener(_ecore_wl_disp->wl.tz_input_device_manager,
+                                       &_ecore_tizen_input_device_mgr_listener, _ecore_wl_disp->wl.display);
+}
+
+static void
+_ecore_wl_input_device_manager_cb_device_add(void *data EINA_UNUSED, struct tizen_input_device_manager *tizen_input_device_manager EINA_UNUSED,
+                          unsigned int serial EINA_UNUSED, const char *name, struct tizen_input_device *device, struct wl_seat *seat)
+{
+   Ecore_Wl_Input *input = _ecore_wl_disp->input;
+   Ecore_Wl_Input_Device *dev;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!input) return;
+   if ((!name) || (!device) || (!seat)) return;
+
+   if (!(dev = calloc(1, sizeof(Ecore_Wl_Input_Device)))) return;
+
+   dev->tz_device = device;
+   tizen_input_device_add_listener(dev->tz_device, &_ecore_tizen_input_device_listener, dev);
+   dev->identifier = eina_stringshare_add(name);
+   dev->seat = seat;
+
+   input->devices = eina_list_append(input->devices, dev);
+}
+
+static void
+_ecore_wl_input_device_manager_cb_device_remove(void *data EINA_UNUSED, struct tizen_input_device_manager *tizen_input_device_manager EINA_UNUSED,
+                            unsigned int serial EINA_UNUSED, const char *name, struct tizen_input_device *device, struct wl_seat *seat)
+{
+   Ecore_Wl_Input *input = _ecore_wl_disp->input;
+   Eina_List *l, *ll;
+   Ecore_Wl_Input_Device *dev;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!input) return;
+   if ((!name) || (!device) || (!seat)) return;
+
+   EINA_LIST_FOREACH_SAFE(input->devices, l, ll, dev)
+     {
+        if ((!strcmp(dev->identifier, name)) && (seat == dev->seat) && (device == dev->tz_device))
+          {
+             if (dev->tz_device) tizen_input_device_destroy(dev->tz_device);
+             if (dev->name) eina_stringshare_del(dev->name);
+             if (dev->identifier) eina_stringshare_del(dev->identifier);
+             dev->seat = NULL;
+             _ecore_wl_input_device_info_broadcast(name, name, dev->clas, EINA_FALSE);
+
+             input->devices = eina_list_remove_list(input->devices, l);
+
+             free(dev);
+
+             break;
+          }
+     }
+}
+
+static void
+_ecore_wl_input_device_cb_device_info(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, uint32_t class, uint32_t subclass, struct wl_array *axes EINA_UNUSED)
+{
+   Ecore_Wl_Input_Device *dev;
+
+   if (!(dev = data)) return;
+   dev->clas = class;
+   dev->subclas = subclass;
+
+   if (!dev->identifier) return;
+   _ecore_wl_input_device_info_broadcast(dev->identifier, dev->identifier, dev->clas, EINA_TRUE);
+}
+
+static void
+_ecore_wl_input_device_cb_event_device(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, unsigned int serial EINA_UNUSED, const char *name EINA_UNUSED, uint32_t time EINA_UNUSED)
+{
+   Ecore_Wl_Input *input = _ecore_wl_disp->input;
+   Ecore_Wl_Input_Device *dev;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!input) return;
+
+   if (!(dev = data)) return;
+   if (!dev->identifier) return;
+   eina_stringshare_replace(&input->last_device_name, dev->identifier);
+
+   return;
+}
+
+static void
+_ecore_wl_input_device_cb_axis(void *data EINA_UNUSED, struct tizen_input_device *tizen_input_device EINA_UNUSED, uint32_t axis_type EINA_UNUSED, wl_fixed_t value EINA_UNUSED)
+{
+   return;
 }

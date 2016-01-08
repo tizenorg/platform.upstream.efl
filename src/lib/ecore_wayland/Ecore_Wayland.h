@@ -41,6 +41,8 @@ typedef struct _Ecore_Wl_Subsurf Ecore_Wl_Subsurf; /** @since 1.8 */
 typedef struct _Ecore_Wl_Window Ecore_Wl_Window;
 # endif
 
+typedef struct _Ecore_Wl_Input_Device Ecore_Wl_Input_Device;
+
 /**
  * @deprecated Do Not Use
  * @since 1.7

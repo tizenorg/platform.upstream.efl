@@ -85,6 +85,7 @@ struct _Ecore_Wl_Display
         struct tizen_policy_ext *tz_policy_ext;
         struct tizen_surface *tz_surf;
         struct tizen_keyrouter *keyrouter;
+        struct tizen_input_device_manager *tz_input_device_manager;
      } wl;
 
    int fd;
@@ -218,6 +219,16 @@ struct _Ecore_Wl_Window
    void *data;
 };
 
+struct _Ecore_Wl_Input_Device
+{
+   struct tizen_input_device *tz_device;
+   const char *name;
+   const char *identifier;
+   enum tizen_input_device_class clas;
+   enum tizen_input_device_subclass subclas;
+   struct wl_seat *seat;
+};
+
 struct _Ecore_Wl_Input
 {
    EINA_INLIST;
@@ -227,6 +238,9 @@ struct _Ecore_Wl_Input
    struct wl_keyboard *keyboard;
 
    struct wl_touch *touch;
+
+   Eina_List *devices;
+   const char *last_device_name;
 
    const char *cursor_name;
    struct wl_cursor *cursor;
@@ -357,4 +371,5 @@ void _ecore_wl_subsurfs_del_all(Ecore_Wl_Window *win);
 struct wl_compositor *_ecore_wl_compositor_get(void);
 struct wl_subcompositor *_ecore_wl_subcompositor_get(void);
 
+void _ecore_wl_input_device_manager_setup(unsigned int id);
 #endif

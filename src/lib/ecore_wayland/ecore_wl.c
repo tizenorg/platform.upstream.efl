@@ -621,6 +621,8 @@ _ecore_wl_shutdown(Eina_Bool close)
         if (_ecore_wl_disp->wl.shm) wl_shm_destroy(_ecore_wl_disp->wl.shm);
         if (_ecore_wl_disp->wl.data_device_manager)
           wl_data_device_manager_destroy(_ecore_wl_disp->wl.data_device_manager);
+        if (_ecore_wl_disp->wl.tz_input_device_manager)
+          tizen_input_device_manager_destroy(_ecore_wl_disp->wl.tz_input_device_manager);
         if (_ecore_wl_disp->wl.tz_policy)
           tizen_policy_destroy(_ecore_wl_disp->wl.tz_policy);
         if (_ecore_wl_disp->wl.tz_policy_ext)
@@ -848,6 +850,8 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
           tizen_keyrouter_add_listener(_ecore_wl_disp->wl.keyrouter, &_ecore_tizen_keyrouter_listener, ewd->wl.display);
      }
 //
+   else if (!strcmp(interface, "tizen_input_device_manager"))
+     _ecore_wl_input_device_manager_setup(id);
 
    if ((ewd->wl.compositor) && (ewd->wl.shm) &&
        ((ewd->wl.shell) || (ewd->wl.xdg_shell)))

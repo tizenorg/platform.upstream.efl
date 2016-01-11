@@ -435,6 +435,48 @@ commit_preedit(WaylandIMContext *imcontext)
                                          (void *)imcontext->preedit_commit);
 }
 
+static Eina_Bool
+show_input_panel(Ecore_IMF_Context *ctx)
+{
+   WaylandIMContext *imcontext = (WaylandIMContext *)ecore_imf_context_data_get(ctx);
+   Ecore_Wl_Input *input;
+   struct wl_seat *seat;
+
+   if ((!imcontext) || (!imcontext->window) || (!imcontext->text_input))
+     return EINA_FALSE;
+
+   input = ecore_wl_window_keyboard_get(imcontext->window);
+   if (!input)
+     return EINA_FALSE;
+
+   seat = ecore_wl_input_seat_get(input);
+   if (!seat)
+     return EINA_FALSE;
+
+   imcontext->input = input;
+
+   _clear_hide_timer();
+   _input_panel_state = ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW;
+   wl_text_input_show_input_panel(imcontext->text_input);
+   wl_text_input_activate(imcontext->text_input, seat,
+                          ecore_wl_window_surface_get(imcontext->window));
+
+   wl_text_input_set_content_type(imcontext->text_input,
+                                  imcontext->content_hint,
+                                  imcontext->content_purpose);
+
+   wl_text_input_set_return_key_type(imcontext->text_input,
+                                     imcontext->return_key_type);
+
+   wl_text_input_set_return_key_disabled(imcontext->text_input,
+                                         imcontext->return_key_disabled);
+
+   if (imcontext->imdata_size > 0)
+     wl_text_input_set_input_panel_data(imcontext->text_input, (const char *)imcontext->imdata, imcontext->imdata_size);
+
+   return EINA_TRUE;
+}
+
 static void
 text_input_preedit_string(void                 *data,
                           struct wl_text_input *text_input EINA_UNUSED,
@@ -911,48 +953,13 @@ wayland_im_context_focus_in(Ecore_IMF_Context *ctx)
 {
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom, "focus-in");
 
-   WaylandIMContext *imcontext = (WaylandIMContext *)ecore_imf_context_data_get(ctx);
-   Ecore_Wl_Input *input;
-   struct wl_seat *seat;
-
    // TIZEN_ONLY(20150708): Support back key
    _active_ctx = ctx;
    //
 
-   if ((!imcontext) || (!imcontext->window) || (!imcontext->text_input))
-     return;
-
-   input = ecore_wl_window_keyboard_get(imcontext->window);
-   if (!input)
-     return;
-
-   seat = ecore_wl_input_seat_get(input);
-   if (!seat)
-     return;
-
-   imcontext->input = input;
-
-   wl_text_input_activate(imcontext->text_input, seat,
-                          ecore_wl_window_surface_get(imcontext->window));
-
-   wl_text_input_set_content_type(imcontext->text_input,
-                                  imcontext->content_hint,
-                                  imcontext->content_purpose);
-
-   wl_text_input_set_return_key_type(imcontext->text_input,
-                                     imcontext->return_key_type);
-
-   wl_text_input_set_return_key_disabled(imcontext->text_input,
-                                         imcontext->return_key_disabled);
-
-   if (imcontext->imdata_size > 0)
-     wl_text_input_set_input_panel_data(imcontext->text_input, (const char *)imcontext->imdata, imcontext->imdata_size);
-
    if (ecore_imf_context_input_panel_enabled_get(ctx))
-     {
-        if (!ecore_imf_context_input_panel_show_on_demand_get (ctx))
-          wayland_im_context_show(ctx);
-     }
+     if (!ecore_imf_context_input_panel_show_on_demand_get (ctx))
+       show_input_panel(ctx);
 }
 
 EAPI void
@@ -1081,10 +1088,7 @@ wayland_im_context_show(Ecore_IMF_Context *ctx)
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom, "context_show");
 
    if (imcontext->text_input)
-     {
-        _clear_hide_timer();
-        wl_text_input_show_input_panel(imcontext->text_input);
-     }
+     show_input_panel(ctx);
 }
 
 EAPI void
@@ -1107,7 +1111,7 @@ wayland_im_context_filter_event(Ecore_IMF_Context    *ctx,
    if (type == ECORE_IMF_EVENT_MOUSE_UP)
      {
         if (ecore_imf_context_input_panel_enabled_get(ctx))
-          wayland_im_context_show(ctx);
+          show_input_panel(ctx);
      }
 
    return EINA_FALSE;

@@ -257,7 +257,8 @@ _ecore_wl_input_cursor_update(void *data)
    Ecore_Wl_Input *input = data;
    unsigned int delay;
 
-   if ((!input) || (!input->cursor)) return EINA_FALSE;
+   if ((!input) || (!input->cursor) || (!input->cursor_surface))
+     return EINA_FALSE;
 
    cursor_image = input->cursor->images[input->cursor_current_index];
    if (!cursor_image) return ECORE_CALLBACK_RENEW;

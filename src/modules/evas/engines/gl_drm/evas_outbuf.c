@@ -899,26 +899,48 @@ eng_outbuf_copy(Outbuf *ob, void *buffer, int stride, int width EINA_UNUSED, int
                 int dx EINA_UNUSED, int dy EINA_UNUSED, int dw EINA_UNUSED, int dh EINA_UNUSED)
 {
    Ecore_Drm_Output *output;
-   uint fb_handle, fb_fmt;
-   int fb_w, fb_h;
-   void *data;
+   void *data, *src, *dst;
    struct drm_mode_map_dumb arg = {0,};
    int fd = -1;
+   struct gbm_bo *bo;
+   Ecore_Drm_Fb *fb;
+   int i;
 
-   output = _evas_outbuf_output_find(ob->info->info.crtc_id);
+   if (ob->priv.last == -1)
+     {
+        DBG ("index of current frmae buffer isn't set");
+        return;
+     }
 
-   /* TODO: should find the better way to find current framebuffer */
-   ecore_drm_output_current_fb_info_get(output, &fb_handle, &fb_w, &fb_h, &fb_fmt);
+   bo = ob->priv.bo[ob->priv.last];
+   if (!bo)
+     {
+        DBG ("get frame buffer failed");
+        return;
+     }
+
+   fb = gbm_bo_get_user_data(bo);
+   if (!fb)
+     {
+        DBG ("get fb from bo failed");
+        return;
+     }
+
    fd = ecore_drm_device_fd_get(ob->info->info.dev);
+   if (fd < 0)
+     {
+        DBG("get drm device fd failed");
+        return;
+     }
 
-   arg.handle = fb_handle;
+   arg.handle = fb->hdl;
    if (drmIoctl(fd, DRM_IOCTL_MODE_MAP_DUMB, &arg))
      {
         DBG("dump map failed");
         return;
      }
 
-   data = mmap(NULL, fb_w * fb_h * 4, PROT_READ|PROT_WRITE, MAP_SHARED,
+   data = mmap(NULL, fb->stride * fb->h, PROT_READ|PROT_WRITE, MAP_SHARED,
                fd, arg.offset);
    if (data == MAP_FAILED)
      {
@@ -926,7 +948,15 @@ eng_outbuf_copy(Outbuf *ob, void *buffer, int stride, int width EINA_UNUSED, int
         return;
      }
 
-   memcpy(buffer, data, stride * height);
+   src = data;
+   dst = buffer;
 
-   munmap(data, fb_w * fb_h * 4);
+   for (i = 0; i < height ; i++)
+     {
+        memcpy (dst, src, stride);
+        src += fb->stride;
+        dst += stride;
+     }
+
+   munmap(data, fb->stride * fb->h);
 }

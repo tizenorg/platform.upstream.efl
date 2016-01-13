@@ -76,9 +76,7 @@ ecore_thread_example \
 ecore_time_functions_example \
 ecore_timer_example \
 ecore_getopt_example \
-ecore_buffer_example \
-ecore_con_eet_client_example \
-ecore_con_eet_server_example
+ecore_buffer_example
 
 ECORE_COMMON_LDADD = \
 $(top_builddir)/src/lib/ecore/libecore.la \
@@ -124,20 +122,10 @@ ecore_animator_example_SOURCES = ecore_animator_example.c
 ecore_animator_example_LDADD = $(ECORE_EVAS_COMMON_LDADD)
 
 if HAVE_ECORE_BUFFER
-EXTRA_PROGRAMS += ecore_buffer_example \
-ecore_buffer_consumer_example \
-ecore_buffer_provider_example
+EXTRA_PROGRAMS += ecore_buffer_example
 
 ecore_buffer_example_SOURCES = ecore_buffer_example.c
 ecore_buffer_example_LDADD = $(ECORE_EVAS_COMMON_LDADD) \
-                             $(top_builddir)/src/lib/ecore_buffer/libecore_buffer.la
-
-ecore_buffer_consumer_example_SOURCES = ecore_buffer_consumer_example.c
-ecore_buffer_consumer_example_LDADD = $(ECORE_EVAS_COMMON_LDADD) \
-                             $(top_builddir)/src/lib/ecore_buffer/libecore_buffer.la
-
-ecore_buffer_provider_example_SOURCES = ecore_buffer_provider_example.c
-ecore_buffer_provider_example_LDADD = $(ECORE_EVAS_COMMON_LDADD) \
                              $(top_builddir)/src/lib/ecore_buffer/libecore_buffer.la
 endif
 
@@ -281,8 +269,6 @@ $(top_builddir)/src/lib/eet/libeet.la
 SRCS = \
 ecore_animator_example.c \
 ecore_buffer_example.c \
-ecore_buffer_consumer_example.c \
-ecore_buffer_provider_example.c \
 ecore_audio_custom.c \
 ecore_audio_playback.c \
 ecore_audio_to_ogg.c \

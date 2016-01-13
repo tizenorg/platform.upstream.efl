@@ -175,10 +175,13 @@ _ecore_buffer_con_init(void)
         return EINA_FALSE;
      }
 
-   if (!(_connection->display = wl_display_connect(name)))
+   if (!(_connection->display = wl_display_connect(NULL)))
      {
-        ERR("Failed to connect to Queue Server");
-        goto err_connect;
+        if (!(_connection->display = wl_display_connect(name)))
+          {
+             ERR("Failed to connect to Queue Server");
+             goto err_connect;
+          }
      }
 
    _connection->fd = wl_display_get_fd(_connection->display);

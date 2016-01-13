@@ -28,9 +28,11 @@
 #include "Ecore_Con.h"
 #include "ecore_con_private.h"
 // TIZEN ONLY (151223): request e19 compositor to create socket
-#include "Ecore_Wayland.h"
-#include <wayland-server.h>
-#include <tizen-extension-client-protocol.h>
+#if HAVE_ECORE_WAYLAND
+# include "Ecore_Wayland.h"
+# include <wayland-server.h>
+# include <tizen-extension-client-protocol.h>
+#endif
 // TIZEN ONLY: END
 
 #define LENGTH_OF_SOCKADDR_UN(s)                (strlen((s)->sun_path) +                 \
@@ -73,6 +75,7 @@ ecore_con_local_shutdown(void)
 }
 
 // TIZEN ONLY (151223): request e19 compositor to create socket
+#if HAVE_ECORE_WAYLAND
 static void
 _ecore_con_compositor_socket(void *data, struct tizen_embedded_compositor *tec EINA_UNUSED, int fd)
 {
@@ -129,6 +132,14 @@ _ecore_con_local_get_socket_from_server()
    tizen_embedded_compositor_destroy(tec);
    return fd;
 }
+#else
+static int
+_ecore_con_local_get_socket_from_server()
+{
+   DBG("Just return -1");
+   return -1;
+}
+#endif
 // TIZEN ONLY: END
 
 int

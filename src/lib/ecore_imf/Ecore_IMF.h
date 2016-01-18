@@ -90,7 +90,8 @@ typedef enum
    ECORE_IMF_INPUT_PANEL_SHIFT_MODE_EVENT,         /**< called when the shift key state of the input panel is changed @since 1.7 */
    ECORE_IMF_INPUT_PANEL_GEOMETRY_EVENT,           /**< called when the size of the input panel is changed. @since 1.7 */
    ECORE_IMF_CANDIDATE_PANEL_STATE_EVENT,          /**< called when the state of the candidate word panel is changed. @since 1.7 */
-   ECORE_IMF_CANDIDATE_PANEL_GEOMETRY_EVENT        /**< called when the size of the candidate word panel is changed. @since 1.7 */
+   ECORE_IMF_CANDIDATE_PANEL_GEOMETRY_EVENT,       /**< called when the size of the candidate word panel is changed. @since 1.7 */
+   ECORE_IMF_INPUT_PANEL_KEYBOARD_MODE_EVENT       /**< called when the keyboard mode state of the input panel is changed @since 1.18 */
 } Ecore_IMF_Input_Panel_Event;
 
 /**
@@ -123,6 +124,16 @@ typedef enum
    ECORE_IMF_CANDIDATE_PANEL_SHOW,        /**< Notification after the display of the candidate word panel @since 1.7 */
    ECORE_IMF_CANDIDATE_PANEL_HIDE         /**< Notification prior to the dismissal of the candidate word panel @since 1.7 */
 } Ecore_IMF_Candidate_Panel_State;
+
+/**
+ * @typedef Ecore_IMF_Input_Panel_Keyboard_Mode
+ * Enum containing keyboard mode states.
+ */
+typedef enum
+{
+    ECORE_IMF_INPUT_PANEL_HW_KEYBOARD_MODE, /**< @since 1.18 */
+    ECORE_IMF_INPUT_PANEL_SW_KEYBOARD_MODE  /**< @since 1.18 */
+} Ecore_IMF_Input_Panel_Keyboard_Mode;
 
 /* Events sent by the Input Method */
 typedef struct _Ecore_IMF_Event_Preedit_Start      Ecore_IMF_Event_Preedit_Start;

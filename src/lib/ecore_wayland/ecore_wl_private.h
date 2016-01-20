@@ -62,7 +62,20 @@ extern int _ecore_wl_log_dom;
 # endif
 # define ECORE_WL_DEFAULT_CURSOR_SIZE 32
 
+# ifndef ECORE_WL_TOUCH_MAX
+# define ECORE_WL_TOUCH_MAX 10
+# endif
+
 typedef struct _Ecore_Wl_Display Ecore_Wl_Display;
+typedef struct _Ecore_Wl_Touch_Axis Ecore_Wl_Touch_Axis;
+
+struct _Ecore_Wl_Touch_Axis
+{
+   double radius_x;
+   double radius_y;
+   double pressure;
+   double angle;
+};
 
 struct _Ecore_Wl_Display
 {
@@ -264,6 +277,11 @@ struct _Ecore_Wl_Input
    unsigned int modifiers;
    unsigned int pointer_enter_serial;
    int sx, sy;
+   Ecore_Wl_Touch_Axis touch_axis[ECORE_WL_TOUCH_MAX];
+   double last_radius_x;
+   double last_radius_y;
+   double last_pressure;
+   double last_angle;
 
    Ecore_Wl_Window *grab;
    unsigned int grab_button;

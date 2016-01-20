@@ -1192,6 +1192,41 @@ _ecore_wl_input_cb_keyboard_leave(void *data, struct wl_keyboard *keyboard EINA_
 }
 
 static void
+_ecore_wl_input_touch_axis_process(Ecore_Wl_Input *input, int id)
+{
+   if (id >= ECORE_WL_TOUCH_MAX)
+      return;
+
+   if (input->last_radius_x)
+     {
+        input->touch_axis[id].radius_x = input->last_radius_x;
+        input->last_radius_x = 0.0;
+     }
+   if (input->last_radius_y)
+     {
+        input->touch_axis[id].radius_y = input->last_radius_y;
+        input->last_radius_y = 0.0;
+     }
+   if (input->last_pressure)
+     {
+        input->touch_axis[id].pressure = input->last_pressure;
+        input->last_pressure = 0.0;
+     }
+   if (input->last_angle)
+     {
+        input->touch_axis[id].angle = input->last_angle;
+        input->last_angle = 0.0;
+     }
+}
+
+static double
+_ecore_wl_input_touch_radius_calc(double x, double y)
+{
+#define PI 3.14159265358979323846
+   return x*y*PI;
+}
+
+static void
 _ecore_wl_input_cb_touch_down(void *data, struct wl_touch *touch EINA_UNUSED, unsigned int serial, unsigned int timestamp, struct wl_surface *surface, int id, wl_fixed_t x, wl_fixed_t y)
 {
    Ecore_Wl_Input *input;
@@ -1208,6 +1243,8 @@ _ecore_wl_input_cb_touch_down(void *data, struct wl_touch *touch EINA_UNUSED, un
    input->display->serial = serial;
    input->sx = wl_fixed_to_int(x);
    input->sy = wl_fixed_to_int(y);
+   _ecore_wl_input_touch_axis_process(input, id);
+
    if (input->touch_focus != win)
      {
         input->touch_focus = win;
@@ -1263,6 +1300,7 @@ _ecore_wl_input_cb_touch_motion(void *data, struct wl_touch *touch EINA_UNUSED, 
    input->timestamp = timestamp;
    input->sx = wl_fixed_to_int(x);
    input->sy = wl_fixed_to_int(y);
+   _ecore_wl_input_touch_axis_process(input, id);
 
    _ecore_wl_input_mouse_move_send(input, input->touch_focus, timestamp, id);
 }
@@ -1346,11 +1384,24 @@ _ecore_wl_input_mouse_move_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, uns
    ev->root.y = input->sy;
    ev->modifiers = input->modifiers;
    ev->multi.device = device;
-   ev->multi.radius = 1;
-   ev->multi.radius_x = 1;
-   ev->multi.radius_y = 1;
-   ev->multi.pressure = 1.0;
-   ev->multi.angle = 0.0;
+   if (device >= ECORE_WL_TOUCH_MAX)
+     {
+        ev->multi.radius = 1.0;
+        ev->multi.radius_x = 1.0;
+        ev->multi.radius_y = 1.0;
+        ev->multi.pressure = 1.0;
+        ev->multi.angle = 0.0;
+     }
+   else
+     {
+        ev->multi.radius =
+           _ecore_wl_input_touch_radius_calc(input->touch_axis[device].radius_x,
+                                             input->touch_axis[device].radius_y);
+        ev->multi.radius_x = input->touch_axis[device].radius_x;
+        ev->multi.radius_y = input->touch_axis[device].radius_y;
+        ev->multi.pressure = input->touch_axis[device].pressure;
+        ev->multi.angle = input->touch_axis[device].angle;
+     }
    ev->multi.x = input->sx;
    ev->multi.y = input->sy;
    ev->multi.root.x = input->sx;
@@ -1527,11 +1578,24 @@ _ecore_wl_input_mouse_down_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, int
      }
 
    ev->multi.device = device;
-   ev->multi.radius = 1;
-   ev->multi.radius_x = 1;
-   ev->multi.radius_y = 1;
-   ev->multi.pressure = 1.0;
-   ev->multi.angle = 0.0;
+   if (device >= ECORE_WL_TOUCH_MAX)
+     {
+        ev->multi.radius = 1.0;
+        ev->multi.radius_x = 1.0;
+        ev->multi.radius_y = 1.0;
+        ev->multi.pressure = 1.0;
+        ev->multi.angle = 0.0;
+     }
+   else
+     {
+        ev->multi.radius =
+           _ecore_wl_input_touch_radius_calc(input->touch_axis[device].radius_x,
+                                             input->touch_axis[device].radius_y);
+        ev->multi.radius_x = input->touch_axis[device].radius_x;
+        ev->multi.radius_y = input->touch_axis[device].radius_y;
+        ev->multi.pressure = input->touch_axis[device].pressure;
+        ev->multi.angle = input->touch_axis[device].angle;
+     }
    ev->multi.x = input->sx;
    ev->multi.y = input->sy;
    ev->multi.root.x = input->sx;
@@ -1613,6 +1677,13 @@ _ecore_wl_input_mouse_up_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, int d
    ev->multi.root.x = input->sx;
    ev->multi.root.y = input->sy;
    ev->dev_name = input->last_device_name;
+   if (device < ECORE_WL_TOUCH_MAX)
+     {
+        input->touch_axis[device].radius_x = 1.0;
+        input->touch_axis[device].radius_y = 1.0;
+        input->touch_axis[device].pressure = 1.0;
+        input->touch_axis[device].angle = 0;
+     }
 
    if (win)
      {
@@ -1859,7 +1930,28 @@ _ecore_wl_input_device_cb_event_device(void *data, struct tizen_input_device *ti
 }
 
 static void
-_ecore_wl_input_device_cb_axis(void *data EINA_UNUSED, struct tizen_input_device *tizen_input_device EINA_UNUSED, uint32_t axis_type EINA_UNUSED, wl_fixed_t value EINA_UNUSED)
+_ecore_wl_input_device_cb_axis(void *data EINA_UNUSED, struct tizen_input_device *tizen_input_device EINA_UNUSED, uint32_t axis_type, wl_fixed_t value)
 {
+   Ecore_Wl_Input *input = _ecore_wl_disp->input;
+   double dvalue = wl_fixed_to_double(value);
+
+   switch (axis_type)
+     {
+        case TIZEN_INPUT_DEVICE_AXIS_TYPE_RADIUS_X:
+           input->last_radius_x = dvalue;
+           break;
+        case TIZEN_INPUT_DEVICE_AXIS_TYPE_RADIUS_Y:
+           input->last_radius_y = dvalue;
+           break;
+        case TIZEN_INPUT_DEVICE_AXIS_TYPE_PRESSURE:
+           input->last_pressure = dvalue;
+           break;
+        case TIZEN_INPUT_DEVICE_AXIS_TYPE_ANGLE:
+           input->last_angle = dvalue;
+           break;
+        default:
+           WRN("Invalid type(%d) is ignored.\n", axis_type);
+           break;
+     }
    return;
 }

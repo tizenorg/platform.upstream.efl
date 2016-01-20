@@ -873,6 +873,16 @@ EAPI const char      *ecore_evas_aux_hint_val_get(const Ecore_Evas *ee, int id);
  * @since 1.15
  */
 EAPI int              ecore_evas_aux_hint_id_get(const Ecore_Evas *ee, const char *hint);
+/**
+ * @brief Query if the ecore evas is obscured or unobscured.
+ *
+ * @param ee The Ecore_Evas
+ * @return EINA_TRUE if the ecore evas is obscured, EINA_FALSE unobscured.
+ * @warning Support for this depends on the underlying windowing system.
+ *
+ * @since 1.16
+ */
+EAPI Eina_Bool        ecore_evas_obscured_get(const Ecore_Evas *ee);
 
 /**
  * @brief Send message to parent ecore

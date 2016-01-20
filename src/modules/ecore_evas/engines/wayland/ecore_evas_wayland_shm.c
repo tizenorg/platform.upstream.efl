@@ -192,6 +192,7 @@ ecore_evas_wayland_shm_new_internal(const char *disp_name, unsigned int parent, 
    ee->prop.sticky = EINA_FALSE;
    ee->prop.draw_frame = frame;
    ee->prop.withdrawn = EINA_TRUE;
+   ee->prop.obscured = EINA_TRUE;
    ee->alpha = EINA_FALSE;
 
    if (getenv("ECORE_EVAS_FORCE_SYNC_RENDER"))

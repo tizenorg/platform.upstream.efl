@@ -2422,6 +2422,18 @@ ecore_evas_aux_hint_id_get(const Ecore_Evas *ee, const char *hint)
    return -1;
 }
 
+EAPI Eina_Bool
+ecore_evas_obscured_get(const Ecore_Evas *ee)
+{
+   if (!ECORE_MAGIC_CHECK(ee, ECORE_MAGIC_EVAS))
+     {
+        ECORE_MAGIC_FAIL(ee, ECORE_MAGIC_EVAS,
+                         "ecore_evas_obscured_get");
+        return -1;
+     }
+   return ee->prop.obscured ? EINA_TRUE : EINA_FALSE;
+}
+
 EAPI void
 ecore_evas_fullscreen_set(Ecore_Evas *ee, Eina_Bool on)
 {

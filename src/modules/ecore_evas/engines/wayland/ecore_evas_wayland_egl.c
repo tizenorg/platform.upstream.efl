@@ -195,6 +195,7 @@ ecore_evas_wayland_egl_options_new_internal(const char *disp_name, unsigned int 
    ee->prop.sticky = EINA_FALSE;
    ee->prop.draw_frame = frame;
    ee->prop.withdrawn = EINA_TRUE;
+   ee->prop.obscured = EINA_TRUE;
    ee->alpha = EINA_FALSE;
 
    /* NB: Disabled for right now as it causes textgrid (terminology) 

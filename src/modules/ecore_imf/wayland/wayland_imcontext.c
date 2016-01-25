@@ -461,9 +461,41 @@ show_input_panel(Ecore_IMF_Context *ctx)
    wl_text_input_activate(imcontext->text_input, seat,
                           ecore_wl_window_surface_get(imcontext->window));
 
+   int layout_variation = ecore_imf_context_input_panel_layout_variation_get (ctx);
+   uint32_t new_purpose = 0;
+   switch (imcontext->content_purpose) {
+      case WL_TEXT_INPUT_CONTENT_PURPOSE_DIGITS:
+         if (layout_variation == ECORE_IMF_INPUT_PANEL_LAYOUT_NUMBERONLY_VARIATION_SIGNED)
+           new_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_DIGITS_SIGNED;
+         else if (layout_variation == ECORE_IMF_INPUT_PANEL_LAYOUT_NUMBERONLY_VARIATION_DECIMAL)
+           new_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_DIGITS_DECIMAL;
+         else if (layout_variation == ECORE_IMF_INPUT_PANEL_LAYOUT_NUMBERONLY_VARIATION_SIGNED_AND_DECIMAL)
+           new_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_DIGITS_SIGNEDDECIMAL;
+         else
+           new_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_DIGITS;
+         break;
+      case WL_TEXT_INPUT_CONTENT_PURPOSE_PASSWORD:
+         if (layout_variation == ECORE_IMF_INPUT_PANEL_LAYOUT_PASSWORD_VARIATION_NUMBERONLY)
+           new_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_PASSWORD_DIGITS;
+         else
+           new_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_PASSWORD;
+         break;
+      case WL_TEXT_INPUT_CONTENT_PURPOSE_NORMAL:
+         if (layout_variation == ECORE_IMF_INPUT_PANEL_LAYOUT_NORMAL_VARIATION_FILENAME)
+           new_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_NORMAL_FILENAME;
+         else if (layout_variation == ECORE_IMF_INPUT_PANEL_LAYOUT_NORMAL_VARIATION_PERSON_NAME)
+           new_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_NORMAL_PERSONNAME;
+         else
+           new_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_NORMAL;
+         break;
+      default :
+         new_purpose = imcontext->content_purpose;
+         break;
+   }
+
    wl_text_input_set_content_type(imcontext->text_input,
                                   imcontext->content_hint,
-                                  imcontext->content_purpose);
+                                  new_purpose);
 
    wl_text_input_set_return_key_type(imcontext->text_input,
                                      imcontext->return_key_type);

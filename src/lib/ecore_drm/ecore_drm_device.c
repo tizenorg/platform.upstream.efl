@@ -348,10 +348,7 @@ _ecore_drm_device_sprd_check(int fd)
    drmFreeVersion(drm_info);
 
    if (drmCtlInstHandler(fd, drmIRQ))
-     {
-        ERR("drmCtlInstHandler fail.");
-        return EINA_FALSE;
-     }
+     WRN("drmCtlInstHandler fail.");
 
    sprd_dev = sprd_device_create(fd);
    if (sprd_dev == NULL)

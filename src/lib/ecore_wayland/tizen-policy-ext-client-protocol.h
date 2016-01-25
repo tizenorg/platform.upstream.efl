@@ -96,9 +96,10 @@ tizen_rotation_add_listener(struct tizen_rotation *tizen_rotation,
 				     (void (**)(void)) listener, data);
 }
 
-#define TIZEN_ROTATION_SET_AVAILABLE_ANGLES	0
-#define TIZEN_ROTATION_SET_PREFERRED_ANGLE	1
-#define TIZEN_ROTATION_ACK_ANGLE_CHANGE	2
+#define TIZEN_ROTATION_DESTROY	0
+#define TIZEN_ROTATION_SET_AVAILABLE_ANGLES	1
+#define TIZEN_ROTATION_SET_PREFERRED_ANGLE	2
+#define TIZEN_ROTATION_ACK_ANGLE_CHANGE	3
 
 static inline void
 tizen_rotation_set_user_data(struct tizen_rotation *tizen_rotation, void *user_data)
@@ -115,6 +116,9 @@ tizen_rotation_get_user_data(struct tizen_rotation *tizen_rotation)
 static inline void
 tizen_rotation_destroy(struct tizen_rotation *tizen_rotation)
 {
+	wl_proxy_marshal((struct wl_proxy *) tizen_rotation,
+			 TIZEN_ROTATION_DESTROY);
+
 	wl_proxy_destroy((struct wl_proxy *) tizen_rotation);
 }
 

@@ -2243,4 +2243,16 @@ _evas_text_efl_gfx_filter_program_set(Eo *obj, Evas_Text_Data *pd EINA_UNUSED, c
    eo_do_super(obj, MY_CLASS, efl_gfx_filter_program_set(code, name));
 }
 
+EAPI void
+evas_object_text_filter_program_set(Eo *obj, const char *code)
+{
+   eo_do(obj, efl_gfx_filter_program_set(code, NULL));
+}
+
+EAPI void
+evas_object_text_filter_source_set(Eo *obj, const char *name, Efl_Gfx_Base *eo_source)
+{
+   eo_do(obj, efl_gfx_filter_source_set(name, eo_source));
+}
+
 #include "canvas/evas_text.eo.c"

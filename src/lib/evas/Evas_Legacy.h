@@ -3190,7 +3190,7 @@ EAPI void evas_object_text_filter_program_set(Eo *obj, const char *code);
  * @param[in] buffer name as used in the program
  * @param[in] source object to use as a proxy source
  */
-EAPI void evas_object_text_filter_source_set(Eo *obj, const char *name, Efl_Gfx_Base *eo_source);
+EAPI void evas_object_text_filter_source_set(Eo *obj, const char *name, Evas_Object *eo_source);
 
 /**
  * @}

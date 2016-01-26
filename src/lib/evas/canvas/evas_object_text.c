@@ -2250,9 +2250,9 @@ evas_object_text_filter_program_set(Eo *obj, const char *code)
 }
 
 EAPI void
-evas_object_text_filter_source_set(Eo *obj, const char *name, Efl_Gfx_Base *eo_source)
+evas_object_text_filter_source_set(Eo *obj, const char *name, Evas_Object *eo_source)
 {
-   eo_do(obj, efl_gfx_filter_source_set(name, eo_source));
+   eo_do(obj, efl_gfx_filter_source_set(name, (Efl_Gfx_Base *)eo_source));
 }
 
 #include "canvas/evas_text.eo.c"

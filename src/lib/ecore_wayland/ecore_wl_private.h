@@ -141,10 +141,16 @@ struct _Ecore_Wl_Window
 # endif
    struct tizen_visibility *tz_visibility;
    struct tizen_position *tz_position;
-   struct tizen_rotation *tz_rotation;
    struct tizen_resource *tz_resource;
    unsigned int resource_id;
-   unsigned int tz_rotation_serial;
+
+   struct
+   {
+      struct tizen_rotation *resource;
+      unsigned int preferred;
+      unsigned int available;
+      unsigned int serial;
+   } tz_rot;
 
    struct xdg_surface *xdg_surface;
    struct xdg_popup *xdg_popup;

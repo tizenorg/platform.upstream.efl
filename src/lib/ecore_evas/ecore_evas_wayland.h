@@ -17,6 +17,9 @@ struct _Ecore_Evas_Interface_Wayland
    void (*aux_hint_change)(Ecore_Evas *ee, int id, const char *val);
    void (*aux_hint_del)(Ecore_Evas *ee, int id);
    void (*supported_aux_hints_get)(Ecore_Evas *ee);
+   void (*input_rect_set)(Ecore_Evas *ee, Eina_Rectangle *input_rect);
+   void (*input_rect_add)(Ecore_Evas *ee, Eina_Rectangle *input_rect);
+   void (*input_rect_subtract)(Ecore_Evas *ee, Eina_Rectangle *input_rect);
 };
 
 #endif

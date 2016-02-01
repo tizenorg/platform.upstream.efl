@@ -796,6 +796,41 @@ EAPI Eina_Bool ecore_wl_window_alpha_get(Ecore_Wl_Window *win);
 EAPI Ecore_Wl_Window *ecore_wl_window_surface_find(struct wl_surface *surface);
 
 /**
+ * Set the input rect of the Ecore_Wl_Window.
+ *
+ * To set an empty rect, pass x and y and width and height as -1, -1, 1, 1.
+ *
+ * @param win The window
+ * @param input_rect The rectangle to be set as input
+ *
+ * @ingroup Ecore_Wl_Window_Group
+ * @since 1.8
+ */
+EAPI void ecore_wl_window_input_rect_set(Ecore_Wl_Window *win, Eina_Rectangle *input_rect);
+
+/**
+ * Add the input rect of the Ecore_Wl_Window.
+ *
+ * @param win The window
+ * @param input_rect The rectangle to be added as input
+ *
+ * @ingroup Ecore_Wl_Window_Group
+ * @since 1.8
+ */
+EAPI void ecore_wl_window_input_rect_add(Ecore_Wl_Window *win, Eina_Rectangle *input_rect);
+
+/**
+ * Subtract the input rect of the Ecore_Wl_Window.
+ *
+ * @param win The window
+ * @param input_rect The rectangle to be subtracted as input
+ *
+ * @ingroup Ecore_Wl_Window_Group
+ * @since 1.8
+ */
+EAPI void ecore_wl_window_input_rect_subtract(Ecore_Wl_Window *win, Eina_Rectangle *input_rect);
+
+/**
  * Set the input region of the Ecore_Wl_Window.
  *
  * To set an empty region, pass width and height as 0.

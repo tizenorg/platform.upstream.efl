@@ -1873,6 +1873,36 @@ _ecore_evas_wayland_pointer_set(Ecore_Evas *ee EINA_UNUSED, int hot_x EINA_UNUSE
 }
 
 static void
+_ecore_evas_wayland_input_rect_set(Ecore_Evas *ee, Eina_Rectangle *input_rect)
+{
+   Ecore_Evas_Engine_Wl_Data *wdata;
+
+   if (!ee) return;
+   wdata = ee->engine.data;
+   ecore_wl_window_input_rect_set(wdata->win, input_rect);
+}
+
+static void
+_ecore_evas_wayland_input_rect_add(Ecore_Evas *ee, Eina_Rectangle *input_rect)
+{
+   Ecore_Evas_Engine_Wl_Data *wdata;
+
+   if (!ee) return;
+   wdata = ee->engine.data;
+   ecore_wl_window_input_rect_add(wdata->win, input_rect);
+}
+
+static void
+_ecore_evas_wayland_input_rect_subtract(Ecore_Evas *ee, Eina_Rectangle *input_rect)
+{
+   Ecore_Evas_Engine_Wl_Data *wdata;
+
+   if (!ee) return;
+   wdata = ee->engine.data;
+   ecore_wl_window_input_rect_subtract(wdata->win, input_rect);
+}
+
+static void
 _ecore_evas_wayland_supported_aux_hints_get(Ecore_Evas *ee)
 {
    Ecore_Evas_Engine_Wl_Data *wdata;
@@ -1932,6 +1962,9 @@ _ecore_evas_wl_interface_new(void)
    iface->aux_hint_change = _ecore_evas_wayland_aux_hint_change;
    iface->aux_hint_del = _ecore_evas_wayland_aux_hint_del;
    iface->supported_aux_hints_get = _ecore_evas_wayland_supported_aux_hints_get;
+   iface->input_rect_set = _ecore_evas_wayland_input_rect_set;
+   iface->input_rect_add = _ecore_evas_wayland_input_rect_add;
+   iface->input_rect_subtract = _ecore_evas_wayland_input_rect_subtract;
 
 #ifdef BUILD_ECORE_EVAS_WAYLAND_EGL
    iface->pre_post_swap_callback_set = 

@@ -431,7 +431,8 @@ ecore_wl_window_free(Ecore_Wl_Window *win)
    if (win->role) eina_stringshare_del(win->role);
 
    _ecore_wl_window_aux_hint_free(win);
-
+   if (win->input_region) wl_region_destroy(win->input_region);
+   win->input_region = NULL;
    /* HMMM, why was this disabled ? */
    free(win);
 }
@@ -1061,6 +1062,70 @@ ecore_wl_window_surface_find(struct wl_surface *surface)
    eina_iterator_free(itr);
 
    return win;
+}
+
+EAPI void
+ecore_wl_window_input_rect_set(Ecore_Wl_Window *win, Eina_Rectangle *input_rect)
+{
+   Eina_Bool unset = EINA_FALSE;
+   if (!win) return;
+   if (!input_rect) return;
+   if (win->input_region)
+     wl_region_destroy(win->input_region);
+
+   win->input.x = input_rect->x;
+   win->input.y = input_rect->y;
+   win->input.w = input_rect->w;
+   win->input.h = input_rect->h;
+
+   if (win->type != ECORE_WL_WINDOW_TYPE_DND)
+     {
+        struct wl_region *region;
+        region = wl_compositor_create_region(_ecore_wl_compositor_get());
+        if (!region) return;
+
+        wl_region_add(region, input_rect->x, input_rect->y, input_rect->w, input_rect->h);
+        wl_surface_set_input_region(win->surface, region);
+        wl_region_destroy(region);
+     }
+}
+
+EAPI void
+ecore_wl_window_input_rect_add(Ecore_Wl_Window *win, Eina_Rectangle *input_rect)
+{
+   if (!win) return;
+   if (!input_rect) return;
+   if (input_rect->x < 0 || input_rect->y < 0) return;
+
+   if (win->type != ECORE_WL_WINDOW_TYPE_DND)
+     {
+        if (!win->input_region)
+          {
+             struct wl_region *region;
+             region = wl_compositor_create_region(_ecore_wl_compositor_get());
+             if (!region) return;
+
+             win->input_region = region;
+          }
+
+        wl_region_add(win->input_region, input_rect->x, input_rect->y, input_rect->w, input_rect->h);
+        wl_surface_set_input_region(win->surface, win->input_region);
+     }
+}
+
+EAPI void
+ecore_wl_window_input_rect_subtract(Ecore_Wl_Window *win, Eina_Rectangle *input_rect)
+{
+   if (!win) return;
+   if (!input_rect) return;
+   if (input_rect->x < 0 || input_rect->y < 0) return;
+   if (!win->input_region) return;
+
+   if (win->type != ECORE_WL_WINDOW_TYPE_DND)
+     {
+        wl_region_subtract(win->input_region, input_rect->x, input_rect->y, input_rect->w, input_rect->h);
+        wl_surface_set_input_region(win->surface, win->input_region);
+     }
 }
 
 /* @since 1.8 */

@@ -214,6 +214,7 @@ struct _Ecore_Wl_Window
      } rotation_geometry_hints[4];
 
       Eina_List      *supported_aux_hints;
+      struct wl_region *input_region;
 
    /* Eina_Bool redraw_scheduled : 1; */
    /* Eina_Bool resize_scheduled : 1; */

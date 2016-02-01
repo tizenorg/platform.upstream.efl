@@ -874,6 +874,36 @@ EAPI const char      *ecore_evas_aux_hint_val_get(const Ecore_Evas *ee, int id);
  */
 EAPI int              ecore_evas_aux_hint_id_get(const Ecore_Evas *ee, const char *hint);
 /**
+ * @brief Set an input rect of surface.
+ *
+ * @param ee The Ecore_Evas
+ * @param input_rect The rect of input to be set
+ * @warning Support for this depends on the underlying windowing system.
+ *
+ * @since 1.16
+ */
+EAPI void             ecore_evas_input_rect_set(Ecore_Evas *ee, Eina_Rectangle *input_rect);
+/**
+ * @brief Set an input rect of surface.
+ *
+ * @param ee The Ecore_Evas
+ * @param input_rect The rect of input to be added
+ * @warning Support for this depends on the underlying windowing system.
+ *
+ * @since 1.16
+ */
+EAPI void             ecore_evas_input_rect_add(Ecore_Evas *ee, Eina_Rectangle *input_rect);
+/**
+ * @brief Set an input rect of surface.
+ *
+ * @param ee The Ecore_Evas
+ * @param input_rect The rect of input to be subtracted
+ * @warning Support for this depends on the underlying windowing system.
+ *
+ * @since 1.16
+ */
+EAPI void             ecore_evas_input_rect_subtract(Ecore_Evas *ee, Eina_Rectangle *input_rect);
+/**
  * @brief Query if the ecore evas is obscured or unobscured.
  *
  * @param ee The Ecore_Evas

@@ -1176,11 +1176,14 @@ EAPI void wayland_im_context_autocapital_type_set(Ecore_IMF_Context *ctx,
    WaylandIMContext *imcontext = (WaylandIMContext *)ecore_imf_context_data_get(ctx);
 
    imcontext->content_hint &= ~(WL_TEXT_INPUT_CONTENT_HINT_AUTO_CAPITALIZATION |
+                                WL_TEXT_INPUT_CONTENT_HINT_WORD_CAPITALIZATION |
                                 WL_TEXT_INPUT_CONTENT_HINT_UPPERCASE |
                                 WL_TEXT_INPUT_CONTENT_HINT_LOWERCASE);
 
    if (autocapital_type == ECORE_IMF_AUTOCAPITAL_TYPE_SENTENCE)
      imcontext->content_hint |= WL_TEXT_INPUT_CONTENT_HINT_AUTO_CAPITALIZATION;
+   else if (autocapital_type == ECORE_IMF_AUTOCAPITAL_TYPE_WORD)
+     imcontext->content_hint |= WL_TEXT_INPUT_CONTENT_HINT_WORD_CAPITALIZATION;
    else if (autocapital_type == ECORE_IMF_AUTOCAPITAL_TYPE_ALLCHARACTER)
      imcontext->content_hint |= WL_TEXT_INPUT_CONTENT_HINT_UPPERCASE;
    else

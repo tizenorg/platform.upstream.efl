@@ -1363,6 +1363,9 @@ wayland_im_context_input_panel_imdata_set(Ecore_IMF_Context *ctx, const void *da
    imcontext->imdata = calloc(1, length);
    memcpy(imcontext->imdata, data, length);
    imcontext->imdata_size = length;
+
+   if (imcontext->input && (imcontext->imdata_size > 0))
+     wl_text_input_set_input_panel_data(imcontext->text_input, (const char *)imcontext->imdata, imcontext->imdata_size);
 }
 
 WaylandIMContext *wayland_im_context_new (struct wl_text_input_manager *text_input_manager)

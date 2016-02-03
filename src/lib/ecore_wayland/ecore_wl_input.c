@@ -93,7 +93,7 @@ static void _ecore_wl_input_mouse_wheel_send(Ecore_Wl_Input *input, unsigned int
 static Ecore_Wl_Mouse_Down_Info *_ecore_wl_mouse_down_info_get(int dev);
 static void _ecore_wl_input_device_manager_cb_device_add(void *data EINA_UNUSED, struct tizen_input_device_manager *tizen_input_device_manager EINA_UNUSED, unsigned int serial EINA_UNUSED, const char *name, struct tizen_input_device *device, struct wl_seat *seat);
 static void _ecore_wl_input_device_manager_cb_device_remove(void *data EINA_UNUSED, struct tizen_input_device_manager *tizen_input_device_manager EINA_UNUSED, unsigned int serial EINA_UNUSED, const char *name, struct tizen_input_device *device, struct wl_seat *seat);
-static void _ecore_wl_input_device_cb_device_info(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, uint32_t class, uint32_t subclass, struct wl_array *axes EINA_UNUSED);
+static void _ecore_wl_input_device_cb_device_info(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, uint32_t clas, uint32_t subclas, struct wl_array *axes EINA_UNUSED);
 static void _ecore_wl_input_device_cb_event_device(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, unsigned int serial EINA_UNUSED, const char *name EINA_UNUSED, uint32_t time EINA_UNUSED);
 static void _ecore_wl_input_device_cb_axis(void *data EINA_UNUSED, struct tizen_input_device *tizen_input_device EINA_UNUSED, uint32_t axis_type EINA_UNUSED, wl_fixed_t value EINA_UNUSED);
 
@@ -1901,13 +1901,13 @@ _ecore_wl_input_device_manager_cb_device_remove(void *data EINA_UNUSED, struct t
 }
 
 static void
-_ecore_wl_input_device_cb_device_info(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, uint32_t class, uint32_t subclass, struct wl_array *axes EINA_UNUSED)
+_ecore_wl_input_device_cb_device_info(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, uint32_t clas, uint32_t subclas, struct wl_array *axes EINA_UNUSED)
 {
    Ecore_Wl_Input_Device *dev;
 
    if (!(dev = data)) return;
-   dev->clas = class;
-   dev->subclas = subclass;
+   dev->clas = clas;
+   dev->subclas = subclas;
 
    if (!dev->identifier) return;
    _ecore_wl_input_device_info_broadcast(dev->identifier, dev->identifier, dev->clas, EINA_TRUE);

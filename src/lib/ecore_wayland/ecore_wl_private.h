@@ -243,8 +243,8 @@ struct _Ecore_Wl_Input_Device
    struct tizen_input_device *tz_device;
    const char *name;
    const char *identifier;
-   enum tizen_input_device_class clas;
-   enum tizen_input_device_subclass subclas;
+   enum tizen_input_device_clas clas;
+   enum tizen_input_device_subclas subclas;
    struct wl_seat *seat;
 };
 

@@ -1307,8 +1307,8 @@ wayland_im_context_input_panel_return_key_type_set(Ecore_IMF_Context *ctx,
    imcontext->return_key_type = return_key_type;
 
    if (imcontext->input && imcontext->text_input)
-     wl_text_input_set_return_key_type_set(imcontext->text_input,
-                                           imcontext->return_key_type);
+     wl_text_input_set_return_key_type(imcontext->text_input,
+                                       imcontext->return_key_type);
 }
 
 EAPI void

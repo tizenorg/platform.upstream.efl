@@ -1909,7 +1909,7 @@ _format_command(Evas_Object *eo_obj, Evas_Object_Textblock_Format *fmt, const ch
          * the hyphenation dictionaries on-demand. */
         if (fmt->wrap_hyphenation)
           {
-             _dicts_hyphen_update(eo_obj);
+             _dicts_hyphen_init(eo_obj);
           }
 #endif
 
@@ -12570,7 +12570,7 @@ evas_object_textblock_free(Evas_Object *eo_obj)
   /* Hyphenation */
   if (o->hyphenating)
     {
-       _dicts_hyphen_detach();
+       _dicts_hyphen_detach(eo_obj);
     }
 #endif
 }

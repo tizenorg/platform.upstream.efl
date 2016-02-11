@@ -58,6 +58,7 @@ BuildRequires:  curl-devel
 BuildRequires:  pkgconfig(vconf)
 BuildRequires:  pkgconfig(xkbcommon)
 BuildRequires:  systemd-devel
+BuildRequires:  pkgconfig(ttrace)
 
 #eldbus
 BuildRequires:  dbus-devel

@@ -278,9 +278,19 @@ _device_handle_key(struct libinput_device *device, struct libinput_event_keyboar
    Ecore_Event_Key *e;
    char *tmp = NULL, *compose = NULL;
 
-   if (!(edev = libinput_device_get_user_data(device))) return;
+   TRACE_BEGIN(_device_handle_key);
 
-   if (!(input = edev->seat->input)) return;
+   if (!(edev = libinput_device_get_user_data(device)))
+     {
+        TRACE_END();
+        return;
+     }
+
+   if (!(input = edev->seat->input))
+     {
+        TRACE_END();
+        return;
+     }
 
    timestamp = libinput_event_keyboard_get_time(event);
    code = libinput_event_keyboard_get_key(event);
@@ -291,7 +301,10 @@ _device_handle_key(struct libinput_device *device, struct libinput_event_keyboar
    /* ignore key events that are not seat wide state changes */
    if (((state == LIBINPUT_KEY_STATE_PRESSED) && (key_count != 1)) ||
        ((state == LIBINPUT_KEY_STATE_RELEASED) && (key_count != 0)))
-     return;
+     {
+        TRACE_END();
+        return;
+     }
 
    xkb_state_update_key(edev->xkb.state, code, 
                         (state ? XKB_KEY_DOWN : XKB_KEY_UP));
@@ -338,7 +351,11 @@ _device_handle_key(struct libinput_device *device, struct libinput_event_keyboar
 
    e = calloc(1, sizeof(Ecore_Event_Key) + strlen(key) + strlen(keyname) +
               ((compose[0] != '\0') ? strlen(compose) : 0) + 3);
-   if (!e) return;
+   if (!e)
+     {
+        TRACE_END();
+        return;
+     }
 
    e->keyname = (char *)(e + 1);
    e->key = e->keyname + strlen(keyname) + 1;
@@ -368,6 +385,7 @@ _device_handle_key(struct libinput_device *device, struct libinput_event_keyboar
      ecore_event_add(ECORE_EVENT_KEY_UP, e, NULL, NULL);
 
    if (tmp) free(tmp);
+   TRACE_END();
 }
 
 static void 
@@ -427,7 +445,13 @@ _device_handle_pointer_motion(struct libinput_device *device, struct libinput_ev
 {
    Ecore_Drm_Evdev *edev;
 
-   if (!(edev = libinput_device_get_user_data(device))) return;
+   TRACE_BEGIN(_device_handle_pointer_motion);
+
+   if (!(edev = libinput_device_get_user_data(device)))
+     {
+        TRACE_END();
+        return;
+     }
 
    edev->seat->ptr.dx += libinput_event_pointer_get_dx(event);
    edev->seat->ptr.dy += libinput_event_pointer_get_dy(event);
@@ -436,11 +460,17 @@ _device_handle_pointer_motion(struct libinput_device *device, struct libinput_ev
    edev->mouse.dy = edev->seat->ptr.dy;
 
    if (floor(edev->seat->ptr.dx) == edev->seat->ptr.ix &&
-       floor(edev->seat->ptr.dy) == edev->seat->ptr.iy) return;
+       floor(edev->seat->ptr.dy) == edev->seat->ptr.iy)
+     {
+        TRACE_END();
+        return;
+     }
 
    edev->seat->ptr.ix = edev->seat->ptr.dx;
    edev->seat->ptr.iy = edev->seat->ptr.dy;
   _device_pointer_motion(edev, event);
+
+  TRACE_END();
 }
 
 static void 
@@ -448,7 +478,13 @@ _device_handle_pointer_motion_absolute(struct libinput_device *device, struct li
 {
    Ecore_Drm_Evdev *edev;
 
-   if (!(edev = libinput_device_get_user_data(device))) return;
+   TRACE_BEGIN(_device_handle_pointer_motion_absolute);
+
+   if (!(edev = libinput_device_get_user_data(device)))
+     {
+        TRACE_END();
+        return;
+     }
 
    edev->mouse.dx = edev->seat->ptr.dx =
      libinput_event_pointer_get_absolute_x_transformed(event,
@@ -458,11 +494,17 @@ _device_handle_pointer_motion_absolute(struct libinput_device *device, struct li
                                                        edev->output->current_mode->height);
 
    if (floor(edev->seat->ptr.dx) == edev->seat->ptr.ix &&
-       floor(edev->seat->ptr.dy) == edev->seat->ptr.iy) return;
+       floor(edev->seat->ptr.dy) == edev->seat->ptr.iy)
+     {
+        TRACE_END();
+        return;
+     }
 
    edev->seat->ptr.ix = edev->seat->ptr.dx;
    edev->seat->ptr.iy = edev->seat->ptr.dy;
    _device_pointer_motion(edev, event);
+
+   TRACE_END();
 }
 
 static void 
@@ -474,10 +516,24 @@ _device_handle_button(struct libinput_device *device, struct libinput_event_poin
    enum libinput_button_state state;
    uint32_t button, timestamp;
 
-   if (!(edev = libinput_device_get_user_data(device))) return;
-   if (!(input = edev->seat->input)) return;
+   TRACE_BEGIN(_device_handle_button);
 
-   if (!(ev = calloc(1, sizeof(Ecore_Event_Mouse_Button)))) return;
+   if (!(edev = libinput_device_get_user_data(device)))
+     {
+        TRACE_END();
+        return;
+     }
+   if (!(input = edev->seat->input))
+     {
+        TRACE_END();
+        return;
+     }
+
+   if (!(ev = calloc(1, sizeof(Ecore_Event_Mouse_Button))))
+     {
+        TRACE_END();
+        return;
+     }
 
    state = libinput_event_pointer_get_button_state(event);
    button = libinput_event_pointer_get_button(event);
@@ -552,6 +608,8 @@ _device_handle_button(struct libinput_device *device, struct libinput_event_poin
      ecore_event_add(ECORE_EVENT_MOUSE_BUTTON_DOWN, ev, NULL, NULL);
    else
      ecore_event_add(ECORE_EVENT_MOUSE_BUTTON_UP, ev, NULL, NULL);
+
+   TRACE_END();
 }
 
 static void 
@@ -563,10 +621,24 @@ _device_handle_axis(struct libinput_device *device, struct libinput_event_pointe
    uint32_t timestamp;
    enum libinput_pointer_axis axis;
 
-   if (!(edev = libinput_device_get_user_data(device))) return;
-   if (!(input = edev->seat->input)) return;
+   TRACE_BEGIN(_device_handle_axis);
 
-   if (!(ev = calloc(1, sizeof(Ecore_Event_Mouse_Wheel)))) return;
+   if (!(edev = libinput_device_get_user_data(device)))
+     {
+        TRACE_END();
+        return;
+     }
+   if (!(input = edev->seat->input))
+     {
+        TRACE_END();
+        return;
+     }
+
+   if (!(ev = calloc(1, sizeof(Ecore_Event_Mouse_Wheel))))
+     {
+        TRACE_END();
+        return;
+     }
 
    timestamp = libinput_event_pointer_get_time(event);
 
@@ -603,6 +675,7 @@ _device_handle_axis(struct libinput_device *device, struct libinput_event_pointe
 #endif
 
    ecore_event_add(ECORE_EVENT_MOUSE_WHEEL, ev, NULL, NULL);
+   TRACE_END();
 }
 
 Ecore_Drm_Evdev *
@@ -829,7 +902,13 @@ _device_handle_touch_down(struct libinput_device *device, struct libinput_event_
 {
    Ecore_Drm_Evdev *edev;
 
-   if (!(edev = libinput_device_get_user_data(device))) return;
+   TRACE_BEGIN(_device_handle_touch_down);
+
+   if (!(edev = libinput_device_get_user_data(device)))
+     {
+        TRACE_END();
+        return;
+     }
 
    edev->mouse.dx = edev->seat->ptr.ix = edev->seat->ptr.dx =
      libinput_event_touch_get_x_transformed(event, edev->output->current_mode->width);
@@ -840,6 +919,8 @@ _device_handle_touch_down(struct libinput_device *device, struct libinput_event_
 
    _device_handle_touch_motion_send(edev, event);
    _device_handle_touch_event_send(edev, event, ECORE_EVENT_MOUSE_BUTTON_DOWN);
+
+   TRACE_END();
 }
 
 static void
@@ -847,7 +928,13 @@ _device_handle_touch_motion(struct libinput_device *device, struct libinput_even
 {
    Ecore_Drm_Evdev *edev;
 
-   if (!(edev = libinput_device_get_user_data(device))) return;
+   TRACE_BEGIN(_device_handle_touch_motion);
+
+   if (!(edev = libinput_device_get_user_data(device)))
+     {
+        TRACE_END();
+        return;
+     }
 
    edev->mouse.dx = edev->seat->ptr.dx =
      libinput_event_touch_get_x_transformed(event, edev->output->current_mode->width);
@@ -855,7 +942,11 @@ _device_handle_touch_motion(struct libinput_device *device, struct libinput_even
      libinput_event_touch_get_y_transformed(event, edev->output->current_mode->height);
 
    if (floor(edev->seat->ptr.dx) == edev->seat->ptr.ix &&
-       floor(edev->seat->ptr.dy) == edev->seat->ptr.iy) return;
+       floor(edev->seat->ptr.dy) == edev->seat->ptr.iy)
+     {
+        TRACE_END();
+        return;
+     }
 
    edev->seat->ptr.ix = edev->seat->ptr.dx;
    edev->seat->ptr.iy = edev->seat->ptr.dy;
@@ -863,6 +954,7 @@ _device_handle_touch_motion(struct libinput_device *device, struct libinput_even
    edev->mt_slot = libinput_event_touch_get_seat_slot(event);
 
    _device_handle_touch_motion_send(edev, event);
+   TRACE_END();
 }
 
 static void 
@@ -870,11 +962,18 @@ _device_handle_touch_up(struct libinput_device *device, struct libinput_event_to
 {
    Ecore_Drm_Evdev *edev;
 
-   if (!(edev = libinput_device_get_user_data(device))) return;
+   TRACE_BEGIN(_device_handle_touch_up);
+
+   if (!(edev = libinput_device_get_user_data(device)))
+     {
+        TRACE_END();
+        return;
+     }
 
    edev->mt_slot = libinput_event_touch_get_seat_slot(event);
 
    _device_handle_touch_event_send(edev, event, ECORE_EVENT_MOUSE_BUTTON_UP);
+   TRACE_END();
 }
 
 static void 

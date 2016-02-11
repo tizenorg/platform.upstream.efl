@@ -151,6 +151,8 @@ _device_added(Ecore_Drm_Input *input, struct libinput_device *device)
    Ecore_Drm_Evdev *edev;
    Ecore_Drm_Event_Input_Device_Add *ev;
 
+   TRACE_BEGIN(_device_added);
+
    libinput_seat = libinput_device_get_seat(device);
    seat_name = libinput_seat_get_logical_name(libinput_seat);
 
@@ -158,6 +160,7 @@ _device_added(Ecore_Drm_Input *input, struct libinput_device *device)
    if (!(seat = _seat_get(input, seat_name)))
      {
         ERR("Could not get matching seat: %s", seat_name);
+        TRACE_END();
         return;
      }
 
@@ -165,6 +168,7 @@ _device_added(Ecore_Drm_Input *input, struct libinput_device *device)
    if (!(edev = _ecore_drm_evdev_device_create(seat, device)))
      {
         ERR("Failed to create new evdev device");
+        TRACE_END();
         return;
      }
 
@@ -174,7 +178,11 @@ _device_added(Ecore_Drm_Input *input, struct libinput_device *device)
    seat->devices = eina_list_append(seat->devices, edev);
 
    ev = calloc(1, sizeof(Ecore_Drm_Event_Input_Device_Add));
-   if (!ev) return;
+   if (!ev)
+     {
+        TRACE_END();
+        return;
+     }
 
    ev->name = eina_stringshare_add(libinput_device_get_name(device));
    ev->sysname = eina_stringshare_add(edev->path);
@@ -188,6 +196,8 @@ _device_added(Ecore_Drm_Input *input, struct libinput_device *device)
 
    if (input->dev->window != 0)
      _ecore_drm_device_info_send(input->dev->window, edev, EINA_TRUE);
+
+   TRACE_END();
 }
 
 static void 
@@ -196,12 +206,21 @@ _device_removed(Ecore_Drm_Input *input, struct libinput_device *device)
    Ecore_Drm_Evdev *edev;
    Ecore_Drm_Event_Input_Device_Del *ev;
 
+   TRACE_BEGIN(_device_removed);
+
    /* try to get the evdev structure */
    if (!(edev = libinput_device_get_user_data(device)))
-     return;
+     {
+        TRACE_END();
+        return;
+     }
 
    ev = calloc(1, sizeof(Ecore_Drm_Event_Input_Device_Del));
-   if (!ev) return;
+   if (!ev)
+     {
+        TRACE_END();
+        return;
+     }
 
    ev->name = eina_stringshare_add(libinput_device_get_name(device));
    ev->sysname = eina_stringshare_add(edev->path);
@@ -228,6 +247,8 @@ _device_removed(Ecore_Drm_Input *input, struct libinput_device *device)
 
    /* destroy this evdev */
    _ecore_drm_evdev_device_destroy(edev);
+
+   TRACE_END();
 }
 
 static int 
@@ -307,9 +328,14 @@ ecore_drm_inputs_create(Ecore_Drm_Device *dev)
    /* check for valid device */
    EINA_SAFETY_ON_NULL_RETURN_VAL(dev, EINA_FALSE);
 
+   TRACE_BEGIN(ecore_drm_inputs_create);
+
    /* try to allocate space for new input structure */
    if (!(input = calloc(1, sizeof(Ecore_Drm_Input))))
-     return EINA_FALSE;
+     {
+        TRACE_END();
+        return EINA_FALSE;
+     }
 
    /* set reference for parent device */
    input->dev = dev;
@@ -346,11 +372,13 @@ ecore_drm_inputs_create(Ecore_Drm_Device *dev)
    /* append this input */
    dev->inputs = eina_list_append(dev->inputs, input);
 
+   TRACE_END();
    return EINA_TRUE;
 
 err:
    if (input->libinput) libinput_unref(input->libinput);
    free(input);
+   TRACE_END();
    return EINA_FALSE;
 }
 

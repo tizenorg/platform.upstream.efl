@@ -32,6 +32,16 @@
 # include <Eldbus.h>
 # include <Ecore_Drm.h>
 
+# ifdef ENABLE_TTRACE
+#  include <ttrace.h>
+
+#  define TRACE_BEGIN(NAME) traceBegin(TTRACE_TAG_INPUT, "INPUT:ECORE_DRM:"#NAME)
+#  define TRACE_END() traceEnd(TTRACE_TAG_INPUT)
+# else
+#  define TRACE_BEGIN(NAME)
+#  define TRACE_END()
+# endif
+
 # define NUM_FRAME_BUFFERS 2
 
 # ifndef DRM_MAJOR

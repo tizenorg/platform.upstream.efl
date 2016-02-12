@@ -131,6 +131,7 @@ struct _Ecore_Drm_Output
 
    Ecore_Drm_Output_Mode *current_mode;
    Eina_List *modes;
+   int dpms_level;
 
    unsigned char *edid_blob;
 

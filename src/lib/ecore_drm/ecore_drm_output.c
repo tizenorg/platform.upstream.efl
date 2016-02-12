@@ -1240,6 +1240,15 @@ ecore_drm_output_dpms_set(Ecore_Drm_Output *output, int level)
 
    drmModeConnectorSetProperty(output->dev->drm.fd, output->conn_id,
                                output->dpms->prop_id, level);
+   output->dpms_level = level;
+}
+
+EAPI int
+ecore_drm_output_dpms_get(Ecore_Drm_Output *output)
+{
+   EINA_SAFETY_ON_NULL_RETURN_VAL(output, -1);
+
+   return output->dpms_level;
 }
 
 EAPI void

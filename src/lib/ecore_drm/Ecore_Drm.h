@@ -1018,6 +1018,7 @@ EAPI Eina_Bool ecore_drm_evdev_key_remap_set(Ecore_Drm_Evdev *edev, int *from_ke
 
 typedef void (*Ecore_Drm_VBlank_Cb)(void *data);
 EAPI Eina_Bool  ecore_drm_output_wait_vblank(Ecore_Drm_Output *output, int interval, Ecore_Drm_VBlank_Cb func, void *data);
+EAPI int ecore_drm_output_dpms_get(Ecore_Drm_Output *output);
 
 /* This is ugly, will remove after rebaseing on 1.14 */
 EAPI unsigned int ecore_drm_output_crtc_id_get(Ecore_Drm_Output *output);

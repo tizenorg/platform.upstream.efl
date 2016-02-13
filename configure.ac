@@ -3211,13 +3211,7 @@ EFL_INTERNAL_DEPEND_PKG([ECORE_DRM], [eeze])
 EFL_INTERNAL_DEPEND_PKG([ECORE_DRM], [eo])
 EFL_INTERNAL_DEPEND_PKG([ECORE_DRM], [eina])
 
-PKG_CHECK_MODULES(DRM, libdrm_sprd, [HAVE_SPRD=yes], [HAVE_SPRD=no])
-if test "x$HAVE_SPRD" = xyes; then
-	EFL_DEPEND_PKG([ECORE_DRM], [DRM], [libdrm >= 2.4 libdrm_sprd xkbcommon >= 0.3.0 gbm])
-else
-	EFL_DEPEND_PKG([ECORE_DRM], [DRM], [libdrm >= 2.4 xkbcommon >= 0.3.0 gbm])
-fi
-
+EFL_DEPEND_PKG([ECORE_DRM], [DRM], [libdrm >= 2.4 xkbcommon >= 0.3.0 gbm])
 EFL_DEPEND_PKG([ECORE_DRM], [LIBINPUT], [libinput >= 0.6.0])
 
 # API change from 0.7 to 0.8. So we define this to support both for now.

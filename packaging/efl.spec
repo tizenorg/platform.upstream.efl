@@ -672,11 +672,11 @@ Development files for elua
 %setup -q
 cp %{SOURCE1001} .
 
-%build
-
 %if ("%{?tizen_target_name}" == "TM1")
 CFLAGS+=" -DECORE_DRM_DEVICE_SUPPORT_SPRD "
 %endif
+
+%build
 
 %if ! %{with x}
 CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "

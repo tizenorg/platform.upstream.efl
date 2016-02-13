@@ -10,6 +10,8 @@
        ((x) >= (xx)) && ((y) >= (yy)))
 
 static Eina_List *drm_devices;
+
+#ifndef HAVE_TDM
 static int flip_count = 0;
 
 static void 
@@ -93,6 +95,7 @@ _ecore_drm_device_cb_event(void *data, Ecore_Fd_Handler *hdlr EINA_UNUSED)
 
    return ECORE_CALLBACK_RENEW;
 }
+#endif
 
 #if 0
 static Eina_Bool 
@@ -328,6 +331,47 @@ ecore_drm_device_free(Ecore_Drm_Device *dev)
 EAPI Eina_Bool 
 ecore_drm_device_open(Ecore_Drm_Device *dev)
 {
+#ifdef HAVE_TDM
+   int events = 0;
+   drmVersionPtr ver;
+
+   /* check for valid device */
+   if ((!dev) || (!dev->drm.name)) return EINA_FALSE;
+
+   TRACE_EFL_BEGIN(Device_Open);
+
+   dev->drm.fd = -1;
+   if (!_ecore_drm_display_init(dev))
+     {
+        TRACE_EFL_END();
+        return EINA_FALSE;
+     }
+
+   if ((ver = drmGetVersion(ecore_drm_device_fd_get(dev))))
+     {
+        drmFreeVersion(ver);
+        dev->drm.fd = ecore_drm_device_fd_get(dev);
+     }
+
+   /* try to create xkb context */
+   if (!(dev->xkb_ctx = _ecore_drm_device_cached_context_get(0)))
+     {
+        ERR("Failed to create xkb context: %m");
+        TRACE_EFL_END();
+        return EINA_FALSE;
+     }
+
+   events = (EEZE_UDEV_EVENT_ADD | EEZE_UDEV_EVENT_REMOVE |
+             EEZE_UDEV_EVENT_CHANGE);
+
+   dev->watch =
+     eeze_udev_watch_add(EEZE_UDEV_TYPE_DRM, events,
+                         _ecore_drm_device_cb_output_event, dev);
+
+   TRACE_EFL_END();
+
+   return EINA_TRUE;
+#else
    uint64_t caps;
    int events = 0;
    drmVersionPtr ver;
@@ -405,6 +449,7 @@ ecore_drm_device_open(Ecore_Drm_Device *dev)
    /*   ecore_idle_enterer_add(_ecore_drm_device_cb_idle, dev); */
 
    return EINA_TRUE;
+#endif
 }
 
 EAPI Eina_Bool 
@@ -422,7 +467,13 @@ ecore_drm_device_close(Ecore_Drm_Device *dev)
    if (dev->drm.hdlr) ecore_main_fd_handler_del(dev->drm.hdlr);
    dev->drm.hdlr = NULL;
 
+#ifdef HAVE_TDM
+   /* when we use TDM, dev->drm.fd comes from TDM. It will close in TDM. */
+   dev->drm.fd = -1;
+#endif
    _ecore_drm_launcher_device_close(dev->drm.name, dev->drm.fd);
+
+   _ecore_drm_display_destroy(dev);
 
    /* reset device fd */
    dev->drm.fd = -1;
@@ -441,6 +492,12 @@ ecore_drm_device_master_get(Ecore_Drm_Device *dev)
 {
    drm_magic_t mag;
 
+#ifdef HAVE_TDM
+   drmVersionPtr ver = drmGetVersion(ecore_drm_device_fd_get(dev));
+   if (ver) drmFreeVersion(ver);
+   else return EINA_TRUE;
+#endif
+
    /* check for valid device */
    if ((!dev) || (dev->drm.fd < 0)) return EINA_FALSE;
 
@@ -455,6 +512,12 @@ ecore_drm_device_master_get(Ecore_Drm_Device *dev)
 EAPI Eina_Bool 
 ecore_drm_device_master_set(Ecore_Drm_Device *dev)
 {
+#ifdef HAVE_TDM
+   drmVersionPtr ver = drmGetVersion(ecore_drm_device_fd_get(dev));
+   if (ver) drmFreeVersion(ver);
+   else return EINA_TRUE;
+#endif
+
    /* check for valid device */
    if ((!dev) || (dev->drm.fd < 0)) return EINA_FALSE;
 
@@ -468,6 +531,12 @@ ecore_drm_device_master_set(Ecore_Drm_Device *dev)
 EAPI Eina_Bool 
 ecore_drm_device_master_drop(Ecore_Drm_Device *dev)
 {
+#ifdef HAVE_TDM
+   drmVersionPtr ver = drmGetVersion(ecore_drm_device_fd_get(dev));
+   if (ver) drmFreeVersion(ver);
+   else return EINA_TRUE;
+#endif
+
    /* check for valid device */
    if ((!dev) || (dev->drm.fd < 0)) return EINA_FALSE;
 
@@ -482,6 +551,11 @@ EAPI int
 ecore_drm_device_fd_get(Ecore_Drm_Device *dev)
 {
    EINA_SAFETY_ON_NULL_RETURN_VAL(dev, -1);
+
+#ifdef HAVE_TDM
+   return _ecore_drm_display_get_fd(dev);
+#endif
+
    return dev->drm.fd;
 }
 
@@ -509,6 +583,12 @@ ecore_drm_device_name_get(Ecore_Drm_Device *dev)
 {
    /* check for valid device */
    EINA_SAFETY_ON_TRUE_RETURN_VAL((!dev) || (dev->drm.fd < 0), NULL);
+
+#ifdef HAVE_TDM
+   /* Do we have to get drm.name from TDM? drm.path also? possible?
+    * I guess no.
+    */
+#endif
 
    return dev->drm.name;
 }

@@ -5,6 +5,7 @@
 #include "ecore_drm_private.h"
 #include <ctype.h>
 
+#ifndef HAVE_TDM
 #define EDID_DESCRIPTOR_ALPHANUMERIC_DATA_STRING 0xfe
 #define EDID_DESCRIPTOR_DISPLAY_PRODUCT_NAME 0xfc
 #define EDID_DESCRIPTOR_DISPLAY_PRODUCT_SERIAL_NUMBER 0xff
@@ -20,6 +21,7 @@ static const char *conn_types[] =
    "DisplayPort", "HDMI-A", "HDMI-B", "TV", "eDP", "Virtual",
    "DSI",
 };
+#endif
 
 EAPI int ECORE_DRM_EVENT_OUTPUT = 0;
 
@@ -34,7 +36,7 @@ _ecore_drm_output_event_free(void *data EINA_UNUSED, void *event)
    free(event);
 }
 
-static void
+void
 _ecore_drm_output_event_send(const Ecore_Drm_Output *output, Eina_Bool plug)
 {
    Ecore_Drm_Event_Output *e;
@@ -68,6 +70,7 @@ _ecore_drm_output_event_send(const Ecore_Drm_Output *output, Eina_Bool plug)
                    _ecore_drm_output_event_free, NULL);
 }
 
+#ifndef HAVE_TDM
 static drmModePropertyPtr
 _ecore_drm_output_property_get(int fd, drmModeConnectorPtr conn, const char *name)
 {
@@ -651,6 +654,7 @@ _ecore_drm_output_frame_finish(Ecore_Drm_Output *output)
 
    output->repaint_scheduled = EINA_FALSE;
 }
+#endif
 
 void 
 _ecore_drm_output_fb_release(Ecore_Drm_Output *output, Ecore_Drm_Fb *fb)
@@ -662,6 +666,7 @@ _ecore_drm_output_fb_release(Ecore_Drm_Output *output, Ecore_Drm_Fb *fb)
      ecore_drm_fb_destroy(fb);
 }
 
+#ifndef HAVE_TDM
 void 
 _ecore_drm_output_repaint_start(Ecore_Drm_Output *output)
 {
@@ -691,6 +696,7 @@ _ecore_drm_output_repaint_start(Ecore_Drm_Output *output)
 finish:
    _ecore_drm_output_frame_finish(output);
 }
+#endif
 
 static void
 _ecore_drm_output_delete(Ecore_Drm_Device *dev, Ecore_Drm_Output *output)
@@ -725,6 +731,9 @@ _ecore_drm_output_delete(Ecore_Drm_Device *dev, Ecore_Drm_Output *output)
 void
 _ecore_drm_outputs_update(Ecore_Drm_Device *dev)
 {
+#ifdef HAVE_TDM
+   _ecore_drm_display_outputs_update(dev);
+#else
    drmModeRes *res;
    drmModeConnector *conn;
    int i = 0, x = 0, y = 0;
@@ -798,11 +807,15 @@ next:
              _ecore_drm_output_delete(dev, destory_output);
           }
      }
+#endif
 }
 
 void
 _ecore_drm_output_render_enable(Ecore_Drm_Output *output)
 {
+#ifdef HAVE_TDM
+   _ecore_drm_display_output_render_enable(output);
+#else
    Ecore_Drm_Device *dev;
    Ecore_Drm_Output_Mode *mode;
    /* int x = 0, y = 0; */
@@ -839,19 +852,25 @@ _ecore_drm_output_render_enable(Ecore_Drm_Output *output)
         ERR("Failed to set Mode %dx%d for Output %s: %m",
             mode->width, mode->height, output->name);
      }
+#endif
 }
 
 void
 _ecore_drm_output_render_disable(Ecore_Drm_Output *output)
 {
+#ifdef HAVE_TDM
+   _ecore_drm_display_output_render_disable(output);
+#else
    EINA_SAFETY_ON_NULL_RETURN(output);
 
    output->need_repaint = EINA_FALSE;
    if (!output->enabled) return;
    ecore_drm_output_cursor_size_set(output, 0, 0, 0);
    ecore_drm_output_dpms_set(output, DRM_MODE_DPMS_OFF);
+#endif
 }
 
+#ifndef HAVE_TDM
 static void
 _ecore_drm_output_planes_get(Ecore_Drm_Device *dev)
 {
@@ -940,6 +959,7 @@ free_plane:
 
    drmModeFreePlaneResources(pres);
 }
+#endif
 
 /* public functions */
 
@@ -953,6 +973,15 @@ free_plane:
 EAPI Eina_Bool 
 ecore_drm_outputs_create(Ecore_Drm_Device *dev)
 {
+#ifdef HAVE_TDM
+   Eina_Bool ret;
+
+   TRACE_EFL_BEGIN(DRM OUTPUTS CREATE);
+   ret = _ecore_drm_display_outputs_create(dev);
+   TRACE_EFL_END();
+
+   return ret;
+#else
    Eina_Bool ret = EINA_TRUE;
    Ecore_Drm_Output *output = NULL;
    drmModeConnector *conn;
@@ -1030,14 +1059,20 @@ next:
    TRACE_EFL_END();
 
    return ret;
+#endif
 }
 
 EAPI void 
 ecore_drm_output_free(Ecore_Drm_Output *output)
 {
+#ifdef HAVE_TDM
+   _ecore_drm_display_output_free(output);
+#else
    _ecore_drm_output_free(output);
+#endif
 }
 
+#ifndef HAVE_TDM
 EAPI void 
 ecore_drm_output_cursor_size_set(Ecore_Drm_Output *output, int handle, int w, int h)
 {
@@ -1045,6 +1080,7 @@ ecore_drm_output_cursor_size_set(Ecore_Drm_Output *output, int handle, int w, in
    if (!output->enabled) return;
    drmModeSetCursor(output->dev->drm.fd, output->crtc_id, handle, w, h);
 }
+#endif
 
 EAPI Eina_Bool 
 ecore_drm_output_enable(Ecore_Drm_Output *output)
@@ -1078,6 +1114,7 @@ ecore_drm_output_fb_release(Ecore_Drm_Output *output, Ecore_Drm_Fb *fb)
    _ecore_drm_output_fb_release(output, fb);
 }
 
+#ifndef HAVE_TDM
 EAPI void 
 ecore_drm_output_repaint(Ecore_Drm_Output *output)
 {
@@ -1173,10 +1210,14 @@ err:
         dev->next = NULL;
      }
 }
+#endif
 
 EAPI void 
 ecore_drm_output_size_get(Ecore_Drm_Device *dev, int output, int *w, int *h)
 {
+#ifdef HAVE_TDM
+   _ecore_drm_display_output_size_get(dev, output, w, h);
+#else
    drmModeFB *fb;
 
    if (w) *w = 0;
@@ -1187,6 +1228,7 @@ ecore_drm_output_size_get(Ecore_Drm_Device *dev, int output, int *w, int *h)
    if (w) *w = fb->width;
    if (h) *h = fb->height;
    drmModeFreeFB(fb);
+#endif
 }
 
 EAPI void 
@@ -1277,6 +1319,10 @@ ecore_drm_output_make_get(Ecore_Drm_Output *output)
 EAPI void
 ecore_drm_output_dpms_set(Ecore_Drm_Output *output, int level)
 {
+#ifdef HAVE_TDM
+   _ecore_drm_display_output_dpms_set(output, level);
+   output->dpms_level = level;
+#else
    EINA_SAFETY_ON_NULL_RETURN(output);
    EINA_SAFETY_ON_NULL_RETURN(output->dev);
    EINA_SAFETY_ON_NULL_RETURN(output->dpms);
@@ -1284,6 +1330,7 @@ ecore_drm_output_dpms_set(Ecore_Drm_Output *output, int level)
    drmModeConnectorSetProperty(output->dev->drm.fd, output->conn_id,
                                output->dpms->prop_id, level);
    output->dpms_level = level;
+#endif
 }
 
 EAPI int
@@ -1294,6 +1341,7 @@ ecore_drm_output_dpms_get(Ecore_Drm_Output *output)
    return output->dpms_level;
 }
 
+#ifndef HAVE_TDM
 EAPI void
 ecore_drm_output_gamma_set(Ecore_Drm_Output *output, uint16_t size, uint16_t *r, uint16_t *g, uint16_t *b)
 {
@@ -1306,6 +1354,7 @@ ecore_drm_output_gamma_set(Ecore_Drm_Output *output, uint16_t size, uint16_t *r,
    if (drmModeCrtcSetGamma(output->dev->drm.fd, output->crtc_id, size, r, g, b))
      ERR("Failed to set output gamma: %m");
 }
+#endif
 
 EAPI unsigned int
 ecore_drm_output_crtc_id_get(Ecore_Drm_Output *output)
@@ -1318,6 +1367,9 @@ ecore_drm_output_crtc_id_get(Ecore_Drm_Output *output)
 EAPI unsigned int
 ecore_drm_output_crtc_buffer_get(Ecore_Drm_Output *output)
 {
+#ifdef HAVE_TDM
+   return _ecore_drm_display_output_crtc_buffer_get(output);
+#else
    drmModeCrtc *crtc;
    unsigned int id = 0;
 
@@ -1332,6 +1384,7 @@ ecore_drm_output_crtc_buffer_get(Ecore_Drm_Output *output)
    drmModeFreeCrtc(crtc);
 
    return id;
+#endif
 }
 
 EAPI unsigned int
@@ -1441,6 +1494,9 @@ ecore_drm_output_primary_set(Ecore_Drm_Output *output)
 EAPI void
 ecore_drm_output_crtc_size_get(Ecore_Drm_Output *output, int *width, int *height)
 {
+#ifdef HAVE_TDM
+   _ecore_drm_display_output_crtc_size_get(output, width, height);
+#else
    if (width) *width = 0;
    if (height) *height = 0;
 
@@ -1448,11 +1504,15 @@ ecore_drm_output_crtc_size_get(Ecore_Drm_Output *output, int *width, int *height
 
    if (width) *width = output->crtc->width;
    if (height) *height = output->crtc->height;
+#endif
 }
 
 EAPI Eina_Bool
 ecore_drm_output_possible_crtc_get(Ecore_Drm_Output *output, unsigned int crtc)
 {
+#ifdef HAVE_TDM
+   return _ecore_drm_display_output_possible_crtc_get(output, crtc);
+#else
    Ecore_Drm_Device *dev;
    drmModeRes *res;
    drmModeConnector *conn;
@@ -1518,11 +1578,15 @@ next:
    drmModeFreeResources(res);
 
    return ret;
+#endif
 }
 
 EAPI Eina_Bool
 ecore_drm_output_mode_set(Ecore_Drm_Output *output, Ecore_Drm_Output_Mode *mode, int x, int y)
 {
+#ifdef HAVE_TDM
+   return _ecore_drm_display_output_mode_set(output, mode, x, y);
+#else
    Ecore_Drm_Device *dev;
    Eina_Bool ret = EINA_TRUE;
    unsigned int buffer = 0;
@@ -1566,6 +1630,7 @@ ecore_drm_output_mode_set(Ecore_Drm_Output *output, Ecore_Drm_Output_Mode *mode,
      }
 
    return ret;
+#endif
 }
 
 EAPI void
@@ -1597,6 +1662,9 @@ ecore_drm_output_current_fb_info_get(Ecore_Drm_Output *output, unsigned int *han
 EAPI Eina_Bool
 ecore_drm_output_wait_vblank(Ecore_Drm_Output *output, int interval, Ecore_Drm_VBlank_Cb func, void *data)
 {
+#ifdef HAVE_TDM
+   return _ecore_drm_display_output_wait_vblank(output, interval, func, data);
+#else
    Ecore_Drm_Device *dev;
    Ecore_Drm_VBlank_Callback *cb;
    drmVBlank vbl;
@@ -1628,4 +1696,5 @@ ecore_drm_output_wait_vblank(Ecore_Drm_Output *output, int interval, Ecore_Drm_V
      }
 
    return EINA_TRUE;
+#endif
 }

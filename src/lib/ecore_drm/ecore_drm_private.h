@@ -177,6 +177,8 @@ struct _Ecore_Drm_Output
    int curr_fb_w;
    int curr_fb_h;
    int curr_fb_format;
+
+   void *hal_output;
 };
 
 struct _Ecore_Drm_Seat
@@ -293,6 +295,31 @@ void _ecore_drm_launcher_device_close(const char *device, int fd);
 int _ecore_drm_launcher_device_flags_set(int fd, int flags);
 
 Eina_Bool _ecore_drm_tty_switch(Ecore_Drm_Device *dev, int activate_vt);
+
+#ifdef HAVE_TDM
+void _ecore_drm_output_event_send(const Ecore_Drm_Output *output, Eina_Bool plug);
+
+Eina_Bool _ecore_drm_display_init(Ecore_Drm_Device *dev);
+void _ecore_drm_display_destroy(Ecore_Drm_Device *dev);
+int _ecore_drm_display_get_fd(Ecore_Drm_Device *dev);
+Ecore_Drm_Fb* _ecore_drm_display_fb_find(void *hal_buffer);
+Ecore_Drm_Fb* _ecore_drm_display_fb_create(Ecore_Drm_Device *dev, int width, int height);
+void _ecore_drm_display_fb_destroy(Ecore_Drm_Fb *fb);
+void _ecore_drm_display_fb_set(Ecore_Drm_Device *dev, Ecore_Drm_Fb *fb);
+void _ecore_drm_display_fb_send(Ecore_Drm_Device *dev, Ecore_Drm_Fb *fb, Ecore_Drm_Pageflip_Cb func, void *data);
+Eina_Bool _ecore_drm_display_outputs_create(Ecore_Drm_Device *dev);
+void _ecore_drm_display_output_free(Ecore_Drm_Output *output);
+void _ecore_drm_display_outputs_update(Ecore_Drm_Device *dev);
+void _ecore_drm_display_output_render_enable(Ecore_Drm_Output *output);
+void _ecore_drm_display_output_render_disable(Ecore_Drm_Output *output);
+void _ecore_drm_display_output_dpms_set(Ecore_Drm_Output *output, int level);
+unsigned int _ecore_drm_display_output_crtc_buffer_get(Ecore_Drm_Output *output);
+void _ecore_drm_display_output_size_get(Ecore_Drm_Device *dev, int id, int *w, int *h);
+void _ecore_drm_display_output_crtc_size_get(Ecore_Drm_Output *output, int *width, int *height);
+Eina_Bool _ecore_drm_display_output_mode_set(Ecore_Drm_Output *output, Ecore_Drm_Output_Mode *mode, int x, int y);
+Eina_Bool _ecore_drm_display_output_possible_crtc_get(Ecore_Drm_Output *output, unsigned int crtc);
+Eina_Bool _ecore_drm_display_output_wait_vblank(Ecore_Drm_Output *output, int interval, Ecore_Drm_VBlank_Cb func, void *data);
+#endif
 
 Ecore_Drm_Evdev *_ecore_drm_evdev_device_create(Ecore_Drm_Seat *seat, struct libinput_device *device);
 void _ecore_drm_evdev_device_destroy(Ecore_Drm_Evdev *evdev);

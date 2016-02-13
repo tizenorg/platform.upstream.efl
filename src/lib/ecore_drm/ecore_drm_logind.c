@@ -158,7 +158,9 @@ _ecore_drm_logind_cb_activate(void *data, int type EINA_UNUSED, void *event)
      }
    else
      {
+#ifndef HAVE_TDM
         Ecore_Drm_Sprite *sprite;
+#endif
 
         /* disable inputs */
         EINA_LIST_FOREACH(dev->inputs, l, input)
@@ -168,9 +170,11 @@ _ecore_drm_logind_cb_activate(void *data, int type EINA_UNUSED, void *event)
         EINA_LIST_FOREACH(dev->outputs, l, output)
           _ecore_drm_output_render_disable(output);
 
+#ifndef HAVE_TDM
         /* disable sprites */
         EINA_LIST_FOREACH(dev->sprites, l, sprite)
           ecore_drm_sprites_fb_set(sprite, 0, 0);
+#endif
      }
 
    return ECORE_CALLBACK_PASS_ON;

@@ -1,6 +1,11 @@
+#include "config.h"
 #include "evas_engine.h"
 #include <sys/mman.h>
 #include "../gl_common/evas_gl_define.h"
+
+#ifdef HAVE_TDM
+#include <gbm.h>
+#endif
 
 /* local variables */
 static Outbuf *_evas_gl_drm_window = NULL;
@@ -38,6 +43,16 @@ _evas_outbuf_gbm_surface_create(Outbuf *ob, int w, int h)
 static void
 _evas_outbuf_fb_cb_destroy(struct gbm_bo *bo, void *data)
 {
+#ifdef HAVE_TDM
+   Ecore_Drm_Fb *fb;
+
+   fb = data;
+   if (fb)
+     {
+        ecore_drm_display_fb_remove(fb);
+        free(fb);
+     }
+#else
    Ecore_Drm_Fb *fb;
 
    fb = data;
@@ -49,11 +64,36 @@ _evas_outbuf_fb_cb_destroy(struct gbm_bo *bo, void *data)
         drmModeRmFB(gbm_device_get_fd(gbm), fb->id);
         free(fb);
      }
+#endif
 }
 
 static Ecore_Drm_Fb *
 _evas_outbuf_fb_get(Ecore_Drm_Device *dev, struct gbm_bo *bo)
 {
+#ifdef HAVE_TDM
+   int ret;
+   Ecore_Drm_Fb *fb;
+   static unsigned int id = 0;
+
+   fb = gbm_bo_get_user_data(bo);
+   if (fb) return fb;
+
+   if (!(fb = calloc(1, sizeof(Ecore_Drm_Fb)))) return NULL;
+
+   fb->id = ++id;
+   fb->w = gbm_bo_get_width(bo);
+   fb->h = gbm_bo_get_height(bo);
+   fb->hdl = gbm_bo_get_handle(bo).u32;
+   fb->stride = gbm_bo_get_stride(bo);
+   fb->size = fb->stride * fb->h;
+   fb->hal_buffer = gbm_tbm_get_surface(bo);
+
+   gbm_bo_set_user_data(bo, fb, _evas_outbuf_fb_cb_destroy);
+
+   ecore_drm_display_fb_add(fb);
+
+   return fb;
+#else
    int ret;
    Ecore_Drm_Fb *fb;
    uint32_t format;
@@ -87,6 +127,7 @@ _evas_outbuf_fb_get(Ecore_Drm_Device *dev, struct gbm_bo *bo)
    gbm_bo_set_user_data(bo, fb, _evas_outbuf_fb_cb_destroy);
 
    return fb;
+#endif
 }
 
 static void

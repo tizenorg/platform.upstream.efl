@@ -72,6 +72,8 @@ typedef struct _Ecore_Drm_Fb
    void *mmap;
    int w, h;
    Eina_Bool pending_flip : 1;
+   void *dev;
+   void *hal_buffer;
 } Ecore_Drm_Fb;
 
 struct _Ecore_Drm_Device
@@ -131,6 +133,8 @@ struct _Ecore_Drm_Device
 
    Eina_Bool active : 1;
    Eina_Bool left_handed : 1;
+
+   void *hal_display;
 };
 
 struct _Ecore_Drm_Event_Activate
@@ -179,6 +183,7 @@ typedef struct _Ecore_Drm_Output_Mode
    int width, height;
    unsigned int refresh;
    drmModeModeInfo info;
+   const void *hal_mode;
 } Ecore_Drm_Output_Mode;
 
 /* opaque structure to represent a drm output */
@@ -1024,6 +1029,10 @@ EAPI int ecore_drm_output_dpms_get(Ecore_Drm_Output *output);
 EAPI unsigned int ecore_drm_output_crtc_id_get(Ecore_Drm_Output *output);
 EAPI void ecore_drm_output_current_fb_info_set(Ecore_Drm_Output *output, unsigned int handle, int w, int h, unsigned int format);
 EAPI void ecore_drm_output_current_fb_info_get(Ecore_Drm_Output *output, unsigned int *handle, int *w, int *h, unsigned int *format);
+
+EAPI Ecore_Drm_Fb *ecore_drm_display_output_primary_layer_fb_get(Ecore_Drm_Output *output);
+EAPI void ecore_drm_display_fb_add(Ecore_Drm_Fb *fb);
+EAPI void ecore_drm_display_fb_remove(Ecore_Drm_Fb *fb);
 
 # ifdef __cplusplus
 }

@@ -2,6 +2,11 @@
 # include <config.h>
 #endif
 
+#ifdef HAVE_TDM
+# include <tbm_surface.h>
+# include <tbm_surface_internal.h>
+#endif
+
 #include "ecore_drm_private.h"
 
 /**
@@ -11,6 +16,7 @@
  * 
  */
 
+#ifndef HAVE_TDM
 static Eina_Bool
 _ecore_drm_fb_create2(int fd, Ecore_Drm_Fb *fb)
 {
@@ -46,10 +52,14 @@ _ecore_drm_fb_create2(int fd, Ecore_Drm_Fb *fb)
 
    return EINA_TRUE;
 }
+#endif
 
 EAPI Ecore_Drm_Fb *
 ecore_drm_fb_create(Ecore_Drm_Device *dev, int width, int height)
 {
+#ifdef HAVE_TDM
+   return _ecore_drm_display_fb_create(dev, width, height);
+#else
    Ecore_Drm_Fb *fb;
    struct drm_mode_create_dumb carg;
    struct drm_mode_destroy_dumb darg;
@@ -119,11 +129,15 @@ add_err:
 create_err:
    free(fb);
    return NULL;
+#endif
 }
 
 EAPI void 
 ecore_drm_fb_destroy(Ecore_Drm_Fb *fb)
 {
+#ifdef HAVE_TDM
+   _ecore_drm_display_fb_destroy(fb);
+#else
    struct drm_mode_destroy_dumb darg;
 
    if ((!fb) || (!fb->mmap)) return;
@@ -134,6 +148,7 @@ ecore_drm_fb_destroy(Ecore_Drm_Fb *fb)
    darg.handle = fb->hdl;
    drmIoctl(fb->fd, DRM_IOCTL_MODE_DESTROY_DUMB, &darg);
    free(fb);
+#endif
 }
 
 EAPI void
@@ -142,6 +157,13 @@ ecore_drm_fb_dirty(Ecore_Drm_Fb *fb, Eina_Rectangle *rects, unsigned int count)
    EINA_SAFETY_ON_NULL_RETURN(fb);
 
    if ((!rects) || (!count)) return;
+
+#ifdef HAVE_TDM
+   drmVersionPtr ver = drmGetVersion(ecore_drm_device_fd_get(fb->dev));
+   if (ver) drmFreeVersion(ver);
+   else return;
+   /* FIXME: need to let TDM know the dirty rects? */
+#endif
 
 #ifdef DRM_MODE_FEATURE_DIRTYFB
    drmModeClip *clip;
@@ -169,6 +191,9 @@ ecore_drm_fb_dirty(Ecore_Drm_Fb *fb, Eina_Rectangle *rects, unsigned int count)
 EAPI void
 ecore_drm_fb_set(Ecore_Drm_Device *dev, Ecore_Drm_Fb *fb)
 {
+#ifdef HAVE_TDM
+   _ecore_drm_display_fb_set(dev, fb);
+#else
    Ecore_Drm_Output *output;
    Eina_List *l;
 
@@ -215,11 +240,15 @@ ecore_drm_fb_set(Ecore_Drm_Device *dev, Ecore_Drm_Fb *fb)
              /* TODO: set dpms on ?? */
           }
      }
+#endif
 }
 
 EAPI void
 ecore_drm_fb_send(Ecore_Drm_Device *dev, Ecore_Drm_Fb *fb, Ecore_Drm_Pageflip_Cb func, void *data)
 {
+#ifdef HAVE_TDM
+   _ecore_drm_display_fb_send(dev, fb, func, data);
+#else
    Ecore_Drm_Output *output;
    Eina_List *l;
    Ecore_Drm_Pageflip_Callback *cb;
@@ -274,4 +303,5 @@ ecore_drm_fb_send(Ecore_Drm_Device *dev, Ecore_Drm_Fb *fb, Ecore_Drm_Pageflip_Cb
              break;
           }
      }
+#endif
 }

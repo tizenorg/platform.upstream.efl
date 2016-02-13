@@ -3233,6 +3233,14 @@ if test "x${have_extra_touch_event}" = "xyes";then
   AC_DEFINE_UNQUOTED([LIBINPUT_SUPPORT_EXTRA_TOUCH_EVENT], [1], [libinput support extra touch event])
 fi
 
+EFL_DEPEND_PKG([ECORE_DRM], [TDM], [libtdm >= "1.0.0"], [have_tdm="yes"], [have_tdm="no"])
+AC_MSG_CHECKING([Use TDM])
+AC_MSG_RESULT([${have_tdm}])
+if test "x${have_tdm}" = "xyes" ; then
+   EFL_DEPEND_PKG([ECORE_DRM], [GBM], [gbm])
+   AC_DEFINE_UNQUOTED(HAVE_TDM, 1, [Support for tizen display HAL])
+fi
+
 EFL_EVAL_PKGS([ECORE_DRM])
 
 # Check for ttrace

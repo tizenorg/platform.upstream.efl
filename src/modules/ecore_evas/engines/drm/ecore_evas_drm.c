@@ -549,12 +549,14 @@ _ecore_evas_drm_init(const char *device)
         goto dev_open_err;
      }
 
+#ifndef HAVE_TDM
    /* try to create sprites */
    if (!ecore_drm_sprites_create(dev))
      {
         ERR("Could not create sprites: %m");
         goto sprite_err;
      }
+#endif
 
    /* try to create outputs */
    if (!ecore_drm_outputs_create(dev))
@@ -579,7 +581,9 @@ output_err:
    ecore_drm_inputs_destroy(dev);
 input_err:
    ecore_drm_sprites_destroy(dev);
+#ifndef HAVE_TDM
 sprite_err:
+#endif
    ecore_drm_device_close(dev);
 dev_open_err:
    ecore_drm_launcher_disconnect(dev);

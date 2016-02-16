@@ -44,8 +44,9 @@ static Ecore_IMF_Context    *_hide_req_ctx               = NULL;
 static Ecore_Timer          *_hide_timer  = NULL;
 
 static Eina_Rectangle        _keyboard_geometry = {0, 0, 0, 0};
-//
+
 static Ecore_IMF_Input_Panel_State _input_panel_state    = ECORE_IMF_INPUT_PANEL_STATE_HIDE;
+//
 
 struct _WaylandIMContext
 {
@@ -94,12 +95,15 @@ struct _WaylandIMContext
    uint32_t reset_serial;
    uint32_t content_purpose;
    uint32_t content_hint;
+
+   // TIZEN_ONLY(20150716): Support return key type
    uint32_t return_key_type;
 
    Eina_Bool return_key_disabled;
 
    void *imdata;
    uint32_t imdata_size;
+   //
 };
 
 // TIZEN_ONLY(20150708): Support back key
@@ -169,6 +173,7 @@ unregister_key_handler()
 
    _clear_hide_timer();
 }
+//
 
 static Eina_Bool _clear_hide_timer()
 {
@@ -184,7 +189,9 @@ static Eina_Bool _clear_hide_timer()
 
 static void _send_input_panel_hide_request(Ecore_IMF_Context *ctx)
 {
+   // TIZEN_ONLY(20150708): Support back key
    _hide_req_ctx = NULL;
+   //
    WaylandIMContext *imcontext = (WaylandIMContext *)ecore_imf_context_data_get(ctx);
    if (imcontext && imcontext->text_input)
      wl_text_input_hide_input_panel(imcontext->text_input);
@@ -215,10 +222,11 @@ static void _input_panel_hide(Ecore_IMF_Context *ctx, Eina_Bool instant)
    else
      {
         _input_panel_hide_timer_start(ctx);
+        // TIZEN_ONLY(20150708): Support back key
         _hide_req_ctx = ctx;
+        //
      }
 }
-//
 
 static unsigned int
 utf8_offset_to_characters(const char *str, int offset)
@@ -461,6 +469,7 @@ show_input_panel(Ecore_IMF_Context *ctx)
      set_focus(ctx);
 
    _clear_hide_timer();
+   // TIZEN_ONLY(20150715): Support input_panel_state_get
    _input_panel_state = ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW;
 
    int layout_variation = ecore_imf_context_input_panel_layout_variation_get (ctx);
@@ -494,6 +503,7 @@ show_input_panel(Ecore_IMF_Context *ctx)
          new_purpose = imcontext->content_purpose;
          break;
    }
+   //
 
    wl_text_input_set_content_type(imcontext->text_input,
                                   imcontext->content_hint,
@@ -512,6 +522,7 @@ show_input_panel(Ecore_IMF_Context *ctx)
           }
      }
 
+   // TIZEN_ONLY(20150716): Support return key type
    wl_text_input_set_return_key_type(imcontext->text_input,
                                      imcontext->return_key_type);
 
@@ -520,6 +531,7 @@ show_input_panel(Ecore_IMF_Context *ctx)
 
    if (imcontext->imdata_size > 0)
      wl_text_input_set_input_panel_data(imcontext->text_input, (const char *)imcontext->imdata, imcontext->imdata_size);
+   //
 
    wl_text_input_show_input_panel(imcontext->text_input);
 
@@ -792,6 +804,7 @@ text_input_input_panel_state(void                 *data EINA_UNUSED,
                              struct wl_text_input *text_input EINA_UNUSED,
                              uint32_t              state EINA_UNUSED)
 {
+   // TIZEN_ONLY(20150708): Support input panel state callback
     WaylandIMContext *imcontext = (WaylandIMContext *)data;
 
     switch (state)
@@ -825,8 +838,10 @@ text_input_input_panel_state(void                 *data EINA_UNUSED,
          _keyboard_geometry.h = 0;
          ecore_imf_context_input_panel_event_callback_call(imcontext->ctx, ECORE_IMF_INPUT_PANEL_GEOMETRY_EVENT, 0);
       }
+   //
 }
 
+// TIZEN_ONLY(20151221): Support input panel geometry
 static void
 text_input_input_panel_geometry(void                 *data EINA_UNUSED,
                                 struct wl_text_input *text_input EINA_UNUSED,
@@ -846,6 +861,7 @@ text_input_input_panel_geometry(void                 *data EINA_UNUSED,
          ecore_imf_context_input_panel_event_callback_call(imcontext->ctx, ECORE_IMF_INPUT_PANEL_GEOMETRY_EVENT, 0);
       }
 }
+//
 
 static void
 text_input_language(void                 *data,
@@ -882,6 +898,7 @@ text_input_text_direction(void                 *data EINA_UNUSED,
 {
 }
 
+// TIZEN_ONLY(20150918): Support to set the selection region
 static void
 text_input_selection_region(void                 *data,
                             struct wl_text_input *text_input EINA_UNUSED,
@@ -910,6 +927,7 @@ text_input_private_command(void                 *data,
 
     ecore_imf_context_event_callback_call(imcontext->ctx, ECORE_IMF_CALLBACK_PRIVATE_COMMAND_SEND, (void *)command);
 }
+//
 
 static const struct wl_text_input_listener text_input_listener =
 {
@@ -968,12 +986,14 @@ wayland_im_context_del(Ecore_IMF_Context *ctx)
         imcontext->language = NULL;
      }
 
+   // TIZEN_ONLY(20150922): Support to set input panel data
    if (imcontext->imdata)
      {
         free(imcontext->imdata);
         imcontext->imdata = NULL;
         imcontext->imdata_size = 0;
      }
+   //
 
    if (imcontext->text_input)
      wl_text_input_destroy(imcontext->text_input);
@@ -1192,14 +1212,18 @@ EAPI void wayland_im_context_autocapital_type_set(Ecore_IMF_Context *ctx,
    WaylandIMContext *imcontext = (WaylandIMContext *)ecore_imf_context_data_get(ctx);
 
    imcontext->content_hint &= ~(WL_TEXT_INPUT_CONTENT_HINT_AUTO_CAPITALIZATION |
+   // TIZEN_ONLY(20160201): Add autocapitalization word
                                 WL_TEXT_INPUT_CONTENT_HINT_WORD_CAPITALIZATION |
+   //
                                 WL_TEXT_INPUT_CONTENT_HINT_UPPERCASE |
                                 WL_TEXT_INPUT_CONTENT_HINT_LOWERCASE);
 
    if (autocapital_type == ECORE_IMF_AUTOCAPITAL_TYPE_SENTENCE)
      imcontext->content_hint |= WL_TEXT_INPUT_CONTENT_HINT_AUTO_CAPITALIZATION;
+   // TIZEN_ONLY(20160201): Add autocapitalization word
    else if (autocapital_type == ECORE_IMF_AUTOCAPITAL_TYPE_WORD)
      imcontext->content_hint |= WL_TEXT_INPUT_CONTENT_HINT_WORD_CAPITALIZATION;
+   //
    else if (autocapital_type == ECORE_IMF_AUTOCAPITAL_TYPE_ALLCHARACTER)
      imcontext->content_hint |= WL_TEXT_INPUT_CONTENT_HINT_UPPERCASE;
    else
@@ -1225,7 +1249,9 @@ wayland_im_context_input_panel_layout_set(Ecore_IMF_Context *ctx, Ecore_IMF_Inpu
          imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_PHONE;
          break;
       case ECORE_IMF_INPUT_PANEL_LAYOUT_IP:
+         // TIZEN_ONLY(20150710): Support IP and emoticon layout
          imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_IP;
+         //
          break;
       case ECORE_IMF_INPUT_PANEL_LAYOUT_MONTH:
          imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_DATE;
@@ -1242,9 +1268,11 @@ wayland_im_context_input_panel_layout_set(Ecore_IMF_Context *ctx, Ecore_IMF_Inpu
       case ECORE_IMF_INPUT_PANEL_LAYOUT_DATETIME:
         imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_DATETIME;
         break;
+      // TIZEN_ONLY(20150710): Support IP and emoticon layout
       case ECORE_IMF_INPUT_PANEL_LAYOUT_EMOTICON:
         imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_EMOTICON;
         break;
+      //
       default:
         imcontext->content_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_NORMAL;
         break;
@@ -1292,6 +1320,7 @@ wayland_im_context_input_panel_language_set(Ecore_IMF_Context *ctx,
      imcontext->content_hint &= ~WL_TEXT_INPUT_CONTENT_HINT_LATIN;
 }
 
+// TIZEN_ONLY(20150708): Support input_panel_state_get
 EAPI Ecore_IMF_Input_Panel_State
 wayland_im_context_input_panel_state_get(Ecore_IMF_Context *ctx EINA_UNUSED)
 {
@@ -1323,6 +1352,7 @@ wayland_im_context_input_panel_return_key_disabled_set(Ecore_IMF_Context *ctx,
      wl_text_input_set_return_key_disabled(imcontext->text_input,
                                            imcontext->return_key_disabled);
 }
+//
 
 EAPI void
 wayland_im_context_input_panel_language_locale_get(Ecore_IMF_Context *ctx,
@@ -1346,6 +1376,7 @@ wayland_im_context_prediction_allow_set(Ecore_IMF_Context *ctx,
      imcontext->content_hint &= ~WL_TEXT_INPUT_CONTENT_HINT_AUTO_COMPLETION;
 }
 
+// TIZEN_ONLY(20151221): Support input panel geometry
 EAPI void
 wayland_im_context_input_panel_geometry_get(Ecore_IMF_Context *ctx EINA_UNUSED,
                                             int *x, int *y, int *w, int *h)
@@ -1375,6 +1406,7 @@ wayland_im_context_input_panel_imdata_set(Ecore_IMF_Context *ctx, const void *da
    if (imcontext->input && (imcontext->imdata_size > 0))
      wl_text_input_set_input_panel_data(imcontext->text_input, (const char *)imcontext->imdata, imcontext->imdata_size);
 }
+//
 
 WaylandIMContext *wayland_im_context_new (struct wl_text_input_manager *text_input_manager)
 {

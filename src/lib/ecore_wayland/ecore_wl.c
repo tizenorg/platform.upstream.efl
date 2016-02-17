@@ -1119,6 +1119,7 @@ ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key, int mod EINA_
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
+   if ((!_ecore_wl_disp) || (!_ecore_wl_disp->wl.keyrouter)) return EINA_FALSE;
    if (!key) return EINA_FALSE;
    if ((grab_mode < ECORE_WL_WINDOW_KEYGRAB_UNKNOWN) || (grab_mode > ECORE_WL_WINDOW_KEYGRAB_EXCLUSIVE))
      return EINA_FALSE;

@@ -39,6 +39,7 @@ static Eina_Bool _clear_hide_timer();
 
 static Ecore_Event_Filter   *_ecore_event_filter_handler = NULL;
 static Ecore_IMF_Context    *_active_ctx                 = NULL;
+static Ecore_IMF_Context    *_show_req_ctx               = NULL;
 static Ecore_IMF_Context    *_hide_req_ctx               = NULL;
 
 static Ecore_Timer          *_hide_timer  = NULL;
@@ -455,6 +456,22 @@ set_focus(Ecore_IMF_Context *ctx)
                           ecore_wl_window_surface_get(imcontext->window));
 }
 
+static Eina_Bool _compare_context(Ecore_IMF_Context *ctx1, Ecore_IMF_Context *ctx2)
+{
+   if (!ctx1 || !ctx2) return EINA_FALSE;
+
+   if ((ecore_imf_context_autocapital_type_get(ctx1) == ecore_imf_context_autocapital_type_get(ctx2)) &&
+       (ecore_imf_context_input_panel_layout_get(ctx1) == ecore_imf_context_input_panel_layout_get(ctx2)) &&
+       (ecore_imf_context_input_panel_layout_variation_get(ctx1) == ecore_imf_context_input_panel_layout_variation_get(ctx2)) &&
+       (ecore_imf_context_input_panel_language_get(ctx1) == ecore_imf_context_input_panel_language_get(ctx2)) &&
+       (ecore_imf_context_input_panel_return_key_type_get(ctx1) == ecore_imf_context_input_panel_return_key_type_get(ctx2)) &&
+       (ecore_imf_context_input_panel_return_key_disabled_get(ctx1) == ecore_imf_context_input_panel_return_key_disabled_get(ctx2)) &&
+       (ecore_imf_context_input_panel_caps_lock_mode_get(ctx1) == ecore_imf_context_input_panel_caps_lock_mode_get(ctx2)))
+     return EINA_TRUE;
+
+   return EINA_FALSE;
+}
+
 static Eina_Bool
 show_input_panel(Ecore_IMF_Context *ctx)
 {
@@ -469,6 +486,20 @@ show_input_panel(Ecore_IMF_Context *ctx)
      set_focus(ctx);
 
    _clear_hide_timer();
+
+   if ((_show_req_ctx == ctx) && _compare_context(_show_req_ctx, ctx))
+     {
+        if (_input_panel_state == ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW ||
+            _input_panel_state == ECORE_IMF_INPUT_PANEL_STATE_SHOW)
+          {
+             EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom, "already show");
+
+             return EINA_FALSE;
+          }
+     }
+
+   _show_req_ctx = ctx;
+
    // TIZEN_ONLY(20150715): Support input_panel_state_get
    _input_panel_state = ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW;
 
@@ -811,6 +842,8 @@ text_input_input_panel_state(void                 *data EINA_UNUSED,
       {
        case WL_TEXT_INPUT_INPUT_PANEL_STATE_HIDE:
           _input_panel_state = ECORE_IMF_INPUT_PANEL_STATE_HIDE;
+          if (imcontext->ctx == _show_req_ctx)
+            _show_req_ctx = NULL;
           break;
        case WL_TEXT_INPUT_INPUT_PANEL_STATE_SHOW:
           _input_panel_state = ECORE_IMF_INPUT_PANEL_STATE_SHOW;

@@ -152,6 +152,8 @@ struct _Ecore_Wl_Window
       unsigned int serial;
    } tz_rot;
 
+   Eina_Hash *aux_hints;
+
    struct xdg_surface *xdg_surface;
    struct xdg_popup *xdg_popup;
    Eina_Bool visible : 1;

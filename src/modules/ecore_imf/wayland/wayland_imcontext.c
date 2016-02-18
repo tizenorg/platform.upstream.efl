@@ -106,6 +106,9 @@ struct _WaylandIMContext
    uint32_t imdata_size;
 
    uint32_t bidi_direction;
+
+   void *input_panel_data;
+   uint32_t input_panel_data_length;
    //
 };
 
@@ -966,6 +969,24 @@ text_input_private_command(void                 *data,
 
     ecore_imf_context_event_callback_call(imcontext->ctx, ECORE_IMF_CALLBACK_PRIVATE_COMMAND_SEND, (void *)command);
 }
+
+static void
+text_input_input_panel_data(void                 *data,
+                            struct wl_text_input *text_input EINA_UNUSED,
+                            uint32_t              serial EINA_UNUSED,
+                            const char           *input_panel_data,
+                            uint32_t              length)
+{
+    WaylandIMContext *imcontext = (WaylandIMContext *)data;
+    if (!imcontext || !imcontext->ctx) return;
+
+    if (imcontext->input_panel_data)
+      free(imcontext->input_panel_data);
+
+    imcontext->input_panel_data = calloc(1, length);
+    memcpy(imcontext->input_panel_data, input_panel_data, length);
+    imcontext->input_panel_data_length = length;
+}
 //
 
 static const struct wl_text_input_listener text_input_listener =
@@ -986,7 +1007,8 @@ static const struct wl_text_input_listener text_input_listener =
    // TIZEN_ONLY(20150918): Support to set the selection region
    text_input_selection_region,
    text_input_private_command,
-   text_input_input_panel_geometry
+   text_input_input_panel_geometry,
+   text_input_input_panel_data
    //
 };
 
@@ -1033,6 +1055,13 @@ wayland_im_context_del(Ecore_IMF_Context *ctx)
         free(imcontext->imdata);
         imcontext->imdata = NULL;
         imcontext->imdata_size = 0;
+     }
+
+   if (imcontext->input_panel_data)
+     {
+        free(imcontext->input_panel_data);
+        imcontext->input_panel_data = NULL;
+        imcontext->input_panel_data_length = 0;
      }
    //
 
@@ -1446,6 +1475,25 @@ wayland_im_context_input_panel_imdata_set(Ecore_IMF_Context *ctx, const void *da
 
    if (imcontext->input && (imcontext->imdata_size > 0))
      wl_text_input_set_input_panel_data(imcontext->text_input, (const char *)imcontext->imdata, imcontext->imdata_size);
+}
+
+EAPI void
+wayland_im_context_input_panel_imdata_get(Ecore_IMF_Context *ctx, void *data, int *length)
+{
+   if (!ctx) return;
+   WaylandIMContext *imcontext = (WaylandIMContext *)ecore_imf_context_data_get(ctx);
+
+   if (imcontext && imcontext->input_panel_data && (imcontext->input_panel_data_length > 0))
+     {
+        if (data)
+          memcpy(data, imcontext->input_panel_data, imcontext->input_panel_data_length);
+
+        if (length)
+          *length = imcontext->input_panel_data_length;
+     }
+   else
+     if (length)
+       *length = 0;
 }
 //
 

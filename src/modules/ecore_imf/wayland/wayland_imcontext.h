@@ -111,6 +111,9 @@ wayland_im_context_input_panel_geometry_get(Ecore_IMF_Context *ctx,
 
 EAPI void
 wayland_im_context_input_panel_imdata_set(Ecore_IMF_Context *ctx, const void *data, int length);
+
+EAPI void
+wayland_im_context_input_panel_imdata_get(Ecore_IMF_Context *ctx, void *data, int *length);
 //
 // TIZEN_ONLY(20160218): Support BiDi direction
 EAPI void

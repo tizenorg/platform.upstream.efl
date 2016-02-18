@@ -395,6 +395,9 @@ evgl_eng_native_window_create(void *data)
         return NULL;
      }
 
+   /* HWC: set the gbm_surface to the engine info */
+   if (info->info.hwc_enable) info->info.surface =  surface;
+
    return (void *)surface;
 }
 

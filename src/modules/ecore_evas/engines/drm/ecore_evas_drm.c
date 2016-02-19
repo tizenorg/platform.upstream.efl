@@ -1011,23 +1011,6 @@ _ecore_evas_drm_aspect_set(Ecore_Evas *ee, double aspect)
    ee->prop.aspect = aspect;
 }
 
-#ifdef BUILD_ECORE_EVAS_GL_DRM
-static Eina_Bool
-_ecore_evas_drm_render_check_skip(Ecore_Evas *ee)
-{
-   Evas_Engine_Info_GL_Drm *einfo;
-   einfo = (Evas_Engine_Info_GL_Drm *)evas_engine_info_get(ee->evas);
-   if (!einfo) return EINA_TRUE;
-   if (!einfo->info.hwc_enable) return EINA_FALSE;
-
-   /* HWC: wait_for_showup is set by enlightenment */
-   if (einfo->info.wait_for_showup)
-     INF("HWC: skip to render the ecore_evas.\n");
-
-   return einfo->info.wait_for_showup;
-}
-#endif
-
 static int
 _ecore_evas_drm_render(Ecore_Evas *ee)
 {
@@ -1042,11 +1025,6 @@ _ecore_evas_drm_render(Ecore_Evas *ee)
         evas_norender(ee->evas);
         return 0;
      }
-
-#ifdef BUILD_ECORE_EVAS_GL_DRM
-   /* HWC: check if the ecore_evas is skipped or not */
-   if (_ecore_evas_drm_render_check_skip(ee)) return 0;
-#endif
 
    EINA_LIST_FOREACH(ee->sub_ecore_evas, l, ee2)
      {

@@ -26,12 +26,6 @@ struct _Evas_Engine_Info_GL_Drm
      {
         struct gbm_device *gbm;
 
-        /* HWC: for hwc */
-        struct gbm_surface *surface;
-        Eina_Bool wait_for_showup : 1;
-        Eina_Bool outbuf_flushed : 1;
-        Eina_Bool hwc_enable : 1;
-
         unsigned int rotation, depth;
         unsigned int crtc_id, conn_id, buffer_id;
         unsigned int format, flags;

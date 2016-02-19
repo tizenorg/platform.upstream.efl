@@ -81,7 +81,7 @@ static Ecore_IMF_Context_Class wayland_imf_class =
    wayland_im_context_input_panel_language_locale_get, /* input_panel_language_locale_get */
    NULL,                                      /* candidate_window_geometry_get */
    wayland_im_context_input_hint_set,         /* input_hint_set */
-   NULL                                       /* bidi_direction_set */
+   wayland_im_context_bidi_direction_set      /* bidi_direction_set */
 };
 
 static struct wl_text_input_manager *text_input_manager = NULL;

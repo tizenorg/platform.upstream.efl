@@ -104,6 +104,8 @@ struct _WaylandIMContext
 
    void *imdata;
    uint32_t imdata_size;
+
+   uint32_t bidi_direction;
    //
 };
 
@@ -1438,6 +1440,19 @@ wayland_im_context_input_panel_imdata_set(Ecore_IMF_Context *ctx, const void *da
 
    if (imcontext->input && (imcontext->imdata_size > 0))
      wl_text_input_set_input_panel_data(imcontext->text_input, (const char *)imcontext->imdata, imcontext->imdata_size);
+}
+//
+
+// TIZEN_ONLY(20160218): Support BiDi direction
+EAPI void
+wayland_im_context_bidi_direction_set(Ecore_IMF_Context *ctx, Ecore_IMF_BiDi_Direction bidi_direction)
+{
+  WaylandIMContext *imcontext = (WaylandIMContext *)ecore_imf_context_data_get(ctx);
+
+  imcontext->bidi_direction = bidi_direction;
+
+  if (imcontext->text_input)
+    wl_text_input_bidi_direction(imcontext->text_input, imcontext->bidi_direction);
 }
 //
 

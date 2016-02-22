@@ -31,18 +31,18 @@
 
 #include "wayland_imcontext.h"
 
-// TIZEN_ONLY(20150708): Support back key
-#define BACK_KEY "XF86Back"
 #define HIDE_TIMER_INTERVAL     0.05
 
 static Eina_Bool _clear_hide_timer();
+static Ecore_Timer *_hide_timer  = NULL;
+
+// TIZEN_ONLY(20150708): Support back key
+#define BACK_KEY "XF86Back"
 
 static Ecore_Event_Filter   *_ecore_event_filter_handler = NULL;
 static Ecore_IMF_Context    *_active_ctx                 = NULL;
 static Ecore_IMF_Context    *_show_req_ctx               = NULL;
 static Ecore_IMF_Context    *_hide_req_ctx               = NULL;
-
-static Ecore_Timer          *_hide_timer  = NULL;
 
 static Eina_Rectangle        _keyboard_geometry = {0, 0, 0, 0};
 
@@ -458,6 +458,7 @@ set_focus(Ecore_IMF_Context *ctx)
                           ecore_wl_window_surface_get(imcontext->window));
 }
 
+// TIZEN_ONLY(20160217): ignore the duplicate show request
 static Eina_Bool _compare_context(Ecore_IMF_Context *ctx1, Ecore_IMF_Context *ctx2)
 {
    if (!ctx1 || !ctx2) return EINA_FALSE;
@@ -473,6 +474,7 @@ static Eina_Bool _compare_context(Ecore_IMF_Context *ctx1, Ecore_IMF_Context *ct
 
    return EINA_FALSE;
 }
+//
 
 static Eina_Bool
 show_input_panel(Ecore_IMF_Context *ctx)
@@ -489,6 +491,7 @@ show_input_panel(Ecore_IMF_Context *ctx)
 
    _clear_hide_timer();
 
+   // TIZEN_ONLY(20160217): ignore the duplicate show request
    if ((_show_req_ctx == ctx) && _compare_context(_show_req_ctx, ctx))
      {
         if (_input_panel_state == ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW ||
@@ -501,6 +504,7 @@ show_input_panel(Ecore_IMF_Context *ctx)
      }
 
    _show_req_ctx = ctx;
+   //
 
    // TIZEN_ONLY(20150715): Support input_panel_state_get
    _input_panel_state = ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW;
@@ -979,9 +983,11 @@ static const struct wl_text_input_listener text_input_listener =
    text_input_keysym,
    text_input_language,
    text_input_text_direction,
+   // TIZEN_ONLY(20150918): Support to set the selection region
    text_input_selection_region,
    text_input_private_command,
    text_input_input_panel_geometry
+   //
 };
 
 EAPI void

@@ -530,9 +530,9 @@ show_input_panel(Ecore_IMF_Context *ctx)
          break;
       case WL_TEXT_INPUT_CONTENT_PURPOSE_NORMAL:
          if (layout_variation == ECORE_IMF_INPUT_PANEL_LAYOUT_NORMAL_VARIATION_FILENAME)
-           new_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_NORMAL_FILENAME;
+           new_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_FILENAME;
          else if (layout_variation == ECORE_IMF_INPUT_PANEL_LAYOUT_NORMAL_VARIATION_PERSON_NAME)
-           new_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_NORMAL_PERSONNAME;
+           new_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_NAME;
          else
            new_purpose = WL_TEXT_INPUT_CONTENT_PURPOSE_NORMAL;
          break;

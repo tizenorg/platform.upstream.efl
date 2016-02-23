@@ -4359,7 +4359,10 @@ _edje_entry_imf_event_preedit_changed_cb(void *data, Ecore_IMF_Context *ctx EINA
    char *preedit_string;
    char *markup_txt = NULL;
    char *tagname[] = {
-      NULL, "preedit", "preedit_sel", "preedit_sel",
+      // TIZEN_ONLY(20160223): Add "preedit_highlight" tag 
+      //NULL, "preedit", "preedit_sel", "preedit_sel",
+      NULL, "preedit", "preedit_sel", "preedit_highlight",
+      //
       "preedit_sub1", "preedit_sub2", "preedit_sub3", "preedit_sub4"
    };
    int i;

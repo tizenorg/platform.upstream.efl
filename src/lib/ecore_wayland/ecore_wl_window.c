@@ -638,9 +638,6 @@ ecore_wl_window_hide(Ecore_Wl_Window *win)
 
    if (win->shell_surface) wl_shell_surface_destroy(win->shell_surface);
    win->shell_surface = NULL;
-
-   if (win->surface) wl_surface_destroy(win->surface);
-   win->surface = NULL;
 }
 
 EAPI void

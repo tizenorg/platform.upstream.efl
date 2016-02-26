@@ -70,6 +70,8 @@ ecore_drm_init(void)
         return --_ecore_drm_init_count;
      }
 
+   TRACE_EFL_BEGIN(DRM INIT);
+
    /* try to create logging domain */
    _ecore_drm_log_dom = 
      eina_log_domain_register("ecore_drm", ECORE_DRM_DEFAULT_LOG_COLOR);
@@ -94,6 +96,8 @@ ecore_drm_init(void)
    ECORE_DRM_EVENT_INPUT_DEVICE_ADD = ecore_event_type_new();
    ECORE_DRM_EVENT_INPUT_DEVICE_DEL = ecore_event_type_new();
 
+   TRACE_EFL_END();
+
    /* return init count */
    return _ecore_drm_init_count;
 
@@ -104,6 +108,9 @@ log_err:
    ecore_event_shutdown();
    ecore_shutdown();
    eina_shutdown();
+
+   TRACE_EFL_END();
+
    return --_ecore_drm_init_count;
 }
 

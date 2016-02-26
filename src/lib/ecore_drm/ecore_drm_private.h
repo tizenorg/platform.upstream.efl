@@ -32,14 +32,21 @@
 # include <Eldbus.h>
 # include <Ecore_Drm.h>
 
+# undef TRACE_EFL_BEGIN
+# undef TRACE_EFL_END
+# undef TRACE_INPUT_BEGIN
+# undef TRACE_INPUT_END
 # ifdef ENABLE_TTRACE
 #  include <ttrace.h>
-
-#  define TRACE_BEGIN(NAME) traceBegin(TTRACE_TAG_INPUT, "INPUT:ECORE_DRM:"#NAME)
-#  define TRACE_END() traceEnd(TTRACE_TAG_INPUT)
+#  define TRACE_EFL_BEGIN(NAME) traceBegin(TTRACE_TAG_EFL, "EFL:ECORE_DRM:"#NAME)
+#  define TRACE_EFL_END() traceEnd(TTRACE_TAG_EFL)
+#  define TRACE_INPUT_BEGIN(NAME) traceBegin(TTRACE_TAG_INPUT, "INPUT:ECORE_DRM:"#NAME)
+#  define TRACE_INPUT_END() traceEnd(TTRACE_TAG_INPUT)
 # else
-#  define TRACE_BEGIN(NAME)
-#  define TRACE_END()
+#  define TRACE_EFL_BEGIN(NAME)
+#  define TRACE_EFL_END()
+#  define TRACE_INPUT_BEGIN(NAME)
+#  define TRACE_INPUT_END()
 # endif
 
 # define NUM_FRAME_BUFFERS 2

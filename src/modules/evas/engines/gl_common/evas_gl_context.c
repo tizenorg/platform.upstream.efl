@@ -658,6 +658,8 @@ evas_gl_common_context_new(void)
    gc = calloc(1, sizeof(Evas_Engine_GL_Context));
    if (!gc) return NULL;
 
+   TRACE_EFL_BEGIN(COMMON CONTEXT NEW);
+
    tbm_symbols();
    gc->gles_version = gles_version;
 
@@ -962,9 +964,12 @@ evas_gl_common_context_new(void)
 
    gc->def_surface = evas_gl_common_image_surface_new(gc, 1, 1, 1);
 
+   TRACE_EFL_END();
+
    return gc;
    error:
    evas_gl_common_context_free(gc);
+   TRACE_EFL_END();
    return NULL;
 }
 

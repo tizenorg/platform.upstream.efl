@@ -48,6 +48,17 @@ extern int _extn_have_buffer_age;
 # endif
 # define CRI(...) EINA_LOG_DOM_CRIT(_evas_engine_gl_drm_log_dom, __VA_ARGS__)
 
+# undef TRACE_EFL_BEGIN
+# undef TRACE_EFL_END
+# ifdef ENABLE_TTRACE
+#  include <ttrace.h>
+#  define TRACE_EFL_BEGIN(NAME) traceBegin(TTRACE_TAG_EFL, "EFL:EVAS_ENGINE_GL_DRM:"#NAME)
+#  define TRACE_EFL_END() traceEnd(TTRACE_TAG_EFL)
+# else
+#  define TRACE_EFL_BEGIN(NAME)
+#  define TRACE_EFL_END()
+# endif
+
 extern Evas_GL_Common_Context_New glsym_evas_gl_common_context_new;
 extern Evas_GL_Common_Context_Call glsym_evas_gl_common_context_flush;
 extern Evas_GL_Common_Context_Call glsym_evas_gl_common_context_free;

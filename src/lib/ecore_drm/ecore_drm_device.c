@@ -24,10 +24,20 @@ _ecore_drm_device_cb_page_flip(int fd EINA_UNUSED, unsigned int frame EINA_UNUSE
 
    /* DBG("Drm Page Flip Event"); */
 
-   if (!(cb = data)) return;
+   TRACE_EFL_BEGIN(DEVICE PAGEFLIP CB);
+
+   if (!(cb = data))
+     {
+        TRACE_EFL_END();
+        return;
+     }
 
    flip_count++;
-   if (flip_count < cb->count) return;
+   if (flip_count < cb->count)
+     {
+        TRACE_EFL_END();
+        return;
+     }
 
    cb->dev->current = cb->dev->next;
    cb->dev->next = NULL;
@@ -35,6 +45,8 @@ _ecore_drm_device_cb_page_flip(int fd EINA_UNUSED, unsigned int frame EINA_UNUSE
    flip_count = 0;
    if (cb->func) cb->func(cb->data);
    free(cb);
+
+   TRACE_EFL_END();
 
    /* Ecore_Drm_Output *output; */
 

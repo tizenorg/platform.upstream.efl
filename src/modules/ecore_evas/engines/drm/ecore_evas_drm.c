@@ -345,15 +345,22 @@ ecore_evas_gl_drm_new_internal(const char *device, unsigned int parent EINA_UNUS
    uint32_t flags  = GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING;
    char *num;
 
+   TRACE_EFL_BEGIN(GL DRM NEW INTERNAL);
+
    /* try to find the evas drm engine */
    if (!(method = evas_render_method_lookup("gl_drm")))
      {
         ERR("Render method lookup failed for GL Drm");
+        TRACE_EFL_END();
         return NULL;
      }
 
    /* try to init drm */
-   if (_ecore_evas_drm_init(device) < 1) return NULL;
+   if (_ecore_evas_drm_init(device) < 1)
+     {
+        TRACE_EFL_END();
+        return NULL;
+     }
 
    /* try to load gl libary, gbm libary */
    /* Typically, gbm loads the dri driver However some versions of Mesa
@@ -486,12 +493,15 @@ ecore_evas_gl_drm_new_internal(const char *device, unsigned int parent EINA_UNUS
                                (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
                                (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
 
+   TRACE_EFL_END();
    return ee;
 
 eng_err:
    ecore_evas_free(ee);
 ee_err:
    _ecore_evas_drm_shutdown();
+
+   TRACE_EFL_END();
    return NULL;
 }
 #endif
@@ -509,6 +519,8 @@ _ecore_evas_drm_init(const char *device)
         ERR("Could not initialize Ecore_Drm");
         return --_ecore_evas_init_count;
      }
+
+   TRACE_EFL_BEGIN(ECORE EVAS DRM INIT);
 
    /* try to find the device */
    if (!(dev = ecore_drm_device_find(device, NULL)))
@@ -560,6 +572,7 @@ _ecore_evas_drm_init(const char *device)
 
    ecore_event_evas_init();
 
+   TRACE_EFL_END();
    return _ecore_evas_init_count;
 
 output_err:
@@ -574,6 +587,8 @@ dev_open_err:
 launcher_err:
 dev_err:
    ecore_drm_shutdown();
+
+   TRACE_EFL_END();
    return --_ecore_evas_init_count;
 }
 

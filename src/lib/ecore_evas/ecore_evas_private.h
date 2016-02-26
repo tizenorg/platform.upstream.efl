@@ -59,6 +59,17 @@ EAPI extern int _ecore_evas_log_dom;
 #endif
 #define CRI(...) EINA_LOG_DOM_CRIT(_ecore_evas_log_dom, __VA_ARGS__)
 
+# undef TRACE_EFL_BEGIN
+# undef TRACE_EFL_END
+# ifdef ENABLE_TTRACE
+#  include <ttrace.h>
+#  define TRACE_EFL_BEGIN(NAME) traceBegin(TTRACE_TAG_EFL, "EFL:ECORE_EVAS:"#NAME)
+#  define TRACE_EFL_END() traceEnd(TTRACE_TAG_EFL)
+# else
+#  define TRACE_EFL_BEGIN(NAME)
+#  define TRACE_EFL_END()
+# endif
+
 #define PORTRAIT_CHECK(r) \
   ((r == 0) || (r == 180))
 

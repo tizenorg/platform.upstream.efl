@@ -249,6 +249,7 @@ ecore_drm_fb_send(Ecore_Drm_Device *dev, Ecore_Drm_Fb *fb, Ecore_Drm_Pageflip_Cb
         ecore_drm_output_current_fb_info_set(output, fb->hdl, fb->w, fb->h,
                                              DRM_FORMAT_ARGB8888);
 
+        TRACE_EFL_BEGIN(DRM FB SEND PAGEFLIP);
         if (drmModePageFlip(dev->drm.fd, output->crtc_id, fb->id,
                             DRM_MODE_PAGE_FLIP_EVENT, cb) < 0)
           {
@@ -256,6 +257,7 @@ ecore_drm_fb_send(Ecore_Drm_Device *dev, Ecore_Drm_Fb *fb, Ecore_Drm_Pageflip_Cb
                  output->crtc_id, output->conn_id);
              continue;
           }
+        TRACE_EFL_END();
 
         fb->pending_flip = EINA_TRUE;
      }

@@ -962,12 +962,15 @@ ecore_drm_outputs_create(Ecore_Drm_Device *dev)
    EINA_SAFETY_ON_NULL_RETURN_VAL(dev, EINA_FALSE);
    EINA_SAFETY_ON_TRUE_RETURN_VAL(dev->drm.fd < 0, EINA_FALSE);
 
+   TRACE_EFL_BEGIN(DRM OUTPUTS CREATE);
+
    /* DBG("Create outputs for %d", dev->drm.fd); */
 
    /* get the resources */
    if (!(res = drmModeGetResources(dev->drm.fd)))
      {
         ERR("Could not get resources for drm card: %m");
+        TRACE_EFL_END();
         return EINA_FALSE;
      }
 
@@ -976,6 +979,7 @@ ecore_drm_outputs_create(Ecore_Drm_Device *dev)
         ERR("Could not allocate space for crtcs");
         /* free resources */
         drmModeFreeResources(res);
+        TRACE_EFL_END();
         return EINA_FALSE;
      }
 
@@ -1022,6 +1026,8 @@ next:
 
    /* free resources */
    drmModeFreeResources(res);
+
+   TRACE_EFL_END();
 
    return ret;
 }

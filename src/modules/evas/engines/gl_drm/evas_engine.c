@@ -785,6 +785,8 @@ eng_setup(Evas *evas, void *in)
    /* try to get the evas public data */
    if (!(epd = eo_data_scope_get(evas, EVAS_CANVAS_CLASS))) return 0;
 
+   TRACE_EFL_BEGIN(SETUP);
+
    s = getenv("EVAS_GL_SWAP_MODE");
    if (s)
      {
@@ -855,6 +857,7 @@ eng_setup(Evas *evas, void *in)
         if (!eng_gbm_init(info))
           {
              free(re);
+             TRACE_EFL_END();
              return 0;
           }
 
@@ -864,6 +867,7 @@ eng_setup(Evas *evas, void *in)
           {
              eng_gbm_shutdown(info);
              free(re);
+             TRACE_EFL_END();
              return 0;
           }
 
@@ -891,6 +895,7 @@ eng_setup(Evas *evas, void *in)
              evas_outbuf_free(ob);
              eng_gbm_shutdown(info);
              free(re);
+             TRACE_EFL_END();
              return 0;
           }
 
@@ -934,6 +939,7 @@ eng_setup(Evas *evas, void *in)
                     {
                        if (ob_old) evas_outbuf_free(ob_old);
                        free(re);
+                       TRACE_EFL_END();
                        return 0;
                     }
 
@@ -962,6 +968,7 @@ eng_setup(Evas *evas, void *in)
    if (!eng_get_ob(re))
      {
         free(re);
+        TRACE_EFL_END();
         return 0;
      }
 
@@ -974,6 +981,7 @@ eng_setup(Evas *evas, void *in)
              eng_gbm_shutdown(info);
           }
         free(re);
+        TRACE_EFL_END();
         return 0;
      }
 
@@ -996,6 +1004,7 @@ eng_setup(Evas *evas, void *in)
 
    evas_outbuf_use(eng_get_ob(re));
 
+   TRACE_EFL_END();
    return 1;
 }
 
@@ -1350,8 +1359,14 @@ module_open(Evas_Module *em)
    /* check for valid evas module */
    if (!em) return 0;
 
+   TRACE_EFL_BEGIN(GL DRM ENGINE OPEN);
+
    /* get whatever engine module we inherit from */
-   if (!_evas_module_engine_inherit(&pfunc, "gl_generic")) return 0;
+   if (!_evas_module_engine_inherit(&pfunc, "gl_generic"))
+     {
+        TRACE_EFL_END();
+        return 0;
+     }
 
    /* try to create eina logging domain */
    if (_evas_engine_gl_drm_log_dom < 0)
@@ -1364,6 +1379,7 @@ module_open(Evas_Module *em)
    if (_evas_engine_gl_drm_log_dom < 0)
      {
         EINA_LOG_ERR("Can not create a module log domain.");
+        TRACE_EFL_END();
         return 0;
      }
 
@@ -1393,12 +1409,14 @@ module_open(Evas_Module *em)
         EINA_LOG_ERR("GLES driver doesn't support EGL_WL_bind_wayland_display extension.");
         eina_log_domain_unregister(_evas_engine_gl_drm_log_dom);
         /* TODO: unload gl_generic engine too */
+        TRACE_EFL_END();
         return 0;
      }
 
    /* now advertise out own api */
    em->functions = (void *)(&func);
 
+   TRACE_EFL_END();
    return 1;
 }
 

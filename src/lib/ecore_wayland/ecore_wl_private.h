@@ -399,4 +399,6 @@ struct wl_compositor *_ecore_wl_compositor_get(void);
 struct wl_subcompositor *_ecore_wl_subcompositor_get(void);
 
 void _ecore_wl_input_device_manager_setup(unsigned int id);
+int ecore_wl_keycode_from_keysym(struct xkb_keymap *keymap, xkb_keysym_t keysym, xkb_keycode_t **keycodes);
+
 #endif

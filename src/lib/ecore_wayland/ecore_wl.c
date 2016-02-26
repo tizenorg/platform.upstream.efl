@@ -1077,8 +1077,8 @@ static void find_keycode(struct xkb_keymap *keymap, xkb_keycode_t key, void *dat
 }
 
 //If there are several keycodes, ecore_wl only deals with first keycode.
-static int
-_ecore_wl_keycode_from_keysym(struct xkb_keymap *keymap, xkb_keysym_t keysym, xkb_keycode_t **keycodes)
+int
+ecore_wl_keycode_from_keysym(struct xkb_keymap *keymap, xkb_keysym_t keysym, xkb_keycode_t **keycodes)
 {
    Keycode_Map found_keycodes = {0,};
    found_keycodes.keysym = keysym;
@@ -1165,7 +1165,7 @@ ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key, int mod EINA_
           }
 
         if (_ecore_wl_disp->input->xkb.keymap)
-          num_keycodes = _ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap, keysym, &keycodes);
+          num_keycodes = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap, keysym, &keycodes);
         else
           {
              WRN("Keymap is not ready");
@@ -1240,7 +1240,7 @@ ecore_wl_window_keygrab_unset(Ecore_Wl_Window *win, const char *key, int mod EIN
 
    //We have to find the way to get keycode from keysym before keymap notify
    if (_ecore_wl_disp->input->xkb.keymap)
-     num_keycodes = _ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap, keysym, &keycodes);
+     num_keycodes = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap, keysym, &keycodes);
    else
      {
         WRN("Keymap is not ready");

@@ -97,6 +97,9 @@ static void _ecore_wl_input_device_cb_device_info(void *data, struct tizen_input
 static void _ecore_wl_input_device_cb_event_device(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, unsigned int serial EINA_UNUSED, const char *name EINA_UNUSED, uint32_t time EINA_UNUSED);
 static void _ecore_wl_input_device_cb_axis(void *data EINA_UNUSED, struct tizen_input_device *tizen_input_device EINA_UNUSED, uint32_t axis_type EINA_UNUSED, wl_fixed_t value EINA_UNUSED);
 
+static void _ecore_wl_input_key_conversion_clean_up(void);
+static void _ecore_wl_input_key_conversion_set(void);
+
 /* static int _ecore_wl_input_keysym_to_string(unsigned int symbol, char *buffer, int len); */
 
 /* wayland interfaces */
@@ -164,6 +167,16 @@ static const struct tizen_input_device_listener _ecore_tizen_input_device_listen
 
 /* local variables */
 static int _pointer_x, _pointer_y;
+static double _tizen_api_version = 0.0;
+static int _back_key_lt_24 = 0;
+static int _menu_key_lt_24 = 0;
+static int _home_key_lt_24 = 0;
+static int _num_back_key_latest = 0;
+static int _num_menu_key_latest = 0;
+static int _num_home_key_latest = 0;
+static xkb_keycode_t *_back_key_latest = NULL;
+static xkb_keycode_t *_menu_key_latest = NULL;
+static xkb_keycode_t *_home_key_latest = NULL;
 
 EAPI void
 ecore_wl_input_grab(Ecore_Wl_Input *input, Ecore_Wl_Window *win, unsigned int button)
@@ -580,6 +593,7 @@ _ecore_wl_input_seat_handle_capabilities(void *data, struct wl_seat *seat, enum 
      {
         wl_keyboard_destroy(input->keyboard);
         input->keyboard = NULL;
+        _ecore_wl_input_key_conversion_clean_up();
      }
 
    if ((caps & WL_SEAT_CAPABILITY_TOUCH) && (!input->touch))
@@ -744,6 +758,11 @@ _ecore_wl_input_cb_keyboard_keymap(void *data, struct wl_keyboard *keyboard EINA
         return;
      }
 
+
+   // TIZEN ONLY(20160223) : Add back/menu/home key conversion support
+   _tizen_api_version = 0.0;
+   _ecore_wl_input_key_conversion_set();
+
    input->xkb.control_mask =
      1 << xkb_map_mod_get_index(input->xkb.keymap, XKB_MOD_NAME_CTRL);
    input->xkb.alt_mask =
@@ -806,6 +825,38 @@ _ecore_wl_input_keymap_translate_keysym(xkb_keysym_t keysym, unsigned int modifi
    return 1;
 }
 
+static int
+_ecore_wl_input_convert_old_keys(unsigned int code)
+{
+   int i;
+
+   for (i = 0; i < _num_back_key_latest; i++)
+     {
+        if (code == _back_key_latest[i])
+          {
+             return _back_key_lt_24;
+          }
+     }
+
+   for (i=0; i<_num_menu_key_latest; i++)
+     {
+        if (code == _menu_key_latest[i])
+          {
+             return _menu_key_lt_24;
+          }
+     }
+
+   for (i=0; i<_num_home_key_latest; i++)
+     {
+        if (code == _home_key_latest[i])
+          {
+             return _home_key_lt_24;
+          }
+     }
+
+   return code;
+}
+
 static void
 _ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard EINA_UNUSED, unsigned int serial, unsigned int timestamp, unsigned int keycode, unsigned int state)
 {
@@ -832,6 +883,15 @@ _ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard EINA_UN
 //
    /* xkb rules reflect X broken keycodes, so offset by 8 */
    code = keycode + 8;
+
+// TIZEN ONLY(20160223) : Add back/menu/home key conversion support
+   if (_tizen_api_version == 0.0) _ecore_wl_input_key_conversion_set();
+
+// TIZEN_ONLY(20160223) : Do keycode conversion for the back/menu/home key(s),
+// if it is one of the back/menu/home key and _tizen_api_version is less than 2.4.
+   if (0.0 < _tizen_api_version && _tizen_api_version < 2.4)
+      code = _ecore_wl_input_convert_old_keys(code);
+
    INF("Key[%d] event occurs", code);
 
    if (!win)
@@ -1954,4 +2014,84 @@ _ecore_wl_input_device_cb_axis(void *data EINA_UNUSED, struct tizen_input_device
            break;
      }
    return;
+}
+
+static void
+_ecore_wl_input_key_conversion_clean_up(void)
+{
+   _back_key_lt_24 = 0;
+   _menu_key_lt_24 = 0;
+   _home_key_lt_24 = 0;
+
+   _num_back_key_latest = 0;
+   _num_menu_key_latest = 0;
+   _num_home_key_latest = 0;
+
+   if (_back_key_latest)
+     {
+        free(_back_key_latest);
+        _back_key_latest = NULL;
+     }
+   if (_menu_key_latest)
+     {
+        free(_menu_key_latest);
+        _menu_key_latest = NULL;
+     }
+   if (_home_key_latest)
+     {
+        free(_home_key_latest);
+        _home_key_latest = NULL;
+     }
+}
+
+static void
+_ecore_wl_input_key_conversion_set(void)
+{
+   char *temp;
+   xkb_keycode_t *keycodes = NULL;
+
+   if ((_tizen_api_version < 0.0) || (_tizen_api_version > 0.0)) return;
+   EINA_SAFETY_ON_NULL_RETURN(_ecore_wl_disp->input);
+   EINA_SAFETY_ON_NULL_RETURN(_ecore_wl_disp->input->xkb.keymap);
+
+   temp = getenv("TIZEN_API_VERSION");
+
+   if (!temp) _tizen_api_version = -1.0;
+   else
+     {
+        _tizen_api_version = atof(temp);
+        if (_tizen_api_version < 2.4)
+          {
+             _ecore_wl_input_key_conversion_clean_up();
+
+             ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
+                xkb_keysym_from_name("XF86Stop", XKB_KEYSYM_NO_FLAGS), &keycodes);
+             _back_key_lt_24 = (int)keycodes[0];
+             free(keycodes);
+             keycodes = NULL;
+
+             ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
+                xkb_keysym_from_name("XF86Send", XKB_KEYSYM_NO_FLAGS), &keycodes);
+             _menu_key_lt_24 = (int)keycodes[0];
+             free(keycodes);
+             keycodes = NULL;
+
+             ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
+                xkb_keysym_from_name("XF86Phone", XKB_KEYSYM_NO_FLAGS), &keycodes);
+             _home_key_lt_24 = (int)keycodes[0];
+             free(keycodes);
+             keycodes = NULL;
+
+             _num_back_key_latest  = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
+                xkb_keysym_from_name("XF86Back", XKB_KEYSYM_NO_FLAGS), &_back_key_latest);
+             _num_menu_key_latest  = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
+                xkb_keysym_from_name("XF86Menu", XKB_KEYSYM_NO_FLAGS), &_menu_key_latest);
+             _num_home_key_latest  = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
+                xkb_keysym_from_name("XF86Home", XKB_KEYSYM_NO_FLAGS), &_home_key_latest);
+          }
+        else
+          {
+             _ecore_wl_input_key_conversion_clean_up();
+          }
+     }
 }

@@ -843,9 +843,9 @@ _ecore_drm_display_output_mode_set_with_fb(Ecore_Drm_Output *output, Ecore_Drm_O
         tdm_output_set_mode(hal_output->output, mode->hal_mode);
         tdm_layer_set_info(hal_output->primary_layer, &info);
         tdm_layer_set_buffer(hal_output->primary_layer, tdm_buffer);
-        TRACE_OUTPUT_BEGIN(Mode_Set);
+        TRACE_EFL_BEGIN(Mode_Set);
         tdm_output_commit(hal_output->output, 0, NULL, NULL);
-        TRACE_OUTPUT_END();
+        TRACE_EFL_END();
      }
    else
      {

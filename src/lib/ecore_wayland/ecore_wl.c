@@ -1228,6 +1228,7 @@ ecore_wl_window_keygrab_unset(Ecore_Wl_Window *win, const char *key, int mod EIN
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
+   if ((!_ecore_wl_disp) || (!_ecore_wl_disp->wl.keyrouter)) return EINA_FALSE;
    if (!key) return EINA_FALSE;
    INF("win=%p key=%s ", win, key);
 
@@ -1239,7 +1240,7 @@ ecore_wl_window_keygrab_unset(Ecore_Wl_Window *win, const char *key, int mod EIN
      }
 
    //We have to find the way to get keycode from keysym before keymap notify
-   if (_ecore_wl_disp->input->xkb.keymap)
+   if ((_ecore_wl_disp->input) && (_ecore_wl_disp->input->xkb.keymap))
      num_keycodes = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap, keysym, &keycodes);
    else
      {

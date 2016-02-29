@@ -305,10 +305,10 @@ typedef enum _Evas_Native_Surface_Type
    EVAS_NATIVE_SURFACE_NONE, /**< No surface type */
    EVAS_NATIVE_SURFACE_X11,  /**< X Window system based type. pixmap id or visual of the pixmap */
    EVAS_NATIVE_SURFACE_OPENGL, /**< OpenGL system based type. texture or framebuffer id*/
-   EVAS_NATIVE_SURFACE_WL, /**< Wayland system based type. buffer of surface */
    EVAS_NATIVE_SURFACE_TIZEN, /**< @deprecated Kept for ABI compatibility. DO NOT USE. */
    EVAS_NATIVE_SURFACE_TBM, /**< Tizen system based type. tbm surface @since 1.14  */
    EVAS_NATIVE_SURFACE_EVASGL, /**< Evas GL based type. evas gl surface @since 1.14 */
+   EVAS_NATIVE_SURFACE_WL, /**< Wayland system based type. buffer of surface */
 } Evas_Native_Surface_Type;
 
 /**

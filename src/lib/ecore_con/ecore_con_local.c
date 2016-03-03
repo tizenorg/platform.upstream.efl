@@ -98,6 +98,9 @@ _ecore_con_local_get_socket_from_server()
    struct tizen_embedded_compositor *tec = NULL;
    int fd = -1;
 
+   if (ecore_wl_server_mode_get())
+     return -1;
+
    l = ecore_wl_globals_get();
    if (!l)
      {

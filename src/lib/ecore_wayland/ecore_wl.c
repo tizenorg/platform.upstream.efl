@@ -555,6 +555,12 @@ ecore_wl_server_mode_set(Eina_Bool on)
    _ecore_wl_server_mode = on;
 }
 
+EAPI Eina_Bool
+ecore_wl_server_mode_get(void)
+{
+   return _ecore_wl_server_mode;
+}
+
 /* local functions */
 static int
 _ecore_wl_shutdown(Eina_Bool close)

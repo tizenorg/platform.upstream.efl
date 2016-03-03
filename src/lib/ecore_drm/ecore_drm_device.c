@@ -622,6 +622,13 @@ ecore_drm_device_pointer_xy_get(Ecore_Drm_Device *dev, int *x, int *y)
      }
 }
 
+#ifdef HAVE_TDM
+EAPI Eina_Bool
+ecore_drm_device_software_setup(Ecore_Drm_Device *dev EINA_UNUSED)
+{
+	return EINA_TRUE;
+}
+#else
 EAPI Eina_Bool
 ecore_drm_device_software_setup(Ecore_Drm_Device *dev)
 {
@@ -667,6 +674,7 @@ err:
      }
    return EINA_FALSE;
 }
+#endif
 
 EAPI Ecore_Drm_Output *
 ecore_drm_device_output_find(Ecore_Drm_Device *dev, int x, int y)

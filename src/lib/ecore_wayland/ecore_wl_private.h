@@ -99,6 +99,7 @@ struct _Ecore_Wl_Display
         struct tizen_surface *tz_surf;
         struct tizen_keyrouter *keyrouter;
         struct tizen_input_device_manager *tz_input_device_manager;
+        struct tizen_effect *tz_effect;
      } wl;
 
    int fd;

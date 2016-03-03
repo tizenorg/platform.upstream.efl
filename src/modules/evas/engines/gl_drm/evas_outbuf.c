@@ -466,6 +466,9 @@ evas_outbuf_new(Evas_Engine_Info_GL_Drm *info, int w, int h, Render_Engine_Swap_
         return NULL;
      }
 
+   /* HWC: set the gbm_surface to the engine_info */
+   if (info->info.hwc_enable) info->info.surface =  ob->surface;
+
    return ob;
 }
 
@@ -847,29 +850,39 @@ evas_outbuf_flush(Outbuf *ob, Tilebuf_Rect *rects, Evas_Render_Mode render_mode)
    if (ob->info->callback.post_swap)
      ob->info->callback.post_swap(ob->info->callback.data, ob->evas);
 
-   if (rects)
+   /* HWC: do not display the ecore_evas at gl_drm engine
+           hwc at enlightenment will update the display device */
+   if (ob->info->info.hwc_enable)
      {
-        Tilebuf_Rect *r;
-        Eina_Rectangle *res;
-        int num, i = 0;
-
-        num = eina_inlist_count(EINA_INLIST_GET(rects));
-        res = alloca(sizeof(Eina_Rectangle) * num);
-        EINA_INLIST_FOREACH(EINA_INLIST_GET(rects), r)
-          {
-             res[i].x = r->x;
-             res[i].y = r->y;
-             res[i].w = r->w;
-             res[i].h = r->h;
-             i++;
-          }
-
-        _evas_outbuf_buffer_swap(ob, res, num);
+        /* The pair of evas_outbuf_flush and post_render has to be matched */
+        ob->info->info.outbuf_flushed = EINA_TRUE;
+        INF("HWC: evas outbuf flushed");
      }
    else
-     //Flush GL Surface data to Framebuffer
-     _evas_outbuf_buffer_swap(ob, NULL, 0);
+     {
+        if (rects)
+          {
+             Tilebuf_Rect *r;
+             Eina_Rectangle *res;
+             int num, i = 0;
 
+             num = eina_inlist_count(EINA_INLIST_GET(rects));
+             res = alloca(sizeof(Eina_Rectangle) * num);
+             EINA_INLIST_FOREACH(EINA_INLIST_GET(rects), r)
+               {
+                  res[i].x = r->x;
+                  res[i].y = r->y;
+                  res[i].w = r->w;
+                  res[i].h = r->h;
+                  i++;
+               }
+
+             _evas_outbuf_buffer_swap(ob, res, num);
+          }
+        else
+          //Flush GL Surface data to Framebuffer
+          _evas_outbuf_buffer_swap(ob, NULL, 0);
+     }
    ob->priv.frame_cnt++;
 
 end:

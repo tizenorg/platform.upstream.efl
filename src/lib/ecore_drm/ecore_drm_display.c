@@ -236,7 +236,13 @@ create_err:
 void
 _ecore_drm_display_fb_destroy(Ecore_Drm_Fb *fb)
 {
+   Ecore_Drm_Device *dev;
+
    if ((!fb) || (!fb->mmap)) return;
+
+   dev = fb->dev;
+   if (dev->next == fb)
+      dev->next = NULL;
 
    ecore_drm_display_fb_remove(fb);
 
@@ -840,6 +846,16 @@ _ecore_drm_display_output_mode_set_with_fb(Ecore_Drm_Output *output, Ecore_Drm_O
         info.dst_pos.h = info.src_config.pos.h;
         info.transform = 0;
 
+        /* do nothing if size is invalid */
+        if (info.src_config.size.h < info.src_config.pos.w ||
+            info.src_config.size.v < info.src_config.pos.h)
+          {
+             WRN("size(%dx%d) less than pos_size(%dx%d)",
+                 info.src_config.size.h, info.src_config.size.v,
+                 info.src_config.pos.w, info.src_config.pos.h);
+             return EINA_TRUE;
+          }
+
         tdm_output_set_mode(hal_output->output, mode->hal_mode);
         tdm_layer_set_info(hal_output->primary_layer, &info);
         tdm_layer_set_buffer(hal_output->primary_layer, tdm_buffer);
@@ -908,6 +924,19 @@ _ecore_drm_display_output_wait_vblank(Ecore_Drm_Output *output, int interval, Ec
      }
 
    return EINA_TRUE;
+}
+
+void*
+_ecore_drm_display_output_hal_private_get(Ecore_Drm_Output *output)
+{
+   Ecore_Drm_Hal_Output *hal_output;
+
+   EINA_SAFETY_ON_NULL_RETURN_VAL(output, NULL);
+
+   hal_output = output->hal_output;
+   EINA_SAFETY_ON_NULL_RETURN_VAL(hal_output, NULL);
+
+   return hal_output->output;
 }
 
 EAPI Ecore_Drm_Fb*

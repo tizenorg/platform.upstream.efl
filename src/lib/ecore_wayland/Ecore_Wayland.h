@@ -1002,6 +1002,8 @@ EAPI struct wl_array *ecore_wl_dnd_drag_types_get(Ecore_Wl_Input *input);
  */
 EAPI void ecore_wl_server_mode_set(Eina_Bool on);
 
+EAPI Eina_Bool ecore_wl_server_mode_get(void);
+
 /**
  * @defgroup Ecore_Wl_Subsurf Functions to manipulate subsurfaces.
  * @ingroup Ecore_Wl_Group

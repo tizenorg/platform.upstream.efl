@@ -1341,6 +1341,17 @@ ecore_drm_output_dpms_get(Ecore_Drm_Output *output)
    return output->dpms_level;
 }
 
+EAPI void *
+ecore_drm_output_hal_private_get(Ecore_Drm_Output *output)
+{
+   EINA_SAFETY_ON_NULL_RETURN_VAL(output, NULL);
+   EINA_SAFETY_ON_NULL_RETURN_VAL(output->hal_output, NULL);
+
+   return _ecore_drm_display_output_hal_private_get(output);
+}
+
+
+
 #ifndef HAVE_TDM
 EAPI void
 ecore_drm_output_gamma_set(Ecore_Drm_Output *output, uint16_t size, uint16_t *r, uint16_t *g, uint16_t *b)

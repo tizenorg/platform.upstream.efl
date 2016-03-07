@@ -319,6 +319,7 @@ void _ecore_drm_display_output_crtc_size_get(Ecore_Drm_Output *output, int *widt
 Eina_Bool _ecore_drm_display_output_mode_set(Ecore_Drm_Output *output, Ecore_Drm_Output_Mode *mode, int x, int y);
 Eina_Bool _ecore_drm_display_output_possible_crtc_get(Ecore_Drm_Output *output, unsigned int crtc);
 Eina_Bool _ecore_drm_display_output_wait_vblank(Ecore_Drm_Output *output, int interval, Ecore_Drm_VBlank_Cb func, void *data);
+void* _ecore_drm_display_output_hal_private_get(Ecore_Drm_Output *output);
 #endif
 
 Ecore_Drm_Evdev *_ecore_drm_evdev_device_create(Ecore_Drm_Seat *seat, struct libinput_device *device);

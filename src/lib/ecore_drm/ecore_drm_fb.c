@@ -57,9 +57,6 @@ _ecore_drm_fb_create2(int fd, Ecore_Drm_Fb *fb)
 EAPI Ecore_Drm_Fb *
 ecore_drm_fb_create(Ecore_Drm_Device *dev, int width, int height)
 {
-#ifdef HAVE_TDM
-   return _ecore_drm_display_fb_create(dev, width, height);
-#else
    Ecore_Drm_Fb *fb;
    struct drm_mode_create_dumb carg;
    struct drm_mode_destroy_dumb darg;
@@ -67,6 +64,15 @@ ecore_drm_fb_create(Ecore_Drm_Device *dev, int width, int height)
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(dev, NULL);
    EINA_SAFETY_ON_TRUE_RETURN_VAL((width < 1) || (height < 1), NULL);
+
+#ifdef HAVE_TDM
+   drmVersionPtr ver = drmGetVersion(ecore_drm_device_fd_get(dev));
+   if (ver)
+     drmFreeVersion(ver);
+   else
+     return _ecore_drm_display_fb_create(dev, width, height);
+#endif
+
    if (!(fb = calloc(1, sizeof(Ecore_Drm_Fb)))) return NULL;
 
    memset(&carg, 0, sizeof(struct drm_mode_create_dumb));
@@ -89,6 +95,7 @@ ecore_drm_fb_create(Ecore_Drm_Device *dev, int width, int height)
    fb->w = width;
    fb->h = height;
 
+#ifndef HAVE_TDM
    if (!_ecore_drm_fb_create2(dev->drm.fd, fb))
      {
         WRN("Could not add framebuffer2: %m");
@@ -99,6 +106,48 @@ ecore_drm_fb_create(Ecore_Drm_Device *dev, int width, int height)
              goto add_err;
           }
      }
+#endif
+
+#ifdef HAVE_TDM
+   struct drm_gem_flink arg = {0, };
+   tbm_bufmgr bufmgr;
+   tbm_bo bo;
+   tbm_surface_info_s info = {0,};
+
+   arg.handle = fb->hdl;
+   if (drmIoctl(dev->drm.fd, DRM_IOCTL_GEM_FLINK, &arg))
+     {
+        ERR("Cannot convert to flink: %m");
+        goto map_err;
+     }
+
+   bufmgr = tbm_bufmgr_init(dev->drm.fd);
+   bo = tbm_bo_import(bufmgr, arg.name);
+	tbm_bufmgr_deinit(bufmgr);
+
+   if (!bo)
+     {
+        ERR("Cannot import (%d)", arg.name);
+        goto map_err;
+     }
+
+   info.width = fb->w;
+   info.height = fb->h;
+   info.format = TBM_FORMAT_XRGB8888;
+   info.bpp = tbm_surface_internal_get_bpp(info.format);
+   info.num_planes = 1;
+   info.planes[0].stride = fb->stride;
+   fb->hal_buffer = tbm_surface_internal_create_with_bos(&info, &bo, 1);
+   if (!fb->hal_buffer)
+     {
+        ERR("Cannot create hal_buffer");
+        goto map_err;
+     }
+
+   tbm_bo_unref(bo);
+   ecore_drm_display_fb_add(fb);
+   fb->dev = dev;
+#endif
 
    memset(&marg, 0, sizeof(struct drm_mode_map_dumb));
    marg.handle = fb->hdl;
@@ -121,49 +170,67 @@ ecore_drm_fb_create(Ecore_Drm_Device *dev, int width, int height)
    return fb;
 
 map_err:
+#ifndef HAVE_TDM
    drmModeRmFB(fb->fd, fb->id);
 add_err:
+#endif
    memset(&darg, 0, sizeof(struct drm_mode_destroy_dumb));
    darg.handle = fb->hdl;
    drmIoctl(dev->drm.fd, DRM_IOCTL_MODE_DESTROY_DUMB, &darg);
 create_err:
    free(fb);
    return NULL;
-#endif
 }
 
 EAPI void 
 ecore_drm_fb_destroy(Ecore_Drm_Fb *fb)
 {
-#ifdef HAVE_TDM
-   _ecore_drm_display_fb_destroy(fb);
-#else
    struct drm_mode_destroy_dumb darg;
 
    if ((!fb) || (!fb->mmap)) return;
 
+#ifdef HAVE_TDM
+   Ecore_Drm_Device *dev;
+   drmVersionPtr ver = drmGetVersion(fb->fd);
+   if (ver)
+     drmFreeVersion(ver);
+   else
+     {
+        _ecore_drm_display_fb_destroy(fb);
+        return;
+     }
+
+   dev = fb->dev;
+   if (dev->next == fb)
+      dev->next = NULL;
+
+   ecore_drm_display_fb_remove(fb);
+   if (fb->hal_buffer)
+     tbm_surface_destroy(fb->hal_buffer);
+#endif
+
+#ifndef HAVE_TDM
    if (fb->id) drmModeRmFB(fb->fd, fb->id);
+#endif
    munmap(fb->mmap, fb->size);
    memset(&darg, 0, sizeof(struct drm_mode_destroy_dumb));
    darg.handle = fb->hdl;
    drmIoctl(fb->fd, DRM_IOCTL_MODE_DESTROY_DUMB, &darg);
    free(fb);
-#endif
 }
 
+#ifdef HAVE_TDM
+EAPI void
+ecore_drm_fb_dirty(Ecore_Drm_Fb *fb EINA_UNUSED, Eina_Rectangle *rects EINA_UNUSED, unsigned int count EINA_UNUSED)
+{
+}
+#else
 EAPI void
 ecore_drm_fb_dirty(Ecore_Drm_Fb *fb, Eina_Rectangle *rects, unsigned int count)
 {
    EINA_SAFETY_ON_NULL_RETURN(fb);
 
    if ((!rects) || (!count)) return;
-
-#ifdef HAVE_TDM
-   drmVersionPtr ver = drmGetVersion(ecore_drm_device_fd_get(fb->dev));
-   if (ver) drmFreeVersion(ver);
-   else return;
-   /* FIXME: need to let TDM know the dirty rects? */
-#endif
 
 #ifdef DRM_MODE_FEATURE_DIRTYFB
    drmModeClip *clip;
@@ -187,6 +254,7 @@ ecore_drm_fb_dirty(Ecore_Drm_Fb *fb, Eina_Rectangle *rects, unsigned int count)
      }
 #endif
 }
+#endif
 
 EAPI void
 ecore_drm_fb_set(Ecore_Drm_Device *dev, Ecore_Drm_Fb *fb)

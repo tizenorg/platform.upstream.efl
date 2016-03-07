@@ -926,6 +926,19 @@ _ecore_drm_display_output_wait_vblank(Ecore_Drm_Output *output, int interval, Ec
    return EINA_TRUE;
 }
 
+void*
+_ecore_drm_display_output_hal_private_get(Ecore_Drm_Output *output)
+{
+   Ecore_Drm_Hal_Output *hal_output;
+
+   EINA_SAFETY_ON_NULL_RETURN_VAL(output, NULL);
+
+   hal_output = output->hal_output;
+   EINA_SAFETY_ON_NULL_RETURN_VAL(hal_output, NULL);
+
+   return hal_output->output;
+}
+
 EAPI Ecore_Drm_Fb*
 ecore_drm_display_output_primary_layer_fb_get(Ecore_Drm_Output *output)
 {

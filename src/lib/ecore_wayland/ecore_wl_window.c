@@ -7,13 +7,6 @@
 #include "session-recovery-client-protocol.h"
 #include <tizen-extension-client-protocol.h>
 
-typedef struct
-{
-   Eina_Stringshare *hint;
-   Eina_Stringshare *val;
-   int id;
-} Aux_Hint_Item;
-
 /* local function prototypes */
 static void _ecore_wl_window_cb_ping(void *data EINA_UNUSED, struct wl_shell_surface *shell_surface, unsigned int serial);
 static void _ecore_wl_window_cb_configure(void *data, struct wl_shell_surface *shell_surface EINA_UNUSED, unsigned int edges, int w, int h);
@@ -103,25 +96,6 @@ Eina_Hash *
 _ecore_wl_window_hash_get(void)
 {
    return _windows;
-}
-
-static void
-_ecore_wl_window_aux_hints_init(Ecore_Wl_Window *win)
-{
-   Eina_Iterator *itr;
-   Aux_Hint_Item *it;
-
-   if (!win->aux_hints)
-     return;
-
-   itr = eina_hash_iterator_data_new(win->aux_hints);
-   EINA_ITERATOR_FOREACH(itr, it)
-     {
-        tizen_policy_add_aux_hint(_ecore_wl_disp->wl.tz_policy,
-                                  win->surface,
-                                  it->id, it->hint, it->val);
-     }
-   eina_iterator_free(itr);
 }
 
 void
@@ -346,8 +320,6 @@ _ecore_wl_window_shell_surface_init(Ecore_Wl_Window *win)
         _ecore_wl_window_show_send(win);
         win->visible = EINA_TRUE;
      }
-
-   _ecore_wl_window_aux_hints_init(win);
 }
 
 EAPI Ecore_Wl_Window *
@@ -397,12 +369,8 @@ void
 _ecore_wl_window_aux_hint_free(Ecore_Wl_Window *win)
 {
    char *supported;
-
    EINA_LIST_FREE(win->supported_aux_hints, supported)
      if (supported) eina_stringshare_del(supported);
-
-   eina_hash_free(win->aux_hints);
-   win->aux_hints = NULL;
 }
 
 EAPI void 
@@ -2018,39 +1986,11 @@ ecore_wl_window_aux_hints_supported_get(Ecore_Wl_Window *win)
    return res;
 }
 
-static void
-_cb_aux_hint_item_free(void *data)
-{
-   Aux_Hint_Item *it;
-
-   it = data;
-   if (EINA_UNLIKELY(!it))
-     return;
-
-   eina_stringshare_del(it->hint);
-   eina_stringshare_del(it->val);
-
-   free(it);
-}
-
 EAPI void
 ecore_wl_window_aux_hint_add(Ecore_Wl_Window *win, int id, const char *hint, const char *val)
 {
-   Aux_Hint_Item *it;
-
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
    if (!win) return;
-
-   if (!win->aux_hints)
-     win->aux_hints = eina_hash_string_superfast_new(_cb_aux_hint_item_free);
-
-   it = calloc(1, sizeof(Aux_Hint_Item));
-   it->id = id;
-   it->hint = eina_stringshare_add(hint);
-   it->val = eina_stringshare_add(val);
-
-   eina_hash_add(win->aux_hints, _ecore_wl_window_id_str_get(id), it);
-
    if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
      tizen_policy_add_aux_hint(_ecore_wl_disp->wl.tz_policy, win->surface, id, hint, val);
 }
@@ -2058,15 +1998,8 @@ ecore_wl_window_aux_hint_add(Ecore_Wl_Window *win, int id, const char *hint, con
 EAPI void
 ecore_wl_window_aux_hint_change(Ecore_Wl_Window *win, int id, const char *val)
 {
-   Aux_Hint_Item *it;
-
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
    if (!win) return;
-   if (!win->aux_hints) return;
-
-   it = eina_hash_find(win->aux_hints, _ecore_wl_window_id_str_get(id));
-   eina_stringshare_replace(&it->val, val);
-
    if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
      tizen_policy_change_aux_hint(_ecore_wl_disp->wl.tz_policy, win->surface, id, val);
 }
@@ -2076,10 +2009,6 @@ ecore_wl_window_aux_hint_del(Ecore_Wl_Window *win, int id)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
    if (!win) return;
-   if (!win->aux_hints) return;
-
-   eina_hash_del_by_key(win->aux_hints, _ecore_wl_window_id_str_get(id));
-
    if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
      tizen_policy_del_aux_hint(_ecore_wl_disp->wl.tz_policy, win->surface, id);
 }

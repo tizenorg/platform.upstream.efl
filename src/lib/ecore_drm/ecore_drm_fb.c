@@ -95,7 +95,16 @@ ecore_drm_fb_create(Ecore_Drm_Device *dev, int width, int height)
    fb->w = width;
    fb->h = height;
 
-#ifndef HAVE_TDM
+#ifdef HAVE_TDM
+   fb->dev = dev;
+   if (!ecore_drm_display_fb_hal_buffer_create(fb))
+     {
+        ERR("Cannot create hal_buffer");
+        goto map_err;
+     }
+
+   ecore_drm_display_fb_add(fb);
+#else
    if (!_ecore_drm_fb_create2(dev->drm.fd, fb))
      {
         WRN("Could not add framebuffer2: %m");
@@ -106,47 +115,6 @@ ecore_drm_fb_create(Ecore_Drm_Device *dev, int width, int height)
              goto add_err;
           }
      }
-#endif
-
-#ifdef HAVE_TDM
-   struct drm_gem_flink arg = {0, };
-   tbm_bufmgr bufmgr;
-   tbm_bo bo;
-   tbm_surface_info_s info = {0,};
-
-   arg.handle = fb->hdl;
-   if (drmIoctl(dev->drm.fd, DRM_IOCTL_GEM_FLINK, &arg))
-     {
-        ERR("Cannot convert to flink: %m");
-        goto map_err;
-     }
-
-   bufmgr = tbm_bufmgr_init(dev->drm.fd);
-   bo = tbm_bo_import(bufmgr, arg.name);
-	tbm_bufmgr_deinit(bufmgr);
-
-   if (!bo)
-     {
-        ERR("Cannot import (%d)", arg.name);
-        goto map_err;
-     }
-
-   info.width = fb->w;
-   info.height = fb->h;
-   info.format = TBM_FORMAT_XRGB8888;
-   info.bpp = tbm_surface_internal_get_bpp(info.format);
-   info.num_planes = 1;
-   info.planes[0].stride = fb->stride;
-   fb->hal_buffer = tbm_surface_internal_create_with_bos(&info, &bo, 1);
-   if (!fb->hal_buffer)
-     {
-        ERR("Cannot create hal_buffer");
-        goto map_err;
-     }
-
-   tbm_bo_unref(bo);
-   ecore_drm_display_fb_add(fb);
-   fb->dev = dev;
 #endif
 
    memset(&marg, 0, sizeof(struct drm_mode_map_dumb));
@@ -205,8 +173,7 @@ ecore_drm_fb_destroy(Ecore_Drm_Fb *fb)
       dev->next = NULL;
 
    ecore_drm_display_fb_remove(fb);
-   if (fb->hal_buffer)
-     tbm_surface_destroy(fb->hal_buffer);
+   ecore_drm_display_fb_hal_buffer_destroy(fb);
 #endif
 
 #ifndef HAVE_TDM

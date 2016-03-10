@@ -50,6 +50,7 @@ _evas_outbuf_fb_cb_destroy(struct gbm_bo *bo, void *data)
    if (fb)
      {
         ecore_drm_display_fb_remove(fb);
+        ecore_drm_display_fb_hal_buffer_destroy(fb);
         free(fb);
      }
 #else
@@ -71,7 +72,6 @@ static Ecore_Drm_Fb *
 _evas_outbuf_fb_get(Ecore_Drm_Device *dev, struct gbm_bo *bo)
 {
 #ifdef HAVE_TDM
-   int ret;
    Ecore_Drm_Fb *fb;
    static unsigned int id = 0;
 
@@ -86,7 +86,14 @@ _evas_outbuf_fb_get(Ecore_Drm_Device *dev, struct gbm_bo *bo)
    fb->hdl = gbm_bo_get_handle(bo).u32;
    fb->stride = gbm_bo_get_stride(bo);
    fb->size = fb->stride * fb->h;
-   fb->hal_buffer = gbm_tbm_get_surface(bo);
+
+   fb->dev = dev;
+   if (!ecore_drm_display_fb_hal_buffer_create(fb))
+     {
+        ERR("Cannot create hal_buffer");
+        free(fb);
+        return NULL;
+     }
 
    gbm_bo_set_user_data(bo, fb, _evas_outbuf_fb_cb_destroy);
 

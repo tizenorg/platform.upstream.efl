@@ -1034,6 +1034,8 @@ EAPI void ecore_drm_output_current_fb_info_get(Ecore_Drm_Output *output, unsigne
 EAPI Ecore_Drm_Fb *ecore_drm_display_output_primary_layer_fb_get(Ecore_Drm_Output *output);
 EAPI void ecore_drm_display_fb_add(Ecore_Drm_Fb *fb);
 EAPI void ecore_drm_display_fb_remove(Ecore_Drm_Fb *fb);
+EAPI Eina_Bool ecore_drm_display_fb_hal_buffer_create(Ecore_Drm_Fb *fb);
+EAPI void ecore_drm_display_fb_hal_buffer_destroy(Ecore_Drm_Fb *fb);
 
 # ifdef __cplusplus
 }

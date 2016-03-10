@@ -251,6 +251,69 @@ _ecore_drm_display_fb_destroy(Ecore_Drm_Fb *fb)
    free(fb);
 }
 
+EAPI Eina_Bool
+ecore_drm_display_fb_hal_buffer_create(Ecore_Drm_Fb *fb)
+{
+   Ecore_Drm_Device *dev;
+   struct drm_gem_flink arg = {0, };
+   tbm_bufmgr bufmgr;
+   tbm_bo bo;
+   tbm_surface_info_s info = {0,};
+
+   EINA_SAFETY_ON_NULL_RETURN_VAL(fb, EINA_FALSE);
+
+   dev = fb->dev;
+   EINA_SAFETY_ON_NULL_RETURN_VAL(dev, EINA_FALSE);
+
+   arg.handle = fb->hdl;
+   if (drmIoctl(dev->drm.fd, DRM_IOCTL_GEM_FLINK, &arg))
+     {
+        ERR("Cannot convert to flink: %m");
+        return EINA_FALSE;
+     }
+
+   bufmgr = tbm_bufmgr_init(dev->drm.fd);
+   EINA_SAFETY_ON_NULL_RETURN_VAL(bufmgr, EINA_FALSE);
+
+   bo = tbm_bo_import(bufmgr, arg.name);
+   tbm_bufmgr_deinit(bufmgr);
+
+   if (!bo)
+     {
+        ERR("Cannot import (%d)", arg.name);
+        return EINA_FALSE;
+     }
+
+   info.width = fb->w;
+   info.height = fb->h;
+   info.format = TBM_FORMAT_ARGB8888;
+   info.bpp = tbm_surface_internal_get_bpp(info.format);
+   info.num_planes = 1;
+   info.planes[0].stride = fb->stride;
+   fb->hal_buffer = tbm_surface_internal_create_with_bos(&info, &bo, 1);
+   if (!fb->hal_buffer)
+     {
+        ERR("Cannot create hal_buffer");
+        tbm_bo_unref(bo);
+        return EINA_FALSE;
+     }
+
+   tbm_bo_unref(bo);
+
+   return EINA_TRUE;
+}
+
+EAPI void
+ecore_drm_display_fb_hal_buffer_destroy(Ecore_Drm_Fb *fb)
+{
+   EINA_SAFETY_ON_NULL_RETURN(fb);
+
+   if (!fb->hal_buffer) return;
+
+   tbm_surface_destroy(fb->hal_buffer);
+   fb->hal_buffer = NULL;
+}
+
 EAPI void
 ecore_drm_display_fb_add(Ecore_Drm_Fb *fb)
 {

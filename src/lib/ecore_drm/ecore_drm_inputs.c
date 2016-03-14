@@ -194,7 +194,7 @@ _device_added(Ecore_Drm_Input *input, struct libinput_device *device)
                    _ecore_drm_event_input_device_add_free,
                    NULL);
 
-   if (input->dev->window != 0)
+   if (input->dev->window != -1) // window id is valid
      _ecore_drm_device_info_send(input->dev->window, edev, EINA_TRUE);
 
    TRACE_INPUT_END();
@@ -232,7 +232,7 @@ _device_removed(Ecore_Drm_Input *input, struct libinput_device *device)
                    _ecore_drm_event_input_device_del_free,
                    NULL);
 
-   if (input->dev->window != 0)
+   if (input->dev->window != -1) // window id is valid
      _ecore_drm_device_info_send(input->dev->window, edev, EINA_FALSE);
 
    /* remove this evdev from the seat's list of devices */

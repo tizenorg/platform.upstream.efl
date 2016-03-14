@@ -273,6 +273,7 @@ cont:
         dev->format = 0;
         dev->use_hw_accel = EINA_FALSE;
         dev->session = NULL;
+        dev->window = -1;
 
         DBG("Using Drm Device: %s", dev->drm.name);
 

@@ -65,7 +65,12 @@ _edje_extract_mo_files(Edje *ed)
    unsigned int i;
    int len;
 
+   // TIZEN_ONLY(20160313): get cache directory from XDG_CACHE_HOME env var if app doesn't want to use efreet.
+#if 1
+   cache_path = _edje_cache_path;
+#else
    cache_path = efreet_cache_home_get();
+#endif
 
    t = eina_file_mtime_get(ed->file->f);
    sz = eina_file_size_get(ed->file->f);

@@ -5,6 +5,8 @@ EAPI Edje_Version * edje_version = &_version;
 
 static int _edje_init_count = 0;
 static Eina_Bool _need_imf = EINA_FALSE;
+// TIZEN_ONLY(20160313): get cache directory from XDG_CACHE_HOME env var if app doesn't want to use efreet.
+static Eina_Bool _use_efreet = EINA_TRUE;
 
 int _edje_default_log_dom = -1;
 Eina_Mempool *_edje_real_part_mp = NULL;
@@ -69,11 +71,38 @@ edje_init(void)
         goto shutdown_eet;
      }
 
+   // TIZEN_ONLY(20160313): get cache directory from XDG_CACHE_HOME env var if app doesn't want to use efreet.
+#if 1
+   const char *s = getenv("EDJE_NO_EFREET");
+   if ((s) && !strncmp(s, "1", 1))
+     {
+        s = getenv("XDG_CACHE_HOME");
+        if ((s))
+          _use_efreet = EINA_FALSE;
+        else
+          {
+             if (!efreet_init())
+               {
+                  ERR("Efreet init failed");
+                  goto shutdown_evas;
+               }
+          }
+     }
+   else
+     {
+        if (!efreet_init())
+          {
+             ERR("Efreet init failed");
+             goto shutdown_evas;
+          }
+     }
+#else
    if (!efreet_init())
      {
         ERR("Efreet init failed");
         goto shutdown_evas;
      }
+#endif
 
    _edje_scale = FROM_DOUBLE(1.0);
 
@@ -110,7 +139,13 @@ edje_init(void)
    _edje_language = eina_stringshare_add(getenv("LANGUAGE"));
 
    str = eina_strbuf_new();
+   // TIZEN_ONLY(20160313): get cache directory from XDG_CACHE_HOME env var if app doesn't want to use efreet.
+#if 1
+   eina_strbuf_append_printf(str, "%s/edje",
+                             _use_efreet ? efreet_cache_home_get() : getenv("XDG_CACHE_HOME"));
+#else
    eina_strbuf_append_printf(str, "%s/edje", efreet_cache_home_get());
+#endif
    _edje_cache_path = eina_stringshare_add(eina_strbuf_string_get(str));
    eina_strbuf_free(str);
 
@@ -132,7 +167,12 @@ shutdown_all:
    _edje_text_class_members_free();
    _edje_text_class_hash_free();
    _edje_edd_shutdown();
+   // TIZEN_ONLY(20160313): get cache directory from XDG_CACHE_HOME env var if app doesn't want to use efreet.
+#if 1
+   if (_use_efreet) efreet_shutdown();
+#else
    efreet_shutdown();
+#endif
 shutdown_evas:
    evas_shutdown();
 shutdown_eet:
@@ -194,7 +234,7 @@ _edje_shutdown_core(void)
      ecore_imf_shutdown();
 #endif
 
-   efreet_shutdown();
+   if (_use_efreet) efreet_shutdown();
    evas_shutdown();
    eet_shutdown();
    embryo_shutdown();
@@ -324,4 +364,3 @@ _edje_need_imf(void)
    ecore_imf_init();
 #endif
 }
-

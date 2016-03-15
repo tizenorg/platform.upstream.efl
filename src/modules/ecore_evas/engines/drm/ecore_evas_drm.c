@@ -1126,3 +1126,17 @@ _ecore_evas_drm_pointer_xy_get(const Ecore_Evas *ee EINA_UNUSED, Evas_Coord *x, 
    /* get pointer position from input */
    ecore_drm_device_pointer_xy_get(dev, x, y);
 }
+
+static Eina_Bool
+_ecore_evas_drm_module_init(void)
+{
+   return EINA_TRUE;
+}
+
+static void
+_ecore_evas_drm_module_shutdown(void)
+{
+}
+
+EINA_MODULE_INIT(_ecore_evas_drm_module_init);
+EINA_MODULE_SHUTDOWN(_ecore_evas_drm_module_shutdown);

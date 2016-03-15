@@ -406,7 +406,7 @@ _ecore_event_get_evas_device(Evas *e, const char *dev_name)
    EINA_LIST_FOREACH(dev_list, l, edev)
      {
         if (!edev) continue;
-        name = evas_device_name_get(edev);
+        name = evas_device_description_get(edev);
         if (!name) continue;
         if (!(strcmp(name, dev_name)))
           {
@@ -809,7 +809,7 @@ _ecore_event_evas_add_evas_device(Evas *e, const char *name, const char *identif
           {
              if (!edev) continue;
              if ((evas_device_class_get(edev) == clas) &&
-                !(strcmp(evas_device_name_get(edev), identifier)))
+                !(strcmp(evas_device_description_get(edev), identifier)))
                return;
           }
      }
@@ -820,8 +820,8 @@ _ecore_event_evas_add_evas_device(Evas *e, const char *name, const char *identif
         ERR("_ecore_event_add_evas_device: failed to add evas device");
         return;
      }
-   evas_device_name_set(edev, identifier);
-   evas_device_description_set(edev, name);
+   evas_device_name_set(edev, name);
+   evas_device_description_set(edev, identifier);
    evas_device_class_set(edev, clas);
 }
 
@@ -842,8 +842,8 @@ _ecore_event_evas_del_evas_device(Evas *e, const char *name, const char *identif
      {
         if (!edev) continue;
         if ((evas_device_class_get(edev) == clas) &&
-          !(strcmp(evas_device_name_get(edev), identifier)) &&
-          !(strcmp(evas_device_description_get(edev), name)))
+          !(strcmp(evas_device_description_get(edev), identifier)) &&
+          !(strcmp(evas_device_name_get(edev), name)))
           {
              evas_device_del(edev);
              return;

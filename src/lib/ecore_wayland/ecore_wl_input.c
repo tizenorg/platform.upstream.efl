@@ -91,9 +91,9 @@ static void _ecore_wl_input_mouse_down_send(Ecore_Wl_Input *input, Ecore_Wl_Wind
 static void _ecore_wl_input_mouse_up_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, int device, unsigned int button, unsigned int timestamp);
 static void _ecore_wl_input_mouse_wheel_send(Ecore_Wl_Input *input, unsigned int axis, int value, unsigned int timestamp);
 static Ecore_Wl_Mouse_Down_Info *_ecore_wl_mouse_down_info_get(int dev);
-static void _ecore_wl_input_device_manager_cb_device_add(void *data EINA_UNUSED, struct tizen_input_device_manager *tizen_input_device_manager EINA_UNUSED, unsigned int serial EINA_UNUSED, const char *name, struct tizen_input_device *device, struct wl_seat *seat);
-static void _ecore_wl_input_device_manager_cb_device_remove(void *data EINA_UNUSED, struct tizen_input_device_manager *tizen_input_device_manager EINA_UNUSED, unsigned int serial EINA_UNUSED, const char *name, struct tizen_input_device *device, struct wl_seat *seat);
-static void _ecore_wl_input_device_cb_device_info(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, uint32_t clas, uint32_t subclas, struct wl_array *axes EINA_UNUSED);
+static void _ecore_wl_input_device_manager_cb_device_add(void *data EINA_UNUSED, struct tizen_input_device_manager *tizen_input_device_manager EINA_UNUSED, unsigned int serial EINA_UNUSED, const char *identifier, struct tizen_input_device *device, struct wl_seat *seat);
+static void _ecore_wl_input_device_manager_cb_device_remove(void *data EINA_UNUSED, struct tizen_input_device_manager *tizen_input_device_manager EINA_UNUSED, unsigned int serial EINA_UNUSED, const char *identifier, struct tizen_input_device *device, struct wl_seat *seat);
+static void _ecore_wl_input_device_cb_device_info(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, const char *name, uint32_t clas, uint32_t subclas, struct wl_array *axes EINA_UNUSED);
 static void _ecore_wl_input_device_cb_event_device(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, unsigned int serial EINA_UNUSED, const char *name EINA_UNUSED, uint32_t time EINA_UNUSED);
 static void _ecore_wl_input_device_cb_axis(void *data EINA_UNUSED, struct tizen_input_device *tizen_input_device EINA_UNUSED, uint32_t axis_type EINA_UNUSED, wl_fixed_t value EINA_UNUSED);
 
@@ -1909,7 +1909,7 @@ _ecore_wl_input_device_manager_setup(unsigned int id)
 
 static void
 _ecore_wl_input_device_manager_cb_device_add(void *data EINA_UNUSED, struct tizen_input_device_manager *tizen_input_device_manager EINA_UNUSED,
-                          unsigned int serial EINA_UNUSED, const char *name, struct tizen_input_device *device, struct wl_seat *seat)
+                          unsigned int serial EINA_UNUSED, const char *identifier, struct tizen_input_device *device, struct wl_seat *seat)
 {
    Ecore_Wl_Input *input = _ecore_wl_disp->input;
    Ecore_Wl_Input_Device *dev;
@@ -1917,13 +1917,13 @@ _ecore_wl_input_device_manager_cb_device_add(void *data EINA_UNUSED, struct tize
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!input) return;
-   if ((!name) || (!device) || (!seat)) return;
+   if ((!identifier) || (!device) || (!seat)) return;
 
    if (!(dev = calloc(1, sizeof(Ecore_Wl_Input_Device)))) return;
 
    dev->tz_device = device;
    tizen_input_device_add_listener(dev->tz_device, &_ecore_tizen_input_device_listener, dev);
-   dev->identifier = eina_stringshare_add(name);
+   dev->identifier = eina_stringshare_add(identifier);
    dev->seat = seat;
 
    input->devices = eina_list_append(input->devices, dev);
@@ -1931,7 +1931,7 @@ _ecore_wl_input_device_manager_cb_device_add(void *data EINA_UNUSED, struct tize
 
 static void
 _ecore_wl_input_device_manager_cb_device_remove(void *data EINA_UNUSED, struct tizen_input_device_manager *tizen_input_device_manager EINA_UNUSED,
-                            unsigned int serial EINA_UNUSED, const char *name, struct tizen_input_device *device, struct wl_seat *seat)
+                            unsigned int serial EINA_UNUSED, const char *identifier, struct tizen_input_device *device, struct wl_seat *seat)
 {
    Ecore_Wl_Input *input = _ecore_wl_disp->input;
    Eina_List *l, *ll;
@@ -1939,17 +1939,18 @@ _ecore_wl_input_device_manager_cb_device_remove(void *data EINA_UNUSED, struct t
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
    if (!input) return;
-   if ((!name) || (!device) || (!seat)) return;
+   if ((!identifier) || (!device) || (!seat)) return;
 
    EINA_LIST_FOREACH_SAFE(input->devices, l, ll, dev)
      {
-        if ((!strcmp(dev->identifier, name)) && (seat == dev->seat) && (device == dev->tz_device))
+        if ((!strcmp(dev->identifier, identifier)) && (seat == dev->seat) && (device == dev->tz_device))
           {
+             _ecore_wl_input_device_info_broadcast(dev->name, dev->identifier, dev->clas, EINA_FALSE);
+
              if (dev->tz_device) tizen_input_device_destroy(dev->tz_device);
              if (dev->name) eina_stringshare_del(dev->name);
              if (dev->identifier) eina_stringshare_del(dev->identifier);
              dev->seat = NULL;
-             _ecore_wl_input_device_info_broadcast(name, name, dev->clas, EINA_FALSE);
 
              input->devices = eina_list_remove_list(input->devices, l);
 
@@ -1961,16 +1962,17 @@ _ecore_wl_input_device_manager_cb_device_remove(void *data EINA_UNUSED, struct t
 }
 
 static void
-_ecore_wl_input_device_cb_device_info(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, uint32_t clas, uint32_t subclas, struct wl_array *axes EINA_UNUSED)
+_ecore_wl_input_device_cb_device_info(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, const char *name, uint32_t clas, uint32_t subclas, struct wl_array *axes EINA_UNUSED)
 {
    Ecore_Wl_Input_Device *dev;
 
    if (!(dev = data)) return;
    dev->clas = clas;
    dev->subclas = subclas;
+   dev->name = eina_stringshare_add(name);
 
    if (!dev->identifier) return;
-   _ecore_wl_input_device_info_broadcast(dev->identifier, dev->identifier, dev->clas, EINA_TRUE);
+   _ecore_wl_input_device_info_broadcast(dev->name, dev->identifier, dev->clas, EINA_TRUE);
 }
 
 static void

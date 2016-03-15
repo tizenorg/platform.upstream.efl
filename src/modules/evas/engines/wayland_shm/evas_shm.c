@@ -21,7 +21,8 @@ _shm_pool_make(struct wl_shm *shm, int size, void **data)
    if (!shm) return NULL;
 
    /* create tmp file name */
-   if ((path = getenv("XDG_RUNTIME_DIR")))
+   if ((path = getenv("TIZEN_WAYLAND_SHM_DIR")) ||
+       (path = getenv("XDG_RUNTIME_DIR")))
      {
         if ((name = malloc(strlen(path) + sizeof(tmp))))
           strcpy(name, path);

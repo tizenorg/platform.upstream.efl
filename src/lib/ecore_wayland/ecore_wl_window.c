@@ -374,7 +374,10 @@ ecore_wl_window_new(Ecore_Wl_Window *parent, int x, int y, int w, int h, int buf
    win->saved.w = w;
    win->saved.h = h;
    win->transparent = EINA_FALSE;
-   win->type = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
+   if (parent)
+     win->type = ECORE_WL_WINDOW_TYPE_TRANSIENT;
+   else
+     win->type = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
    win->buffer_type = buffer_type;
    win->id = _win_id++;
    win->rotation = 0;
@@ -1000,6 +1003,25 @@ ecore_wl_window_parent_set(Ecore_Wl_Window *win, Ecore_Wl_Window *parent)
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    win->parent = parent;
+   if (win->parent)
+     {
+        win->type = ECORE_WL_WINDOW_TYPE_TRANSIENT;
+        if (win->xdg_surface)
+          xdg_surface_set_parent(win->xdg_surface, win->parent->xdg_surface);
+        else if (win->shell_surface)
+          wl_shell_surface_set_transient(win->shell_surface,
+                                         win->parent->surface,
+                                         win->allocation.x,
+                                         win->allocation.y, 0);
+     }
+   else
+     {
+        win->type = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
+        if (win->xdg_surface)
+          xdg_surface_set_parent(win->xdg_surface, NULL);
+        else if (win->shell_surface)
+          wl_shell_surface_set_toplevel(win->shell_surface);
+     }
 }
 
 EAPI void

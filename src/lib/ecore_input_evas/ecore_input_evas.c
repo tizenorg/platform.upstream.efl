@@ -391,7 +391,7 @@ _ecore_event_window_match(Ecore_Window id)
 }
 
 static Evas_Device *
-_ecore_event_get_evas_device(Evas *e, const char *dev_name)
+_ecore_event_get_evas_device(Evas *e, const char *dev_name, Evas_Device_Class clas)
 {
    const Eina_List *dev_list = NULL;
    const Eina_List *l;
@@ -408,7 +408,7 @@ _ecore_event_get_evas_device(Evas *e, const char *dev_name)
         if (!edev) continue;
         name = evas_device_description_get(edev);
         if (!name) continue;
-        if (!(strcmp(name, dev_name)))
+        if (!(strcmp(name, dev_name)) && (evas_device_class_get(edev) == clas))
           {
              break;
           }
@@ -423,7 +423,7 @@ _ecore_event_evas_key(Ecore_Event_Key *e, Ecore_Event_Press press)
 
    lookup = _ecore_event_window_match(e->event_window);
    if (!lookup) return ECORE_CALLBACK_PASS_ON;
-   Evas_Device *dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name);
+   Evas_Device *dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name, EVAS_DEVICE_CLASS_KEYBOARD);
    if (dev)
      evas_device_push(lookup->evas, dev);
    ecore_event_evas_modifier_lock_update(lookup->evas, e->modifiers);
@@ -520,7 +520,9 @@ _ecore_event_evas_mouse_button(Ecore_Event_Mouse_Button *e, Ecore_Event_Press pr
           }
      }
 
-   Evas_Device *dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name);
+   Evas_Device *dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name, EVAS_DEVICE_CLASS_MOUSE);
+   if (!dev)
+     dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name, EVAS_DEVICE_CLASS_TOUCH);
    if (dev)
      evas_device_push(lookup->evas, dev);
    if (e->multi.device == 0)
@@ -622,7 +624,9 @@ ecore_event_evas_mouse_move(void *data EINA_UNUSED, int type EINA_UNUSED, void *
    lookup = _ecore_event_window_match(e->event_window);
    if (!lookup) return ECORE_CALLBACK_PASS_ON;
 
-   Evas_Device *dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name);
+   Evas_Device *dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name, EVAS_DEVICE_CLASS_MOUSE);
+   if (!dev)
+     dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name, EVAS_DEVICE_CLASS_TOUCH);
    if (dev)
      evas_device_push(lookup->evas, dev);
    if (e->multi.device == 0)
@@ -700,7 +704,9 @@ _ecore_event_evas_mouse_io(Ecore_Event_Mouse_IO *e, Ecore_Event_IO io)
 
    lookup = _ecore_event_window_match(e->event_window);
    if (!lookup) return ECORE_CALLBACK_PASS_ON;
-   Evas_Device *dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name);
+   Evas_Device *dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name, EVAS_DEVICE_CLASS_MOUSE);
+   if (!dev)
+     dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name, EVAS_DEVICE_CLASS_TOUCH);
    if (dev)
      evas_device_push(lookup->evas, dev);
    ecore_event_evas_modifier_lock_update(lookup->evas, e->modifiers);
@@ -742,7 +748,9 @@ ecore_event_evas_mouse_wheel(void *data EINA_UNUSED, int type EINA_UNUSED, void 
    e = event;
    lookup = _ecore_event_window_match(e->event_window);
    if (!lookup) return ECORE_CALLBACK_PASS_ON;
-   Evas_Device *dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name);
+   Evas_Device *dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name, EVAS_DEVICE_CLASS_MOUSE);
+   if (!dev)
+     dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name, EVAS_DEVICE_CLASS_TOUCH);
    if (dev)
      evas_device_push(lookup->evas, dev);
    ecore_event_evas_modifier_lock_update(lookup->evas, e->modifiers);

@@ -51,7 +51,7 @@ BuildRequires:  pkgconfig(ibus-1.0)
 %endif
 
 BuildRequires:  glib2-devel
-BuildRequires:  pkgconfig(bullet)
+#BuildRequires:  pkgconfig(bullet)
 BuildRequires:  pkgconfig(openssl)
 BuildRequires:  gnutls-devel
 BuildRequires:  curl-devel
@@ -704,6 +704,7 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
     --enable-tile-rotate \
     --disable-rpath \
 %endif
+    --disable-physics \
     --disable-cxx-bindings \
     --enable-systemd \
     --enable-lua-old \
@@ -785,8 +786,8 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %post -n ethumb -p /sbin/ldconfig
 %postun -n ethumb -p /sbin/ldconfig
 
-%post -n ephysics -p /sbin/ldconfig
-%postun -n ephysics -p /sbin/ldconfig
+#%post -n ephysics -p /sbin/ldconfig
+#%postun -n ephysics -p /sbin/ldconfig
 
 %post -n eolian -p /sbin/ldconfig
 %postun -n eolian -p /sbin/ldconfig
@@ -1207,17 +1208,17 @@ grep --silent ECORE_IMF_MODULE "$f" \
 %{_libdir}/cmake/Ethumb/*.cmake
 %{_libdir}/cmake/EthumbClient/*.cmake
 
-%files -n ephysics
-%manifest %{name}.manifest
-%defattr(-,root,root,-)
-%{_libdir}/libephysics.so.*
+#%files -n ephysics
+#%manifest %{name}.manifest
+#%defattr(-,root,root,-)
+#%{_libdir}/libephysics.so.*
 
-%files -n ephysics-devel
-%manifest %{name}.manifest
-%defattr(-,root,root,-)
-%{_libdir}/libephysics.so
-%{_libdir}/pkgconfig/ephysics.pc
-%{_includedir}/ephysics-1/EPhysics.h
+#%files -n ephysics-devel
+#%manifest %{name}.manifest
+#%defattr(-,root,root,-)
+#%{_libdir}/libephysics.so
+#%{_libdir}/pkgconfig/ephysics.pc
+#%{_includedir}/ephysics-1/EPhysics.h
 
 #%files -n ephysics-examples
 #%{_datadir}/ephysics/examples/*

@@ -1,8 +1,11 @@
 #include "evas_engine.h"
+#include <dlfcn.h>
 
-# define SET_RESTORE_CONTEXT() do { if (glsym_evas_gl_context_restore_set) glsym_evas_gl_context_restore_set(EINA_TRUE); } while(0)
+# define SET_RESTORE_CONTEXT() do { if (glsym_evas_gl_common_context_restore_set) glsym_evas_gl_common_context_restore_set(EINA_TRUE); } while(0)
 
 /* local function prototypes */
+typedef void (*glsym_func_void) ();
+glsym_func_void glsym_evas_gl_common_context_restore_set = NULL;
 
 /* local variables */
 static Outbuf *_evas_gl_wl_window = NULL;
@@ -25,6 +28,14 @@ eng_window_new(Evas *evas, Evas_Engine_Info_Wayland_Egl *einfo, int w, int h, Re
    /* try to allocate space for our window */
    if (!(gw = calloc(1, sizeof(Outbuf))))
      return NULL;
+#define LINK2GENERIC(sym) \
+   do { \
+   if (!glsym_##sym) {\
+   glsym_##sym = dlsym(RTLD_DEFAULT, #sym); \
+   if (!glsym_##sym) ERR("Could not find function '%s'", #sym); }\
+   } while(0)
+
+   LINK2GENERIC(evas_gl_common_context_restore_set);
 
    win_count++;
    gw->info = einfo;

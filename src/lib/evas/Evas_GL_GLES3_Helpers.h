@@ -517,6 +517,77 @@ evgl_init(...)
 #define  glVertexAttribIPointer                  __evas_gl_glapi->glVertexAttribIPointer
 #define  glWaitSync                              __evas_gl_glapi->glWaitSync
 
+//GLES 3.1
+#define  glDispatchCompute                       __evas_gl_glapi->glDispatchCompute
+#define  glDispatchComputeIndirect               __evas_gl_glapi->glDispatchComputeIndirect
+#define  glDrawArraysIndirect                    __evas_gl_glapi->glDrawArraysIndirect
+#define  glDrawElementsIndirect                  __evas_gl_glapi->glDrawElementsIndirect
+#define  glFramebufferParameteri                 __evas_gl_glapi->glFramebufferParameteri
+#define  glGetFramebufferParameteriv             __evas_gl_glapi->glGetFramebufferParameteriv
+#define  glGetProgramInterfaceiv                 __evas_gl_glapi->glGetProgramInterfaceiv
+#define  glGetProgramResourceIndex               __evas_gl_glapi->glGetProgramResourceIndex
+#define  glGetProgramResourceName                __evas_gl_glapi->glGetProgramResourceName
+#define  glGetProgramResourceiv                  __evas_gl_glapi->glGetProgramResourceiv
+#define  glGetProgramResourceLocation            __evas_gl_glapi->glGetProgramResourceLocation
+#define  glUseProgramStages                      __evas_gl_glapi->glUseProgramStages
+#define  glActiveShaderProgram                   __evas_gl_glapi->glActiveShaderProgram
+#define  glCreateShaderProgramv                  __evas_gl_glapi->glCreateShaderProgramv
+#define  glBindProgramPipeline                   __evas_gl_glapi->glBindProgramPipeline
+#define  glDeleteProgramPipelines                __evas_gl_glapi->glDeleteProgramPipelines
+#define  glGenProgramPipelines                   __evas_gl_glapi->glGenProgramPipelines
+#define  glIsProgramPipeline                     __evas_gl_glapi->glIsProgramPipeline
+#define  glGetProgramPipelineiv                  __evas_gl_glapi->glGetProgramPipelineiv
+#define  glProgramUniform1i                      __evas_gl_glapi->glProgramUniform1i
+#define  glProgramUniform2i                      __evas_gl_glapi->glProgramUniform2i
+#define  glProgramUniform3i                      __evas_gl_glapi->glProgramUniform3i
+#define  glProgramUniform4i                      __evas_gl_glapi->glProgramUniform4i
+#define  glProgramUniform1ui                     __evas_gl_glapi->glProgramUniform1ui
+#define  glProgramUniform2ui                     __evas_gl_glapi->glProgramUniform2ui
+#define  glProgramUniform3ui                     __evas_gl_glapi->glProgramUniform3ui
+#define  glProgramUniform4ui                     __evas_gl_glapi->glProgramUniform4ui
+#define  glProgramUniform1f                      __evas_gl_glapi->glProgramUniform1f
+#define  glProgramUniform2f                      __evas_gl_glapi->glProgramUniform2f
+#define  glProgramUniform3f                      __evas_gl_glapi->glProgramUniform3f
+#define  glProgramUniform4f                      __evas_gl_glapi->glProgramUniform4f
+#define  glProgramUniform1iv                     __evas_gl_glapi->glProgramUniform1iv
+#define  glProgramUniform2iv                     __evas_gl_glapi->glProgramUniform2iv
+#define  glProgramUniform3iv                     __evas_gl_glapi->glProgramUniform3iv
+#define  glProgramUniform4iv                     __evas_gl_glapi->glProgramUniform4iv
+#define  glProgramUniform1uiv                    __evas_gl_glapi->glProgramUniform1uiv
+#define  glProgramUniform2uiv                    __evas_gl_glapi->glProgramUniform2uiv
+#define  glProgramUniform3uiv                    __evas_gl_glapi->glProgramUniform3uiv
+#define  glProgramUniform4uiv                    __evas_gl_glapi->glProgramUniform4uiv
+#define  glProgramUniform1fv                     __evas_gl_glapi->glProgramUniform1fv
+#define  glProgramUniform2fv                     __evas_gl_glapi->glProgramUniform2fv
+#define  glProgramUniform3fv                     __evas_gl_glapi->glProgramUniform3fv
+#define  glProgramUniform4fv                     __evas_gl_glapi->glProgramUniform4fv
+#define  glProgramUniformMatrix2fv               __evas_gl_glapi->glProgramUniformMatrix2fv
+#define  glProgramUniformMatrix3fv               __evas_gl_glapi->glProgramUniformMatrix3fv
+#define  glProgramUniformMatrix4fv               __evas_gl_glapi->glProgramUniformMatrix4fv
+#define  glProgramUniformMatrix2x3fv             __evas_gl_glapi->glProgramUniformMatrix2x3fv
+#define  glProgramUniformMatrix3x2fv             __evas_gl_glapi->glProgramUniformMatrix3x2fv
+#define  glProgramUniformMatrix2x4fv             __evas_gl_glapi->glProgramUniformMatrix2x4fv
+#define  glProgramUniformMatrix4x2fv             __evas_gl_glapi->glProgramUniformMatrix4x2fv
+#define  glProgramUniformMatrix3x4fv             __evas_gl_glapi->glProgramUniformMatrix3x4fv
+#define  glProgramUniformMatrix4x3fv             __evas_gl_glapi->glProgramUniformMatrix4x3fv
+#define  glValidateProgramPipeline               __evas_gl_glapi->glValidateProgramPipeline
+#define  glGetProgramPipelineInfoLog             __evas_gl_glapi->glGetProgramPipelineInfoLog
+#define  glBindImageTexture                      __evas_gl_glapi->glBindImageTexture
+#define  glGetBooleani_v                         __evas_gl_glapi->glGetBooleani_v
+#define  glMemoryBarrier                         __evas_gl_glapi->glMemoryBarrier
+#define  glMemoryBarrierByRegion                 __evas_gl_glapi->glMemoryBarrierByRegion
+#define  glTexStorage2DMultisample               __evas_gl_glapi->glTexStorage2DMultisample
+#define  glGetMultisamplefv                      __evas_gl_glapi->glGetMultisamplefv
+#define  glSampleMaski                           __evas_gl_glapi->glSampleMaski
+#define  glGetTexLevelParameteriv                __evas_gl_glapi->glGetTexLevelParameteriv
+#define  glGetTexLevelParameterfv                __evas_gl_glapi->glGetTexLevelParameterfv
+#define  glBindVertexBuffer                      __evas_gl_glapi->glBindVertexBuffer
+#define  glVertexAttribFormat                    __evas_gl_glapi->glVertexAttribFormat
+#define  glVertexAttribIFormat                   __evas_gl_glapi->glVertexAttribIFormat
+#define  glVertexAttribBinding                   __evas_gl_glapi->glVertexAttribBinding
+#define  glVertexBindingDivisor                  __evas_gl_glapi->glVertexBindingDivisor
+
+
 /**
  * @ingroup Evas_GL_GLES3_Helpers
  * @brief Macro to check that the GL APIs are properly set (GLES 3.0)

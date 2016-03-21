@@ -1196,6 +1196,54 @@ _EVASGL_EXT_BEGIN(GL_OES_EGL_image_external)
 	#endif
 
 _EVASGL_EXT_END()
+
+_EVASGL_EXT_BEGIN(shader_image_atomic)
+        _EVASGL_EXT_DRVNAME(GL_OES_shader_image_atomic)
+_EVASGL_EXT_END()
+
+_EVASGL_EXT_BEGIN(texture_rg)
+        _EVASGL_EXT_DRVNAME(GL_EXT_texture_rg)
+_EVASGL_EXT_END()
+
+_EVASGL_EXT_BEGIN(shadow_samplers)
+        _EVASGL_EXT_DRVNAME(GL_EXT_shadow_samplers)
+_EVASGL_EXT_END()
+
+_EVASGL_EXT_BEGIN(texture_compression_astc)
+        _EVASGL_EXT_DRVNAME(GL_OES_texture_compression_astc)
+_EVASGL_EXT_END()
+
+_EVASGL_EXT_BEGIN(texture_compression_astc_ldr)
+        _EVASGL_EXT_DRVNAME(GL_KHR_texture_compression_astc_ldr)
+_EVASGL_EXT_END()
+
+_EVASGL_EXT_BEGIN(texture_compression_astc_hdr)
+        _EVASGL_EXT_DRVNAME(GL_KHR_texture_compression_astc_hdr)
+_EVASGL_EXT_END()
+
+_EVASGL_EXT_BEGIN(texture_stencil8)
+        _EVASGL_EXT_DRVNAME(GL_OES_texture_stencil8)
+_EVASGL_EXT_END()
+
+_EVASGL_EXT_BEGIN(shader_pixel_local_storage)
+        _EVASGL_EXT_DRVNAME(GL_EXT_shader_pixel_local_storage)
+_EVASGL_EXT_END()
+
+_EVASGL_EXT_BEGIN(shader_framebuffer_fetch)
+        _EVASGL_EXT_DRVNAME(GL_ARM_shader_framebuffer_fetch)
+_EVASGL_EXT_END()
+
+_EVASGL_EXT_BEGIN(shader_framebuffer_fetch_depth_stencil)
+        _EVASGL_EXT_DRVNAME(GL_ARM_shader_framebuffer_fetch_depth_stencil)
+_EVASGL_EXT_END()
+
+_EVASGL_EXT_BEGIN(sRGB_write_control)
+        _EVASGL_EXT_DRVNAME(GL_EXT_sRGB_write_control)
+_EVASGL_EXT_END()
+
+_EVASGL_EXT_BEGIN(texture_sRGB_decode)
+        _EVASGL_EXT_DRVNAME(GL_EXT_texture_sRGB_decode)
+_EVASGL_EXT_END()
 #endif // GL_GLES
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1450,7 +1498,20 @@ _EVASGL_EXT_BEGIN(point_size_array)
 _EVASGL_EXT_END()
 
 
+// ----------------------------------------------------------
+_EVASGL_EXT_BEGIN(blend_equation_advanced)
+   _EVASGL_EXT_DRVNAME(GL_KHR_blend_equation_advanced)
 
+   _EVASGL_EXT_FUNCTION_WHITELIST("glBlendBarrierKHR")
+_EVASGL_EXT_END()
+
+
+// ----------------------------------------------------------
+_EVASGL_EXT_BEGIN(texture_storage_multisample_2d_array)
+   _EVASGL_EXT_DRVNAME(GL_OES_texture_storage_multisample_2d_array)
+
+   _EVASGL_EXT_FUNCTION_WHITELIST("glTexStorage3DMultisampleOES")
+_EVASGL_EXT_END()
 
 #endif // _EVASGL_EXT_WHITELIST_ONLY ("safe" extensions)
 #endif // _EVASGL_EXT_ENABLE_GL_GLES

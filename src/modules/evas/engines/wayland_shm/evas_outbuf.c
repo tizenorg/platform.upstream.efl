@@ -43,9 +43,18 @@ _evas_outbuf_setup(int w, int h, int rot, Outbuf_Depth depth, Eina_Bool alpha, s
      }
 
    /* try to create the outbuf surface */
-   if (!(ob->surface = 
-         _evas_shm_surface_create(disp, shm, surface, w, h, ob->num_buff, alpha)))
-     goto surf_err;
+   if ((ob->rotation == 0) || (ob->rotation == 180))
+     {
+        ob->surface =
+          _evas_shm_surface_create(disp, shm, surface, w, h, ob->num_buff, alpha);
+        if (!ob->surface) goto surf_err;
+     }
+   else if ((ob->rotation == 90) || (ob->rotation == 270))
+     {
+        ob->surface =
+          _evas_shm_surface_create(disp, shm, surface, h, w, ob->num_buff, alpha);
+        if (!ob->surface) goto surf_err;
+     }
 
    eina_array_step_set(&ob->priv.onebuf_regions, sizeof(Eina_Array), 8);
 
@@ -303,8 +312,16 @@ _evas_outbuf_reconfigure(Outbuf *ob, int x, int y, int w, int h, int rot, Outbuf
    else
      ob->surface->flags = 0;
 
-   _evas_shm_surface_reconfigure(ob->surface, x, y, w, h, 
-                                 ob->num_buff, ob->surface->flags);
+   if ((ob->rotation == 0) || (ob->rotation == 180))
+     {
+        _evas_shm_surface_reconfigure(ob->surface, x, y, w, h,
+                                      ob->num_buff, ob->surface->flags);
+     }
+   else if ((ob->rotation == 90) || (ob->rotation == 270))
+     {
+        _evas_shm_surface_reconfigure(ob->surface, x, y, h, w,
+                                      ob->num_buff, ob->surface->flags);
+     }
 
    _evas_outbuf_idle_flush(ob);
 }

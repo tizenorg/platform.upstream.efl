@@ -414,7 +414,7 @@ _device_pointer_motion(Ecore_Drm_Evdev *edev, struct libinput_event_pointer *eve
    ev->window = (Ecore_Window)input->dev->window;
    ev->event_window = (Ecore_Window)input->dev->window;
    ev->root_window = (Ecore_Window)input->dev->window;
-   ev->timestamp = libinput_event_pointer_get_time(event);
+   if (event) ev->timestamp = libinput_event_pointer_get_time(event);
    ev->same_screen = 1;
 
    _device_modifiers_update(edev);
@@ -438,6 +438,12 @@ _device_pointer_motion(Ecore_Drm_Evdev *edev, struct libinput_event_pointer *eve
    ev->dev_name = eina_stringshare_add(edev->path);
 
    ecore_event_add(ECORE_EVENT_MOUSE_MOVE, ev, NULL, NULL);
+}
+
+void
+_ecore_drm_pointer_motion_post(Ecore_Drm_Evdev *edev)
+{
+   _device_pointer_motion(edev, NULL);
 }
 
 static void 

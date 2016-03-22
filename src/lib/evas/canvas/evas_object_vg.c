@@ -247,7 +247,7 @@ evas_object_vg_render(Evas_Object *eo_obj EINA_UNUSED,
              _evas_vg_render(obj, vd, output, context, vd->backing_store, vd->root, NULL,do_async);
              obj->layer->evas->engine.func->image_dirty_region(obj->layer->evas->engine.data.output, vd->backing_store,
                                                                0, 0, 0, 0);
-             obj->layer->evas->engine.func->ector_end(output, context, ector, surface, do_async);
+             obj->layer->evas->engine.func->ector_end(output, context, ector, vd->backing_store, do_async);
           }
         obj->layer->evas->engine.func->image_draw(output, context, surface,
                                                   vd->backing_store, 0, 0,

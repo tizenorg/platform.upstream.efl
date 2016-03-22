@@ -1146,7 +1146,18 @@ ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key, int mod EINA_
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
-   if ((!_ecore_wl_disp) || (!_ecore_wl_disp->wl.keyrouter)) return EINA_FALSE;
+   if (!_ecore_wl_disp) return EINA_FALSE;
+   if (!_ecore_wl_disp->wl.keyrouter)
+     {
+        int loop_count = 5;
+        INF("Wait until keyrouter interface is ready");
+        while((!_ecore_wl_disp->wl.keyrouter) && (loop_count > 0))
+          {
+             wl_display_roundtrip(_ecore_wl_disp->wl.display);
+             loop_count--;
+          }
+        if (!_ecore_wl_disp->wl.keyrouter) return EINA_FALSE;
+     }
    if (!key) return EINA_FALSE;
    if ((grab_mode < ECORE_WL_WINDOW_KEYGRAB_UNKNOWN) || (grab_mode > ECORE_WL_WINDOW_KEYGRAB_EXCLUSIVE))
      return EINA_FALSE;

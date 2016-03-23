@@ -940,11 +940,17 @@ _ecore_drm_display_output_mode_set(Ecore_Drm_Output *output, Ecore_Drm_Output_Mo
 {
    Ecore_Drm_Device *dev;
    Ecore_Drm_Fb *fb = NULL;
+   Ecore_Drm_Hal_Output *hal_output;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(output, EINA_FALSE);
    EINA_SAFETY_ON_NULL_RETURN_VAL(output->dev, EINA_FALSE);
 
    dev = output->dev;
+
+   hal_output = output->hal_output;
+   EINA_SAFETY_ON_NULL_RETURN_VAL(hal_output->output, EINA_FALSE);
+
+   tdm_output_set_mode(hal_output->output, mode->hal_mode);
 
    if (dev->current) fb = dev->current;
    else if (dev->next) fb = dev->next;

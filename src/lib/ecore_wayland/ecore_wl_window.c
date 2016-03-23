@@ -345,6 +345,9 @@ ecore_wl_window_new(Ecore_Wl_Window *parent, int x, int y, int w, int h, int buf
    win->allocation.h = h;
    win->saved.w = w;
    win->saved.h = h;
+   win->configured.w = w;
+   win->configured.h = h;
+   win->configured.edges = 0;
    win->transparent = EINA_FALSE;
    if (parent)
      win->type = ECORE_WL_WINDOW_TYPE_TRANSIENT;
@@ -821,6 +824,9 @@ ecore_wl_window_update_size(Ecore_Wl_Window *win, int w, int h)
    if (!win) return;
    win->allocation.w = w;
    win->allocation.h = h;
+   win->configured.w = w;
+   win->configured.h = h;
+   win->configured.edges = 0;
    if ((!ecore_wl_window_maximized_get(win)) && (!win->fullscreen))
      {
         win->saved.w = w;
@@ -1439,6 +1445,10 @@ _ecore_wl_window_cb_configure(void *data, struct wl_shell_surface *shell_surface
 
    if ((win->allocation.w != w) || (win->allocation.h != h))
      {
+        win->configured.w = w;
+        win->configured.h = h;
+        win->configured.edges = edges;
+
         _ecore_wl_window_configure_send(win,
                                         w, h, edges);
      }
@@ -1501,9 +1511,9 @@ _ecore_wl_window_cb_position_change(void *data, struct tizen_position *tizen_pos
      {
         ecore_wl_window_update_location(win, x, y);
         _ecore_wl_window_configure_send(win,
-                                        win->allocation.w,
-                                        win->allocation.h,
-                                        0);
+                                        win->configured.w,
+                                        win->configured.h,
+                                        win->configured.edges);
      }
 }
 
@@ -1733,6 +1743,10 @@ _ecore_wl_window_configure_send(Ecore_Wl_Window *win, int w, int h, int edges)
    ev->w = w;
    ev->h = h;
    ev->edges = edges;
+
+   win->configured.w = w;
+   win->configured.h = h;
+   win->configured.edges = edges;
 
    ecore_event_add(ECORE_WL_EVENT_WINDOW_CONFIGURE, ev, NULL, NULL);
 }

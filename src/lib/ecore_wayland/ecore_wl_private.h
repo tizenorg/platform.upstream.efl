@@ -183,6 +183,12 @@ struct _Ecore_Wl_Window
 
    struct
      {
+        int w, h;
+        unsigned int edges;
+     } configured;
+
+   struct
+     {
         int x, y, w, h;
         Ecore_Wl_Indicator_State state;
         Ecore_Wl_Indicator_Opacity_Mode mode;

@@ -334,7 +334,6 @@ ecore_drm_device_open(Ecore_Drm_Device *dev)
 {
 #ifdef HAVE_TDM
    int events = 0;
-   drmVersionPtr ver;
 
    /* check for valid device */
    if ((!dev) || (!dev->drm.name)) return EINA_FALSE;
@@ -348,11 +347,7 @@ ecore_drm_device_open(Ecore_Drm_Device *dev)
         return EINA_FALSE;
      }
 
-   if ((ver = drmGetVersion(ecore_drm_device_fd_get(dev))))
-     {
-        drmFreeVersion(ver);
-        dev->drm.fd = ecore_drm_device_fd_get(dev);
-     }
+   dev->drm.fd = ecore_drm_device_fd_get(dev);
 
    /* try to create xkb context */
    if (!(dev->xkb_ctx = _ecore_drm_device_cached_context_get(0)))

@@ -87,6 +87,8 @@ _evas_outbuf_fb_get(Ecore_Drm_Device *dev, struct gbm_bo *bo)
    fb->stride = gbm_bo_get_stride(bo);
    fb->size = fb->stride * fb->h;
 
+printf("@@@ %s(%d) fb(%p) hdl(%d)\n", __FUNCTION__, __LINE__, fb, fb->hdl);
+
    fb->dev = dev;
    if (!ecore_drm_display_fb_hal_buffer_create(fb))
      {

@@ -141,10 +141,18 @@ int
 _ecore_drm_display_get_fd(Ecore_Drm_Device *dev)
 {
    Ecore_Drm_Hal_Display *hal_display;
+   int fd = -1;
 
    if (!dev || !(hal_display = dev->hal_display)) return -1;
 
-   return hal_display->fd;
+   fd = tdm_helper_get_drm_master_fd();
+   if (fd < 0)
+     {
+        ERR("failed: no drm master fd(%d)", fd);
+        return -1;
+     }
+
+   return fd;
 }
 
 Ecore_Drm_Fb*
@@ -264,6 +272,8 @@ ecore_drm_display_fb_hal_buffer_create(Ecore_Drm_Fb *fb)
 
    dev = fb->dev;
    EINA_SAFETY_ON_NULL_RETURN_VAL(dev, EINA_FALSE);
+
+printf("@@@ %s(%d) fd(%d) fb(%p) hdl(%d)\n", __FUNCTION__, __LINE__, dev->drm.fd, fb, fb->hdl);
 
    arg.handle = fb->hdl;
    if (drmIoctl(dev->drm.fd, DRM_IOCTL_GEM_FLINK, &arg))

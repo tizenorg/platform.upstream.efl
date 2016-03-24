@@ -2036,6 +2036,12 @@ _ecore_wl_input_device_cb_axis(void *data EINA_UNUSED, struct tizen_input_device
         case TIZEN_INPUT_DEVICE_AXIS_TYPE_ANGLE:
            input->last_angle = dvalue;
            break;
+        case TIZEN_INPUT_DEVICE_AXIS_TYPE_DETENT:
+           /* Do something after get detent event.
+            * value 1 is clockwise,
+            * value -1 is counterclockwise,
+            */
+           break;
         default:
            WRN("Invalid type(%d) is ignored.\n", axis_type);
            break;

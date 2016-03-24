@@ -1182,3 +1182,10 @@ ecore_drm_evdev_key_remap_set(Ecore_Drm_Evdev *edev, int *from_keys, int *to_key
 
    return EINA_TRUE;
 }
+
+EAPI int
+ecore_drm_evdev_wheel_click_angle_get(Ecore_Drm_Evdev *dev)
+{
+   EINA_SAFETY_ON_NULL_RETURN_VAL(dev, -1);
+   return libinput_device_config_scroll_get_wheel_click_angle(dev->device);
+}

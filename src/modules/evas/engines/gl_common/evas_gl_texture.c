@@ -161,32 +161,6 @@ _evas_gl_texture_search_format(Eina_Bool alpha, Eina_Bool bgra, Evas_Colorspace 
    return -1;
 }
 
-void
-evas_gl_common_texture_shared_specific(Evas_Engine_GL_Context *gc, Evas_GL_Texture_Pool *pt, int i)
-{
-   if (!pt || pt->texture != gc->pipe[i].shader.cur_tex)
-     {
-        if (gc->pipe[i].array.im)
-         {
-             if (gc->pipe[i].array.im->tex->pt->dyn.img)
-               gc->pipe[i].shader.tex_target = gc->pipe[i].array.im->tex->pt->dyn.target;
-             else
-               gc->pipe[i].shader.tex_target = gc->pipe[i].array.im->native.target;
-          }
-        else
-          gc->pipe[i].shader.tex_target = GL_TEXTURE_2D;
-
-        glBindTexture(gc->pipe[i].shader.tex_target, gc->pipe[i].shader.cur_tex);
-        GLERR(__FUNCTION__, __FILE__, __LINE__, "");
-     }
-}
-
-void
-evas_gl_common_texture_shared_back(Evas_Engine_GL_Context *gc, Evas_GL_Texture_Pool *pt)
-{
-   evas_gl_common_texture_shared_specific(gc, pt, 0);
-}
-
 static void
 _print_tex_count(void)
 {
@@ -977,8 +951,6 @@ void
 pt_unref(Evas_GL_Texture_Pool *pt)
 {
    if (!pt) return;
-   if (!pt->gc) return;
-
    pt->references--;
    if (pt->references != 0) return;
 

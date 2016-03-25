@@ -913,27 +913,27 @@ EAPI int
 eina_file_mkstemp(const char *templatename, Eina_Tmpstr **path)
 {
    char buffer[PATH_MAX];
-   const char *XXXXXX = NULL, *sep;
+   const char *tmpdir = NULL;
+   const char *XXXXXX = NULL;
    int fd, len;
 #ifndef _WIN32
    mode_t old_umask;
 #endif
 
-   EINA_SAFETY_ON_NULL_RETURN_VAL(templatename, -1);
-
-   sep = strchr(templatename, '/');
-#ifdef _WIN32
-   if (!sep) sep = strchr(templatename, '\\');
+#ifndef HAVE_EVIL
+#if defined(HAVE_GETUID) && defined(HAVE_GETEUID)
+   if (getuid() == geteuid())
 #endif
-   if (sep)
      {
-        len = eina_strlcpy(buffer, templatename, sizeof(buffer));
+        tmpdir = getenv("TMPDIR");
+        if (!tmpdir) tmpdir = getenv("XDG_RUNTIME_DIR");
      }
-   else
-     {
-        len = eina_file_path_join(buffer, sizeof(buffer),
-                                  eina_environment_tmp_get(), templatename);
-     }
+   if (!tmpdir) tmpdir = "/tmp";
+#else
+   tmpdir = (char *)evil_tmpdir_get();
+#endif /* ! HAVE_EVIL */
+
+   len = snprintf(buffer, PATH_MAX, "%s/%s", tmpdir, templatename);
 
    /*
     * Unix:
@@ -958,13 +958,10 @@ eina_file_mkstemp(const char *templatename, Eina_Tmpstr **path)
    umask(old_umask);
 #endif
 
-   if (fd < 0)
-     {
-        if (path) *path = NULL;
-        return -1;
-     }
-
    if (path) *path = eina_tmpstr_add(buffer);
+   if (fd < 0)
+     return -1;
+
    return fd;
 }
 
@@ -972,32 +969,26 @@ EAPI Eina_Bool
 eina_file_mkdtemp(const char *templatename, Eina_Tmpstr **path)
 {
    char buffer[PATH_MAX];
-   char *tmpdirname, *sep;
+   const char *tmpdir = NULL;
+   char *tmpdirname;
 
-   EINA_SAFETY_ON_NULL_RETURN_VAL(templatename, EINA_FALSE);
-
-   sep = strchr(templatename, '/');
-#ifdef _WIN32
-   if (!sep) sep = strchr(templatename, '\\');
+#ifndef HAVE_EVIL
+#if defined(HAVE_GETUID) && defined(HAVE_GETEUID)
+   if (getuid() == geteuid())
 #endif
-   if (sep)
-     {
-        eina_strlcpy(buffer, templatename, sizeof(buffer));
-     }
-   else
-     {
-        eina_file_path_join(buffer, sizeof(buffer),
-                            eina_environment_tmp_get(), templatename);
-     }
+     tmpdir = getenv("TMPDIR");
+   if (!tmpdir) tmpdir = "/tmp";
+#else
+   tmpdir = (char *)evil_tmpdir_get();
+#endif /* ! HAVE_EVIL */
+
+   snprintf(buffer, PATH_MAX, "%s/%s", tmpdir, templatename);
 
    tmpdirname = mkdtemp(buffer);
+   if (path) *path = eina_tmpstr_add(buffer);
    if (tmpdirname == NULL)
-     {
-        if (path) *path = NULL;
-        return EINA_FALSE;
-     }
+     return EINA_FALSE;
 
-   if (path) *path = eina_tmpstr_add(tmpdirname);
    return EINA_TRUE;
 }
 

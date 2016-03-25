@@ -530,45 +530,11 @@ _ecore_event_evas_mouse_button(Ecore_Event_Mouse_Button *e, Ecore_Event_Press pr
         ecore_event_evas_modifier_lock_update(lookup->evas, e->modifiers);
         if (press == ECORE_DOWN)
           {
-             if (evas_device_class_get(dev) & ECORE_DEVICE_TOUCH)
-               {
-                  if (lookup->down_multi)
-                     lookup->down_multi(lookup->window, e->multi.device,
-                                        e->x, e->y, e->multi.radius,
-                                        e->multi.radius_x, e->multi.radius_y,
-                                        e->multi.pressure, e->multi.angle,
-                                        e->multi.x, e->multi.y, flags,
-                                        e->timestamp);
-                  else
-                     evas_event_input_multi_down(lookup->evas, e->multi.device,
-                                                 e->x, e->y, e->multi.radius,
-                                                 e->multi.radius_x, e->multi.radius_y,
-                                                 e->multi.pressure, e->multi.angle,
-                                                 e->multi.x, e->multi.y, flags,
-                                                 e->timestamp, NULL);
-               }
              evas_event_feed_mouse_down(lookup->evas, e->buttons, flags,
                                         e->timestamp, NULL);
           }
         else
           {
-             if (evas_device_class_get(dev) & ECORE_DEVICE_TOUCH)
-               {
-                  if (lookup->up_multi)
-                     lookup->up_multi(lookup->window, e->multi.device,
-                                      e->x, e->y, e->multi.radius,
-                                      e->multi.radius_x, e->multi.radius_y,
-                                      e->multi.pressure, e->multi.angle,
-                                      e->multi.x, e->multi.y, flags,
-                                      e->timestamp);
-                  else
-                     evas_event_input_multi_up(lookup->evas, e->multi.device,
-                                               e->x, e->y, e->multi.radius,
-                                               e->multi.radius_x, e->multi.radius_y,
-                                               e->multi.pressure, e->multi.angle,
-                                               e->multi.x, e->multi.y, flags,
-                                               e->timestamp, NULL);
-               }
              evas_event_feed_mouse_up(lookup->evas, e->buttons, flags,
                                       e->timestamp, NULL);
           }
@@ -633,23 +599,6 @@ ecore_event_evas_mouse_move(void *data EINA_UNUSED, int type EINA_UNUSED, void *
      {
         _ecore_event_evas_push_mouse_move(e);
         ecore_event_evas_modifier_lock_update(lookup->evas, e->modifiers);
-
-        if (evas_device_class_get(dev) & ECORE_DEVICE_TOUCH)
-          {
-             if (lookup->move_multi)
-                lookup->move_multi(lookup->window, e->multi.device,
-                                   e->x, e->y, e->multi.radius,
-                                   e->multi.radius_x, e->multi.radius_y,
-                                   e->multi.pressure, e->multi.angle,
-                                   e->multi.x, e->multi.y, e->timestamp);
-             else
-                evas_event_input_multi_move(lookup->evas, e->multi.device,
-                                            e->x, e->y, e->multi.radius,
-                                            e->multi.radius_x, e->multi.radius_y,
-                                            e->multi.pressure, e->multi.angle,
-                                            e->multi.x, e->multi.y, e->timestamp,
-                                            NULL);
-          }
 
         if (lookup->move_mouse)
            lookup->move_mouse(lookup->window, e->x, e->y, e->timestamp);

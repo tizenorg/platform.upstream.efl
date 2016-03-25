@@ -82,7 +82,7 @@ static Eina_Bool
 _ecore_evas_wl_common_cb_mouse_in(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
    Ecore_Evas *ee;
-   Ecore_Wl_Event_Mouse_In *ev;
+   Ecore_Event_Mouse_IO *ev;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
@@ -93,9 +93,6 @@ _ecore_evas_wl_common_cb_mouse_in(void *data EINA_UNUSED, int type EINA_UNUSED, 
    if (ee->in) return ECORE_CALLBACK_PASS_ON;
 
    if (ee->func.fn_mouse_in) ee->func.fn_mouse_in(ee);
-   ecore_event_evas_modifier_lock_update(ee->evas, ev->modifiers);
-   evas_event_feed_mouse_in(ee->evas, ev->timestamp, NULL);
-   _ecore_evas_mouse_move_process(ee, ev->x, ev->y, ev->timestamp);
    ee->in = EINA_TRUE;
    return ECORE_CALLBACK_PASS_ON;
 }
@@ -104,7 +101,7 @@ static Eina_Bool
 _ecore_evas_wl_common_cb_mouse_out(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
    Ecore_Evas *ee;
-   Ecore_Wl_Event_Mouse_Out *ev;
+   Ecore_Event_Mouse_IO *ev;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
@@ -115,9 +112,6 @@ _ecore_evas_wl_common_cb_mouse_out(void *data EINA_UNUSED, int type EINA_UNUSED,
 
    if (ee->in)
      {
-        ecore_event_evas_modifier_lock_update(ee->evas, ev->modifiers);
-        _ecore_evas_mouse_move_process(ee, ev->x, ev->y, ev->timestamp);
-        evas_event_feed_mouse_out(ee->evas, ev->timestamp, NULL);
         if (ee->func.fn_mouse_out) ee->func.fn_mouse_out(ee);
         if (ee->prop.cursor.object) evas_object_hide(ee->prop.cursor.object);
         ee->in = EINA_FALSE;
@@ -549,10 +543,10 @@ _ecore_evas_wl_common_init(void)
      return _ecore_evas_wl_init_count;
 
    _ecore_evas_wl_event_hdls[0] =
-     ecore_event_handler_add(ECORE_WL_EVENT_MOUSE_IN,
+     ecore_event_handler_add(ECORE_EVENT_MOUSE_IN,
                              _ecore_evas_wl_common_cb_mouse_in, NULL);
    _ecore_evas_wl_event_hdls[1] =
-     ecore_event_handler_add(ECORE_WL_EVENT_MOUSE_OUT,
+     ecore_event_handler_add(ECORE_EVENT_MOUSE_OUT,
                              _ecore_evas_wl_common_cb_mouse_out, NULL);
    _ecore_evas_wl_event_hdls[2] =
      ecore_event_handler_add(ECORE_WL_EVENT_FOCUS_IN,

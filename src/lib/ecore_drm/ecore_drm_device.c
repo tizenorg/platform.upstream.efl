@@ -575,7 +575,7 @@ ecore_drm_device_window_set(Ecore_Drm_Device *dev, unsigned int window)
    EINA_LIST_FOREACH(dev->seats, l , seat)
      {
         EINA_LIST_FOREACH(seat->devices, ll, edev)
-          _ecore_drm_device_info_send(window, edev, EINA_TRUE);
+          _ecore_drm_device_add(window, edev);
      }
 }
 

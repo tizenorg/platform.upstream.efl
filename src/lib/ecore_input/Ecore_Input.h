@@ -137,6 +137,22 @@ extern "C" {
         ECORE_COMPOSE_DONE
      } Ecore_Compose_State;
 
+   typedef enum _Ecore_Device_Type
+     {
+        ECORE_DEVICE_POINTER = (1 << 0),
+        ECORE_DEVICE_KEYBOARD = (1 << 1),
+        ECORE_DEVICE_TOUCH = (1 << 2),
+     } Ecore_Device_Type;
+
+   struct _Ecore_Event_Device_Info
+     {
+        Ecore_Window window;
+        const char *name;
+        const char *identifier;
+        const char *seatname;
+        Ecore_Device_Class clas;
+     };
+
    /**
     * @struct _Ecore_Event_Key
     * Contains information about an Ecore keyboard event.
@@ -150,7 +166,7 @@ extern "C" {
         Ecore_Window     window; /**< The main window where event happened */
         Ecore_Window     root_window; /**< The root window where event happened */
         Ecore_Window     event_window; /**< The child window where event happened */
-        const char       *dev_name; /**<The sysname of source device where event came from*/
+        Ecore_Device     *dev; /**< source device object associated with an Ecore_Event_Key @since 1.18 */
         
         unsigned int     timestamp; /**< Time when the event occurred */
         unsigned int     modifiers; /**< The combination of modifiers key (SHIT,CTRL,ALT,..)*/
@@ -171,7 +187,7 @@ extern "C" {
         Ecore_Window     window; /**< The main window where event happened */
         Ecore_Window     root_window; /**< The root window where event happened */
         Ecore_Window     event_window; /**< The child window where event happened */
-        const char       *dev_name; /**<The sysname of source device where event came from*/
+        Ecore_Device     *dev; /**< source device object associated with an Ecore_Event_Mouse_Button @since 1.18 */
 
         unsigned int     timestamp; /**< Time when the event occurred */
         unsigned int     modifiers; /**< The combination of modifiers key (SHIT,CTRL,ALT,..)*/
@@ -208,8 +224,7 @@ extern "C" {
         Ecore_Window     window; /**< The main window where event happened */
         Ecore_Window     root_window; /**< The root window where event happened */
         Ecore_Window     event_window; /**< The child window where event happened */
-        const char       *dev_name; /**<The sysname of source device where event came from*/
-        
+        Ecore_Device     *dev; /**< source device object associated with an Ecore_Event_Mouse_Wheel @since 1.18 */
         unsigned int     timestamp; /**< Time when the event occurred */
         unsigned int     modifiers; /**< The combination of modifiers key (SHIT,CTRL,ALT,..)*/
         
@@ -234,8 +249,8 @@ extern "C" {
         Ecore_Window     window; /**< The main window where event happened */
         Ecore_Window     root_window; /**< The root window where event happened */
         Ecore_Window     event_window; /**< The child window where event happened */
-        const char       *dev_name; /**<The sysname of source device where event came from*/
-        
+        Ecore_Device     *dev; /**< source device object associated with an Ecore_Event_Mouse_Move @since 1.18 */
+
         unsigned int     timestamp; /**< Time when the event occurred */
         unsigned int     modifiers; /**< The combination of modifiers key (SHIT,CTRL,ALT,..)*/
         
@@ -296,21 +311,6 @@ extern "C" {
         Ecore_Axis *axis;
      };
 
-   typedef enum _Ecore_Device_Type
-     {
-        ECORE_DEVICE_POINTER = (1 << 0),
-        ECORE_DEVICE_KEYBOARD = (1 << 1),
-        ECORE_DEVICE_TOUCH = (1 << 2),
-     } Ecore_Device_Type;
-
-   struct _Ecore_Event_Device_Info
-     {
-        Ecore_Window window;
-        const char *name;
-        const char *identifier;
-        const char *seatname;
-        unsigned int caps;
-     };
    // TIZEN ONLY
    typedef enum _Ecore_Detent_Direction
      {
@@ -332,8 +332,8 @@ extern "C" {
      {
         Ecore_Window     window; /**< The main window where event happened */
         Ecore_Window     event_window; /**< The child window where event happened */
-        const char       *dev_name; /**<The sysname of source device where event came from*/
-        
+        Ecore_Device     *dev; /**< source device object associated with an Ecore_Event_Mouse_IO @since 1.18 */
+
         unsigned int     timestamp; /**< Time when the event occurred */
         unsigned int     modifiers; /**< The combination of modifiers key (SHIT,CTRL,ALT,..)*/
         

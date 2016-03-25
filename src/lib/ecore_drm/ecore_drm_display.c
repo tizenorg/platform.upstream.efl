@@ -92,6 +92,7 @@ Eina_Bool
 _ecore_drm_display_init(Ecore_Drm_Device *dev)
 {
    Ecore_Drm_Hal_Display *hal_display;
+   int fd;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(dev, EINA_FALSE);
 
@@ -106,9 +107,11 @@ _ecore_drm_display_init(Ecore_Drm_Device *dev)
      goto fail_init;
 
    hal_display->fd = -1;
-   tdm_display_get_fd(hal_display->display, &hal_display->fd);
-   if (hal_display->fd < 0)
+   tdm_display_get_fd(hal_display->display, &fd);
+   if (fd < 0)
      goto fail_fd;
+
+   hal_display->fd = dup(fd);
 
    hal_display->hdlr =
      ecore_main_fd_handler_add(hal_display->fd, ECORE_FD_READ,
@@ -121,6 +124,10 @@ _ecore_drm_display_init(Ecore_Drm_Device *dev)
    return EINA_TRUE;
 
 fail_hdlr:
+   if (hal_display->fd >= 0)
+     close(hal_display->fd);
+
+   hal_display->fd = -1;
 fail_fd:
    tdm_display_deinit(hal_display->display);
 fail_init:
@@ -137,6 +144,9 @@ _ecore_drm_display_destroy(Ecore_Drm_Device *dev)
 
    if (hal_display->hdlr) ecore_main_fd_handler_del(hal_display->hdlr);
    tdm_display_deinit(hal_display->display);
+
+   if (hal_display->fd >= 0)
+     close(hal_display->fd);
 
    free(hal_display);
    dev->hal_display = NULL;

@@ -5,6 +5,10 @@
 #include "ecore_drm_private.h"
 #include <dlfcn.h>
 
+#ifdef HAVE_TDM
+#include <tdm_helper.h>
+#endif
+
 #define INSIDE(x, y, xx, yy, ww, hh) \
    (((x) < ((xx) + (ww))) && ((y) < ((yy) + (hh))) && \
        ((x) >= (xx)) && ((y) >= (yy)))
@@ -334,7 +338,6 @@ ecore_drm_device_open(Ecore_Drm_Device *dev)
 {
 #ifdef HAVE_TDM
    int events = 0;
-   drmVersionPtr ver;
 
    /* check for valid device */
    if ((!dev) || (!dev->drm.name)) return EINA_FALSE;
@@ -348,10 +351,14 @@ ecore_drm_device_open(Ecore_Drm_Device *dev)
         return EINA_FALSE;
      }
 
-   if ((ver = drmGetVersion(ecore_drm_device_fd_get(dev))))
+   /* TDM backend will set a drm master fd to TDM_DRM_MASTER_FD. */
+   dev->drm.fd = tdm_helper_get_fd("TDM_DRM_MASTER_FD");
+   if (dev->drm.fd < 0)
      {
-        drmFreeVersion(ver);
-        dev->drm.fd = ecore_drm_device_fd_get(dev);
+        ERR("failed: no drm master fd");
+
+        /* If not set, use a tdm display fd instead of a drm master fd. */
+        dev->drm.fd = _ecore_drm_display_get_fd(dev);
      }
 
    /* try to create xkb context */
@@ -468,10 +475,6 @@ ecore_drm_device_close(Ecore_Drm_Device *dev)
    if (dev->drm.hdlr) ecore_main_fd_handler_del(dev->drm.hdlr);
    dev->drm.hdlr = NULL;
 
-#ifdef HAVE_TDM
-   /* when we use TDM, dev->drm.fd comes from TDM. It will close in TDM. */
-   dev->drm.fd = -1;
-#endif
    _ecore_drm_launcher_device_close(dev->drm.name, dev->drm.fd);
 
    _ecore_drm_display_destroy(dev);
@@ -552,10 +555,6 @@ EAPI int
 ecore_drm_device_fd_get(Ecore_Drm_Device *dev)
 {
    EINA_SAFETY_ON_NULL_RETURN_VAL(dev, -1);
-
-#ifdef HAVE_TDM
-   return _ecore_drm_display_get_fd(dev);
-#endif
 
    return dev->drm.fd;
 }

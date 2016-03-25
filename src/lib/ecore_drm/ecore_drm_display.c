@@ -116,6 +116,7 @@ _ecore_drm_display_init(Ecore_Drm_Device *dev)
    return EINA_TRUE;
 
 fail_hdlr:
+   hal_display->fd = -1;
 fail_fd:
    tdm_display_deinit(hal_display->display);
 fail_init:

@@ -913,8 +913,7 @@ EAPI int
 eina_file_mkstemp(const char *templatename, Eina_Tmpstr **path)
 {
    char buffer[PATH_MAX];
-   const char *tmpdir = NULL;
-   const char *XXXXXX = NULL;
+   const char *XXXXXX = NULL, *sep;
    int fd, len;
 #ifndef _WIN32
    mode_t old_umask;
@@ -922,23 +921,19 @@ eina_file_mkstemp(const char *templatename, Eina_Tmpstr **path)
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(templatename, -1);
 
-# if defined(HAVE_GETUID) && defined(HAVE_GETEUID)
-   if (getuid() == geteuid())
-# endif
-     {
-        tmpdir = getenv("TMPDIR");
-	if (!tmpdir) tmpdir = getenv("XDG_RUNTIME_DIR");
-     }
-   if (!tmpdir) tmpdir = "/tmp";
-
+   sep = strchr(templatename, '/');
 #ifdef _WIN32
-   if (strchr(templatename, '\\'))
-#else
-   if (strchr(templatename, '/'))
+   if (!sep) sep = strchr(templatename, '\\');
 #endif
-   len = snprintf(buffer, PATH_MAX, "%s", templatename);
-else
-   len = snprintf(buffer, PATH_MAX, "%s/%s", tmpdir, templatename);
+   if (sep)
+     {
+        len = eina_strlcpy(buffer, templatename, sizeof(buffer));
+     }
+   else
+     {
+        len = eina_file_path_join(buffer, sizeof(buffer),
+                                  eina_environment_tmp_get(), templatename);
+     }
 
    /*
     * Unix:
@@ -977,28 +972,23 @@ EAPI Eina_Bool
 eina_file_mkdtemp(const char *templatename, Eina_Tmpstr **path)
 {
    char buffer[PATH_MAX];
-   const char *tmpdir = NULL;
-   char *tmpdirname;
+   char *tmpdirname, *sep;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(templatename, EINA_FALSE);
 
-# if defined(HAVE_GETUID) && defined(HAVE_GETEUID)
-   if (getuid() == geteuid())
-# endif
-     {
-        tmpdir = getenv("TMPDIR");
-	if (!tmpdir) tmpdir = getenv("XDG_RUNTIME_DIR");
-     }
-   if (!tmpdir) tmpdir = "/tmp";
-
+   sep = strchr(templatename, '/');
 #ifdef _WIN32
-   if (strchr(templatename, '\\'))
-#else
-   if (strchr(templatename, '/'))
+   if (!sep) sep = strchr(templatename, '\\');
 #endif
-   snprintf(buffer, PATH_MAX, "%s", templatename);
-else
-   snprintf(buffer, PATH_MAX, "%s/%s", tmpdir, templatename);
+   if (sep)
+     {
+        eina_strlcpy(buffer, templatename, sizeof(buffer));
+     }
+   else
+     {
+        eina_file_path_join(buffer, sizeof(buffer),
+                            eina_environment_tmp_get(), templatename);
+     }
 
    tmpdirname = mkdtemp(buffer);
    if (tmpdirname == NULL)

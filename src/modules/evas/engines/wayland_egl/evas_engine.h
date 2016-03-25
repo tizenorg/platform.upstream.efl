@@ -153,5 +153,6 @@ _re_wincheck(Outbuf *ob)
    return 0;
 }
 
+extern void (*glsym_evas_gl_context_restore_set) (Eina_Bool enable);
 
 #endif

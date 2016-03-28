@@ -183,9 +183,12 @@ ecore_drm_tty_open(Ecore_Drm_Device *dev, const char *name)
         return EINA_FALSE;
      }
 
-   dev->tty.event_hdlr = 
-     ecore_event_handler_add(ECORE_EVENT_SIGNAL_USER, 
-                             _ecore_drm_tty_cb_vt_signal, dev);
+   if (getenv("ECORE_DRM_TTY_HANDLE_SIGUSR"))
+     {
+        dev->tty.event_hdlr =
+          ecore_event_handler_add(ECORE_EVENT_SIGNAL_USER,
+                                  _ecore_drm_tty_cb_vt_signal, dev);
+     }
 
    /* set current tty into env */
    setenv("ECORE_DRM_TTY", tty, 1);

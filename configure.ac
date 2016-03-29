@@ -1736,6 +1736,18 @@ AC_ARG_ENABLE([ecore-buffer],
    ],
    [want_ecore_buffer="no"])
 
+# Ecore_Win
+AC_ARG_ENABLE([ecore-win],
+   [AS_HELP_STRING([--enable-ecore-win],[Enable ecore-win. @<:@default=enabled@:>@])],
+   [
+    if test "x${enableval}" = "xyes" ; then
+       want_ecore_win="yes"
+    else
+       want_ecore_win="no"
+    fi
+   ],
+   [want_ecore_win="no"])
+
 # Image Loaders
 
 ARG_ENABLE_EVAS_IMAGE_LOADER(BMP, static)
@@ -4755,6 +4767,52 @@ AM_CONDITIONAL([BUILD_ECORE_BUFFER_TBM], [test "${build_ecore_buffer_tbm}" = "ye
 
 #### End of Ecore_Buffer
 
+
+#### Ecore_Win
+EFL_LIB_START_OPTIONAL([Ecore_Win], [test "${want_ecore_win}" = "yes"])
+
+### Additional options to configure
+
+### Default values
+
+### Checks for programs
+
+## Compatibility layers
+
+### Checks for libraries
+EFL_EVAL_PKGS([ECORE_WIN])
+## modules
+
+### Checks for header files
+
+### Checks for types
+
+### Checks for structures
+
+### Checks for compiler characteristics
+
+### Checks for linker characteristics
+
+### Checks for library functions
+EFL_LIB_END_OPTIONAL([Ecore_Win])
+
+# XXX TODO: ecore_win_wayland
+if test "x${build_ecore_evas_wayland}" = "xyes" ; then
+   AC_DEFINE(BUILD_ECORE_WIN_WAYLAND, 1, [Support for Wayland_Win in Ecore_Win])
+fi
+AM_CONDITIONAL([BUILD_ECORE_WIN_WAYLAND],
+   [test "${build_ecore_evas_wayland}" = "yes"])
+
+# XXX TODO: ecore_win_x11
+if test "x${build_ecore_evas_x11}" = "xyes" ; then
+   AC_DEFINE(BUILD_ECORE_WIN_X11, 1, [Support for X11_Win in Ecore_Win])
+fi
+AM_CONDITIONAL([BUILD_ECORE_WIN_X11], 
+   [test "${build_ecore_evas_x11}" = "yes"])
+
+
+#### End of Ecore_Win
+
 #### src/examples/ephysics/Makefile
 AC_CONFIG_FILES([
 Makefile
@@ -4836,6 +4894,7 @@ pc/ecore-audio.pc
 pc/ecore-audio-cxx.pc
 pc/ecore-avahi.pc
 pc/ecore-buffer.pc
+pc/ecore-win.pc
 pc/ector.pc
 pc/embryo.pc
 pc/eio.pc

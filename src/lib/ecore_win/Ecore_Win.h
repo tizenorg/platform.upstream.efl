@@ -475,7 +475,7 @@ EAPI void        ecore_win_callback_move_set(Ecore_Win *ewin, Ecore_Win_Event_Cb
  * @warning If and when this function is called depends on the underlying
  * windowing system.
  */
-EAPI void        ecore_evas_callback_show_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func);
+EAPI void        ecore_win_callback_show_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func);
 /**
  * @brief Set a callback for Ecore_Win hide events.
  * @param ewin The Ecore_Win to set callbacks on
@@ -487,7 +487,7 @@ EAPI void        ecore_evas_callback_show_set(Ecore_Win *ewin, Ecore_Win_Event_C
  * @warning If and when this function is called depends on the underlying
  * windowing system.
  */
-EAPI void        ecore_evas_callback_hide_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func);
+EAPI void        ecore_win_callback_hide_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func);
 /**
  * @brief Set a callback for Ecore_Win delete request events.
  * @param ewin The Ecore_Win to set callbacks on
@@ -568,7 +568,7 @@ EAPI void        ecore_win_callback_mouse_out_set(Ecore_Win *ewin, Ecore_Win_Eve
  *
  * This function makes @p ewin visible.
  */
-EAPI void        ecore_evas_show(Ecore_Win *ewin);
+EAPI void        ecore_win_show(Ecore_Win *ewin);
 /**
  * @brief Hide an Ecore_Win' window
  *
@@ -576,7 +576,7 @@ EAPI void        ecore_evas_show(Ecore_Win *ewin);
  *
  * This function makes @p ewin hidden(not visible).
  */
-EAPI void        ecore_evas_hide(Ecore_Win *ewin);
+EAPI void        ecore_win_hide(Ecore_Win *ewin);
 
 /**
  * @brief Activate (set focus to, via the window manager) an Ecore_Win' window.
@@ -584,7 +584,7 @@ EAPI void        ecore_evas_hide(Ecore_Win *ewin);
  *
  * This functions activates the Ecore_Win.
  */
-EAPI void        ecore_evas_activate(Ecore_Win *ewin);
+EAPI void        ecore_win_activate(Ecore_Win *ewin);
 
 /**
  * @}

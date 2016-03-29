@@ -267,6 +267,11 @@ if HAVE_ECORE_BUFFER
 pkgconfig_DATA += pc/ecore-buffer.pc
 endif
 
+if HAVE_ECORE_WIN
+pkgconfig_DATA += pc/ecore-win.pc
+endif
+
+
 # Cmake configs:
 efl_cmakeconfigdir = $(libdir)/cmake/Efl/
 efl_cmakeconfig_DATA = \

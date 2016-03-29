@@ -82,6 +82,7 @@ _ecore_win_wl_common_render_updates_process(Ecore_Win *ee, Eina_List *updates)
 static Eina_Bool
 _ecore_win_wl_common_cb_mouse_in(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
+#if 0
    Ecore_Win *ee;
    Ecore_Wl_Event_Mouse_In *ev;
 
@@ -98,12 +99,14 @@ _ecore_win_wl_common_cb_mouse_in(void *data EINA_UNUSED, int type EINA_UNUSED, v
    evas_event_feed_mouse_in(ee->evas, ev->timestamp, NULL);
    _ecore_win_mouse_move_process(ee, ev->x, ev->y, ev->timestamp);
    ee->in = EINA_TRUE;
+#endif
    return ECORE_CALLBACK_PASS_ON;
 }
 
 static Eina_Bool
 _ecore_win_wl_common_cb_mouse_out(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
+#if 0
    Ecore_Win *ee;
    Ecore_Wl_Event_Mouse_Out *ev;
 
@@ -123,12 +126,14 @@ _ecore_win_wl_common_cb_mouse_out(void *data EINA_UNUSED, int type EINA_UNUSED, 
         if (ee->prop.cursor.object) evas_object_hide(ee->prop.cursor.object);
         ee->in = EINA_FALSE;
      }
+#endif
    return ECORE_CALLBACK_PASS_ON;
 }
 
 static Eina_Bool
 _ecore_win_wl_common_cb_focus_in(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
+#if 0
    Ecore_Win *ee;
    Ecore_Wl_Event_Focus_In *ev;
 
@@ -142,12 +147,14 @@ _ecore_win_wl_common_cb_focus_in(void *data EINA_UNUSED, int type EINA_UNUSED, v
    ee->prop.focused = EINA_TRUE;
    evas_focus_in(ee->evas);
    if (ee->func.fn_focus_in) ee->func.fn_focus_in(ee);
+#endif
    return ECORE_CALLBACK_PASS_ON;
 }
 
 static Eina_Bool
 _ecore_win_wl_common_cb_focus_out(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
+#if 0
    Ecore_Win *ee;
    Ecore_Wl_Event_Focus_In *ev;
 
@@ -161,12 +168,14 @@ _ecore_win_wl_common_cb_focus_out(void *data EINA_UNUSED, int type EINA_UNUSED, 
    evas_focus_out(ee->evas);
    ee->prop.focused = EINA_FALSE;
    if (ee->func.fn_focus_out) ee->func.fn_focus_out(ee);
+#endif
    return ECORE_CALLBACK_PASS_ON;
 }
 
 static Eina_Bool
 _ecore_win_wl_common_cb_window_configure(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
+#if
    Ecore_Win *ee;
    Ecore_Win_Engine_Wl_Data *wdata;
    Ecore_Wl_Event_Window_Configure *ev;
@@ -216,7 +225,7 @@ _ecore_win_wl_common_cb_window_configure(void *data EINA_UNUSED, int type EINA_U
    if ((prev_max != ee->prop.maximized) ||
        (prev_full != ee->prop.fullscreen))
      _ecore_win_wl_common_state_update(ee);
-
+#endif
    return ECORE_CALLBACK_PASS_ON;
 }
 
@@ -1273,6 +1282,7 @@ _ecore_win_wl_common_wm_rot_manual_rotation_done_timeout_update(Ecore_Win *ee)
 
    ee->prop.wm_rot.manual_mode.timer = ecore_timer_add
      (4.0f, _ecore_win_wl_common_wm_rot_manual_rotation_done_timeout, ee);
+#endif
 }
 
 void

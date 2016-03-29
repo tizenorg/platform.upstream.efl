@@ -122,7 +122,7 @@ struct _Ecore_Win_Engine_Func
    void (*fn_size_max_set) (Ecore_Win *ewin, int w, int h);
    void (*fn_size_base_set) (Ecore_Win *ewin, int w, int h);
    void (*fn_size_step_set) (Ecore_Win *ewin, int w, int h);
-   void (*fn_object_cursor_set) (Ecore_Win *ewin, Evas_Object *obj, int layer, int hot_x, int hot_y);
+//   void (*fn_object_cursor_set) (Ecore_Win *ewin, Evas_Object *obj, int layer, int hot_x, int hot_y);
    void (*fn_object_cursor_unset) (Ecore_Win *ewin);
    void (*fn_layer_set) (Ecore_Win *ewin, int layer);
    void (*fn_focus_set) (Ecore_Win *ewin, Eina_Bool on);
@@ -154,8 +154,8 @@ struct _Ecore_Win_Engine_Func
    void (*fn_msg_send) (Ecore_Win *ewin, int maj, int min, void *data, int size);
 
    /* 1.8 abstractions */
-   void (*fn_pointer_xy_get) (const Ecore_Win *ewin, Evas_Coord *x, Evas_Coord *y);
-   Eina_Bool (*fn_pointer_warp) (const Ecore_Win *ewin, Evas_Coord x, Evas_Coord y);
+//   void (*fn_pointer_xy_get) (const Ecore_Win *ewin, Evas_Coord *x, Evas_Coord *y);
+//   Eina_Bool (*fn_pointer_warp) (const Ecore_Win *ewin, Evas_Coord x, Evas_Coord y);
 
    void (*fn_wm_rot_preferred_rotation_set) (Ecore_Win *ewin, int rot);
    void (*fn_wm_rot_available_rotations_set) (Ecore_Win *ewin, const int *rots, unsigned int count);
@@ -176,7 +176,6 @@ struct _Ecore_Win_Engine
    Ecore_Win_Engine_Func *func;
    void *data;
    Eina_List *ifaces;
-#endif
 };
 
 struct _Ecore_Win
@@ -221,7 +220,7 @@ struct _Ecore_Win
          int          w, h;
       } min, max, base, step;
       struct {
-         Evas_Object *object;
+//         Evas_Object *object;
          int          layer;
          struct {
             int       x, y;
@@ -290,8 +289,8 @@ struct _Ecore_Win
       void          (*fn_state_change) (Ecore_Win *ewin);
       void          (*fn_msg_parent_handle) (Ecore_Win *ewin, int maj, int min, void *data, int size);
       void          (*fn_msg_handle) (Ecore_Win *ewin, int maj, int min, void *data, int size);
-      void          (*fn_pointer_xy_get) (const Ecore_Win *ewin, Evas_Coord *x, Evas_Coord *y);
-      Eina_Bool     (*fn_pointer_warp) (const Ecore_Win *ewin, Evas_Coord x, Evas_Coord y);
+//      void          (*fn_pointer_xy_get) (const Ecore_Win *ewin, Evas_Coord *x, Evas_Coord *y);
+//      Eina_Bool     (*fn_pointer_warp) (const Ecore_Win *ewin, Evas_Coord x, Evas_Coord y);
    } func;
 
    Ecore_Win_Engine engine;
@@ -343,24 +342,24 @@ EAPI void _ecore_win_mouse_multi_move_process(Ecore_Win *ewin, int device,
                                           double angle,
                                           double mx, double my,
                                           unsigned int timestamp);
-EAPI void _ecore_win_mouse_multi_down_process(Ecore_Win *ewin, int device,
-                                          int x, int y,
-                                          double radius,
-                                          double radius_x, double radius_y,
-                                          double pressure,
-                                          double angle,
-                                          double mx, double my,
-                                          Evas_Button_Flags flags,
-                                          unsigned int timestamp);
-EAPI void _ecore_win_mouse_multi_up_process(Ecore_Win *ewin, int device,
-                                        int x, int y,
-                                        double radius,
-                                        double radius_x, double radius_y,
-                                        double pressure,
-                                        double angle,
-                                        double mx, double my,
-                                        Evas_Button_Flags flags,
-                                        unsigned int timestamp);
+//EAPI void _ecore_win_mouse_multi_down_process(Ecore_Win *ewin, int device,
+//                                          int x, int y,
+//                                          double radius,
+//                                          double radius_x, double radius_y,
+//                                          double pressure,
+//                                          double angle,
+//                                          double mx, double my,
+//                                          Evas_Button_Flags flags,
+//                                          unsigned int timestamp);
+//EAPI void _ecore_win_mouse_multi_up_process(Ecore_Win *ewin, int device,
+//                                        int x, int y,
+//                                        double radius,
+//                                        double radius_x, double radius_y,
+//                                        double pressure,
+//                                        double angle,
+//                                        double mx, double my,
+//                                        Evas_Button_Flags flags,
+//                                        unsigned int timestamp);
 
 EAPI extern Eina_Bool _ecore_win_app_comp_sync;
 

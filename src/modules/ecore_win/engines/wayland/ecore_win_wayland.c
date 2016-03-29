@@ -555,4 +555,4 @@ _ecore_win_wayland_window_rotate(Ecore_Win *ee, int rotation, int resize)
 #endif      
 }
 
-#endifevas_
+#endif

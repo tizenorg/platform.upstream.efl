@@ -709,6 +709,7 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
     --enable-systemd \
     --enable-lua-old \
     --enable-ecore-buffer \
+    --enable-ecore-win \
     --disable-gstreamer1 \
     --enable-hyphen \
     --with-dictionaries-hyphen-dir=/usr/share/hyphen/ \
@@ -952,6 +953,7 @@ install -m 0644 %SOURCE100 %{buildroot}%{_tmpfilesdir}/efl.conf
 %{_libdir}/libecore_ipc.so.*
 %{_libdir}/libecore_fb.so.*
 %{_libdir}/libecore_buffer.so.*
+%{_libdir}/libecore_win.so.*
 %if %{with wayland}
 %{_libdir}/libecore_wayland.so.*
 %{_libdir}/libecore_drm.so.*
@@ -993,6 +995,7 @@ install -m 0644 %SOURCE100 %{buildroot}%{_tmpfilesdir}/efl.conf
 %{_libdir}/libecore_ipc.so
 %{_libdir}/libecore_fb.so
 %{_libdir}/libecore_buffer.so
+%{_libdir}/libecore_win.so
 %if %{with wayland}
 %{_libdir}/libecore_wayland.so
 %{_libdir}/libecore_drm.so

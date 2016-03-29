@@ -763,6 +763,11 @@ _ecore_evas_constructor_ews(int x, int y, int w, int h, const char *extra_option
 /* note: keep sorted by priority, highest first */
 static const struct ecore_evas_engine _engines[] = {
   /* unix */
+
+/*TIZEN_ONLY(20160329): Change the priority of the wayland */
+  {"wayland_egl", _ecore_evas_constructor_wayland_egl},
+  {"wayland_shm", _ecore_evas_constructor_wayland_shm},
+// ** //
   {"software_x11", _ecore_evas_constructor_software_x11},
   {"opengl_x11", _ecore_evas_constructor_opengl_x11},
   {"fb", _ecore_evas_constructor_fb},
@@ -772,8 +777,10 @@ static const struct ecore_evas_engine _engines[] = {
   {"opengl_glew", _ecore_evas_constructor_opengl_glew},
   {"opengl_cocoa", _ecore_evas_constructor_cocoa},
   {"psl1ght", _ecore_evas_constructor_psl1ght},
+/* TIZEN ONLY(20160329): Change the priority of the wayland
   {"wayland_shm", _ecore_evas_constructor_wayland_shm},
   {"wayland_egl", _ecore_evas_constructor_wayland_egl},
+*/
   {"drm", _ecore_evas_constructor_drm},
   {"gl_drm", _ecore_evas_constructor_opengl_drm},
   {"opengl_sdl", _ecore_evas_constructor_opengl_sdl},

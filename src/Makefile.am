@@ -55,6 +55,7 @@ include Makefile_Eldbus.am
 include Makefile_Eeze.am
 include Makefile_Ecore_Drm.am
 include Makefile_Ecore_Evas.am
+include Makefile_Ecore_Win.am
 include Makefile_Ecore_Audio.am
 include Makefile_Ecore_Audio_Cxx.am
 include Makefile_Ecore_Avahi.am

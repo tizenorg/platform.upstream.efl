@@ -223,7 +223,6 @@ _ecore_win_constructor_x11(int x, int y, int w, int h, const char *extra_options
 static Ecore_Win *
 _ecore_win_constructor_wayland(int x, int y, int w, int h, const char *extra_options)
 {
-#if 0
    char *disp_name = NULL;
    unsigned int frame = 0, parent = 0;
    Ecore_Win *ewin;
@@ -235,8 +234,6 @@ _ecore_win_constructor_wayland(int x, int y, int w, int h, const char *extra_opt
    free(disp_name);
 
    return ewin;
-#endif
-   return NULL;
 }
 
 
@@ -268,7 +265,6 @@ ecore_win_engines_free(Eina_List *engines)
 EAPI Ecore_Win *
 ecore_win_new(const char *engine_name, int x, int y, int w, int h, const char *extra_options)
 {
-#if 0
    const struct ecore_win_engine *itr;
 
    if (!engine_name)
@@ -288,7 +284,6 @@ ecore_win_new(const char *engine_name, int x, int y, int w, int h, const char *e
        }
 
    WRN("unknown engine '%s'", engine_name);
-#endif   
    return NULL;
 }
 
@@ -1012,15 +1007,10 @@ return 0;
 EAPI void
 _ecore_win_register(Ecore_Win *ewin)
 {
-#if 0
    ewin->registered = 1;
    ecore_wines = (Ecore_Win *)eina_inlist_prepend
      (EINA_INLIST_GET(ecore_wines), EINA_INLIST_GET(ewin));
 
-#ifdef RENDER_SYNC
-   ecore_win_first = EINA_TRUE;
-#endif
-#endif 
 }
 
 EAPI void
@@ -1296,25 +1286,7 @@ _ecore_win_mouse_multi_up_process(Ecore_Win *ewin, int device,
 #endif    
 }
 
-EAPI void
-ecore_win_input_event_register(Ecore_Win *ewin)
-{
-#if 0
-   ecore_event_window_register((Ecore_Window)ewin, ewin, ewin->evas,
-                               (Ecore_Event_Mouse_Move_Cb)_ecore_win_mouse_move_process,
-                               (Ecore_Event_Multi_Move_Cb)_ecore_win_mouse_multi_move_process,
-                               (Ecore_Event_Multi_Down_Cb)_ecore_win_mouse_multi_down_process,
-                               (Ecore_Event_Multi_Up_Cb)_ecore_win_mouse_multi_up_process);
-#endif 
-}
 
-EAPI void
-ecore_win_input_event_unregister(Ecore_Win *ewin)
-{
-#if 0
-   ecore_event_window_unregister((Ecore_Window)ewin);
-#endif 
-}
 
 
 EAPI Ecore_Win *
@@ -1350,7 +1322,6 @@ EAPI Ecore_Win *
 ecore_win_wayland_new(const char *disp_name, unsigned int parent,
 			   int x, int y, int w, int h, Eina_Bool frame)
 {
-#if 0
    Ecore_Win *(*new)(const char *, unsigned int, int, int, int, int, Eina_Bool);
    Eina_Module *m = _ecore_win_engine_load("wayland");
    EINA_SAFETY_ON_NULL_RETURN_VAL(m, NULL);
@@ -1359,8 +1330,6 @@ ecore_win_wayland_new(const char *disp_name, unsigned int parent,
    EINA_SAFETY_ON_NULL_RETURN_VAL(new, NULL);
 
    return new(disp_name, parent, x, y, w, h, frame);
-   #endif 
-   return NULL;
 }
 
 EAPI void

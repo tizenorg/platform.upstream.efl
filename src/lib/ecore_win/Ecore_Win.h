@@ -105,6 +105,11 @@ EAPI int         ecore_win_shutdown(void);
  * @return Ecore_Win instance or @c NULL if creation failed.
  */
 EAPI Ecore_Win *ecore_win_new(const char *engine_name, int x, int y, int w, int h, const char *extra_options);
+
+
+
+EAPI Ecore_Win *ecore_win_wayland_new(const char *disp_name, unsigned int parent, int x, int y, int w, int h, Eina_Bool frame);
+
 /**
  * @brief Set whether an Ecore_Win has an alpha channel or not.
  *

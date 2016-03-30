@@ -477,29 +477,9 @@ _rotation_do(Ecore_Evas *ee, int rotation, int resize)
                evas_damage_rectangle_add(ee->evas, 0, 0, ee->h, ee->w);
           }
 
-        /* get min, max, base, & step sizes */
-        ecore_evas_size_min_get(ee, &minw, &minh);
-        ecore_evas_size_max_get(ee, &maxw, &maxh);
-        ecore_evas_size_base_get(ee, &basew, &baseh);
-        ecore_evas_size_step_get(ee, &stepw, &steph);
-
         /* record the current rotation of the ecore_evas */
         ee->rotation = rotation;
 
-        /* reset min, max, base, & step sizes */
-        ecore_evas_size_min_set(ee, minh, minw);
-        ecore_evas_size_max_set(ee, maxh, maxw);
-        ecore_evas_size_base_set(ee, baseh, basew);
-        ecore_evas_size_step_set(ee, steph, stepw);
-
-        /* send a mouse_move process
-         *
-         * NB: Is This Really Needed ?
-         * Yes, it's required to update the mouse position, relatively to
-         * widgets. After a rotation change, e.g., the mouse might not be over
-         * a button anymore. */
-        _ecore_evas_mouse_move_process(ee, ee->mouse.x, ee->mouse.y,
-                                       ecore_loop_time_get());
      }
    else
      {
@@ -509,21 +489,8 @@ _rotation_do(Ecore_Evas *ee, int rotation, int resize)
         /* record the current rotation of the ecore_evas */
         ee->rotation = rotation;
 
-        /* send a mouse_move process
-         *
-         * NB: Is This Really Needed ? Yes, it's required to update the mouse
-         * position, relatively to widgets. */
-        _ecore_evas_mouse_move_process(ee, ee->mouse.x, ee->mouse.y,
-                                       ecore_loop_time_get());
-
         /* call the ecore_evas' resize function */
         if (ee->func.fn_resize) ee->func.fn_resize(ee);
-
-        /* add canvas damage */
-        if (ECORE_EVAS_PORTRAIT(ee))
-          evas_damage_rectangle_add(ee->evas, 0, 0, ee->w, ee->h);
-        else
-          evas_damage_rectangle_add(ee->evas, 0, 0, ee->h, ee->w);
      }
 }
 

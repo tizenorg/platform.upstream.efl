@@ -182,6 +182,8 @@ struct _Ecore_Win
 {
    EINA_INLIST;
    ECORE_MAGIC;
+   const char *driver;
+   char       *name;
    int         x, y, w, h;
    short       rotation;
    Eina_Bool   shaped  : 1;
@@ -320,7 +322,6 @@ struct _Ecore_Win
    unsigned char deleted : 1;
    unsigned char profile_supported : 1;
    unsigned char in_async_render : 1;
-   unsigned char can_async_render : 1;
 
    Eina_Bool indicator_state : 1;
    Eina_Bool keyboard_state : 1;

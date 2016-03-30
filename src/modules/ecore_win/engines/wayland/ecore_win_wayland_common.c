@@ -36,7 +36,7 @@ EVAS_SMART_SUBCLASS_NEW(_smart_frame_type, _ecore_win_wl_frame,
 static int _ecore_win_wl_init_count = 0;
 static Ecore_Event_Handler *_ecore_win_wl_event_hdls[10];
 
-static void _ecore_win_wayland_resize(Ecore_Win *ee, int location);
+static void _ecore_win_wayland_common_resize(Ecore_Win *ee, int location);
 
 /* local function prototypes */
 static int _ecore_win_wl_common_render_updates_process(Ecore_Win *ee, Eina_List *updates);
@@ -397,7 +397,6 @@ _ecore_win_wl_common_cb_window_rotate(void *data EINA_UNUSED, int type EINA_UNUS
 static void
 _rotation_do(Ecore_Win *ee, int rotation, int resize)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata;
    int rot_dif;
 
@@ -422,48 +421,20 @@ _rotation_do(Ecore_Win *ee, int rotation, int resize)
              int fw, fh;
              int ww, hh;
 
-             /* grab framespace width & height */
-             evas_output_framespace_get(ee->evas, NULL, NULL, &fw, &fh);
-
-             /* check for fullscreen */
-             if (!ee->prop.fullscreen)
-               {
-                  /* resize the ecore_wayland window */
-                  ecore_wl_window_resize(wdata->win,
-                                         ee->req.h + fw, ee->req.w + fh, 0);
-               }
+             /* resize the canvas based on rotation */
+             if ((rotation == 0) || (rotation == 180))
+                {
+                   /* resize the ecore_wayland window */
+                   ecore_wl_window_resize(wdata->win,
+                                          ee->req.w, ee->req.h, 0);
+                }
              else
-               {
-                  /* resize the canvas based on rotation */
-                  if ((rotation == 0) || (rotation == 180))
-                    {
-                       /* resize the ecore_wayland window */
-                       ecore_wl_window_resize(wdata->win, 
-                                              ee->req.w, ee->req.h, 0);
+                {
+                   /* resize the ecore_wayland window */
+                   ecore_wl_window_resize(wdata->win,
+                                          ee->req.h, ee->req.w, 0);
+                }
 
-                       /* resize the canvas */
-                       evas_output_size_set(ee->evas, ee->req.w, ee->req.h);
-                       evas_output_viewport_set(ee->evas, 0, 0, 
-                                                ee->req.w, ee->req.h);
-                    }
-                  else
-                    {
-                       /* resize the ecore_wayland window */
-                       ecore_wl_window_resize(wdata->win, 
-                                              ee->req.h, ee->req.w, 0);
-
-                       /* resize the canvas */
-                       evas_output_size_set(ee->evas, ee->req.h, ee->req.w);
-                       evas_output_viewport_set(ee->evas, 0, 0, 
-                                                ee->req.h, ee->req.w);
-                    }
-               }
-
-             /* add canvas damage */
-             if (ECORE_WIN_PORTRAIT(ee))
-               evas_damage_rectangle_add(ee->evas, 0, 0, ee->req.w, ee->req.h);
-             else
-               evas_damage_rectangle_add(ee->evas, 0, 0, ee->req.h, ee->req.w);
              ww = ee->h;
              hh = ee->w;
              ee->w = ww;
@@ -473,26 +444,9 @@ _rotation_do(Ecore_Win *ee, int rotation, int resize)
           }
         else
           {
-             /* resize the canvas based on rotation */
-             if ((rotation == 0) || (rotation == 180))
-               {
-                  evas_output_size_set(ee->evas, ee->w, ee->h);
-                  evas_output_viewport_set(ee->evas, 0, 0, ee->w, ee->h);
-               }
-             else
-               {
-                  evas_output_size_set(ee->evas, ee->h, ee->w);
-                  evas_output_viewport_set(ee->evas, 0, 0, ee->h, ee->w);
-               }
-
              /* call the ecore_win' resize function */
              if (ee->func.fn_resize) ee->func.fn_resize(ee);
 
-             /* add canvas damage */
-             if (ECORE_WIN_PORTRAIT(ee))
-               evas_damage_rectangle_add(ee->evas, 0, 0, ee->w, ee->h);
-             else
-               evas_damage_rectangle_add(ee->evas, 0, 0, ee->h, ee->w);
           }
 
         /* get min, max, base, & step sizes */
@@ -537,19 +491,12 @@ _rotation_do(Ecore_Win *ee, int rotation, int resize)
         /* call the ecore_win' resize function */
         if (ee->func.fn_resize) ee->func.fn_resize(ee);
 
-        /* add canvas damage */
-        if (ECORE_WIN_PORTRAIT(ee))
-          evas_damage_rectangle_add(ee->evas, 0, 0, ee->w, ee->h);
-        else
-          evas_damage_rectangle_add(ee->evas, 0, 0, ee->h, ee->w);
      }
-#endif   
 }
 
 void
 _ecore_win_wl_common_rotation_set(Ecore_Win *ee, int rotation, int resize)
 {
-#if 0
    if (ee->in_async_render)
      {
         ee->delayed.rotation = rotation;
@@ -558,13 +505,11 @@ _ecore_win_wl_common_rotation_set(Ecore_Win *ee, int rotation, int resize)
         return;
      }
    _rotation_do(ee, rotation, resize);
-#endif   
 }
 
 int
 _ecore_win_wl_common_init(void)
 {
-#if 0
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (++_ecore_win_wl_init_count != 1)
@@ -602,14 +547,12 @@ _ecore_win_wl_common_init(void)
                              _ecore_win_wl_common_cb_window_visibility_change, NULL);
 
    ecore_event_evas_init();
-#endif
    return _ecore_win_wl_init_count;
 }
 
 int
 _ecore_win_wl_common_shutdown(void)
 {
-#if 0
    unsigned int i = 0;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -624,7 +567,6 @@ _ecore_win_wl_common_shutdown(void)
      }
 
    ecore_event_evas_shutdown();
-#endif
    return _ecore_win_wl_init_count;
 }
 
@@ -645,7 +587,6 @@ _ecore_win_wl_common_pre_free(Ecore_Win *ee)
 void
 _ecore_win_wl_common_free(Ecore_Win *ee)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -659,17 +600,14 @@ _ecore_win_wl_common_free(Ecore_Win *ee)
    free(wdata);
 
    ecore_event_window_unregister(ee->prop.window);
-   ecore_win_input_event_unregister(ee);
 
    _ecore_win_wl_common_shutdown();
    ecore_wl_shutdown();
-#endif   
 }
 
 void
 _ecore_win_wl_common_resize(Ecore_Win *ee, int w, int h)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata = ee->engine.data;
    int orig_w, orig_h;
    int ow, oh;
@@ -682,235 +620,63 @@ _ecore_win_wl_common_resize(Ecore_Win *ee, int w, int h)
 
    ee->req.w = w;
    ee->req.h = h;
-   orig_w = w;
-   orig_h = h;
 
-   if (!ee->prop.fullscreen)
-     {
-        int fw = 0, fh = 0;
-        int maxw = 0, maxh = 0;
-        int minw = 0, minh = 0;
-        double a = 0.0;
-
-        evas_output_framespace_get(ee->evas, NULL, NULL, &fw, &fh);
-
-        if (ECORE_WIN_PORTRAIT(ee))
-          {
-             if (ee->prop.min.w > 0) 
-               minw = (ee->prop.min.w - fw);
-             if (ee->prop.min.h > 0) 
-               minh = (ee->prop.min.h - fh);
-             if (ee->prop.max.w > 0) 
-               maxw = (ee->prop.max.w + fw);
-             if (ee->prop.max.h > 0) 
-               maxh = (ee->prop.max.h + fh);
-          }
-        else
-          {
-             if (ee->prop.min.w > 0)
-               minw = (ee->prop.min.w - fh);
-             if (ee->prop.min.h > 0)
-               minh = (ee->prop.min.h - fw);
-             if (ee->prop.max.w > 0)
-               maxw = (ee->prop.max.w + fh);
-             if (ee->prop.max.h > 0)
-               maxh = (ee->prop.max.h + fw);
-          }
-
-        /* adjust size using aspect */
-        if ((ee->prop.base.w >= 0) && (ee->prop.base.h >= 0))
-          {
-             int bw, bh;
-
-             bw = (w - ee->prop.base.w);
-             bh = (h - ee->prop.base.h);
-             if (bw < 1) bw = 1;
-             if (bh < 1) bh = 1;
-             a = ((double)bw / (double)bh);
-             if ((ee->prop.aspect != 0.0) && (a < ee->prop.aspect))
-               {
-                  if ((h < ee->h) > 0)
-                    bw = bh * ee->prop.aspect;
-                  else
-                    bw = bw / ee->prop.aspect;
-
-                  w = bw + ee->prop.base.w;
-                  h = bh + ee->prop.base.h;
-               }
-             else if ((ee->prop.aspect != 0.0) && (a > ee->prop.aspect))
-               {
-                  bw = bh * ee->prop.aspect;
-                  w = bw + ee->prop.base.w;
-               }
-          }
-        else
-          {
-             a = ((double)w / (double)h);
-             if ((ee->prop.aspect != 0.0) && (a < ee->prop.aspect))
-               {
-                  if ((h < ee->h) > 0)
-                    w = h * ee->prop.aspect;
-                  else
-                    h = w / ee->prop.aspect;
-               }
-             else if ((ee->prop.aspect != 0.0) && (a > ee->prop.aspect))
-               w = h * ee->prop.aspect;
-          }
-
-        if (!ee->prop.maximized)
-          {
-             /* calc new size using base size & step size */
-             if (ee->prop.step.w > 0)
-               {
-                  if (ee->prop.base.w >= 0)
-                    w = (ee->prop.base.w +
-                         (((w - ee->prop.base.w) / ee->prop.step.w) *
-                             ee->prop.step.w));
-                  else
-                    w = (minw + (((w - minw) / ee->prop.step.w) * ee->prop.step.w));
-               }
-
-             if (ee->prop.step.h > 0)
-               {
-                  if (ee->prop.base.h >= 0)
-                    h = (ee->prop.base.h +
-                         (((h - ee->prop.base.h) / ee->prop.step.h) *
-                             ee->prop.step.h));
-                  else
-                    h = (minh + (((h - minh) / ee->prop.step.h) * ee->prop.step.h));
-               }
-          }
-
-        if ((maxw > 0) && (w > maxw)) 
-          w = maxw;
-        else if (w < minw) 
-          w = minw;
-
-        if ((maxh > 0) && (h > maxh)) 
-          h = maxh;
-        else if (h < minh) 
-          h = minh;
-
-        orig_w = w;
-        orig_h = h;
-
-        if (ECORE_WIN_PORTRAIT(ee))
-          {
-             w += fw;
-             h += fh;
-          }
-        else
-          {
-             w += fh;
-             h += fw;
-          }
-     }
-
-   evas_output_size_get(ee->evas, &ow, &oh);
-   if ((ow != w) || (oh != h))
-     {
-        ee->w = orig_w;
-        ee->h = orig_h;
-        ee->req.w = orig_w;
-        ee->req.h = orig_h;
-
-        if (ECORE_WIN_PORTRAIT(ee))
-          {
-             evas_output_size_set(ee->evas, w, h);
-             evas_output_viewport_set(ee->evas, 0, 0, w, h);
-          }
-        else
-          {
-             evas_output_size_set(ee->evas, h, w);
-             evas_output_viewport_set(ee->evas, 0, 0, h, w);
-          }
-
-        if (ee->prop.avoid_damage)
-          {
-             int pdam = 0;
-
-             pdam = ecore_win_avoid_damage_get(ee);
-             ecore_win_avoid_damage_set(ee, 0);
-             ecore_win_avoid_damage_set(ee, pdam);
-          }
-
-        if (wdata->frame)
-          evas_object_resize(wdata->frame, w, h);
-
-        if (ee->func.fn_resize) ee->func.fn_resize(ee);
-     }
    if (wdata->win)
      ecore_wl_window_update_size(wdata->win, ee->req.w, ee->req.h);
-#endif   
 }
 
 void
 _ecore_win_wl_common_callback_resize_set(Ecore_Win *ee, void (*func)(Ecore_Win *ee))
 {
-#if 0
    if (!ee) return;
    ee->func.fn_resize = func;
-#endif   
 }
 
 void
 _ecore_win_wl_common_callback_move_set(Ecore_Win *ee, void (*func)(Ecore_Win *ee))
 {
-#if 0
    if (!ee) return;
    ee->func.fn_move = func;
-#endif   
 }
 
 void
 _ecore_win_wl_common_callback_delete_request_set(Ecore_Win *ee, void (*func)(Ecore_Win *ee))
 {
-#if 0
    if (!ee) return;
    ee->func.fn_delete_request = func;
-#endif   
 }
 
 void
 _ecore_win_wl_common_callback_focus_in_set(Ecore_Win *ee, void (*func)(Ecore_Win *ee))
 {
-#if 0
    if (!ee) return;
    ee->func.fn_focus_in = func;
-#endif   
 }
 
 void
 _ecore_win_wl_common_callback_focus_out_set(Ecore_Win *ee, void (*func)(Ecore_Win *ee))
 {
-#if 0
    if (!ee) return;
    ee->func.fn_focus_out = func;
-#endif      
 }
 
 void
 _ecore_win_wl_common_callback_mouse_in_set(Ecore_Win *ee, void (*func)(Ecore_Win *ee))
 {
-#if 0
    if (!ee) return;
    ee->func.fn_mouse_in = func;
-#endif      
 }
 
 void
 _ecore_win_wl_common_callback_mouse_out_set(Ecore_Win *ee, void (*func)(Ecore_Win *ee))
 {
-#if 0
    if (!ee) return;
    ee->func.fn_mouse_out = func;
-#endif      
 }
 
 void
 _ecore_win_wl_common_move(Ecore_Win *ee, int x, int y)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -929,7 +695,6 @@ _ecore_win_wl_common_move(Ecore_Win *ee, int x, int y)
      }
 
    ecore_wl_window_position_set(wdata->win, x, y);
-#endif      
 }
 
 /* Frame border:
@@ -1807,57 +1572,57 @@ _ecore_win_wl_common_post_render(Ecore_Win *ee)
 #endif   
 }
 
-int
-_ecore_win_wl_common_render(Ecore_Win *ee)
-{
-   int rend = 0;
-#if 0
-   Eina_List *l;
-   Ecore_Win *ee2;
-   Ecore_Wl_Window *win = NULL;
-   Ecore_Win_Engine_Wl_Data *wdata;
-
-   if (!ee) return 0;
-   if (!(wdata = ee->engine.data)) return 0;
-   if (!(win = wdata->win)) return 0;
-
-   /* TODO: handle comp no sync */
-
-   if (ee->in_async_render) return 0;
-   if (!ee->visible)
-     {
-        evas_norender(ee->evas);
-        return 0;
-     }
-
-   EINA_LIST_FOREACH(ee->sub_ecore_win, l, ee2)
-     {
-        if (ee2->func.fn_pre_render) ee2->func.fn_pre_render(ee2);
-        if (ee2->engine.func->fn_render)
-          rend |= ee2->engine.func->fn_render(ee2);
-        if (ee2->func.fn_post_render) ee2->func.fn_post_render(ee2);
-     }
-
-   if (ee->func.fn_pre_render) ee->func.fn_pre_render(ee);
-
-   if (!ee->can_async_render)
-     {
-        Eina_List *updates;
-
-        updates = evas_render_updates(ee->evas);
-        rend = _ecore_win_wl_common_render_updates_process(ee, updates);
-        evas_render_updates_free(updates);
-     }
-   else if (evas_render_async(ee->evas))
-     {
-        ee->in_async_render = EINA_TRUE;
-        rend = 1;
-     }
-   else if (ee->func.fn_post_render)
-     ee->func.fn_post_render(ee);
-#endif
-   return rend;
-}
+//int
+//_ecore_win_wl_common_render(Ecore_Win *ee)
+//{
+//   int rend = 0;
+//#if 0
+//   Eina_List *l;
+//   Ecore_Win *ee2;
+//   Ecore_Wl_Window *win = NULL;
+//   Ecore_Win_Engine_Wl_Data *wdata;
+//
+//   if (!ee) return 0;
+//   if (!(wdata = ee->engine.data)) return 0;
+//   if (!(win = wdata->win)) return 0;
+//
+//   /* TODO: handle comp no sync */
+//
+//   if (ee->in_async_render) return 0;
+//   if (!ee->visible)
+//     {
+//        evas_norender(ee->evas);
+//        return 0;
+//     }
+//
+//   EINA_LIST_FOREACH(ee->sub_ecore_win, l, ee2)
+//     {
+//        if (ee2->func.fn_pre_render) ee2->func.fn_pre_render(ee2);
+//        if (ee2->engine.func->fn_render)
+//          rend |= ee2->engine.func->fn_render(ee2);
+//        if (ee2->func.fn_post_render) ee2->func.fn_post_render(ee2);
+//     }
+//
+//   if (ee->func.fn_pre_render) ee->func.fn_pre_render(ee);
+//
+//   if (!ee->can_async_render)
+//     {
+//        Eina_List *updates;
+//
+//        updates = evas_render_updates(ee->evas);
+//        rend = _ecore_win_wl_common_render_updates_process(ee, updates);
+//        evas_render_updates_free(updates);
+//     }
+//   else if (evas_render_async(ee->evas))
+//     {
+//        ee->in_async_render = EINA_TRUE;
+//        rend = 1;
+//     }
+//   else if (ee->func.fn_post_render)
+//     ee->func.fn_post_render(ee);
+//#endif
+//   return rend;
+//}
 
 void
 _ecore_win_wl_common_withdrawn_set(Ecore_Win *ee, Eina_Bool on)
@@ -1908,9 +1673,8 @@ _ecore_win_wl_common_screen_dpi_get(const Ecore_Win *ee EINA_UNUSED, int *xdpi, 
 }
 
 static void
-_ecore_win_wayland_resize(Ecore_Win *ee, int location)
+_ecore_win_wayland_common_resize(Ecore_Win *ee, int location)
 {
-#if 0
    if (!ee) return;
    if (!strcmp(ee->driver, "wayland_shm"))
      {
@@ -1924,7 +1688,6 @@ _ecore_win_wayland_resize(Ecore_Win *ee, int location)
         _ecore_win_wayland_egl_resize(ee, location);
 #endif
      }
-#endif   
 }
 
 static void
@@ -1958,7 +1721,6 @@ _ecore_win_wayland_transparent_do(Ecore_Win *ee, int transparent)
 static void
 _ecore_win_wayland_move(Ecore_Win *ee, int x, int y)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata;
 
    if (!ee) return;
@@ -1968,25 +1730,21 @@ _ecore_win_wayland_move(Ecore_Win *ee, int x, int y)
         if (wdata->win)
           ecore_wl_window_move(wdata->win, x, y);
      }
-#endif   
 }
 
 static void
 _ecore_win_wayland_type_set(Ecore_Win *ee, int type)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata;
 
    if (!ee) return;
    wdata = ee->engine.data;
    ecore_wl_window_type_set(wdata->win, type);
-#endif   
 }
 
 static Ecore_Wl_Window *
 _ecore_win_wayland_window_get(const Ecore_Win *ee)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata;
 
    if (!(!strncmp(ee->driver, "wayland", 7)))
@@ -1994,7 +1752,6 @@ _ecore_win_wayland_window_get(const Ecore_Win *ee)
 
    wdata = ee->engine.data;
    return wdata->win;
-#endif   
 }
 
 
@@ -2113,30 +1870,16 @@ Ecore_Win_Interface_Wayland *
 _ecore_win_wl_interface_new(void)
 {
    Ecore_Win_Interface_Wayland *iface;
-#if 0
    iface = calloc(1, sizeof(Ecore_Win_Interface_Wayland));
    if (!iface) return NULL;
 
    iface->base.name = interface_wl_name;
    iface->base.version = interface_wl_version;
 
-   iface->resize = _ecore_win_wayland_resize;
+   iface->resize = _ecore_win_wayland_common_resize;
    iface->move = _ecore_win_wayland_move;
    iface->pointer_set = _ecore_win_wayland_pointer_set;
    iface->type_set = _ecore_win_wayland_type_set;
    iface->window_get = _ecore_win_wayland_window_get;
-   iface->aux_hint_add = _ecore_win_wayland_aux_hint_add;
-   iface->aux_hint_change = _ecore_win_wayland_aux_hint_change;
-   iface->aux_hint_del = _ecore_win_wayland_aux_hint_del;
-   iface->supported_aux_hints_get = _ecore_win_wayland_supported_aux_hints_get;
-   iface->input_rect_set = _ecore_win_wayland_input_rect_set;
-   iface->input_rect_add = _ecore_win_wayland_input_rect_add;
-   iface->input_rect_subtract = _ecore_win_wayland_input_rect_subtract;
-
-#ifdef BUILD_ECORE_WIN_WAYLAND_EGL
-   iface->pre_post_swap_callback_set = 
-     _ecore_win_wayland_pre_post_swap_callback_set;
-#endif
-#endif
    return iface;
 }

@@ -31,14 +31,6 @@ struct _Render_Engine
    Render_Engine_GL_Generic generic;
 };
 
-/* Evas GL wl_surface & wl_egl_window */
-typedef struct _Evgl_wl_Surface Evgl_wl_Surface;
-struct _Evgl_wl_Surface
-{
-   struct wl_surface *wl_surf;
-   struct wl_egl_window *egl_win;
-};
-
 /* local function prototypes */
 typedef void (*_eng_fn) (void);
 typedef _eng_fn (*glsym_func_eng_fn) ();
@@ -77,9 +69,7 @@ Evas_GL_Preload_Render_Call glsym_evas_gl_preload_render_relax = NULL;
 glsym_func_void     glsym_evas_gl_common_error_set = NULL;
 glsym_func_int      glsym_evas_gl_common_error_get = NULL;
 glsym_func_void_ptr glsym_evas_gl_common_current_context_get = NULL;
-// TIZEN_ONLY(20160425): Fix linking to 'context_restore_set'
-//void (*glsym_evas_gl_context_restore_set) (Eina_Bool enable) = NULL;
-//
+void (*glsym_evas_gl_context_restore_set) (Eina_Bool enable) = NULL;
 
 _eng_fn (*glsym_eglGetProcAddress) (const char *a) = NULL;
 void *(*glsym_eglCreateImage) (EGLDisplay a, EGLContext b, EGLenum c, EGLClientBuffer d, const int *e) = NULL;
@@ -95,7 +85,7 @@ static int gl_wins = 0;
 static Evas_Func func, pfunc;
 
 /* external variables */
-int _evas_engine_wl_egl_log_dom = -1;
+int _evas_engine_gl_tbm_log_dom = -1;
 Eina_Bool extn_have_buffer_age = EINA_TRUE;
 Eina_Bool extn_have_y_inverted = EINA_TRUE;
 
@@ -119,7 +109,7 @@ gl_symbols(void)
     *
     * See ticket #1972 for more info.
     */
-   setenv("EGL_PLATFORM", "wayland", 1);
+   //setenv("EGL_PLATFORM", "tbm", 1);
 
 #define LINK2GENERIC(sym) \
    glsym_##sym = dlsym(RTLD_DEFAULT, #sym);
@@ -152,9 +142,7 @@ gl_symbols(void)
    LINK2GENERIC(evas_gl_common_error_get);
    LINK2GENERIC(evas_gl_common_error_set);
    LINK2GENERIC(evas_gl_common_current_context_get);
-// TIZEN_ONLY(20160425): Fix linking to 'context_restore_set'
-// LINK2GENERIC(evas_gl_context_restore_set);
-//
+   LINK2GENERIC(evas_gl_context_restore_set);
 
 #define FINDSYM(dst, sym, typ) \
    if (glsym_eglGetProcAddress) { \
@@ -275,28 +263,37 @@ _re_winfree(Render_Engine *re)
 static void *
 evgl_eng_display_get(void *data)
 {
+#if 0
    Render_Engine *re;
    Outbuf *ob;
 
    if (!(re = (Render_Engine *)data)) return NULL;
    if (!(ob = eng_get_ob(re))) return NULL;
    return (void *)ob->egl_disp;
+#else
+   return NULL;
+#endif
 }
 
 static void *
 evgl_eng_evas_surface_get(void *data)
 {
+#if 0
    Render_Engine *re;
    Outbuf *ob;
 
    if (!(re = (Render_Engine *)data)) return NULL;
    if (!(ob = eng_get_ob(re))) return NULL;
    return (void *)ob->egl_surface[0];
+#else
+   return NULL;
+#endif
 }
 
 static void *
 evgl_eng_native_window_create(void *data)
 {
+#if 0
    Evgl_wl_Surface* surface;
    Render_Engine *re;
    Outbuf *ob;
@@ -327,11 +324,15 @@ evgl_eng_native_window_create(void *data)
      }
 
    return (void *)surface;
+#else
+   return NULL;
+#endif
 }
 
 static int
 evgl_eng_native_window_destroy(void *data, void *win)
 {
+#if 0
    Evgl_wl_Surface* surface;
 
    if (!win)
@@ -349,11 +350,15 @@ evgl_eng_native_window_destroy(void *data, void *win)
 
    free(surface);
    return 1;
+#else
+   return 0;
+#endif
 }
 
 static void *
 evgl_eng_window_surface_create(void *data, void *win)
 {
+#if 0
    Render_Engine *re;
    Outbuf *ob;
    EGLSurface surface = EGL_NO_SURFACE;
@@ -378,11 +383,15 @@ evgl_eng_window_surface_create(void *data, void *win)
      }
 
    return (void *)surface;
+#else
+   return NULL;
+#endif
 }
 
 static int
 evgl_eng_window_surface_destroy(void *data, void *surface)
 {
+#if 0
    Render_Engine *re;
    Outbuf *ob;
 
@@ -402,11 +411,15 @@ evgl_eng_window_surface_destroy(void *data, void *surface)
      }
    eglDestroySurface(ob->egl_disp, (EGLSurface)surface);
    return 1;
+#else
+   return 0;
+#endif
 }
 
 static void *
 evgl_eng_context_create(void *data, void *ctxt, Evas_GL_Context_Version version)
 {
+#if 0
    Render_Engine *re;
    Outbuf *ob;
    EGLContext context = EGL_NO_CONTEXT;
@@ -489,11 +502,15 @@ evgl_eng_context_create(void *data, void *ctxt, Evas_GL_Context_Version version)
      }
 
    return (void *)context;
+#else
+   return NULL;
+#endif
 }
 
 static int
 evgl_eng_context_destroy(void *data, void *ctxt)
 {
+#if 0
    Render_Engine *re;
    Outbuf *ob;
 
@@ -513,11 +530,15 @@ evgl_eng_context_destroy(void *data, void *ctxt)
 
    eglDestroyContext(ob->egl_disp, (EGLContext)ctxt);
    return 1;
+#else
+   return 0;
+#endif
 }
 
 static int
 evgl_eng_make_current(void *data, void *surface, void *ctxt, int flush)
 {
+#if 0
    Render_Engine *re;
    Outbuf *ob;
    EGLContext ctx;
@@ -567,18 +588,26 @@ evgl_eng_make_current(void *data, void *surface, void *ctxt, int flush)
      }
 
    return 1;
+#else
+   return 0;
+#endif
 }
 
 static void *
 evgl_eng_proc_address_get(const char *name)
 {
+#if 0
    if (glsym_eglGetProcAddress) return glsym_eglGetProcAddress(name);
    return dlsym(RTLD_DEFAULT, name);
+#else
+   return NULL;
+#endif
 }
 
 static const char *
 evgl_eng_string_get(void *data)
 {
+#if 0
    Render_Engine *re;
    Outbuf *ob;
 
@@ -591,11 +620,15 @@ evgl_eng_string_get(void *data)
    if (!(ob = eng_get_ob(re))) return NULL;
 
    return eglQueryString(ob->egl_disp, EGL_EXTENSIONS);
+#else
+   return NULL;
+#endif
 }
 
 static int
 evgl_eng_rotation_angle_get(void *data)
 {
+#if 0
    Render_Engine *re;
    Outbuf *ob;
 
@@ -615,12 +648,16 @@ evgl_eng_rotation_angle_get(void *data)
         glsym_evas_gl_common_error_set(data, EVAS_GL_BAD_CONTEXT);
         return 0;
      }
+#else
+   return 0;
+#endif
 }
 
 static void *
 evgl_eng_pbuffer_surface_create(void *data, EVGL_Surface *sfc,
                                 const int *attrib_list)
 {
+#if 0
    Render_Engine_GL_Generic *re = data;
 
    // TODO: Add support for surfaceless pbuffers (EGL_NO_TEXTURE)
@@ -752,11 +789,15 @@ evgl_eng_pbuffer_surface_create(void *data, EVGL_Surface *sfc,
 
    return (void*)(intptr_t)pbuf;
 #endif
+#else
+   return NULL;
+#endif
 }
 
 static int
 evgl_eng_pbuffer_surface_destroy(void *data, void *surface)
 {
+#if 0
    /* EVGLINIT(re, 0); */
    if (!data)
      {
@@ -785,12 +826,16 @@ evgl_eng_pbuffer_surface_destroy(void *data, void *surface)
 #endif
 
    return 1;
+#else
+   return 0;
+#endif
 }
 
 static void
 evgl_eng_native_win_surface_config_get(void *data, int *win_depth,
                                          int *win_stencil, int *win_msaa)
 {
+#if 0
    Render_Engine *re = data;
    if (!re) return;
 
@@ -805,6 +850,7 @@ evgl_eng_native_win_surface_config_get(void *data, int *win_depth,
        eng_get_ob(re)->detected.depth_buffer_size,
        eng_get_ob(re)->detected.stencil_buffer_size,
        eng_get_ob(re)->detected.msaa);
+#endif
 }
 
 static const EVGL_Interface evgl_funcs =
@@ -833,10 +879,10 @@ static const EVGL_Interface evgl_funcs =
 static void *
 eng_info(Evas *evas EINA_UNUSED)
 {
-   Evas_Engine_Info_Wayland_Egl *info;
+   Evas_Engine_Info_GL_Tbm *info;
 
    /* try to allocate space for our engine info */
-   if (!(info = calloc(1, sizeof(Evas_Engine_Info_Wayland_Egl))))
+   if (!(info = calloc(1, sizeof(Evas_Engine_Info_GL_Tbm))))
      return NULL;
 
    info->magic.magic = rand();
@@ -848,9 +894,9 @@ eng_info(Evas *evas EINA_UNUSED)
 static void
 eng_info_free(Evas *evas EINA_UNUSED, void *info)
 {
-   Evas_Engine_Info_Wayland_Egl *inf;
+   Evas_Engine_Info_GL_Tbm *inf;
 
-   if ((inf = (Evas_Engine_Info_Wayland_Egl *)info))
+   if ((inf = (Evas_Engine_Info_GL_Tbm *)info))
      free(inf);
 }
 
@@ -858,13 +904,12 @@ static int
 eng_setup(Evas *evas, void *info)
 {
    Render_Engine_Swap_Mode swap_mode = MODE_FULL;
-   Evas_Engine_Info_Wayland_Egl *inf;
+   Evas_Engine_Info_GL_Tbm *inf;
    Evas_Public_Data *epd;
    Render_Engine *re;
    Outbuf *ob;
    const char *s;
-
-   inf = (Evas_Engine_Info_Wayland_Egl *)info;
+   inf = (Evas_Engine_Info_GL_Tbm *)info;
    epd = eo_data_scope_get(evas, EVAS_CANVAS_CLASS);
 
    if ((s = getenv("EVAS_GL_SWAP_MODE")))
@@ -904,19 +949,19 @@ eng_setup(Evas *evas, void *info)
 // drivers. it seems we CANT depend on backbuffer staying around. bugger!
         switch (inf->swap_mode)
           {
-           case EVAS_ENGINE_WAYLAND_EGL_SWAP_MODE_FULL:
+           case EVAS_ENGINE_GL_TBM_SWAP_MODE_FULL:
              swap_mode = MODE_FULL;
              break;
-           case EVAS_ENGINE_WAYLAND_EGL_SWAP_MODE_COPY:
+           case EVAS_ENGINE_GL_TBM_SWAP_MODE_COPY:
              swap_mode = MODE_COPY;
              break;
-           case EVAS_ENGINE_WAYLAND_EGL_SWAP_MODE_DOUBLE:
+           case EVAS_ENGINE_GL_TBM_SWAP_MODE_DOUBLE:
              swap_mode = MODE_DOUBLE;
              break;
-           case EVAS_ENGINE_WAYLAND_EGL_SWAP_MODE_TRIPLE:
+           case EVAS_ENGINE_GL_TBM_SWAP_MODE_TRIPLE:
              swap_mode = MODE_TRIPLE;
              break;
-           case EVAS_ENGINE_WAYLAND_EGL_SWAP_MODE_QUADRUPLE:
+           case EVAS_ENGINE_GL_TBM_SWAP_MODE_QUADRUPLE:
              swap_mode = MODE_QUADRUPLE;
              break;
            default:
@@ -935,7 +980,7 @@ eng_setup(Evas *evas, void *info)
          *
          * See ticket #1972 for more info.
          */
-        setenv("EGL_PLATFORM", "wayland", 1);
+        setenv("EGL_PLATFORM", "tbm", 1);
 
         /* try to allocate space for a new render engine */
         if (!(re = calloc(1, sizeof(Render_Engine))))
@@ -1003,15 +1048,7 @@ eng_setup(Evas *evas, void *info)
         if ((ob) && (_re_wincheck(ob)))
           {
              ob->info = inf;
-             if ((ob->info->info.display != ob->disp) ||
-                 (ob->info->info.surface != ob->surface) ||
-                 /* FIXME: comment out below line.
-                  * since there is no place set the info->info.win for now,
-                  * it causes renew the window unnecessarily.
-                  */
-                 /* (ob->info->info.win != ob->win) || */
-                 (ob->info->info.depth != ob->depth) ||
-                 (ob->info->info.screen != ob->screen) ||
+             if ((ob->info->info.depth != ob->depth) ||
                  (ob->info->info.destination_alpha != ob->alpha))
                {
                   ob->gl_context->references++;
@@ -1195,7 +1232,7 @@ _native_cb_bind(void *data EINA_UNUSED, void *image)
         if (n->ns_data.evasgl.surface)
           {
              Eina_Bool is_egl_image = EINA_FALSE;
-             void *surface = NULL;
+             void *surface;
 
              if (glsym_evgl_native_surface_buffer_get)
                surface = glsym_evgl_native_surface_buffer_get(n->ns_data.evasgl.surface, &is_egl_image);
@@ -1337,11 +1374,12 @@ _native_cb_free(void *data, void *image)
 }
 
 static int
-_native_cb_yinvert(void *data EINA_UNUSED, void *image)
+_native_cb_yinvert(void *data, void *image)
 {
+   Render_Engine *re = data;
    Evas_GL_Image *im = image;
    Native *n = im->native.data;
-   int yinvert = 0;
+   int yinvert = 0, val;
 
    // Yinvert callback should only be used for EVAS_NATIVE_SURFACE_EVASGL type now,
    // as yinvert value is not changed for other types.
@@ -1589,8 +1627,8 @@ eng_image_native_set(void *data, void *image, void *native)
 
                   //XXX: workaround for mesa-10.2.8
                   // mesa's eglQueryWaylandBufferWL() with EGL_WAYLAND_Y_INVERTED_WL works incorrect.
-                  img->native.yinvert = yinvert;
-//                  img->native.yinvert = 1;
+                  //img->native.yinvert = yinvert;
+                  img->native.yinvert = 1;
                   img->native.loose = 0;
                   img->native.data = n;
                   img->native.func.data = re;
@@ -1688,10 +1726,6 @@ eng_image_native_set(void *data, void *image, void *native)
                img->native.func.free   = _native_cb_free;
                img->native.target      = GL_TEXTURE_EXTERNAL_OES;
                img->native.mipmap      = 0;
-               img->native.rot         = ns->data.tbm.rot;
-               img->native.ratio       = ns->data.tbm.ratio;
-               img->native.flip        = ns->data.tbm.flip;
-
                glsym_evas_gl_common_image_native_enable(img);
              }
          }
@@ -1747,13 +1781,13 @@ module_open(Evas_Module *em)
    if (!_evas_module_engine_inherit(&pfunc, "gl_generic")) return 0;
 
    /* setup logging domain */
-   if (_evas_engine_wl_egl_log_dom < 0)
+   if (_evas_engine_gl_tbm_log_dom < 0)
      {
-        _evas_engine_wl_egl_log_dom =
-          eina_log_domain_register("evas-wayland_egl", EVAS_DEFAULT_LOG_COLOR);
+         _evas_engine_gl_tbm_log_dom =
+          eina_log_domain_register("evas-gl_tbm", EVAS_DEFAULT_LOG_COLOR);
      }
 
-   if (_evas_engine_wl_egl_log_dom < 0)
+   if (_evas_engine_gl_tbm_log_dom < 0)
      {
         EINA_LOG_ERR("Can not create a module log domain.");
         return 0;
@@ -1761,6 +1795,7 @@ module_open(Evas_Module *em)
 
    /* store functions for later use */
    func = pfunc;
+
 #define ORD(f) EVAS_API_OVERRIDE(f, &func, eng_)
 
    ORD(info);
@@ -1787,16 +1822,16 @@ module_open(Evas_Module *em)
 static void
 module_close(Evas_Module *em EINA_UNUSED)
 {
-   eina_log_domain_unregister(_evas_engine_wl_egl_log_dom);
+   eina_log_domain_unregister(_evas_engine_gl_tbm_log_dom);
 }
 
 static Evas_Module_Api evas_modapi =
 {
-   EVAS_MODULE_API_VERSION, "wayland_egl", "none", {module_open, module_close}
+   EVAS_MODULE_API_VERSION, "gl_tbm", "none", {module_open, module_close}
 };
 
-EVAS_MODULE_DEFINE(EVAS_MODULE_TYPE_ENGINE, engine, wayland_egl);
+EVAS_MODULE_DEFINE(EVAS_MODULE_TYPE_ENGINE, engine, gl_tbm);
 
-#ifndef EVAS_STATIC_BUILD_WAYLAND_EGL
-EVAS_EINA_MODULE_DEFINE(engine, wayland_egl);
+#ifndef EVAS_STATIC_BUILD_GL_TBM
+EVAS_EINA_MODULE_DEFINE(engine, gl_tbm);
 #endif

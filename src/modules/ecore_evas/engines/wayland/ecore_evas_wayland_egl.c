@@ -130,7 +130,6 @@ ecore_evas_wayland_egl_options_new_internal(const char *disp_name, unsigned int 
    int fx = 0, fy = 0, fw = 0, fh = 0;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
    if (!(method = evas_render_method_lookup("wayland_egl")))
      {
         ERR("Render method lookup failed for Wayland_Egl");

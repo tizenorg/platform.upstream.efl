@@ -12,7 +12,7 @@
 #endif
 
 /* logging domain variable */
-int _evas_engine_way_shm_log_dom = -1;
+int _evas_engine_software_tbm_log_dom = -1;
 
 /* evas function tables - filled in later (func and parent func) */
 static Evas_Func func, pfunc;
@@ -30,7 +30,7 @@ struct _Render_Engine
 
 /* LOCAL FUNCTIONS */
 Render_Engine *
-_render_engine_swapbuf_setup(int w, int h, unsigned int rotation, unsigned int depth, Eina_Bool alpha, struct wl_shm *shm, struct wl_surface *surface, struct wl_display *disp)
+_render_engine_swapbuf_setup(int w, int h, unsigned int rotation, unsigned int depth, Eina_Bool alpha, void *tbm_queue)
 {
    Render_Engine *re;
    Outbuf *ob;
@@ -42,26 +42,26 @@ _render_engine_swapbuf_setup(int w, int h, unsigned int rotation, unsigned int d
    /* try to allocate space for new render engine */
    if (!(re = calloc(1, sizeof(Render_Engine)))) return NULL;
 
-   ob = _evas_outbuf_setup(w, h, rotation, depth, alpha, shm, surface, disp);
+   ob = _evas_software_tbm_outbuf_setup(w, h, rotation, depth, alpha, tbm_queue);
    if (!ob) goto err;
 
    if (!evas_render_engine_software_generic_init(&re->generic, ob,
-                                                 _evas_outbuf_swap_mode_get,
-                                                 _evas_outbuf_rotation_get,
+                                                 _evas_software_tbm_outbuf_swap_mode_get,
+                                                 _evas_software_tbm_outbuf_rotation_get,
                                                  NULL,
                                                  NULL,
-                                                 _evas_outbuf_update_region_new,
-                                                 _evas_outbuf_update_region_push,
-                                                 _evas_outbuf_update_region_free,
-                                                 _evas_outbuf_idle_flush,
-                                                 _evas_outbuf_flush,
-                                                 _evas_outbuf_free,
+                                                 _evas_software_tbm_outbuf_update_region_new,
+                                                 _evas_software_tbm_outbuf_update_region_push,
+                                                 _evas_software_tbm_outbuf_update_region_free,
+                                                 _evas_software_tbm_outbuf_idle_flush,
+                                                 _evas_software_tbm_outbuf_flush,
+                                                 _evas_software_tbm_outbuf_free,
                                                  w, h))
      goto err;
 
-   re->outbuf_reconfigure = _evas_outbuf_reconfigure;
+   re->outbuf_reconfigure = _evas_software_tbm_outbuf_reconfigure;
 
-   s = getenv("EVAS_WAYLAND_PARTIAL_MERGE");
+   s = getenv("EVAS_SOFTWARE_TBM_PARTIAL_MERGE");
    if (s)
      {
         if ((!strcmp(s, "bounding")) || (!strcmp(s, "b")))
@@ -78,7 +78,7 @@ _render_engine_swapbuf_setup(int w, int h, unsigned int rotation, unsigned int d
    return re;
 
 err:
-   if (ob) _evas_outbuf_free(ob);
+   if (ob) _evas_software_tbm_outbuf_free(ob);
    free(re);
    return NULL;
 }
@@ -99,16 +99,18 @@ _symbols(void)
    done = 1;
 }
 
+
+
 /* ENGINE API FUNCTIONS WE PROVIDE */
 static void *
 eng_info(Evas *eo_evas EINA_UNUSED)
 {
-   Evas_Engine_Info_Wayland_Shm *einfo;
+   Evas_Engine_Info_Software_Tbm *einfo;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    /* try to allocate space for new engine info */
-   if (!(einfo = calloc(1, sizeof(Evas_Engine_Info_Wayland_Shm))))
+   if (!(einfo = calloc(1, sizeof(Evas_Engine_Info_Software_Tbm))))
      return NULL;
 
    /* fill in engine info */
@@ -122,25 +124,25 @@ eng_info(Evas *eo_evas EINA_UNUSED)
 static void
 eng_info_free(Evas *eo_evas EINA_UNUSED, void *info)
 {
-   Evas_Engine_Info_Wayland_Shm *einfo;
+   Evas_Engine_Info_Software_Tbm *einfo;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    /* try to free previously allocated engine info */
-   if ((einfo = (Evas_Engine_Info_Wayland_Shm *)info))
+   if ((einfo = (Evas_Engine_Info_Software_Tbm *)info))
      free(einfo);
 }
 
 static int
 eng_setup(Evas *eo_evas, void *info)
 {
-   Evas_Engine_Info_Wayland_Shm *einfo;
+   Evas_Engine_Info_Software_Tbm *einfo;
    Evas_Public_Data *epd;
    Render_Engine *re = NULL;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
    /* try to cast to our engine info */
-   if (!(einfo = (Evas_Engine_Info_Wayland_Shm *)info))
+   if (!(einfo = (Evas_Engine_Info_Software_Tbm *)info))
      return 0;
 
    /* try to get evas public data */
@@ -157,9 +159,7 @@ eng_setup(Evas *eo_evas, void *info)
                                           einfo->info.rotation,
                                           einfo->info.depth,
                                           einfo->info.destination_alpha,
-                                          einfo->info.wl_shm,
-                                          einfo->info.wl_surface,
-                                          einfo->info.wl_disp);
+                                          einfo->info.tbm_queue);
 
         if (re)
           re->generic.ob->info = einfo;
@@ -170,11 +170,10 @@ eng_setup(Evas *eo_evas, void *info)
      {
         Outbuf *ob;
 
-        ob = _evas_outbuf_setup(epd->output.w, epd->output.h,
+        ob = _evas_software_tbm_outbuf_setup(epd->output.w, epd->output.h,
                                 einfo->info.rotation, einfo->info.depth,
                                 einfo->info.destination_alpha,
-                                einfo->info.wl_shm, einfo->info.wl_surface,
-                                einfo->info.wl_disp);
+                                einfo->info.tbm_queue);
         if (ob)
           {
              ob->info = einfo;
@@ -222,7 +221,7 @@ static void
 eng_output_resize(void *data, int w, int h)
 {
    Render_Engine *re;
-   Evas_Engine_Info_Wayland_Shm *einfo;
+   Evas_Engine_Info_Software_Tbm *einfo;
    int dx = 0, dy = 0;
    Eina_Bool resize = EINA_FALSE;
 
@@ -339,9 +338,9 @@ module_open(Evas_Module *em)
    if (!_evas_module_engine_inherit(&pfunc, "software_generic")) return 0;
 
    /* try to create our logging domain */
-   _evas_engine_way_shm_log_dom =
-     eina_log_domain_register("evas-wayland_shm", EVAS_DEFAULT_LOG_COLOR);
-   if (_evas_engine_way_shm_log_dom < 0)
+   _evas_engine_software_tbm_log_dom =
+     eina_log_domain_register("evas-software_tbm", EVAS_DEFAULT_LOG_COLOR);
+   if (_evas_engine_software_tbm_log_dom < 0)
      {
         EINA_LOG_ERR("Cannot create a module logging domain");
         return 0;
@@ -372,20 +371,20 @@ module_close(Evas_Module *em EINA_UNUSED)
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    /* unregister logging domain */
-   if (_evas_engine_way_shm_log_dom > -1)
-     eina_log_domain_unregister(_evas_engine_way_shm_log_dom);
+   if (_evas_engine_software_tbm_log_dom > -1)
+     eina_log_domain_unregister(_evas_engine_software_tbm_log_dom);
 
    /* reset logging domain variable */
-   _evas_engine_way_shm_log_dom = -1;
+   _evas_engine_software_tbm_log_dom = -1;
 }
 
 static Evas_Module_Api evas_modapi =
 {
-   EVAS_MODULE_API_VERSION, "wayland_shm", "none", {module_open, module_close}
+   EVAS_MODULE_API_VERSION, "software_tbm", "none", {module_open, module_close}
 };
 
-EVAS_MODULE_DEFINE(EVAS_MODULE_TYPE_ENGINE, engine, wayland_shm);
+EVAS_MODULE_DEFINE(EVAS_MODULE_TYPE_ENGINE, engine, software_tbm);
 
-#ifndef EVAS_STATIC_BUILD_WAYLAND_SHM
-EVAS_EINA_MODULE_DEFINE(engine, wayland_shm);
+#ifndef EVAS_STATIC_BUILD_SOFTWARE_TBM
+EVAS_EINA_MODULE_DEFINE(engine, software_tbm);
 #endif

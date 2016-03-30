@@ -332,6 +332,19 @@ ecore_evas_engine_type_supported_get(Ecore_Evas_Engine_Type engine)
 #else
         return EINA_FALSE;
 #endif
+     case ECORE_EVAS_ENGINE_OPENGL_TBM:
+#ifdef BUILD_ECORE_EVAS_GL_TBM
+        return EINA_TRUE;
+#else
+        return EINA_FALSE;
+#endif
+     case ECORE_EVAS_ENGINE_SOFTWARE_TBM:
+#ifdef BUILD_ECORE_EVAS_SOFTWARE_TBM
+        return EINA_TRUE;
+#else
+        return EINA_FALSE;
+#endif
+
 
       default:
         return EINA_FALSE;
@@ -760,6 +773,22 @@ _ecore_evas_constructor_ews(int x, int y, int w, int h, const char *extra_option
 }
 #endif
 
+#ifdef BUILD_ECORE_EVAS_GL_TBM
+static Ecore_Evas *
+_ecore_evas_constructor_gl_tbm(int x EINA_UNUSED, int y EINA_UNUSED, int w, int h, const char *extra_options EINA_UNUSED)
+{
+   return ecore_evas_gl_tbm_new(w, h);
+}
+#endif
+
+#ifdef BUILD_ECORE_EVAS_SOFTWARE_TBM
+static Ecore_Evas *
+_ecore_evas_constructor_software_tbm(int x EINA_UNUSED, int y EINA_UNUSED, int w, int h, const char *extra_options EINA_UNUSED)
+{
+   return ecore_evas_software_tbm_new(w, h);
+}
+#endif
+
 /* note: keep sorted by priority, highest first */
 static const struct ecore_evas_engine _engines[] = {
   /* unix */
@@ -788,6 +817,12 @@ static const struct ecore_evas_engine _engines[] = {
   {"buffer", _ecore_evas_constructor_buffer},
 #ifdef BUILD_ECORE_EVAS_EWS
   {"ews", _ecore_evas_constructor_ews},
+#endif
+#ifdef BUILD_ECORE_EVAS_GL_TBM
+  {"gl_tbm", _ecore_evas_constructor_gl_tbm},
+#endif
+#ifdef BUILD_ECORE_EVAS_SOFTWARE_TBM
+  {"software_tbm", _ecore_evas_constructor_software_tbm},
 #endif
   {NULL, NULL}
 };

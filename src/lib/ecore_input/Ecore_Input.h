@@ -57,6 +57,7 @@ extern "C" {
    EAPI extern int ECORE_EVENT_MOUSE_BUTTON_CANCEL; /**< @since 1.15 */
    EAPI extern int ECORE_EVENT_DEVICE_ADD;
    EAPI extern int ECORE_EVENT_DEVICE_DEL;
+   EAPI extern int ECORE_EVENT_DETENT_ROTATE; //TIZEN ONLY
 
 #define ECORE_EVENT_MODIFIER_SHIFT      0x0001
 #define ECORE_EVENT_MODIFIER_CTRL       0x0002
@@ -85,6 +86,7 @@ extern "C" {
    typedef struct _Ecore_Event_Axis_Update  Ecore_Event_Axis_Update; /**< @since 1.13 */
    typedef struct _Ecore_Axis               Ecore_Axis; /**< @since 1.13 */
    typedef struct _Ecore_Event_Device_Info  Ecore_Event_Device_Info;
+   typedef struct _Ecore_Event_Detent_Rotate Ecore_Event_Detent_Rotate; //TIZEN ONLY
 
    /**
     * @typedef Ecore_Event_Modifier
@@ -309,6 +311,18 @@ extern "C" {
         const char *seatname;
         unsigned int caps;
      };
+   // TIZEN ONLY
+   typedef enum _Ecore_Detent_Direction
+     {
+        ECORE_DETENT_DIRECTION_CLOCKWISE,
+        ECORE_DETENT_DIRECTION_COUNTER_CLOCKWISE
+     } Ecore_Detent_Direction;
+   struct _Ecore_Event_Detent_Rotate
+     {
+        Ecore_Detent_Direction direction;
+        unsigned int timestamp;
+     };
+   // TIZEN ONLY - END
 
    /**
     * @struct _Ecore_Event_Mouse_IO

@@ -2017,10 +2017,18 @@ _ecore_wl_input_device_cb_event_device(void *data, struct tizen_input_device *ti
 }
 
 static void
+_ecore_wl_input_detent_rotate_free(void *data EINA_UNUSED, void *ev)
+{
+   Ecore_Event_Detent_Rotate *e = ev;
+   free(e);
+}
+
+static void
 _ecore_wl_input_device_cb_axis(void *data EINA_UNUSED, struct tizen_input_device *tizen_input_device EINA_UNUSED, uint32_t axis_type, wl_fixed_t value)
 {
    Ecore_Wl_Input *input = _ecore_wl_disp->input;
    double dvalue = wl_fixed_to_double(value);
+   Ecore_Event_Detent_Rotate *e;
 
    switch (axis_type)
      {
@@ -2041,6 +2049,18 @@ _ecore_wl_input_device_cb_axis(void *data EINA_UNUSED, struct tizen_input_device
             * value 1 is clockwise,
             * value -1 is counterclockwise,
             */
+           if (!(e = calloc(1, sizeof(Ecore_Event_Detent_Rotate))))
+             {
+                ERR("detent: cannot allocate memory");
+                return;
+             }
+           if (dvalue == 1)
+             e->direction = ECORE_DETENT_DIRECTION_CLOCKWISE;
+           else
+             e->direction = ECORE_DETENT_DIRECTION_COUNTER_CLOCKWISE;
+           e->timestamp = (unsigned int)ecore_time_get();
+           DBG("detent: dir: %d, time: %d", e->direction, e->timestamp);
+           ecore_event_add(ECORE_EVENT_DETENT_ROTATE, e, _ecore_wl_input_detent_rotate_free, NULL);
            break;
         default:
            WRN("Invalid type(%d) is ignored.\n", axis_type);

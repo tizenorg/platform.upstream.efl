@@ -36,6 +36,8 @@
 
 int _ecore_file_log_dom = -1;
 static int _ecore_file_init_count = 0;
+// TIZEN_ONLY(20160330): do not use ecore_file_download if ECORE_FILE_NO_DOWNLOAD env is set
+static Eina_Bool _use_download = EINA_TRUE;
 
 static Eina_Bool
 _ecore_file_stat(const char *file,
@@ -121,7 +123,18 @@ ecore_file_init()
      }
    ecore_file_path_init();
    ecore_file_monitor_init();
+// TIZEN_ONLY(20160330): do not use ecore_file_download if ECORE_FILE_NO_DOWNLOAD env is set
+#if 1
+   const char *s = getenv("ECORE_FILE_NO_DOWNLOAD");
+   if ((s) && !strncmp(s, "1", 1))
+     {
+        _use_download = EINA_FALSE;
+     }
+   else
+     ecore_file_download_init();
+#else
    ecore_file_download_init();
+#endif
 
    /* FIXME: were the tests disabled for a good reason ? */
 
@@ -161,7 +174,12 @@ ecore_file_shutdown()
    if (--_ecore_file_init_count != 0)
      return _ecore_file_init_count;
 
+// TIZEN_ONLY(20160330): do not use ecore_file_download if ECORE_FILE_NO_DOWNLOAD env is set
+#if 1
+   if (_use_download) ecore_file_download_shutdown();
+#else
    ecore_file_download_shutdown();
+#endif
    ecore_file_monitor_shutdown();
    ecore_file_path_shutdown();
 

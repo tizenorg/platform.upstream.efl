@@ -990,7 +990,7 @@ ecore_win_modal_get(const Ecore_Win *ewin)
      }
    return ewin->prop.modal ? EINA_TRUE : EINA_FALSE;
    #endif 
-   return FALSE;
+   return EINA_FALSE;
 }
 
 EAPI Ecore_Window
@@ -1028,6 +1028,7 @@ _ecore_win_ref(Ecore_Win *ewin)
 {
 #if 0
    ewin->refcount++;
+#endif
 }
 
 EAPI void

@@ -175,7 +175,7 @@ _ecore_win_wl_common_cb_focus_out(void *data EINA_UNUSED, int type EINA_UNUSED, 
 static Eina_Bool
 _ecore_win_wl_common_cb_window_configure(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
-#if
+#if 0
    Ecore_Win *ee;
    Ecore_Win_Engine_Wl_Data *wdata;
    Ecore_Wl_Event_Window_Configure *ev;

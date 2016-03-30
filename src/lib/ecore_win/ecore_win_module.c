@@ -181,6 +181,7 @@ _ecore_win_available_engines_get(void)
 #ifdef BUILD_ECORE_EVAS_OPENGL_X11
                             ADDENG("x11");
 #endif
+                         }
                        else if (!strcmp(name, "wayland"))
                          {
 #ifdef BUILD_ECORE_EVAS_WAYLAND_EGL

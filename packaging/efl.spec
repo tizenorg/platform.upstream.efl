@@ -966,6 +966,7 @@ install -m 0644 %SOURCE100 %{buildroot}%{_tmpfilesdir}/efl.conf
 %{_libdir}/ecore_imf/modules/*/*/module.so
 %{_libdir}/ecore/system/systemd/v-*/module.so
 %{_libdir}/ecore_buffer/modules/*/*/module.so
+%{_libdir}/ecore_win/engines/*/*/module.so
 %{_datadir}/ecore/checkme
 %{_datadir}/ecore_*/checkme
 %{_tmpfilesdir}/efl.conf

@@ -13,8 +13,7 @@ lib/ecore_win/ecore_win.c \
 lib/ecore_win/ecore_win_module.c \
 lib/ecore_win/ecore_win_private.h \
 lib/ecore_win/ecore_win_wayland.h \
-lib/ecore_win/ecore_win_x11.h \
-lib/ecore_win/ecore_win_util.c
+lib/ecore_win/ecore_win_x11.h
 
 lib_ecore_win_libecore_win_la_CPPFLAGS = -I$(top_builddir)/src/lib/efl  \
 -DPACKAGE_BIN_DIR=\"$(bindir)\" \

@@ -332,6 +332,13 @@ ecore_evas_engine_type_supported_get(Ecore_Evas_Engine_Type engine)
 #else
         return EINA_FALSE;
 #endif
+     case ECORE_EVAS_ENGINE_TBM:
+#ifdef BUILD_ECORE_EVAS_TBM
+        return EINA_TRUE;
+#else
+        return EINA_FALSE;
+#endif
+
 
       default:
         return EINA_FALSE;
@@ -719,6 +726,22 @@ _ecore_evas_constructor_opengl_drm(int x, int y, int w, int h, const char *extra
 }
 
 static Ecore_Evas *
+_ecore_evas_constructor_tbm(int x, int y, int w, int h, const char *extra_options)
+{
+   char *disp_name = NULL;
+   unsigned int frame = 0, parent = 0;
+   Ecore_Evas *ee;
+
+   _ecore_evas_parse_extra_options_str(extra_options, "display=", &disp_name);
+   _ecore_evas_parse_extra_options_uint(extra_options, "frame=", &frame);
+   _ecore_evas_parse_extra_options_uint(extra_options, "parent=", &parent);
+   ee = ecore_evas_tbm_new(disp_name, parent, x, y, w, h, frame);
+   free(disp_name);
+
+   return ee;
+}
+
+static Ecore_Evas *
 _ecore_evas_constructor_software_gdi(int x, int y, int w, int h,
 				     const char *extra_options EINA_UNUSED)
 {
@@ -783,6 +806,7 @@ static const struct ecore_evas_engine _engines[] = {
 */
   {"drm", _ecore_evas_constructor_drm},
   {"gl_drm", _ecore_evas_constructor_opengl_drm},
+  {"tbm", _ecore_evas_constructor_tbm},
   {"opengl_sdl", _ecore_evas_constructor_opengl_sdl},
   {"sdl", _ecore_evas_constructor_sdl},
   {"buffer", _ecore_evas_constructor_buffer},
@@ -4175,6 +4199,20 @@ ecore_evas_gl_drm_new(const char *disp_name, unsigned int parent,
    EINA_SAFETY_ON_NULL_RETURN_VAL(new, NULL);
 
    return new(disp_name, parent, x, y, w, h);
+}
+
+EAPI Ecore_Evas *
+ecore_evas_tbm_new(const char *disp_name, unsigned int parent,
+			   int x, int y, int w, int h, Eina_Bool frame)
+{
+   Ecore_Evas *(*new)(const char *, unsigned int, int, int, int, int, Eina_Bool);
+   Eina_Module *m = _ecore_evas_engine_load("wayland");
+   EINA_SAFETY_ON_NULL_RETURN_VAL(m, NULL);
+
+   new = eina_module_symbol_get(m, "ecore_evas_tbm_new_internal");
+   EINA_SAFETY_ON_NULL_RETURN_VAL(new, NULL);
+
+   return new(disp_name, parent, x, y, w, h, frame);
 }
 
 EAPI Ecore_Evas *

@@ -139,7 +139,7 @@ eng_setup(Evas *eo_evas, void *info)
    Render_Engine *re = NULL;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
+   ERR("eng_setup >> Wayland_Shm");
    /* try to cast to our engine info */
    if (!(einfo = (Evas_Engine_Info_Wayland_Shm *)info))
      return 0;
@@ -350,7 +350,7 @@ module_open(Evas_Module *em)
 
    /* copy parent functions */
    func = pfunc;
-
+   ERR("module_open >> Wayland_Shm");
    /* override engine specific functions */
 #define ORD(f) EVAS_API_OVERRIDE(f, &func, eng_)
    ORD(info);

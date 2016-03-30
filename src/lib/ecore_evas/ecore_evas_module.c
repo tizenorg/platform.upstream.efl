@@ -241,6 +241,9 @@ _ecore_evas_available_engines_get(void)
 #ifdef BUILD_ECORE_EVAS_WAYLAND_EGL
                             ADDENG("wayland_egl");
 #endif
+#ifdef BUILD_ECORE_EVAS_TBM
+                           ADDENG("tbm");
+#endif
                          }
                        else if (!strcmp(name, "win32"))
                          {

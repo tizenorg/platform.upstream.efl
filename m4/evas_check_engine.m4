@@ -661,6 +661,50 @@ AS_IF([test "x${have_dep}" = "xyes"], [$4], [$5])
 
 ])
 
+dnl use: EVAS_CHECK_ENGINE_DEP_TBM(engine, simple, want_static[, ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
+
+AC_DEFUN([EVAS_CHECK_ENGINE_DEP_TBM],
+[
+
+requirement=""
+have_dep="no"
+evas_engine_[]$1[]_cflags=""
+evas_engine_[]$1[]_libs=""
+
+if test "x${with_opengl}" = "xes" ; then
+    gl_library="glesv2"
+else
+    gl_library="gl"
+fi
+
+PKG_CHECK_EXISTS([egl ${gl_library} wayland-client >= 1.3.0 wayland-egl >= 9.2.0],
+   [
+    have_dep="yes"
+    requirement="egl ${gl_library} wayland-client wayland-egl"
+   ],
+   [have_dep="no"])
+
+if test "x${have_dep}" = "xyes" ; then
+   if test "${gl_library}" != "gl" ; then
+      have_egl="yes"
+   fi
+   if test "x$3" = "xstatic" ; then
+      requirements_pc_evas="${requirement} ${requirements_pc_evas}"
+      requirements_pc_deps_evas="${requirement} ${requirements_pc_deps_evas}"
+   else
+      PKG_CHECK_MODULES([TBM], [${requirement}])
+      evas_engine_[]$1[]_cflags="${TBM_CFLAGS}"
+      evas_engine_[]$1[]_libs="${TBM_LIBS}"
+      evas_engine_gl_common_libs="$evas_engine_[]$1[]_libdirs -lGLESv2 -lm -lEGL"
+   fi
+fi
+
+AC_SUBST([evas_engine_$1_cflags])
+AC_SUBST([evas_engine_$1_libs])
+
+AS_IF([test "x${have_dep}" = "xyes"], [$4], [$5])
+
+])
 
 dnl use: EVAS_ENGINE(name, want_engine, [DEPENDENCY-CHECK-CODE])
 dnl

@@ -93,7 +93,7 @@ static int gl_wins = 0;
 static Evas_Func func, pfunc;
 
 /* external variables */
-int _evas_engine_wl_egl_log_dom = -1;
+int _evas_engine_tbm_log_dom = -1;
 Eina_Bool extn_have_buffer_age = EINA_TRUE;
 Eina_Bool extn_have_y_inverted = EINA_TRUE;
 
@@ -829,10 +829,10 @@ static const EVGL_Interface evgl_funcs =
 static void *
 eng_info(Evas *evas EINA_UNUSED)
 {
-   Evas_Engine_Info_Wayland_Egl *info;
+   Evas_Engine_Info_Tbm *info;
 
    /* try to allocate space for our engine info */
-   if (!(info = calloc(1, sizeof(Evas_Engine_Info_Wayland_Egl))))
+   if (!(info = calloc(1, sizeof(Evas_Engine_Info_Tbm))))
      return NULL;
 
    info->magic.magic = rand();
@@ -844,9 +844,9 @@ eng_info(Evas *evas EINA_UNUSED)
 static void
 eng_info_free(Evas *evas EINA_UNUSED, void *info)
 {
-   Evas_Engine_Info_Wayland_Egl *inf;
+   Evas_Engine_Info_Tbm *inf;
 
-   if ((inf = (Evas_Engine_Info_Wayland_Egl *)info))
+   if ((inf = (Evas_Engine_Info_Tbm *)info))
      free(inf);
 }
 
@@ -854,15 +854,14 @@ static int
 eng_setup(Evas *evas, void *info)
 {
    Render_Engine_Swap_Mode swap_mode = MODE_FULL;
-   Evas_Engine_Info_Wayland_Egl *inf;
+   Evas_Engine_Info_Tbm *inf;
    Evas_Public_Data *epd;
    Render_Engine *re;
    Outbuf *ob;
    const char *s;
-
-   inf = (Evas_Engine_Info_Wayland_Egl *)info;
+   ERR("eng_setup >> tbm");
+   inf = (Evas_Engine_Info_Tbm *)info;
    epd = eo_data_scope_get(evas, EVAS_CANVAS_CLASS);
-   ERR("eng_setup >> wayland EGL");
 
    if ((s = getenv("EVAS_GL_SWAP_MODE")))
      {
@@ -901,19 +900,19 @@ eng_setup(Evas *evas, void *info)
 // drivers. it seems we CANT depend on backbuffer staying around. bugger!
         switch (inf->swap_mode)
           {
-           case EVAS_ENGINE_WAYLAND_EGL_SWAP_MODE_FULL:
+           case EVAS_ENGINE_TBM_SWAP_MODE_FULL:
              swap_mode = MODE_FULL;
              break;
-           case EVAS_ENGINE_WAYLAND_EGL_SWAP_MODE_COPY:
+           case EVAS_ENGINE_TBM_SWAP_MODE_COPY:
              swap_mode = MODE_COPY;
              break;
-           case EVAS_ENGINE_WAYLAND_EGL_SWAP_MODE_DOUBLE:
+           case EVAS_ENGINE_TBM_SWAP_MODE_DOUBLE:
              swap_mode = MODE_DOUBLE;
              break;
-           case EVAS_ENGINE_WAYLAND_EGL_SWAP_MODE_TRIPLE:
+           case EVAS_ENGINE_TBM_SWAP_MODE_TRIPLE:
              swap_mode = MODE_TRIPLE;
              break;
-           case EVAS_ENGINE_WAYLAND_EGL_SWAP_MODE_QUADRUPLE:
+           case EVAS_ENGINE_TBM_SWAP_MODE_QUADRUPLE:
              swap_mode = MODE_QUADRUPLE;
              break;
            default:
@@ -1741,21 +1740,22 @@ module_open(Evas_Module *em)
    if (!_evas_module_engine_inherit(&pfunc, "gl_generic")) return 0;
 
    /* setup logging domain */
-   if (_evas_engine_wl_egl_log_dom < 0)
+   if (_evas_engine_tbm_log_dom < 0)
      {
-        _evas_engine_wl_egl_log_dom =
-          eina_log_domain_register("evas-wayland_egl", EVAS_DEFAULT_LOG_COLOR);
+        _evas_engine_tbm_log_dom =
+          eina_log_domain_register("evas-tbm", EVAS_DEFAULT_LOG_COLOR);
      }
 
-   if (_evas_engine_wl_egl_log_dom < 0)
+   if (_evas_engine_tbm_log_dom < 0)
      {
         EINA_LOG_ERR("Can not create a module log domain.");
         return 0;
      }
 
    /* store functions for later use */
+   ERR("tbm : it is tbm engine module open !!!!!!!!!!!!!!");
    func = pfunc;
-   ERR("module_open >> wayland EGL");
+
 #define ORD(f) EVAS_API_OVERRIDE(f, &func, eng_)
 
    ORD(info);
@@ -1782,16 +1782,16 @@ module_open(Evas_Module *em)
 static void
 module_close(Evas_Module *em EINA_UNUSED)
 {
-   eina_log_domain_unregister(_evas_engine_wl_egl_log_dom);
+   eina_log_domain_unregister(_evas_engine_tbm_log_dom);
 }
 
 static Evas_Module_Api evas_modapi =
 {
-   EVAS_MODULE_API_VERSION, "wayland_egl", "none", {module_open, module_close}
+   EVAS_MODULE_API_VERSION, "tbm", "none", {module_open, module_close}
 };
 
-EVAS_MODULE_DEFINE(EVAS_MODULE_TYPE_ENGINE, engine, wayland_egl);
+EVAS_MODULE_DEFINE(EVAS_MODULE_TYPE_ENGINE, engine, tbm);
 
-#ifndef EVAS_STATIC_BUILD_WAYLAND_EGL
-EVAS_EINA_MODULE_DEFINE(engine, wayland_egl);
+#ifndef EVAS_STATIC_BUILD_TBM
+EVAS_EINA_MODULE_DEFINE(engine, tbm);
 #endif

@@ -1766,6 +1766,12 @@ if test "${want_wayland}" = "yes" && test "${want_egl}" = "yes" && test "${with_
    want_evas_engine_wayland_egl="yes"
 fi
 
+want_evas_engine_tbm="no"
+if test "${want_wayland}" = "yes" && test "${want_egl}" = "yes" && test "${with_opengl}" = "es"; then
+   want_evas_engine_tbm="yes"
+fi
+
+
 if test "${want_lua_old}" = "yes"; then
    EFL_CHECK_LUA_OLD([EVAS])
 else
@@ -1871,6 +1877,7 @@ EVAS_CHECK_ENGINE([wayland-egl], [${want_evas_engine_wayland_egl}], [no], [Wayla
 EVAS_CHECK_ENGINE([wayland-shm], [${want_wayland}], [no], [Wayland Shm])
 EVAS_CHECK_ENGINE([drm], [${want_drm}], [no], [Drm])
 EVAS_CHECK_ENGINE([gl-drm], [${want_gl_drm}], [no], [OpenGL Drm])
+EVAS_CHECK_ENGINE([tbm], [${want_evas_engine_tbm}], [no], [Tbm])
 
 
 # Software XCB
@@ -2027,6 +2034,7 @@ if test "x$have_evas_engine_gl_xlib" = "xyes" || \
    test "x$have_evas_engine_gl_sdl" = "xyes" || \
    test "x$have_evas_engine_gl_cocoa" = "xyes" || \
    test "x$have_evas_engine_gl_drm" = "xyes" || \
+   test "x$have_evas_engine_tbm" = "xyes" || \
    test "x$have_evas_engine_wayland_egl" = "xyes"; then
    have_evas_engine_gl_common="yes"
 fi
@@ -2035,6 +2043,7 @@ if test "x$have_evas_engine_gl_xlib" = "xstatic" || \
    test "x$have_evas_engine_gl_sdl" = "xstatic" || \
    test "x$have_evas_engine_gl_cocoa" = "xstatic" || \
    test "x$have_evas_engine_gl_drm" = "xstatic" || \
+   test "x$have_evas_engine_tbm" = "xstatic" || \
    test "x$have_evas_engine_wayland_egl" = "xstatic"; then
    have_evas_engine_gl_common="yes"
    have_static_evas_engine_gl_common="yes"
@@ -3953,6 +3962,7 @@ want_ecore_evas_software_gdi="${have_evas_engine_software_gdi}"
 want_ecore_evas_software_ddraw="${have_evas_engine_software_ddraw}"
 want_ecore_evas_gl_cocoa="${have_evas_engine_gl_cocoa}"
 want_ecore_evas_wayland_egl="${have_evas_engine_wayland_egl}"
+want_ecore_evas_tbm="${have_evas_engine_tbm}"
 want_ecore_evas_extn="yes"
 want_ecore_evas_drm="${have_evas_engine_drm}"
 
@@ -4004,6 +4014,7 @@ AM_CONDITIONAL([BUILD_ECORE_EVAS_SDL],
 
 ECORE_EVAS_MODULE([wayland-shm], [${want_wayland}])
 ECORE_EVAS_MODULE([wayland-egl], [${want_ecore_evas_wayland_egl}])
+ECORE_EVAS_MODULE([tbm], [${want_ecore_evas_tbm}])
 
 build_ecore_evas_wayland="no"
 if test "x${have_ecore_evas_wayland_shm}" = "xyes" || \

@@ -1,12 +1,12 @@
 #include "ecore_evas_wayland_private.h"
 
-#ifdef BUILD_ECORE_EVAS_WAYLAND_EGL
+#ifdef BUILD_ECORE_EVAS_TBM
 # include <stdlib.h>
 # include <string.h>
 # include <unistd.h>
 # include <sys/types.h>
 # include <sys/mman.h>
-# include <Evas_Engine_Wayland_Egl.h>
+# include <Evas_Engine_Tbm.h>
 
 #ifdef EAPI
 # undef EAPI
@@ -116,13 +116,13 @@ static Ecore_Evas_Engine_Func _ecore_wl_engine_func =
 
 /* external functions */
 EAPI Ecore_Evas *
-ecore_evas_wayland_egl_options_new_internal(const char *disp_name, unsigned int parent,
+ecore_evas_tbm_options_new_internal(const char *disp_name, unsigned int parent,
                                             int x, int y, int w, int h, Eina_Bool frame, const int *opt)
 {
    Ecore_Wl_Window *p = NULL;
    Ecore_Wl_Global *global;
    Eina_Inlist *globals;
-   Evas_Engine_Info_Wayland_Egl *einfo;
+   Evas_Engine_Info_Tbm *einfo;
    Ecore_Evas_Interface_Wayland *iface;
    Ecore_Evas_Engine_Wl_Data *wdata;
    Ecore_Evas *ee;
@@ -130,10 +130,10 @@ ecore_evas_wayland_egl_options_new_internal(const char *disp_name, unsigned int 
    int fx = 0, fy = 0, fw = 0, fh = 0;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
-   ERR("ecore_evas_wayland_egl_options_new_internal !!!");
-   if (!(method = evas_render_method_lookup("wayland_egl")))
+   ERR("ecore_evas_tbml_options_new_internal !!!");
+   if (!(method = evas_render_method_lookup("tbm")))
      {
-        ERR("Render method lookup failed for Wayland_Egl");
+        ERR("Render method lookup failed for Tbm");
         return NULL;
      }
 
@@ -173,7 +173,7 @@ ecore_evas_wayland_egl_options_new_internal(const char *disp_name, unsigned int 
    iface = _ecore_evas_wl_interface_new();
    ee->engine.ifaces = eina_list_append(ee->engine.ifaces, iface);
 
-   ee->driver = "wayland_egl";
+   ee->driver = "tbm";
    if (disp_name) ee->name = strdup(disp_name);
 
    if (w < 1) w = 1;
@@ -253,7 +253,7 @@ ecore_evas_wayland_egl_options_new_internal(const char *disp_name, unsigned int 
    if (ee->prop.draw_frame)
      evas_output_framespace_set(ee->evas, fx, fy, fw, fh);
 
-   if ((einfo = (Evas_Engine_Info_Wayland_Egl *)evas_engine_info_get(ee->evas)))
+   if ((einfo = (Evas_Engine_Info_Tbm *)evas_engine_info_get(ee->evas)))
      {
         if (opt)
           {
@@ -266,7 +266,7 @@ ecore_evas_wayland_egl_options_new_internal(const char *disp_name, unsigned int 
                        op++;
                        einfo->vsync = opt[op];
                     }
-#ifdef EVAS_ENGINE_WAYLAND_EGL_SWAP_MODE_EXISTS
+#ifdef EVAS_ENGINE_TBM_SWAP_MODE_EXISTS
                   else if (opt[op] == ECORE_EVAS_OPT_SWAP_MODE)
                     {
                        op++;
@@ -344,10 +344,10 @@ ecore_evas_wayland_egl_options_new_internal(const char *disp_name, unsigned int 
 }
 
 EAPI Ecore_Evas *
-ecore_evas_wayland_egl_new_internal(const char *disp_name, unsigned int parent,
+ecore_evas_tbm_new_internal(const char *disp_name, unsigned int parent,
                                     int x, int y, int w, int h, Eina_Bool frame)
 {
-   return ecore_evas_wayland_egl_options_new_internal(disp_name, parent, x, y, w, h, frame, NULL);
+   return ecore_evas_tbm_options_new_internal(disp_name, parent, x, y, w, h, frame, NULL);
 }
 
 static void 
@@ -365,7 +365,7 @@ _ecore_evas_wl_move_resize(Ecore_Evas *ee, int x, int y, int w, int h)
 static void
 _ecore_evas_wl_rotation_set(Ecore_Evas *ee, int rotation, int resize)
 {
-   Evas_Engine_Info_Wayland_Egl *einfo;
+   Evas_Engine_Info_Tbm *einfo;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
@@ -373,7 +373,7 @@ _ecore_evas_wl_rotation_set(Ecore_Evas *ee, int rotation, int resize)
 
    _ecore_evas_wl_common_rotation_set(ee, rotation, resize);
 
-   einfo = (Evas_Engine_Info_Wayland_Egl *)evas_engine_info_get(ee->evas);
+   einfo = (Evas_Engine_Info_Tbm *)evas_engine_info_get(ee->evas);
    if (!einfo) return;
 
    einfo->info.rotation = rotation;
@@ -385,7 +385,7 @@ _ecore_evas_wl_rotation_set(Ecore_Evas *ee, int rotation, int resize)
 static void 
 _ecore_evas_wl_show(Ecore_Evas *ee)
 {
-   Evas_Engine_Info_Wayland_Egl *einfo;
+   Evas_Engine_Info_Tbm *einfo;
    Ecore_Evas_Engine_Wl_Data *wdata;
    int fw, fh;
 
@@ -401,7 +401,7 @@ _ecore_evas_wl_show(Ecore_Evas *ee)
         ecore_wl_window_show(wdata->win);
         ecore_wl_window_alpha_set(wdata->win, ee->alpha);
 
-        einfo = (Evas_Engine_Info_Wayland_Egl *)evas_engine_info_get(ee->evas);
+        einfo = (Evas_Engine_Info_Tbm *)evas_engine_info_get(ee->evas);
         if (einfo)
           {
              struct wl_surface *surf;
@@ -436,7 +436,7 @@ static void
 _ecore_evas_wl_hide(Ecore_Evas *ee)
 {
    Ecore_Evas_Engine_Wl_Data *wdata;
-   Evas_Engine_Info_Wayland_Egl *einfo;
+   Evas_Engine_Info_Tbm *einfo;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
@@ -445,7 +445,7 @@ _ecore_evas_wl_hide(Ecore_Evas *ee)
 
    evas_sync(ee->evas);
 
-   einfo = (Evas_Engine_Info_Wayland_Egl *)evas_engine_info_get(ee->evas);
+   einfo = (Evas_Engine_Info_Tbm *)evas_engine_info_get(ee->evas);
    if (einfo)
      {
         einfo->info.surface = NULL;
@@ -470,9 +470,9 @@ _ecore_evas_wl_hide(Ecore_Evas *ee)
 }
 
 static void 
-_ecore_evas_wayland_egl_alpha_do(Ecore_Evas *ee, int alpha)
+_ecore_evas_tbm_alpha_do(Ecore_Evas *ee, int alpha)
 {
-   Evas_Engine_Info_Wayland_Egl *einfo;
+   Evas_Engine_Info_Tbm *einfo;
    Ecore_Evas_Engine_Wl_Data *wdata;
    int fw, fh;
 
@@ -487,7 +487,7 @@ _ecore_evas_wayland_egl_alpha_do(Ecore_Evas *ee, int alpha)
 
    evas_output_framespace_get(ee->evas, NULL, NULL, &fw, &fh);
 
-   if ((einfo = (Evas_Engine_Info_Wayland_Egl *)evas_engine_info_get(ee->evas)))
+   if ((einfo = (Evas_Engine_Info_Tbm *)evas_engine_info_get(ee->evas)))
      {
         einfo->info.destination_alpha = EINA_TRUE;
         if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
@@ -506,13 +506,13 @@ _ecore_evas_wl_alpha_set(Ecore_Evas *ee, int alpha)
         return;
      }
 
-   _ecore_evas_wayland_egl_alpha_do(ee, alpha);
+   _ecore_evas_tbm_alpha_do(ee, alpha);
 }
 
 static void 
-_ecore_evas_wayland_egl_transparent_do(Ecore_Evas *ee, int transparent)
+_ecore_evas_tbm_transparent_do(Ecore_Evas *ee, int transparent)
 {
-   Evas_Engine_Info_Wayland_Egl *einfo;
+   Evas_Engine_Info_Tbm *einfo;
    Ecore_Evas_Engine_Wl_Data *wdata;
    int fw, fh;
 
@@ -528,7 +528,7 @@ _ecore_evas_wayland_egl_transparent_do(Ecore_Evas *ee, int transparent)
 
    evas_output_framespace_get(ee->evas, NULL, NULL, &fw, &fh);
 
-   if ((einfo = (Evas_Engine_Info_Wayland_Egl *)evas_engine_info_get(ee->evas)))
+   if ((einfo = (Evas_Engine_Info_Tbm *)evas_engine_info_get(ee->evas)))
      {
         einfo->info.destination_alpha = EINA_TRUE;
         if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
@@ -547,11 +547,11 @@ _ecore_evas_wl_transparent_set(Ecore_Evas *ee, int transparent)
         return;
      }
 
-   _ecore_evas_wayland_egl_transparent_do(ee, transparent);
+   _ecore_evas_tbm_transparent_do(ee, transparent);
 }
 
 void 
-_ecore_evas_wayland_egl_resize(Ecore_Evas *ee, int location)
+_ecore_evas_tbm_resize(Ecore_Evas *ee, int location)
 {
    Ecore_Evas_Engine_Wl_Data *wdata;
 
@@ -561,7 +561,7 @@ _ecore_evas_wayland_egl_resize(Ecore_Evas *ee, int location)
    wdata = ee->engine.data;
    if (wdata->win) 
      {
-        _ecore_evas_wayland_egl_resize_edge_set(ee, location);
+        _ecore_evas_tbm_resize_edge_set(ee, location);
 
         if (ECORE_EVAS_PORTRAIT(ee))
           ecore_wl_window_resize(wdata->win, ee->w, ee->h, location);
@@ -571,16 +571,16 @@ _ecore_evas_wayland_egl_resize(Ecore_Evas *ee, int location)
 }
 
 void 
-_ecore_evas_wayland_egl_resize_edge_set(Ecore_Evas *ee, int edge)
+_ecore_evas_tbm_resize_edge_set(Ecore_Evas *ee, int edge)
 {
-   Evas_Engine_Info_Wayland_Egl *einfo;
+   Evas_Engine_Info_Tbm *einfo;
 
-   if ((einfo = (Evas_Engine_Info_Wayland_Egl *)evas_engine_info_get(ee->evas)))
+   if ((einfo = (Evas_Engine_Info_Tbm *)evas_engine_info_get(ee->evas)))
      einfo->info.edges = edge;
 }
 
 void
-_ecore_evas_wayland_egl_window_rotate(Ecore_Evas *ee, int rotation, int resize)
+_ecore_evas_tbm_window_rotate(Ecore_Evas *ee, int rotation, int resize)
 {
    if (!ee) return;
    _ecore_evas_wl_rotation_set(ee, rotation, resize);
@@ -588,3 +588,4 @@ _ecore_evas_wayland_egl_window_rotate(Ecore_Evas *ee, int rotation, int resize)
 }
 
 #endif
+

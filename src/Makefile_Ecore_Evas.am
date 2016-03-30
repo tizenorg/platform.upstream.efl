@@ -173,6 +173,7 @@ WAYLANDSOURCES = \
 modules/ecore_evas/engines/wayland/ecore_evas_wayland_common.c \
 modules/ecore_evas/engines/wayland/ecore_evas_wayland_shm.c \
 modules/ecore_evas/engines/wayland/ecore_evas_wayland_egl.c \
+modules/ecore_evas/engines/wayland/ecore_evas_tbm.c \
 modules/ecore_evas/engines/wayland/ecore_evas_wayland_private.h
 ecoreevasenginewaylandpkgdir = $(libdir)/ecore_evas/engines/wayland/$(MODULE_ARCH)
 ecoreevasenginewaylandpkg_LTLIBRARIES = modules/ecore_evas/engines/wayland/module.la
@@ -188,6 +189,7 @@ modules_ecore_evas_engines_wayland_module_la_CPPFLAGS = -I$(top_builddir)/src/li
 @ECORE_WAYLAND_CFLAGS@ \
 -I$(top_srcdir)/src/modules/evas/engines/wayland_shm \
 -I$(top_srcdir)/src/modules/evas/engines/wayland_egl \
+-I$(top_srcdir)/src/modules/evas/engines/tbm \
 @ECORE_WAYLAND_CFLAGS@
 modules_ecore_evas_engines_wayland_module_la_LIBADD = \
 @USE_ECORE_EVAS_LIBS@ \

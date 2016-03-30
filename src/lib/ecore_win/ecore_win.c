@@ -35,6 +35,9 @@ EAPI int _ecore_win_log_dom = -1;
 static int _ecore_win_init_count = 0;
 static Ecore_Win *ecore_wines = NULL;
 
+EAPI Ecore_Win *ecore_win_wayland_new(const char *disp_name, unsigned int parent, int x, int y, int w, int h, Eina_Bool frame);
+
+
 EAPI Ecore_Win_Interface *
 _ecore_win_interface_get(const Ecore_Win *ewin, const char *iname)
 {
@@ -991,7 +994,6 @@ ecore_win_modal_get(const Ecore_Win *ewin)
 EAPI Ecore_Window
 ecore_win_window_get(const Ecore_Win *ewin)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -1000,8 +1002,33 @@ ecore_win_window_get(const Ecore_Win *ewin)
      }
 
    return ewin->prop.window;
-#endif 
-return 0;
+}
+
+
+EAPI Ecore_Surface
+ecore_win_surface_get(const Ecore_Win *ewin)
+{
+   if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
+     {
+        ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
+                         "ecore_win_surface_get");
+        return 0;
+     }
+
+   return ewin->prop.wl_surface;
+}
+
+EAPI Ecore_Display
+ecore_win_display_get(const Ecore_Win *ewin)
+{
+   if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
+     {
+        ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
+                         "ecore_win_display_get");
+        return 0;
+     }
+
+   return ewin->prop.wl_disp;
 }
 
 EAPI void

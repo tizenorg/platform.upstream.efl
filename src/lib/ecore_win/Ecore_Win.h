@@ -108,7 +108,7 @@ EAPI Ecore_Win *ecore_win_new(const char *engine_name, int x, int y, int w, int 
 
 
 
-EAPI Ecore_Win *ecore_win_wayland_new(const char *disp_name, unsigned int parent, int x, int y, int w, int h, Eina_Bool frame);
+//EAPI Ecore_Win *ecore_win_wayland_new(const char *disp_name, unsigned int parent, int x, int y, int w, int h, Eina_Bool frame);
 
 /**
  * @brief Set whether an Ecore_Win has an alpha channel or not.
@@ -269,7 +269,7 @@ EAPI Eina_Bool   ecore_win_iconified_get(const Ecore_Win *ewin);
  *
  * @warning Support for this depends on the underlying windowing system.
  */
-EAPI void        ecore_win_fullscrewinn_set(Ecore_Win *ewin, Eina_Bool on);
+EAPI void        ecore_win_fullscreen_set(Ecore_Win *ewin, Eina_Bool on);
 /**
  * @brief Query whether an Ecore_Win' window is fullscrewinn or not.
  *
@@ -278,7 +278,7 @@ EAPI void        ecore_win_fullscrewinn_set(Ecore_Win *ewin, Eina_Bool on);
  *
  * @sewin ecore_evas_fullscrewinn_set()
  */
-EAPI Eina_Bool   ecore_win_fullscrewinn_get(const Ecore_Win *ewin);
+EAPI Eina_Bool   ecore_win_fullscreen_get(const Ecore_Win *ewin);
 /**
  * @brief Set the modal state flag on the canvas window
  *
@@ -443,7 +443,7 @@ EAPI void        ecore_win_lower(Ecore_Win *ewin);
  *
  * This frewins up any memory used by the Ecore_Win.
  */
-EAPI void        ecore_win_frewin(Ecore_Win *ewin);
+EAPI void        ecore_win_free(Ecore_Win *ewin);
 
 /**
  * @brief Set a callback for Ecore_Win resize events.
@@ -590,6 +590,12 @@ EAPI void        ecore_win_hide(Ecore_Win *ewin);
  * This functions activates the Ecore_Win.
  */
 EAPI void        ecore_win_activate(Ecore_Win *ewin);
+
+EAPI Ecore_Window ecore_win_window_get(const Ecore_Win *ewin);
+
+EAPI Ecore_Surface ecore_win_surface_get(const Ecore_Win *ewin);
+
+EAPI Ecore_Display ecore_win_display_get(const Ecore_Win *ewin);
 
 /**
  * @}

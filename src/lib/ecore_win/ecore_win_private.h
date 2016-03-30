@@ -27,7 +27,7 @@
 # endif
 #endif /* ! _WIN32 */
 
-//#define ECORE_MAGIC_WIN 0x76543211
+#define ECORE_MAGIC_WIN 0x76543212
 
 /** Log domain macros and variables **/
 
@@ -250,6 +250,9 @@ struct _Ecore_Win
       } aux_hint;
       int             layer;
       Ecore_Window    window;
+      struct wl_surface *wl_surface;
+      struct wl_display *wl_disp;
+	  
       unsigned char   avoid_damage;
       Ecore_Win     *group_ee;
       Ecore_Window    group_ee_win;

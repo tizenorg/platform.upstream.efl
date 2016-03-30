@@ -26,6 +26,7 @@ typedef struct _Ecore_Wl_Window Ecore_Wl_Window;
 
 typedef uintptr_t Ecore_Window;
 typedef void* Ecore_Display;
+typedef void* Ecore_Surface;
 #define _ECORE_WINDOW_PREDEF 1
 
 #endif /* _ECORE_WIN_TYPES_H_ */

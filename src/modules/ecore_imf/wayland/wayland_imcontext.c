@@ -74,14 +74,6 @@ struct _WaylandIMContext
 
    struct
      {
-        int32_t cursor;
-        int32_t anchor;
-        uint32_t delete_index;
-        uint32_t delete_length;
-     } pending_commit;
-
-   struct
-     {
         int x;
         int y;
         int width;
@@ -305,12 +297,6 @@ check_serial(WaylandIMContext *imcontext, uint32_t serial)
                           "outdated serial: %u, current: %u, reset: %u",
                           serial, imcontext->serial, imcontext->reset_serial);
 
-        /* Clear pending data */
-        imcontext->pending_commit.delete_index = 0;
-        imcontext->pending_commit.delete_length = 0;
-        imcontext->pending_commit.cursor = 0;
-        imcontext->pending_commit.anchor = 0;
-
         imcontext->pending_preedit.cursor = 0;
 
         if (imcontext->pending_preedit.attrs)
@@ -388,40 +374,6 @@ text_input_commit_string(void                 *data,
      }
 
    clear_preedit(imcontext);
-
-   if (imcontext->pending_commit.delete_length > 0)
-     {
-        /* cursor_pos is a byte index */
-        if (ecore_imf_context_surrounding_get(imcontext->ctx, &surrounding,
-                                              &cursor_pos))
-          {
-             ev.ctx = imcontext->ctx;
-             /* offset and n_chars are in characters */
-             ev.offset = utf8_offset_to_characters(surrounding, cursor_pos + imcontext->pending_commit.delete_index);
-             ev.n_chars = utf8_offset_to_characters(surrounding,
-                                                    cursor_pos + imcontext->pending_commit.delete_index + imcontext->pending_commit.delete_length) - ev.offset;
-
-             /* cursor in characters */
-             cursor = utf8_offset_to_characters(surrounding, cursor_pos);
-
-             ev.offset -= cursor;
-
-             EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom,
-                     "delete on commit (text: `%s', offset `%d', length: `%d')",
-                     surrounding, ev.offset, ev.n_chars);
-
-             if (surrounding)
-               free(surrounding);
-
-             ecore_imf_context_delete_surrounding_event_add(imcontext->ctx, ev.offset, ev.n_chars);
-             ecore_imf_context_event_callback_call(imcontext->ctx, ECORE_IMF_CALLBACK_DELETE_SURROUNDING, &ev);
-          }
-     }
-
-   imcontext->pending_commit.delete_index = 0;
-   imcontext->pending_commit.delete_length = 0;
-   imcontext->pending_commit.cursor = 0;
-   imcontext->pending_commit.anchor = 0;
 
    ecore_imf_context_commit_event_add(imcontext->ctx, text);
    ecore_imf_context_event_callback_call(imcontext->ctx, ECORE_IMF_CALLBACK_COMMIT, (void *)text);
@@ -638,13 +590,16 @@ text_input_delete_surrounding_text(void                 *data,
                                    uint32_t              length)
 {
    WaylandIMContext *imcontext = (WaylandIMContext *)data;
-
+   Ecore_IMF_Event_Delete_Surrounding ev;
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom,
                      "delete surrounding text (index: %d, length: %u)",
                      index, length);
 
-   imcontext->pending_commit.delete_index = index;
-   imcontext->pending_commit.delete_length = length;
+   ev.offset = index;
+   ev.n_chars = length;
+
+   ecore_imf_context_delete_surrounding_event_add(imcontext->ctx, ev.offset, ev.n_chars);
+   ecore_imf_context_event_callback_call(imcontext->ctx, ECORE_IMF_CALLBACK_DELETE_SURROUNDING, &ev);
 }
 
 static void
@@ -658,9 +613,6 @@ text_input_cursor_position(void                 *data,
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom,
                      "cursor_position for next commit (index: %d, anchor: %d)",
                      index, anchor);
-
-   imcontext->pending_commit.cursor = index;
-   imcontext->pending_commit.anchor = anchor;
 }
 
 static void

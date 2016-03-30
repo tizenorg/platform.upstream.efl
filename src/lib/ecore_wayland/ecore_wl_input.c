@@ -771,7 +771,6 @@ _ecore_wl_input_cb_keyboard_keymap(void *data, struct wl_keyboard *keyboard EINA
 
    // TIZEN ONLY(20160223) : Add back/menu/home key conversion support
    _tizen_api_version = 0.0;
-   _ecore_wl_input_key_conversion_set();
 
    input->xkb.control_mask =
      1 << xkb_map_mod_get_index(input->xkb.keymap, XKB_MOD_NAME_CTRL);
@@ -2102,6 +2101,7 @@ _ecore_wl_input_key_conversion_set(void)
 {
    char *temp;
    xkb_keycode_t *keycodes = NULL;
+   static int retry_cnt = 0;
 
    if ((_tizen_api_version < 0.0) || (_tizen_api_version > 0.0)) return;
    EINA_SAFETY_ON_NULL_RETURN(_ecore_wl_disp->input);
@@ -2109,10 +2109,20 @@ _ecore_wl_input_key_conversion_set(void)
 
    temp = getenv("TIZEN_API_VERSION");
 
-   if (!temp) _tizen_api_version = -1.0;
+   if (!temp)
+     {
+        _tizen_api_version = 0.0;
+        retry_cnt++;
+        if (retry_cnt > 20)
+          {
+             INF("No tizen api version.\n");
+             _tizen_api_version = -1.0;
+          }
+     }
    else
      {
         _tizen_api_version = atof(temp);
+        INF("TIZEN_API_VERSION: %lf, Environment variable: %s\n", _tizen_api_version, temp);
         if (_tizen_api_version < 2.4)
           {
              _ecore_wl_input_key_conversion_clean_up();

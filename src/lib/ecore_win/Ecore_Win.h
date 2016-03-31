@@ -107,9 +107,6 @@ EAPI int         ecore_win_shutdown(void);
 EAPI Ecore_Win *ecore_win_new(const char *engine_name, int x, int y, int w, int h, const char *extra_options);
 
 
-
-//EAPI Ecore_Win *ecore_win_wayland_new(const char *disp_name, unsigned int parent, int x, int y, int w, int h, Eina_Bool frame);
-
 /**
  * @brief Set whether an Ecore_Win has an alpha channel or not.
  *
@@ -593,9 +590,9 @@ EAPI void        ecore_win_activate(Ecore_Win *ewin);
 
 EAPI Ecore_Window ecore_win_window_get(const Ecore_Win *ewin);
 
-EAPI Ecore_Surface ecore_win_surface_get(const Ecore_Win *ewin);
+EAPI Ecore_Surface *ecore_win_surface_get(const Ecore_Win *ewin);
 
-EAPI Ecore_Display ecore_win_display_get(const Ecore_Win *ewin);
+EAPI Ecore_Display *ecore_win_display_get(const Ecore_Win *ewin);
 
 /**
  * @}

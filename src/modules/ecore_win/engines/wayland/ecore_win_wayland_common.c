@@ -3,9 +3,6 @@
 #endif
 
 #include "ecore_win_wayland_private.h"
-#ifdef BUILD_ECORE_WIN_WAYLAND_EGL
-# include <Evas_Engine_Wayland_Egl.h>
-#endif
 
 #define _smart_frame_type "ecore_win_wl_frame"
 
@@ -42,8 +39,8 @@ static void _ecore_win_wayland_common_resize(Ecore_Win *ee, int location);
 static int _ecore_win_wl_common_render_updates_process(Ecore_Win *ee, Eina_List *updates);
 void _ecore_win_wl_common_render_updates(void *data, Evas *evas EINA_UNUSED, void *event);
 static void _rotation_do(Ecore_Win *ee, int rotation, int resize);
-static void _ecore_win_wayland_alpha_do(Ecore_Win *ee, int alpha);
-static void _ecore_win_wayland_transparent_do(Ecore_Win *ee, int transparent);
+static void _ecore_win_wayland_common_alpha_do(Ecore_Win *ee, int alpha);
+static void _ecore_win_wayland_common_transparent_do(Ecore_Win *ee, int transparent);
 static void _ecore_win_wl_common_border_update(Ecore_Win *ee);
 static Eina_Bool _ecore_win_wl_common_wm_rot_manual_rotation_done_timeout(void *data);
 static void      _ecore_win_wl_common_wm_rot_manual_rotation_done_timeout_update(Ecore_Win *ee);
@@ -55,85 +52,11 @@ _ecore_win_wl_common_state_update(Ecore_Win *ee)
    if (ee->func.fn_state_change) ee->func.fn_state_change(ee);
 }
 
-static int 
-_ecore_win_wl_common_render_updates_process(Ecore_Win *ee, Eina_List *updates)
-{
 
-   int rend = 0;
-#if 0
-   if (((ee->visible) && (ee->draw_ok)) ||
-       ((ee->should_be_visible) && (ee->prop.fullscreen)) ||
-       ((ee->should_be_visible) && (ee->prop.override)))
-     {
-        if (updates)
-          {
-             _ecore_win_idle_timeout_update(ee);
-             rend = 1;
-          }
-     }
-   else
-     evas_norender(ee->evas);
-
-   if (ee->func.fn_post_render) ee->func.fn_post_render(ee);
-#endif
-   return rend;
-}
-
-static Eina_Bool
-_ecore_win_wl_common_cb_mouse_in(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
-{
-#if 0
-   Ecore_Win *ee;
-   Ecore_Wl_Event_Mouse_In *ev;
-
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   ev = event;
-   ee = ecore_event_window_match(ev->window);
-   if ((!ee) || (ee->ignore_events)) return ECORE_CALLBACK_PASS_ON;
-   if (ev->window != ee->prop.window) return ECORE_CALLBACK_PASS_ON;
-   if (ee->in) return ECORE_CALLBACK_PASS_ON;
-
-   if (ee->func.fn_mouse_in) ee->func.fn_mouse_in(ee);
-   ecore_event_evas_modifier_lock_update(ee->evas, ev->modifiers);
-   evas_event_feed_mouse_in(ee->evas, ev->timestamp, NULL);
-   _ecore_win_mouse_move_process(ee, ev->x, ev->y, ev->timestamp);
-   ee->in = EINA_TRUE;
-#endif
-   return ECORE_CALLBACK_PASS_ON;
-}
-
-static Eina_Bool
-_ecore_win_wl_common_cb_mouse_out(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
-{
-#if 0
-   Ecore_Win *ee;
-   Ecore_Wl_Event_Mouse_Out *ev;
-
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   ev = event;
-   ee = ecore_event_window_match(ev->window);
-   if ((!ee) || (ee->ignore_events)) return ECORE_CALLBACK_PASS_ON;
-   if (ev->window != ee->prop.window) return ECORE_CALLBACK_PASS_ON;
-
-   if (ee->in)
-     {
-        ecore_event_evas_modifier_lock_update(ee->evas, ev->modifiers);
-        _ecore_win_mouse_move_process(ee, ev->x, ev->y, ev->timestamp);
-        evas_event_feed_mouse_out(ee->evas, ev->timestamp, NULL);
-        if (ee->func.fn_mouse_out) ee->func.fn_mouse_out(ee);
-        if (ee->prop.cursor.object) evas_object_hide(ee->prop.cursor.object);
-        ee->in = EINA_FALSE;
-     }
-#endif
-   return ECORE_CALLBACK_PASS_ON;
-}
 
 static Eina_Bool
 _ecore_win_wl_common_cb_focus_in(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
-#if 0
    Ecore_Win *ee;
    Ecore_Wl_Event_Focus_In *ev;
 
@@ -145,16 +68,13 @@ _ecore_win_wl_common_cb_focus_in(void *data EINA_UNUSED, int type EINA_UNUSED, v
    if (ev->win != ee->prop.window) return ECORE_CALLBACK_PASS_ON;
    if (ee->prop.focused) return ECORE_CALLBACK_PASS_ON;
    ee->prop.focused = EINA_TRUE;
-   evas_focus_in(ee->evas);
    if (ee->func.fn_focus_in) ee->func.fn_focus_in(ee);
-#endif
    return ECORE_CALLBACK_PASS_ON;
 }
 
 static Eina_Bool
 _ecore_win_wl_common_cb_focus_out(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
-#if 0
    Ecore_Win *ee;
    Ecore_Wl_Event_Focus_In *ev;
 
@@ -165,17 +85,14 @@ _ecore_win_wl_common_cb_focus_out(void *data EINA_UNUSED, int type EINA_UNUSED, 
    if ((!ee) || (ee->ignore_events)) return ECORE_CALLBACK_PASS_ON;
    if (ev->win != ee->prop.window) return ECORE_CALLBACK_PASS_ON;
    if (!ee->prop.focused) return ECORE_CALLBACK_PASS_ON;
-   evas_focus_out(ee->evas);
    ee->prop.focused = EINA_FALSE;
    if (ee->func.fn_focus_out) ee->func.fn_focus_out(ee);
-#endif
    return ECORE_CALLBACK_PASS_ON;
 }
 
 static Eina_Bool
 _ecore_win_wl_common_cb_window_configure(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
-#if 0
    Ecore_Win *ee;
    Ecore_Win_Engine_Wl_Data *wdata;
    Ecore_Wl_Event_Window_Configure *ev;
@@ -225,14 +142,12 @@ _ecore_win_wl_common_cb_window_configure(void *data EINA_UNUSED, int type EINA_U
    if ((prev_max != ee->prop.maximized) ||
        (prev_full != ee->prop.fullscreen))
      _ecore_win_wl_common_state_update(ee);
-#endif
    return ECORE_CALLBACK_PASS_ON;
 }
 
 static Eina_Bool
 _ecore_win_wl_common_cb_conformant_change(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
-#if 0
    Ecore_Win *ee;
    Ecore_Wl_Event_Conformant_Change *ev;
 
@@ -249,45 +164,13 @@ _ecore_win_wl_common_cb_conformant_change(void *data EINA_UNUSED, int type EINA_
      ee->clipboard_state = ev->state;
 
    _ecore_win_wl_common_state_update(ee);
-#endif
    return ECORE_CALLBACK_PASS_ON;
 }
 
-static Eina_Bool
-_ecore_win_wl_common_cb_aux_hint_allowed(void *data  EINA_UNUSED, int type EINA_UNUSED, void *event)
-{
-#if 0
-   Ecore_Win *ee;
-   Ecore_Wl_Event_Aux_Hint_Allowed *ev;
-   Eina_List *l;
-   Ecore_Win_Aux_Hint *aux;
-
-   ev = event;
-   ee = ecore_event_window_match(ev->win);
-   if (!ee) return ECORE_CALLBACK_PASS_ON;
-   if (ev->win != ee->prop.window) return ECORE_CALLBACK_PASS_ON;
-
-   EINA_LIST_FOREACH(ee->prop.aux_hint.hints, l, aux)
-     {
-        if (aux->id == ev->id)
-          {
-             aux->allowed = 1;
-             if (!aux->notified)
-               {
-                  _ecore_win_wl_common_state_update(ee);
-                  aux->notified = 1;
-                }
-             break;
-          }
-     }
-#endif   
-   return ECORE_CALLBACK_PASS_ON;
-}
 
 static Eina_Bool
 _ecore_win_wl_common_cb_window_iconify_change(void *data  EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
-#if 0
    Ecore_Win *ee;
    Ecore_Wl_Event_Window_Iconify_State_Change *ev;
    Ecore_Win_Engine_Wl_Data *wdata;
@@ -307,14 +190,12 @@ _ecore_win_wl_common_cb_window_iconify_change(void *data  EINA_UNUSED, int type 
    if (wdata && ev->force)
      ecore_wl_window_iconify_state_update(wdata->win, ev->iconified, EINA_FALSE);
    _ecore_win_wl_common_state_update(ee);
-#endif   
    return ECORE_CALLBACK_PASS_ON;
 }
 
 static Eina_Bool
 _ecore_win_wl_common_cb_window_visibility_change(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
-#if 0
    Ecore_Win *ee;
    Ecore_Wl_Event_Window_Visibility_Change *ev;
 
@@ -329,14 +210,12 @@ _ecore_win_wl_common_cb_window_visibility_change(void *data EINA_UNUSED, int typ
 
    ee->prop.obscured = ev->fully_obscured;
    _ecore_win_wl_common_state_update(ee);
-#endif   
    return ECORE_CALLBACK_PASS_ON;
 }
 
 static Eina_Bool
 _ecore_win_wl_common_cb_window_rotate(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
-#if 0
    Ecore_Win *ee;
    Ecore_Wl_Event_Window_Rotate *ev;
    Ecore_Win_Engine_Wl_Data *wdata;
@@ -368,18 +247,7 @@ _ecore_win_wl_common_cb_window_rotate(void *data EINA_UNUSED, int type EINA_UNUS
         _ecore_win_wl_common_wm_rot_manual_rotation_done_timeout_update(ee);
      }
 
-   if (!strcmp(ee->driver, "wayland_shm"))
-     {
-#ifdef BUILD_ECORE_WIN_WAYLAND_SHM
-        _ecore_win_wayland_shm_window_rotate(ee, ev->angle, 1);
-#endif
-     }
-   else if (!strcmp(ee->driver, "wayland_egl"))
-     {
-#ifdef BUILD_ECORE_WIN_WAYLAND_EGL
-        _ecore_win_wayland_egl_window_rotate(ee, ev->angle, 1);
-#endif
-     }
+   _ecore_win_wayland_window_rotate(ee, ev->angle, 1);
 
    wdata->wm_rot.done = 1;
 
@@ -390,7 +258,6 @@ _ecore_win_wl_common_cb_window_rotate(void *data EINA_UNUSED, int type EINA_UNUS
         wdata->wm_rot.done = 0;
         ecore_wl_window_rotation_change_done_send(wdata->win);
      }
-#endif
    return ECORE_CALLBACK_PASS_ON;
 }
 
@@ -516,33 +383,24 @@ _ecore_win_wl_common_init(void)
      return _ecore_win_wl_init_count;
 
    _ecore_win_wl_event_hdls[0] =
-     ecore_event_handler_add(ECORE_WL_EVENT_MOUSE_IN,
-                             _ecore_win_wl_common_cb_mouse_in, NULL);
-   _ecore_win_wl_event_hdls[1] =
-     ecore_event_handler_add(ECORE_WL_EVENT_MOUSE_OUT,
-                             _ecore_win_wl_common_cb_mouse_out, NULL);
-   _ecore_win_wl_event_hdls[2] =
      ecore_event_handler_add(ECORE_WL_EVENT_FOCUS_IN,
                              _ecore_win_wl_common_cb_focus_in, NULL);
-   _ecore_win_wl_event_hdls[3] =
+   _ecore_win_wl_event_hdls[1] =
      ecore_event_handler_add(ECORE_WL_EVENT_FOCUS_OUT,
                              _ecore_win_wl_common_cb_focus_out, NULL);
-   _ecore_win_wl_event_hdls[4] =
+   _ecore_win_wl_event_hdls[2] =
      ecore_event_handler_add(ECORE_WL_EVENT_WINDOW_CONFIGURE,
                              _ecore_win_wl_common_cb_window_configure, NULL);
-   _ecore_win_wl_event_hdls[5] =
+   _ecore_win_wl_event_hdls[3] =
      ecore_event_handler_add(ECORE_WL_EVENT_CONFORMANT_CHANGE,
                              _ecore_win_wl_common_cb_conformant_change, NULL);
-   _ecore_win_wl_event_hdls[6] =
+   _ecore_win_wl_event_hdls[4] =
      ecore_event_handler_add(ECORE_WL_EVENT_WINDOW_ROTATE,
                              _ecore_win_wl_common_cb_window_rotate, NULL);
-   _ecore_win_wl_event_hdls[7] =
-     ecore_event_handler_add(ECORE_WL_EVENT_AUX_HINT_ALLOWED,
-                             _ecore_win_wl_common_cb_aux_hint_allowed, NULL);
-   _ecore_win_wl_event_hdls[8] =
+   _ecore_win_wl_event_hdls[5] =
      ecore_event_handler_add(ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE,
                              _ecore_win_wl_common_cb_window_iconify_change, NULL);
-   _ecore_win_wl_event_hdls[9] =
+   _ecore_win_wl_event_hdls[6] =
      ecore_event_handler_add(ECORE_WL_EVENT_WINDOW_VISIBILITY_CHANGE,
                              _ecore_win_wl_common_cb_window_visibility_change, NULL);
 
@@ -568,20 +426,6 @@ _ecore_win_wl_common_shutdown(void)
 
    ecore_event_evas_shutdown();
    return _ecore_win_wl_init_count;
-}
-
-void
-_ecore_win_wl_common_pre_free(Ecore_Win *ee)
-{
-#if 0
-   Ecore_Win_Engine_Wl_Data *wdata;
-
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   if (!ee) return;
-   wdata = ee->engine.data;
-   if (wdata->frame) evas_object_del(wdata->frame);
-#endif   
 }
 
 void
@@ -697,265 +541,18 @@ _ecore_win_wl_common_move(Ecore_Win *ee, int x, int y)
    ecore_wl_window_position_set(wdata->win, x, y);
 }
 
-/* Frame border:
- *
- * |------------------------------------------|
- * |                top border                |
- * |------------------------------------------|
- * |       |                         |        |
- * |       |                         |        |
- * |       |                         |        |
- * |       |                         |        |
- * |left   |                         | right  |
- * |border |                         | border |
- * |       |                         |        |
- * |       |                         |        |
- * |       |                         |        |
- * |------------------------------------------|
- * |                bottom border             |
- * |------------------------------------------|
- */
-static void
-_border_size_eval(Evas_Object *obj EINA_UNUSED, EE_Wl_Smart_Data *sd)
-{
-#if 0
-   /* top border */
-   if (sd->border[0])
-     {
-        evas_object_move(sd->border[0], sd->x, sd->y);
-        evas_object_resize(sd->border[0], sd->w, sd->border_size[0]);
-     }
-
-   /* bottom border */
-   if (sd->border[1])
-     {
-        evas_object_move(sd->border[1], sd->x,
-                         sd->y + sd->h - sd->border_size[1]);
-        evas_object_resize(sd->border[1], sd->w, sd->border_size[1]);
-     }
-
-   /* left border */
-   if (sd->border[2])
-     {
-        evas_object_move(sd->border[2], sd->x, sd->y + sd->border_size[0]);
-        evas_object_resize(sd->border[2], sd->border_size[2],
-                           sd->h - sd->border_size[0] - sd->border_size[1]);
-     }
-
-   /* right border */
-   if (sd->border[3])
-     {
-        evas_object_move(sd->border[3], sd->x + sd->w - sd->border_size[3],
-                         sd->y + sd->border_size[0]);
-        evas_object_resize(sd->border[3], sd->border_size[3],
-                           sd->h - sd->border_size[0] - sd->border_size[1]);
-     }
-#endif      
-}
-
-static void
-_ecore_win_wl_common_smart_add(Evas_Object *obj)
-{
-#if 0
-   EE_Wl_Smart_Data *sd;
-   Evas *evas;
-   int i;
-
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   EVAS_SMART_DATA_ALLOC(obj, EE_Wl_Smart_Data);
-
-   _ecore_win_wl_frame_parent_sc->add(obj);
-
-   sd = priv;
-
-   evas = evas_object_evas_get(obj);
-
-   sd->x = 0;
-   sd->y = 0;
-   sd->w = 1;
-   sd->h = 1;
-
-   for (i = 0; i < 4; i++)
-     {
-        sd->border[i] = NULL;
-        sd->border_size[i] = 0;
-     }
-
-   sd->text = evas_object_text_add(evas);
-   evas_object_color_set(sd->text, 0, 0, 0, 255);
-   evas_object_text_style_set(sd->text, EVAS_TEXT_STYLE_PLAIN);
-   evas_object_text_font_set(sd->text, "Sans", 10);
-   evas_object_text_text_set(sd->text, "Smart Test");
-   evas_object_show(sd->text);
-   evas_object_smart_member_add(sd->text, obj);
-#endif      
-}
-
-static void
-_ecore_win_wl_common_smart_del(Evas_Object *obj)
-{
-#if 0
-   EE_Wl_Smart_Data *sd;
-   int i;
-
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   if (!(sd = evas_object_smart_data_get(obj))) return;
-   evas_object_del(sd->text);
-   for (i = 0; i < 4; i++)
-     {
-        evas_object_del(sd->border[i]);
-     }
-   _ecore_win_wl_frame_parent_sc->del(obj);
-#endif      
-}
-
-static void
-_ecore_win_wl_common_smart_move(Evas_Object *obj, Evas_Coord x, Evas_Coord y)
-{
-#if 0
-   EE_Wl_Smart_Data *sd;
-
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   _ecore_win_wl_frame_parent_sc->move(obj, x, y);
-
-   if (!(sd = evas_object_smart_data_get(obj))) return;
-   if ((sd->x == x) && (sd->y == y)) return;
-   sd->x = x;
-   sd->y = y;
-
-   evas_object_smart_changed(obj);
-#endif      
-}
-
-static void
-_ecore_win_wl_common_smart_resize(Evas_Object *obj, Evas_Coord w, Evas_Coord h)
-{
-#if 0
-   EE_Wl_Smart_Data *sd;
-
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   if (!(sd = evas_object_smart_data_get(obj))) return;
-   if ((sd->w == w) && (sd->h == h)) return;
-   sd->w = w;
-   sd->h = h;
-
-   evas_object_smart_changed(obj);
-#endif      
-}
-
-void
-_ecore_win_wl_common_smart_calculate(Evas_Object *obj)
-{
-#if 0
-   EE_Wl_Smart_Data *sd;
-
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   if (!(sd = evas_object_smart_data_get(obj))) return;
-
-   _border_size_eval(obj, sd);
-#endif      
-}
-
-static void
-_ecore_win_wl_frame_smart_set_user(Evas_Smart_Class *sc)
-{
-#if 0
-   sc->add = _ecore_win_wl_common_smart_add;
-   sc->del = _ecore_win_wl_common_smart_del;
-   sc->move = _ecore_win_wl_common_smart_move;
-   sc->resize = _ecore_win_wl_common_smart_resize;
-   sc->calculate = _ecore_win_wl_common_smart_calculate;
-#endif      
-}
-
-Evas_Object *
-_ecore_win_wl_common_frame_add(Evas *evas)
-{
-#if 0
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   return evas_object_smart_add(evas, _ecore_win_wl_frame_smart_class_new());
-#endif   
-   return NULL;
-}
-
-/*
- * Size is received in the same format as it is used to set the framespace
- * offset size.
- */
-void
-_ecore_win_wl_common_frame_border_size_set(Evas_Object *obj, int fx, int fy, int fw, int fh)
-{
-#if 0
-   EE_Wl_Smart_Data *sd;
-   Evas *e;
-   int i;
-
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   if (!(sd = evas_object_smart_data_get(obj))) return;
-
-   e = evas_object_evas_get(obj);
-
-   sd->border_size[0] = fy;
-   sd->border_size[1] = fh - fy;
-   sd->border_size[2] = fx;
-   sd->border_size[3] = fw - fx;
-
-   for (i = 0; i < 4; i++)
-     {
-        if ((sd->border_size[i] <= 0) && (sd->border[i]))
-          {
-             evas_object_del(sd->border[i]);
-             sd->border[i] = NULL;
-          }
-        else if ((sd->border_size[i] > 0) && (!sd->border[i]))
-          {
-             sd->border[i] = evas_object_rectangle_add(e);
-             evas_object_color_set(sd->border[i], 249, 249, 249, 255);
-             evas_object_show(sd->border[i]);
-             evas_object_smart_member_add(sd->border[i], obj);
-          }
-     }
-   evas_object_raise(sd->text);
-#endif      
-}
-
-void
-_ecore_win_wl_common_frame_border_size_get(Evas_Object *obj, int *fx, int *fy, int *fw, int *fh)
-{
-#if 0
-   EE_Wl_Smart_Data *sd;
-   LOGFN(__FILE__, __LINE__, __FUNCTION__);
-
-   if (!(sd = evas_object_smart_data_get(obj))) return;
-
-   if (fx) *fx = sd->border_size[2];
-   if (fy) *fy = sd->border_size[0];
-   if (fw) *fw = sd->border_size[2] + sd->border_size[3];
-   if (fh) *fh = sd->border_size[0] + sd->border_size[1];
-#endif      
-}
 
 void 
 _ecore_win_wl_common_pointer_xy_get(const Ecore_Win *ee EINA_UNUSED, Evas_Coord *x, Evas_Coord *y)
 {
-#if 0
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    ecore_wl_pointer_xy_get(x, y);
-#endif      
 }
 
 void
 _ecore_win_wl_common_wm_rot_preferred_rotation_set(Ecore_Win *ee, int rot)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata;
    wdata = ee->engine.data;
 
@@ -969,13 +566,11 @@ _ecore_win_wl_common_wm_rot_preferred_rotation_set(Ecore_Win *ee, int rot)
         ecore_wl_window_rotation_preferred_rotation_set(wdata->win, rot);
         ee->prop.wm_rot.preferred_rot = rot;
      }
-#endif      
 }
 
 void
 _ecore_win_wl_common_wm_rot_available_rotations_set(Ecore_Win *ee, const int *rots, unsigned int count)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata;
    wdata = ee->engine.data;
 
@@ -1007,13 +602,11 @@ _ecore_win_wl_common_wm_rot_available_rotations_set(Ecore_Win *ee, const int *ro
 
         ecore_wl_window_rotation_available_rotations_set(wdata->win, rots, count);
      }
-#endif      
 }
 
 static void
 _ecore_win_wl_common_wm_rot_manual_rotation_done_job(void *data)
 {
-#if 0
    Ecore_Win *ee = (Ecore_Win *)data;
    Ecore_Win_Engine_Wl_Data *wdata = ee->engine.data;
 
@@ -1023,45 +616,37 @@ _ecore_win_wl_common_wm_rot_manual_rotation_done_job(void *data)
    ecore_wl_window_rotation_change_done_send(wdata->win);
 
    wdata->wm_rot.done = 0;
-#endif      
 }
 
 static Eina_Bool
 _ecore_win_wl_common_wm_rot_manual_rotation_done_timeout(void *data)
 {
-#if 0
    Ecore_Win *ee = data;
 
    ee->prop.wm_rot.manual_mode.timer = NULL;
    _ecore_win_wl_common_wm_rot_manual_rotation_done(ee);
-#endif      
    return ECORE_CALLBACK_CANCEL;
 }
 
 static void
 _ecore_win_wl_common_wm_rot_manual_rotation_done_timeout_update(Ecore_Win *ee)
 {
-#if 0
    if (ee->prop.wm_rot.manual_mode.timer)
      ecore_timer_del(ee->prop.wm_rot.manual_mode.timer);
 
    ee->prop.wm_rot.manual_mode.timer = ecore_timer_add
      (4.0f, _ecore_win_wl_common_wm_rot_manual_rotation_done_timeout, ee);
-#endif
 }
 
 void
 _ecore_win_wl_common_wm_rot_manual_rotation_done_set(Ecore_Win *ee, Eina_Bool set)
 {
-#if 0
    ee->prop.wm_rot.manual_mode.set = set;
-#endif   
 }
 
 void
 _ecore_win_wl_common_wm_rot_manual_rotation_done(Ecore_Win *ee)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata = ee->engine.data;
 
    if ((ee->prop.wm_rot.supported) &&
@@ -1080,13 +665,11 @@ _ecore_win_wl_common_wm_rot_manual_rotation_done(Ecore_Win *ee)
                (_ecore_win_wl_common_wm_rot_manual_rotation_done_job, ee);
           }
      }
-#endif      
 }
 
 void
 _ecore_win_wl_common_raise(Ecore_Win *ee)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -1094,13 +677,11 @@ _ecore_win_wl_common_raise(Ecore_Win *ee)
    if ((!ee) || (!ee->visible)) return;
    wdata = ee->engine.data;
    ecore_wl_window_raise(wdata->win);
-#endif      
 }
 
 void
 _ecore_win_wl_common_lower(Ecore_Win *ee)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -1108,13 +689,11 @@ _ecore_win_wl_common_lower(Ecore_Win *ee)
    if ((!ee) || (!ee->visible)) return;
    wdata = ee->engine.data;
    ecore_wl_window_lower(wdata->win);
-#endif      
 }
 
 void
 _ecore_win_wl_common_activate(Ecore_Win *ee)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -1127,13 +706,11 @@ _ecore_win_wl_common_activate(Ecore_Win *ee)
      _ecore_win_wl_common_iconified_set(ee, EINA_FALSE);
 
    ecore_wl_window_activate(wdata->win);
-#endif      
 }
 
 void
 _ecore_win_wl_common_title_set(Ecore_Win *ee, const char *title)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -1154,13 +731,11 @@ _ecore_win_wl_common_title_set(Ecore_Win *ee, const char *title)
 
    if (ee->prop.title)
      ecore_wl_window_title_set(wdata->win, ee->prop.title);
-#endif      
 }
 
 void
 _ecore_win_wl_common_name_class_set(Ecore_Win *ee, const char *n, const char *c)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -1181,13 +756,11 @@ _ecore_win_wl_common_name_class_set(Ecore_Win *ee, const char *n, const char *c)
      }
    if (ee->prop.clas)
      ecore_wl_window_class_name_set(wdata->win, ee->prop.clas);
-#endif      
 }
 
 void
 _ecore_win_wl_common_size_min_set(Ecore_Win *ee, int w, int h)
 {
-#if 0
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!ee) return;
@@ -1196,13 +769,11 @@ _ecore_win_wl_common_size_min_set(Ecore_Win *ee, int w, int h)
    if ((ee->prop.min.w == w) && (ee->prop.min.h == h)) return;
    ee->prop.min.w = w;
    ee->prop.min.h = h;
-#endif      
 }
 
 void
 _ecore_win_wl_common_size_max_set(Ecore_Win *ee, int w, int h)
 {
-#if 0
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!ee) return;
@@ -1211,13 +782,11 @@ _ecore_win_wl_common_size_max_set(Ecore_Win *ee, int w, int h)
    if ((ee->prop.max.w == w) && (ee->prop.max.h == h)) return;
    ee->prop.max.w = w;
    ee->prop.max.h = h;
-#endif      
 }
 
 void
 _ecore_win_wl_common_size_base_set(Ecore_Win *ee, int w, int h)
 {
-#if 0
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!ee) return;
@@ -1226,13 +795,11 @@ _ecore_win_wl_common_size_base_set(Ecore_Win *ee, int w, int h)
    if ((ee->prop.base.w == w) && (ee->prop.base.h == h)) return;
    ee->prop.base.w = w;
    ee->prop.base.h = h;
-#endif      
 }
 
 void
 _ecore_win_wl_common_size_step_set(Ecore_Win *ee, int w, int h)
 {
-#if 0
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!ee) return;
@@ -1241,19 +808,16 @@ _ecore_win_wl_common_size_step_set(Ecore_Win *ee, int w, int h)
    if ((ee->prop.step.w == w) && (ee->prop.step.h == h)) return;
    ee->prop.step.w = w;
    ee->prop.step.h = h;
-#endif      
 }
 
 void 
 _ecore_win_wl_common_aspect_set(Ecore_Win *ee, double aspect)
 {
-#if 0
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!ee) return;
    if (ee->prop.aspect == aspect) return;
    ee->prop.aspect = aspect;
-#endif      
 }
 
 static void
@@ -1332,7 +896,6 @@ end:
 void
 _ecore_win_wl_common_layer_set(Ecore_Win *ee, int layer)
 {
-#if 0
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!ee) return;
@@ -1341,13 +904,11 @@ _ecore_win_wl_common_layer_set(Ecore_Win *ee, int layer)
    else if (layer > 255) layer = 255;
    ee->prop.layer = layer;
    _ecore_win_wl_common_state_update(ee);
-#endif      
 }
 
 void
 _ecore_win_wl_common_iconified_set(Ecore_Win *ee, Eina_Bool on)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -1360,7 +921,6 @@ _ecore_win_wl_common_iconified_set(Ecore_Win *ee, Eina_Bool on)
    wdata = ee->engine.data;
    ecore_wl_window_iconified_set(wdata->win, on);
    _ecore_win_wl_common_state_update(ee);
-#endif      
 }
 
 static void
@@ -1408,7 +968,6 @@ _ecore_win_wl_common_borderless_set(Ecore_Win *ee, Eina_Bool on)
 void
 _ecore_win_wl_common_maximized_set(Ecore_Win *ee, Eina_Bool on)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -1418,13 +977,11 @@ _ecore_win_wl_common_maximized_set(Ecore_Win *ee, Eina_Bool on)
    wdata = ee->engine.data;
    ecore_wl_window_maximized_set(wdata->win, on);
 //   _ecore_win_wl_common_state_update(ee);
-#endif   
 }
 
 void
 _ecore_win_wl_common_fullscreen_set(Ecore_Win *ee, Eina_Bool on)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -1434,25 +991,21 @@ _ecore_win_wl_common_fullscreen_set(Ecore_Win *ee, Eina_Bool on)
    wdata = ee->engine.data;
    ecore_wl_window_fullscreen_set(wdata->win, on);
 //   _ecore_win_wl_common_state_update(ee);
-#endif   
 }
 
 void
 _ecore_win_wl_common_ignore_events_set(Ecore_Win *ee, int ignore)
 {
-#if 0
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!ee) return;
    ee->ignore_events = ignore;
    /* NB: Hmmm, may need to pass this to ecore_wl_window in the future */
-#endif      
 }
 
 void
 _ecore_win_wl_common_focus_skip_set(Ecore_Win *ee, Eina_Bool on)
 {
-#if 0
    Ecore_Win_Engine_Wl_Data *wdata;
 
    wdata = ee->engine.data;
@@ -1461,7 +1014,6 @@ _ecore_win_wl_common_focus_skip_set(Ecore_Win *ee, Eina_Bool on)
 
    ee->prop.focus_skip = on;
    ecore_wl_window_focus_skip_set(wdata->win, on);
-#endif      
 }
 
 int
@@ -1646,19 +1198,16 @@ _ecore_win_wl_common_withdrawn_set(Ecore_Win *ee, Eina_Bool on)
 void
 _ecore_win_wl_common_screen_geometry_get(const Ecore_Win *ee EINA_UNUSED, int *x, int *y, int *w, int *h)
 {
-#if 0
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (x) *x = 0;
    if (y) *y = 0;
    ecore_wl_screen_size_get(w, h);
-#endif   
 }
 
 void
 _ecore_win_wl_common_screen_dpi_get(const Ecore_Win *ee EINA_UNUSED, int *xdpi, int *ydpi)
 {
-#if 0
    int dpi = 0;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -1669,53 +1218,27 @@ _ecore_win_wl_common_screen_dpi_get(const Ecore_Win *ee EINA_UNUSED, int *xdpi, 
    dpi = ecore_wl_dpi_get();
    if (xdpi) *xdpi = dpi;
    if (ydpi) *ydpi = dpi;
-#endif   
 }
 
 static void
 _ecore_win_wayland_common_resize(Ecore_Win *ee, int location)
 {
    if (!ee) return;
-   if (!strcmp(ee->driver, "wayland_shm"))
-     {
-#ifdef BUILD_ECORE_WIN_WAYLAND_SHM
-        _ecore_win_wayland_shm_resize(ee, location);
-#endif
-     }
-   else if (!strcmp(ee->driver, "wayland_egl"))
-     {
-#ifdef BUILD_ECORE_WIN_WAYLAND_EGL
-        _ecore_win_wayland_egl_resize(ee, location);
-#endif
-     }
+   _ecore_win_wayland_resize(ee, location);
 }
 
 static void
-_ecore_win_wayland_alpha_do(Ecore_Win *ee, int alpha)
+_ecore_win_wayland_common_alpha_do(Ecore_Win *ee, int alpha)
 {
-#if 0
    if (!ee) return;
-   if (!strcmp(ee->driver, "wayland_shm"))
-     {
-#ifdef BUILD_ECORE_WIN_WAYLAND_SHM
-        _ecore_win_wayland_shm_alpha_do(ee, alpha);
-#endif
-     }
-#endif   
+   _ecore_win_wayland_alpha_do(ee, alpha);
 }
 
 static void
-_ecore_win_wayland_transparent_do(Ecore_Win *ee, int transparent)
+_ecore_win_wayland_common_transparent_do(Ecore_Win *ee, int transparent)
 {
-#if 0
    if (!ee) return;
-   if (!strcmp(ee->driver, "wayland_shm"))
-     {
-#ifdef BUILD_ECORE_WIN_WAYLAND_SHM
-        _ecore_win_wayland_shm_transparent_do(ee, transparent);
-#endif
-     }
-#endif   
+   _ecore_win_wayland_transparent_do(ee, transparent);
 }
 
 static void
@@ -1755,115 +1278,10 @@ _ecore_win_wayland_window_get(const Ecore_Win *ee)
 }
 
 
-#ifdef BUILD_ECORE_WIN_WAYLAND_EGL
-static void
-_ecore_win_wayland_pre_post_swap_callback_set(const Ecore_Win *ee, void *data, void (*pre_cb) (void *data, Evas *e), void (*post_cb) (void *data, Evas *e))
-{
-#if 0
-   Evas_Engine_Info_Wayland_Egl *einfo;
-
-   if (!(!strcmp(ee->driver, "wayland_egl"))) return;
-
-   if ((einfo = (Evas_Engine_Info_Wayland_Egl *)evas_engine_info_get(ee->evas)))
-     {
-        einfo->callback.pre_swap = pre_cb;
-        einfo->callback.post_swap = post_cb;
-        einfo->callback.data = data;
-        if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
-          ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
-     }
-#endif   
-}
-#endif
-
 static void
 _ecore_win_wayland_pointer_set(Ecore_Win *ee EINA_UNUSED, int hot_x EINA_UNUSED, int hot_y EINA_UNUSED)
 {
 
-}
-
-static void
-_ecore_win_wayland_input_rect_set(Ecore_Win *ee, Eina_Rectangle *input_rect)
-{
-#if 0
-   Ecore_Win_Engine_Wl_Data *wdata;
-
-   if (!ee) return;
-   wdata = ee->engine.data;
-   ecore_wl_window_input_rect_set(wdata->win, input_rect);
-#endif   
-}
-
-static void
-_ecore_win_wayland_input_rect_add(Ecore_Win *ee, Eina_Rectangle *input_rect)
-{
-#if 0
-   Ecore_Win_Engine_Wl_Data *wdata;
-
-   if (!ee) return;
-   wdata = ee->engine.data;
-   ecore_wl_window_input_rect_add(wdata->win, input_rect);
-#endif   
-}
-
-static void
-_ecore_win_wayland_input_rect_subtract(Ecore_Win *ee, Eina_Rectangle *input_rect)
-{
-#if 0
-   Ecore_Win_Engine_Wl_Data *wdata;
-
-   if (!ee) return;
-   wdata = ee->engine.data;
-   ecore_wl_window_input_rect_subtract(wdata->win, input_rect);
-#endif   
-}
-
-static void
-_ecore_win_wayland_supported_aux_hints_get(Ecore_Win *ee)
-{
-#if 0
-   Ecore_Win_Engine_Wl_Data *wdata;
-
-   if (!ee) return;
-   wdata = ee->engine.data;
-   ee->prop.aux_hint.supported_list = ecore_wl_window_aux_hints_supported_get(wdata->win);
-#endif   
-}
-
-static void
-_ecore_win_wayland_aux_hint_add(Ecore_Win *ee, int id, const char *hint, const char *val)
-{
-#if 0
-   Ecore_Win_Engine_Wl_Data *wdata;
-
-   if (!ee) return;
-   wdata = ee->engine.data;
-   ecore_wl_window_aux_hint_add(wdata->win, id, hint, val);
-#endif
-}
-
-static void
-_ecore_win_wayland_aux_hint_change(Ecore_Win *ee, int id, const char *val)
-{
-#if 0
-   Ecore_Win_Engine_Wl_Data *wdata;
-
-   if (!ee) return;
-   wdata = ee->engine.data;
-   ecore_wl_window_aux_hint_change(wdata->win, id, val);
-#endif   
-}
-
-static void
-_ecore_win_wayland_aux_hint_del(Ecore_Win *ee, int id)
-{
-#if 0
-   Ecore_Win_Engine_Wl_Data *wdata;
-
-   if (!ee) return;
-   wdata = ee->engine.data;
-   ecore_wl_window_aux_hint_del(wdata->win, id);
-#endif   
 }
 
 Ecore_Win_Interface_Wayland *

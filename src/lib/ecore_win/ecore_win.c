@@ -41,7 +41,6 @@ EAPI Ecore_Win *ecore_win_wayland_new(const char *disp_name, unsigned int parent
 EAPI Ecore_Win_Interface *
 _ecore_win_interface_get(const Ecore_Win *ewin, const char *iname)
 {
-#if 0
    Eina_List *l;
    Ecore_Win_Interface *i;
 
@@ -56,21 +55,19 @@ _ecore_win_interface_get(const Ecore_Win *ewin, const char *iname)
 
    CRI("Ecore_Win %p (engine: %s) does not have interface '%s'",
         ewin, ewin->driver, iname);
-#endif
    return NULL;
 }
 
 EAPI int
 ecore_win_init(void)
 {
-#if 0
    int fd;
 
    if (++_ecore_win_init_count != 1)
      return _ecore_win_init_count;
 
    if (!ecore_init())
-     goto shutdown_evas;
+     goto shutdown_init;
 
    _ecore_win_log_dom = eina_log_domain_register
      ("ecore_win", ECORE_WIN_DEFAULT_LOG_COLOR);
@@ -88,16 +85,13 @@ ecore_win_init(void)
 
  shutdown_ecore:
    ecore_shutdown();
-
+ shutdown_init:
    return --_ecore_win_init_count;
-   #endif
-   return 0;
 }
 
 EAPI int
 ecore_win_shutdown(void)
 {
-#if 0
    if (--_ecore_win_init_count != 0)
      return _ecore_win_init_count;
 
@@ -113,8 +107,6 @@ ecore_win_shutdown(void)
    ecore_shutdown();
 
    return _ecore_win_init_count;
-#endif
-   return 0;
 }
 
 struct ecore_win_engine {
@@ -126,7 +118,6 @@ struct ecore_win_engine {
 static inline const char *
 _ecore_win_parse_extra_options_str(const char *extra_options, const char *key, char **value)
 {
-#if 0
    int len = strlen(key);
 
    while (extra_options)
@@ -158,15 +149,12 @@ _ecore_win_parse_extra_options_str(const char *extra_options, const char *key, c
           }
      }
    return extra_options;
-#endif
-   return NULL;
 }
 
 /* inline is just to avoid need to ifdef around it */
 static inline const char *
 _ecore_win_parse_extra_options_uint(const char *extra_options, const char *key, unsigned int *value)
 {
-#if 0
    int len = strlen(key);
 
    while (extra_options)
@@ -191,18 +179,14 @@ _ecore_win_parse_extra_options_uint(const char *extra_options, const char *key, 
           extra_options = NULL;
      }
    return extra_options;
-#endif
-   return NULL;
 }
 
 static inline const char *
 _ecore_win_parse_extra_options_x(const char *extra_options, char **disp_name, unsigned int *parent)
 {
-#if 0
    _ecore_win_parse_extra_options_str(extra_options, "display=", disp_name);
    _ecore_win_parse_extra_options_uint(extra_options, "parent=", parent);
    return extra_options;
-#endif
    return NULL;
 }
 
@@ -251,18 +235,13 @@ static const struct ecore_win_engine _engines[] = {
 EAPI Eina_List *
 ecore_win_engines_get(void)
 {
-#if 0
    return eina_list_clone(_ecore_win_available_engines_get());
-#endif
-   return NULL;
 }
 
 EAPI void
 ecore_win_engines_free(Eina_List *engines)
 {
-#if 0
    eina_list_free(engines);
-#endif
 }
 
 EAPI Ecore_Win *
@@ -294,23 +273,23 @@ ecore_win_new(const char *engine_name, int x, int y, int w, int h, const char *e
 EAPI void
 ecore_win_free(Ecore_Win *ewin)
 {
-#if 0
    if (!ewin) return;
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
-                         "ecore_win_frewin");
+                         "ecore_win_free");
         return;
      }
-   _ecore_win_frewin(ewin);
+   _ecore_win_free(ewin);
    return;
-#endif   
 }
+
+#define IFC(_ee, _fn)  if (_ee->engine.func->_fn) {_ee->engine.func->_fn
+#define IFE            return;}
 
 EAPI void
 ecore_win_callback_resize_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -320,13 +299,11 @@ ecore_win_callback_resize_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
    IFC(ewin, fn_callback_resize_set) (ewin, func);
    IFE;
    ewin->func.fn_resize = func;
-#endif   
 }
 
 EAPI void
 ecore_win_callback_move_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -336,13 +313,11 @@ ecore_win_callback_move_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
    IFC(ewin, fn_callback_move_set) (ewin, func);
    IFE;
    ewin->func.fn_move = func;
-#endif   
 }
 
 EAPI void
 ecore_win_callback_show_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -352,13 +327,11 @@ ecore_win_callback_show_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
    IFC(ewin, fn_callback_show_set) (ewin, func);
    IFE;
    ewin->func.fn_show = func;
-#endif   
 }
 
 EAPI void
 ecore_win_callback_hide_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -368,13 +341,11 @@ ecore_win_callback_hide_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
    IFC(ewin, fn_callback_hide_set) (ewin, func);
    IFE;
    ewin->func.fn_hide = func;
-#endif
 }
 
 EAPI void
 ecore_win_callback_delete_request_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -384,13 +355,11 @@ ecore_win_callback_delete_request_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
    IFC(ewin, fn_callback_delete_request_set) (ewin, func);
    IFE;
    ewin->func.fn_delete_request = func;
-#endif
 }
 
 EAPI void
 ecore_win_callback_destroy_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -400,13 +369,11 @@ ecore_win_callback_destroy_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
    IFC(ewin, fn_callback_destroy_set) (ewin, func);
    IFE;
    ewin->func.fn_destroy = func;
-#endif
 }
 
 EAPI void
 ecore_win_callback_focus_in_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -416,13 +383,11 @@ ecore_win_callback_focus_in_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
    IFC(ewin, fn_callback_focus_in_set) (ewin, func);
    IFE;
    ewin->func.fn_focus_in = func;
-#endif
 }
 
 EAPI void
 ecore_win_callback_focus_out_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -432,13 +397,11 @@ ecore_win_callback_focus_out_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
    IFC(ewin, fn_callback_focus_out_set) (ewin, func);
    IFE;
    ewin->func.fn_focus_out = func;
-#endif
 }
 
 EAPI void
 ecore_win_callback_mouse_in_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -448,13 +411,11 @@ ecore_win_callback_mouse_in_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
    IFC(ewin, fn_callback_mouse_in_set) (ewin, func);
    IFE;
    ewin->func.fn_mouse_in = func;
-#endif
 }
 
 EAPI void
 ecore_win_callback_mouse_out_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -464,13 +425,11 @@ ecore_win_callback_mouse_out_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
    IFC(ewin, fn_callback_mouse_out_set) (ewin, func);
    IFE;
    ewin->func.fn_mouse_out = func;
-#endif
 }
 
 EAPI void
 ecore_win_callback_state_change_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -478,36 +437,32 @@ ecore_win_callback_state_change_set(Ecore_Win *ewin, Ecore_Win_Event_Cb func)
         return;
      }
    ewin->func.fn_state_change = func;
-#endif
 }
 
 EAPI void
 ecore_win_move(Ecore_Win *ewin, int x, int y)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
                          "ecore_win_move");
         return;
      }
-   if (ewin->prop.fullscrewinn) return;
+   if (ewin->prop.fullscreen) return;
    IFC(ewin, fn_move) (ewin, x, y);
    IFE;
-#endif
 }
 
 EAPI void
 ecore_win_resize(Ecore_Win *ewin, int w, int h)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
                          "ecore_win_resize");
         return;
      }
-   if (ewin->prop.fullscrewinn) return;
+   if (ewin->prop.fullscreen) return;
    if (w < 1) w = 1;
    if (h < 1) h = 1;
    if (ECORE_WIN_PORTRAIT(ewin))
@@ -520,20 +475,18 @@ ecore_win_resize(Ecore_Win *ewin, int w, int h)
         IFC(ewin, fn_resize) (ewin, h, w);
         IFE;
      }
-#endif
 }
 
 EAPI void
 ecore_win_move_resize(Ecore_Win *ewin, int x, int y, int w, int h)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
                          "ecore_win_move_resize");
         return;
      }
-   if (ewin->prop.fullscrewinn) return;
+   if (ewin->prop.fullscreen) return;
    if (w < 1) w = 1;
    if (h < 1) h = 1;
    if (ECORE_WIN_PORTRAIT(ewin))
@@ -546,13 +499,11 @@ ecore_win_move_resize(Ecore_Win *ewin, int x, int y, int w, int h)
         IFC(ewin, fn_move_resize) (ewin, x, y, h, w);
         IFE;
      }
-#endif
 }
 
 EAPI void
 ecore_win_geometry_get(const Ecore_Win *ewin, int *x, int *y, int *w, int *h)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -573,13 +524,11 @@ ecore_win_geometry_get(const Ecore_Win *ewin, int *x, int *y, int *w, int *h)
         if (w) *w = ewin->h;
         if (h) *h = ewin->w;
      }
-#endif
 }
 
 EAPI void
 ecore_win_request_geometry_get(const Ecore_Win *ewin, int *x, int *y, int *w, int *h)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -600,13 +549,11 @@ ecore_win_request_geometry_get(const Ecore_Win *ewin, int *x, int *y, int *w, in
         if (w) *w = ewin->req.h;
         if (h) *h = ewin->req.w;
      }
-#endif
 }
 
 EAPI void
 ecore_win_shaped_set(Ecore_Win *ewin, Eina_Bool shaped)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -615,13 +562,11 @@ ecore_win_shaped_set(Ecore_Win *ewin, Eina_Bool shaped)
      }
    IFC(ewin, fn_shaped_set) (ewin, shaped);
    IFE;
-   #endif
 }
 
 EAPI Eina_Bool
 ecore_win_shaped_get(const Ecore_Win *ewin)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -629,14 +574,11 @@ ecore_win_shaped_get(const Ecore_Win *ewin)
         return EINA_FALSE;
      }
    return ewin->shaped ? EINA_TRUE : EINA_FALSE;
-   #endif 
-   return EINA_FALSE;
 }
 
 EAPI void
 ecore_win_alpha_set(Ecore_Win *ewin, Eina_Bool alpha)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -645,13 +587,11 @@ ecore_win_alpha_set(Ecore_Win *ewin, Eina_Bool alpha)
      }
    IFC(ewin, fn_alpha_set) (ewin, alpha);
    IFE;
-   #endif 
 }
 
 EAPI Eina_Bool
 ecore_win_alpha_get(const Ecore_Win *ewin)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -659,14 +599,11 @@ ecore_win_alpha_get(const Ecore_Win *ewin)
         return EINA_FALSE;
      }
    return ewin->alpha ? EINA_TRUE : EINA_FALSE;
-   #endif 
-   return EINA_FALSE;
 }
 
 EAPI void
 ecore_win_transparent_set(Ecore_Win *ewin, Eina_Bool transparent)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -675,13 +612,11 @@ ecore_win_transparent_set(Ecore_Win *ewin, Eina_Bool transparent)
      }
    IFC(ewin, fn_transparent_set) (ewin, transparent);
    IFE;
-#endif    
 }
 
 EAPI Eina_Bool
 ecore_win_transparent_get(const Ecore_Win *ewin)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -689,14 +624,11 @@ ecore_win_transparent_get(const Ecore_Win *ewin)
         return EINA_FALSE;
      }
    return ewin->transparent ? EINA_TRUE : 0;
-#endif 
-   return 0;
 }
 
 EAPI void
 ecore_win_show(Ecore_Win *ewin)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -705,13 +637,11 @@ ecore_win_show(Ecore_Win *ewin)
      }
    IFC(ewin, fn_show) (ewin);
    IFE;
-#endif    
 }
 
 EAPI void
 ecore_win_hide(Ecore_Win *ewin)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -720,13 +650,11 @@ ecore_win_hide(Ecore_Win *ewin)
      }
    IFC(ewin, fn_hide) (ewin);
    IFE;
-#endif    
 }
 
 EAPI void
 ecore_win_raise(Ecore_Win *ewin)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -735,13 +663,11 @@ ecore_win_raise(Ecore_Win *ewin)
      }
    IFC(ewin, fn_raise) (ewin);
    IFE;
-   #endif 
 }
 
 EAPI void
 ecore_win_lower(Ecore_Win *ewin)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -750,13 +676,11 @@ ecore_win_lower(Ecore_Win *ewin)
      }
    IFC(ewin, fn_lower) (ewin);
    IFE;
-#endif    
 }
 
 EAPI void
 ecore_win_activate(Ecore_Win *ewin)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -765,13 +689,11 @@ ecore_win_activate(Ecore_Win *ewin)
      }
    IFC(ewin, fn_activate) (ewin);
    IFE;
-#endif    
 }
 
 EAPI void
 ecore_win_focus_set(Ecore_Win *ewin, Eina_Bool on)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -780,13 +702,11 @@ ecore_win_focus_set(Ecore_Win *ewin, Eina_Bool on)
      }
    IFC(ewin, fn_focus_set) (ewin, on);
    IFE;
-#endif    
 }
 
 EAPI Eina_Bool
 ecore_win_focus_get(const Ecore_Win *ewin)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -794,14 +714,11 @@ ecore_win_focus_get(const Ecore_Win *ewin)
         return EINA_FALSE;
      }
    return ewin->prop.focused ? EINA_TRUE : EINA_FALSE;
-   #endif 
-   return EINA_FALSE;
 }
 
 EAPI void
 ecore_win_iconified_set(Ecore_Win *ewin, Eina_Bool on)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -810,13 +727,11 @@ ecore_win_iconified_set(Ecore_Win *ewin, Eina_Bool on)
      }
    IFC(ewin, fn_iconified_set) (ewin, on);
    IFE;
-   #endif 
 }
 
 EAPI Eina_Bool
 ecore_win_iconified_get(const Ecore_Win *ewin)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -824,14 +739,11 @@ ecore_win_iconified_get(const Ecore_Win *ewin)
         return EINA_FALSE;
      }
    return ewin->prop.iconified ? EINA_TRUE : EINA_FALSE;
-#endif 
-return EINA_FALSE;
 }
 
 EAPI void
 ecore_win_maximized_set(Ecore_Win *ewin, Eina_Bool on)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -840,13 +752,11 @@ ecore_win_maximized_set(Ecore_Win *ewin, Eina_Bool on)
      }
    IFC(ewin, fn_maximized_set) (ewin, on);
    IFE;
-#endif    
 }
 
 EAPI Eina_Bool
 ecore_win_maximized_get(const Ecore_Win *ewin)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -854,14 +764,11 @@ ecore_win_maximized_get(const Ecore_Win *ewin)
         return EINA_FALSE;
      }
    return ewin->prop.maximized ? EINA_TRUE : EINA_FALSE;
-   #endif 
-   return 0;
 }
 
 EAPI Eina_Bool
 ecore_win_wm_rotation_supported_get(const Ecore_Win *ewin)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -869,14 +776,11 @@ ecore_win_wm_rotation_supported_get(const Ecore_Win *ewin)
         return EINA_FALSE;
      }
    return ewin->prop.wm_rot.supported;
-   #endif 
-   return 0;
 }
 
 EAPI void
 ecore_win_wm_rotation_preferred_rotation_set(Ecore_Win *ewin, int rotation)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -902,13 +806,11 @@ ecore_win_wm_rotation_preferred_rotation_set(Ecore_Win *ewin, int rotation)
      }
    IFC(ewin, fn_wm_rot_preferred_rotation_set) (ewin, rotation);
    IFE;
-#endif    
 }
 
 EAPI int
 ecore_win_wm_rotation_preferred_rotation_get(const Ecore_Win *ewin)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -916,14 +818,11 @@ ecore_win_wm_rotation_preferred_rotation_get(const Ecore_Win *ewin)
         return -1;
      }
    return ewin->prop.wm_rot.preferred_rot;
-   #endif 
-   return 1;
 }
 
 EAPI void
 ecore_win_wm_rotation_available_rotations_set(Ecore_Win *ewin, const int *rotations, unsigned int count)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -932,13 +831,11 @@ ecore_win_wm_rotation_available_rotations_set(Ecore_Win *ewin, const int *rotati
      }
    IFC(ewin, fn_wm_rot_available_rotations_set) (ewin, rotations, count);
    IFE;
-#endif    
 }
 
 EAPI Eina_Bool
 ecore_win_wm_rotation_available_rotations_get(const Ecore_Win *ewin, int **rotations, unsigned int *count)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -956,14 +853,11 @@ ecore_win_wm_rotation_available_rotations_get(const Ecore_Win *ewin, int **rotat
 
    memcpy(*rotations, ewin->prop.wm_rot.available_rots, sizeof(int) * ewin->prop.wm_rot.count);
    *count = ewin->prop.wm_rot.count;
-#endif 
-   return EINA_TRUE;
 }
 
 EAPI void
 ecore_win_modal_set(Ecore_Win *ewin, Eina_Bool on)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -973,13 +867,11 @@ ecore_win_modal_set(Ecore_Win *ewin, Eina_Bool on)
 
    IFC(ewin, fn_modal_set) (ewin, on);
    IFE;
-#endif    
 }
 
 EAPI Eina_Bool
 ecore_win_modal_get(const Ecore_Win *ewin)
 {
-#if 0
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
      {
         ECORE_MAGIC_FAIL(ewin, ECORE_MAGIC_WIN,
@@ -987,8 +879,6 @@ ecore_win_modal_get(const Ecore_Win *ewin)
         return EINA_FALSE;
      }
    return ewin->prop.modal ? EINA_TRUE : EINA_FALSE;
-   #endif 
-   return EINA_FALSE;
 }
 
 EAPI Ecore_Window
@@ -1005,7 +895,7 @@ ecore_win_window_get(const Ecore_Win *ewin)
 }
 
 
-EAPI Ecore_Surface
+EAPI Ecore_Surface *
 ecore_win_surface_get(const Ecore_Win *ewin)
 {
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
@@ -1018,7 +908,7 @@ ecore_win_surface_get(const Ecore_Win *ewin)
    return ewin->prop.wl_surface;
 }
 
-EAPI Ecore_Display
+EAPI Ecore_Display *
 ecore_win_display_get(const Ecore_Win *ewin)
 {
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
@@ -1043,69 +933,52 @@ _ecore_win_register(Ecore_Win *ewin)
 EAPI void
 _ecore_win_ref(Ecore_Win *ewin)
 {
-#if 0
    ewin->refcount++;
-#endif
 }
 
 EAPI void
 _ecore_win_unref(Ecore_Win *ewin)
 {
-#if 0
    ewin->refcount--;
    if (ewin->refcount == 0)
      {
-        if (ewin->deleted) _ecore_win_frewin(ewin);
+        if (ewin->deleted) _ecore_win_free(ewin);
      }
    else if (ewin->refcount < -1)
      ERR("Ecore_Win %p->refcount=%d < 0", ewin, ewin->refcount);
-#endif    
 }
 
 EAPI void
 _ecore_win_free(Ecore_Win *ewin)
 {
-#if 0
    Ecore_Win_Interface *iface;
 
    ewin->deleted = EINA_TRUE;
    if (ewin->refcount > 0) return;
 
-   if (ewin->func.fn_pre_frewin) ewin->func.fn_pre_frewin(ewin);
+   if (ewin->func.fn_pre_free) ewin->func.fn_pre_free(ewin);
    while (ewin->sub_ecore_win)
      {
-        _ecore_win_frewin(ewin->sub_ecore_win->data);
+        _ecore_win_free(ewin->sub_ecore_win->data);
      }
-   if (ewin->data) eina_hash_frewin(ewin->data);
+   if (ewin->data) eina_hash_free(ewin->data);
    ewin->data = NULL;
-   if (ewin->name) frewin(ewin->name);
+   if (ewin->name) free(ewin->name);
    ewin->name = NULL;
-   if (ewin->prop.title) frewin(ewin->prop.title);
+   if (ewin->prop.title) free(ewin->prop.title);
    ewin->prop.title = NULL;
-   if (ewin->prop.name) frewin(ewin->prop.name);
+   if (ewin->prop.name) free(ewin->prop.name);
    ewin->prop.name = NULL;
-   if (ewin->prop.clas) frewin(ewin->prop.clas);
+   if (ewin->prop.clas) free(ewin->prop.clas);
    ewin->prop.clas = NULL;
-   _ecore_win_window_profile_frewin(ewin);
-   ewin->prop.profile.name = NULL;
-   _ecore_win_window_available_profiles_frewin(ewin);
-   ewin->prop.profile.available_list = NULL;
-   if (ewin->prop.wm_rot.available_rots) frewin(ewin->prop.wm_rot.available_rots);
+   if (ewin->prop.wm_rot.available_rots) free(ewin->prop.wm_rot.available_rots);
    ewin->prop.wm_rot.available_rots = NULL;
    if (ewin->prop.wm_rot.manual_mode.timer)
      ecore_timer_del(ewin->prop.wm_rot.manual_mode.timer);
-   _ecore_win_aux_hint_frewin(ewin);
    ewin->prop.wm_rot.manual_mode.timer = NULL;
-   if (ewin->prop.cursor.object) evas_object_del(ewin->prop.cursor.object);
-   ewin->prop.cursor.object = NULL;
-   if (ewin->evas) evas_frewin(ewin->evas);
-   ewin->evas = NULL;
    ECORE_MAGIC_SET(ewin, ECORE_MAGIC_NONE);
    ewin->driver = NULL;
-   if (ewin->engine.idle_flush_timer)
-     ecore_timer_del(ewin->engine.idle_flush_timer);
-   ewin->engine.idle_flush_timer = NULL;
-   if (ewin->engine.func->fn_frewin) ewin->engine.func->fn_frewin(ewin);
+   if (ewin->engine.func->fn_free) ewin->engine.func->fn_free(ewin);
    if (ewin->registered)
      {
         ecore_wines = (Ecore_Win *)eina_inlist_remove
@@ -1113,208 +986,11 @@ _ecore_win_free(Ecore_Win *ewin)
      }
 
    EINA_LIST_FREE(ewin->engine.ifaces, iface)
-     frewin(iface);
+     free(iface);
 
    ewin->engine.ifaces = NULL;
-   frewin(ewin);
-#endif    
+   free(ewin);
 }
-
-EAPI void
-_ecore_win_mouse_move_process(Ecore_Win *ewin, int x, int y, unsigned int timestamp)
-{
-#if 0
-   int fx, fy, fw, fh;
-   ewin->mouse.x = x;
-   ewin->mouse.y = y;
-
-   evas_output_framespace_get(ewin->evas, &fx, &fy, &fw, &fh);
-
-   if (ewin->prop.cursor.object)
-     {
-        evas_object_show(ewin->prop.cursor.object);
-        if (ewin->rotation == 0)
-          evas_object_move(ewin->prop.cursor.object,
-                           x - fx - ewin->prop.cursor.hot.x,
-                           y - fy - ewin->prop.cursor.hot.y);
-        else if (ewin->rotation == 90)
-          evas_object_move(ewin->prop.cursor.object,
-                           ewin->h + fw - y - fx - 1 - ewin->prop.cursor.hot.x,
-                           x - fy - ewin->prop.cursor.hot.y);
-        else if (ewin->rotation == 180)
-          evas_object_move(ewin->prop.cursor.object,
-                           ewin->w + fw - x - fx - 1 - ewin->prop.cursor.hot.x,
-                           ewin->h + fh - y - fy - 1 - ewin->prop.cursor.hot.y);
-        else if (ewin->rotation == 270)
-          evas_object_move(ewin->prop.cursor.object,
-                           y - fx - ewin->prop.cursor.hot.x,
-                           ewin->w + fh - x - fy - 1 - ewin->prop.cursor.hot.y);
-     }
-   if (ewin->rotation == 0)
-     evas_event_input_mouse_move(ewin->evas, x, y, timestamp, NULL);
-   else if (ewin->rotation == 90)
-     evas_event_input_mouse_move(ewin->evas, ewin->h + fw - y - 1, x, timestamp, NULL);
-   else if (ewin->rotation == 180)
-     evas_event_input_mouse_move(ewin->evas, ewin->w + fw - x - 1, ewin->h + fh - y - 1, timestamp, NULL);
-   else if (ewin->rotation == 270)
-     evas_event_input_mouse_move(ewin->evas, y, ewin->w + fh - x - 1, timestamp, NULL);
-#endif    
-}
-
-EAPI void
-_ecore_win_mouse_multi_move_process(Ecore_Win *ewin, int device,
-                                     int x, int y,
-                                     double radius,
-                                     double radius_x, double radius_y,
-                                     double pressure,
-                                     double angle,
-                                     double mx, double my,
-                                     unsigned int timestamp)
-{
-#if 0
-   if (ewin->rotation == 0)
-     evas_event_input_multi_move(ewin->evas, device,
-                                 x, y,
-                                 radius,
-                                 radius_x, radius_y,
-                                 pressure,
-                                 angle - ewin->rotation,
-                                 mx, my,
-                                 timestamp, NULL);
-   else if (ewin->rotation == 90)
-     evas_event_input_multi_move(ewin->evas, device,
-                                 ewin->h - y - 1, x,
-                                 radius,
-                                 radius_y, radius_x,
-                                 pressure,
-                                 angle - ewin->rotation,
-                                 ewin->h - my - 1, mx,
-                                 timestamp, NULL);
-   else if (ewin->rotation == 180)
-     evas_event_input_multi_move(ewin->evas, device,
-                                 ewin->w - x - 1, ewin->h - y - 1,
-                                 radius,
-                                 radius_x, radius_y,
-                                 pressure,
-                                 angle - ewin->rotation,
-                                 ewin->w - mx - 1, ewin->h - my - 1,
-                                 timestamp, NULL);
-   else if (ewin->rotation == 270)
-     evas_event_input_multi_move(ewin->evas, device,
-                                 y, ewin->w - x - 1,
-                                 radius,
-                                 radius_y, radius_x,
-                                 pressure,
-                                 angle - ewin->rotation,
-                                 my, ewin->w - mx - 1,
-                                 timestamp, NULL);
-#endif    
-}
-
-EAPI void
-_ecore_win_mouse_multi_down_process(Ecore_Win *ewin, int device,
-                                     int x, int y,
-                                     double radius,
-                                     double radius_x, double radius_y,
-                                     double pressure,
-                                     double angle,
-                                     double mx, double my,
-                                     Evas_Button_Flags flags,
-                                     unsigned int timestamp)
-{
-#if 0
-   if (ewin->rotation == 0)
-     evas_event_input_multi_down(ewin->evas, device,
-                                 x, y,
-                                 radius,
-                                 radius_x, radius_y,
-                                 pressure,
-                                 angle - ewin->rotation,
-                                 mx, my,
-                                 flags, timestamp, NULL);
-   else if (ewin->rotation == 90)
-     evas_event_input_multi_down(ewin->evas, device,
-                                 ewin->h - y - 1, x,
-                                 radius,
-                                 radius_y, radius_x,
-                                 pressure,
-                                 angle - ewin->rotation,
-                                 ewin->h - my - 1, mx,
-                                 flags, timestamp, NULL);
-   else if (ewin->rotation == 180)
-     evas_event_input_multi_down(ewin->evas, device,
-                                 ewin->w - x - 1, ewin->h - y - 1,
-                                 radius,
-                                 radius_x, radius_y,
-                                 pressure,
-                                 angle - ewin->rotation,
-                                 ewin->w - mx - 1, ewin->h - my - 1,
-                                 flags, timestamp, NULL);
-   else if (ewin->rotation == 270)
-     evas_event_input_multi_down(ewin->evas, device,
-                                 y, ewin->w - x - 1,
-                                 radius,
-                                 radius_y, radius_x,
-                                 pressure,
-                                 angle - ewin->rotation,
-                                 my, ewin->w - mx - 1,
-                                 flags, timestamp, NULL);
-#endif    
-}
-
-EAPI void
-_ecore_win_mouse_multi_up_process(Ecore_Win *ewin, int device,
-                                   int x, int y,
-                                   double radius,
-                                   double radius_x, double radius_y,
-                                   double pressure,
-                                   double angle,
-                                   double mx, double my,
-                                   Evas_Button_Flags flags,
-                                   unsigned int timestamp)
-{
-#if 0
-   if (ewin->rotation == 0)
-     evas_event_input_multi_up(ewin->evas, device,
-                               x, y,
-                               radius,
-                               radius_x, radius_y,
-                               pressure,
-                               angle - ewin->rotation,
-                               mx, my,
-                               flags, timestamp, NULL);
-   else if (ewin->rotation == 90)
-     evas_event_input_multi_up(ewin->evas, device,
-                               ewin->h - y - 1, x,
-                               radius,
-                               radius_y, radius_x,
-                               pressure,
-                               angle - ewin->rotation,
-                               ewin->h - my - 1, mx,
-                               flags, timestamp, NULL);
-   else if (ewin->rotation == 180)
-     evas_event_input_multi_up(ewin->evas, device,
-                               ewin->w - x - 1, ewin->h - y - 1,
-                               radius,
-                               radius_x, radius_y,
-                               pressure,
-                               angle - ewin->rotation,
-                               ewin->w - mx - 1, ewin->h - my - 1,
-                               flags, timestamp, NULL);
-   else if (ewin->rotation == 270)
-     evas_event_input_multi_up(ewin->evas, device,
-                               y, ewin->w - x - 1,
-                               radius,
-                               radius_y, radius_x,
-                               pressure,
-                               angle - ewin->rotation,
-                               my, ewin->w - mx - 1,
-                               flags, timestamp, NULL);
-#endif    
-}
-
-
-
 
 EAPI Ecore_Win *
 ecore_win_x11_new(const char *disp_name, Ecore_X_Window parent, int x, int y, int w, int h)
@@ -1362,60 +1038,49 @@ ecore_win_wayland_new(const char *disp_name, unsigned int parent,
 EAPI void
 ecore_win_wayland_resize(Ecore_Win *ewin, int location)
 {
-#if 0
    Ecore_Win_Interface_Wayland *iface;
    iface = (Ecore_Win_Interface_Wayland *)_ecore_win_interface_get(ewin, "wayland");
    EINA_SAFETY_ON_NULL_RETURN(iface);
 
    iface->resize(ewin, location);
-   #endif 
 }
 
 EAPI void
 ecore_win_wayland_move(Ecore_Win *ewin, int x, int y)
 {
-#if 0
    Ecore_Win_Interface_Wayland *iface;
    iface = (Ecore_Win_Interface_Wayland *)_ecore_win_interface_get(ewin, "wayland");
    EINA_SAFETY_ON_NULL_RETURN(iface);
 
    iface->move(ewin, x, y);
-#endif    
 }
 
 EAPI void
 ecore_win_wayland_pointer_set(Ecore_Win *ewin, int hot_x, int hot_y)
 {
-#if 0
    Ecore_Win_Interface_Wayland *iface;
    iface = (Ecore_Win_Interface_Wayland *)_ecore_win_interface_get(ewin, "wayland");
    EINA_SAFETY_ON_NULL_RETURN(iface);
 
    iface->pointer_set(ewin, hot_x, hot_y);
-#endif    
 }
 
 EAPI void
 ecore_win_wayland_type_set(Ecore_Win *ewin, int type)
 {
-#if 0
    Ecore_Win_Interface_Wayland *iface;
    iface = (Ecore_Win_Interface_Wayland *)_ecore_win_interface_get(ewin, "wayland");
    EINA_SAFETY_ON_NULL_RETURN(iface);
 
    iface->type_set(ewin, type);
-#endif    
 }
 
 EAPI Ecore_Wl_Window *
 ecore_win_wayland_window_get(const Ecore_Win *ewin)
 {
-#if 0
    Ecore_Win_Interface_Wayland *iface;
    iface = (Ecore_Win_Interface_Wayland *)_ecore_win_interface_get(ewin, "wayland");
    EINA_SAFETY_ON_NULL_RETURN_VAL(iface, NULL);
 
    return iface->window_get(ewin);
-#endif 
-  return NULL;
 }

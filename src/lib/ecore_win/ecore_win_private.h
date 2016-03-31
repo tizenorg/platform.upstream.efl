@@ -299,7 +299,7 @@ struct _Ecore_Win
    } func;
 
    Ecore_Win_Engine engine;
-   Eina_List *sub_Ecore_Win;
+   Eina_List *sub_ecore_win;
 
    struct {
       unsigned char avoid_damage;
@@ -337,33 +337,6 @@ EAPI void _ecore_win_unref(Ecore_Win *ewin);
 EAPI void _ecore_win_register(Ecore_Win *ewin);
 EAPI void _ecore_win_free(Ecore_Win *ewin);
 EAPI void _ecore_win_idle_timeout_update(Ecore_Win *ewin);
-EAPI void _ecore_win_mouse_move_process(Ecore_Win *ewin, int x, int y, unsigned int timestamp);
-EAPI void _ecore_win_mouse_multi_move_process(Ecore_Win *ewin, int device,
-                                          int x, int y,
-                                          double radius,
-                                          double radius_x, double radius_y,
-                                          double pressure,
-                                          double angle,
-                                          double mx, double my,
-                                          unsigned int timestamp);
-//EAPI void _ecore_win_mouse_multi_down_process(Ecore_Win *ewin, int device,
-//                                          int x, int y,
-//                                          double radius,
-//                                          double radius_x, double radius_y,
-//                                          double pressure,
-//                                          double angle,
-//                                          double mx, double my,
-//                                          Evas_Button_Flags flags,
-//                                          unsigned int timestamp);
-//EAPI void _ecore_win_mouse_multi_up_process(Ecore_Win *ewin, int device,
-//                                        int x, int y,
-//                                        double radius,
-//                                        double radius_x, double radius_y,
-//                                        double pressure,
-//                                        double angle,
-//                                        double mx, double my,
-//                                        Evas_Button_Flags flags,
-//                                        unsigned int timestamp);
 
 EAPI extern Eina_Bool _ecore_win_app_comp_sync;
 

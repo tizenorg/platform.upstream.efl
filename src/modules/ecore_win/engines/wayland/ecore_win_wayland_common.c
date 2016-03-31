@@ -264,6 +264,7 @@ _ecore_win_wl_common_cb_window_rotate(void *data EINA_UNUSED, int type EINA_UNUS
 static void
 _rotation_do(Ecore_Win *ee, int rotation, int resize)
 {
+#if 0
    Ecore_Win_Engine_Wl_Data *wdata;
    int rot_dif;
 
@@ -359,6 +360,7 @@ _rotation_do(Ecore_Win *ee, int rotation, int resize)
         if (ee->func.fn_resize) ee->func.fn_resize(ee);
 
      }
+#endif
 }
 
 void
@@ -464,6 +466,8 @@ _ecore_win_wl_common_resize(Ecore_Win *ee, int w, int h)
 
    ee->req.w = w;
    ee->req.h = h;
+
+   if (ee->func.fn_resize) ee->func.fn_resize(ee);
 
    if (wdata->win)
      ecore_wl_window_update_size(wdata->win, ee->req.w, ee->req.h);

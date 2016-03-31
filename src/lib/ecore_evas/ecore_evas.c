@@ -356,6 +356,7 @@ _ecore_evas_fork_cb(void *data EINA_UNUSED)
 EAPI int
 ecore_evas_init(void)
 {
+   EINA_LOG_ERR("ecore_evas_init!!");
    int fd;
 
    if (++_ecore_evas_init_count != 1)

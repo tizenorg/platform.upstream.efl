@@ -61,6 +61,7 @@ _ecore_win_interface_get(const Ecore_Win *ewin, const char *iname)
 EAPI int
 ecore_win_init(void)
 {
+   EINA_LOG_ERR(" ecore_win_init start!!");
    int fd;
 
    if (++_ecore_win_init_count != 1)
@@ -247,25 +248,26 @@ ecore_win_engines_free(Eina_List *engines)
 EAPI Ecore_Win *
 ecore_win_new(const char *engine_name, int x, int y, int w, int h, const char *extra_options)
 {
+   EINA_LOG_ERR(" ecore_win_new start!!");
    const struct ecore_win_engine *itr;
 
    if (!engine_name)
      {
         engine_name = getenv("ECORE_WIN_ENGINE");
         if (engine_name)
-          DBG("no engine_name provided, using ECORE_WIN_ENGINE='%s'",
+           EINA_LOG_ERR("no engine_name provided, using ECORE_WIN_ENGINE='%s'",
               engine_name);
      }
 
    for (itr = _engines; itr->name; itr++)
      if (strcmp(itr->name, engine_name) == 0)
        {
-          INF("using engine '%s', extra_options=%s",
+           EINA_LOG_ERR("using engine '%s', extra_options=%s",
               engine_name, extra_options ? extra_options : "(null)");
           return itr->constructor(x, y, w, h, extra_options);
        }
 
-   WRN("unknown engine '%s'", engine_name);
+   EINA_LOG_ERR("unknown engine '%s'", engine_name);
    return NULL;
 }
 
@@ -1025,6 +1027,7 @@ EAPI Ecore_Win *
 ecore_win_wayland_new(const char *disp_name, unsigned int parent,
 			   int x, int y, int w, int h, Eina_Bool frame)
 {
+   EINA_LOG_ERR("ecore_win_wayland_new ");
    Ecore_Win *(*new)(const char *, unsigned int, int, int, int, int, Eina_Bool);
    Eina_Module *m = _ecore_win_engine_load("wayland");
    EINA_SAFETY_ON_NULL_RETURN_VAL(m, NULL);

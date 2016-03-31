@@ -117,6 +117,7 @@ static Ecore_Win_Engine_Func _ecore_wl_engine_func =
 EAPI Ecore_Win *
 ecore_win_wayland_new_internal(const char *disp_name, unsigned int parent, int x, int y, int w, int h, Eina_Bool frame)
 {
+   EINA_LOG_ERR("ecore_win_wayland_new_internal start!!!");
    Ecore_Wl_Window *p = NULL;
    Ecore_Wl_Global *global;
    Eina_Inlist *globals;
@@ -131,29 +132,29 @@ ecore_win_wayland_new_internal(const char *disp_name, unsigned int parent, int x
 
    if (!ecore_wl_init(disp_name))
      {
-        ERR("Failed to initialize Ecore_Wayland");
+        EINA_LOG_ERR("Failed to initialize Ecore_Wayland");
         return NULL;
      }
 
    if (!(globals = ecore_wl_globals_get()))
      {
-        ERR("Failed to get wayland globals");
+        EINA_LOG_ERR("Failed to get wayland globals");
         return NULL;
      }
 
    if (!(ewin = calloc(1, sizeof(Ecore_Win))))
      {
-        ERR("Failed to allocate Ecore_Win");
+        EINA_LOG_ERR("Failed to allocate Ecore_Win");
         goto ewin_err;
      }
    if (!(wdata = calloc(1, sizeof(Ecore_Win_Engine_Wl_Data))))
      {
-    ERR("Failed to allocate Ecore_Win_Engine_Wl_Data");
+    EINA_LOG_ERR("Failed to allocate Ecore_Win_Engine_Wl_Data");
     free(ewin);
     goto ewin_err;
      }
 
-//   ECORE_MAGIC_SET(ewin, ECORE_MAGIC_EVAS);
+   ECORE_MAGIC_SET(ewin, ECORE_MAGIC_WIN);
 
    _ecore_win_wl_common_init();
 
@@ -230,20 +231,20 @@ ecore_win_wayland_new_internal(const char *disp_name, unsigned int parent, int x
 //        einfo->info.wl_surface = ecore_wl_window_surface_create(wdata->win);
 //        if (!evas_engine_info_set(ewin->evas, (Evas_Engine_Info *)einfo))
 //          {
-//             ERR("Failed to set Evas Engine Info for '%s'", ewin->driver);
+//             EINA_LOG_ERR("Failed to set Evas Engine Info for '%s'", ewin->driver);
 //             goto err;
 //          }
 //     }
 //   else
 //     {
-//        ERR("Failed to get Evas Engine Info for '%s'", ewin->driver);
+//        EINA_LOG_ERR("Failed to get Evas Engine Info for '%s'", ewin->driver);
 //        goto err;
 //     }
 
    /* ecore_wl_animator_source_set(ECORE_ANIMATOR_SOURCE_CUSTOM); */
 
    _ecore_win_register(ewin);
-
+   EINA_LOG_ERR("ecore_win_wayland_new_internal end!!!");
    return ewin;
 
  err:
@@ -284,12 +285,13 @@ _ecore_win_wl_rotation_set(Ecore_Win *ewin, int rotation, int resize)
 //   einfo->info.rotation = rotation;
 //
 //   if (!evas_engine_info_set(ewin->evas, (Evas_Engine_Info *)einfo))
-//     ERR("evas_engine_info_set() for engine '%s' failed.", ewin->driver);
+//     EINA_LOG_ERR("evas_engine_info_set() for engine '%s' failed.", ewin->driver);
 }
 
 static void
 _ecore_win_wl_show(Ecore_Win *ewin)
 {
+   EINA_LOG_ERR("_ecore_win_wl_show start!!!!");
 //   Evas_Engine_Info_Wayland_Shm *einfo;
    Ecore_Win_Engine_Wl_Data *wdata;
 //   int fw, fh;
@@ -303,6 +305,7 @@ _ecore_win_wl_show(Ecore_Win *ewin)
 
    if (wdata->win)
      {
+         EINA_LOG_ERR("_ecore_win_wl_show start----1");
         ecore_wl_window_show(wdata->win);
         ecore_wl_window_alpha_set(wdata->win, ewin->alpha);
 
@@ -335,6 +338,7 @@ _ecore_win_wl_show(Ecore_Win *ewin)
    ewin->should_be_visible = 1;
    ewin->draw_ok = EINA_TRUE;
    if (ewin->func.fn_show) ewin->func.fn_show(ewin);
+   EINA_LOG_ERR("_ecore_win_wl_show start end");
 }
 
 static void 
@@ -395,7 +399,7 @@ _ecore_win_wayland_alpha_do(Ecore_Win *ewin, int alpha)
 //     {
 //        einfo->info.destination_alpha = EINA_TRUE;//ewin->alpha;
 //        if (!evas_engine_info_set(ewin->evas, (Evas_Engine_Info *)einfo))
-//          ERR("evas_engine_info_set() for engine '%s' failed.", ewin->driver);
+//          EINA_LOG_ERR("evas_engine_info_set() for engine '%s' failed.", ewin->driver);
 //        evas_damage_rectangle_add(ewin->evas, 0, 0, ewin->w + fw, ewin->h + fh);
 //     }
 }
@@ -435,7 +439,7 @@ _ecore_win_wayland_transparent_do(Ecore_Win *ewin, int transparent)
 //     {
 //        einfo->info.destination_alpha = EINA_TRUE;//ewin->transparent;
 //        if (!evas_engine_info_set(ewin->evas, (Evas_Engine_Info *)einfo))
-//          ERR("evas_engine_info_set() for engine '%s' failed.", ewin->driver);
+//          EINA_LOG_ERR("evas_engine_info_set() for engine '%s' failed.", ewin->driver);
 //        evas_damage_rectangle_add(ewin->evas, 0, 0, ewin->w + fw, ewin->h + fh);
 //     }
 }

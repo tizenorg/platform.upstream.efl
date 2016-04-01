@@ -347,9 +347,6 @@ text_input_commit_string(void                 *data,
 {
    WaylandIMContext *imcontext = (WaylandIMContext *)data;
    Eina_Bool old_preedit = EINA_FALSE;
-   char *surrounding = NULL;
-   int cursor_pos, cursor;
-   Ecore_IMF_Event_Delete_Surrounding ev;
 
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom,
                      "commit event (text: `%s', current pre-edit: `%s')",
@@ -603,13 +600,11 @@ text_input_delete_surrounding_text(void                 *data,
 }
 
 static void
-text_input_cursor_position(void                 *data,
+text_input_cursor_position(void                 *data EINA_UNUSED,
                            struct wl_text_input *text_input EINA_UNUSED,
                            int32_t               index,
                            int32_t               anchor)
 {
-   WaylandIMContext *imcontext = (WaylandIMContext *)data;
-
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom,
                      "cursor_position for next commit (index: %d, anchor: %d)",
                      index, anchor);

@@ -668,6 +668,9 @@ void              evas_gl_common_poly_draw(Evas_Engine_GL_Context *gc, Evas_GL_P
 
 void              evas_gl_common_line_draw(Evas_Engine_GL_Context *gc, int x1, int y1, int x2, int y2);
 
+void              evas_gl_common_texture_shared_specific(Evas_Engine_GL_Context *gc, Evas_GL_Texture_Pool *pt, int i);
+void              evas_gl_common_texture_shared_back(Evas_Engine_GL_Context *gc, Evas_GL_Texture_Pool *pt);
+
 extern void       (*glsym_glGenFramebuffers)      (GLsizei a, GLuint *b);
 extern void       (*glsym_glBindFramebuffer)      (GLenum a, GLuint b);
 extern void       (*glsym_glFramebufferTexture2D) (GLenum a, GLenum b, GLenum c, GLuint d, GLint e);

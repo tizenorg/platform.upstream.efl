@@ -266,6 +266,8 @@ img_pixel_cb(void *data)
    if (!gl_data->initialized)
      {
         float aspect;
+
+   //Set rotation variables	
         init_shaders(gl_data);
         glGenBuffers(1, &gl_data->vbo);
         glBindBuffer(GL_ARRAY_BUFFER, gl_data->vbo);
@@ -286,7 +288,7 @@ img_pixel_cb(void *data)
 
     glViewport(0, 0, w, h);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
    init_matrix(model);
    rotate_xyz(model, gl_data->xangle, gl_data->yangle, 0.0f);
@@ -474,14 +476,15 @@ _on_canvas_resize_cb(Ecore_Evas *ee)
    config_attrs[n++] = EGL_WINDOW_BIT;
    config_attrs[n++] = EGL_RENDERABLE_TYPE;
    config_attrs[n++] = EGL_OPENGL_ES2_BIT;
-   
+
+#if 1   
    config_attrs[n++] = EGL_RED_SIZE;
    config_attrs[n++] = 8;
    config_attrs[n++] = EGL_GREEN_SIZE;
    config_attrs[n++] = 8;
    config_attrs[n++] = EGL_BLUE_SIZE;
    config_attrs[n++] = 8;
-   
+#endif   
    config_attrs[n++] = EGL_DEPTH_SIZE;
    config_attrs[n++] = 24;
    config_attrs[n++] = EGL_STENCIL_SIZE;
@@ -557,6 +560,11 @@ main(void)
    printf("display : %p\n",gldata.display);
    gldata.eglwindow = ecore_win_surface_get(ewin);
    printf("eglwindow : %p\n",gldata.eglwindow);
+
+   gldata.xangle = 45.0f;
+   gldata.yangle = 45.0f;
+   gldata.mouse_down = EINA_FALSE;
+   gldata.initialized = EINA_FALSE;
 
    init_EGL();
 

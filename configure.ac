@@ -4780,6 +4780,11 @@ EFL_LIB_START_OPTIONAL([Ecore_Win], [test "${want_ecore_win}" = "yes"])
 ## Compatibility layers
 
 ### Checks for libraries
+EFL_DEPEND_PKG([ECORE_WIN], [WAYLAND],
+   [wayland-client >= 1.3.0 wayland-cursor >= 1.3.0 xkbcommon >= 0.3.0 xdg-shell-client text-client tizen-extension-client])
+   
+EFL_ADD_LIBS([ECORE_WIN], [-lm -lwayland-egl])	
+
 EFL_EVAL_PKGS([ECORE_WIN])
 ## modules
 

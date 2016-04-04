@@ -6,6 +6,7 @@
 # include <unistd.h>
 # include <sys/types.h>
 # include <sys/mman.h>
+# include <wayland-egl.h>
 
 #ifdef EAPI
 # undef EAPI
@@ -206,12 +207,17 @@ ecore_win_wayland_new_internal(const char *disp_name, unsigned int parent, int x
 
    wdata->parent = p;
    wdata->win = ecore_wl_window_new(p, x, y, w + fw, h + fh, 
-                         ECORE_WL_WINDOW_BUFFER_TYPE_SHM);
+                         ECORE_WL_WINDOW_BUFFER_TYPE_EGL_WINDOW);
+   EINA_LOG_ERR("ecore_wl_window_new : %p",wdata->win);
    ewin->prop.window = ecore_wl_window_id_get(wdata->win);
+   EINA_LOG_ERR("ecore_wl_window_id_get : %d",ewin->prop.window);
    ewin->prop.wl_disp = ecore_wl_display_get();
+   EINA_LOG_ERR("ecore_wl_display_get : %d",ewin->prop.wl_disp);   
+   ewin->prop.wl_compositor = ecore_wl_compositor_get();   
    ewin->prop.wl_surface = ecore_wl_window_surface_create(wdata->win);
-   
-
+   EINA_LOG_ERR("ecore_wl_window_surface_create : %d",ewin->prop.wl_surface);      
+   ewin->prop.wl_win = wl_egl_window_create(ewin->prop.wl_surface ,w + fw, h + fh);
+   EINA_LOG_ERR("wl_egl_window_create : %p", ewin->prop.wl_win );      
    EINA_INLIST_FOREACH(globals, global)
      {
         if (!strcmp(global->interface, "tizen_policy_ext"))

@@ -92,6 +92,7 @@ eng_window_new(Evas *evas, Evas_Engine_Info_Wayland_Egl *einfo, int w, int h, Re
         eng_window_free(gw);
         return NULL;
      }
+   EINA_LOG_ERR("eglGetDisplay : %p, wl display %p",gw->egl_disp, gw->disp);      		   
    if (!eglInitialize(gw->egl_disp, &major_version, &minor_version))
      {
         ERR("eglInitialize() fail. code=%#x", eglGetError());
@@ -119,6 +120,7 @@ eng_window_new(Evas *evas, Evas_Engine_Info_Wayland_Egl *einfo, int w, int h, Re
    else if ((gw->rot == 90) || (gw->rot == 270))
      gw->win = wl_egl_window_create(gw->surface, gw->h, gw->w);
 
+   EINA_LOG_ERR("eglGetDisplay : %p, wl display %p",gw->egl_disp, gw->disp);      		   
    gw->egl_surface[0] = 
      eglCreateWindowSurface(gw->egl_disp, gw->egl_config,
                             (EGLNativeWindowType)gw->win, NULL);

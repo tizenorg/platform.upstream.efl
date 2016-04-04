@@ -590,9 +590,9 @@ EAPI void        ecore_win_activate(Ecore_Win *ewin);
 
 EAPI Ecore_Window ecore_win_window_get(const Ecore_Win *ewin);
 
-EAPI Ecore_Surface *ecore_win_surface_get(const Ecore_Win *ewin);
+EAPI Ecore_Surface ecore_win_surface_get(const Ecore_Win *ewin);
 
-EAPI Ecore_Display *ecore_win_display_get(const Ecore_Win *ewin);
+EAPI Ecore_Display ecore_win_display_get(const Ecore_Win *ewin);
 
 /**
  * @}

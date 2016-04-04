@@ -224,7 +224,9 @@ ecore_evas_wayland_egl_options_new_internal(const char *disp_name, unsigned int 
    wdata->win = 
      ecore_wl_window_new(p, x, y, w + fw, h + fh, 
                          ECORE_WL_WINDOW_BUFFER_TYPE_EGL_WINDOW);
+   EINA_LOG_ERR("ecore_wl_window_new : %p",wdata->win);
    ee->prop.window = ecore_wl_window_id_get(wdata->win);
+   EINA_LOG_ERR("ecore_wl_window_id_get : %d",ee->prop.window);   
 
    EINA_INLIST_FOREACH(globals, global)
      {

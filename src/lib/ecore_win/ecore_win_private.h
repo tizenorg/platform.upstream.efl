@@ -249,9 +249,11 @@ struct _Ecore_Win
          int             id;
       } aux_hint;
       int             layer;
-      Ecore_Window    window;
-      struct wl_surface *wl_surface;
-      struct wl_display *wl_disp;
+      Ecore_Window                window;
+      struct wl_display          *wl_disp;	  
+      struct wl_surface         *wl_surface;  
+      struct wl_compositor    *wl_compositor;
+      struct wl_egl_window  *wl_win;
 	  
       unsigned char   avoid_damage;
       Ecore_Win     *group_ee;

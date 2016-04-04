@@ -20,8 +20,8 @@
 #include <Ecore_Input.h>
 #include <Ecore_Input_Evas.h>
 #include <Ecore_Wayland.h>
-
 #include <Ecore_Win.h>
+#include <wayland-egl.h>
 #include "ecore_win_private.h"
 #include "ecore_win_wayland.h"
 

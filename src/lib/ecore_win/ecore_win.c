@@ -84,6 +84,8 @@ ecore_win_init(void)
 		   EINA_LOG_STATE_STOP,
 		   EINA_LOG_STATE_INIT);
 
+   return _ecore_win_init_count;
+
  shutdown_ecore:
    ecore_shutdown();
  shutdown_init:
@@ -897,7 +899,7 @@ ecore_win_window_get(const Ecore_Win *ewin)
 }
 
 
-EAPI Ecore_Surface *
+EAPI Ecore_Surface 
 ecore_win_surface_get(const Ecore_Win *ewin)
 {
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))
@@ -907,10 +909,10 @@ ecore_win_surface_get(const Ecore_Win *ewin)
         return 0;
      }
 
-   return ewin->prop.wl_surface;
+   return ewin->prop.wl_win;
 }
 
-EAPI Ecore_Display *
+EAPI Ecore_Display 
 ecore_win_display_get(const Ecore_Win *ewin)
 {
    if (!ECORE_MAGIC_CHECK(ewin, ECORE_MAGIC_WIN))

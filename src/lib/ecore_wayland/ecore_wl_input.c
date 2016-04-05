@@ -63,6 +63,7 @@ static void _ecore_wl_input_cb_pointer_motion(void *data, struct wl_pointer *poi
 static void _ecore_wl_input_cb_pointer_button(void *data, struct wl_pointer *pointer EINA_UNUSED, unsigned int serial, unsigned int timestamp, unsigned int button, unsigned int state);
 static void _ecore_wl_input_cb_pointer_axis(void *data, struct wl_pointer *pointer EINA_UNUSED, unsigned int timestamp, unsigned int axis, wl_fixed_t value);
 static void _ecore_wl_input_cb_pointer_frame(void *data, struct wl_callback *callback, unsigned int timestamp EINA_UNUSED);
+static Eina_Bool _ecore_wl_input_keymap_update_send(Ecore_Wl_Input *input);
 static void _ecore_wl_input_cb_keyboard_keymap(void *data, struct wl_keyboard *keyboard EINA_UNUSED, unsigned int format, int fd, unsigned int size);
 static void _ecore_wl_input_cb_keyboard_enter(void *data, struct wl_keyboard *keyboard EINA_UNUSED, unsigned int serial, struct wl_surface *surface, struct wl_array *keys EINA_UNUSED);
 static void _ecore_wl_input_cb_keyboard_leave(void *data, struct wl_keyboard *keyboard EINA_UNUSED, unsigned int serial, struct wl_surface *surface);
@@ -727,6 +728,26 @@ _ecore_wl_input_cb_pointer_frame(void *data, struct wl_callback *callback, unsig
      }
 }
 
+static Eina_Bool
+_ecore_wl_input_keymap_update_send(Ecore_Wl_Input *input)
+{
+   Ecore_Wl_Event_Keymap_Update *ev = NULL;
+
+   if (!input || !(input->xkb.keymap)) return EINA_FALSE;
+
+   /* allocate space for event structure */
+   ev = calloc(1, sizeof(Ecore_Wl_Event_Keymap_Update));
+   if (!ev) return EINA_FALSE;
+
+   ev->input = input;
+   ev->keymap = input->xkb.keymap;
+
+   /* raise an event saying the keymap has been updated */
+   ecore_event_add(ECORE_WL_EVENT_KEYMAP_UPDATE, ev, NULL, NULL);
+
+   return EINA_TRUE;
+}
+
 static void
 _ecore_wl_input_cb_keyboard_keymap(void *data, struct wl_keyboard *keyboard EINA_UNUSED, unsigned int format, int fd, unsigned int size)
 {
@@ -789,6 +810,13 @@ _ecore_wl_input_cb_keyboard_keymap(void *data, struct wl_keyboard *keyboard EINA
      1 << xkb_map_mod_get_index(input->xkb.keymap, XKB_MOD_NAME_CAPS);
    input->xkb.altgr_mask =
      1 << xkb_map_mod_get_index(input->xkb.keymap, "ISO_Level3_Shift");
+
+   if (!_ecore_wl_input_keymap_update_send(input))
+     {
+        xkb_map_unref(input->xkb.keymap);
+        input->xkb.keymap = NULL;
+        return;
+     }
 }
 
 static int

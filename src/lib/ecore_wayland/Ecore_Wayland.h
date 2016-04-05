@@ -80,6 +80,22 @@ typedef struct _Ecore_Wl_Event_Aux_Hint_Allowed Ecore_Wl_Event_Aux_Hint_Allowed;
 typedef struct _Ecore_Wl_Event_Window_Iconify_State_Change Ecore_Wl_Event_Window_Iconify_State_Change;
 typedef struct _Ecore_Wl_Event_Effect Ecore_Wl_Event_Effect_Start;
 typedef struct _Ecore_Wl_Event_Effect Ecore_Wl_Event_Effect_End;
+typedef struct _Ecore_Wl_Display Ecore_Wl_Display;
+typedef struct _Ecore_Wl_Event_Global Ecore_Wl_Event_Global;
+typedef struct _Ecore_Wl_Event_Keymap_Update Ecore_Wl_Event_Keymap_Update;
+
+struct _Ecore_Wl_Event_Global
+{
+   Ecore_Wl_Display *display;
+   Eina_Stringshare *interface;
+   unsigned int id, version;
+};
+
+struct _Ecore_Wl_Event_Keymap_Update
+{
+   Ecore_Wl_Input *input;
+   struct xkb_keymap *keymap;
+};
 
 enum _Ecore_Wl_Window_Type
 {
@@ -419,6 +435,9 @@ EAPI extern int ECORE_WL_EVENT_AUX_HINT_ALLOWED;
 EAPI extern int ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE;
 EAPI extern int ECORE_WL_EVENT_EFFECT_START;
 EAPI extern int ECORE_WL_EVENT_EFFECT_END;
+EAPI extern int ECORE_WL_EVENT_GLOBAL_ADDED;
+EAPI extern int ECORE_WL_EVENT_GLOBAL_REMOVED;
+EAPI extern int ECORE_WL_EVENT_KEYMAP_UPDATE;
 
 /**
  * @defgroup Ecore_Wl_Init_Group Wayland Library Init and Shutdown Functions

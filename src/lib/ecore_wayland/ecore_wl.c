@@ -165,6 +165,9 @@ EAPI int ECORE_WL_EVENT_AUX_HINT_ALLOWED = 0;
 EAPI int ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE = 0;
 EAPI int ECORE_WL_EVENT_EFFECT_START = 0;
 EAPI int ECORE_WL_EVENT_EFFECT_END = 0;
+EAPI int ECORE_WL_EVENT_GLOBAL_ADDED = 0;
+EAPI int ECORE_WL_EVENT_GLOBAL_REMOVED = 0;
+EAPI int ECORE_WL_EVENT_KEYMAP_UPDATE = 0;
 
 static void
 _ecore_wl_init_callback(void *data, struct wl_callback *callback, uint32_t serial EINA_UNUSED)
@@ -253,6 +256,9 @@ ecore_wl_init(const char *name)
         ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE = ecore_event_type_new();
         ECORE_WL_EVENT_EFFECT_START = ecore_event_type_new();
         ECORE_WL_EVENT_EFFECT_END = ecore_event_type_new();
+        ECORE_WL_EVENT_GLOBAL_ADDED = ecore_event_type_new();
+        ECORE_WL_EVENT_GLOBAL_REMOVED = ecore_event_type_new();
+        ECORE_WL_EVENT_KEYMAP_UPDATE = ecore_event_type_new();
      }
 
    if (!(_ecore_wl_disp = calloc(1, sizeof(Ecore_Wl_Display))))
@@ -796,10 +802,21 @@ _ecore_wl_cb_pre_handle_data(void *data, Ecore_Fd_Handler *hdl EINA_UNUSED)
 }
 
 static void
+_cb_global_event_free(void *data EINA_UNUSED, void *event)
+{
+   Ecore_Wl_Event_Global *ev;
+
+   ev = event;
+   eina_stringshare_del(ev->interface);
+   free(ev);
+}
+
+static void
 _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned int id, const char *interface, unsigned int version)
 {
    Ecore_Wl_Display *ewd;
    Ecore_Wl_Global *global;
+   Ecore_Wl_Event_Global *ev;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
@@ -934,6 +951,19 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
 
         ecore_event_add(ECORE_WL_EVENT_INTERFACES_BOUND, ev, NULL, NULL);
      }
+
+   /* allocate space for event structure */
+   ev = calloc(1, sizeof(Ecore_Wl_Event_Global));
+   if (!ev) return;
+
+   ev->id = id;
+   ev->display = ewd;
+   ev->version = version;
+   ev->interface = eina_stringshare_add(interface);
+
+   /* raise an event saying a new global has been added */
+   ecore_event_add(ECORE_WL_EVENT_GLOBAL_ADDED, ev,
+                   _cb_global_event_free, NULL);
 }
 
 static void
@@ -941,6 +971,7 @@ _ecore_wl_cb_handle_global_remove(void *data, struct wl_registry *registry EINA_
 {
    Ecore_Wl_Display *ewd;
    Ecore_Wl_Global *global;
+   Ecore_Wl_Event_Global *ev;
    Eina_Inlist *tmp;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -950,6 +981,20 @@ _ecore_wl_cb_handle_global_remove(void *data, struct wl_registry *registry EINA_
    EINA_INLIST_FOREACH_SAFE(ewd->globals, tmp, global)
      {
         if (global->id != id) continue;
+
+        /* allocate space for event structure */
+        ev = calloc(1, sizeof(Ecore_Wl_Event_Global));
+        if (!ev) return;
+
+        ev->id = id;
+        ev->display = ewd;
+        ev->version = global->version;
+        ev->interface = eina_stringshare_add(global->interface);
+
+        /* raise an event saying a global has been removed */
+        ecore_event_add(ECORE_WL_EVENT_GLOBAL_REMOVED, ev,
+                        _cb_global_event_free, NULL);
+
         ewd->globals =
           eina_inlist_remove(ewd->globals, EINA_INLIST_GET(global));
         free(global->interface);

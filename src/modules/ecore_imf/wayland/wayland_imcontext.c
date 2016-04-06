@@ -40,7 +40,7 @@ static Ecore_Timer *_hide_timer  = NULL;
 #define BACK_KEY "XF86Back"
 
 static Ecore_Event_Filter   *_ecore_event_filter_handler = NULL;
-static Ecore_IMF_Context    *_active_ctx                 = NULL;
+static Ecore_IMF_Context    *_focused_ctx                = NULL;
 static Ecore_IMF_Context    *_show_req_ctx               = NULL;
 static Ecore_IMF_Context    *_hide_req_ctx               = NULL;
 
@@ -111,7 +111,7 @@ static Eina_Bool
 key_down_cb(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
    Ecore_Event_Key *ev = (Ecore_Event_Key *)event;
-   if (!ev || !ev->keyname || !_active_ctx) return EINA_TRUE;
+   if (!ev || !ev->keyname) return EINA_TRUE;
 
    if ((_input_panel_state == ECORE_IMF_INPUT_PANEL_STATE_SHOW ||
         _input_panel_state == ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW) &&
@@ -125,15 +125,23 @@ static Eina_Bool
 key_up_cb(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
    Ecore_Event_Key *ev = (Ecore_Event_Key *)event;
-   if (!ev || !ev->keyname || !_active_ctx) return EINA_TRUE;
+   if (!ev || !ev->keyname) return EINA_TRUE;
+
+   Ecore_IMF_Context *active_ctx = NULL;
+   if (_show_req_ctx)
+     active_ctx = _show_req_ctx;
+   else if (_focused_ctx)
+     active_ctx = _focused_ctx;
+
+   if (!active_ctx) return EINA_TRUE;
 
    if (_input_panel_state == ECORE_IMF_INPUT_PANEL_STATE_HIDE ||
        strcmp(ev->keyname, BACK_KEY) != 0)
      return EINA_TRUE;
 
-   ecore_imf_context_reset(_active_ctx);
+   ecore_imf_context_reset(active_ctx);
 
-   _input_panel_hide(_active_ctx, EINA_TRUE);
+   _input_panel_hide(active_ctx, EINA_TRUE);
 
    return EINA_FALSE;
 }
@@ -986,8 +994,8 @@ wayland_im_context_del(Ecore_IMF_Context *ctx)
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom, "context_del");
 
    // TIZEN_ONLY(20150708): Support back key
-   if (_active_ctx == ctx)
-     _active_ctx = NULL;
+   if (_focused_ctx == ctx)
+     _focused_ctx = NULL;
 
    if (_hide_req_ctx == ctx && _hide_timer)
       _input_panel_hide(ctx, EINA_TRUE);
@@ -1043,7 +1051,7 @@ wayland_im_context_focus_in(Ecore_IMF_Context *ctx)
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom, "focus-in");
 
    // TIZEN_ONLY(20150708): Support back key
-   _active_ctx = ctx;
+   _focused_ctx = ctx;
    //
 
    set_focus(ctx);
@@ -1063,7 +1071,8 @@ wayland_im_context_focus_out(Ecore_IMF_Context *ctx)
    if (!imcontext->input) return;
 
    // TIZEN_ONLY(20150708): Support back key
-   _active_ctx = NULL;
+   if (ctx == _focused_ctx)
+     _focused_ctx = NULL;
    //
 
    if (imcontext->text_input)

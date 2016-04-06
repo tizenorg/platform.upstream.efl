@@ -8,6 +8,7 @@
 #endif
 
 #include <Eina.h>
+#include <Ecore.h>
 
 #ifdef EAPI
 # undef EAPI

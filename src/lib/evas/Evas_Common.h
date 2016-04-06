@@ -364,6 +364,9 @@ struct _Evas_Native_Surface
       struct
       {
          void *buffer; /**< tbm surface buffer to use @since 1.14 */
+         int   rot; /**< rotation (EVAS_IMAGE_ORIENT_NONE, EVAS_IMAGE_ORIENT_90, EVAS_IMAGE_ORIENT_180, EVAS_IMAGE_ORIENT_270) @since 1.14 */
+         float ratio; /**< width/height ratio of the source image @since 1.14 */
+         int   flip; /**< flip (EVAS_IMAGE_FLIP_HORIZONTAL:horizontal, EVAS_IMAGE_FLIP_VERTICAL:vertical) @since 1.14 */
       } tbm; /**< Set this struct fields if surface data is Tizen based. @since 1.14 */
       struct
       {

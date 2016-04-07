@@ -1491,7 +1491,7 @@ _ecore_wl_input_mouse_move_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, uns
    ev->multi.y = input->sy;
    ev->multi.root.x = input->sx;
    ev->multi.root.y = input->sy;
-   ev->dev = _ecore_wl_input_get_ecore_device(input->last_device_name, ECORE_DEVICE_CLASS_MOUSE);
+   ev->dev = _ecore_wl_input_get_ecore_device(input->last_device_name, input->last_device_class);
 
    if ((down_info = _ecore_wl_mouse_down_info_get(device)))
      {
@@ -1521,7 +1521,7 @@ _ecore_wl_input_mouse_in_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, unsig
    ev->y = input->sy;
    ev->modifiers = input->modifiers;
    ev->timestamp = timestamp;
-   ev->dev = _ecore_wl_input_get_ecore_device(input->last_device_name, ECORE_DEVICE_CLASS_MOUSE);
+   ev->dev = _ecore_wl_input_get_ecore_device(input->last_device_name, input->last_device_class);
 
    if (win)
      {
@@ -1545,7 +1545,7 @@ _ecore_wl_input_mouse_out_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, unsi
    ev->y = input->sy;
    ev->modifiers = input->modifiers;
    ev->timestamp = timestamp;
-   ev->dev = _ecore_wl_input_get_ecore_device(input->last_device_name, ECORE_DEVICE_CLASS_MOUSE);
+   ev->dev = _ecore_wl_input_get_ecore_device(input->last_device_name, input->last_device_class);
 
    if (win)
      {
@@ -1683,7 +1683,7 @@ _ecore_wl_input_mouse_down_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, int
    ev->multi.y = input->sy;
    ev->multi.root.x = input->sx;
    ev->multi.root.y = input->sy;
-   ev->dev = _ecore_wl_input_get_ecore_device(input->last_device_name, ECORE_DEVICE_CLASS_MOUSE);
+   ev->dev = _ecore_wl_input_get_ecore_device(input->last_device_name, input->last_device_class);
 
    if (win)
      {
@@ -1759,7 +1759,7 @@ _ecore_wl_input_mouse_up_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, int d
    ev->multi.angle = 0.0;
    ev->multi.root.x = input->sx;
    ev->multi.root.y = input->sy;
-   ev->dev = _ecore_wl_input_get_ecore_device(input->last_device_name, ECORE_DEVICE_CLASS_MOUSE);
+   ev->dev = _ecore_wl_input_get_ecore_device(input->last_device_name,  input->last_device_class);
 
    if (device < ECORE_WL_TOUCH_MAX)
      {
@@ -1793,7 +1793,7 @@ _ecore_wl_input_mouse_wheel_send(Ecore_Wl_Input *input, unsigned int axis, int v
    ev->y = input->sy;
    /* ev->root.x = input->sx; */
    /* ev->root.y = input->sy; */
-   ev->dev = _ecore_wl_input_get_ecore_device(input->last_device_name, ECORE_DEVICE_CLASS_MOUSE);
+   ev->dev = _ecore_wl_input_get_ecore_device(input->last_device_name,  input->last_device_class);
 
    if (axis == WL_POINTER_AXIS_VERTICAL_SCROLL)
      {
@@ -2119,6 +2119,7 @@ _ecore_wl_input_device_cb_event_device(void *data, struct tizen_input_device *ti
    if (!(dev = data)) return;
    if (!dev->identifier) return;
    eina_stringshare_replace(&input->last_device_name, dev->identifier);
+   input->last_device_class = _ecore_wl_input_cap_to_ecore_device_class(dev->clas);
 
    return;
 }

@@ -52,7 +52,6 @@ typedef struct _Raster_Buffer
 {
    int            width;
    int            height;
-   int            stride;
    DATA32        *buffer;
 } Raster_Buffer;
 

@@ -32,6 +32,11 @@ static const char *conn_types[] =
 static int fb_data_key = 0;
 static Eina_List *fb_list = NULL;
 
+#define ECORE_DRM_FAKE_OUTPUT 1
+#if ECORE_DRM_FAKE_OUTPUT
+static Eina_Bool ecore_drm_fake_output;
+#endif
+
 static Eina_Bool
 _ecore_drm_display_output_mode_set_with_fb(Ecore_Drm_Output *output, Ecore_Drm_Output_Mode *mode, Ecore_Drm_Fb *fb, int x, int y);
 
@@ -388,6 +393,11 @@ _ecore_drm_display_fb_send(Ecore_Drm_Device *dev, Ecore_Drm_Fb *fb, Ecore_Drm_Pa
    EINA_SAFETY_ON_NULL_RETURN(fb);
    EINA_SAFETY_ON_NULL_RETURN(func);
 
+#if ECORE_DRM_FAKE_OUTPUT
+   if (ecore_drm_fake_output)
+     return;
+#endif
+
    if (eina_list_count(dev->outputs) < 1) return;
 
    if (fb->pending_flip) return;
@@ -685,6 +695,174 @@ _ecore_drm_display_output_free(Ecore_Drm_Output *output)
    free(output);
 }
 
+#if ECORE_DRM_FAKE_OUTPUT
+Eina_Bool
+_ecore_drm_display_fake_output_make(Ecore_Drm_Device *dev)
+{
+   Ecore_Drm_Output *output = NULL;
+   Ecore_Drm_Hal_Output *hal_output = NULL;
+   Ecore_Drm_Hal_Display *hal_display = dev->hal_display;
+   tdm_output *tdm_output_obj;
+   tdm_output_conn_status status = TDM_OUTPUT_CONN_STATUS_DISCONNECTED;
+   const char *type;
+   tdm_output_mode *tdm_mode_test = NULL;
+   int i, count;
+   Ecore_Drm_Output_Mode *mode, *current = NULL;
+   Eina_List *l;
+   char temp[TDM_NAME_LEN];
+   const char *maker = NULL, *model = NULL, *name = NULL;
+   unsigned int crtc_id = 0;
+
+   tdm_output_obj = tdm_display_get_output(hal_display->display, crtc_id, NULL);
+   if (!tdm_output_obj) return EINA_FALSE;
+
+   status = TDM_OUTPUT_CONN_STATUS_CONNECTED;
+   if (!(output = calloc(1, sizeof(Ecore_Drm_Output)))) return EINA_FALSE;
+   if (!(hal_output = calloc(1, sizeof(Ecore_Drm_Hal_Output))))
+     goto fail_hal_output;
+
+   output->hal_output = hal_output;
+   hal_output->output = tdm_output_obj;
+
+   tdm_output_get_layer_count(hal_output->output, &count);
+   for (i = 0; i < count; i++)
+   {
+      tdm_layer *layer = tdm_output_get_layer(hal_output->output, i, NULL);
+      tdm_layer_capability capabilities = 0;
+      tdm_layer_get_capabilities(layer, &capabilities);
+      if (capabilities & TDM_LAYER_CAPABILITY_PRIMARY)
+      {
+         hal_output->primary_layer = layer;
+         break;
+      }
+   }
+
+   if (!hal_output->primary_layer)
+     {
+        ERR("couldn't find primary layer");
+        goto fail_primary_layer;
+     }
+
+   output->x = 0;
+   output->y = 0;
+   output->dev = dev;
+   output->cloned = EINA_FALSE;
+   output->phys_width = 700;
+   output->phys_height = 390;
+   output->subpixel = 1;
+
+   tdm_output_get_model_info(hal_output->output, &maker, &model, &name);
+   output->make = eina_stringshare_add(maker);
+   output->model = eina_stringshare_add(model);
+   output->name = eina_stringshare_add(name);
+
+   output->connected = (status > 0);
+   output->enabled = output->connected;
+
+   tdm_output_get_output_type(hal_output->output, &output->conn_type);
+   if (output->conn_type < ALEN(conn_types))
+     type = conn_types[output->conn_type];
+   else
+     type = "UNKNOWN";
+
+   snprintf(temp, sizeof(temp), "%s-%d", type, 0);
+   eina_stringshare_replace(&output->name, temp);
+
+   output->crtc_id = crtc_id;
+   output->pipe = crtc_id;
+   dev->crtc_allocator |= (1 << output->crtc_id);
+   output->conn_id = crtc_id;
+   dev->conn_allocator |= (1 << output->conn_id);
+
+   output->crtc = NULL;
+   output->dpms = NULL;
+
+   tdm_mode_test = calloc(1, sizeof(tdm_output_mode));
+   if (!tdm_mode_test) goto fail_alloc;
+
+   tdm_mode_test->clock = 148500;
+   tdm_mode_test->hdisplay = 1920;
+   tdm_mode_test->hsync_start = 2008;
+   tdm_mode_test->hsync_end = 2052;
+   tdm_mode_test->htotal = 2200;
+   tdm_mode_test->hskew = 1;
+   tdm_mode_test->vdisplay = 1080;
+   tdm_mode_test->vsync_start = 1084;
+   tdm_mode_test->vsync_end = 1089;
+   tdm_mode_test->vtotal = 1125;
+   tdm_mode_test->vscan = 1;
+   tdm_mode_test->vrefresh = 60;
+   tdm_mode_test->flags = TDM_OUTPUT_MODE_FLAG_PHSYNC | TDM_OUTPUT_MODE_FLAG_PVSYNC;
+   tdm_mode_test->type = TDM_OUTPUT_MODE_TYPE_PREFERRED | TDM_OUTPUT_MODE_TYPE_DRIVER;
+   strncpy(tdm_mode_test->name, "1920x1080", TDM_NAME_LEN);
+
+   if (!_ecore_drm_display_output_mode_add(output, tdm_mode_test))
+     goto fail_add_mode;
+
+   EINA_LIST_REVERSE_FOREACH(output->modes, l, mode)
+    {
+       current = mode;
+    }
+
+   output->current_mode = current;
+   if (!output->current_mode) goto fail_current;
+
+   output->current_mode->flags |= TDM_OUTPUT_MODE_TYPE_DEFAULT;
+
+   dev->outputs = eina_list_append(dev->outputs, output);
+
+   /* use one fake output */
+   output->primary = EINA_TRUE;
+
+   DBG("Created New Output At %d,%d", output->x, output->y);
+   DBG("\tCrtc Pos: %d %d", output->x, output->y);
+   DBG("\tCrtc: %d", output->crtc_id);
+   DBG("\tConn: %d", output->conn_id);
+   DBG("\tMake: %s", output->make);
+   DBG("\tModel: %s", output->model);
+   DBG("\tName: %s", output->name);
+   DBG("\tCloned: %d", output->cloned);
+   DBG("\tPrimary: %d", output->primary);
+
+   EINA_LIST_FOREACH(output->modes, l, mode)
+     {
+        DBG("\tAdded Mode: %dx%d@%.1f%s%s%s",
+            mode->width, mode->height, (mode->refresh / 1000.0),
+            (mode->flags & DRM_MODE_TYPE_PREFERRED) ? ", preferred" : "",
+            (mode->flags & DRM_MODE_TYPE_DEFAULT) ? ", current" : "",
+            (count == 0) ? ", built-in" : "");
+     }
+
+   _ecore_drm_output_event_send(output, EINA_TRUE);
+
+   ecore_drm_fake_output = EINA_TRUE;
+
+   free(tdm_mode_test);
+
+   DBG("%s excuted", __func__);
+
+   return EINA_TRUE;
+
+fail_current:
+fail_add_mode:
+   EINA_LIST_FREE(output->modes, mode)
+     free(mode);
+   dev->crtc_allocator &= ~(1 << output->crtc_id);
+   dev->conn_allocator &= ~(1 << output->conn_id);
+   eina_stringshare_del(output->name);
+   eina_stringshare_del(output->model);
+   eina_stringshare_del(output->make);
+   free(tdm_mode_test);
+fail_alloc:
+fail_primary_layer:
+   free(hal_output);
+fail_hal_output:
+   free(output);
+   return EINA_FALSE;
+
+}
+#endif
+
 Eina_Bool
 _ecore_drm_display_outputs_create(Ecore_Drm_Device *dev)
 {
@@ -725,6 +903,11 @@ _ecore_drm_display_outputs_create(Ecore_Drm_Device *dev)
    ret = EINA_TRUE;
    if (eina_list_count(dev->outputs) < 1)
      ret = EINA_FALSE;
+
+#if ECORE_DRM_FAKE_OUTPUT
+   if (ret == EINA_FALSE)
+     ret = _ecore_drm_display_fake_output_make(dev);
+#endif
 
    return ret;
 }
@@ -876,6 +1059,10 @@ _ecore_drm_display_output_mode_set_with_fb(Ecore_Drm_Output *output, Ecore_Drm_O
    Ecore_Drm_Hal_Output *hal_output;
    Eina_Bool ret = EINA_TRUE;
 
+#if ECORE_DRM_FAKE_OUTPUT
+   if (ecore_drm_fake_output)
+     return EINA_TRUE;
+#endif
    EINA_SAFETY_ON_NULL_RETURN_VAL(output, EINA_FALSE);
    EINA_SAFETY_ON_NULL_RETURN_VAL(output->dev, EINA_FALSE);
 

@@ -289,12 +289,10 @@ ecore_drm_display_fb_hal_buffer_create(Ecore_Drm_Fb *fb)
 
    bufmgr = tbm_bufmgr_init(dev->drm.fd);
    EINA_SAFETY_ON_NULL_RETURN_VAL(bufmgr, EINA_FALSE);
-
    bo = tbm_bo_import(bufmgr, arg.name);
-   tbm_bufmgr_deinit(bufmgr);
-
    if (!bo)
      {
+        tbm_bufmgr_deinit(bufmgr);
         ERR("Cannot import (%d)", arg.name);
         return EINA_FALSE;
      }
@@ -310,11 +308,12 @@ ecore_drm_display_fb_hal_buffer_create(Ecore_Drm_Fb *fb)
      {
         ERR("Cannot create hal_buffer");
         tbm_bo_unref(bo);
+        tbm_bufmgr_deinit(bufmgr);
         return EINA_FALSE;
      }
 
    tbm_bo_unref(bo);
-
+   tbm_bufmgr_deinit(bufmgr);
    return EINA_TRUE;
 }
 

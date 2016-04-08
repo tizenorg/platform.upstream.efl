@@ -553,7 +553,8 @@ _ecore_drm_display_output_create(Ecore_Drm_Device *dev, unsigned int crtc_id, in
    tdm_output_get_physical_size(hal_output->output, &mmWidth, &mmHeight);
    output->phys_width = mmWidth;
    output->phys_height = mmHeight;
-   output->subpixel = tdm_output_get_subpixel(hal_output->output, &subpixel);
+   tdm_output_get_subpixel(hal_output->output, &subpixel);
+   output->subpixel = subpixel;
 
    tdm_output_get_model_info(hal_output->output, &maker, &model, &name);
 

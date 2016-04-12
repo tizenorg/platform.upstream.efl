@@ -692,7 +692,6 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
     --enable-gl-drm \
     --enable-egl \
     --with-opengl=es \
-    --enable-tile-rotate \
     --disable-rpath \
     --disable-ibus \
 %endif
@@ -701,7 +700,6 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
     --disable-gesture \
 %else
     --with-x11=none \
-    --enable-tile-rotate \
     --disable-rpath \
 %endif
     --disable-physics \

@@ -2447,15 +2447,16 @@ static void
 eng_ector_renderer_draw(void *data, void *context, void *surface, Ector_Renderer *renderer, Eina_Array *clips EINA_UNUSED, Eina_Bool do_async EINA_UNUSED)
 {
    Evas_GL_Image *glimg = surface;
-   RGBA_Image *img = glimg->im;
    Evas_Engine_GL_Context *gc;
    Render_Engine_GL_Generic *re = data;
    Eina_Array *c;
    Eina_Rectangle *r;
+   int w, h;
+   eng_image_size_get(data, glimg, &w, &h);
 
    //TODO handle, clips properly
    c = eina_array_new(1);
-   eina_array_push(c, eina_rectangle_new(0, 0, img->cache_entry.w, img->cache_entry.h));
+   eina_array_push(c, eina_rectangle_new(0, 0, w, h));
 
    gc = re->window_gl_context_get(re->software.ob);
    gc->dc = context;
@@ -2477,23 +2478,22 @@ eng_ector_surface_create(void *data, void *surface, int width, int height)
    if (!surface)
      {
         surface = eng_image_new_from_copied_data(data, width, height, NULL, EINA_TRUE, EVAS_COLORSPACE_ARGB8888);
+        //Use this hint for ZERO COPY texture upload.
+        eng_image_content_hint_set(data, surface, EVAS_IMAGE_CONTENT_HINT_DYNAMIC);
      }
    else
      {
         int cur_w , cur_h;
         glim = surface;
-        cur_w = glim->im->cache_entry.w;
-        cur_h = glim->im->cache_entry.h;
+        eng_image_size_get(data, glim, &cur_w, &cur_h);
         if (width != cur_w || height != cur_h)
           {
              eng_image_free(data, surface);
              surface =  eng_image_new_from_copied_data(data, width, height, NULL, EINA_TRUE, EVAS_COLORSPACE_ARGB8888);
+             //Use this hint for ZERO COPY texture upload.
+             eng_image_content_hint_set(data, surface, EVAS_IMAGE_CONTENT_HINT_DYNAMIC);
           }
       }
-   // clear the buffer
-   glim = surface;
-   void *pixels = evas_cache_image_pixels(&glim->im->cache_entry);
-   memset(pixels, 0, width * height *4);
    return surface;
 }
 
@@ -2501,12 +2501,15 @@ static void
 eng_ector_begin(void *data EINA_UNUSED, void *context EINA_UNUSED, Ector_Surface *ector,
                 void *surface, int x, int y, Eina_Bool do_async EINA_UNUSED)
 {
-   int w, h;
+   int w, h, stride;
    Evas_GL_Image *glim = surface;
    RGBA_Image *dst = glim->im;
-   w = dst->cache_entry.w;
-   h = dst->cache_entry.h;
+
    void *pixels = evas_cache_image_pixels(&dst->cache_entry);
+   eng_image_stride_get(data, glim, &stride);
+   eng_image_size_get(data, glim, &w, &h);
+   memset(pixels, 0, stride * h);
+
    if (use_cairo)
      {
         eo_do(ector,
@@ -2516,7 +2519,7 @@ eng_ector_begin(void *data EINA_UNUSED, void *context EINA_UNUSED, Ector_Surface
    else
      {
         eo_do(ector,
-              ector_software_surface_set(pixels, w, h),
+              ector_software_surface_set(pixels, w, h, stride),
               ector_surface_reference_point_set(x, y));
      }
 }
@@ -2524,6 +2527,19 @@ eng_ector_begin(void *data EINA_UNUSED, void *context EINA_UNUSED, Ector_Surface
 static void
 eng_ector_end(void *data EINA_UNUSED, void *context EINA_UNUSED, Ector_Surface *ector, void *surface EINA_UNUSED, Eina_Bool do_async EINA_UNUSED)
 {
+   void *pixels = NULL;
+   if (use_cairo)
+     {
+        eo_do(ector,
+        ector_cairo_software_surface_get(&pixels, NULL, NULL));
+     }
+   else
+     {
+        eo_do(ector,
+        ector_software_surface_get(&pixels, NULL, NULL, NULL));
+     }
+   eng_image_data_put(data, surface, pixels);
+
    if (use_cairo)
      {
         eo_do(ector,
@@ -2532,7 +2548,7 @@ eng_ector_end(void *data EINA_UNUSED, void *context EINA_UNUSED, Ector_Surface *
    else
      {
         eo_do(ector,
-              ector_software_surface_set(NULL, 0, 0));
+              ector_software_surface_set(NULL, 0, 0, 0));
      }
 }
 

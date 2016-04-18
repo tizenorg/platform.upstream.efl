@@ -682,6 +682,7 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
     --with-glib=always \
     --disable-xim \
     --disable-scim \
+    --disable-wayland-text-input \
     --disable-gesture \
     --with-tests=regular \
     --enable-fb \
@@ -959,7 +960,7 @@ install -m 0644 %SOURCE100 %{buildroot}%{_tmpfilesdir}/efl.conf
 %{_libdir}/ecore_x/*/*/*
 %endif
 %{_libdir}/ecore_evas/engines/*/*/module.so
-%{_libdir}/ecore_imf/modules/*/*/module.so
+#%{_libdir}/ecore_imf/modules/*/*/module.so
 %{_libdir}/ecore/system/systemd/v-*/module.so
 %{_libdir}/ecore_buffer/modules/*/*/module.so
 %{_datadir}/ecore/checkme

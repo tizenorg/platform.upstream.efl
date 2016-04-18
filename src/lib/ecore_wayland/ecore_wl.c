@@ -4,6 +4,8 @@
 
 #include <assert.h>
 #include <fcntl.h>
+#include "Ecore.h"
+#include "ecore_private.h"
 #include "ecore_wl_private.h"
 
 /*
@@ -27,6 +29,7 @@ static int _ecore_wl_shutdown(Eina_Bool close);
 static Eina_Bool _ecore_wl_cb_idle_enterer(void *data);
 static Eina_Bool _ecore_wl_cb_handle_data(void *data, Ecore_Fd_Handler *hdl);
 static void _ecore_wl_cb_pre_handle_data(void *data, Ecore_Fd_Handler *hdl);
+static void _ecore_wl_cb_awake(void *data);
 static void _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned int id, const char *interface, unsigned int version EINA_UNUSED);
 static void _ecore_wl_cb_handle_global_remove(void *data, struct wl_registry *registry EINA_UNUSED, unsigned int id);
 static Eina_Bool _ecore_wl_xkb_init(Ecore_Wl_Display *ewd);
@@ -283,6 +286,8 @@ ecore_wl_init(const char *name)
    ecore_main_fd_handler_prepare_callback_set(_ecore_wl_disp->fd_hdl,
                                               _ecore_wl_cb_pre_handle_data,
                                               _ecore_wl_disp);
+
+   ecore_main_awake_handler_add(_ecore_wl_cb_awake, _ecore_wl_disp);
 
    _ecore_wl_disp->idle_enterer =
      ecore_idle_enterer_add(_ecore_wl_cb_idle_enterer, _ecore_wl_disp);
@@ -606,6 +611,7 @@ _ecore_wl_shutdown(Eina_Bool close)
    _ecore_wl_events_shutdown();
    _ecore_wl_window_shutdown();
 
+   ecore_main_awake_handler_del(_ecore_wl_cb_awake);
    if (_ecore_wl_disp->fd_hdl)
      ecore_main_fd_handler_del(_ecore_wl_disp->fd_hdl);
    if (_ecore_wl_disp->idle_enterer)
@@ -775,8 +781,11 @@ _ecore_wl_cb_handle_data(void *data, Ecore_Fd_Handler *hdl)
    return ECORE_CALLBACK_RENEW;
 
 cancel_read:
-   wl_display_cancel_read(ewd->wl.display);
-   ewd->wl.prepare_read = EINA_FALSE;
+   if (ewd->wl.prepare_read)
+     {
+        wl_display_cancel_read(ewd->wl.display);
+        ewd->wl.prepare_read = EINA_FALSE;
+     }
 
    return ECORE_CALLBACK_CANCEL;
 }
@@ -809,6 +818,22 @@ _cb_global_event_free(void *data EINA_UNUSED, void *event)
    ev = event;
    eina_stringshare_del(ev->interface);
    free(ev);
+}
+
+static void
+_ecore_wl_cb_awake(void *data)
+{
+   Ecore_Wl_Display *ewd;
+   Ecore_Fd_Handler_Flags flags = ECORE_FD_READ|ECORE_FD_WRITE|ECORE_FD_ERROR;
+
+   if (_ecore_wl_fatal_error) return;
+   if (!(ewd = data)) return;
+   if (!ewd->wl.prepare_read) return;
+   if (ecore_main_fd_handler_active_get(_ecore_wl_disp->fd_hdl, flags))
+     return;
+
+   wl_display_cancel_read(ewd->wl.display);
+   ewd->wl.prepare_read = EINA_FALSE;
 }
 
 static void

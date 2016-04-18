@@ -204,6 +204,16 @@ int         _ecore_pipe_wait(Ecore_Pipe *p,
                              double wait);
 void       *_ecore_pipe_del(Ecore_Pipe *p);
 
+typedef struct _Ecore_Awake_Handler
+{
+   EINA_INLIST;
+   Ecore_Awake_Cb func;
+   void                *data;
+} Ecore_Awake_Handler;
+
+void _ecore_main_awake_handler_call(void);
+int _ecore_main_fdh_mark_active(fd_set *rfds, fd_set *wfds, fd_set *exfds);
+
 Ecore_Fd_Handler *
            _ecore_main_fd_handler_add(int fd,
                                       Ecore_Fd_Handler_Flags flags,

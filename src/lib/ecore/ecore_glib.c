@@ -168,6 +168,9 @@ _ecore_glib_select__locked(GMainContext   *ctx,
    maxfds = (ecore_fds >= glib_fds) ? ecore_fds : glib_fds;
    ret = _ecore_glib_select_original(maxfds, rfds, wfds, efds, timeout);
 
+   _ecore_main_fdh_mark_active(rfds, wfds, efds);
+   _ecore_main_awake_handler_call();
+
    ret = _ecore_glib_context_poll_to
        (_ecore_glib_fds, reqfds, rfds, wfds, efds, ret);
 

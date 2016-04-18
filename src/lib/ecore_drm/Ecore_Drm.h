@@ -644,6 +644,7 @@ EAPI unsigned int ecore_drm_output_crtc_buffer_get(Ecore_Drm_Output *output);
 EAPI unsigned int ecore_drm_output_connector_id_get(Ecore_Drm_Output *output);
 
 /* TODO: Doxy */
+EAPI Eina_Bool ecore_drm_inputs_devices_create(Ecore_Drm_Device *dev);
 EAPI Eina_Bool ecore_drm_inputs_create(Ecore_Drm_Device *dev);
 EAPI void ecore_drm_inputs_destroy(Ecore_Drm_Device *dev);
 EAPI Eina_Bool ecore_drm_inputs_enable(Ecore_Drm_Input *input);

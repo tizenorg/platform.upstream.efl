@@ -567,6 +567,13 @@ _ecore_evas_drm_init(const char *device)
      }
 
    /* try to create inputs */
+   if (!ecore_drm_inputs_devices_create(dev))
+     {
+        ERR("Could not create inputs from path: %m");
+        goto input_err;
+     }
+
+   /* try to create inputs */
    if (!ecore_drm_inputs_create(dev))
      {
         ERR("Could not create inputs: %m");

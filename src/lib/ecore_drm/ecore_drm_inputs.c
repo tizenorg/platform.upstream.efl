@@ -513,6 +513,96 @@ err:
    return EINA_FALSE;
 }
 
+EAPI Eina_Bool
+ecore_drm_inputs_devices_create(Ecore_Drm_Device *dev)
+{
+   Ecore_Drm_Input *input;
+   struct libinput_device *device;
+   int devices_num;
+   char *env;
+   Eina_Stringshare *path;
+
+   /* check for valid device */
+   EINA_SAFETY_ON_NULL_RETURN_VAL(dev, EINA_FALSE);
+
+   TRACE_INPUT_BEGIN(ecore_drm_inputs_devices_create);
+   TRACE_EFL_BEGIN(DRM INPUTS DEVICES CREATE);
+
+   if ((env = getenv("PATH_DEVICES_NUM")))
+     devices_num = atoi(env);
+   if (!env || devices_num == 0)
+     {
+        TRACE_INPUT_END();
+        TRACE_EFL_END();
+        return EINA_TRUE;
+     }
+
+   INF("PATH_DEVICES_NUM : %d", devices_num);
+
+   /* try to allocate space for new input structure */
+   if (!(input = calloc(1, sizeof(Ecore_Drm_Input))))
+     {
+        TRACE_INPUT_END();
+        TRACE_EFL_END();
+        return EINA_FALSE;
+     }
+
+   /* set reference for parent device */
+   input->dev = dev;
+
+   /* try to create libinput context */
+   input->libinput =
+     libinput_path_create_context(&_input_interface, input);
+   if (!input->libinput)
+     {
+        ERR("Could not create libinput path context: %m");
+        goto err;
+     }
+
+   /* set libinput log priority */
+   libinput_log_set_priority(input->libinput, LIBINPUT_LOG_PRIORITY_INFO);
+
+   for (int i = 0; i < devices_num; i++)
+     {
+        char buf[1024] = "PATH_DEVICE_";
+        eina_convert_itoa(i + 1, buf + 12);
+        env = getenv(buf);
+        if (env)
+          {
+             path = eina_stringshare_add(env);
+             device = libinput_path_add_device(input->libinput, path);
+             if (!device)
+               ERR("Failed to initialized device %s", path);
+             else
+               INF("libinput_path created input device %s", path);
+          }
+     }
+
+   /* process pending events */
+   _input_events_process(input);
+
+   /* enable this input */
+   if (!ecore_drm_inputs_enable(input))
+     {
+        ERR("Failed to enable input");
+        goto err;
+     }
+
+   /* append this input */
+   dev->inputs = eina_list_append(dev->inputs, input);
+
+   TRACE_EFL_END();
+   TRACE_INPUT_END();
+   return EINA_TRUE;
+
+err:
+   if (input->libinput) libinput_unref(input->libinput);
+   free(input);
+   TRACE_EFL_END();
+   TRACE_INPUT_END();
+   return EINA_FALSE;
+}
+
 EAPI void 
 ecore_drm_inputs_destroy(Ecore_Drm_Device *dev)
 {

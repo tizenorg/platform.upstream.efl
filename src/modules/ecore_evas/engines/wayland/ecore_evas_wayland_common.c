@@ -360,14 +360,6 @@ _ecore_evas_wl_common_cb_window_rotate(void *data EINA_UNUSED, int type EINA_UNU
 
    wdata->wm_rot.done = 1;
 
-   /* Fixme: rotation done send move to render flush */
-   if (!ee->prop.wm_rot.manual_mode.set)
-     {
-        wdata->wm_rot.request = 0;
-        wdata->wm_rot.done = 0;
-        ecore_wl_window_rotation_change_done_send(wdata->win);
-     }
-
    return ECORE_CALLBACK_PASS_ON;
 }
 
@@ -1629,6 +1621,22 @@ _ecore_evas_wl_common_render_flush_pre(void *data, Evas *evas EINA_UNUSED, void 
      wl_surface_frame(ecore_wl_window_surface_get(wdata->win));
    wl_callback_add_listener(wdata->anim_callback, &_anim_listener, ee);
    ecore_evas_manual_render_set(ee, 1);
+}
+
+void
+_ecore_evas_wl_common_render_flush_post(void *data, Evas *evas EINA_UNUSED, void *event EINA_UNUSED)
+{
+   Ecore_Evas *ee = data;
+   Ecore_Evas_Engine_Wl_Data *wdata;
+
+   wdata = ee->engine.data;
+   if ((wdata) && (wdata->wm_rot.done) &&
+       (!ee->prop.wm_rot.manual_mode.set))
+     {
+        wdata->wm_rot.request = 0;
+        wdata->wm_rot.done = 0;
+        ecore_wl_window_rotation_change_done_send(wdata->win);
+     }
 }
 
 void 

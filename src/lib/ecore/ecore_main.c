@@ -254,6 +254,7 @@ Ecore_Select_Function main_loop_select = NULL;
 # endif
 #endif
 
+static Eina_Bool need_fdh_mark_active = EINA_FALSE;
 static Eina_List *awake_funcs = NULL;
 
 #ifndef USE_G_MAIN_LOOP
@@ -520,6 +521,8 @@ _ecore_main_fdh_mark_active(fd_set *rfds, fd_set *wfds, fd_set *exfds)
    Ecore_Fd_Handler *fdh;
    Eina_List *l;
    int ret = 0;
+
+   need_fdh_mark_active = EINA_FALSE;
 
    if (HAVE_EPOLL && epoll_fd >= 0)
      ret = _ecore_main_fdh_epoll_mark_active();
@@ -1578,6 +1581,8 @@ _ecore_main_select(double timeout)
        }
    if (_ecore_signal_count_get()) return -1;
 
+   need_fdh_mark_active = EINA_TRUE;
+
    _ecore_unlock();
    eina_evlog("!SLEEP", NULL, 0.0, t ? "timeout" : "forever");
    ret = main_loop_select(max_fd + 1, &rfds, &wfds, &exfds, t);
@@ -1595,46 +1600,15 @@ _ecore_main_select(double timeout)
      }
    if (ret > 0)
      {
-#ifndef HAVE_GLIB
-        if (HAVE_EPOLL && epoll_fd >= 0)
-          _ecore_main_fdh_epoll_mark_active();
-        else
+        if (need_fdh_mark_active)
           {
-             EINA_INLIST_FOREACH(fd_handlers, fdh)
-               {
-                  if (!fdh->delete_me)
-                    {
-                       if (FD_ISSET(fdh->fd, &rfds))
-                         fdh->read_active = EINA_TRUE;
-                       if (FD_ISSET(fdh->fd, &wfds))
-                         fdh->write_active = EINA_TRUE;
-                       if (FD_ISSET(fdh->fd, &exfds))
-                         fdh->error_active = EINA_TRUE;
-                       _ecore_try_add_to_call_list(fdh);
-                    }
-               }
+             _ecore_main_fdh_mark_active(&rfds, &wfds, &exfds);
+             _ecore_main_awake_handler_call();
           }
-        EINA_LIST_FOREACH(file_fd_handlers, l, fdh)
-          {
-             if (!fdh->delete_me)
-               {
-                  if (FD_ISSET(fdh->fd, &rfds))
-                    fdh->read_active = EINA_TRUE;
-                  if (FD_ISSET(fdh->fd, &wfds))
-                    fdh->write_active = EINA_TRUE;
-                  if (FD_ISSET(fdh->fd, &exfds))
-                    fdh->error_active = EINA_TRUE;
-                  _ecore_try_add_to_call_list(fdh);
-               }
-          }
-#endif
+
         _ecore_main_fd_handlers_cleanup();
 #ifdef _WIN32
         _ecore_main_win32_handlers_cleanup();
-#endif
-
-#ifndef HAVE_GLIB
-        _ecore_main_awake_handler_call();
 #endif
 
         return 1;

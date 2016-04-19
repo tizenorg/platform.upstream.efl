@@ -1685,6 +1685,10 @@ eng_image_native_set(void *data, void *image, void *native)
                img->native.func.free   = _native_cb_free;
                img->native.target      = GL_TEXTURE_EXTERNAL_OES;
                img->native.mipmap      = 0;
+               img->native.rot         = ns->data.tbm.rot;
+               img->native.ratio       = ns->data.tbm.ratio;
+               img->native.flip        = ns->data.tbm.flip;
+
                glsym_evas_gl_common_image_native_enable(img);
              }
          }

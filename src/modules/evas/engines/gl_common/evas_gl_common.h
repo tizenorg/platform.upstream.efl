@@ -430,6 +430,9 @@ struct _Evas_GL_Image
       int           yinvert;
       int           target;
       int           mipmap;
+      int           rot;
+      float         ratio;
+      int           flip;
       unsigned char loose : 1;
    } native;
 

@@ -229,7 +229,7 @@ _ecore_mouse_move(unsigned int timestamp,
    Ecore_Event_Mouse_Move *e;
    Ecore_Event *event;
 
-   e = malloc(sizeof(Ecore_Event_Mouse_Move));
+   e = calloc(1, sizeof(Ecore_Event_Mouse_Move));
    if (!e)
      return;
 
@@ -290,7 +290,7 @@ _ecore_x_axis_update(Ecore_Window window,
    Ecore_Event_Axis_Update *e;
    int i;
 
-   e = malloc(sizeof(Ecore_Event_Axis_Update));
+   e = calloc(1, sizeof(Ecore_Event_Axis_Update));
    if (!e)
      {
         if (axis) free(axis);
@@ -428,7 +428,7 @@ _ecore_mouse_button(int event,
 {
    Ecore_Event_Mouse_Button *e;
 
-   e = malloc(sizeof(Ecore_Event_Mouse_Button));
+   e = calloc(1, sizeof(Ecore_Event_Mouse_Button));
    if (!e)
      return NULL;
 
@@ -596,7 +596,7 @@ _ecore_x_event_handle_button_press(XEvent *xevent)
      {
         Ecore_Event_Mouse_Wheel *e;
 
-        e = malloc(sizeof(Ecore_Event_Mouse_Wheel));
+        e = calloc(1, sizeof(Ecore_Event_Mouse_Wheel));
         if (!e)
           return;
 

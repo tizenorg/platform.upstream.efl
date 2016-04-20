@@ -360,6 +360,19 @@ ecore_drm_device_open(Ecore_Drm_Device *dev)
         /* If not set, use a tdm display fd instead of a drm master fd. */
         dev->drm.fd = _ecore_drm_display_get_fd(dev);
      }
+   else
+     {
+        char *hal_device_name = drmGetDeviceNameFromFd(dev->drm.fd);
+
+        if (hal_device_name)
+          {
+             if (dev->drm.name)
+               eina_stringshare_del(dev->drm.name);
+
+             dev->drm.name = eina_stringshare_add(hal_device_name);
+             free(hal_device_name);
+          }
+     }
 
    /* try to create xkb context */
    if (!(dev->xkb_ctx = _ecore_drm_device_cached_context_get(0)))

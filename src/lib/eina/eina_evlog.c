@@ -24,6 +24,10 @@
 #include "eina_evlog.h"
 #include "eina_debug.h"
 
+#ifdef ENABLE_TTRACE
+#include <ttrace.h>
+#endif
+
 #ifdef EINA_HAVE_DEBUG
 
 #ifdef HAVE_EVIL
@@ -172,6 +176,16 @@ eina_evlog(const char *event, void *obj, double srctime, const char *detail)
    if (detail_offset > 0) strcpy(strings + detail_offset, detail);
 
    eina_spinlock_release(&_evlog_lock);
+
+// TIZEN_ONLY(160401): TTRACE
+#ifdef ENABLE_TTRACE
+   if(!strncmp(event, "+", 1))
+     traceBegin(TTRACE_TAG_GRAPHICS, event + 1);
+   else if(!strncmp(event, "-", 1))
+     traceEnd(TTRACE_TAG_GRAPHICS);
+#endif
+// TIZEN_ONLY(160401): TTRACE
+
 }
 
 EAPI Eina_Evlog_Buf *
@@ -245,6 +259,14 @@ eina_evlog_shutdown(void)
 EAPI void
 eina_evlog(const char *event EINA_UNUSED, void *obj EINA_UNUSED, double srctime EINA_UNUSED, const char *detail EINA_UNUSED)
 {
+// TIZEN_ONLY(160401): TTRACE
+#ifdef ENABLE_TTRACE
+   if(!strncmp(event, "+", 1))
+     traceBegin(TTRACE_TAG_GRAPHICS, event + 1);
+   else if(!strncmp(event, "-", 1))
+     traceEnd(TTRACE_TAG_GRAPHICS);
+#endif
+// TIZEN_ONLY(160401): TTRACE
 }
 
 EAPI Eina_Evlog_Buf *

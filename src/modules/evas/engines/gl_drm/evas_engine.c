@@ -666,8 +666,22 @@ _native_cb_bind(void *data EINA_UNUSED, void *image)
 
           }
      }
-
-   /* TODO: NATIVE_SURFACE_TBM */
+  else if (n->ns.type == EVAS_NATIVE_SURFACE_TBM)
+    {
+#ifdef GL_GLES
+      if (n->ns_data.tbm.surface)
+        {
+           if (glsym_glEGLImageTargetTexture2DOES)
+              {
+                glsym_glEGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, n->ns_data.tbm.surface);
+                if (eglGetError() != EGL_SUCCESS)
+                  ERR("glEGLImageTargetTexture2DOES() failed.");
+              }
+            else
+              ERR("Try glEGLImageTargetTexture2DOES on EGL with no support");
+        }
+#endif
+    }
 }
 
 static void
@@ -691,8 +705,10 @@ _native_cb_unbind(void *data EINA_UNUSED, void *image)
      {
         // nothing
      }
-
-   /* TODO: NATIVE_SURFACE_TBM */
+  else if (n->ns.type == EVAS_NATIVE_SURFACE_TBM)
+    {
+      // nothing
+    }
 }
 
 static void
@@ -735,6 +751,27 @@ _native_cb_free(void *data, void *image)
      {
         eina_hash_del(ob->gl_context->shared->native_evasgl_hash, &n->ns.data.evasgl.surface, img);
      }
+  else if (n->ns.type == EVAS_NATIVE_SURFACE_TBM)
+    {
+       eina_hash_del(ob->gl_context->shared->native_tbm_hash, &n->ns_data.tbm.buffer, img);
+#ifdef GL_GLES
+      if (n->ns_data.tbm.surface)
+        {
+           int err;
+           if (glsym_eglDestroyImage)
+             {
+                glsym_eglDestroyImage(ob->egl.disp,
+                                      n->ns_data.tbm.surface);
+                if ((err = eglGetError()) != EGL_SUCCESS)
+                  {
+                     ERR("eglDestroyImage() failed.");
+                  }
+             }
+           else
+              ERR("Try eglDestroyImage on EGL with no support");
+        }
+#endif
+    }   
 
    img->native.data = NULL;
    img->native.func.data = NULL;
@@ -1153,6 +1190,16 @@ eng_image_native_set(void *data, void *image, void *native)
                     return img;
                }
           }
+       else if (ns->type == EVAS_NATIVE_SURFACE_TBM)
+         {
+            buffer = ns->data.tbm.buffer;
+            if (img->native.data)
+              {
+                 Evas_Native_Surface *ens = img->native.data;
+                 if (ens->data.tbm.buffer == buffer)
+                   return img;
+              }
+         }
      }
 
    if ((!ns) && (!img->native.data)) return img;
@@ -1212,6 +1259,21 @@ eng_image_native_set(void *data, void *image, void *native)
                }
           }
      }
+  else if (ns->type == EVAS_NATIVE_SURFACE_TBM)
+    {
+       img2 = eina_hash_find(ob->gl_context->shared->native_tbm_hash, &buffer);
+       if (img2 == img) return img;
+       if (img2)
+         {
+            n = img2->native.data;
+            if (n)
+             {
+                glsym_evas_gl_common_image_ref(img2);
+                glsym_evas_gl_common_image_free(img);
+                return img2;
+             }
+        }
+    }
 
    img2 = glsym_evas_gl_common_image_new_from_data(ob->gl_context, img->w,
                                                    img->h, NULL, img->alpha,
@@ -1346,9 +1408,47 @@ eng_image_native_set(void *data, void *image, void *native)
                }
           }
      }
+  else if (ns->type == EVAS_NATIVE_SURFACE_TBM)
+    {
+#ifdef GL_GLES
+       if (native)
+         {
+           n = calloc(1, sizeof(Native));
+           if (n)
+             {
+               eina_hash_add(eng_get_ob(re)->gl_context->shared->native_tbm_hash, &buffer, img);
 
-   /* TODO: NATIVE_SURFACE_TBM */
+               memcpy(&(n->ns), ns, sizeof(Evas_Native_Surface));
+               n->ns_data.tbm.buffer = buffer;
 
+               if (glsym_eglCreateImage)
+                 n->ns_data.tbm.surface = glsym_eglCreateImage(ob->egl.disp,
+                                                               EGL_NO_CONTEXT,
+                                                               EGL_NATIVE_SURFACE_TIZEN,
+                                                               (void *)buffer,
+                                                               NULL);
+               else
+                 ERR("Try eglCreateImage on EGL with no support");
+               if (!n->ns_data.tbm.surface)
+                 ERR("eglCreateImage() for %p failed", buffer);
+               img->native.yinvert     = 1;
+               img->native.loose       = 0;
+               img->native.data        = n;
+               img->native.func.data   = re;
+               img->native.func.bind   = _native_cb_bind;
+               img->native.func.unbind = _native_cb_unbind;
+               img->native.func.free   = _native_cb_free;
+               img->native.target      = GL_TEXTURE_EXTERNAL_OES;
+               img->native.mipmap      = 0;
+               img->native.rot         = ns->data.tbm.rot;
+               img->native.ratio       = ns->data.tbm.ratio;
+               img->native.flip        = ns->data.tbm.flip;
+
+               glsym_evas_gl_common_image_native_enable(img);
+             }
+         }
+#endif
+    }
    return img;
 }
 

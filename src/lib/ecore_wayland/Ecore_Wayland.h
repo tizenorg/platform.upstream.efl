@@ -1240,6 +1240,8 @@ EAPI void ecore_wl_window_aux_hint_add(Ecore_Wl_Window *win, int id, const char 
 EAPI void ecore_wl_window_aux_hint_change(Ecore_Wl_Window *win, int id, const char *val);
 EAPI void ecore_wl_window_aux_hint_del(Ecore_Wl_Window *win, int id);
 
+EAPI void ecore_wl_window_floating_mode_set(Ecore_Wl_Window *win, Eina_Bool floating);
+
 #ifdef __cplusplus
 }
 #endif

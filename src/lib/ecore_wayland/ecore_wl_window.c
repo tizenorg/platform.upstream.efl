@@ -207,6 +207,12 @@ _ecore_wl_window_shell_surface_init(Ecore_Wl_Window *win)
              if (win->surface)
                tizen_policy_unset_focus_skip(_ecore_wl_disp->wl.tz_policy, win->surface);
           }
+        if (win->floating)
+          {
+             if (win->floating)
+               tizen_policy_set_floating_mode(_ecore_wl_disp->wl.tz_policy,
+                                              win->surface);
+          }
      }
    if ((!win->tz_rot.resource) && (_ecore_wl_disp->wl.tz_policy_ext))
      {
@@ -2047,4 +2053,22 @@ ecore_wl_window_aux_hint_del(Ecore_Wl_Window *win, int id)
    if (!win) return;
    if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
      tizen_policy_del_aux_hint(_ecore_wl_disp->wl.tz_policy, win->surface, id);
+}
+
+EAPI void
+ecore_wl_window_floating_mode_set(Ecore_Wl_Window *win, Eina_Bool floating)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return;
+
+   win->floating = floating;
+   if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
+     {
+        if (floating)
+          tizen_policy_set_floating_mode(_ecore_wl_disp->wl.tz_policy,
+                                         win->surface);
+        else
+          tizen_policy_unset_floating_mode(_ecore_wl_disp->wl.tz_policy,
+                                           win->surface);
+     }
 }

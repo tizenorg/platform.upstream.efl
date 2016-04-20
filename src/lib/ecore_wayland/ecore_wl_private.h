@@ -166,6 +166,7 @@ struct _Ecore_Wl_Window
    Eina_Bool minimized : 1;
    Eina_Bool focus_skip : 1;
    Eina_Bool iconified : 1;
+   Eina_Bool floating : 1;
 
    struct
      {

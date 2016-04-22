@@ -2607,11 +2607,20 @@ _alpha_do(Ecore_Evas *ee, int alpha)
    evas_damage_rectangle_add(ee->evas, 0, 0, ee->req.w, ee->req.h);
    ecore_x_window_shape_mask_set(ee->prop.window, 0);
    ecore_x_input_multi_select(ee->prop.window);
+#if 0
    ecore_event_window_register(ee->prop.window, ee, ee->evas,
                                (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process,
                                (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
                                (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
                                (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+#endif
+   // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+   ecore_event_window_register_with_multi(ee->prop.window, ee, ee->evas,
+                                         (Ecore_Event_Mouse_Move_With_Multi_Cb)_ecore_evas_mouse_move_with_multi_info_process,
+                                         (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
+                                         (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
+                                         (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+   //
    if (ee->prop.borderless)
      ecore_x_mwm_borderless_set(ee->prop.window, ee->prop.borderless);
    if (ee->visible || ee->should_be_visible)
@@ -2761,11 +2770,20 @@ _ecore_evas_x_alpha_set(Ecore_Evas *ee, int alpha)
         evas_damage_rectangle_add(ee->evas, 0, 0, ee->req.w, ee->req.h);
 //        ecore_x_window_shape_mask_set(ee->prop.window, 0);
         ecore_x_input_multi_select(ee->prop.window);
+#if 0
         ecore_event_window_register(ee->prop.window, ee, ee->evas,
                                     (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process,
                                     (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
                                     (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
                                     (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+#endif
+        // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+        ecore_event_window_register_with_multi(ee->prop.window, ee, ee->evas,
+                                              (Ecore_Event_Mouse_Move_With_Multi_Cb)_ecore_evas_mouse_move_with_multi_info_process,
+                                              (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
+                                              (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
+                                              (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+        //
         if (ee->prop.borderless)
           ecore_x_mwm_borderless_set(ee->prop.window, ee->prop.borderless);
         if (ee->visible || ee->should_be_visible)
@@ -4086,11 +4104,20 @@ ecore_evas_software_x11_new_internal(const char *disp_name, Ecore_X_Window paren
    ee->engine.func->fn_render = _ecore_evas_x_render;
    _ecore_evas_register(ee);
    ecore_x_input_multi_select(ee->prop.window);
+#if 0
    ecore_event_window_register(ee->prop.window, ee, ee->evas,
                                (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process,
                                (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
                                (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
                                (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+#endif
+   // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+   ecore_event_window_register_with_multi(ee->prop.window, ee, ee->evas,
+                                         (Ecore_Event_Mouse_Move_With_Multi_Cb)_ecore_evas_mouse_move_with_multi_info_process,
+                                         (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
+                                         (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
+                                         (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+   //
    return ee;
 }
 
@@ -4403,11 +4430,20 @@ _ecore_evas_software_x11_extra_event_window_add(Ecore_Evas *ee, Ecore_X_Window w
         *winp = win;
         edata->win_extra = eina_list_append(edata->win_extra, winp);
         ecore_x_input_multi_select(win);
+#if 0
         ecore_event_window_register(win, ee, ee->evas,
                                     (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process,
                                     (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
                                     (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
                                     (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+#endif
+        // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+        ecore_event_window_register_with_multi(win, ee, ee->evas,
+                                              (Ecore_Event_Mouse_Move_With_Multi_Cb)_ecore_evas_mouse_move_with_multi_info_process,
+                                              (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
+                                              (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
+                                              (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+        //
      }
 }
 #endif
@@ -4537,11 +4573,20 @@ ecore_evas_gl_x11_options_new_internal(const char *disp_name, Ecore_X_Window par
    ee->engine.func->fn_render = _ecore_evas_x_render;
    _ecore_evas_register(ee);
    ecore_x_input_multi_select(ee->prop.window);
+#if 0
    ecore_event_window_register(ee->prop.window, ee, ee->evas,
                                (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process,
                                (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
                                (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
                                (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+#endif
+   // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+   ecore_event_window_register_with_multi(ee->prop.window, ee, ee->evas,
+                                         (Ecore_Event_Mouse_Move_With_Multi_Cb)_ecore_evas_mouse_move_with_multi_info_process,
+                                         (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
+                                         (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
+                                         (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+   //
 
    return ee;
 }

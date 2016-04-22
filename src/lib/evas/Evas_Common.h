@@ -517,6 +517,11 @@ struct _Evas_Event_Mouse_Down /** Mouse button press event */
    Evas_Event_Flags  event_flags;
    Evas_Device      *dev;
    Evas_Object      *event_src; /**< The Evas Object which actually triggered the event, used in cases of proxy event propagation */
+   // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+   double            radius;
+   double            radius_x, radius_y;
+   double            pressure, angle;
+   //
 };
 
 struct _Evas_Event_Mouse_Up /** Mouse button release event */
@@ -535,6 +540,11 @@ struct _Evas_Event_Mouse_Up /** Mouse button release event */
    Evas_Event_Flags  event_flags;
    Evas_Device      *dev;
    Evas_Object     *event_src; /**< The Evas Object which actually triggered the event, used in cases of proxy event propagation */
+   // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+   double            radius;
+   double            radius_x, radius_y;
+   double            pressure, angle;
+   //
 };
 
 struct _Evas_Event_Mouse_In /** Mouse enter event */
@@ -583,6 +593,11 @@ struct _Evas_Event_Mouse_Move /** Mouse move event */
    Evas_Event_Flags event_flags;
    Evas_Device     *dev;
    Evas_Object     *event_src; /**< The Evas Object which actually triggered the event, used in cases of proxy event propagation */
+   // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+   double            radius;
+   double            radius_x, radius_y;
+   double            pressure, angle;
+   //
 };
 
 struct _Evas_Event_Mouse_Wheel /** Wheel event */

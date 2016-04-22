@@ -373,6 +373,10 @@ EAPI void _ecore_evas_register(Ecore_Evas *ee);
 EAPI void _ecore_evas_free(Ecore_Evas *ee);
 EAPI void _ecore_evas_idle_timeout_update(Ecore_Evas *ee);
 EAPI void _ecore_evas_mouse_move_process(Ecore_Evas *ee, int x, int y, unsigned int timestamp);
+// TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+EAPI void _ecore_evas_mouse_move_with_multi_info_process(Ecore_Evas *ee, int x, int y, unsigned int timestamp,
+                                                    double radius, double radius_x, double radius_y, double pressure, double angle);
+//
 EAPI void _ecore_evas_mouse_multi_move_process(Ecore_Evas *ee, int device,
                                           int x, int y,
                                           double radius,

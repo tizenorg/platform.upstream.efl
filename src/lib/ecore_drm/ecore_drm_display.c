@@ -103,21 +103,18 @@ _ecore_drm_display_init(Ecore_Drm_Device *dev)
    EINA_SAFETY_ON_NULL_RETURN_VAL(hal_display, EINA_FALSE);
 
    hal_display->display = tdm_display_init(NULL);
-   if (!hal_display->display)
-     goto fail_init;
+   EINA_SAFETY_ON_NULL_GOTO(hal_display->display, fail_init);
 
    hal_display->fd = -1;
    tdm_display_get_fd(hal_display->display, &fd);
-   if (fd < 0)
-     goto fail_fd;
+   EINA_SAFETY_ON_FALSE_GOTO(fd >= 0, fail_fd);
 
    hal_display->fd = dup(fd);
 
    hal_display->hdlr =
      ecore_main_fd_handler_add(hal_display->fd, ECORE_FD_READ,
                                _ecore_drm_display_cb_event, hal_display, NULL, NULL);
-   if (!hal_display->hdlr)
-     goto fail_hdlr;
+   EINA_SAFETY_ON_NULL_GOTO(hal_display->hdlr, fail_hdlr);
 
    dev->hal_display = hal_display;
 
@@ -436,11 +433,17 @@ _ecore_drm_display_fb_send(Ecore_Drm_Device *dev, Ecore_Drm_Fb *fb, Ecore_Drm_Pa
 
         tdm_buffer = fb->hal_buffer;
 
-        tdm_layer_set_buffer(hal_output->primary_layer, tdm_buffer);
+        ret = tdm_layer_set_buffer(hal_output->primary_layer, tdm_buffer);
+        if (ret != TDM_ERROR_NONE)
+          {
+             ERR("Cannot set buffer: err(%d)", ret);
+             continue;
+          }
+
         ret = tdm_output_commit(hal_output->output, 0, _ecore_drm_display_output_cb_commit, cb);
         if (ret != TDM_ERROR_NONE)
           {
-             ERR("Cannot commit crtc %u: %m", output->crtc_id);
+             ERR("Cannot commit crtc %u: err(%d)", output->crtc_id, ret);
              continue;
           }
 
@@ -452,7 +455,7 @@ _ecore_drm_display_fb_send(Ecore_Drm_Device *dev, Ecore_Drm_Fb *fb, Ecore_Drm_Pa
         ret = tdm_display_handle_events(hal_display->display);
         if (ret != TDM_ERROR_NONE)
           {
-             ERR("tdm_display_handle_events failed");
+             ERR("tdm_display_handle_events failed: err(%d)", ret);
                 free(cb);
                 break;
           }
@@ -531,11 +534,18 @@ _ecore_drm_display_output_create(Ecore_Drm_Device *dev, unsigned int crtc_id, in
    Eina_List *l;
    char temp[TDM_NAME_LEN];
    const char *maker = NULL, *model = NULL, *name = NULL;
+   tdm_error err = TDM_ERROR_NONE;
 
-   tdm_output_obj = tdm_display_get_output(hal_display->display, crtc_id, NULL);
-   if (!tdm_output_obj) return NULL;
+   tdm_output_obj = tdm_display_get_output(hal_display->display, crtc_id, &err);
+   if (!tdm_output_obj)
+     {
+        ERR("failed to get output: err(%d)", err);
+        return NULL;
+     }
 
-   tdm_output_get_conn_status(tdm_output_obj, &status);
+   err = tdm_output_get_conn_status(tdm_output_obj, &status);
+   EINA_SAFETY_ON_FALSE_RETURN_VAL(err == TDM_ERROR_NONE, NULL);
+
    if (status == TDM_OUTPUT_CONN_STATUS_DISCONNECTED) return NULL;
 
    if (!(output = calloc(1, sizeof(Ecore_Drm_Output)))) return NULL;
@@ -545,7 +555,9 @@ _ecore_drm_display_output_create(Ecore_Drm_Device *dev, unsigned int crtc_id, in
    output->hal_output = hal_output;
    hal_output->output = tdm_output_obj;
 
-   tdm_output_get_layer_count(hal_output->output, &count);
+   err = tdm_output_get_layer_count(hal_output->output, &count);
+   EINA_SAFETY_ON_FALSE_GOTO(err == TDM_ERROR_NONE, fail_layer_count);
+
    for (i = 0; i < count; i++)
    {
       tdm_layer *layer = tdm_output_get_layer(hal_output->output, i, NULL);
@@ -602,7 +614,8 @@ _ecore_drm_display_output_create(Ecore_Drm_Device *dev, unsigned int crtc_id, in
    output->crtc = NULL;
    output->dpms = NULL;
 
-   tdm_output_get_mode(hal_output->output, &tdm_mode);
+   err = tdm_output_get_mode(hal_output->output, &tdm_mode);
+   EINA_SAFETY_ON_FALSE_GOTO(err == TDM_ERROR_NONE, fail_get_mode);
 
    tdm_output_get_available_modes(hal_output->output, &tdm_modes, &count);
    for (i = 0; i < count; i++)
@@ -659,6 +672,7 @@ _ecore_drm_display_output_create(Ecore_Drm_Device *dev, unsigned int crtc_id, in
    return output;
 
 fail_current:
+fail_get_mode:
 fail_add_mode:
    EINA_LIST_FREE(output->modes, mode)
      free(mode);
@@ -667,6 +681,7 @@ fail_add_mode:
    eina_stringshare_del(output->name);
    eina_stringshare_del(output->model);
    eina_stringshare_del(output->make);
+fail_layer_count:
 fail_primary_layer:
    free(hal_output);
 fail_hal_output:
@@ -927,13 +942,15 @@ _ecore_drm_display_outputs_update(Ecore_Drm_Device *dev)
    Ecore_Drm_Hal_Display *hal_display;
    int i, count = 0, x = 0, y = 0;
    Ecore_Drm_Output *output;
+   tdm_error err;
 
    EINA_SAFETY_ON_NULL_RETURN(dev);
    EINA_SAFETY_ON_NULL_RETURN(dev->hal_display);
 
    hal_display = dev->hal_display;
 
-   tdm_display_get_output_count(hal_display->display, &count);
+   err = tdm_display_get_output_count(hal_display->display, &count);
+   EINA_SAFETY_ON_FALSE_RETURN(err == TDM_ERROR_NONE);
 
    /* find any new connects */
    for (i = 0; i < count; i++)
@@ -941,10 +958,13 @@ _ecore_drm_display_outputs_update(Ecore_Drm_Device *dev)
         tdm_output_conn_status status = TDM_OUTPUT_CONN_STATUS_DISCONNECTED;
         tdm_output *tdm_output_obj;
 
-        tdm_output_obj = tdm_display_get_output(hal_display->display, i, NULL);
+        tdm_output_obj = tdm_display_get_output(hal_display->display, i, &err);
+        EINA_SAFETY_ON_FALSE_RETURN(err == TDM_ERROR_NONE);
+
         output = _ecore_drm_display_output_find(dev, i);
 
-        tdm_output_get_conn_status(tdm_output_obj, &status);
+        err = tdm_output_get_conn_status(tdm_output_obj, &status);
+        EINA_SAFETY_ON_FALSE_RETURN(err == TDM_ERROR_NONE);
 
         if (status == TDM_OUTPUT_CONN_STATUS_DISCONNECTED)
           {
@@ -1017,6 +1037,7 @@ void
 _ecore_drm_display_output_dpms_set(Ecore_Drm_Output *output, int level)
 {
    Ecore_Drm_Hal_Output *hal_output;
+   tdm_error err;
 
    EINA_SAFETY_ON_NULL_RETURN(output);
    EINA_SAFETY_ON_NULL_RETURN(output->dev);
@@ -1024,7 +1045,8 @@ _ecore_drm_display_output_dpms_set(Ecore_Drm_Output *output, int level)
    hal_output = output->hal_output;
    EINA_SAFETY_ON_NULL_RETURN(hal_output->output);
 
-   tdm_output_set_dpms(hal_output->output, level);
+   err = tdm_output_set_dpms(hal_output->output, level);
+   EINA_SAFETY_ON_FALSE_RETURN(err == TDM_ERROR_NONE);
 }
 
 unsigned int
@@ -1087,6 +1109,7 @@ _ecore_drm_display_output_mode_set_with_fb(Ecore_Drm_Output *output, Ecore_Drm_O
         tdm_info_layer info;
         tbm_surface_h tdm_buffer = NULL;
         tbm_surface_info_s buffer_info;
+        tdm_error err;
 
         EINA_SAFETY_ON_NULL_RETURN_VAL(mode->hal_mode, EINA_FALSE);
 
@@ -1116,11 +1139,23 @@ _ecore_drm_display_output_mode_set_with_fb(Ecore_Drm_Output *output, Ecore_Drm_O
              return EINA_TRUE;
           }
 
-        tdm_output_set_mode(hal_output->output, mode->hal_mode);
-        tdm_layer_set_info(hal_output->primary_layer, &info);
-        tdm_layer_set_buffer(hal_output->primary_layer, tdm_buffer);
+        err = tdm_output_set_mode(hal_output->output, mode->hal_mode);
+        EINA_SAFETY_ON_FALSE_GOTO(err == TDM_ERROR_NONE, fail_set);
+
+        err = tdm_layer_set_info(hal_output->primary_layer, &info);
+        EINA_SAFETY_ON_FALSE_GOTO(err == TDM_ERROR_NONE, fail_set);
+
+        err = tdm_layer_set_buffer(hal_output->primary_layer, tdm_buffer);
+        EINA_SAFETY_ON_FALSE_GOTO(err == TDM_ERROR_NONE, fail_set);
+
         TRACE_EFL_BEGIN(Mode_Set);
-        tdm_output_commit(hal_output->output, 0, NULL, NULL);
+        err = tdm_output_commit(hal_output->output, 0, NULL, NULL);
+        if (err != TDM_ERROR_NONE)
+          {
+             TRACE_EFL_END();
+             ERR("Cannot commit crtc %u: err(%d)", output->crtc_id, err);
+             goto fail_set;
+          }
         TRACE_EFL_END();
      }
    else
@@ -1130,6 +1165,9 @@ _ecore_drm_display_output_mode_set_with_fb(Ecore_Drm_Output *output, Ecore_Drm_O
      }
 
    return ret;
+fail_set:
+   tdm_layer_unset_buffer(hal_output->primary_layer);
+   return EINA_FALSE;
 }
 
 Eina_Bool
@@ -1138,6 +1176,7 @@ _ecore_drm_display_output_mode_set(Ecore_Drm_Output *output, Ecore_Drm_Output_Mo
    Ecore_Drm_Device *dev;
    Ecore_Drm_Fb *fb = NULL;
    Ecore_Drm_Hal_Output *hal_output;
+   tdm_error err;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(output, EINA_FALSE);
    EINA_SAFETY_ON_NULL_RETURN_VAL(output->dev, EINA_FALSE);
@@ -1147,7 +1186,8 @@ _ecore_drm_display_output_mode_set(Ecore_Drm_Output *output, Ecore_Drm_Output_Mo
    hal_output = output->hal_output;
    EINA_SAFETY_ON_NULL_RETURN_VAL(hal_output->output, EINA_FALSE);
 
-   tdm_output_set_mode(hal_output->output, mode->hal_mode);
+   err = tdm_output_set_mode(hal_output->output, mode->hal_mode);
+   EINA_SAFETY_ON_FALSE_RETURN_VAL(err == TDM_ERROR_NONE, EINA_FALSE);
 
    if (dev->current) fb = dev->current;
    else if (dev->next) fb = dev->next;

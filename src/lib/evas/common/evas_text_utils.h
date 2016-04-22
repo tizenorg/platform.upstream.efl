@@ -45,6 +45,12 @@ typedef enum
    (0x0E33 == (x))
 //
 
+/* TIZEN_ONLY(20160422): Add glyphs shaping exception with checking language script. */
+#define EVAS_TEXT_PROPS_MODE_CHECK(script) \
+   ((script == EVAS_SCRIPT_LATIN) ? \
+    EVAS_TEXT_PROPS_MODE_NONE : EVAS_TEXT_PROPS_MODE_SHAPE)
+/* END */
+
 typedef struct _Evas_Glyph Evas_Glyph;
 typedef struct _Evas_Glyph_Array Evas_Glyph_Array;
 

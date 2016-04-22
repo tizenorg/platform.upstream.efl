@@ -543,10 +543,17 @@ _evas_object_text_item_new(Evas_Object_Protected_Data *obj,
 
    if (fi)
      {
+        /* TIZEN_ONLY(20160422): Add glyphs shaping exception with checking language script.
         ENFN->font_text_props_info_create(ENDT,
               fi, str + pos, &it->text_props,
               o->bidi_par_props, it->text_pos, len, EVAS_TEXT_PROPS_MODE_SHAPE,
               o->cur.fdesc->lang);
+         */
+        ENFN->font_text_props_info_create(ENDT,
+              fi, str + pos, &it->text_props,
+              o->bidi_par_props, it->text_pos, len, EVAS_TEXT_PROPS_MODE_CHECK(script),
+              o->cur.fdesc->lang);
+        /* END */
         _evas_object_text_item_update_sizes(obj, o, it);
      }
    o->items = (Evas_Object_Text_Item *)

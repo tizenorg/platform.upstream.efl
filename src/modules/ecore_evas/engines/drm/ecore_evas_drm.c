@@ -1049,7 +1049,7 @@ _ecore_evas_drm_render_check_skip(Ecore_Evas *ee)
 
    /* HWC: wait_for_showup is set by enlightenment */
    if (einfo->info.wait_for_showup)
-     INF("HWC: skip to render the ecore_evas.\n");
+     DBG("HWC: skip to render the ecore_evas.\n");
 
    return einfo->info.wait_for_showup;
 }

@@ -1161,6 +1161,20 @@ _evas_text_inset_get(Eo *eo_obj, Evas_Text_Data *o)
    return inset;
 }
 
+// TIZEN_ONLY(20160425): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+// horiz_advance_without_ellipsis is changed to horiz_width_without_ellipsis.
+EOLIAN static Evas_Coord
+_evas_text_horiz_width_without_ellipsis_get(Eo *eo_obj EINA_UNUSED, Evas_Text_Data *o)
+{
+   Evas_Coord horiz = 0;
+   if (!o->font) return horiz;
+   if (!o->items) return horiz;
+   horiz = _evas_object_text_horiz_width_without_ellipsis_get(o);
+
+   return horiz;
+}
+//
+
 EOLIAN static Evas_Coord
 _evas_text_horiz_advance_get(Eo *eo_obj EINA_UNUSED, Evas_Text_Data *o)
 {

@@ -2266,28 +2266,53 @@ _ecore_wl_input_key_conversion_set(void)
 
              ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
                 xkb_keysym_from_name("XF86Stop", XKB_KEYSYM_NO_FLAGS), &keycodes);
-             _back_key_lt_24 = (int)keycodes[0];
-             free(keycodes);
-             keycodes = NULL;
+             if (!keycodes)
+               {
+                  ERR("There is no entry available for the old name of back key. No conversion will be done for back key.\n");
+               }
+             else
+               {
+                  _back_key_lt_24 = (int)keycodes[0];
+                  free(keycodes);
+                  keycodes = NULL;
+
+                  _num_back_key_latest  = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
+                    xkb_keysym_from_name("XF86Back", XKB_KEYSYM_NO_FLAGS), &_back_key_latest);
+               }
 
              ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
                 xkb_keysym_from_name("XF86Send", XKB_KEYSYM_NO_FLAGS), &keycodes);
-             _menu_key_lt_24 = (int)keycodes[0];
-             free(keycodes);
-             keycodes = NULL;
+             if (!keycodes)
+               {
+                  ERR("There is no entry available for the old name of back key. No conversion will be done for menu key.\n");
+               }
+             else
+               {
+                  _menu_key_lt_24 = (int)keycodes[0];
+                  free(keycodes);
+                  keycodes = NULL;
+
+                  _num_menu_key_latest  = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
+                    xkb_keysym_from_name("XF86Menu", XKB_KEYSYM_NO_FLAGS), &_menu_key_latest);
+               }
 
              ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
                 xkb_keysym_from_name("XF86Phone", XKB_KEYSYM_NO_FLAGS), &keycodes);
-             _home_key_lt_24 = (int)keycodes[0];
-             free(keycodes);
-             keycodes = NULL;
+             if (!keycodes)
+               {
+                  ERR("There is no entry available for the old name of back key. No conversion will be done for home key.\n");
+               }
+             else
+               {
+                  _home_key_lt_24 = (int)keycodes[0];
+                  free(keycodes);
+                  keycodes = NULL;
 
-             _num_back_key_latest  = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
-                xkb_keysym_from_name("XF86Back", XKB_KEYSYM_NO_FLAGS), &_back_key_latest);
-             _num_menu_key_latest  = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
-                xkb_keysym_from_name("XF86Menu", XKB_KEYSYM_NO_FLAGS), &_menu_key_latest);
-             _num_home_key_latest  = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
-                xkb_keysym_from_name("XF86Home", XKB_KEYSYM_NO_FLAGS), &_home_key_latest);
+                  _num_home_key_latest  = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
+                    xkb_keysym_from_name("XF86Home", XKB_KEYSYM_NO_FLAGS), &_home_key_latest);
+               }
+
+             if ((!_back_key_lt_24) && (!_menu_key_lt_24) && (!_home_key_lt_24)) _tizen_api_version = -1.0;
           }
         else
           {

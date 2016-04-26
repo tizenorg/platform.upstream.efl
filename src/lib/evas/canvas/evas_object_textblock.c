@@ -83,19 +83,33 @@ static const char o_type[] = "textblock";
 
 /* The char to be inserted instead of visible formats */
 #define _REPLACEMENT_CHAR 0xFFFC
+/* TIZEN_ONLY(20160422): Replace the replacement character of Tizen to 0x00A0 from 0xFFFC */
+#define _TIZEN_REPLACEMENT_CHAR 0x00A0
+/* END */
 #define _PARAGRAPH_SEPARATOR 0x2029
 #define _NEWLINE '\n'
 #define _TAB '\t'
 
 #define _REPLACEMENT_CHAR_UTF8 "\xEF\xBF\xBC"
+/* TIZEN_ONLY(20160422): Replace the replacement character of Tizen to 0x00A0 from 0xFFFC */
+#define _TIZEN_REPLACEMENT_CHAR_UTF8 "\xC2\xA0"
+/* END */
 #define _PARAGRAPH_SEPARATOR_UTF8 "\xE2\x80\xA9"
 #define _NEWLINE_UTF8 "\n"
 #define _TAB_UTF8 "\t"
+/* TIZEN_ONLY(20160422): Replace the replacement character of Tizen to 0x00A0 from 0xFFFC
 #define EVAS_TEXTBLOCK_IS_VISIBLE_FORMAT_CHAR(ch) \
    (((ch) == _REPLACEMENT_CHAR) || \
     ((ch) ==  _NEWLINE) || \
     ((ch) == _TAB) || \
     ((ch) == _PARAGRAPH_SEPARATOR))
+*/
+#define EVAS_TEXTBLOCK_IS_VISIBLE_FORMAT_CHAR(ch) \
+   (((ch) == _TIZEN_REPLACEMENT_CHAR) || \
+    ((ch) ==  _NEWLINE) || \
+    ((ch) == _TAB) || \
+    ((ch) == _PARAGRAPH_SEPARATOR))
+/* END */
 
 #ifdef CRI
 #undef CRI
@@ -7110,7 +7124,11 @@ _markup_get_text_utf8_append(Eina_Strbuf *sbuf, const char *text)
         else if (ch == _PARAGRAPH_SEPARATOR)
            eina_strbuf_append(sbuf, "<ps/>");
         else if (ch == _REPLACEMENT_CHAR)
+           /* TIZEN_ONLY(20160422): Replace the replacement character of Tizen to 0x00A0 from 0xFFFC
            eina_strbuf_append(sbuf, "&#xfffc;");
+            */
+           eina_strbuf_append(sbuf, "&#xa0;");
+           /* END */
         else if (ch != '\r')
           {
              eina_strbuf_append_length(sbuf, text + pos, pos2 - pos);
@@ -7275,7 +7293,11 @@ evas_textblock_text_markup_to_utf8(const Evas_Object *eo_obj, const char *text)
                        else if (_IS_TAB(match))
                           eina_strbuf_append(sbuf, _TAB_UTF8);
                        else if (!strncmp(match, "item", 4))
+                          /* TIZEN_ONLY(20160422): Replace the replacement character of Tizen to 0x00A0 from 0xFFFC
                           eina_strbuf_append(sbuf, _REPLACEMENT_CHAR_UTF8);
+                           */
+                          eina_strbuf_append(sbuf, _TIZEN_REPLACEMENT_CHAR_UTF8);
+                          /* END */
 
                        free(ttag);
                     }
@@ -9896,7 +9918,11 @@ evas_textblock_cursor_format_append(Evas_Textblock_Cursor *cur, const char *form
         else if (_IS_TAB(format))
            insert_char = _TAB;
         else
+           /* TIZEN_ONLY(20160422): Replace the replacement character of Tizen to 0x00A0 from 0xFFFC
            insert_char = _REPLACEMENT_CHAR;
+            */
+           insert_char = _TIZEN_REPLACEMENT_CHAR;
+           /* END */
 
         eina_ustrbuf_insert_char(cur->node->unicode, insert_char, cur->pos);
 

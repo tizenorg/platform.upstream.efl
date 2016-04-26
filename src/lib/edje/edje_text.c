@@ -338,8 +338,6 @@ _edje_text_recalc_apply(Edje *ed, Edje_Real_Part *ep,
         //
 
         /* Find the wanted font size */
-        part_get_geometry(ep, &tw, &th);
-        /* Find the wanted font size */
         if ((tw != sw) && (size > 0) && (tw != 0))
           {
              size = (size * sw) / tw;

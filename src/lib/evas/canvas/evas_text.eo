@@ -192,6 +192,15 @@ class Evas.Text (Evas.Object, Efl.Text, Efl.Text_Properties, Evas.Filter)
             return: Evas.Coord;
          }
       }
+      @property horiz_width_without_ellipsis {
+         get {
+            [[
+            // TIZEN_ONLY(20160425): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is add ed.
+            // horiz_advance_without_ellipsis is changed to horiz_width_without_ellipsis.
+            ]]
+            return: Evas.Coord;
+         }
+      }
       @property inset {
          get {
             return: Evas.Coord;

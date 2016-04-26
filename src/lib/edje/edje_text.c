@@ -331,6 +331,13 @@ _edje_text_recalc_apply(Edje *ed, Edje_Real_Part *ep,
               efl_text_properties_font_set(font, size);
               efl_text_set(text));
 
+        //TIZEN_ONLY(20160425): For fit option works well. the tw value should
+        //                      get a value that without ellipsis.
+        //part_get_geometry(ep, &tw, &th);
+        tw = evas_object_text_horiz_width_without_ellipsis_get(ep->object);
+        //
+
+        /* Find the wanted font size */
         part_get_geometry(ep, &tw, &th);
         /* Find the wanted font size */
         if ((tw != sw) && (size > 0) && (tw != 0))

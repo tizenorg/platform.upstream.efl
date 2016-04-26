@@ -153,6 +153,8 @@ _re_wincheck(Outbuf *ob)
    return 0;
 }
 
-extern void (*glsym_evas_gl_context_restore_set) (Eina_Bool enable);
+// TIZEN_ONLY(20160425): Fix linking to 'context_restore_set'
+// extern void (*glsym_evas_gl_context_restore_set) (Eina_Bool enable);
+//
 
 #endif

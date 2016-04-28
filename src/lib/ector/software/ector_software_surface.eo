@@ -5,23 +5,24 @@ class Ector.Software.Surface (Ector.Generic.Surface)
    methods {
       @property context {
          set {
-	 }
-	 get {
-	 }
-	 values {
-	    ctx: Software_Rasterizer *;
-	 }
+         }
+         get {
+         }
+         values {
+            ctx: Software_Rasterizer *;
+         }
       }
       @property surface {
          set {
-	 }
-	 get {
-	 }
-	 values {
-	    pixels: void *;
-	    width: uint;
-	    height: uint;
-	 }
+         }
+         get {
+         }
+         values {
+            pixels: void *;
+            width: uint;
+            height: uint;
+            stride: uint;
+         }
       }
    }
 

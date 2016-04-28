@@ -2498,7 +2498,7 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
                   // Destroy created resources
                   if (sfc->buffers_allocated)
                     {
-                       if (!_surface_buffers_allocate(eng_data, sfc, 0, 0, ctx->version))
+                       if (!_surface_buffers_destroy(sfc))
                          {
                             ERR("Unable to destroy surface buffers!");
                             evas_gl_common_error_set(eng_data, EVAS_GL_BAD_ALLOC);

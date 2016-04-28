@@ -2240,13 +2240,13 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
            case EVAS_IMAGE_ORIENT_NONE:
               break;
            case EVAS_IMAGE_ORIENT_90:
-              _rotate_90(&ox1, &oy1, &ox2, &oy2, &ox3, &oy3, &ox4, &oy4);
+              _rotate_270(&ox1, &oy1, &ox2, &oy2, &ox3, &oy3, &ox4, &oy4);
               break;
            case EVAS_IMAGE_ORIENT_180:
               _rotate_180(&ox1, &oy1, &ox2, &oy2, &ox3, &oy3, &ox4, &oy4);
               break;
            case EVAS_IMAGE_ORIENT_270:
-              _rotate_270(&ox1, &oy1, &ox2, &oy2, &ox3, &oy3, &ox4, &oy4);
+              _rotate_90(&ox1, &oy1, &ox2, &oy2, &ox3, &oy3, &ox4, &oy4);
               break;
            default:
               ERR("Wrong native rotation orientation ! %i", tex->im->native.rot);

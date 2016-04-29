@@ -42,6 +42,11 @@ struct _Ecore_Evas_Engine_Wl_Data
         unsigned char done : 1;
         Ecore_Job    *manual_mode_job;
      } wm_rot;
+   struct
+     {
+        unsigned char above : 1;
+        unsigned char below : 1;
+     } state;
    struct wl_callback *anim_callback;
 };
 

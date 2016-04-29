@@ -1443,6 +1443,40 @@ end:
      }
 }
 
+static void
+_ecore_evas_wl_layer_update(Ecore_Evas *ee)
+{
+   Ecore_Evas_Engine_Wl_Data *wdata = ee->engine.data;
+
+   if (ee->prop.layer < 3)
+     {
+        if ((wdata->state.above) || (!wdata->state.below))
+          {
+             wdata->state.above = 0;
+             wdata->state.below = 1;
+             ecore_wl_window_stack_mode_set(wdata->win, ECORE_WL_WINDOW_STACK_BELOW);
+          }
+     }
+   else if (ee->prop.layer > 5)
+     {
+        if ((!wdata->state.above) || (wdata->state.below))
+          {
+             wdata->state.above = 1;
+             wdata->state.below = 0;
+             ecore_wl_window_stack_mode_set(wdata->win, ECORE_WL_WINDOW_STACK_ABOVE);
+          }
+     }
+   else
+     {
+        if ((wdata->state.above) || (wdata->state.below))
+          {
+             wdata->state.above = 0;
+             wdata->state.below = 0;
+             ecore_wl_window_stack_mode_set(wdata->win, ECORE_WL_WINDOW_STACK_NONE);
+          }
+     }
+}
+
 void
 _ecore_evas_wl_common_layer_set(Ecore_Evas *ee, int layer)
 {
@@ -1453,6 +1487,8 @@ _ecore_evas_wl_common_layer_set(Ecore_Evas *ee, int layer)
    if (layer < 1) layer = 1;
    else if (layer > 255) layer = 255;
    ee->prop.layer = layer;
+
+   _ecore_evas_wl_layer_update(ee);
    _ecore_evas_wl_common_state_update(ee);
 }
 

@@ -1319,6 +1319,17 @@ ecore_wl_window_keyboard_get(Ecore_Wl_Window *win)
 }
 
 EAPI void
+ecore_wl_window_stack_mode_set(Ecore_Wl_Window *win, Ecore_Wl_Window_Stack_Mode mode)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!win) return;
+
+   if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
+     tizen_policy_set_stack_mode(_ecore_wl_disp->wl.tz_policy, win->surface, mode);
+}
+
+EAPI void
 ecore_wl_window_rotation_preferred_rotation_set(Ecore_Wl_Window *win, int rot)
 {
    enum tizen_rotation_angle angle = TIZEN_ROTATION_ANGLE_NONE;

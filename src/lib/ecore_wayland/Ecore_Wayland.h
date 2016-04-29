@@ -164,6 +164,13 @@ enum _Ecore_Wl_Indicator_Opacity_Mode
    ECORE_WL_INDICATOR_TRANSPARENT
 };
 
+enum _Ecore_Wl_Window_Stack_Mode
+{
+   ECORE_WL_WINDOW_STACK_NONE  = 0,
+   ECORE_WL_WINDOW_STACK_ABOVE = 1,
+   ECORE_WL_WINDOW_STACK_BELOW = 2,
+};
+
 typedef enum _Ecore_Wl_Window_Type Ecore_Wl_Window_Type;
 typedef enum _Ecore_Wl_Window_Buffer_Type Ecore_Wl_Window_Buffer_Type;
 typedef enum _Ecore_Wl_Window_Keygrab_Mode Ecore_Wl_Window_Keygrab_Mode;
@@ -172,6 +179,7 @@ typedef enum _Ecore_Wl_Virtual_Keyboard_State Ecore_Wl_Virtual_Keyboard_State;
 typedef enum _Ecore_Wl_Indicator_State Ecore_Wl_Indicator_State;
 typedef enum _Ecore_Wl_Clipboard_State Ecore_Wl_Clipboard_State;
 typedef enum _Ecore_Wl_Indicator_Opacity_Mode Ecore_Wl_Indicator_Opacity_Mode;
+typedef enum _Ecore_Wl_Window_Stack_Mode Ecore_Wl_Window_Stack_Mode;
 
 /** @since 1.7.6 */
 struct _Ecore_Wl_Global
@@ -805,6 +813,8 @@ EAPI void ecore_wl_window_class_name_set(Ecore_Wl_Window *win, const char *class
 EAPI int ecore_wl_window_surface_id_get(Ecore_Wl_Window *win);
 
 EAPI Ecore_Wl_Input *ecore_wl_window_keyboard_get(Ecore_Wl_Window *win);
+
+EAPI void ecore_wl_window_stack_mode_set(Ecore_Wl_Window *win, Ecore_Wl_Window_Stack_Mode mode);
 
 /**
  * Returns a wl_surface with no association to any wl_shell_surface.

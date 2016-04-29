@@ -3,6 +3,9 @@
 #endif
 
 #include "ecore_evas_wayland_private.h"
+#ifdef BUILD_ECORE_EVAS_WAYLAND_SHM
+# include <Evas_Engine_Wayland_Shm.h>
+#endif
 #ifdef BUILD_ECORE_EVAS_WAYLAND_EGL
 # include <Evas_Engine_Wayland_Egl.h>
 #endif
@@ -511,6 +514,35 @@ _rotation_do(Ecore_Evas *ee, int rotation, int resize)
         else
           evas_damage_rectangle_add(ee->evas, 0, 0, ee->h, ee->w);
      }
+
+   if (!strcmp(ee->driver, "wayland_shm"))
+     {
+#ifdef BUILD_ECORE_EVAS_WAYLAND_SHM
+        Evas_Engine_Info_Wayland_Shm *einfo;
+        einfo = (Evas_Engine_Info_Wayland_Shm *)evas_engine_info_get(ee->evas);
+        if (!einfo) return;
+
+        einfo->info.rotation = rotation;
+
+        if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
+          ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
+#endif
+     }
+   else if (!strcmp(ee->driver, "wayland_egl"))
+     {
+#ifdef BUILD_ECORE_EVAS_WAYLAND_EGL
+        Evas_Engine_Info_Wayland_Egl *einfo;
+        einfo = (Evas_Engine_Info_Wayland_Egl *)evas_engine_info_get(ee->evas);
+        if (!einfo) return;
+
+        einfo->info.rotation = rotation;
+
+        if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
+          ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
+#endif
+     }
+
+   _ecore_evas_wl_common_state_update(ee);
 }
 
 void

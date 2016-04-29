@@ -367,24 +367,14 @@ _ecore_evas_wl_move_resize(Ecore_Evas *ee, int x, int y, int w, int h)
 static void
 _ecore_evas_wl_rotation_set(Ecore_Evas *ee, int rotation, int resize)
 {
-   Evas_Engine_Info_Wayland_Egl *einfo;
-
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (ee->rotation == rotation) return;
 
    _ecore_evas_wl_common_rotation_set(ee, rotation, resize);
-
-   einfo = (Evas_Engine_Info_Wayland_Egl *)evas_engine_info_get(ee->evas);
-   if (!einfo) return;
-
-   einfo->info.rotation = rotation;
-
-   if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
-     ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
 }
 
-static void 
+static void
 _ecore_evas_wl_show(Ecore_Evas *ee)
 {
    Evas_Engine_Info_Wayland_Egl *einfo;
@@ -586,7 +576,6 @@ _ecore_evas_wayland_egl_window_rotate(Ecore_Evas *ee, int rotation, int resize)
 {
    if (!ee) return;
    _ecore_evas_wl_rotation_set(ee, rotation, resize);
-   if (ee->func.fn_state_change) ee->func.fn_state_change(ee);
 }
 
 #endif

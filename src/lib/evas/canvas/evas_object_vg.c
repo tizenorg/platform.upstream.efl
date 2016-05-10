@@ -268,7 +268,7 @@ evas_object_vg_render_pre(Evas_Object *eo_obj,
 {
    Evas_VG_Data *vd = type_private_data;
    Efl_VG_Base_Data *rnd;
-   int is_v, was_v;
+   int is_v = 0, was_v = 0;
    Ector_Surface *s;
 
    /* dont pre-render the obj twice! */

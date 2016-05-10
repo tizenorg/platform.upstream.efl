@@ -57,6 +57,8 @@ ecore_drm_sprites_create(Ecore_Drm_Device *dev)
 
    /* free resources */
    drmModeFreePlaneResources(res);
+#else
+   (void)dev;
 #endif
 
    return EINA_TRUE;
@@ -80,6 +82,8 @@ ecore_drm_sprites_destroy(Ecore_Drm_Device *dev)
 
         free(sprite);
      }
+#else
+   (void)dev;
 #endif
 }
 
@@ -103,6 +107,10 @@ ecore_drm_sprites_fb_set(Ecore_Drm_Sprite *sprite, int fb_id, int flags)
                         sprite->output->crtc_id, 0, 0, 
                         0, 0, 0, 0, 0, 0, 0, 0);
      }
+#else
+   (void)sprite;
+   (void)fb_id;
+   (void)flags;
 #endif
 }
 
@@ -122,6 +130,9 @@ ecore_drm_sprites_crtc_supported(Ecore_Drm_Output *output, unsigned int supporte
         if (dev->crtcs[c] != output->crtc_id) continue;
         if ((supported) && (1 << c)) return EINA_FALSE;
      }
+#else
+   (void)output;
+   (void)supported;
 #endif
    return EINA_TRUE;
 }

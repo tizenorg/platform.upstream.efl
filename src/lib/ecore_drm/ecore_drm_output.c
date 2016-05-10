@@ -698,36 +698,6 @@ finish:
 }
 #endif
 
-static void
-_ecore_drm_output_delete(Ecore_Drm_Device *dev, Ecore_Drm_Output *output)
-{
-   drmModeConnector *conn;
-   Ecore_Drm_Output_Mode *mode;
-   int i;
-   Eina_List *l;
-
-   if (!(conn = drmModeGetConnector(dev->drm.fd, output->conn_id)))
-     {
-        ERR("drmModeGetConnector fail\n");
-        return;
-     }
-
-   EINA_LIST_FREE(output->modes, mode)
-     free(mode);
-
-   if (output->dpms)
-     drmModeFreeProperty(output->dpms);
-   if (output->crtc)
-     drmModeFreeCrtc(output->crtc);
-   dev->crtc_allocator &= ~(1 << output->crtc_id);
-   dev->conn_allocator &= ~(1 << output->conn_id);
-   eina_stringshare_del(output->name);
-   eina_stringshare_del(output->model);
-   eina_stringshare_del(output->make);
-   free(output);
-   output = NULL;
-}
-
 void
 _ecore_drm_outputs_update(Ecore_Drm_Device *dev)
 {

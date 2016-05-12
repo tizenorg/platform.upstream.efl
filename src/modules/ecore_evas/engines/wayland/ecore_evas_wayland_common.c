@@ -1138,6 +1138,22 @@ _ecore_evas_wl_common_pointer_xy_get(const Ecore_Evas *ee EINA_UNUSED, Evas_Coor
    ecore_wl_pointer_xy_get(x, y);
 }
 
+Eina_Bool
+_ecore_evas_wl_common_pointer_warp(const Ecore_Evas *ee, Evas_Coord x, Evas_Coord y)
+{
+   Ecore_Evas_Engine_Wl_Data *wdata;
+   Eina_Bool ret;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if ((!ee) || (!ee->visible)) return EINA_FALSE;
+   wdata = ee->engine.data;
+   if(!wdata) return EINA_FALSE;
+
+   ret = ecore_wl_window_pointer_warp(wdata->win, x, y);
+   return ret;
+}
+
 void
 _ecore_evas_wl_common_wm_rot_preferred_rotation_set(Ecore_Evas *ee, int rot)
 {

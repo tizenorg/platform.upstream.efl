@@ -935,6 +935,20 @@ ecore_wl_window_pointer_set(Ecore_Wl_Window *win, struct wl_surface *surface, in
      ecore_wl_input_pointer_set(input, surface, hot_x, hot_y);
 }
 
+EAPI Eina_Bool
+ecore_wl_window_pointer_warp(Ecore_Wl_Window *win, int x, int y)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!win || !win->surface || !win->visible) return EINA_FALSE;
+   if (!_ecore_wl_disp->wl.tz_input_device_manager) return EINA_FALSE;
+
+   tizen_input_device_manager_pointer_warp(_ecore_wl_disp->wl.tz_input_device_manager,
+                                           win->surface, wl_fixed_from_int(x), wl_fixed_from_int(y));
+
+   return EINA_TRUE;
+}
+
 EAPI void
 ecore_wl_window_cursor_from_name_set(Ecore_Wl_Window *win, const char *cursor_name)
 {

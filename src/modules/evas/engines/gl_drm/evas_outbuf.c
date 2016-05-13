@@ -303,6 +303,7 @@ _evas_outbuf_egl_setup(Outbuf *ob)
                         ncfg, &ncfg) || (ncfg == 0))
      {
         ERR("eglChooseConfig() fail. code=%#x", eglGetError());
+        free(cfgs);
         return EINA_FALSE;
      }
 
@@ -314,6 +315,7 @@ _evas_outbuf_egl_setup(Outbuf *ob)
                                 &format))
           {
              ERR("eglGetConfigAttrib() fail. code=%#x", eglGetError());
+             free(cfgs);
              return EINA_FALSE;
           }
 
@@ -326,6 +328,7 @@ _evas_outbuf_egl_setup(Outbuf *ob)
              break;
           }
      }
+   free(cfgs);
 
 //#ifdef EGL_MESA_platform_gbm
 //   ob->egl.surface[0] =

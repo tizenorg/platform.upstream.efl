@@ -69,6 +69,8 @@ struct _Shm_Leaf
    Eina_Bool valid : 1;
    Eina_Bool reconfigure : 1;
    Eina_Bool drawn : 1;
+   Eina_Bool can_free : 1;
+   Eina_Bool freed : 1;
 };
 
 typedef struct _Shm_Surface Shm_Surface;
@@ -77,6 +79,7 @@ struct _Shm_Surface
    struct wl_display *disp;
    struct wl_shm *shm;
    struct wl_surface *surface;
+   struct tizen_surface_shm_flusher *flusher;
    uint32_t flags;
    int w, h;
    int dx, dy;

@@ -3,6 +3,21 @@
 #include "evas_engine.h"
 #include <sys/mman.h>
 
+#include "tizen-surface-client.h"
+
+typedef struct
+{
+   struct tizen_surface_shm *tzsurf;
+   struct
+   {
+      struct wl_event_queue *queue;
+      struct wl_registry *registry;
+   } wl;
+   int nsurf;
+} Shm_Private_Data;
+
+Shm_Private_Data shmdat;
+
 static Eina_Bool _shm_leaf_create(Shm_Surface *surface, Shm_Leaf *leaf, int w, int h);
 static void _shm_leaf_release(Shm_Leaf *leaf);
 
@@ -260,7 +275,12 @@ _shm_buffer_release(void *data, struct wl_buffer *buffer)
 //             DBG("Buffer Released: %d", (int)(leaf - &surf->leaf[0]));
              leaf->busy = 0;
 
-             if (leaf->reconfigure)
+             if (leaf->can_free)
+               {
+                  _shm_leaf_release(leaf);
+                  leaf->freed = EINA_TRUE;
+               }
+             else if (leaf->reconfigure)
                {
                   _shm_leaf_release(leaf);
                   _shm_leaf_create(surf, leaf, surf->w, surf->h);
@@ -292,6 +312,8 @@ _shm_leaf_create(Shm_Surface *surface, Shm_Leaf *leaf, int w, int h)
    leaf->h = h;
    leaf->valid = EINA_TRUE;
    leaf->drawn = EINA_FALSE;
+   leaf->can_free = EINA_FALSE;
+   leaf->freed = EINA_FALSE;
    leaf->age = 0;
    wl_buffer_add_listener(leaf->data->buffer, &_shm_buffer_listener, surface);
 
@@ -308,6 +330,95 @@ _shm_leaf_release(Shm_Leaf *leaf)
    memset(leaf, 0, sizeof(*leaf));
    leaf->valid = EINA_FALSE;
 }
+
+static void
+_shm_wl_registry_global(void *data EINA_UNUSED, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t version)
+{
+   if (!strcmp(interface, "tizen_surface_shm"))
+     shmdat.tzsurf = wl_registry_bind(registry, name, &tizen_surface_shm_interface, version);
+}
+
+static void
+_shm_wl_registry_global_remove(void *data EINA_UNUSED, struct wl_registry *registry EINA_UNUSED, uint32_t name EINA_UNUSED)
+{
+}
+
+static const struct wl_registry_listener _shm_wl_registry_listener =
+{
+   _shm_wl_registry_global,
+   _shm_wl_registry_global_remove
+};
+
+static void
+_shm_tzsurf_shutdown(void)
+{
+   if (!getenv("EVAS_SHM_FLUSH"))
+     return;
+
+   if (shmdat.wl.registry)
+     {
+        wl_registry_destroy(shmdat.wl.registry);
+        shmdat.wl.registry = NULL;
+     }
+
+   if (shmdat.wl.queue)
+     {
+        wl_event_queue_destroy(shmdat.wl.queue);
+        shmdat.wl.queue = NULL;
+     }
+}
+
+static void
+_shm_tzsurf_init(struct wl_display *disp)
+{
+   if (!getenv("EVAS_SHM_FLUSH"))
+     return;
+
+   shmdat.wl.queue = wl_display_create_queue(disp);
+   shmdat.wl.registry = wl_display_get_registry(disp);
+
+   wl_proxy_set_queue((struct wl_proxy *)shmdat.wl.registry, shmdat.wl.queue);
+   wl_registry_add_listener(shmdat.wl.registry, &_shm_wl_registry_listener, NULL);
+   if ((wl_display_roundtrip_queue(disp, shmdat.wl.queue) < 0) || (!shmdat.tzsurf))
+     goto err_registry;
+
+   /* use default queue */
+   wl_proxy_set_queue((struct wl_proxy *)shmdat.tzsurf, NULL);
+
+   return;
+err_registry:
+   _shm_tzsurf_shutdown();
+
+   return;
+}
+
+static void
+_shm_tzsurf_flusher_cb_flush(void *data, struct tizen_surface_shm_flusher *flusher EINA_UNUSED)
+{
+   Shm_Surface *surf;
+   Shm_Leaf *leaf;
+   int i = 0;
+
+   surf = data;
+
+   for (; i < surf->num_buff; i++)
+     {
+        leaf = &surf->leaf[i];
+        if (leaf->busy)
+          {
+             leaf->can_free = EINA_TRUE;
+             continue;
+          }
+
+        _shm_leaf_release(&surf->leaf[i]);
+        surf->leaf[i].freed = EINA_TRUE;
+     }
+}
+
+static const struct tizen_surface_shm_flusher_listener _tzsurf_flusher_listener =
+{
+      _shm_tzsurf_flusher_cb_flush
+};
 
 Shm_Surface *
 _evas_shm_surface_create(struct wl_display *disp, struct wl_shm *shm, struct wl_surface *surface, int w, int h, int num_buff, Eina_Bool alpha)
@@ -340,6 +451,17 @@ _evas_shm_surface_create(struct wl_display *disp, struct wl_shm *shm, struct wl_
           }
      }
 
+   if (!shmdat.tzsurf)
+     _shm_tzsurf_init(disp);
+
+   if ((shmdat.tzsurf) && (surf->surface) && (!surf->flusher))
+     {
+        surf->flusher = tizen_surface_shm_get_flusher(shmdat.tzsurf, surf->surface);
+        tizen_surface_shm_flusher_add_listener(surf->flusher, &_tzsurf_flusher_listener, surf);
+     }
+
+   shmdat.nsurf++;
+
    return surf;
 
 err:
@@ -356,6 +478,13 @@ _evas_shm_surface_destroy(Shm_Surface *surface)
 
    for (; i < surface->num_buff; i++)
      _shm_leaf_release(&surface->leaf[i]);
+
+   if (surface->flusher)
+     tizen_surface_shm_flusher_destroy(surface->flusher);
+
+   shmdat.nsurf--;
+   if (shmdat.nsurf == 0)
+     _shm_tzsurf_shutdown();
 
    free(surface);
 }
@@ -392,6 +521,7 @@ _evas_shm_surface_reconfigure(Shm_Surface *surface, int dx, int dy, int w, int h
    for (i = 0; i < surface->num_buff; i++)
      {
         if (surface->leaf[i].busy) continue;
+        if (surface->leaf[i].freed) continue;
 
         if ((resize) && (!surface->leaf[i].resize_pool))
           {
@@ -418,6 +548,11 @@ _evas_shm_surface_wait(Shm_Surface *surface)
           {
              if (surface->leaf[i].busy) continue;
              if (surface->leaf[i].valid) return &surface->leaf[i];
+             if (surface->leaf[i].freed)
+               {
+                  _shm_leaf_create(surface, &surface->leaf[i], surface->w, surface->h);
+                  return &surface->leaf[i];
+               }
           }
 
         wl_display_dispatch_pending(surface->disp);

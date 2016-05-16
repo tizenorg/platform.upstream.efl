@@ -2680,7 +2680,8 @@ _layout_format_ascent_descent_adjust(const Evas_Object *eo_obj,
         descent = *maxdescent;
         if (fmt->linesize > 0)
           {
-             if ((ascent + descent) < fmt->linesize)
+             int scaled_linesize = fmt->linesize * obj->cur->scale;
+             if ((ascent + descent) < scaled_linesize)
                {
                   ascent = ((fmt->linesize * ascent) / (ascent + descent));
                   descent = fmt->linesize - ascent;
@@ -2691,7 +2692,7 @@ _layout_format_ascent_descent_adjust(const Evas_Object *eo_obj,
              descent = descent * fmt->linerelsize;
              ascent = ascent * fmt->linerelsize;
           }
-        descent += fmt->linegap;
+        descent += fmt->linegap * obj->cur->scale;
         descent += ((ascent + descent) * fmt->linerelgap);
         if (*maxascent < ascent) *maxascent = ascent;
         if (*maxdescent < descent) *maxdescent = descent;

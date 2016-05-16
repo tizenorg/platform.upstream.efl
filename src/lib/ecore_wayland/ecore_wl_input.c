@@ -56,6 +56,7 @@ static Eina_Inlist *_ecore_wl_mouse_down_info_list = NULL;
 
 /* local function prototypes */
 static void _ecore_wl_input_seat_handle_capabilities(void *data, struct wl_seat *seat, enum wl_seat_capability caps);
+static void _ecore_wl_input_seat_handle_name(void *data, struct wl_seat *seat, char *name);
 
 static void _ecore_wl_input_cb_pointer_enter(void *data, struct wl_pointer *pointer EINA_UNUSED, unsigned int serial, struct wl_surface *surface, wl_fixed_t sx, wl_fixed_t sy);
 static void _ecore_wl_input_cb_pointer_leave(void *data, struct wl_pointer *pointer EINA_UNUSED, unsigned int serial, struct wl_surface *surface);
@@ -138,7 +139,7 @@ static const struct wl_touch_listener touch_listener =
 static const struct wl_seat_listener _ecore_wl_seat_listener =
 {
    _ecore_wl_input_seat_handle_capabilities,
-   NULL // _ecore_wl_input_seat_handle_name
+   _ecore_wl_input_seat_handle_name
 };
 
 static const struct wl_data_device_listener _ecore_wl_data_listener =
@@ -455,7 +456,7 @@ _ecore_wl_input_add(Ecore_Wl_Display *ewd, unsigned int id)
      _ecore_wl_input_setup(input);
 
    input->seat =
-     wl_registry_bind(ewd->wl.registry, id, &wl_seat_interface, 1);
+     wl_registry_bind(ewd->wl.registry, id, &wl_seat_interface, 4);
    ewd->inputs = eina_inlist_append(ewd->inputs, EINA_INLIST_GET(input));
 
    wl_seat_add_listener(input->seat,
@@ -626,6 +627,13 @@ _ecore_wl_input_seat_handle_capabilities(void *data, struct wl_seat *seat, enum 
         wl_touch_destroy(input->touch);
         input->touch = NULL;
      }
+}
+
+static void
+_ecore_wl_input_seat_handle_name(void *data, struct wl_seat *seat, char *name)
+{
+   /* We don't care about the name. */
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
 }
 
 static void

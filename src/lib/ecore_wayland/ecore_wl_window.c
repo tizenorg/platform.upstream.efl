@@ -1592,8 +1592,8 @@ _ecore_wl_window_cb_angle_change(void *data, struct tizen_rotation *tizen_rotati
    win->tz_rot.serial = serial;
 
    ev->win = win->id;
-   ev->w = win->allocation.w;
-   ev->h = win->allocation.h;
+   ev->w = win->configured.w;
+   ev->h = win->configured.h;
 
    switch (angle)
      {

@@ -333,7 +333,6 @@ ecore_wl_window_new(Ecore_Wl_Window *parent, int x, int y, int w, int h, int buf
 {
    Ecore_Wl_Window *win;
    static int _win_id = 1;
-   struct wl_compositor *wlcomp;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
@@ -1109,7 +1108,6 @@ ecore_wl_window_surface_find(struct wl_surface *surface)
 EAPI void
 ecore_wl_window_input_rect_set(Ecore_Wl_Window *win, Eina_Rectangle *input_rect)
 {
-   Eina_Bool unset = EINA_FALSE;
    if (!win) return;
    if (!input_rect) return;
    if (win->input_region)

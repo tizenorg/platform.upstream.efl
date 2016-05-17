@@ -1049,8 +1049,8 @@ _ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard EINA_UN
      }
    else
      {
-        e->window = NULL;
-        e->event_window = NULL;
+        e->window = (uintptr_t)NULL;
+        e->event_window = (uintptr_t)NULL;
      }
    //
    e->timestamp = timestamp;
@@ -2032,7 +2032,7 @@ _ecore_wl_input_add_ecore_device(const char *name, const char *identifier, Ecore
 }
 
 static Eina_Bool
-_ecore_wl_input_del_ecore_device(const char *name, const char *identifier, Ecore_Device_Class clas)
+_ecore_wl_input_del_ecore_device(const char *name EINA_UNUSED, const char *identifier, Ecore_Device_Class clas)
 {
    const Eina_List *dev_list = NULL;
    const Eina_List *l;

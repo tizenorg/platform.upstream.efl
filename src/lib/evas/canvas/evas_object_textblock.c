@@ -4817,7 +4817,13 @@ _layout_ellipsis_item_new(Ctxt *c, const Evas_Object_Textblock_Item *cur_it)
 
    _text_item_update_sizes(c, ellip_ti);
 
+   /* TIZEN_ONLY(20160517): fix ellipsis item at wrong place in RTL text
+    * The text position for ellipsis item must be bigger than current item
    if (cur_it->type == EVAS_TEXTBLOCK_ITEM_TEXT)
+    */
+   if ((cur_it->type == EVAS_TEXTBLOCK_ITEM_TEXT) &&
+       (_ITEM_TEXT(cur_it)->text_props.text_len > 1))
+   /* END */
      {
         ellip_ti->parent.text_pos += _ITEM_TEXT(cur_it)->text_props.text_len
            - 1;

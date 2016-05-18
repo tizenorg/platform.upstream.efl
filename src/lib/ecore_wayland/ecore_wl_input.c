@@ -399,6 +399,25 @@ ecore_wl_input_cursor_default_restore(Ecore_Wl_Input *input)
 EAPI Ecore_Wl_Input *
 ecore_wl_input_get(void)
 {
+   if (!_ecore_wl_disp)
+     {
+        ERR("Ecore_Wl_Display doesn't exist");
+        return NULL;
+     }
+   if (!_ecore_wl_disp->input)
+     {
+        int loop_count = 5;
+        while ((!_ecore_wl_disp->input) && (loop_count > 0))
+          {
+             if (!_ecore_wl_disp->wl.display)
+               {
+                  ERR("Wayland display doesn't exist");
+                  return NULL;
+               }
+             wl_display_roundtrip(_ecore_wl_disp->wl.display);
+             loop_count--;
+          }
+     }
    return _ecore_wl_disp->input;
 }
 

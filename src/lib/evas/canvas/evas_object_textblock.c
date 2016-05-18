@@ -5232,6 +5232,9 @@ _layout_par(Ctxt *c)
    for (i = c->par->logical_items ; i ; )
      {
         Evas_Coord prevdescent = 0, prevascent = 0;
+        /* TIZEN_ONLY(20160517): Calculate exact width for current item */
+        Evas_Coord needed_w = 0;
+        /* END */
         int adv_line = 0;
         int redo_item = 0;
         Evas_Textblock_Obstacle_Info *obs_info = NULL;
@@ -5274,17 +5277,61 @@ _layout_par(Ctxt *c)
                }
           }
 
+        /* TIZEN_ONLY(20160517): Calculate exact width for current item */
+#ifdef BIDI_SUPPORT
+        if (c->par->is_bidi)
+          {
+             /* Calculate exact width for current item */
+             Evas_Object_Textblock_Item *vis_it, *last_it = NULL;
+
+             /* Append item for calculating */
+             c->ln->items = (Evas_Object_Textblock_Item *)
+                eina_inlist_append(EINA_INLIST_GET(c->ln->items),
+                      EINA_INLIST_GET(it));
+
+             _layout_line_reorder(c->ln);
+
+             EINA_INLIST_FOREACH(c->ln->items, vis_it)
+               {
+                  needed_w += vis_it->adv;
+                  if (vis_it->w > 0)
+                    last_it = vis_it;
+               }
+
+             if (last_it)
+               needed_w += last_it->w - last_it->adv;
+
+             /* Restore */
+             c->ln->items = (Evas_Object_Textblock_Item *)
+                eina_inlist_remove(EINA_INLIST_GET(c->ln->items),
+                                   EINA_INLIST_GET(it));
+          }
+        else
+#endif
+          {
+             needed_w = c->x + it->w;
+          }
+        /* END */
+
         if (handle_obstacles && !obs)
           {
              obs = _layout_item_obstacle_get(c, it);
           }
         /* Check if we need to wrap, i.e the text is bigger than the width,
            or we already found a wrap point. */
+        /* TIZEN_ONLY(20160517): Calculate exact width for current item
         if ((c->w >= 0) &&
               (obs ||
                  (((c->x + it->w) >
                    (c->w - c->o->style_pad.l - c->o->style_pad.r -
                     c->marginl - c->marginr)) || (wrap > 0))))
+         */
+        if ((c->w >= 0) &&
+              (obs ||
+                 ((needed_w >
+                   (c->w - c->o->style_pad.l - c->o->style_pad.r -
+                    c->marginl - c->marginr)) || (wrap > 0))))
+        /* END */
           {
              /* Handle ellipsis here. If we don't have more width left
               * and no height left, or no more width left and no wrapping.

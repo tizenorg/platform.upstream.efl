@@ -716,6 +716,7 @@ _ecore_drm_display_output_free(Ecore_Drm_Output *output)
    if (output->model) eina_stringshare_del(output->model);
    if (output->make) eina_stringshare_del(output->make);
 
+   if (output->hal_output) free(output->hal_output);
    free(output);
 }
 

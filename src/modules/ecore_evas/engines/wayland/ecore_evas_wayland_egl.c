@@ -455,7 +455,11 @@ _ecore_evas_wl_hide(Ecore_Evas *ee)
    if (einfo)
      {
         einfo->info.surface = NULL;
-        evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo);
+        /* TIZEN_ONLY(20160511):
+             wayland spec is not define whether wl_egl_window_create() can use null surface or not.
+             so current tizen device does not allow to create null surface wayland window.
+        */
+        //evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo);
      }
 
    if (wdata->win) 

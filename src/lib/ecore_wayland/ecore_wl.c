@@ -510,9 +510,25 @@ ecore_wl_dpi_get(void)
    if (mw <= 0) return 75;
 
    w = _ecore_wl_disp->output->allocation.w;
+
+   //TIZEN_ONLY(20160519): The height size of screen should be considered,
+   //                      when calc the dpi value.
    /* FIXME: NB: Hrrrmmm, need to verify this. xorg code is using a different
     * formula to calc this */
-   return (((w * 254) / mw) + 5) / 10;
+   //return (((w * 254) / mw) + 5) / 10;
+   int h, mh, dpi;
+   double target_inch;
+
+   mh = _ecore_wl_disp->output->mh;
+   if (mh <= 0) return 75;
+
+   h = _ecore_wl_disp->output->allocation.h;
+
+   target_inch = (round((sqrt(mw * mw + mh * mh) / 25.4) * 10) / 10);
+   dpi = (round((sqrt(w * w + h * h) / target_inch) * 10) / 10);
+
+   return dpi;
+   //
 }
 
 EAPI void

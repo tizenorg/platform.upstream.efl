@@ -2438,7 +2438,7 @@ ecore_evas_input_rect_set(Ecore_Evas *ee, Eina_Rectangle *input_rect)
      {
         ECORE_MAGIC_FAIL(ee, ECORE_MAGIC_EVAS,
                          "ecore_evas_input_rect_set");
-        return EINA_FALSE;
+        return;
      }
 
    if (!strncmp(ee->driver, "wayland", 7))
@@ -2450,10 +2450,8 @@ ecore_evas_input_rect_set(Ecore_Evas *ee, Eina_Rectangle *input_rect)
         if (iface->input_rect_set)
           iface->input_rect_set(ee, input_rect);
 
-        return EINA_TRUE;
+        return;
      }
-
-   return EINA_FALSE;
 }
 
 EAPI void
@@ -2463,7 +2461,7 @@ ecore_evas_input_rect_add(Ecore_Evas *ee, Eina_Rectangle *input_rect)
      {
         ECORE_MAGIC_FAIL(ee, ECORE_MAGIC_EVAS,
                          "ecore_evas_input_rect_add");
-        return EINA_FALSE;
+        return;
      }
 
    if (!strncmp(ee->driver, "wayland", 7))
@@ -2475,10 +2473,8 @@ ecore_evas_input_rect_add(Ecore_Evas *ee, Eina_Rectangle *input_rect)
         if (iface->input_rect_add)
           iface->input_rect_add(ee, input_rect);
 
-        return EINA_TRUE;
+        return;
      }
-
-   return EINA_FALSE;
 }
 
 EAPI void
@@ -2488,7 +2484,7 @@ ecore_evas_input_rect_subtract(Ecore_Evas *ee, Eina_Rectangle *input_rect)
      {
         ECORE_MAGIC_FAIL(ee, ECORE_MAGIC_EVAS,
                          "ecore_evas_input_rect_subtract");
-        return EINA_FALSE;
+        return;
      }
 
    if (!strncmp(ee->driver, "wayland", 7))
@@ -2500,10 +2496,8 @@ ecore_evas_input_rect_subtract(Ecore_Evas *ee, Eina_Rectangle *input_rect)
         if (iface->input_rect_subtract)
           iface->input_rect_subtract(ee, input_rect);
 
-        return EINA_TRUE;
+        return;
      }
-
-   return EINA_FALSE;
 }
 
 EAPI Eina_Bool

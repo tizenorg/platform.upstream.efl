@@ -457,7 +457,7 @@ evas_outbuf_rot_get(Outbuf *ob)
 }
 
 void
-evas_outbuf_copy(Outbuf *ob, void *buffer, int stride, int width, int height, uint format, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh)
+evas_outbuf_copy(Outbuf *ob, void *buffer, int stride, int width EINA_UNUSED, int height, uint format EINA_UNUSED, int sx EINA_UNUSED, int sy EINA_UNUSED, int sw EINA_UNUSED, int sh EINA_UNUSED, int dx EINA_UNUSED, int dy EINA_UNUSED, int dw EINA_UNUSED, int dh EINA_UNUSED)
 {
    Ecore_Drm_Fb *buff = ob->priv.buffer[ob->priv.last];
 

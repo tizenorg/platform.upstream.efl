@@ -842,7 +842,7 @@ _ecore_event_evas_add_evas_device(Evas *e, const char *name, const char *identif
 }
 
 static void
-_ecore_event_evas_del_evas_device(Evas *e, const char *name, const char *identifier, Ecore_Device_Class clas)
+_ecore_event_evas_del_evas_device(Evas *e, const char *name EINA_UNUSED, const char *identifier, Ecore_Device_Class clas)
 {
    const Eina_List *dev_list = NULL;
    const Eina_List *l;

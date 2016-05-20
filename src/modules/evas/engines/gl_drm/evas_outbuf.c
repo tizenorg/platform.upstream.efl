@@ -53,6 +53,7 @@ _evas_outbuf_fb_cb_destroy(struct gbm_bo *bo, void *data)
         ecore_drm_display_fb_hal_buffer_destroy(fb);
         free(fb);
      }
+   (void)bo;
 #else
    Ecore_Drm_Fb *fb;
 
@@ -140,9 +141,9 @@ _evas_outbuf_fb_get(Ecore_Drm_Device *dev, struct gbm_bo *bo)
 static void
 _evas_outbuf_cb_pageflip(void *data)
 {
-   Outbuf *ob, *last=NULL;
+   Outbuf *ob;
    Ecore_Drm_Fb *fb;
-   struct gbm_bo *bo;
+   struct gbm_bo *bo, *last=NULL;
 
    if (!(ob = data)) return;
 
@@ -420,7 +421,7 @@ _evas_outbuf_output_find(unsigned int crtc_id)
 {
    Ecore_Drm_Device *dev;
    Ecore_Drm_Output *output;
-   Eina_List *devs = ecore_drm_devices_get();
+   Eina_List *devs = (Eina_List*)ecore_drm_devices_get();
    Eina_List *l, *ll;
 
    EINA_LIST_FOREACH(devs, l, dev)
@@ -610,7 +611,6 @@ evas_outbuf_reconfigure(Outbuf *ob, int w, int h, int rot, Outbuf_Depth depth)
    Evas_Public_Data *epd;
    Evas_Engine_Info_GL_Drm *einfo;
    Render_Engine *re;
-   struct gbm_surface *osurface;
    Outbuf *nob;
 
    if (depth == OUTBUF_DEPTH_INHERIT) depth = ob->depth;
@@ -622,7 +622,6 @@ evas_outbuf_reconfigure(Outbuf *ob, int w, int h, int rot, Outbuf_Depth depth)
    EINA_SAFETY_ON_NULL_RETURN(re);
 
    einfo = ob->info;
-   osurface = ob->surface;
 
    if ((ob->rotation == 0) || (ob->rotation == 180))
      nob = evas_outbuf_new(einfo, w, h, ob->swap_mode);
@@ -962,7 +961,6 @@ eng_outbuf_copy(Outbuf *ob, void *buffer, int stride, int width EINA_UNUSED, int
                 int sx EINA_UNUSED, int sy EINA_UNUSED, int sw EINA_UNUSED, int sh EINA_UNUSED,
                 int dx EINA_UNUSED, int dy EINA_UNUSED, int dw EINA_UNUSED, int dh EINA_UNUSED)
 {
-   Ecore_Drm_Output *output;
    void *data, *src, *dst;
    struct drm_mode_map_dumb arg = {0,};
    int fd = -1;
@@ -1018,8 +1016,8 @@ eng_outbuf_copy(Outbuf *ob, void *buffer, int stride, int width EINA_UNUSED, int
    for (i = 0; i < height ; i++)
      {
         memcpy (dst, src, stride);
-        src += fb->stride;
-        dst += stride;
+        src = (void*)((unsigned int)src + fb->stride);
+        dst = (void*)((unsigned int)dst + stride);
      }
 
    munmap(data, fb->stride * fb->h);

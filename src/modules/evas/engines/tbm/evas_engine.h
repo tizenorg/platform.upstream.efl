@@ -7,9 +7,6 @@
 # include "Evas.h"
 # include "Evas_Engine_Tbm.h"
 
-/* NB: This already includes wayland-client.h */
-# include <wayland-egl.h>
-
 # define GL_GLEXT_PROTOTYPES
 
 #if !defined(HAVE_ECORE_X_XLIB) && !defined(MESA_EGL_NO_X11_HEADERS)
@@ -55,16 +52,16 @@ extern int _evas_engine_tbm_log_dom;
 
 struct _Outbuf
 {
-   struct wl_display *disp;
-   struct wl_egl_window *win;
-   struct wl_surface *surface;
-   struct wl_compositor *compositor;
    int w, h;
    int depth, screen, rot, alpha;
 
    Evas *evas;
    Evas_Engine_Info_Tbm *info;
    Evas_Engine_GL_Context *gl_context;
+
+   void *bufmgr;
+   void *tbm_queue;
+   Eina_Bool ext_tbm_queue;
 
    Render_Engine_Swap_Mode swap_mode;
    int prev_age, vsync;

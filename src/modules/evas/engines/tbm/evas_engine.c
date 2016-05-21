@@ -31,14 +31,6 @@ struct _Render_Engine
    Render_Engine_GL_Generic generic;
 };
 
-/* Evas GL wl_surface & wl_egl_window */
-typedef struct _Evgl_wl_Surface Evgl_wl_Surface;
-struct _Evgl_wl_Surface
-{
-   struct wl_surface *wl_surf;
-   struct wl_egl_window *egl_win;
-};
-
 /* local function prototypes */
 typedef void (*_eng_fn) (void);
 typedef _eng_fn (*glsym_func_eng_fn) ();
@@ -117,7 +109,7 @@ gl_symbols(void)
     *
     * See ticket #1972 for more info.
     */
-   setenv("EGL_PLATFORM", "wayland", 1);
+   //setenv("EGL_PLATFORM", "wayland", 1);
 
 #define LINK2GENERIC(sym) \
    glsym_##sym = dlsym(RTLD_DEFAULT, #sym);
@@ -271,28 +263,37 @@ _re_winfree(Render_Engine *re)
 static void *
 evgl_eng_display_get(void *data)
 {
+#if 0
    Render_Engine *re;
    Outbuf *ob;
 
    if (!(re = (Render_Engine *)data)) return NULL;
    if (!(ob = eng_get_ob(re))) return NULL;
    return (void *)ob->egl_disp;
+#else
+   return NULL;
+#endif
 }
 
 static void *
 evgl_eng_evas_surface_get(void *data)
 {
+#if 0
    Render_Engine *re;
    Outbuf *ob;
 
    if (!(re = (Render_Engine *)data)) return NULL;
    if (!(ob = eng_get_ob(re))) return NULL;
    return (void *)ob->egl_surface[0];
+#else
+   return NULL;
+#endif
 }
 
 static void *
 evgl_eng_native_window_create(void *data)
 {
+#if 0
    Evgl_wl_Surface* surface;
    Render_Engine *re;
    Outbuf *ob;
@@ -323,11 +324,15 @@ evgl_eng_native_window_create(void *data)
      }
 
    return (void *)surface;
+#else
+   return NULL;
+#endif
 }
 
 static int
 evgl_eng_native_window_destroy(void *data, void *win)
 {
+#if 0
    Evgl_wl_Surface* surface;
 
    if (!win)
@@ -345,11 +350,15 @@ evgl_eng_native_window_destroy(void *data, void *win)
 
    free(surface);
    return 1;
+#else
+   return 0;
+#endif
 }
 
 static void *
 evgl_eng_window_surface_create(void *data, void *win)
 {
+#if 0
    Render_Engine *re;
    Outbuf *ob;
    EGLSurface surface = EGL_NO_SURFACE;
@@ -374,11 +383,15 @@ evgl_eng_window_surface_create(void *data, void *win)
      }
 
    return (void *)surface;
+#else
+   return NULL;
+#endif
 }
 
 static int
 evgl_eng_window_surface_destroy(void *data, void *surface)
 {
+#if 0
    Render_Engine *re;
    Outbuf *ob;
 
@@ -398,11 +411,15 @@ evgl_eng_window_surface_destroy(void *data, void *surface)
      }
    eglDestroySurface(ob->egl_disp, (EGLSurface)surface);
    return 1;
+#else
+   return 0;
+#endif
 }
 
 static void *
 evgl_eng_context_create(void *data, void *ctxt, Evas_GL_Context_Version version)
 {
+#if 0
    Render_Engine *re;
    Outbuf *ob;
    EGLContext context = EGL_NO_CONTEXT;
@@ -485,11 +502,15 @@ evgl_eng_context_create(void *data, void *ctxt, Evas_GL_Context_Version version)
      }
 
    return (void *)context;
+#else
+   return NULL;
+#endif
 }
 
 static int
 evgl_eng_context_destroy(void *data, void *ctxt)
 {
+#if 0
    Render_Engine *re;
    Outbuf *ob;
 
@@ -509,11 +530,15 @@ evgl_eng_context_destroy(void *data, void *ctxt)
 
    eglDestroyContext(ob->egl_disp, (EGLContext)ctxt);
    return 1;
+#else
+   return 0;
+#endif
 }
 
 static int
 evgl_eng_make_current(void *data, void *surface, void *ctxt, int flush)
 {
+#if 0
    Render_Engine *re;
    Outbuf *ob;
    EGLContext ctx;
@@ -563,18 +588,26 @@ evgl_eng_make_current(void *data, void *surface, void *ctxt, int flush)
      }
 
    return 1;
+#else
+   return 0;
+#endif
 }
 
 static void *
 evgl_eng_proc_address_get(const char *name)
 {
+#if 0
    if (glsym_eglGetProcAddress) return glsym_eglGetProcAddress(name);
    return dlsym(RTLD_DEFAULT, name);
+#else
+   return NULL;
+#endif
 }
 
 static const char *
 evgl_eng_string_get(void *data)
 {
+#if 0
    Render_Engine *re;
    Outbuf *ob;
 
@@ -587,11 +620,15 @@ evgl_eng_string_get(void *data)
    if (!(ob = eng_get_ob(re))) return NULL;
 
    return eglQueryString(ob->egl_disp, EGL_EXTENSIONS);
+#else
+   return NULL;
+#endif
 }
 
 static int
 evgl_eng_rotation_angle_get(void *data)
 {
+#if 0
    Render_Engine *re;
    Outbuf *ob;
 
@@ -611,12 +648,16 @@ evgl_eng_rotation_angle_get(void *data)
         glsym_evas_gl_common_error_set(data, EVAS_GL_BAD_CONTEXT);
         return 0;
      }
+#else
+   return 0;
+#endif
 }
 
 static void *
 evgl_eng_pbuffer_surface_create(void *data, EVGL_Surface *sfc,
                                 const int *attrib_list)
 {
+#if 0
    Render_Engine_GL_Generic *re = data;
 
    // TODO: Add support for surfaceless pbuffers (EGL_NO_TEXTURE)
@@ -748,11 +789,15 @@ evgl_eng_pbuffer_surface_create(void *data, EVGL_Surface *sfc,
 
    return (void*)(intptr_t)pbuf;
 #endif
+#else
+   return NULL;
+#endif
 }
 
 static int
 evgl_eng_pbuffer_surface_destroy(void *data, void *surface)
 {
+#if 0
    /* EVGLINIT(re, 0); */
    if (!data)
      {
@@ -781,12 +826,16 @@ evgl_eng_pbuffer_surface_destroy(void *data, void *surface)
 #endif
 
    return 1;
+#else
+   return 0;
+#endif
 }
 
 static void
 evgl_eng_native_win_surface_config_get(void *data, int *win_depth,
                                          int *win_stencil, int *win_msaa)
 {
+#if 0
    Render_Engine *re = data;
    if (!re) return;
 
@@ -801,6 +850,7 @@ evgl_eng_native_win_surface_config_get(void *data, int *win_depth,
        eng_get_ob(re)->detected.depth_buffer_size,
        eng_get_ob(re)->detected.stencil_buffer_size,
        eng_get_ob(re)->detected.msaa);
+#endif
 }
 
 static const EVGL_Interface evgl_funcs =
@@ -999,15 +1049,7 @@ eng_setup(Evas *evas, void *info)
         if ((ob) && (_re_wincheck(ob)))
           {
              ob->info = inf;
-             if ((ob->info->info.display != ob->disp) ||
-                 (ob->info->info.surface != ob->surface) ||
-                 /* FIXME: comment out below line.
-                  * since there is no place set the info->info.win for now,
-                  * it causes renew the window unnecessarily.
-                  */
-                 /* (ob->info->info.win != ob->win) || */
-                 (ob->info->info.depth != ob->depth) ||
-                 (ob->info->info.screen != ob->screen) ||
+             if ((ob->info->info.depth != ob->depth) ||
                  (ob->info->info.destination_alpha != ob->alpha))
                {
                   ob->gl_context->references++;

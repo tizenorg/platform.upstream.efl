@@ -24,11 +24,10 @@ struct _Evas_Engine_Info_Tbm
    /* engine specific data & parameters it needs to set up */
    struct 
      {
-        struct wl_display *display;
-        struct wl_surface *surface;
-        struct wl_egl_window *win;
-        struct wl_compositor *compositor;
         int depth, screen, rotation, edges;
+        void *bufmgr;
+        void *tbm_queue;
+        Eina_Bool ext_tbm_queue;
         unsigned int destination_alpha : 1;
      } info;
 

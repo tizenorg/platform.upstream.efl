@@ -32,10 +32,9 @@ eng_window_new(Evas *evas, Evas_Engine_Info_Tbm *einfo, int w, int h, Render_Eng
    gw->w = w;
    gw->h = h;
    gw->swap_mode = swap_mode;
-   gw->disp = einfo->info.display;
-   gw->surface = einfo->info.surface;
-   gw->screen = einfo->info.screen;
-   gw->compositor = einfo->info.compositor;
+   gw->bufmgr = einfo->info.bufmgr;
+   gw->tbm_queue = einfo->info.tbm_queue;
+   gw->ext_tbm_queue = einfo->info.ext_tbm_queue;
    gw->depth = einfo->info.depth;
    gw->alpha = einfo->info.destination_alpha;
    gw->rot = einfo->info.rotation;
@@ -83,9 +82,10 @@ eng_window_new(Evas *evas, Evas_Engine_Info_Tbm *einfo, int w, int h, Render_Eng
     * See ticket #1972 for more info.
     */
 
-   setenv("EGL_PLATFORM", "wayland", 1);
+   setenv("EGL_PLATFORM", "tbm", 1);
 
-   gw->egl_disp = eglGetDisplay((EGLNativeDisplayType)gw->disp);
+   gw->egl_disp = eglGetDisplay((EGLNativeDisplayType)gw->bufmgr);
+   fprintf(stderr,"gw->bufmgr %p\n",gw->bufmgr);
    if (!gw->egl_disp)
      {
         ERR("eglGetDisplay() fail. code=%#x", eglGetError());
@@ -114,18 +114,13 @@ eng_window_new(Evas *evas, Evas_Engine_Info_Tbm *einfo, int w, int h, Render_Eng
         return NULL;
      }
 
-   if ((gw->rot == 0) || (gw->rot == 180))
-     gw->win = wl_egl_window_create(gw->surface, gw->w, gw->h);
-   else if ((gw->rot == 90) || (gw->rot == 270))
-     gw->win = wl_egl_window_create(gw->surface, gw->h, gw->w);
-
    gw->egl_surface[0] = 
      eglCreateWindowSurface(gw->egl_disp, gw->egl_config,
-                            (EGLNativeWindowType)gw->win, NULL);
+                            (EGLNativeWindowType)gw->tbm_queue, NULL);
    if (gw->egl_surface[0] == EGL_NO_SURFACE)
      {
         ERR("eglCreateWindowSurface() fail for %p. code=%#x", 
-            gw->win, eglGetError());
+            gw->tbm_queue, eglGetError());
         eng_window_free(gw);
         return NULL;
      }
@@ -235,8 +230,6 @@ eng_window_free(Outbuf *gw)
    if (gw->egl_surface[0] != EGL_NO_SURFACE)
      eglDestroySurface(gw->egl_disp, gw->egl_surface[0]);
 
-   if (gw->win) wl_egl_window_destroy(gw->win);
-
    if (ref == 0)
      {
         if (context) eglDestroyContext(gw->egl_disp, context);
@@ -324,12 +317,12 @@ eng_window_resurf(Outbuf *gw)
 
    gw->egl_surface[0] = 
      eglCreateWindowSurface(gw->egl_disp, gw->egl_config,
-                            (EGLNativeWindowType)gw->win, NULL);
+                            (EGLNativeWindowType)gw->tbm_queue, NULL);
 
    if (gw->egl_surface[0] == EGL_NO_SURFACE)
      {
-        ERR("eglCreateWindowSurface() fail for %p. code=%#x",
-            gw->win, eglGetError());
+        ERR("eglCreateWindowSurface() fail code=%#x",
+           eglGetError());
         return;
      }
 
@@ -344,6 +337,7 @@ eng_window_resurf(Outbuf *gw)
 void 
 eng_outbuf_reconfigure(Outbuf *ob, int w, int h, int rot, Outbuf_Depth depth EINA_UNUSED)
 {
+#if 0
    ob->w = w;
    ob->h = h;
    ob->rot = rot;
@@ -380,6 +374,7 @@ eng_outbuf_reconfigure(Outbuf *ob, int w, int h, int rot, Outbuf_Depth depth EIN
         else
           wl_egl_window_resize(ob->win, w, h, dx, dy);
      }
+#endif
 }
 
 int 

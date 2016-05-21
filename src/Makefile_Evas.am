@@ -761,7 +761,7 @@ modules/evas/engines/gl_generic/Evas_Engine_GL_Generic.h
 
 if EVAS_STATIC_BUILD_GL_COMMON
 lib_evas_libevas_la_SOURCES += $(GL_COMMON_SOURCES) $(GL_GENERIC_SOURCES)
-lib_evas_libevas_la_LIBADD += @evas_engine_gl_common_libs@
+lib_evas_libevas_la_LIBADD += @evas_engine_gl_common_libs@ @TTRACE_LIBS@
 else
 noinst_LTLIBRARIES += modules/evas/engines/gl_common/libevas_engine_gl_common.la
 modules_evas_engines_gl_common_libevas_engine_gl_common_la_SOURCES = $(GL_COMMON_SOURCES)
@@ -791,7 +791,8 @@ modules_evas_engines_gl_generic_module_la_CFLAGS = \
 modules_evas_engines_gl_generic_module_la_LIBADD = \
 modules/evas/engines/gl_common/libevas_engine_gl_common.la \
 @evas_engine_gl_common_libs@ \
-@USE_EVAS_LIBS@
+@USE_EVAS_LIBS@ \
+@TTRACE_LIBS@
 modules_evas_engines_gl_generic_module_la_DEPENDENCIES = \
 @USE_EVAS_INTERNAL_LIBS@ \
 modules/evas/engines/gl_common/libevas_engine_gl_common.la
@@ -810,7 +811,7 @@ endif
 if BUILD_ENGINE_TBM
 modules_evas_engines_gl_common_libevas_engine_gl_common_la_CPPFLAGS += @evas_engine_tbm_cflags@
 endif
-modules_evas_engines_gl_common_libevas_engine_gl_common_la_LIBADD = @USE_EVAS_LIBS@
+modules_evas_engines_gl_common_libevas_engine_gl_common_la_LIBADD = @USE_EVAS_LIBS@ @TTRACE_LIBS@
 modules_evas_engines_gl_common_libevas_engine_gl_common_la_DEPENDENCIES = @USE_EVAS_INTERNAL_LIBS@
 modules_evas_engines_gl_common_libevas_engine_gl_common_la_LDFLAGS = -module @EFL_LTMODULE_FLAGS@
 modules_evas_engines_gl_common_libevas_engine_gl_common_la_LIBTOOLFLAGS = --tag=disable-static

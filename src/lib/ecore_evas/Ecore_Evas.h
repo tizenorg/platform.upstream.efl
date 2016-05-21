@@ -1378,9 +1378,9 @@ EAPI Ecore_Wl_Window *ecore_evas_wayland_window_get(const Ecore_Evas *ee);
 
 EAPI Ecore_Evas     *ecore_evas_drm_new(const char *device, unsigned int parent, int x, int y, int w, int h);
 EAPI Ecore_Evas     *ecore_evas_gl_drm_new(const char *device, unsigned int parent, int x, int y, int w, int h); /** @since 1.12 */
-EAPI Ecore_Evas     *ecore_evas_tbm_new(const char *disp_name, unsigned int parent, int x, int y, int w, int h, Eina_Bool frame);
-
-
+EAPI Ecore_Evas     *ecore_evas_tbm_new(int w, int h);
+EAPI Ecore_Evas     *ecore_evas_tbm_new_ext(const void *tbm_buf_mgr, const void *tbm_surf_queue, void* data);
+EAPI Ecore_Evas     *ecore_evas_tbm_allocfunc_new(int w, int h,void *(*alloc_func) (void *data, int w, int h),void (*free_func) (void *data, void *tbm_queue),const void *data);
 
 /**
  * @brief Create a new @c Ecore_Evas canvas bound to the Evas

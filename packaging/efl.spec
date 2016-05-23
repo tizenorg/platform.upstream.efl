@@ -682,6 +682,8 @@ cp %{SOURCE1001} .
 CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
 %endif
 
+%restore_fcommon
+
 %reconfigure \
     --with-glib=always \
     --disable-xim \
@@ -1256,4 +1258,3 @@ install -m 0644 %SOURCE100 %{buildroot}%{_tmpfilesdir}/efl.conf
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
 %{_libdir}/cmake/Elua*/*.cmake
-

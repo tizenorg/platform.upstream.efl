@@ -298,6 +298,7 @@ _message_iter_struct_to_eina_value(Eldbus_Message_Iter *iter)
         switch (type)
           {
            case 'i'://int
+           case 'b'://boolean
            case 'h'://fd
              {
                 int32_t i;
@@ -316,7 +317,6 @@ _message_iter_struct_to_eina_value(Eldbus_Message_Iter *iter)
                 eina_value_set(v, txt);
                 break;
              }
-           case 'b'://boolean
            case 'y'://byte
              {
                 unsigned char byte;

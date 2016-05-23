@@ -1146,8 +1146,8 @@ _ecore_wl_input_cb_keyboard_repeat_setup(void *data, struct wl_keyboard *keyboar
    else
      input->repeat.enabled = EINA_TRUE;
 
-   input->repeat.rate = (rate / 1000);
-   input->repeat.delay = (delay / 100);
+   input->repeat.rate = (rate / 1000.0);
+   input->repeat.delay = (delay / 1000.0);
 }
 
 static Eina_Bool

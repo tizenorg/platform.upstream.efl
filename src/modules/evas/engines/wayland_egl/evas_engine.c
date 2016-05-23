@@ -1195,7 +1195,7 @@ _native_cb_bind(void *data EINA_UNUSED, void *image)
         if (n->ns_data.evasgl.surface)
           {
              Eina_Bool is_egl_image = EINA_FALSE;
-             void *surface;
+             void *surface = NULL;
 
              if (glsym_evgl_native_surface_buffer_get)
                surface = glsym_evgl_native_surface_buffer_get(n->ns_data.evasgl.surface, &is_egl_image);
@@ -1337,12 +1337,11 @@ _native_cb_free(void *data, void *image)
 }
 
 static int
-_native_cb_yinvert(void *data, void *image)
+_native_cb_yinvert(void *data EINA_UNUSED, void *image)
 {
-   Render_Engine *re = data;
    Evas_GL_Image *im = image;
    Native *n = im->native.data;
-   int yinvert = 0, val;
+   int yinvert = 0;
 
    // Yinvert callback should only be used for EVAS_NATIVE_SURFACE_EVASGL type now,
    // as yinvert value is not changed for other types.

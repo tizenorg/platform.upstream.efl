@@ -209,7 +209,7 @@ _ecore_wl_window_shell_surface_init(Ecore_Wl_Window *win)
           }
         if (win->floating)
           {
-             if (win->floating)
+             if (win->surface)
                tizen_policy_set_floating_mode(_ecore_wl_disp->wl.tz_policy,
                                               win->surface);
           }

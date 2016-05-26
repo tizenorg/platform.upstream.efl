@@ -124,7 +124,10 @@ void main()
    vec4 col11 = texture2D(tex, tex_c + tex_s[3]).SWZ;
    c = (col00 + col01 + col10 + col11) / div_s;
 
-#elif defined(SHD_TEX) || defined(SHD_EXTERNAL)
+#elif defined(SHD_EXTERNAL)
+   c = texture2D(tex, tex_c);
+
+#elif defined(SHD_TEX)
    c = texture2D(tex, tex_c).SWZ;
 
 #else

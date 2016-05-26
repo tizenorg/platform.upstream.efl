@@ -3877,7 +3877,7 @@ _draw_thread_ector_surface_set(void *data)
    else
      {
         eo_do(ector_surface->ector,
-              ector_software_surface_set(pixels, w, h),
+              ector_software_surface_set(pixels, w, h, w * 4),
               ector_surface_reference_point_set(x, y));
      }
 
@@ -3927,7 +3927,7 @@ eng_ector_begin(void *data EINA_UNUSED, void *context EINA_UNUSED, Ector_Surface
         else
           {
              eo_do(ector,
-                   ector_software_surface_set(pixels, w, h),
+                   ector_software_surface_set(pixels, w, h, w * 4),
                    ector_surface_reference_point_set(x, y));
           }
      }
@@ -3958,7 +3958,7 @@ eng_ector_end(void *data EINA_UNUSED, void *context EINA_UNUSED, Ector_Surface *
         else
           {
              eo_do(ector,
-                   ector_software_surface_set(NULL, 0, 0));
+                   ector_software_surface_set(NULL, 0, 0, 0));
           }
 
         evas_common_cpu_end_opt();

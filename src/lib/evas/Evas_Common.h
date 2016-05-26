@@ -363,7 +363,15 @@ struct _Evas_Native_Surface
       } wl; /**< Set this struct fields if surface data is Wayland based. */
       struct
       {
+         struct
+         {
+            Eina_Bool use_roi; /**< roi to use (true, false) @since 1.14 */
+            unsigned int x, y, w, h; /**< x, y, width, height position of the source image @since 1.14 */
+         } roi; /**< Set this struct fields if roi to use @since 1.14 */
          void *buffer; /**< tbm surface buffer to use @since 1.14 */
+         int   rot; /**< rotation (EVAS_IMAGE_ORIENT_NONE, EVAS_IMAGE_ORIENT_90, EVAS_IMAGE_ORIENT_180, EVAS_IMAGE_ORIENT_270) @since 1.14 */
+         float ratio; /**< width/height ratio of the source image @since 1.14 */
+         int   flip; /**< flip (EVAS_IMAGE_FLIP_HORIZONTAL:horizontal, EVAS_IMAGE_FLIP_VERTICAL:vertical) @since 1.14 */
       } tbm; /**< Set this struct fields if surface data is Tizen based. @since 1.14 */
       struct
       {
@@ -514,6 +522,11 @@ struct _Evas_Event_Mouse_Down /** Mouse button press event */
    Evas_Event_Flags  event_flags;
    Evas_Device      *dev;
    Evas_Object      *event_src; /**< The Evas Object which actually triggered the event, used in cases of proxy event propagation */
+   // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+   double            radius;
+   double            radius_x, radius_y;
+   double            pressure, angle;
+   //
 };
 
 struct _Evas_Event_Mouse_Up /** Mouse button release event */
@@ -532,6 +545,11 @@ struct _Evas_Event_Mouse_Up /** Mouse button release event */
    Evas_Event_Flags  event_flags;
    Evas_Device      *dev;
    Evas_Object     *event_src; /**< The Evas Object which actually triggered the event, used in cases of proxy event propagation */
+   // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+   double            radius;
+   double            radius_x, radius_y;
+   double            pressure, angle;
+   //
 };
 
 struct _Evas_Event_Mouse_In /** Mouse enter event */
@@ -580,6 +598,11 @@ struct _Evas_Event_Mouse_Move /** Mouse move event */
    Evas_Event_Flags event_flags;
    Evas_Device     *dev;
    Evas_Object     *event_src; /**< The Evas Object which actually triggered the event, used in cases of proxy event propagation */
+   // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+   double            radius;
+   double            radius_x, radius_y;
+   double            pressure, angle;
+   //
 };
 
 struct _Evas_Event_Mouse_Wheel /** Wheel event */
@@ -5343,6 +5366,16 @@ EAPI int  evas_string_char_prev_get(const char *str, int pos, int *decoded) EINA
  * @ingroup Evas_Utils
  */
 EAPI int  evas_string_char_len_get(const char *str) EINA_WARN_UNUSED_RESULT EINA_ARG_NONNULL(1);
+
+/**
+ * Reinitialize language from the environment.
+ *
+ * The locale can change while a process is running. This call tells evas to
+ * reload the locale from the environment like it does on start.
+ * @ingroup Evas_Utils
+ * @since 1.18
+ */
+EAPI void                    evas_language_reinit(void);
 
 /**
  * @defgroup Evas_Keys Key Input Functions

@@ -123,8 +123,25 @@ _ecore_event_device_info_free(void *data EINA_UNUSED, void *ev)
    free(e);
 }
 
+static Ecore_Device_Class
+_ecore_drm_seat_cap_to_ecore_device_class(unsigned int cap)
+{
+   switch(cap)
+     {
+      case EVDEV_SEAT_POINTER:
+         return ECORE_DEVICE_CLASS_MOUSE;
+      case EVDEV_SEAT_KEYBOARD:
+         return ECORE_DEVICE_CLASS_KEYBOARD;
+      case EVDEV_SEAT_TOUCH:
+         return ECORE_DEVICE_CLASS_TOUCH;
+      default:
+         return ECORE_DEVICE_CLASS_NONE;
+     }
+   return ECORE_DEVICE_CLASS_NONE;
+}
+
 void
-_ecore_drm_device_info_send(unsigned int window, Ecore_Drm_Evdev *edev, Eina_Bool flag)
+_ecore_drm_device_info_send(unsigned int window, Ecore_Drm_Evdev *edev, Ecore_Device_Class clas, Eina_Bool flag)
 {
    Ecore_Event_Device_Info *e;
 
@@ -133,13 +150,123 @@ _ecore_drm_device_info_send(unsigned int window, Ecore_Drm_Evdev *edev, Eina_Boo
    e->name = eina_stringshare_add(libinput_device_get_name(edev->device));
    e->identifier = eina_stringshare_add(edev->path);
    e->seatname = eina_stringshare_add(edev->seat->name);
-   e->caps = edev->seat_caps;
+   e->clas = clas;
    e->window = window;
 
    if (flag)
      ecore_event_add(ECORE_EVENT_DEVICE_ADD, e, _ecore_event_device_info_free, NULL);
    else
      ecore_event_add(ECORE_EVENT_DEVICE_DEL, e, _ecore_event_device_info_free, NULL);
+}
+
+static Eina_Bool
+_ecore_drm_device_add_ecore_device(Ecore_Drm_Evdev *edev, Ecore_Device_Class clas)
+{
+   const Eina_List *dev_list = NULL;
+   const Eina_List *l;
+   Ecore_Device *dev = NULL;
+   const char *identifier;
+
+   if (!edev->path) return EINA_FALSE;
+
+   dev_list = ecore_device_list();
+   if (dev_list)
+     {
+        EINA_LIST_FOREACH(dev_list, l, dev)
+          {
+             if (!dev) continue;
+             identifier = ecore_device_identifier_get(dev);
+             if (!identifier) continue;
+             if ((ecore_device_class_get(dev) == clas) && (!strcmp(identifier, edev->path)))
+                return EINA_FALSE;
+          }
+     }
+
+   if(!(dev = ecore_device_add())) return EINA_FALSE;
+
+   ecore_device_name_set(dev, libinput_device_get_name(edev->device));
+   ecore_device_description_set(dev, libinput_device_get_name(edev->device));
+   ecore_device_identifier_set(dev, edev->path);
+   ecore_device_class_set(dev, clas);
+   return EINA_TRUE;
+}
+
+static Eina_Bool
+_ecore_drm_device_del_ecore_device(Ecore_Drm_Evdev *edev, Ecore_Device_Class clas)
+{
+   const Eina_List *dev_list = NULL;
+   const Eina_List *l;
+   Ecore_Device *dev = NULL;
+   const char *identifier;
+
+   if (!edev->path) return EINA_FALSE;
+
+   dev_list = ecore_device_list();
+   if (!dev_list) return EINA_FALSE;
+   EINA_LIST_FOREACH(dev_list, l, dev)
+      {
+         if (!dev) continue;
+         identifier = ecore_device_identifier_get(dev);
+         if (!identifier) continue;
+         if ((ecore_device_class_get(dev) == clas) && (!strcmp(identifier, edev->path)))
+           {
+              ecore_device_del(dev);
+              return EINA_TRUE;
+           }
+      }
+   return EINA_FALSE;
+}
+
+void
+_ecore_drm_device_add(unsigned int window, Ecore_Drm_Evdev *edev)
+{
+   Eina_Bool ret = EINA_FALSE;
+   Ecore_Device_Class clas;
+
+   if (edev->seat_caps & EVDEV_SEAT_POINTER)
+     {
+        clas = _ecore_drm_seat_cap_to_ecore_device_class(EVDEV_SEAT_POINTER);
+        ret = _ecore_drm_device_add_ecore_device(edev, clas);
+        if (ret) _ecore_drm_device_info_send(window, edev, clas, 1);
+     }
+   if (edev->seat_caps & EVDEV_SEAT_KEYBOARD)
+     {
+        clas = _ecore_drm_seat_cap_to_ecore_device_class(EVDEV_SEAT_KEYBOARD);
+        ret = _ecore_drm_device_add_ecore_device(edev, clas);
+        if (ret) _ecore_drm_device_info_send(window, edev, clas, 1);
+     }
+   if (edev->seat_caps & EVDEV_SEAT_TOUCH)
+     {
+        clas = _ecore_drm_seat_cap_to_ecore_device_class(EVDEV_SEAT_TOUCH);
+        ret = _ecore_drm_device_add_ecore_device(edev, clas);
+        if (ret) _ecore_drm_device_info_send(window, edev, clas, 1);
+     }
+}
+
+void
+_ecore_drm_device_remove(unsigned int window, Ecore_Drm_Evdev *edev)
+{
+   Eina_Bool ret = EINA_FALSE;
+   Ecore_Device_Class clas;
+
+   if (edev->seat_caps & EVDEV_SEAT_POINTER)
+     {
+        clas = _ecore_drm_seat_cap_to_ecore_device_class(EVDEV_SEAT_POINTER);
+        ret = _ecore_drm_device_del_ecore_device(edev, clas);
+        if (ret) _ecore_drm_device_info_send(window, edev, clas, 0);
+     }
+   if (edev->seat_caps & EVDEV_SEAT_KEYBOARD)
+     {
+        clas = _ecore_drm_seat_cap_to_ecore_device_class(EVDEV_SEAT_KEYBOARD);
+        ret = _ecore_drm_device_del_ecore_device(edev, clas);
+        if (ret) _ecore_drm_device_info_send(window, edev, clas, 0);
+     }
+   if (edev->seat_caps & EVDEV_SEAT_TOUCH)
+     {
+        clas = _ecore_drm_seat_cap_to_ecore_device_class(EVDEV_SEAT_TOUCH);
+        ret = _ecore_drm_device_del_ecore_device(edev, clas);
+        if (ret) _ecore_drm_device_info_send(window, edev, clas, 0);
+     }
 }
 
 static void 
@@ -195,7 +322,7 @@ _device_added(Ecore_Drm_Input *input, struct libinput_device *device)
                    NULL);
 
    if (input->dev->window != -1) // window id is valid
-     _ecore_drm_device_info_send(input->dev->window, edev, EINA_TRUE);
+     _ecore_drm_device_add(input->dev->window, edev);
 
    TRACE_INPUT_END();
 }
@@ -233,7 +360,7 @@ _device_removed(Ecore_Drm_Input *input, struct libinput_device *device)
                    NULL);
 
    if (input->dev->window != -1) // window id is valid
-     _ecore_drm_device_info_send(input->dev->window, edev, EINA_FALSE);
+     _ecore_drm_device_remove(input->dev->window, edev);
 
    /* remove this evdev from the seat's list of devices */
    edev->seat->devices = eina_list_remove(edev->seat->devices, edev);
@@ -359,6 +486,96 @@ ecore_drm_inputs_create(Ecore_Drm_Device *dev)
      {
         ERR("Failed to assign seat: %m");
         goto err;
+     }
+
+   /* process pending events */
+   _input_events_process(input);
+
+   /* enable this input */
+   if (!ecore_drm_inputs_enable(input))
+     {
+        ERR("Failed to enable input");
+        goto err;
+     }
+
+   /* append this input */
+   dev->inputs = eina_list_append(dev->inputs, input);
+
+   TRACE_EFL_END();
+   TRACE_INPUT_END();
+   return EINA_TRUE;
+
+err:
+   if (input->libinput) libinput_unref(input->libinput);
+   free(input);
+   TRACE_EFL_END();
+   TRACE_INPUT_END();
+   return EINA_FALSE;
+}
+
+EAPI Eina_Bool
+ecore_drm_inputs_devices_create(Ecore_Drm_Device *dev)
+{
+   Ecore_Drm_Input *input;
+   struct libinput_device *device;
+   int devices_num;
+   char *env;
+   Eina_Stringshare *path;
+
+   /* check for valid device */
+   EINA_SAFETY_ON_NULL_RETURN_VAL(dev, EINA_FALSE);
+
+   TRACE_INPUT_BEGIN(ecore_drm_inputs_devices_create);
+   TRACE_EFL_BEGIN(DRM INPUTS DEVICES CREATE);
+
+   if ((env = getenv("PATH_DEVICES_NUM")))
+     devices_num = atoi(env);
+   if (!env || devices_num == 0)
+     {
+        TRACE_INPUT_END();
+        TRACE_EFL_END();
+        return EINA_TRUE;
+     }
+
+   INF("PATH_DEVICES_NUM : %d", devices_num);
+
+   /* try to allocate space for new input structure */
+   if (!(input = calloc(1, sizeof(Ecore_Drm_Input))))
+     {
+        TRACE_INPUT_END();
+        TRACE_EFL_END();
+        return EINA_FALSE;
+     }
+
+   /* set reference for parent device */
+   input->dev = dev;
+
+   /* try to create libinput context */
+   input->libinput =
+     libinput_path_create_context(&_input_interface, input);
+   if (!input->libinput)
+     {
+        ERR("Could not create libinput path context: %m");
+        goto err;
+     }
+
+   /* set libinput log priority */
+   libinput_log_set_priority(input->libinput, LIBINPUT_LOG_PRIORITY_INFO);
+
+   for (int i = 0; i < devices_num; i++)
+     {
+        char buf[1024] = "PATH_DEVICE_";
+        eina_convert_itoa(i + 1, buf + 12);
+        env = getenv(buf);
+        if (env)
+          {
+             path = eina_stringshare_add(env);
+             device = libinput_path_add_device(input->libinput, path);
+             if (!device)
+               ERR("Failed to initialized device %s", path);
+             else
+               INF("libinput_path created input device %s", path);
+          }
      }
 
    /* process pending events */

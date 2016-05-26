@@ -242,6 +242,7 @@ void
 _evas_device_cleanup(Evas *eo_e)
 {
    Evas_Device *dev;
+   Eina_List *l1, *l2;
    
    Evas_Public_Data *e = eo_data_scope_get(eo_e, EVAS_CANVAS_CLASS);
    if (e->cur_device)
@@ -251,9 +252,15 @@ _evas_device_cleanup(Evas *eo_e)
         eina_array_free(e->cur_device);
         e->cur_device = NULL;
      }
-   EINA_LIST_FREE(e->devices, dev)
+   EINA_LIST_FOREACH_SAFE(e->devices, l1, l2, dev)
      {
-        evas_device_del(dev);
+        int ref;
+        while (ref = dev->ref)
+          {
+             evas_device_del(dev);
+             if (ref <= 1)
+               break;
+          }
      }
 }
 

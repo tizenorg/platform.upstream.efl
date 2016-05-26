@@ -207,6 +207,12 @@ _ecore_wl_window_shell_surface_init(Ecore_Wl_Window *win)
              if (win->surface)
                tizen_policy_unset_focus_skip(_ecore_wl_disp->wl.tz_policy, win->surface);
           }
+        if (win->floating)
+          {
+             if (win->surface)
+               tizen_policy_set_floating_mode(_ecore_wl_disp->wl.tz_policy,
+                                              win->surface);
+          }
      }
    if ((!win->tz_rot.resource) && (_ecore_wl_disp->wl.tz_policy_ext))
      {
@@ -345,6 +351,9 @@ ecore_wl_window_new(Ecore_Wl_Window *parent, int x, int y, int w, int h, int buf
    win->allocation.h = h;
    win->saved.w = w;
    win->saved.h = h;
+   win->configured.w = w;
+   win->configured.h = h;
+   win->configured.edges = 0;
    win->transparent = EINA_FALSE;
    if (parent)
      win->type = ECORE_WL_WINDOW_TYPE_TRANSIENT;
@@ -713,10 +722,7 @@ ecore_wl_window_maximized_get(Ecore_Wl_Window *win)
 
    if (!win) return EINA_FALSE;
 
-   if (win->type == ECORE_WL_WINDOW_TYPE_MAXIMIZED)
-     return EINA_TRUE;
-
-   return EINA_FALSE;
+   return (win->maximized) || (win->type == ECORE_WL_WINDOW_TYPE_MAXIMIZED);
 }
 
 EAPI void
@@ -821,6 +827,9 @@ ecore_wl_window_update_size(Ecore_Wl_Window *win, int w, int h)
    if (!win) return;
    win->allocation.w = w;
    win->allocation.h = h;
+   win->configured.w = w;
+   win->configured.h = h;
+   win->configured.edges = 0;
    if ((!ecore_wl_window_maximized_get(win)) && (!win->fullscreen))
      {
         win->saved.w = w;
@@ -924,6 +933,20 @@ ecore_wl_window_pointer_set(Ecore_Wl_Window *win, struct wl_surface *surface, in
 
    if ((input = win->pointer_device))
      ecore_wl_input_pointer_set(input, surface, hot_x, hot_y);
+}
+
+EAPI Eina_Bool
+ecore_wl_window_pointer_warp(Ecore_Wl_Window *win, int x, int y)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!win || !win->surface || !win->visible) return EINA_FALSE;
+   if (!_ecore_wl_disp->wl.tz_input_device_manager) return EINA_FALSE;
+
+   tizen_input_device_manager_pointer_warp(_ecore_wl_disp->wl.tz_input_device_manager,
+                                           win->surface, wl_fixed_from_int(x), wl_fixed_from_int(y));
+
+   return EINA_TRUE;
 }
 
 EAPI void
@@ -1310,6 +1333,17 @@ ecore_wl_window_keyboard_get(Ecore_Wl_Window *win)
 }
 
 EAPI void
+ecore_wl_window_stack_mode_set(Ecore_Wl_Window *win, Ecore_Wl_Window_Stack_Mode mode)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!win) return;
+
+   if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
+     tizen_policy_set_stack_mode(_ecore_wl_disp->wl.tz_policy, win->surface, mode);
+}
+
+EAPI void
 ecore_wl_window_rotation_preferred_rotation_set(Ecore_Wl_Window *win, int rot)
 {
    enum tizen_rotation_angle angle = TIZEN_ROTATION_ANGLE_NONE;
@@ -1439,6 +1473,10 @@ _ecore_wl_window_cb_configure(void *data, struct wl_shell_surface *shell_surface
 
    if ((win->allocation.w != w) || (win->allocation.h != h))
      {
+        win->configured.w = w;
+        win->configured.h = h;
+        win->configured.edges = edges;
+
         _ecore_wl_window_configure_send(win,
                                         w, h, edges);
      }
@@ -1501,9 +1539,9 @@ _ecore_wl_window_cb_position_change(void *data, struct tizen_position *tizen_pos
      {
         ecore_wl_window_update_location(win, x, y);
         _ecore_wl_window_configure_send(win,
-                                        win->allocation.w,
-                                        win->allocation.h,
-                                        0);
+                                        win->configured.w,
+                                        win->configured.h,
+                                        win->configured.edges);
      }
 }
 
@@ -1554,8 +1592,8 @@ _ecore_wl_window_cb_angle_change(void *data, struct tizen_rotation *tizen_rotati
    win->tz_rot.serial = serial;
 
    ev->win = win->id;
-   ev->w = win->allocation.w;
-   ev->h = win->allocation.h;
+   ev->w = win->configured.w;
+   ev->h = win->configured.h;
 
    switch (angle)
      {
@@ -1733,6 +1771,10 @@ _ecore_wl_window_configure_send(Ecore_Wl_Window *win, int w, int h, int edges)
    ev->w = w;
    ev->h = h;
    ev->edges = edges;
+
+   win->configured.w = w;
+   win->configured.h = h;
+   win->configured.edges = edges;
 
    ecore_event_add(ECORE_WL_EVENT_WINDOW_CONFIGURE, ev, NULL, NULL);
 }
@@ -2033,4 +2075,22 @@ ecore_wl_window_aux_hint_del(Ecore_Wl_Window *win, int id)
    if (!win) return;
    if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
      tizen_policy_del_aux_hint(_ecore_wl_disp->wl.tz_policy, win->surface, id);
+}
+
+EAPI void
+ecore_wl_window_floating_mode_set(Ecore_Wl_Window *win, Eina_Bool floating)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return;
+
+   win->floating = floating;
+   if ((win->surface) && (_ecore_wl_disp->wl.tz_policy))
+     {
+        if (floating)
+          tizen_policy_set_floating_mode(_ecore_wl_disp->wl.tz_policy,
+                                         win->surface);
+        else
+          tizen_policy_unset_floating_mode(_ecore_wl_disp->wl.tz_policy,
+                                           win->surface);
+     }
 }

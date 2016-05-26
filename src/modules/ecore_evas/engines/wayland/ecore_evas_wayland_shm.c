@@ -102,7 +102,7 @@ static Ecore_Evas_Engine_Func _ecore_wl_engine_func =
    NULL, // func msg send
 
    _ecore_evas_wl_common_pointer_xy_get,
-   NULL, // pointer_warp
+   _ecore_evas_wl_common_pointer_warp,
 
    _ecore_evas_wl_common_wm_rot_preferred_rotation_set,
    _ecore_evas_wl_common_wm_rot_available_rotations_set,
@@ -243,6 +243,8 @@ ecore_evas_wayland_shm_new_internal(const char *disp_name, unsigned int parent, 
 
    evas_event_callback_add(ee->evas, EVAS_CALLBACK_RENDER_FLUSH_PRE,
                            _ecore_evas_wl_common_render_flush_pre, ee);
+   evas_event_callback_add(ee->evas, EVAS_CALLBACK_RENDER_FLUSH_POST,
+                           _ecore_evas_wl_common_render_flush_post, ee);
 
    /* FIXME: This needs to be set based on theme & scale */
    if (ee->prop.draw_frame)
@@ -282,13 +284,27 @@ ecore_evas_wayland_shm_new_internal(const char *disp_name, unsigned int parent, 
    ee->engine.func->fn_render = _ecore_evas_wl_common_render;
 
    _ecore_evas_register(ee);
+#if 0
    ecore_evas_input_event_register(ee);
+#endif
+   // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+   ecore_evas_input_event_register_with_multi(ee);
+   //
 
+#if 0
    ecore_event_window_register(ee->prop.window, ee, ee->evas, 
                                (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process, 
                                (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process, 
                                (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process, 
                                (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+#endif
+   // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+   ecore_event_window_register_with_multi(ee->prop.window, ee, ee->evas,
+                                         (Ecore_Event_Mouse_Move_With_Multi_Cb)_ecore_evas_mouse_move_with_multi_info_process,
+                                         (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
+                                         (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
+                                         (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+   //
 
    return ee;
 
@@ -316,21 +332,11 @@ _ecore_evas_wl_move_resize(Ecore_Evas *ee, int x, int y, int w, int h)
 static void
 _ecore_evas_wl_rotation_set(Ecore_Evas *ee, int rotation, int resize)
 {
-   Evas_Engine_Info_Wayland_Shm *einfo;
-
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (ee->rotation == rotation) return;
 
    _ecore_evas_wl_common_rotation_set(ee, rotation, resize);
-
-   einfo = (Evas_Engine_Info_Wayland_Shm *)evas_engine_info_get(ee->evas);
-   if (!einfo) return;
-
-   einfo->info.rotation = rotation;
-
-   if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
-     ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
 }
 
 static void
@@ -533,7 +539,6 @@ _ecore_evas_wayland_shm_window_rotate(Ecore_Evas *ee, int rotation, int resize)
 {
    if (!ee) return;
    _ecore_evas_wl_rotation_set(ee, rotation, resize);
-   if (ee->func.fn_state_change) ee->func.fn_state_change(ee);
 }
 
 #endif

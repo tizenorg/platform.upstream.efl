@@ -56,6 +56,7 @@ static Eina_Inlist *_ecore_wl_mouse_down_info_list = NULL;
 
 /* local function prototypes */
 static void _ecore_wl_input_seat_handle_capabilities(void *data, struct wl_seat *seat, enum wl_seat_capability caps);
+static void _ecore_wl_input_seat_handle_name(void *data, struct wl_seat *seat, char *name);
 
 static void _ecore_wl_input_cb_pointer_enter(void *data, struct wl_pointer *pointer EINA_UNUSED, unsigned int serial, struct wl_surface *surface, wl_fixed_t sx, wl_fixed_t sy);
 static void _ecore_wl_input_cb_pointer_leave(void *data, struct wl_pointer *pointer EINA_UNUSED, unsigned int serial, struct wl_surface *surface);
@@ -63,6 +64,7 @@ static void _ecore_wl_input_cb_pointer_motion(void *data, struct wl_pointer *poi
 static void _ecore_wl_input_cb_pointer_button(void *data, struct wl_pointer *pointer EINA_UNUSED, unsigned int serial, unsigned int timestamp, unsigned int button, unsigned int state);
 static void _ecore_wl_input_cb_pointer_axis(void *data, struct wl_pointer *pointer EINA_UNUSED, unsigned int timestamp, unsigned int axis, wl_fixed_t value);
 static void _ecore_wl_input_cb_pointer_frame(void *data, struct wl_callback *callback, unsigned int timestamp EINA_UNUSED);
+static Eina_Bool _ecore_wl_input_keymap_update_send(Ecore_Wl_Input *input);
 static void _ecore_wl_input_cb_keyboard_keymap(void *data, struct wl_keyboard *keyboard EINA_UNUSED, unsigned int format, int fd, unsigned int size);
 static void _ecore_wl_input_cb_keyboard_enter(void *data, struct wl_keyboard *keyboard EINA_UNUSED, unsigned int serial, struct wl_surface *surface, struct wl_array *keys EINA_UNUSED);
 static void _ecore_wl_input_cb_keyboard_leave(void *data, struct wl_keyboard *keyboard EINA_UNUSED, unsigned int serial, struct wl_surface *surface);
@@ -93,6 +95,9 @@ static void _ecore_wl_input_mouse_wheel_send(Ecore_Wl_Input *input, unsigned int
 static Ecore_Wl_Mouse_Down_Info *_ecore_wl_mouse_down_info_get(int dev);
 static void _ecore_wl_input_device_manager_cb_device_add(void *data EINA_UNUSED, struct tizen_input_device_manager *tizen_input_device_manager EINA_UNUSED, unsigned int serial EINA_UNUSED, const char *identifier, struct tizen_input_device *device, struct wl_seat *seat);
 static void _ecore_wl_input_device_manager_cb_device_remove(void *data EINA_UNUSED, struct tizen_input_device_manager *tizen_input_device_manager EINA_UNUSED, unsigned int serial EINA_UNUSED, const char *identifier, struct tizen_input_device *device, struct wl_seat *seat);
+static void _ecore_wl_input_device_manager_cb_error(void *data EINA_UNUSED, struct tizen_input_device_manager *tizen_input_device_manager EINA_UNUSED, uint32_t errorcode EINA_UNUSED);
+static void _ecore_wl_input_device_manager_cb_block_expired(void *data EINA_UNUSED, struct tizen_input_device_manager *tizen_input_device_manager EINA_UNUSED);
+static Ecore_Device *_ecore_wl_input_get_ecore_device(const char *name, Ecore_Device_Class clas);
 static void _ecore_wl_input_device_cb_device_info(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, const char *name, uint32_t clas, uint32_t subclas, struct wl_array *axes EINA_UNUSED);
 static void _ecore_wl_input_device_cb_event_device(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, unsigned int serial EINA_UNUSED, const char *name EINA_UNUSED, uint32_t time EINA_UNUSED);
 static void _ecore_wl_input_device_cb_axis(void *data EINA_UNUSED, struct tizen_input_device *tizen_input_device EINA_UNUSED, uint32_t axis_type EINA_UNUSED, wl_fixed_t value EINA_UNUSED);
@@ -134,7 +139,7 @@ static const struct wl_touch_listener touch_listener =
 static const struct wl_seat_listener _ecore_wl_seat_listener =
 {
    _ecore_wl_input_seat_handle_capabilities,
-   NULL // _ecore_wl_input_seat_handle_name
+   _ecore_wl_input_seat_handle_name
 };
 
 static const struct wl_data_device_listener _ecore_wl_data_listener =
@@ -156,6 +161,8 @@ static const struct tizen_input_device_manager_listener _ecore_tizen_input_devic
 {
    _ecore_wl_input_device_manager_cb_device_add,
    _ecore_wl_input_device_manager_cb_device_remove,
+   _ecore_wl_input_device_manager_cb_error,
+   _ecore_wl_input_device_manager_cb_block_expired,
 };
 
 static const struct tizen_input_device_listener _ecore_tizen_input_device_listener =
@@ -392,6 +399,25 @@ ecore_wl_input_cursor_default_restore(Ecore_Wl_Input *input)
 EAPI Ecore_Wl_Input *
 ecore_wl_input_get(void)
 {
+   if (!_ecore_wl_disp)
+     {
+        ERR("Ecore_Wl_Display doesn't exist");
+        return NULL;
+     }
+   if (!_ecore_wl_disp->input)
+     {
+        int loop_count = 5;
+        while ((!_ecore_wl_disp->input) && (loop_count > 0))
+          {
+             if (!_ecore_wl_disp->wl.display)
+               {
+                  ERR("Wayland display doesn't exist");
+                  return NULL;
+               }
+             wl_display_roundtrip(_ecore_wl_disp->wl.display);
+             loop_count--;
+          }
+     }
    return _ecore_wl_disp->input;
 }
 
@@ -449,7 +475,7 @@ _ecore_wl_input_add(Ecore_Wl_Display *ewd, unsigned int id)
      _ecore_wl_input_setup(input);
 
    input->seat =
-     wl_registry_bind(ewd->wl.registry, id, &wl_seat_interface, 1);
+     wl_registry_bind(ewd->wl.registry, id, &wl_seat_interface, 4);
    ewd->inputs = eina_inlist_append(ewd->inputs, EINA_INLIST_GET(input));
 
    wl_seat_add_listener(input->seat,
@@ -623,6 +649,13 @@ _ecore_wl_input_seat_handle_capabilities(void *data, struct wl_seat *seat, enum 
 }
 
 static void
+_ecore_wl_input_seat_handle_name(void *data, struct wl_seat *seat, char *name)
+{
+   /* We don't care about the name. */
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+}
+
+static void
 _ecore_wl_input_cb_pointer_motion(void *data, struct wl_pointer *pointer EINA_UNUSED, unsigned int timestamp, wl_fixed_t sx, wl_fixed_t sy)
 {
    Ecore_Wl_Input *input;
@@ -726,6 +759,26 @@ _ecore_wl_input_cb_pointer_frame(void *data, struct wl_callback *callback, unsig
      }
 }
 
+static Eina_Bool
+_ecore_wl_input_keymap_update_send(Ecore_Wl_Input *input)
+{
+   Ecore_Wl_Event_Keymap_Update *ev = NULL;
+
+   if (!input || !(input->xkb.keymap)) return EINA_FALSE;
+
+   /* allocate space for event structure */
+   ev = calloc(1, sizeof(Ecore_Wl_Event_Keymap_Update));
+   if (!ev) return EINA_FALSE;
+
+   ev->input = input;
+   ev->keymap = input->xkb.keymap;
+
+   /* raise an event saying the keymap has been updated */
+   ecore_event_add(ECORE_WL_EVENT_KEYMAP_UPDATE, ev, NULL, NULL);
+
+   return EINA_TRUE;
+}
+
 static void
 _ecore_wl_input_cb_keyboard_keymap(void *data, struct wl_keyboard *keyboard EINA_UNUSED, unsigned int format, int fd, unsigned int size)
 {
@@ -771,7 +824,6 @@ _ecore_wl_input_cb_keyboard_keymap(void *data, struct wl_keyboard *keyboard EINA
 
    // TIZEN ONLY(20160223) : Add back/menu/home key conversion support
    _tizen_api_version = 0.0;
-   _ecore_wl_input_key_conversion_set();
 
    input->xkb.control_mask =
      1 << xkb_map_mod_get_index(input->xkb.keymap, XKB_MOD_NAME_CTRL);
@@ -789,6 +841,13 @@ _ecore_wl_input_cb_keyboard_keymap(void *data, struct wl_keyboard *keyboard EINA
      1 << xkb_map_mod_get_index(input->xkb.keymap, XKB_MOD_NAME_CAPS);
    input->xkb.altgr_mask =
      1 << xkb_map_mod_get_index(input->xkb.keymap, "ISO_Level3_Shift");
+
+   if (!_ecore_wl_input_keymap_update_send(input))
+     {
+        xkb_map_unref(input->xkb.keymap);
+        input->xkb.keymap = NULL;
+        return;
+     }
 }
 
 static int
@@ -997,7 +1056,7 @@ _ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard EINA_UN
    e->timestamp = timestamp;
    e->modifiers = input->modifiers;
    e->keycode = code;
-   e->dev_name = input->last_device_name;
+   e->dev = _ecore_wl_input_get_ecore_device(input->last_device_name, ECORE_DEVICE_CLASS_KEYBOARD);
 
    if (state)
      ecore_event_add(ECORE_EVENT_KEY_DOWN, e, NULL, NULL);
@@ -1087,8 +1146,8 @@ _ecore_wl_input_cb_keyboard_repeat_setup(void *data, struct wl_keyboard *keyboar
    else
      input->repeat.enabled = EINA_TRUE;
 
-   input->repeat.rate = (rate / 1000);
-   input->repeat.delay = (delay / 100);
+   input->repeat.rate = (rate / 1000.0);
+   input->repeat.delay = (delay / 1000.0);
 }
 
 static Eina_Bool
@@ -1141,7 +1200,7 @@ _ecore_wl_input_cb_pointer_enter(void *data, struct wl_pointer *pointer EINA_UNU
    input->pointer_enter_serial = serial;
 
    /* The cursor on the surface is undefined until we set it */
-   ecore_wl_input_cursor_from_name_set(input, "left_ptr");
+   ecore_wl_input_cursor_from_name_set(input, input->cursor_name);
 
    if ((win = ecore_wl_window_surface_find(surface)))
      {
@@ -1460,7 +1519,7 @@ _ecore_wl_input_mouse_move_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, uns
 
    /* LOGFN(__FILE__, __LINE__, __FUNCTION__); */
 
-   if (!(ev = malloc(sizeof(Ecore_Event_Mouse_Move)))) return;
+   if (!(ev = calloc(1, sizeof(Ecore_Event_Mouse_Move)))) return;
 
    ev->timestamp = timestamp;
    ev->x = input->sx;
@@ -1491,7 +1550,7 @@ _ecore_wl_input_mouse_move_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, uns
    ev->multi.y = input->sy;
    ev->multi.root.x = input->sx;
    ev->multi.root.y = input->sy;
-   ev->dev_name = input->last_device_name;
+   ev->dev = _ecore_wl_input_get_ecore_device(input->last_device_name, input->last_device_class);
 
    if ((down_info = _ecore_wl_mouse_down_info_get(device)))
      {
@@ -1511,18 +1570,17 @@ _ecore_wl_input_mouse_move_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, uns
 static void
 _ecore_wl_input_mouse_in_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, unsigned int timestamp)
 {
-   Ecore_Wl_Event_Mouse_In *ev;
+   Ecore_Event_Mouse_IO *ev;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
-   if (!(ev = calloc(1, sizeof(Ecore_Wl_Event_Mouse_In)))) return;
+   if (!(ev = calloc(1, sizeof(Ecore_Event_Mouse_IO)))) return;
 
    ev->x = input->sx;
    ev->y = input->sy;
-   ev->root.x = input->sx;
-   ev->root.y = input->sy;
    ev->modifiers = input->modifiers;
    ev->timestamp = timestamp;
+   ev->dev = _ecore_wl_input_get_ecore_device(input->last_device_name, input->last_device_class);
 
    if (win)
      {
@@ -1530,24 +1588,23 @@ _ecore_wl_input_mouse_in_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, unsig
         ev->event_window = win->id;
      }
 
-   ecore_event_add(ECORE_WL_EVENT_MOUSE_IN, ev, NULL, NULL);
+   ecore_event_add(ECORE_EVENT_MOUSE_IN, ev, NULL, NULL);
 }
 
 static void
 _ecore_wl_input_mouse_out_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, unsigned int timestamp)
 {
-   Ecore_Wl_Event_Mouse_Out *ev;
+   Ecore_Event_Mouse_IO *ev;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
-   if (!(ev = calloc(1, sizeof(Ecore_Wl_Event_Mouse_Out)))) return;
+   if (!(ev = calloc(1, sizeof(Ecore_Event_Mouse_IO)))) return;
 
    ev->x = input->sx;
    ev->y = input->sy;
-   ev->root.x = input->sx;
-   ev->root.y = input->sy;
    ev->modifiers = input->modifiers;
    ev->timestamp = timestamp;
+   ev->dev = _ecore_wl_input_get_ecore_device(input->last_device_name, input->last_device_class);
 
    if (win)
      {
@@ -1555,7 +1612,7 @@ _ecore_wl_input_mouse_out_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, unsi
         ev->event_window = win->id;
      }
 
-   ecore_event_add(ECORE_WL_EVENT_MOUSE_OUT, ev, NULL, NULL);
+   ecore_event_add(ECORE_EVENT_MOUSE_OUT, ev, NULL, NULL);
 }
 
 static void
@@ -1592,7 +1649,7 @@ _ecore_wl_input_mouse_down_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, int
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
-   if (!(ev = malloc(sizeof(Ecore_Event_Mouse_Button)))) return;
+   if (!(ev = calloc(1, sizeof(Ecore_Event_Mouse_Button)))) return;
 
    if (button == BTN_LEFT)
      ev->buttons = 1;
@@ -1685,7 +1742,7 @@ _ecore_wl_input_mouse_down_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, int
    ev->multi.y = input->sy;
    ev->multi.root.x = input->sx;
    ev->multi.root.y = input->sy;
-   ev->dev_name = input->last_device_name;
+   ev->dev = _ecore_wl_input_get_ecore_device(input->last_device_name, input->last_device_class);
 
    if (win)
      {
@@ -1715,7 +1772,7 @@ _ecore_wl_input_mouse_up_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, int d
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
-   if (!(ev = malloc(sizeof(Ecore_Event_Mouse_Button)))) return;
+   if (!(ev = calloc(1, sizeof(Ecore_Event_Mouse_Button)))) return;
 
    if (button == BTN_LEFT)
      ev->buttons = 1;
@@ -1761,7 +1818,8 @@ _ecore_wl_input_mouse_up_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win, int d
    ev->multi.angle = 0.0;
    ev->multi.root.x = input->sx;
    ev->multi.root.y = input->sy;
-   ev->dev_name = input->last_device_name;
+   ev->dev = _ecore_wl_input_get_ecore_device(input->last_device_name,  input->last_device_class);
+
    if (device < ECORE_WL_TOUCH_MAX)
      {
         input->touch_axis[device].radius_x = 1.0;
@@ -1786,7 +1844,7 @@ _ecore_wl_input_mouse_wheel_send(Ecore_Wl_Input *input, unsigned int axis, int v
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
-   if (!(ev = malloc(sizeof(Ecore_Event_Mouse_Wheel)))) return;
+   if (!(ev = calloc(1, sizeof(Ecore_Event_Mouse_Wheel)))) return;
 
    ev->timestamp = timestamp;
    ev->modifiers = input->modifiers;
@@ -1794,7 +1852,7 @@ _ecore_wl_input_mouse_wheel_send(Ecore_Wl_Input *input, unsigned int axis, int v
    ev->y = input->sy;
    /* ev->root.x = input->sx; */
    /* ev->root.y = input->sy; */
-   ev->dev_name = input->last_device_name;
+   ev->dev = _ecore_wl_input_get_ecore_device(input->last_device_name,  input->last_device_class);
 
    if (axis == WL_POINTER_AXIS_VERTICAL_SCROLL)
      {
@@ -1882,8 +1940,25 @@ _ecore_wl_input_device_info_free(void *data EINA_UNUSED, void *ev)
    free(e);
 }
 
+static Ecore_Device_Class
+_ecore_wl_input_cap_to_ecore_device_class(unsigned int cap)
+{
+   switch(cap)
+     {
+      case ECORE_DEVICE_POINTER:
+         return ECORE_DEVICE_CLASS_MOUSE;
+      case ECORE_DEVICE_KEYBOARD:
+         return ECORE_DEVICE_CLASS_KEYBOARD;
+      case ECORE_DEVICE_TOUCH:
+         return ECORE_DEVICE_CLASS_TOUCH;
+      default:
+         return ECORE_DEVICE_CLASS_NONE;
+     }
+   return ECORE_DEVICE_CLASS_NONE;
+}
+
 void
-_ecore_wl_input_device_info_send(int win_id, const char *name,  const char *identifier, Ecore_Device_Type type, Eina_Bool flag)
+_ecore_wl_input_device_info_send(int win_id, const char *name,  const char *identifier, Ecore_Device_Class clas, Eina_Bool flag)
 {
    Ecore_Event_Device_Info *e;
 
@@ -1892,7 +1967,7 @@ _ecore_wl_input_device_info_send(int win_id, const char *name,  const char *iden
    e->name = eina_stringshare_add(name);
    e->identifier = eina_stringshare_add(identifier);
    e->seatname = eina_stringshare_add(name);
-   e->caps = type;
+   e->clas = clas;
    e->window = win_id;
 
    if (flag)
@@ -1901,13 +1976,95 @@ _ecore_wl_input_device_info_send(int win_id, const char *name,  const char *iden
      ecore_event_add(ECORE_EVENT_DEVICE_DEL, e, _ecore_wl_input_device_info_free, NULL);
 }
 
+static Ecore_Device *
+_ecore_wl_input_get_ecore_device(const char *name, Ecore_Device_Class clas)
+{
+   const Eina_List *dev_list = NULL;
+   const Eina_List *l;
+   Ecore_Device *dev = NULL;
+   const char *identifier;
+
+   if (!name) return NULL;
+
+   dev_list = ecore_device_list();
+   if (!dev_list) return NULL;
+   EINA_LIST_FOREACH(dev_list, l, dev)
+     {
+        if (!dev) continue;
+        identifier = ecore_device_identifier_get(dev);
+        if (!identifier) continue;
+        if ((ecore_device_class_get(dev) == clas) && (!strcmp(identifier, name)))
+          return dev;
+     }
+   return NULL;
+}
+
+static Eina_Bool
+_ecore_wl_input_add_ecore_device(const char *name, const char *identifier, Ecore_Device_Class clas)
+{
+   const Eina_List *dev_list = NULL;
+   const Eina_List *l;
+   Ecore_Device *dev;
+   const char *ecdev_name;
+
+   if (!identifier) return EINA_FALSE;
+
+   dev_list = ecore_device_list();
+   if (dev_list)
+     {
+        EINA_LIST_FOREACH(dev_list, l, dev)
+          {
+             if (!dev) continue;
+             ecdev_name = ecore_device_identifier_get(dev);
+             if (!ecdev_name) continue;
+             if ((ecore_device_class_get(dev) == clas) && (!strcmp(ecdev_name, identifier)))
+                return EINA_FALSE;
+          }
+     }
+
+   if(!(dev = ecore_device_add())) return EINA_FALSE;
+
+   ecore_device_name_set(dev, name);
+   ecore_device_description_set(dev, name);
+   ecore_device_identifier_set(dev, identifier);
+   ecore_device_class_set(dev, clas);
+   return EINA_TRUE;
+}
+
+static Eina_Bool
+_ecore_wl_input_del_ecore_device(const char *name, const char *identifier, Ecore_Device_Class clas)
+{
+   const Eina_List *dev_list = NULL;
+   const Eina_List *l;
+   Ecore_Device *dev = NULL;
+   const char *ecdev_name;
+
+   if (!identifier) return EINA_FALSE;
+
+   dev_list = ecore_device_list();
+   if (!dev_list) return EINA_FALSE;
+   EINA_LIST_FOREACH(dev_list, l, dev)
+      {
+         if (!dev) continue;
+         ecdev_name = ecore_device_identifier_get(dev);
+         if (!ecdev_name) continue;
+         if ((ecore_device_class_get(dev) == clas) && (!strcmp(ecdev_name, identifier)))
+           {
+              ecore_device_del(dev);
+              return EINA_TRUE;
+           }
+      }
+   return EINA_FALSE;
+}
+
 void
-_ecore_wl_input_device_info_broadcast(const char *name, const char *identifier, Ecore_Device_Type type, Eina_Bool flag)
+_ecore_wl_input_device_info_broadcast(const char *name, const char *identifier, Ecore_Device_Class clas, Eina_Bool flag)
 {
    Eina_Hash *windows = NULL;
    Eina_Iterator *itr;
    Ecore_Wl_Window *win = NULL;
    void *data;
+   Eina_Bool ret = EINA_FALSE;
 
    windows = _ecore_wl_window_hash_get();
    if (!windows) return;
@@ -1916,7 +2073,12 @@ _ecore_wl_input_device_info_broadcast(const char *name, const char *identifier, 
    while (eina_iterator_next(itr, &data))
      {
         win = data;
-        _ecore_wl_input_device_info_send(win->id, name, identifier, type, flag);
+        if (flag)
+          ret = _ecore_wl_input_add_ecore_device(name, identifier, clas);
+        else
+          ret = _ecore_wl_input_del_ecore_device(name, identifier, clas);
+        if (ret)
+          _ecore_wl_input_device_info_send(win->id, name, identifier, clas, flag);
      }
 
    eina_iterator_free(itr);
@@ -1961,6 +2123,7 @@ _ecore_wl_input_device_manager_cb_device_remove(void *data EINA_UNUSED, struct t
    Ecore_Wl_Input *input = _ecore_wl_disp->input;
    Eina_List *l, *ll;
    Ecore_Wl_Input_Device *dev;
+   Ecore_Device_Class clas;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
    if (!input) return;
@@ -1968,9 +2131,11 @@ _ecore_wl_input_device_manager_cb_device_remove(void *data EINA_UNUSED, struct t
 
    EINA_LIST_FOREACH_SAFE(input->devices, l, ll, dev)
      {
+        if (!dev->identifier) continue;
         if ((!strcmp(dev->identifier, identifier)) && (seat == dev->seat) && (device == dev->tz_device))
           {
-             _ecore_wl_input_device_info_broadcast(dev->name, dev->identifier, dev->clas, EINA_FALSE);
+             clas = _ecore_wl_input_cap_to_ecore_device_class(dev->clas);
+             _ecore_wl_input_device_info_broadcast(dev->name, dev->identifier, clas, EINA_FALSE);
 
              if (dev->tz_device) tizen_input_device_destroy(dev->tz_device);
              if (dev->name) eina_stringshare_del(dev->name);
@@ -1987,17 +2152,30 @@ _ecore_wl_input_device_manager_cb_device_remove(void *data EINA_UNUSED, struct t
 }
 
 static void
+_ecore_wl_input_device_manager_cb_error(void *data EINA_UNUSED, struct tizen_input_device_manager *tizen_input_device_manager EINA_UNUSED, uint32_t errorcode EINA_UNUSED)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+}
+
+static void
+_ecore_wl_input_device_manager_cb_block_expired(void *data EINA_UNUSED, struct tizen_input_device_manager *tizen_input_device_manager EINA_UNUSED)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+}
+
+static void
 _ecore_wl_input_device_cb_device_info(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, const char *name, uint32_t clas, uint32_t subclas, struct wl_array *axes EINA_UNUSED)
 {
    Ecore_Wl_Input_Device *dev;
+   Ecore_Device_Class e_clas;
 
    if (!(dev = data)) return;
    dev->clas = clas;
    dev->subclas = subclas;
    dev->name = eina_stringshare_add(name);
+   e_clas = _ecore_wl_input_cap_to_ecore_device_class(clas);
 
-   if (!dev->identifier) return;
-   _ecore_wl_input_device_info_broadcast(dev->name, dev->identifier, dev->clas, EINA_TRUE);
+   _ecore_wl_input_device_info_broadcast(dev->name, dev->identifier, e_clas, EINA_TRUE);
 }
 
 static void
@@ -2012,8 +2190,16 @@ _ecore_wl_input_device_cb_event_device(void *data, struct tizen_input_device *ti
    if (!(dev = data)) return;
    if (!dev->identifier) return;
    eina_stringshare_replace(&input->last_device_name, dev->identifier);
+   input->last_device_class = _ecore_wl_input_cap_to_ecore_device_class(dev->clas);
 
    return;
+}
+
+static void
+_ecore_wl_input_detent_rotate_free(void *data EINA_UNUSED, void *ev)
+{
+   Ecore_Event_Detent_Rotate *e = ev;
+   free(e);
 }
 
 static void
@@ -2021,6 +2207,7 @@ _ecore_wl_input_device_cb_axis(void *data EINA_UNUSED, struct tizen_input_device
 {
    Ecore_Wl_Input *input = _ecore_wl_disp->input;
    double dvalue = wl_fixed_to_double(value);
+   Ecore_Event_Detent_Rotate *e;
 
    switch (axis_type)
      {
@@ -2035,6 +2222,24 @@ _ecore_wl_input_device_cb_axis(void *data EINA_UNUSED, struct tizen_input_device
            break;
         case TIZEN_INPUT_DEVICE_AXIS_TYPE_ANGLE:
            input->last_angle = dvalue;
+           break;
+        case TIZEN_INPUT_DEVICE_AXIS_TYPE_DETENT:
+           /* Do something after get detent event.
+            * value 1 is clockwise,
+            * value -1 is counterclockwise,
+            */
+           if (!(e = calloc(1, sizeof(Ecore_Event_Detent_Rotate))))
+             {
+                ERR("detent: cannot allocate memory");
+                return;
+             }
+           if (dvalue == 1)
+             e->direction = ECORE_DETENT_DIRECTION_CLOCKWISE;
+           else
+             e->direction = ECORE_DETENT_DIRECTION_COUNTER_CLOCKWISE;
+           e->timestamp = (unsigned int)ecore_time_get();
+           DBG("detent: dir: %d, time: %d", e->direction, e->timestamp);
+           ecore_event_add(ECORE_EVENT_DETENT_ROTATE, e, _ecore_wl_input_detent_rotate_free, NULL);
            break;
         default:
            WRN("Invalid type(%d) is ignored.\n", axis_type);
@@ -2076,6 +2281,7 @@ _ecore_wl_input_key_conversion_set(void)
 {
    char *temp;
    xkb_keycode_t *keycodes = NULL;
+   static int retry_cnt = 0;
 
    if ((_tizen_api_version < 0.0) || (_tizen_api_version > 0.0)) return;
    EINA_SAFETY_ON_NULL_RETURN(_ecore_wl_disp->input);
@@ -2083,38 +2289,73 @@ _ecore_wl_input_key_conversion_set(void)
 
    temp = getenv("TIZEN_API_VERSION");
 
-   if (!temp) _tizen_api_version = -1.0;
+   if (!temp)
+     {
+        _tizen_api_version = 0.0;
+        retry_cnt++;
+        if (retry_cnt > 20)
+          {
+             INF("No tizen api version.\n");
+             _tizen_api_version = -1.0;
+          }
+     }
    else
      {
         _tizen_api_version = atof(temp);
+        INF("TIZEN_API_VERSION: %lf, Environment variable: %s\n", _tizen_api_version, temp);
         if (_tizen_api_version < 2.4)
           {
              _ecore_wl_input_key_conversion_clean_up();
 
              ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
                 xkb_keysym_from_name("XF86Stop", XKB_KEYSYM_NO_FLAGS), &keycodes);
-             _back_key_lt_24 = (int)keycodes[0];
-             free(keycodes);
-             keycodes = NULL;
+             if (!keycodes)
+               {
+                  ERR("There is no entry available for the old name of back key. No conversion will be done for back key.\n");
+               }
+             else
+               {
+                  _back_key_lt_24 = (int)keycodes[0];
+                  free(keycodes);
+                  keycodes = NULL;
+
+                  _num_back_key_latest  = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
+                    xkb_keysym_from_name("XF86Back", XKB_KEYSYM_NO_FLAGS), &_back_key_latest);
+               }
 
              ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
                 xkb_keysym_from_name("XF86Send", XKB_KEYSYM_NO_FLAGS), &keycodes);
-             _menu_key_lt_24 = (int)keycodes[0];
-             free(keycodes);
-             keycodes = NULL;
+             if (!keycodes)
+               {
+                  ERR("There is no entry available for the old name of back key. No conversion will be done for menu key.\n");
+               }
+             else
+               {
+                  _menu_key_lt_24 = (int)keycodes[0];
+                  free(keycodes);
+                  keycodes = NULL;
+
+                  _num_menu_key_latest  = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
+                    xkb_keysym_from_name("XF86Menu", XKB_KEYSYM_NO_FLAGS), &_menu_key_latest);
+               }
 
              ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
                 xkb_keysym_from_name("XF86Phone", XKB_KEYSYM_NO_FLAGS), &keycodes);
-             _home_key_lt_24 = (int)keycodes[0];
-             free(keycodes);
-             keycodes = NULL;
+             if (!keycodes)
+               {
+                  ERR("There is no entry available for the old name of back key. No conversion will be done for home key.\n");
+               }
+             else
+               {
+                  _home_key_lt_24 = (int)keycodes[0];
+                  free(keycodes);
+                  keycodes = NULL;
 
-             _num_back_key_latest  = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
-                xkb_keysym_from_name("XF86Back", XKB_KEYSYM_NO_FLAGS), &_back_key_latest);
-             _num_menu_key_latest  = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
-                xkb_keysym_from_name("XF86Menu", XKB_KEYSYM_NO_FLAGS), &_menu_key_latest);
-             _num_home_key_latest  = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
-                xkb_keysym_from_name("XF86Home", XKB_KEYSYM_NO_FLAGS), &_home_key_latest);
+                  _num_home_key_latest  = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap,
+                    xkb_keysym_from_name("XF86Home", XKB_KEYSYM_NO_FLAGS), &_home_key_latest);
+               }
+
+             if ((!_back_key_lt_24) && (!_menu_key_lt_24) && (!_home_key_lt_24)) _tizen_api_version = -1.0;
           }
         else
           {

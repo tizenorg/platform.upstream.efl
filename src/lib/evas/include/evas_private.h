@@ -1662,6 +1662,11 @@ void _canvas_event_feed_mouse_cancel(Eo *e, void *_pd, va_list *list);
 void _canvas_event_feed_mouse_wheel(Eo *e, void *_pd, va_list *list);
 void _canvas_event_input_mouse_move(Eo *e, void *_pd, va_list *list);
 void _canvas_event_feed_mouse_move(Eo *e, void *_pd, va_list *list);
+// TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+void _canvas_event_feed_mouse_down_with_multi_info(Eo *e, void *_pd, va_list *list);
+void _canvas_event_feed_mouse_up_with_multi_info(Eo *e, void *_pd, va_list *list);
+void _canvas_event_input_mouse_move_with_multi_info(Eo *e, void *_pd, va_list *list);
+//
 void _canvas_event_feed_mouse_in(Eo *e, void *_pd, va_list *list);
 void _canvas_event_feed_mouse_out(Eo *e, void *_pd, va_list *list);
 void _canvas_event_feed_multi_down(Eo *e, void *_pd, va_list *list);

@@ -104,6 +104,7 @@ extern int _ecore_log_dom;
 #define ECORE_MAGIC_PIPE          0xf7458226
 #define ECORE_MAGIC_WIN32_HANDLER 0xf7e8f1a3
 #define ECORE_MAGIC_JOB           0x76543210
+#define ECORE_MAGIC_DEV           0x5e9e6510
 
 typedef unsigned int Ecore_Magic;
 #define ECORE_MAGIC               Ecore_Magic __magic
@@ -203,6 +204,16 @@ int         _ecore_pipe_wait(Ecore_Pipe *p,
                              double wait);
 void       *_ecore_pipe_del(Ecore_Pipe *p);
 
+typedef struct _Ecore_Awake_Handler
+{
+   EINA_INLIST;
+   Ecore_Awake_Cb func;
+   void                *data;
+} Ecore_Awake_Handler;
+
+void _ecore_main_awake_handler_call(void);
+int _ecore_main_fdh_mark_active(fd_set *rfds, fd_set *wfds, fd_set *exfds);
+
 Ecore_Fd_Handler *
            _ecore_main_fd_handler_add(int fd,
                                       Ecore_Fd_Handler_Flags flags,
@@ -263,6 +274,8 @@ void _ecore_glib_shutdown(void);
 
 void _ecore_job_init(void);
 void _ecore_job_shutdown(void);
+
+void _ecore_device_cleanup(void);
 
 void _ecore_main_loop_init(void);
 void _ecore_main_loop_shutdown(void);
@@ -434,6 +447,7 @@ void ecore_mempool_shutdown(void);
 GENERIC_ALLOC_FREE_HEADER(Ecore_Event_Handler, ecore_event_handler);
 GENERIC_ALLOC_FREE_HEADER(Ecore_Event_Filter, ecore_event_filter);
 GENERIC_ALLOC_FREE_HEADER(Ecore_Event, ecore_event);
+//GENERIC_ALLOC_FREE_HEADER(Ecore_Device, ecore_device);
 //GENERIC_ALLOC_FREE_HEADER(Ecore_Idle_Exiter, ecore_idle_exiter);
 //GENERIC_ALLOC_FREE_HEADER(Ecore_Idle_Enterer, ecore_idle_enterer);
 //GENERIC_ALLOC_FREE_HEADER(Ecore_Idler, ecore_idler);

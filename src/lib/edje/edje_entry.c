@@ -2669,7 +2669,7 @@ _edje_entry_shutdown(Edje *ed)
 }
 
 void
-_edje_entry_real_part_init(Edje *ed, Edje_Real_Part *rp)
+_edje_entry_real_part_init(Edje *ed, Edje_Real_Part *rp, Ecore_IMF_Context *ic)
 {
    Entry *en;
 #ifdef HAVE_ECORE_IMF
@@ -2753,28 +2753,35 @@ _edje_entry_real_part_init(Edje *ed, Edje_Real_Part *rp)
         edje_object_signal_callback_add(ed->obj, "focus,part,in", rp->part->name, _edje_entry_focus_in_cb, rp);
         edje_object_signal_callback_add(ed->obj, "focus,part,out", rp->part->name, _edje_entry_focus_out_cb, rp);
 
-        ctx_id = ecore_imf_context_default_id_get();
-        if (ctx_id)
+        // TIZEN_ONLY(20131129): Reuse ecore_imf_context when theme is changed
+
+        if (ic)
+          en->imf_context = ic;
+        else
           {
-             ctx_info = ecore_imf_context_info_by_id_get(ctx_id);
-             if (!ctx_info->canvas_type ||
-                 strcmp(ctx_info->canvas_type, "evas") == 0)
+             ctx_id = ecore_imf_context_default_id_get();
+             if (ctx_id)
                {
-                  en->imf_context = ecore_imf_context_add(ctx_id);
-               }
-             else
-               {
-                  ctx_id = ecore_imf_context_default_id_by_canvas_type_get("evas");
-                  if (ctx_id)
+                  ctx_info = ecore_imf_context_info_by_id_get(ctx_id);
+                  if (!ctx_info->canvas_type ||
+                      strcmp(ctx_info->canvas_type, "evas") == 0)
                     {
                        en->imf_context = ecore_imf_context_add(ctx_id);
                     }
+                  else
+                    {
+                       ctx_id = ecore_imf_context_default_id_by_canvas_type_get("evas");
+                       if (ctx_id)
+                         {
+                            en->imf_context = ecore_imf_context_add(ctx_id);
+                         }
+                    }
                }
-          }
-        else
-          en->imf_context = NULL;
+             else
+                en->imf_context = NULL;
 
-        if (!en->imf_context) goto done;
+             if (!en->imf_context) goto done;
+          }
 
         ecore_imf_context_client_window_set
           (en->imf_context,
@@ -2793,10 +2800,23 @@ _edje_entry_real_part_init(Edje *ed, Edje_Real_Part *rp)
                                          rp->part->entry_mode == EDJE_ENTRY_EDIT_MODE_PASSWORD ?
                                          ECORE_IMF_INPUT_MODE_INVISIBLE : ECORE_IMF_INPUT_MODE_FULL);
 
+        if (rp->part->multiline)
+          ecore_imf_context_input_hint_set(en->imf_context,
+                                           ecore_imf_context_input_hint_get(en->imf_context) | ECORE_IMF_INPUT_HINT_MULTILINE);
+
         if (rp->part->entry_mode == EDJE_ENTRY_EDIT_MODE_PASSWORD)
           ecore_imf_context_input_panel_language_set(en->imf_context, ECORE_IMF_INPUT_PANEL_LANG_ALPHABET);
 #endif
      }
+   // TIZEN_ONLY(20131129): Reuse ecore_imf_context when theme is changed
+   else
+     {
+#ifdef HAVE_ECORE_IMF
+        if (ic)
+          ecore_imf_context_del(ic);
+#endif
+     }
+   //
 #ifdef HAVE_ECORE_IMF
 done:
 #endif
@@ -2804,7 +2824,7 @@ done:
 }
 
 void
-_edje_entry_real_part_shutdown(Edje *ed, Edje_Real_Part *rp)
+_edje_entry_real_part_shutdown(Edje *ed, Edje_Real_Part *rp, Eina_Bool reuse_ic)
 {
    Entry *en;
 
@@ -2839,8 +2859,13 @@ _edje_entry_real_part_shutdown(Edje *ed, Edje_Real_Part *rp)
              ecore_imf_context_event_callback_del(en->imf_context, ECORE_IMF_CALLBACK_PREEDIT_CHANGED, _edje_entry_imf_event_preedit_changed_cb);
              ecore_imf_context_event_callback_del(en->imf_context, ECORE_IMF_CALLBACK_SELECTION_SET, _edje_entry_imf_event_selection_set_cb);
 
-             ecore_imf_context_del(en->imf_context);
-             en->imf_context = NULL;
+             // TIZEN_ONLY(20131129): Reuse ecore_imf_context when theme is changed
+             if (!reuse_ic)
+               {
+                  ecore_imf_context_del(en->imf_context);
+                  en->imf_context = NULL;
+               }
+             //
           }
 
         edje_object_signal_callback_del(ed->obj, "focus,part,in", rp->part->name, _edje_entry_focus_in_cb);
@@ -3892,6 +3917,9 @@ _edje_entry_cursor_begin(Edje_Real_Part *rp, Edje_Cursor cur)
 {
    Entry *en;
    Evas_Textblock_Cursor *c = _cursor_get(rp, cur);
+   /* TIZEN_ONLY(20160419): Skip codes for updating cursor when cursor position is not changed */
+   int old_cur_pos;
+   /* END */
 
    if ((rp->type != EDJE_RP_TYPE_TEXT) ||
        (!rp->typedata.text)) return;
@@ -3901,7 +3929,16 @@ _edje_entry_cursor_begin(Edje_Real_Part *rp, Edje_Cursor cur)
 
    _edje_entry_imf_context_reset(rp);
 
+   /* TIZEN_ONLY(20160419): Skip codes for updating cursor when cursor position is not changed */
+   old_cur_pos = evas_textblock_cursor_pos_get(c);
+   /* END */
    evas_textblock_cursor_paragraph_first(c);
+
+   /* TIZEN_ONLY(20160419): Skip codes for updating cursor when cursor position is not changed */
+   if (old_cur_pos == evas_textblock_cursor_pos_get(c))
+     return;
+   /* END */
+
    _sel_update(en->ed, c, rp->object, rp->typedata.text->entry_data);
 
    _edje_entry_imf_cursor_info_set(en);
@@ -3914,6 +3951,9 @@ _edje_entry_cursor_end(Edje_Real_Part *rp, Edje_Cursor cur)
 {
    Entry *en;
    Evas_Textblock_Cursor *c = _cursor_get(rp, cur);
+   /* TIZEN_ONLY(20160419): Skip codes for updating cursor when cursor position is not changed */
+   int old_cur_pos;
+   /* END */
 
    if ((rp->type != EDJE_RP_TYPE_TEXT) ||
        (!rp->typedata.text)) return;
@@ -3923,7 +3963,16 @@ _edje_entry_cursor_end(Edje_Real_Part *rp, Edje_Cursor cur)
 
    _edje_entry_imf_context_reset(rp);
 
+   /* TIZEN_ONLY(20160419): Skip codes for updating cursor when cursor position is not changed */
+   old_cur_pos = evas_textblock_cursor_pos_get(c);
+   /* END */
    _curs_end(c, rp->object, rp->typedata.text->entry_data);
+
+   /* TIZEN_ONLY(20160419): Skip codes for updating cursor when cursor position is not changed */
+   if (old_cur_pos == evas_textblock_cursor_pos_get(c))
+     return;
+   /* END */
+
    _sel_update(en->ed, c, rp->object, rp->typedata.text->entry_data);
 
    _edje_entry_imf_cursor_info_set(en);
@@ -3961,6 +4010,9 @@ _edje_entry_cursor_line_begin(Edje_Real_Part *rp, Edje_Cursor cur)
 {
    Entry *en;
    Evas_Textblock_Cursor *c = _cursor_get(rp, cur);
+   /* TIZEN_ONLY(20160419): Skip codes for updating cursor when cursor position is not changed */
+   int old_cur_pos;
+   /* END */
 
    if ((rp->type != EDJE_RP_TYPE_TEXT) ||
        (!rp->typedata.text)) return;
@@ -3969,7 +4021,16 @@ _edje_entry_cursor_line_begin(Edje_Real_Part *rp, Edje_Cursor cur)
    if (!c) return;
    _edje_entry_imf_context_reset(rp);
 
+   /* TIZEN_ONLY(20160419): Skip codes for updating cursor when cursor position is not changed */
+   old_cur_pos = evas_textblock_cursor_pos_get(c);
+   /* END */
    evas_textblock_cursor_line_char_first(c);
+
+   /* TIZEN_ONLY(20160419): Skip codes for updating cursor when cursor position is not changed */
+   if (old_cur_pos == evas_textblock_cursor_pos_get(c))
+     return;
+   /* END */
+
    _sel_update(en->ed, c, rp->object, rp->typedata.text->entry_data);
 
    _edje_entry_imf_cursor_info_set(en);
@@ -3983,6 +4044,9 @@ _edje_entry_cursor_line_end(Edje_Real_Part *rp, Edje_Cursor cur)
 {
    Entry *en;
    Evas_Textblock_Cursor *c = _cursor_get(rp, cur);
+   /* TIZEN_ONLY(20160419): Skip codes for updating cursor when cursor position is not changed */
+   int old_cur_pos;
+   /* END */
 
    if ((rp->type != EDJE_RP_TYPE_TEXT) ||
        (!rp->typedata.text)) return;
@@ -3990,7 +4054,17 @@ _edje_entry_cursor_line_end(Edje_Real_Part *rp, Edje_Cursor cur)
    if (!en) return;
    if (!c) return;
    _edje_entry_imf_context_reset(rp);
+
+   /* TIZEN_ONLY(20160419): Skip codes for updating cursor when cursor position is not changed */
+   old_cur_pos = evas_textblock_cursor_pos_get(c);
+   /* END */
    evas_textblock_cursor_line_char_last(c);
+
+   /* TIZEN_ONLY(20160419): Skip codes for updating cursor when cursor position is not changed */
+   if (old_cur_pos == evas_textblock_cursor_pos_get(c))
+     return;
+   /* END */
+
    _sel_update(en->ed, c, rp->object, rp->typedata.text->entry_data);
 
    _edje_entry_imf_cursor_info_set(en);
@@ -4217,6 +4291,9 @@ _edje_entry_imf_cursor_info_set(Entry *en)
 }
 
 #ifdef HAVE_ECORE_IMF
+// TIZEN_ONLY (20150814): Pass correct cursor position and correct text to imf when selection is there
+// FIXME: Need to be pushed in upstream
+/*
 static Eina_Bool
 _edje_entry_imf_retrieve_surrounding_cb(void *data, Ecore_IMF_Context *ctx EINA_UNUSED, char **text, int *cursor_pos)
 {
@@ -4265,7 +4342,74 @@ _edje_entry_imf_retrieve_surrounding_cb(void *data, Ecore_IMF_Context *ctx EINA_
      }
 
    return EINA_TRUE;
+}*/
+
+static Eina_Bool
+_edje_entry_imf_retrieve_surrounding_cb(void *data, Ecore_IMF_Context *ctx EINA_UNUSED, char **text, int *cursor_pos)
+{
+   Edje *ed = data;
+   Edje_Real_Part *rp = ed->focused_part;
+   Entry *en = NULL;
+   const char *str;
+   char *plain_text;
+   Eina_Strbuf *buf = NULL;
+
+   if (!rp) return EINA_FALSE;
+   if ((rp->type != EDJE_RP_TYPE_TEXT) ||
+       (!rp->typedata.text)) return EINA_FALSE;
+   else
+     en = rp->typedata.text->entry_data;
+   if ((!en) || (rp->part->type != EDJE_PART_TYPE_TEXTBLOCK) ||
+       (rp->part->entry_mode < EDJE_ENTRY_EDIT_MODE_SELECTABLE))
+     return EINA_FALSE;
+
+   if (text)
+     {
+        str = _edje_entry_text_get(rp);
+        if (str)
+          {
+             plain_text = evas_textblock_text_markup_to_utf8(NULL, str);
+
+             if (plain_text)
+               {
+                  if (en->have_selection)
+                    {
+                       buf = eina_strbuf_new();
+
+                       if (en->sel_start)
+                         eina_strbuf_append_n(buf, plain_text, evas_textblock_cursor_pos_get(en->sel_start));
+                       else
+                         eina_strbuf_append(buf, plain_text);
+
+                       *text = strdup(eina_strbuf_string_get(buf));
+                       eina_strbuf_free(buf);
+                    }
+                  else
+                    *text = strdup(plain_text);
+
+                  free(plain_text);
+                  plain_text = NULL;
+               }
+             else
+               *text = strdup("");
+          }
+        else
+          *text = strdup("");
+     }
+
+   if (cursor_pos)
+     {
+        if (en->have_selection && en->sel_start)
+          *cursor_pos = evas_textblock_cursor_pos_get(en->sel_start);
+        else if (en->cursor)
+          *cursor_pos = evas_textblock_cursor_pos_get(en->cursor);
+        else
+          *cursor_pos = 0;
+     }
+
+   return EINA_TRUE;
 }
+//
 
 static void
 _edje_entry_imf_event_commit_cb(void *data, Ecore_IMF_Context *ctx EINA_UNUSED, void *event_info)
@@ -4445,7 +4589,7 @@ _edje_entry_imf_event_preedit_changed_cb(void *data, Ecore_IMF_Context *ctx EINA
              Edje_Entry_Change_Info *info;
 
              _edje_entry_hide_visible_password(ed, en->rp);
-             info = _text_filter_text_prepend(ed, en, en->cursor,
+             info = _text_filter_markup_prepend(ed, en, en->cursor,
                                               eina_strbuf_string_get(buf),
                                               "+ password=off",
                                               "- password",
@@ -4555,6 +4699,12 @@ _edje_entry_imf_event_delete_surrounding_cb(void *data, Ecore_IMF_Context *ctx E
    _edje_emit(ed, "entry,changed", en->rp->part->name);
    _edje_emit_full(ed, "entry,changed,user", en->rp->part->name, info,
                    _free_entry_change_info);
+   _edje_emit(ed, "cursor,changed", en->rp->part->name);
+   _edje_emit(ed, "cursor,changed,manual", en->rp->part->name);
+
+   _edje_entry_imf_cursor_info_set(en);
+   _edje_entry_real_part_configure(ed, rp);
+
 end:
    evas_textblock_cursor_free(del_start);
    evas_textblock_cursor_free(del_end);
@@ -4600,6 +4750,7 @@ _edje_entry_imf_retrieve_selection_cb(void *data, Ecore_IMF_Context *ctx EINA_UN
    Edje *ed = data;
    Edje_Real_Part *rp = ed->focused_part;
    Entry *en = NULL;
+   const char *selection_text = NULL;
 
    if (!rp) return EINA_FALSE;
    if ((rp->type != EDJE_RP_TYPE_TEXT) ||
@@ -4612,9 +4763,12 @@ _edje_entry_imf_retrieve_selection_cb(void *data, Ecore_IMF_Context *ctx EINA_UN
 
    if (en->have_selection)
      {
+        selection_text = _edje_entry_selection_get(rp);
+
         if (text)
-          *text = strdup(_edje_entry_selection_get(rp));
-        return EINA_TRUE;
+          *text = selection_text ? strdup(selection_text) : NULL;
+
+        return selection_text ? EINA_TRUE : EINA_FALSE;
      }
    else
      return EINA_FALSE;

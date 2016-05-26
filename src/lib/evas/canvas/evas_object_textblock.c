@@ -83,19 +83,33 @@ static const char o_type[] = "textblock";
 
 /* The char to be inserted instead of visible formats */
 #define _REPLACEMENT_CHAR 0xFFFC
+/* TIZEN_ONLY(20160422): Replace the replacement character of Tizen to 0x00A0 from 0xFFFC */
+#define _TIZEN_REPLACEMENT_CHAR 0x00A0
+/* END */
 #define _PARAGRAPH_SEPARATOR 0x2029
 #define _NEWLINE '\n'
 #define _TAB '\t'
 
 #define _REPLACEMENT_CHAR_UTF8 "\xEF\xBF\xBC"
+/* TIZEN_ONLY(20160422): Replace the replacement character of Tizen to 0x00A0 from 0xFFFC */
+#define _TIZEN_REPLACEMENT_CHAR_UTF8 "\xC2\xA0"
+/* END */
 #define _PARAGRAPH_SEPARATOR_UTF8 "\xE2\x80\xA9"
 #define _NEWLINE_UTF8 "\n"
 #define _TAB_UTF8 "\t"
+/* TIZEN_ONLY(20160422): Replace the replacement character of Tizen to 0x00A0 from 0xFFFC
 #define EVAS_TEXTBLOCK_IS_VISIBLE_FORMAT_CHAR(ch) \
    (((ch) == _REPLACEMENT_CHAR) || \
     ((ch) ==  _NEWLINE) || \
     ((ch) == _TAB) || \
     ((ch) == _PARAGRAPH_SEPARATOR))
+*/
+#define EVAS_TEXTBLOCK_IS_VISIBLE_FORMAT_CHAR(ch) \
+   (((ch) == _TIZEN_REPLACEMENT_CHAR) || \
+    ((ch) ==  _NEWLINE) || \
+    ((ch) == _TAB) || \
+    ((ch) == _PARAGRAPH_SEPARATOR))
+/* END */
 
 #ifdef CRI
 #undef CRI
@@ -521,7 +535,7 @@ struct _Evas_Object_Textblock
       int                              l, r, t, b;
    } style_pad;
    double                              valign;
-   char                               *markup_text;
+   Eina_Stringshare                   *markup_text;
    void                               *engine_data;
    const char                         *repch;
    const char                         *bidi_delimiters;
@@ -771,13 +785,16 @@ _style_match_tag(const Evas_Textblock_Style *ts, const char *s, size_t tag_len, 
    Evas_Object_Style_Tag *tag;
 
    /* Try the style tags */
-   EINA_INLIST_FOREACH(ts->tags, tag)
+   if (ts)
      {
-        if (tag->tag.tag_len != tag_len) continue;
-        if (!strncmp(tag->tag.tag, s, tag_len))
+        EINA_INLIST_FOREACH(ts->tags, tag)
           {
-             *replace_len = tag->tag.replace_len;
-             return tag->tag.replace;
+             if (tag->tag.tag_len != tag_len) continue;
+             if (!strncmp(tag->tag.tag, s, tag_len))
+               {
+                  *replace_len = tag->tag.replace_len;
+                  return tag->tag.replace;
+               }
           }
      }
 
@@ -909,6 +926,7 @@ static const char escape_strings[] =
 /* most common escaped stuff */
 "&quot;\0"     "\x22\0"
 "&amp;\0"      "\x26\0"
+"&apos;\0"     "\x27\0"
 "&lt;\0"       "\x3c\0"
 "&gt;\0"       "\x3e\0"
 /* all the rest */
@@ -2662,7 +2680,8 @@ _layout_format_ascent_descent_adjust(const Evas_Object *eo_obj,
         descent = *maxdescent;
         if (fmt->linesize > 0)
           {
-             if ((ascent + descent) < fmt->linesize)
+             int scaled_linesize = fmt->linesize * obj->cur->scale;
+             if ((ascent + descent) < scaled_linesize)
                {
                   ascent = ((fmt->linesize * ascent) / (ascent + descent));
                   descent = fmt->linesize - ascent;
@@ -2673,7 +2692,7 @@ _layout_format_ascent_descent_adjust(const Evas_Object *eo_obj,
              descent = descent * fmt->linerelsize;
              ascent = ascent * fmt->linerelsize;
           }
-        descent += fmt->linegap;
+        descent += fmt->linegap * obj->cur->scale;
         descent += ((ascent + descent) * fmt->linerelgap);
         if (*maxascent < ascent) *maxascent = ascent;
         if (*maxdescent < descent) *maxdescent = descent;
@@ -4090,10 +4109,17 @@ skip:
 
              if (cur_fi)
                {
+                  /* TIZEN_ONLY(20160422): Add glyphs shaping exception with checking language script.
                   ENFN->font_text_props_info_create(ENDT,
                         cur_fi, str, &ti->text_props, c->par->bidi_props,
                         ti->parent.text_pos, run_len, EVAS_TEXT_PROPS_MODE_SHAPE,
                         ti->parent.format->font.fdesc->lang);
+                   */
+                  ENFN->font_text_props_info_create(ENDT,
+                        cur_fi, str, &ti->text_props, c->par->bidi_props,
+                        ti->parent.text_pos, run_len, EVAS_TEXT_PROPS_MODE_CHECK(script),
+                        ti->parent.format->font.fdesc->lang);
+                  /* END */
                }
 
              while ((queue->start + queue->off) < (run_start + run_len))
@@ -4776,15 +4802,28 @@ _layout_ellipsis_item_new(Ctxt *c, const Evas_Object_Textblock_Item *cur_it)
               ellip_ti->parent.format->font.font, &script_fi, &cur_fi,
               script, _ellip_str, len);
 
+        /* TIZEN_ONLY(20160422): Add glyphs shaping exception with checking language script.
         ENFN->font_text_props_info_create(ENDT,
               cur_fi, _ellip_str, &ellip_ti->text_props,
               c->par->bidi_props, ellip_ti->parent.text_pos, len, EVAS_TEXT_PROPS_MODE_SHAPE,
               ellip_ti->parent.format->font.fdesc->lang);
+         */
+        ENFN->font_text_props_info_create(ENDT,
+              cur_fi, _ellip_str, &ellip_ti->text_props,
+              c->par->bidi_props, ellip_ti->parent.text_pos, len, EVAS_TEXT_PROPS_MODE_CHECK(script),
+              ellip_ti->parent.format->font.fdesc->lang);
+        /* END */
      }
 
    _text_item_update_sizes(c, ellip_ti);
 
+   /* TIZEN_ONLY(20160517): fix ellipsis item at wrong place in RTL text
+    * The text position for ellipsis item must be bigger than current item
    if (cur_it->type == EVAS_TEXTBLOCK_ITEM_TEXT)
+    */
+   if ((cur_it->type == EVAS_TEXTBLOCK_ITEM_TEXT) &&
+       (_ITEM_TEXT(cur_it)->text_props.text_len > 1))
+   /* END */
      {
         ellip_ti->parent.text_pos += _ITEM_TEXT(cur_it)->text_props.text_len
            - 1;
@@ -5193,6 +5232,9 @@ _layout_par(Ctxt *c)
    for (i = c->par->logical_items ; i ; )
      {
         Evas_Coord prevdescent = 0, prevascent = 0;
+        /* TIZEN_ONLY(20160517): Calculate exact width for current item */
+        Evas_Coord needed_w = 0;
+        /* END */
         int adv_line = 0;
         int redo_item = 0;
         Evas_Textblock_Obstacle_Info *obs_info = NULL;
@@ -5235,17 +5277,61 @@ _layout_par(Ctxt *c)
                }
           }
 
+        /* TIZEN_ONLY(20160517): Calculate exact width for current item */
+#ifdef BIDI_SUPPORT
+        if (c->par->is_bidi)
+          {
+             /* Calculate exact width for current item */
+             Evas_Object_Textblock_Item *vis_it, *last_it = NULL;
+
+             /* Append item for calculating */
+             c->ln->items = (Evas_Object_Textblock_Item *)
+                eina_inlist_append(EINA_INLIST_GET(c->ln->items),
+                      EINA_INLIST_GET(it));
+
+             _layout_line_reorder(c->ln);
+
+             EINA_INLIST_FOREACH(c->ln->items, vis_it)
+               {
+                  needed_w += vis_it->adv;
+                  if (vis_it->w > 0)
+                    last_it = vis_it;
+               }
+
+             if (last_it)
+               needed_w += last_it->w - last_it->adv;
+
+             /* Restore */
+             c->ln->items = (Evas_Object_Textblock_Item *)
+                eina_inlist_remove(EINA_INLIST_GET(c->ln->items),
+                                   EINA_INLIST_GET(it));
+          }
+        else
+#endif
+          {
+             needed_w = c->x + it->w;
+          }
+        /* END */
+
         if (handle_obstacles && !obs)
           {
              obs = _layout_item_obstacle_get(c, it);
           }
         /* Check if we need to wrap, i.e the text is bigger than the width,
            or we already found a wrap point. */
+        /* TIZEN_ONLY(20160517): Calculate exact width for current item
         if ((c->w >= 0) &&
               (obs ||
                  (((c->x + it->w) >
                    (c->w - c->o->style_pad.l - c->o->style_pad.r -
                     c->marginl - c->marginr)) || (wrap > 0))))
+         */
+        if ((c->w >= 0) &&
+              (obs ||
+                 ((needed_w >
+                   (c->w - c->o->style_pad.l - c->o->style_pad.r -
+                    c->marginl - c->marginr)) || (wrap > 0))))
+        /* END */
           {
              /* Handle ellipsis here. If we don't have more width left
               * and no height left, or no more width left and no wrapping.
@@ -6496,7 +6582,7 @@ _textblock_style_generic_set(Evas_Object *eo_obj, Evas_Textblock_Style *ts,
         Evas_Textblock_Style *old_ts;
         if (o->markup_text)
           {
-             free(o->markup_text);
+             eina_stringshare_del(o->markup_text);
              o->markup_text = NULL;
           }
 
@@ -6854,10 +6940,21 @@ _evas_textblock_text_markup_set(Eo *eo_obj EINA_UNUSED, Evas_Textblock_Data *o, 
 {
    Evas_Object_Protected_Data *obj = eo_data_scope_get(eo_obj, EVAS_OBJECT_CLASS);
    evas_object_async_block(obj);
-   if ((text != o->markup_text) && (o->markup_text))
+
+   if (text == o->markup_text)
      {
-        free(o->markup_text);
-        o->markup_text = NULL;
+        /* Text is the same and already stringshared, do nothing */
+        return;
+     }
+   else
+     {
+        text = eina_stringshare_add(text);
+        if (text == o->markup_text)
+          {
+             eina_stringshare_del(text);
+             /* Text is the same, do nothing. */
+             return;
+          }
      }
 
    _nodes_clear(eo_obj);
@@ -6866,15 +6963,6 @@ _evas_textblock_text_markup_set(Eo *eo_obj EINA_UNUSED, Evas_Textblock_Data *o, 
    o->text_nodes = _NODE_TEXT(eina_inlist_append(
             EINA_INLIST_GET(o->text_nodes),
             EINA_INLIST_GET(o->cursor->node)));
-
-   if (!o->style && !o->style_user)
-     {
-        if (text != o->markup_text)
-          {
-             if (text) o->markup_text = strdup(text);
-          }
-        return;
-     }
 
    evas_textblock_cursor_paragraph_first(o->cursor);
 
@@ -6888,6 +6976,8 @@ _evas_textblock_text_markup_set(Eo *eo_obj EINA_UNUSED, Evas_Textblock_Data *o, 
         EINA_LIST_FOREACH(o->cursors, l, data)
            evas_textblock_cursor_paragraph_first(data);
      }
+
+    o->markup_text = text;
 }
 
 EAPI void
@@ -7088,7 +7178,11 @@ _markup_get_text_utf8_append(Eina_Strbuf *sbuf, const char *text)
         else if (ch == _PARAGRAPH_SEPARATOR)
            eina_strbuf_append(sbuf, "<ps/>");
         else if (ch == _REPLACEMENT_CHAR)
+           /* TIZEN_ONLY(20160422): Replace the replacement character of Tizen to 0x00A0 from 0xFFFC
            eina_strbuf_append(sbuf, "&#xfffc;");
+            */
+           eina_strbuf_append(sbuf, "&#xa0;");
+           /* END */
         else if (ch != '\r')
           {
              eina_strbuf_append_length(sbuf, text + pos, pos2 - pos);
@@ -7176,7 +7270,7 @@ _evas_textblock_text_markup_get(Eo *eo_obj EINA_UNUSED, Evas_Textblock_Data *o)
         free(text_base);
      }
 
-   (((Evas_Textblock_Data *)o)->markup_text) = eina_strbuf_string_steal(txt);
+   (((Evas_Textblock_Data *)o)->markup_text) = eina_stringshare_add(eina_strbuf_string_get(txt));
    eina_strbuf_free(txt);
    markup = (o->markup_text);
 
@@ -7253,7 +7347,11 @@ evas_textblock_text_markup_to_utf8(const Evas_Object *eo_obj, const char *text)
                        else if (_IS_TAB(match))
                           eina_strbuf_append(sbuf, _TAB_UTF8);
                        else if (!strncmp(match, "item", 4))
+                          /* TIZEN_ONLY(20160422): Replace the replacement character of Tizen to 0x00A0 from 0xFFFC
                           eina_strbuf_append(sbuf, _REPLACEMENT_CHAR_UTF8);
+                           */
+                          eina_strbuf_append(sbuf, _TIZEN_REPLACEMENT_CHAR_UTF8);
+                          /* END */
 
                        free(ttag);
                     }
@@ -7572,10 +7670,17 @@ _layout_hyphen_item_new(Ctxt *c, const Evas_Object_Textblock_Text_Item *cur_ti)
               hyphen_ti->parent.format->font.font, &script_fi, &cur_fi,
               script, _hyphen_str, len);
 
+        /* TIZEN_ONLY(20160422): Add glyphs shaping exception with checking language script.
         ENFN->font_text_props_info_create(ENDT,
               cur_fi, _hyphen_str, &hyphen_ti->text_props,
               c->par->bidi_props, hyphen_ti->parent.text_pos, len, EVAS_TEXT_PROPS_MODE_SHAPE,
               hyphen_ti->parent.format->font.fdesc->lang);
+         */
+        ENFN->font_text_props_info_create(ENDT,
+              cur_fi, _hyphen_str, &hyphen_ti->text_props,
+              c->par->bidi_props, hyphen_ti->parent.text_pos, len, EVAS_TEXT_PROPS_MODE_CHECK(script),
+              hyphen_ti->parent.format->font.fdesc->lang);
+        /* END */
      }
 
    _text_item_update_sizes(c, hyphen_ti);
@@ -8616,6 +8721,33 @@ evas_textblock_cursor_paragraph_char_last(Evas_Textblock_Cursor *cur)
 
 }
 
+static void
+_cursor_line_first_char_get(Evas_Object_Textblock_Line *ln,
+                            Evas_Textblock_Cursor *cur,
+                            Evas_Textblock_Data *o)
+{
+   if (ln->items)
+     {
+        Evas_Object_Textblock_Item *it;
+        size_t pos;
+        pos = ln->items->text_pos;
+        EINA_INLIST_FOREACH(EINA_INLIST_GET(ln->items)->next, it)
+          {
+             if (it->text_pos < pos)
+               {
+                  pos = it->text_pos;
+               }
+          }
+        cur->pos = pos;
+        cur->node = ln->items->text_node;
+     }
+   else
+     {
+        cur->pos = 0;
+        cur->node = o->text_nodes;
+     }
+}
+
 EAPI void
 evas_textblock_cursor_line_char_first(Evas_Textblock_Cursor *cur)
 {
@@ -8630,26 +8762,12 @@ evas_textblock_cursor_line_char_first(Evas_Textblock_Cursor *cur)
 
    _relayout_if_needed(cur->obj, o);
 
+   /* We don't actually need 'it', but it needs to be non NULL */
    _find_layout_item_match(cur, &ln, &it);
 
    if (!ln) return;
-   if (ln->items)
-     {
-        Evas_Object_Textblock_Item *i;
-        it = ln->items;
-        EINA_INLIST_FOREACH(ln->items, i)
-          {
-             if (it->text_pos > i->text_pos)
-               {
-                  it = i;
-               }
-          }
-     }
-   if (it)
-     {
-        cur->pos = it->text_pos;
-        cur->node = it->text_node;
-     }
+
+   _cursor_line_first_char_get(ln, cur, o);
 }
 
 EAPI void
@@ -9196,7 +9314,6 @@ EAPI Eina_Bool
 evas_textblock_cursor_line_set(Evas_Textblock_Cursor *cur, int line)
 {
    Evas_Object_Textblock_Line *ln;
-   Evas_Object_Textblock_Item *it;
 
    if (!cur) return EINA_FALSE;
    Evas_Object_Protected_Data *obj = eo_data_scope_get(cur->obj, EVAS_OBJECT_CLASS);
@@ -9208,17 +9325,9 @@ evas_textblock_cursor_line_set(Evas_Textblock_Cursor *cur, int line)
 
    ln = _find_layout_line_num(cur->obj, line);
    if (!ln) return EINA_FALSE;
-   it = (Evas_Object_Textblock_Item *)ln->items;
-   if (it)
-     {
-        cur->pos = it->text_pos;
-        cur->node = it->text_node;
-     }
-   else
-     {
-        cur->pos = 0;
-        cur->node = o->text_nodes;
-     }
+
+   _cursor_line_first_char_get(ln, cur, o);
+
    return EINA_TRUE;
 }
 
@@ -9485,7 +9594,7 @@ _evas_textblock_changed(Evas_Textblock_Data *o, Evas_Object *eo_obj)
    o->content_changed = 1;
    if (o->markup_text)
      {
-        free(o->markup_text);
+        eina_stringshare_del(o->markup_text);
         o->markup_text = NULL;
      }
 
@@ -9863,7 +9972,11 @@ evas_textblock_cursor_format_append(Evas_Textblock_Cursor *cur, const char *form
         else if (_IS_TAB(format))
            insert_char = _TAB;
         else
+           /* TIZEN_ONLY(20160422): Replace the replacement character of Tizen to 0x00A0 from 0xFFFC
            insert_char = _REPLACEMENT_CHAR;
+            */
+           insert_char = _TIZEN_REPLACEMENT_CHAR;
+           /* END */
 
         eina_ustrbuf_insert_char(cur->node->unicode, insert_char, cur->pos);
 
@@ -11381,7 +11494,15 @@ _evas_textblock_cursor_coord_set(Evas_Textblock_Cursor *cur, Evas_Coord x, Evas_
                               {
                                  Evas_Object_Textblock_Format_Item *fi;
                                  fi = _ITEM_FORMAT(it);
-                                 cur->pos = fi->parent.text_pos;
+                                 /* Lets keep cur position half way for easy positioning */
+                                 if (x > (ln->x + it->x + (it->adv / 2)))
+                                   {
+                                      cur->pos = fi->parent.text_pos + 1;
+                                   }
+                                 else
+                                   {
+                                      cur->pos = fi->parent.text_pos;
+                                   }
                                  cur->node = found_par->text_node;
                                  return EINA_TRUE;
                               }
@@ -11941,6 +12062,39 @@ _evas_textblock_cursor_range_in_line_geometry_get(
    return rects;
 }
 
+/* Helper that creates a selection rectangle to a given line.
+ * The given 'inv' indicates an inverse behavior. */
+static Evas_Textblock_Rectangle *
+_line_fill_rect_get(const Evas_Object_Textblock_Line *ln,
+                    Evas_Coord w, Evas_Coord lm, Evas_Coord rm, Eina_Bool inv)
+{
+   Evas_Textblock_Rectangle *tr;
+
+   tr = calloc(1, sizeof(Evas_Textblock_Rectangle));
+   tr->y = ln->par->y + ln->y;
+   tr->h = ln->h;
+
+   //Reminder: ln->x includes the left margin */
+   if ((!inv && (ln->par->direction == EVAS_BIDI_DIRECTION_RTL)) ||
+       (inv && (ln->par->direction != EVAS_BIDI_DIRECTION_RTL)))
+     {
+        tr->x = lm;
+        tr->w = ln->x - lm;
+     }
+   else
+     {
+        tr->x = ln->x + ln->w;
+        tr->w = w - rm - tr->x;
+     }
+
+   if (tr->w == 0)
+     {
+        free(tr);
+        tr = NULL;
+     }
+   return tr;
+}
+
 EAPI Eina_Iterator *
 evas_textblock_cursor_range_simple_geometry_get(const Evas_Textblock_Cursor *cur1, const Evas_Textblock_Cursor *cur2)
 {
@@ -11983,9 +12137,12 @@ evas_textblock_cursor_range_simple_geometry_get(const Evas_Textblock_Cursor *cur
         int lm = 0, rm = 0;
         Eina_List *rects2 = NULL;
         Evas_Coord w;
-        Evas_Textblock_Cursor *tc;
         Evas_Textblock_Rectangle *tr;
 
+        evas_object_geometry_get(cur1->obj, NULL, NULL, &w, NULL);
+
+        /* Use the minimum left margin and right margin for a uniform
+         * line coverage of the rectangles */
         if (ln1->items)
           {
              Evas_Object_Textblock_Format *fm = ln1->items->format;
@@ -11996,30 +12153,29 @@ evas_textblock_cursor_range_simple_geometry_get(const Evas_Textblock_Cursor *cur
                }
           }
 
-        evas_object_geometry_get(cur1->obj, NULL, NULL, &w, NULL);
+        if (ln2->items)
+          {
+             Evas_Object_Textblock_Format *fm = ln2->items->format;
+             if (fm)
+               {
+                  if (fm->margin.l < lm) lm = fm->margin.l;
+                  if (fm->margin.r < rm) rm = fm->margin.r;
+               }
+          }
+
+        /* Append the rectangles by visual order (top, middle, bottom). Keep
+         * it like that so it is also easier to test and debug. */
+
+        /* Top line */
         rects = _evas_textblock_cursor_range_in_line_geometry_get(ln1, cur1, NULL);
-
-        /* Extend selection rectangle in first line */
-        tc = evas_object_textblock_cursor_new(cur1->obj);
-        evas_textblock_cursor_copy(cur1, tc);
-        evas_textblock_cursor_line_char_last(tc);
-        tr = calloc(1, sizeof(Evas_Textblock_Rectangle));
-        evas_textblock_cursor_pen_geometry_get(tc, &tr->x, &tr->y, &tr->w, &tr->h);
-        if (ln1->par->direction == EVAS_BIDI_DIRECTION_RTL)
+        /* Fill-in the top line */
+        tr = _line_fill_rect_get(ln1, w, lm, rm, EINA_FALSE);
+        if (tr)
           {
-             tr->w = tr->x + tr->w - rm;
-             tr->x = lm;
+             rects = eina_list_append(rects, tr);
           }
-        else
-          {
-             tr->w = w - tr->x - rm;
-          }
-        rects = eina_list_append(rects, tr);
-        evas_textblock_cursor_free(tc);
 
-        rects2 = _evas_textblock_cursor_range_in_line_geometry_get(ln2, NULL, cur2);
-
-        /* Add middle rect */
+        /* Middle rect (lines) */
         if ((ln1->par->y + ln1->y + ln1->h) != (ln2->par->y + ln2->y))
           {
              tr = calloc(1, sizeof(Evas_Textblock_Rectangle));
@@ -12028,6 +12184,15 @@ evas_textblock_cursor_range_simple_geometry_get(const Evas_Textblock_Cursor *cur
              tr->w = w - tr->x - rm;
              tr->h = ln2->par->y + ln2->y - tr->y;
              rects = eina_list_append(rects, tr);
+          }
+
+        /* Bottom line */
+        rects2 = _evas_textblock_cursor_range_in_line_geometry_get(ln2, NULL, cur2);
+        /* Fill-in the bottom line */
+        tr = _line_fill_rect_get(ln2, w, lm, rm, EINA_TRUE);
+        if (tr)
+          {
+             rects2 = eina_list_append(rects2, tr);
           }
         rects = eina_list_merge(rects, rects2);
      }

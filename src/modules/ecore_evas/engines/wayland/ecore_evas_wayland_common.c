@@ -3,6 +3,9 @@
 #endif
 
 #include "ecore_evas_wayland_private.h"
+#ifdef BUILD_ECORE_EVAS_WAYLAND_SHM
+# include <Evas_Engine_Wayland_Shm.h>
+#endif
 #ifdef BUILD_ECORE_EVAS_WAYLAND_EGL
 # include <Evas_Engine_Wayland_Egl.h>
 #endif
@@ -82,7 +85,7 @@ static Eina_Bool
 _ecore_evas_wl_common_cb_mouse_in(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
    Ecore_Evas *ee;
-   Ecore_Wl_Event_Mouse_In *ev;
+   Ecore_Event_Mouse_IO *ev;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
@@ -93,9 +96,6 @@ _ecore_evas_wl_common_cb_mouse_in(void *data EINA_UNUSED, int type EINA_UNUSED, 
    if (ee->in) return ECORE_CALLBACK_PASS_ON;
 
    if (ee->func.fn_mouse_in) ee->func.fn_mouse_in(ee);
-   ecore_event_evas_modifier_lock_update(ee->evas, ev->modifiers);
-   evas_event_feed_mouse_in(ee->evas, ev->timestamp, NULL);
-   _ecore_evas_mouse_move_process(ee, ev->x, ev->y, ev->timestamp);
    ee->in = EINA_TRUE;
    return ECORE_CALLBACK_PASS_ON;
 }
@@ -104,7 +104,7 @@ static Eina_Bool
 _ecore_evas_wl_common_cb_mouse_out(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
    Ecore_Evas *ee;
-   Ecore_Wl_Event_Mouse_Out *ev;
+   Ecore_Event_Mouse_IO *ev;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
@@ -115,9 +115,6 @@ _ecore_evas_wl_common_cb_mouse_out(void *data EINA_UNUSED, int type EINA_UNUSED,
 
    if (ee->in)
      {
-        ecore_event_evas_modifier_lock_update(ee->evas, ev->modifiers);
-        _ecore_evas_mouse_move_process(ee, ev->x, ev->y, ev->timestamp);
-        evas_event_feed_mouse_out(ee->evas, ev->timestamp, NULL);
         if (ee->func.fn_mouse_out) ee->func.fn_mouse_out(ee);
         if (ee->prop.cursor.object) evas_object_hide(ee->prop.cursor.object);
         ee->in = EINA_FALSE;
@@ -366,14 +363,6 @@ _ecore_evas_wl_common_cb_window_rotate(void *data EINA_UNUSED, int type EINA_UNU
 
    wdata->wm_rot.done = 1;
 
-   /* Fixme: rotation done send move to render flush */
-   if (!ee->prop.wm_rot.manual_mode.set)
-     {
-        wdata->wm_rot.request = 0;
-        wdata->wm_rot.done = 0;
-        ecore_wl_window_rotation_change_done_send(wdata->win);
-     }
-
    return ECORE_CALLBACK_PASS_ON;
 }
 
@@ -525,6 +514,35 @@ _rotation_do(Ecore_Evas *ee, int rotation, int resize)
         else
           evas_damage_rectangle_add(ee->evas, 0, 0, ee->h, ee->w);
      }
+
+   if (!strcmp(ee->driver, "wayland_shm"))
+     {
+#ifdef BUILD_ECORE_EVAS_WAYLAND_SHM
+        Evas_Engine_Info_Wayland_Shm *einfo;
+        einfo = (Evas_Engine_Info_Wayland_Shm *)evas_engine_info_get(ee->evas);
+        if (!einfo) return;
+
+        einfo->info.rotation = rotation;
+
+        if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
+          ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
+#endif
+     }
+   else if (!strcmp(ee->driver, "wayland_egl"))
+     {
+#ifdef BUILD_ECORE_EVAS_WAYLAND_EGL
+        Evas_Engine_Info_Wayland_Egl *einfo;
+        einfo = (Evas_Engine_Info_Wayland_Egl *)evas_engine_info_get(ee->evas);
+        if (!einfo) return;
+
+        einfo->info.rotation = rotation;
+
+        if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
+          ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
+#endif
+     }
+
+   _ecore_evas_wl_common_state_update(ee);
 }
 
 void
@@ -549,10 +567,10 @@ _ecore_evas_wl_common_init(void)
      return _ecore_evas_wl_init_count;
 
    _ecore_evas_wl_event_hdls[0] =
-     ecore_event_handler_add(ECORE_WL_EVENT_MOUSE_IN,
+     ecore_event_handler_add(ECORE_EVENT_MOUSE_IN,
                              _ecore_evas_wl_common_cb_mouse_in, NULL);
    _ecore_evas_wl_event_hdls[1] =
-     ecore_event_handler_add(ECORE_WL_EVENT_MOUSE_OUT,
+     ecore_event_handler_add(ECORE_EVENT_MOUSE_OUT,
                              _ecore_evas_wl_common_cb_mouse_out, NULL);
    _ecore_evas_wl_event_hdls[2] =
      ecore_event_handler_add(ECORE_WL_EVENT_FOCUS_IN,
@@ -1120,6 +1138,22 @@ _ecore_evas_wl_common_pointer_xy_get(const Ecore_Evas *ee EINA_UNUSED, Evas_Coor
    ecore_wl_pointer_xy_get(x, y);
 }
 
+Eina_Bool
+_ecore_evas_wl_common_pointer_warp(const Ecore_Evas *ee, Evas_Coord x, Evas_Coord y)
+{
+   Ecore_Evas_Engine_Wl_Data *wdata;
+   Eina_Bool ret;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if ((!ee) || (!ee->visible)) return EINA_FALSE;
+   wdata = ee->engine.data;
+   if(!wdata) return EINA_FALSE;
+
+   ret = ecore_wl_window_pointer_warp(wdata->win, x, y);
+   return ret;
+}
+
 void
 _ecore_evas_wl_common_wm_rot_preferred_rotation_set(Ecore_Evas *ee, int rot)
 {
@@ -1457,6 +1491,40 @@ end:
      }
 }
 
+static void
+_ecore_evas_wl_layer_update(Ecore_Evas *ee)
+{
+   Ecore_Evas_Engine_Wl_Data *wdata = ee->engine.data;
+
+   if (ee->prop.layer < 3)
+     {
+        if ((wdata->state.above) || (!wdata->state.below))
+          {
+             wdata->state.above = 0;
+             wdata->state.below = 1;
+             ecore_wl_window_stack_mode_set(wdata->win, ECORE_WL_WINDOW_STACK_BELOW);
+          }
+     }
+   else if (ee->prop.layer > 5)
+     {
+        if ((!wdata->state.above) || (wdata->state.below))
+          {
+             wdata->state.above = 1;
+             wdata->state.below = 0;
+             ecore_wl_window_stack_mode_set(wdata->win, ECORE_WL_WINDOW_STACK_ABOVE);
+          }
+     }
+   else
+     {
+        if ((wdata->state.above) || (wdata->state.below))
+          {
+             wdata->state.above = 0;
+             wdata->state.below = 0;
+             ecore_wl_window_stack_mode_set(wdata->win, ECORE_WL_WINDOW_STACK_NONE);
+          }
+     }
+}
+
 void
 _ecore_evas_wl_common_layer_set(Ecore_Evas *ee, int layer)
 {
@@ -1467,6 +1535,8 @@ _ecore_evas_wl_common_layer_set(Ecore_Evas *ee, int layer)
    if (layer < 1) layer = 1;
    else if (layer > 255) layer = 255;
    ee->prop.layer = layer;
+
+   _ecore_evas_wl_layer_update(ee);
    _ecore_evas_wl_common_state_update(ee);
 }
 
@@ -1635,6 +1705,22 @@ _ecore_evas_wl_common_render_flush_pre(void *data, Evas *evas EINA_UNUSED, void 
      wl_surface_frame(ecore_wl_window_surface_get(wdata->win));
    wl_callback_add_listener(wdata->anim_callback, &_anim_listener, ee);
    ecore_evas_manual_render_set(ee, 1);
+}
+
+void
+_ecore_evas_wl_common_render_flush_post(void *data, Evas *evas EINA_UNUSED, void *event EINA_UNUSED)
+{
+   Ecore_Evas *ee = data;
+   Ecore_Evas_Engine_Wl_Data *wdata;
+
+   wdata = ee->engine.data;
+   if ((wdata) && (wdata->wm_rot.done) &&
+       (!ee->prop.wm_rot.manual_mode.set))
+     {
+        wdata->wm_rot.request = 0;
+        wdata->wm_rot.done = 0;
+        ecore_wl_window_rotation_change_done_send(wdata->win);
+     }
 }
 
 void 

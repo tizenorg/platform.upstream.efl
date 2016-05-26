@@ -813,53 +813,51 @@ _surface_cap_cache_save()
 {
    /* check eet */
    Eet_File *et = NULL; //check eet file
-   int tmpfd;
-   int res = 0;
-   char cap_dir_path[PATH_MAX] = {0,};
-   char cap_file_path[PATH_MAX]= {0,};
-   char tmp_file[PATH_MAX] = {0,};
+   int tmpfd = -1;
+   char cap_dir_path[PATH_MAX];
+   char cap_file_path[PATH_MAX];
+   char tmp_file_name[PATH_MAX];
+   Eina_Tmpstr *tmp_file_path = NULL;
+
+   /* use eet */
+   if (!eet_init()) return 0;
 
    if (!evas_gl_common_file_cache_dir_check(cap_dir_path, sizeof(cap_dir_path)))
      {
-        if (cap_dir_path[0] != '\0')
-          res = evas_gl_common_file_cache_mkpath(cap_dir_path);
-
-        if (!res) return 0; /* we can't make directory */
+        if (!evas_gl_common_file_cache_mkpath(cap_dir_path))
+          return 0; /* we can't make directory */
      }
 
    evas_gl_common_file_cache_file_check(cap_dir_path, "surface_cap", cap_file_path,
                                         sizeof(cap_dir_path));
 
    /* use mkstemp for writing */
-   snprintf(tmp_file, sizeof(tmp_file), "%s.XXXXXX", cap_file_path);
-
-#ifndef _WIN32
-   mode_t old_umask = umask(S_IRWXG|S_IRWXO);
-#endif
-   tmpfd = mkstemp(tmp_file);
-#ifndef _WIN32
-   umask(old_umask);
-#endif
-
+   snprintf(tmp_file_name, sizeof(tmp_file_name), "%s.XXXXXX.cache", cap_file_path);
+   tmpfd = eina_file_mkstemp(tmp_file_name, &tmp_file_path);
    if (tmpfd < 0) goto error;
-   close(tmpfd);
 
-   /* use eet */
-   if (!eet_init()) goto error;
-
-   et = eet_open(tmp_file, EET_FILE_MODE_WRITE);
+   et = eet_open(tmp_file_path, EET_FILE_MODE_WRITE);
    if (!et) goto error;
 
    if (!_surface_cap_save(et)) goto error;
 
-   if (eet_close(et) != EET_ERROR_NONE) goto error;
-   if (rename(tmp_file,cap_file_path) < 0) goto error;
+   if (eet_close(et) != EET_ERROR_NONE) goto destroyed;
+   if (rename(tmp_file_path, cap_file_path) < 0) goto destroyed;
+   eina_tmpstr_del(tmp_file_path);
+   close(tmpfd);
    eet_shutdown();
+
    return 1;
 
+destroyed:
+   et = NULL;
+
 error:
+   if (tmpfd >= 0) close(tmpfd);
    if (et) eet_close(et);
-   if (evas_gl_common_file_cache_file_exists(tmp_file)) unlink(tmp_file);
+   if (evas_gl_common_file_cache_file_exists(tmp_file_path))
+     unlink(tmp_file_path);
+   eina_tmpstr_del(tmp_file_path);
    eet_shutdown();
    return 0;
 }
@@ -2500,7 +2498,7 @@ evgl_make_current(void *eng_data, EVGL_Surface *sfc, EVGL_Context *ctx)
                   // Destroy created resources
                   if (sfc->buffers_allocated)
                     {
-                       if (!_surface_buffers_allocate(eng_data, sfc, 0, 0, ctx->version))
+                       if (!_surface_buffers_destroy(sfc))
                          {
                             ERR("Unable to destroy surface buffers!");
                             evas_gl_common_error_set(eng_data, EVAS_GL_BAD_ALLOC);
@@ -3152,8 +3150,8 @@ evgl_direct_partial_render_end()
      }
 }
 
-void
-evas_gl_context_restore_set(Eina_Bool enable)
+EAPI void
+evas_gl_common_context_restore_set(Eina_Bool enable)
 {
    _need_context_restore = enable;
 }

@@ -543,10 +543,17 @@ _evas_object_text_item_new(Evas_Object_Protected_Data *obj,
 
    if (fi)
      {
+        /* TIZEN_ONLY(20160422): Add glyphs shaping exception with checking language script.
         ENFN->font_text_props_info_create(ENDT,
               fi, str + pos, &it->text_props,
               o->bidi_par_props, it->text_pos, len, EVAS_TEXT_PROPS_MODE_SHAPE,
               o->cur.fdesc->lang);
+         */
+        ENFN->font_text_props_info_create(ENDT,
+              fi, str + pos, &it->text_props,
+              o->bidi_par_props, it->text_pos, len, EVAS_TEXT_PROPS_MODE_CHECK(script),
+              o->cur.fdesc->lang);
+        /* END */
         _evas_object_text_item_update_sizes(obj, o, it);
      }
    o->items = (Evas_Object_Text_Item *)
@@ -873,25 +880,52 @@ _evas_object_text_layout(Evas_Object *eo_obj, Evas_Text_Data *o, Eina_Unicode *t
                }
              if (itr && (itr != start_ellip_it))
                {
+                  /* TIZEN_ONLY(20160517): fix RTL text ellipsis issues
                   int cut = 1 + ENFN->font_last_up_to_pos(ENDT,
                         o->font,
                         &itr->text_props,
                         ellipsis_coord - (advance + l + r),
                         0);
                   if (cut > 0)
+                   */
+                  int cut = ENFN->font_last_up_to_pos(ENDT,
+                        o->font,
+                        &itr->text_props,
+                        ellipsis_coord - (advance + l + r),
+                        0);
+                  if (cut >= 0)
+                  /* END */
                     {
 
                        start_ellip_it->text_pos = itr->text_pos;
+                       /* TIZEN_ONLY(20160517): fix RTL text ellipsis issues
                        start_ellip_it->visual_pos = itr->visual_pos;
                        if (!_layout_text_item_trim(obj, o, itr, cut, EINA_FALSE))
+                        */
+
+                       if (itr->text_props.bidi_dir == EVAS_BIDI_DIRECTION_RTL)
+                         start_ellip_it->visual_pos = itr->visual_pos + cut + 1;
+                       else
+                         start_ellip_it->visual_pos = itr->visual_pos;
+
+                       if (!_layout_text_item_trim(obj, o, itr, cut + 1, EINA_FALSE))
+                       /* END */
                          {
                             _evas_object_text_item_del(o, itr);
                          }
                     }
                }
 
+             /* TIZEN_ONLY(20160517): fix RTL text ellipsis issues
              o->items = (Evas_Object_Text_Item *) eina_inlist_remove(EINA_INLIST_GET(o->items), EINA_INLIST_GET(start_ellip_it));
              o->items = (Evas_Object_Text_Item *) eina_inlist_prepend(EINA_INLIST_GET(o->items), EINA_INLIST_GET(start_ellip_it));
+              */
+             if (!o->bidi_par_props)
+               {
+                  o->items = (Evas_Object_Text_Item *) eina_inlist_remove(EINA_INLIST_GET(o->items), EINA_INLIST_GET(start_ellip_it));
+                  o->items = (Evas_Object_Text_Item *) eina_inlist_prepend(EINA_INLIST_GET(o->items), EINA_INLIST_GET(start_ellip_it));
+               }
+             /* END */
           }
 
         if (end_ellip_it)
@@ -929,7 +963,15 @@ _evas_object_text_layout(Evas_Object *eo_obj, Evas_Text_Data *o, Eina_Unicode *t
                   if (cut >= 0)
                     {
                        end_ellip_it->text_pos = itr->text_pos + cut;
+                       /* TIZEN_ONLY(20160517): fix RTL text ellipsis issues
                        end_ellip_it->visual_pos = itr->visual_pos + cut;
+                        */
+
+                       if (itr->text_props.bidi_dir == EVAS_BIDI_DIRECTION_RTL)
+                         end_ellip_it->visual_pos = itr->visual_pos - 1;
+                       else
+                         end_ellip_it->visual_pos = itr->visual_pos + cut;
+                       /* END */
                        if (_layout_text_item_trim(obj, o, itr, cut, EINA_TRUE))
                          {
                             itr = (Evas_Object_Text_Item *) EINA_INLIST_GET(itr)->next;
@@ -1160,6 +1202,20 @@ _evas_text_inset_get(Eo *eo_obj, Evas_Text_Data *o)
 
    return inset;
 }
+
+// TIZEN_ONLY(20160425): Fix Evas Text truncated text case and evas_object_text_horiz_width_get() is added.
+// horiz_advance_without_ellipsis is changed to horiz_width_without_ellipsis.
+EOLIAN static Evas_Coord
+_evas_text_horiz_width_without_ellipsis_get(Eo *eo_obj EINA_UNUSED, Evas_Text_Data *o)
+{
+   Evas_Coord horiz = 0;
+   if (!o->font) return horiz;
+   if (!o->items) return horiz;
+   horiz = _evas_object_text_horiz_width_without_ellipsis_get(o);
+
+   return horiz;
+}
+//
 
 EOLIAN static Evas_Coord
 _evas_text_horiz_advance_get(Eo *eo_obj EINA_UNUSED, Evas_Text_Data *o)
@@ -2269,7 +2325,11 @@ _evas_object_text_recalc(Evas_Object *eo_obj, Eina_Unicode *text)
           {
              int min;
 
+             /* TIZEN_ONLY(20160305): Remove a whitespcae from the right end of ellipsized RTL text
              min = w + l + r < obj->cur->geometry.w || obj->cur->geometry.w == 0 ? w + l + r : obj->cur->geometry.w;
+              */
+             min = w + l + r < obj->cur->geometry.w || obj->cur->geometry.w == 0 ? w + l + r : _evas_object_text_horiz_advance_get(o);
+             /* END */
              eo_do_super(eo_obj, MY_CLASS,
                          efl_gfx_size_set(min, h + t + b));
           }

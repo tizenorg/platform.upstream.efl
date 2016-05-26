@@ -271,6 +271,56 @@ _edje_part_make_rtl(Edje_Part_Description_Common *desc)
    desc->rel2.id_x = i;
 }
 
+static Edje_Part_Description_Common *
+_edje_get_custom_description_by_orientation(Edje *ed, Edje_Part_Description_Common *src, Edje_Part_Description_Common **dst, unsigned char type)
+{
+   Edje_Part_Description_Common *ret;
+   size_t memsize = 0;
+
+   /* RTL flag is not set, return original description */
+   if (!edje_object_mirrored_get(ed->obj))
+     return src;
+
+   if (!(*dst))
+     {
+        ret = _edje_get_description_by_orientation(ed, src, dst, type);
+        return ret;
+     }
+
+#define POPULATE_MEMSIZE_RTL(Short, Type)                        \
+case EDJE_PART_TYPE_##Short:                                          \
+{                                                                     \
+   memsize = sizeof(Edje_Part_Description_##Type);                    \
+   break;                                                             \
+}
+
+   switch (type)
+     {
+        POPULATE_MEMSIZE_RTL(RECTANGLE, Common);
+        POPULATE_MEMSIZE_RTL(SNAPSHOT, Snapshot);
+        POPULATE_MEMSIZE_RTL(SWALLOW, Common);
+        POPULATE_MEMSIZE_RTL(GROUP, Common);
+        POPULATE_MEMSIZE_RTL(SPACER, Common);
+        POPULATE_MEMSIZE_RTL(TEXT, Text);
+        POPULATE_MEMSIZE_RTL(TEXTBLOCK, Text);
+        POPULATE_MEMSIZE_RTL(IMAGE, Image);
+        POPULATE_MEMSIZE_RTL(PROXY, Proxy);
+        POPULATE_MEMSIZE_RTL(BOX, Box);
+        POPULATE_MEMSIZE_RTL(TABLE, Table);
+        POPULATE_MEMSIZE_RTL(EXTERNAL, External);
+        POPULATE_MEMSIZE_RTL(CAMERA, Camera);
+        POPULATE_MEMSIZE_RTL(LIGHT, Light);
+        POPULATE_MEMSIZE_RTL(MESH_NODE, Mesh_Node);
+     }
+#undef POPULATE_MEMSIZE_RTL
+
+   ret = *dst;
+   memcpy(ret, src, memsize);
+   _edje_part_make_rtl(ret);
+
+   return ret;
+}
+
 /**
  * Returns part description
  *
@@ -398,8 +448,8 @@ _edje_part_description_find(Edje *ed, Edje_Real_Part *rp, const char *state_name
 
    if (!strcmp(state_name, "custom"))
      return rp->custom ?
-            _edje_get_description_by_orientation(ed, rp->custom->description,
-                                                 &rp->custom->description_rtl, ep->type) : NULL;
+            _edje_get_custom_description_by_orientation(ed, rp->custom->description,
+                                                       &rp->custom->description_rtl, ep->type) : NULL;
 
    if (!strcmp(state_name, "default") && approximate)
      {
@@ -675,7 +725,13 @@ _edje_part_description_apply(Edje *ed, Edje_Real_Part *ep, const char *d1, doubl
 
    epd1 = _edje_part_description_find(ed, ep, d1, v1, EINA_TRUE);
    if (!epd1)
-     epd1 = ep->part->default_desc;  /* never NULL */
+     {
+        ERR("Cannot find description \"%s\" in part \"%s\" from group \"%s\". Fallback to default description.",
+            d1, ep->part->name, ed->group);
+        epd1 = _edje_get_description_by_orientation(ed, ep->part->default_desc,
+                                                    &ep->part->default_desc_rtl,
+                                                    ep->type); /* never NULL */
+     }
 
    if (d2)
      epd2 = _edje_part_description_find(ed, ep, d2, v2, EINA_TRUE);
@@ -3551,18 +3607,15 @@ _circular_dependency_find(Edje *ed, Edje_Real_Part *ep, Edje_Real_Part *cep, Ein
 {
    Edje_Real_Part *rp = NULL;
 
-   if (cep && !strcmp(ep->part->name, cep->part->name))
-     {
-        return EINA_TRUE;
-     }
+   if (cep == ep) return EINA_TRUE;
+   if (!cep) cep = ep;
 
-   if ((ep->calculating & FLAG_X))
+   if ((cep->calculating & FLAG_X))
      {
-        if (ep->param1.description)
+        if (cep->param1.description)
           {
-             if (ep->param1.description->rel1.id_x >= 0)
+             if (cep->param1.description->rel1.id_x >= 0)
                {
-                  if (!cep) cep = ep;
                   rp = ed->table_parts[cep->param1.description->rel1.id_x];
                   if (_circular_dependency_find(ed, ep, rp, clist))
                     {
@@ -3570,9 +3623,8 @@ _circular_dependency_find(Edje *ed, Edje_Real_Part *ep, Edje_Real_Part *cep, Ein
                        return EINA_TRUE;
                     }
                }
-             if (ep->param1.description->rel2.id_x >= 0)
+             if (cep->param1.description->rel2.id_x >= 0)
                {
-                  if (!cep) cep = ep;
                   rp = ed->table_parts[cep->param1.description->rel2.id_x];
                   if (_circular_dependency_find(ed, ep, rp, clist))
                     {
@@ -3582,11 +3634,10 @@ _circular_dependency_find(Edje *ed, Edje_Real_Part *ep, Edje_Real_Part *cep, Ein
                }
           }
 
-        if (ep->param2)
+        if (cep->param2)
           {
-             if (ep->param2->description->rel1.id_x >= 0)
+             if (cep->param2->description->rel1.id_x >= 0)
                {
-                  if (!cep) cep = ep;
                   rp = ed->table_parts[cep->param2->description->rel1.id_x];
                   if (_circular_dependency_find(ed, ep, rp, clist))
                     {
@@ -3594,9 +3645,8 @@ _circular_dependency_find(Edje *ed, Edje_Real_Part *ep, Edje_Real_Part *cep, Ein
                        return EINA_TRUE;
                     }
                }
-             if (ep->param2->description->rel2.id_x >= 0)
+             if (cep->param2->description->rel2.id_x >= 0)
                {
-                  if (!cep) cep = ep;
                   rp = ed->table_parts[cep->param2->description->rel2.id_x];
                   if (_circular_dependency_find(ed, ep, rp, clist))
                     {
@@ -3606,13 +3656,12 @@ _circular_dependency_find(Edje *ed, Edje_Real_Part *ep, Edje_Real_Part *cep, Ein
                }
           }
      }
-   if ((ep->calculating & FLAG_Y))
+   if ((cep->calculating & FLAG_Y))
      {
-        if (ep->param1.description)
+        if (cep->param1.description)
           {
-             if (ep->param1.description->rel1.id_y >= 0)
+             if (cep->param1.description->rel1.id_y >= 0)
                {
-                  if (!cep) cep = ep;
                   rp = ed->table_parts[cep->param1.description->rel1.id_y];
                   if (_circular_dependency_find(ed, ep, rp, clist))
                     {
@@ -3620,9 +3669,8 @@ _circular_dependency_find(Edje *ed, Edje_Real_Part *ep, Edje_Real_Part *cep, Ein
                        return EINA_TRUE;
                     }
                }
-             if (ep->param1.description->rel2.id_y >= 0)
+             if (cep->param1.description->rel2.id_y >= 0)
                {
-                  if (!cep) cep = ep;
                   rp = ed->table_parts[cep->param1.description->rel2.id_y];
                   if (_circular_dependency_find(ed, ep, rp, clist))
                     {
@@ -3631,11 +3679,10 @@ _circular_dependency_find(Edje *ed, Edje_Real_Part *ep, Edje_Real_Part *cep, Ein
                     }
                }
           }
-        if (ep->param2)
+        if (cep->param2)
           {
-             if (ep->param2->description->rel1.id_y >= 0)
+             if (cep->param2->description->rel1.id_y >= 0)
                {
-                  if (!cep) cep = ep;
                   rp = ed->table_parts[cep->param2->description->rel1.id_y];
                   if (_circular_dependency_find(ed, ep, rp, clist))
                     {
@@ -3643,9 +3690,8 @@ _circular_dependency_find(Edje *ed, Edje_Real_Part *ep, Edje_Real_Part *cep, Ein
                        return EINA_TRUE;
                     }
                }
-             if (ep->param2->description->rel2.id_y >= 0)
+             if (cep->param2->description->rel2.id_y >= 0)
                {
-                  if (!cep) cep = ep;
                   rp = ed->table_parts[cep->param2->description->rel2.id_y];
                   if (_circular_dependency_find(ed, ep, rp, clist))
                     {

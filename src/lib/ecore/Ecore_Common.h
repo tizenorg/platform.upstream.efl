@@ -176,6 +176,11 @@ EAPI void ecore_main_loop_select_func_set(Ecore_Select_Function func);
  */
 EAPI Ecore_Select_Function ecore_main_loop_select_func_get(void);
 
+typedef void (*Ecore_Awake_Cb)(void *data);
+
+EAPI Eina_Bool ecore_main_awake_handler_add(Ecore_Awake_Cb func, void *data);
+EAPI void ecore_main_awake_handler_del(Ecore_Awake_Cb func);
+
 /**
  * Request ecore to integrate GLib's main loop.
  *
@@ -3188,6 +3193,219 @@ typedef Eo Ecore_Job;    /**< A job handle */
  * @}
  */
 
+/**
+ * @defgroup Ecore_Device_Group Ecore Device functions
+ * @ingroup Ecore
+ *
+ * @{
+ */
+ typedef struct _Ecore_Device                 Ecore_Device;    /**< A handle for an device */
+/**
+  * @typedef Ecore_Device_Class
+  * An enum of Device Classes.
+  */
+typedef enum _Ecore_Device_Class
+  {
+     ECORE_DEVICE_CLASS_NONE, /**< Not a device @since 1.18 */
+     ECORE_DEVICE_CLASS_SEAT, /**< The user/seat (the user themselves) @since 1.18 */
+     ECORE_DEVICE_CLASS_KEYBOARD, /**< A regular keyboard, numberpad or attached buttons @since 1.18 */
+     ECORE_DEVICE_CLASS_MOUSE, /**< A mouse, trackball or touchpad relative motion device @since 1.18 */
+     ECORE_DEVICE_CLASS_TOUCH, /**< A touchscreen with fingers or stylus @since 1.18 */
+     ECORE_DEVICE_CLASS_PEN, /**< A special pen device @since 1.18 */
+     ECORE_DEVICE_CLASS_POINTER, /**< A laser pointer, wii-style or 7"minority report" pointing device @since 1.18 */
+     ECORE_DEVICE_CLASS_GAMEPAD /**<  A gamepad controller or joystick @since 1.18 */
+  } Ecore_Device_Class; /**< A general class of device @since 1.18 */
+ /**
+   * @typedef Ecore_Device_Subclass
+   * An enum of Device Subclasses.
+   */
+typedef enum _Ecore_Device_Subclass
+  {
+     ECORE_DEVICE_SUBCLASS_NONE, /**< Not a device @since 1.18 */
+     ECORE_DEVICE_SUBCLASS_FINGER, /**< The normal flat of your finger @since 1.18 */
+     ECORE_DEVICE_SUBCLASS_FINGERNAIL, /**< A fingernail @since 1.18 */
+     ECORE_DEVICE_SUBCLASS_KNUCKLE, /**< A Knuckle @since 1.18 */
+     ECORE_DEVICE_SUBCLASS_PALM, /**< The palm of a users hand @since 1.18 */
+     ECORE_DEVICE_SUBCLASS_HAND_SIZE, /**< The side of your hand @since 1.18 */
+     ECORE_DEVICE_SUBCLASS_HAND_FLAT, /**< The flat of your hand @since 1.18 */
+     ECORE_DEVICE_SUBCLASS_PEN_TIP, /**< The tip of a pen @since 1.18 */
+     ECORE_DEVICE_SUBCLASS_TRACKPAD, /**< A trackpad style mouse @since 1.18 */
+     ECORE_DEVICE_SUBCLASS_TRACKPOINT, /**< A trackpoint style mouse @since 1.18 */
+     ECORE_DEVICE_SUBCLASS_TRACKBALL, /**< A trackball style mouse @since 1.18 */
+  } Ecore_Device_Subclass; /**< A general subclass of device @since 1.18 */
+
+typedef struct _Ecore_Device_Event_Info Ecore_Device_Event_Info; /**< @since 1.18 */
+
+/** Add a new device type
+ *
+ * Adds a new device node. All devices created whenever a new device
+ * is plugged and will be removed whenever it gets unplugged.
+ *
+ * @return the device node created or NULL if an error occurred.
+ *
+ * @see ecore_device_del
+ * @since 1.18
+ */
+EAPI Ecore_Device *ecore_device_add();
+
+/**
+ * Delete a new device type
+ *
+ * @param dev The device node you want to delete.
+ *
+ * @since 1.18
+ */
+EAPI void ecore_device_del(Ecore_Device *dev);
+
+/**
+ * List all current devices
+ *
+ * @return An internal list of Ecore_Device pointers, or NULL if no devices are found
+ *
+ * This will list all devices allowing you to walk the device tree.
+ *
+ * If there are no devices, NULL is returned.
+ *
+ * @see evas_device_name_get
+ * @see evas_device_description_get
+ * @see ecore_device_identifier_get
+ * @see evas_device_class_get
+ * @see evas_device_subclass_get
+ * @since 1.8
+ */
+EAPI const Eina_List *ecore_device_list(void);
+
+/**
+ * Set the name of a device as a string
+ *
+ * @p dev The device to set the name of
+ * @p name The name string as a readable C UTF8 string
+ *
+ * @since 1.8
+ */
+EAPI void ecore_device_name_set(Ecore_Device *dev, const char *name);
+
+/**
+ * Get the name of a device
+ *
+ * @p dev The device to query
+ * @return The device name string or NULL if none is set
+ *
+ * This gets the name set by ecore_device_name_set(). This is a readable UTF8
+ * C string, or NULL if no name is set.
+ *
+ * The name should be a short name like "Wireless Mouse", "Joystick",
+ * "Finger", "Keyboard" or "Numberpad" etc.
+ *
+ * @since 1.8
+ */
+EAPI const char *ecore_device_name_get(const Ecore_Device *dev);
+
+/**
+ * Set the description of a device as a string
+ *
+ * @p dev The device to set the description of
+ * @p desc The description string as a readable C UTF8 string
+ *
+ * @since 1.8
+ */
+EAPI void ecore_device_description_set(Ecore_Device *dev, const char *desc);
+
+/**
+ * Get the description of a device
+ *
+ * @p dev The device to query
+ * @return The device description string or NULL if none is set
+ *
+ * This gets the description set by ecore_device_description_set(). This is
+ * a readable UTF8 C string, or NULL if no description is set.
+ *
+ * A description is meant to be a longer string describing the device so a
+ * human may make sense of it. For example "Wireless 6 button mouse in Black
+ * with red buttons" would be a good description, so a user may identify
+ * precisely which device is being talked about.
+ *
+ * @since 1.8
+ */
+EAPI const char *ecore_device_description_get(const Ecore_Device *dev);
+
+/**
+ * Set the identifier of a device as a string
+ *
+ * @p dev The device to set the identifier of
+ * @p identifier The identifier string as a readable C UTF8 string
+ *
+ * @since 1.8
+ */
+EAPI void ecore_device_identifier_set(Ecore_Device *dev, const char *desc);
+
+/**
+ * Get the identifier of a device
+ *
+ * @p dev The device to query
+ * @return The device identifier string or NULL if none is set
+ *
+ * This gets the identifier set by ecore_device_identifier_set(). This is
+ * a readable UTF8 C string, or NULL if no identifier is set.
+ *
+ * A identifier should be unique string distinguishing input devices.
+ * For now, the sys name of device provided by udev is used. ex)/dev/input/event2.
+ *
+ * @since 1.8
+ */
+EAPI const char *ecore_device_identifier_get(const Ecore_Device *dev);
+
+/**
+ * Set the major class of device
+ *
+ * @param dev The device whose class to set
+ * @param clas The class to set it to
+ *
+ * This sets the "primary" class of device (a broad thing like mouse, keyboard,
+ * touch, pen etc.).
+ *
+ * @since 1.8
+ */
+EAPI void ecore_device_class_set(Ecore_Device *dev, Ecore_Device_Class clas);
+
+/**
+ * Get the major class of a device
+ *
+ * @param dev The devise to query
+ * @return The device class to set
+ *
+ * This sets the device class set by evas_device_class_set().
+ *
+ * @since 1.8
+ */
+EAPI Ecore_Device_Class ecore_device_class_get(const Ecore_Device *dev);
+
+/**
+ * Set the sub-class of a device
+ *
+ * @param dev The device to modify
+ * @param clas The sub-class to set
+ *
+ * This sets the sub-class of a device which gives much more detailed usage
+ * within a broader category.
+ *
+ * @since 1.8
+ */
+EAPI void ecore_device_subclass_set(Ecore_Device *dev, Ecore_Device_Subclass clas);
+
+/**
+ * Get the device sub-class
+ *
+ * @param dev The device to query
+ * @return The device sub-class set by evas_device_subclass_set().
+ *
+ * @since 1.8
+ */
+EAPI Ecore_Device_Subclass ecore_device_subclass_get(const Ecore_Device *dev);
+
+/**
+ * @}
+ */
 #ifdef __cplusplus
 }
 #endif

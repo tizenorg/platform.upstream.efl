@@ -135,6 +135,7 @@ struct _Evas_Object_Image
    Eina_Bool         written : 1;
    Eina_Bool         direct_render : 1;
    Eina_Bool         has_filter : 1;
+   Eina_Bool         native_video : 1;
    struct
    {
       Eina_Bool      video_move : 1;
@@ -2135,6 +2136,9 @@ _evas_image_native_surface_set(Eo *eo_obj, Evas_Image_Data *o, Evas_Native_Surfa
        ((surf->version < 2) ||
         (surf->version > EVAS_NATIVE_SURFACE_VERSION))) return;
    o->engine_data = ENFN->image_native_set(ENDT, o->engine_data, surf);
+   if ((surf) &&
+         (surf->type == EVAS_NATIVE_SURFACE_TBM))
+      o->native_video = EINA_TRUE;
 }
 
 EOLIAN static Evas_Native_Surface*
@@ -3390,6 +3394,62 @@ _evas_image_render(Eo *eo_obj, Evas_Object_Protected_Data *obj,
           }
         else
           {
+              if (o->native_video)
+                {
+                   // for native surface video rendering
+                   Evas_Native_Surface *ns;
+                   ns = ENFN->image_native_get(ENDT, o->engine_data);
+                   if (ns && (ns->type == EVAS_NATIVE_SURFACE_TBM))
+                     {
+                        Eina_Bool need_return = EINA_FALSE;
+                        float ratio = ns->data.tbm.ratio;
+                        if (ratio > 0.01f)
+                          {
+                             ix = iy = 0;
+                             if (ns->data.tbm.rot == EVAS_IMAGE_ORIENT_90 || ns->data.tbm.rot == EVAS_IMAGE_ORIENT_270)
+                               {
+                                  if (o->cur->fill.w * ratio < o->cur->fill.h)
+                                     iy = (double)(o->cur->fill.h - (double)(o->cur->fill.w * ratio)) * 0.5f;
+                                  else if (o->cur->fill.w * ratio > o->cur->fill.h)
+                                     ix = (double)(o->cur->fill.w - (double)(o->cur->fill.h / ratio)) * 0.5f;
+                                }
+                             else
+                               {
+                                  if (o->cur->fill.w < o->cur->fill.h * ratio)
+                                     iy = (double)(o->cur->fill.h - (double)(o->cur->fill.w / ratio)) * 0.5f;
+                                  else if (o->cur->fill.w > o->cur->fill.h * ratio)
+                                     ix = (double)(o->cur->fill.w - (double)(o->cur->fill.h * ratio)) * 0.5f;
+                               }
+                             _draw_image
+                               (obj, output, context, surface, pixels,
+                                0, 0,
+                                imagew, imageh,
+                                obj->cur->geometry.x + o->cur->fill.x + ix,
+                                obj->cur->geometry.y + o->cur->fill.y + iy,
+                                o->cur->fill.w - ix * 2,
+                                o->cur->fill.h - iy * 2,
+                                o->cur->smooth_scale,
+                                do_async);
+                             need_return = EINA_TRUE;
+                     }
+                     else if (ns->data.tbm.roi.use_roi)
+                       {
+                          _draw_image
+                            (obj, output, context, surface, pixels,
+                             0, 0,
+                             imagew, imageh,
+                             ns->data.tbm.roi.x,
+                             ns->data.tbm.roi.y,
+                             ns->data.tbm.roi.w,
+                             ns->data.tbm.roi.h,
+                             o->cur->smooth_scale,
+                             do_async);
+                           need_return = EINA_TRUE;
+                        }
+                     if (need_return) return;
+                    }
+                 }
+
              int offx, offy;
 
              ENFN->image_scale_hint_set(output, pixels, o->scale_hint);

@@ -2459,8 +2459,6 @@ ecore_evas_input_rect_set(Ecore_Evas *ee, Eina_Rectangle *input_rect)
 
         return;
      }
-
-   return;
 }
 
 EAPI void
@@ -2484,8 +2482,6 @@ ecore_evas_input_rect_add(Ecore_Evas *ee, Eina_Rectangle *input_rect)
 
         return;
      }
-
-   return;
 }
 
 EAPI void
@@ -2509,8 +2505,6 @@ ecore_evas_input_rect_subtract(Ecore_Evas *ee, Eina_Rectangle *input_rect)
 
         return;
      }
-
-   return;
 }
 
 EAPI Eina_Bool
@@ -3375,6 +3369,47 @@ _ecore_evas_mouse_move_process(Ecore_Evas *ee, int x, int y, unsigned int timest
      evas_event_input_mouse_move(ee->evas, y, ee->w + fh - x - 1, timestamp, NULL);
 }
 
+// TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+EAPI void
+_ecore_evas_mouse_move_with_multi_info_process(Ecore_Evas *ee, int x, int y, unsigned int timestamp, double radius, double radius_x, double radius_y, double pressure, double angle)
+{
+   int fx, fy, fw, fh;
+   ee->mouse.x = x;
+   ee->mouse.y = y;
+
+   evas_output_framespace_get(ee->evas, &fx, &fy, &fw, &fh);
+
+   if (ee->prop.cursor.object)
+     {
+        evas_object_show(ee->prop.cursor.object);
+        if (ee->rotation == 0)
+          evas_object_move(ee->prop.cursor.object,
+                           x - fx - ee->prop.cursor.hot.x,
+                           y - fy - ee->prop.cursor.hot.y);
+        else if (ee->rotation == 90)
+          evas_object_move(ee->prop.cursor.object,
+                           ee->h + fw - y - fx - 1 - ee->prop.cursor.hot.x,
+                           x - fy - ee->prop.cursor.hot.y);
+        else if (ee->rotation == 180)
+          evas_object_move(ee->prop.cursor.object,
+                           ee->w + fw - x - fx - 1 - ee->prop.cursor.hot.x,
+                           ee->h + fh - y - fy - 1 - ee->prop.cursor.hot.y);
+        else if (ee->rotation == 270)
+          evas_object_move(ee->prop.cursor.object,
+                           y - fx - ee->prop.cursor.hot.x,
+                           ee->w + fh - x - fy - 1 - ee->prop.cursor.hot.y);
+     }
+   if (ee->rotation == 0)
+     evas_event_input_mouse_move_with_multi_info(ee->evas, x, y, timestamp, NULL, radius, radius_x, radius_y, pressure, angle);
+   else if (ee->rotation == 90)
+     evas_event_input_mouse_move_with_multi_info(ee->evas, ee->h + fw - y - 1, x, timestamp, NULL, radius, radius_x, radius_y, pressure, angle);
+   else if (ee->rotation == 180)
+     evas_event_input_mouse_move_with_multi_info(ee->evas, ee->w + fw - x - 1, ee->h + fh - y - 1, timestamp, NULL, radius, radius_x, radius_y, pressure, angle);
+   else if (ee->rotation == 270)
+     evas_event_input_mouse_move_with_multi_info(ee->evas, y, ee->w + fh - x - 1, timestamp, NULL, radius, radius_x, radius_y, pressure, angle);
+}
+//
+
 EAPI void
 _ecore_evas_mouse_multi_move_process(Ecore_Evas *ee, int device,
                                      int x, int y,
@@ -3581,6 +3616,18 @@ ecore_evas_input_event_register(Ecore_Evas *ee)
                                (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
                                (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
 }
+
+// TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+EAPI void
+ecore_evas_input_event_register_with_multi(Ecore_Evas *ee)
+{
+   ecore_event_window_register_with_multi((Ecore_Window)ee, ee, ee->evas,
+                                          (Ecore_Event_Mouse_Move_With_Multi_Cb)_ecore_evas_mouse_move_with_multi_info_process,
+                                          (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
+                                          (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
+                                          (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+}
+//
 
 EAPI void
 ecore_evas_input_event_unregister(Ecore_Evas *ee)

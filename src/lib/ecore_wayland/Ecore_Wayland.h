@@ -80,6 +80,22 @@ typedef struct _Ecore_Wl_Event_Aux_Hint_Allowed Ecore_Wl_Event_Aux_Hint_Allowed;
 typedef struct _Ecore_Wl_Event_Window_Iconify_State_Change Ecore_Wl_Event_Window_Iconify_State_Change;
 typedef struct _Ecore_Wl_Event_Effect Ecore_Wl_Event_Effect_Start;
 typedef struct _Ecore_Wl_Event_Effect Ecore_Wl_Event_Effect_End;
+typedef struct _Ecore_Wl_Display Ecore_Wl_Display;
+typedef struct _Ecore_Wl_Event_Global Ecore_Wl_Event_Global;
+typedef struct _Ecore_Wl_Event_Keymap_Update Ecore_Wl_Event_Keymap_Update;
+
+struct _Ecore_Wl_Event_Global
+{
+   Ecore_Wl_Display *display;
+   Eina_Stringshare *interface;
+   unsigned int id, version;
+};
+
+struct _Ecore_Wl_Event_Keymap_Update
+{
+   Ecore_Wl_Input *input;
+   struct xkb_keymap *keymap;
+};
 
 enum _Ecore_Wl_Window_Type
 {
@@ -148,6 +164,13 @@ enum _Ecore_Wl_Indicator_Opacity_Mode
    ECORE_WL_INDICATOR_TRANSPARENT
 };
 
+enum _Ecore_Wl_Window_Stack_Mode
+{
+   ECORE_WL_WINDOW_STACK_NONE  = 0,
+   ECORE_WL_WINDOW_STACK_ABOVE = 1,
+   ECORE_WL_WINDOW_STACK_BELOW = 2,
+};
+
 typedef enum _Ecore_Wl_Window_Type Ecore_Wl_Window_Type;
 typedef enum _Ecore_Wl_Window_Buffer_Type Ecore_Wl_Window_Buffer_Type;
 typedef enum _Ecore_Wl_Window_Keygrab_Mode Ecore_Wl_Window_Keygrab_Mode;
@@ -156,6 +179,7 @@ typedef enum _Ecore_Wl_Virtual_Keyboard_State Ecore_Wl_Virtual_Keyboard_State;
 typedef enum _Ecore_Wl_Indicator_State Ecore_Wl_Indicator_State;
 typedef enum _Ecore_Wl_Clipboard_State Ecore_Wl_Clipboard_State;
 typedef enum _Ecore_Wl_Indicator_Opacity_Mode Ecore_Wl_Indicator_Opacity_Mode;
+typedef enum _Ecore_Wl_Window_Stack_Mode Ecore_Wl_Window_Stack_Mode;
 
 /** @since 1.7.6 */
 struct _Ecore_Wl_Global
@@ -419,6 +443,9 @@ EAPI extern int ECORE_WL_EVENT_AUX_HINT_ALLOWED;
 EAPI extern int ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE;
 EAPI extern int ECORE_WL_EVENT_EFFECT_START;
 EAPI extern int ECORE_WL_EVENT_EFFECT_END;
+EAPI extern int ECORE_WL_EVENT_GLOBAL_ADDED;
+EAPI extern int ECORE_WL_EVENT_GLOBAL_REMOVED;
+EAPI extern int ECORE_WL_EVENT_KEYMAP_UPDATE;
 
 /**
  * @defgroup Ecore_Wl_Init_Group Wayland Library Init and Shutdown Functions
@@ -760,6 +787,7 @@ EAPI Ecore_Wl_Window *ecore_wl_window_find(unsigned int id);
 EAPI Ecore_Wl_Window_Type ecore_wl_window_type_get(Ecore_Wl_Window *win);
 EAPI void ecore_wl_window_type_set(Ecore_Wl_Window *win, Ecore_Wl_Window_Type type);
 EAPI void ecore_wl_window_pointer_set(Ecore_Wl_Window *win, struct wl_surface *surface, int hot_x, int hot_y);
+EAPI Eina_Bool ecore_wl_window_pointer_warp(Ecore_Wl_Window *win, int x, int y);
 EAPI void ecore_wl_window_cursor_from_name_set(Ecore_Wl_Window *win, const char *cursor_name);
 EAPI void ecore_wl_window_cursor_default_restore(Ecore_Wl_Window *win);
 EAPI void ecore_wl_window_parent_set(Ecore_Wl_Window *win, Ecore_Wl_Window *parent);
@@ -786,6 +814,8 @@ EAPI void ecore_wl_window_class_name_set(Ecore_Wl_Window *win, const char *class
 EAPI int ecore_wl_window_surface_id_get(Ecore_Wl_Window *win);
 
 EAPI Ecore_Wl_Input *ecore_wl_window_keyboard_get(Ecore_Wl_Window *win);
+
+EAPI void ecore_wl_window_stack_mode_set(Ecore_Wl_Window *win, Ecore_Wl_Window_Stack_Mode mode);
 
 /**
  * Returns a wl_surface with no association to any wl_shell_surface.
@@ -1220,6 +1250,8 @@ EAPI Eina_List * ecore_wl_window_aux_hints_supported_get(Ecore_Wl_Window *win);
 EAPI void ecore_wl_window_aux_hint_add(Ecore_Wl_Window *win, int id, const char *hint, const char *val);
 EAPI void ecore_wl_window_aux_hint_change(Ecore_Wl_Window *win, int id, const char *val);
 EAPI void ecore_wl_window_aux_hint_del(Ecore_Wl_Window *win, int id);
+
+EAPI void ecore_wl_window_floating_mode_set(Ecore_Wl_Window *win, Eina_Bool floating);
 
 #ifdef __cplusplus
 }

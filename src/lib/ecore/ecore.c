@@ -356,6 +356,7 @@ ecore_shutdown(void)
      _ecore_glib_shutdown();
      _ecore_job_shutdown();
      _ecore_thread_shutdown();
+     _ecore_device_cleanup();
 
    /* this looks horrible - a hack for now, but something to note. as
     * we delete the _thread_call pipe a thread COULD be doing
@@ -749,6 +750,10 @@ _ecore_magic_string_get(Ecore_Magic m)
 
       case ECORE_MAGIC_EVENT:
         return "Ecore_Event (Event)";
+        break;
+
+      case ECORE_MAGIC_DEV:
+        return "Ecore_Device (Device)";
         break;
 
       default:

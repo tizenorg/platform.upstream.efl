@@ -46,21 +46,29 @@ _ector_software_surface_context_get(Eo *obj EINA_UNUSED,
 void
 _ector_software_surface_surface_set(Eo *obj EINA_UNUSED,
                                     Ector_Software_Surface_Data *pd,
-                                    void *pixels, unsigned int width, unsigned int height)
+                                    void *pixels, unsigned int width,
+                                    unsigned int height, unsigned int stride)
 {
    pd->software->fill_data.raster_buffer.buffer = pixels;
    pd->software->fill_data.raster_buffer.width = width;
    pd->software->fill_data.raster_buffer.height = height;
+   pd->software->fill_data.raster_buffer.stride = stride;
 }
 
 void
 _ector_software_surface_surface_get(Eo *obj EINA_UNUSED,
                                     Ector_Software_Surface_Data *pd,
-                                    void **pixels, unsigned int *width, unsigned int *height)
+                                    void **pixels, unsigned int *width,
+                                    unsigned int *height, unsigned int *stride)
 {
-   *pixels = pd->software->fill_data.raster_buffer.buffer;
-   *width = pd->software->fill_data.raster_buffer.width;
-   *height = pd->software->fill_data.raster_buffer.height;
+   if (pixels)
+     *pixels = pd->software->fill_data.raster_buffer.buffer;
+   if (width)
+     *width = pd->software->fill_data.raster_buffer.width;
+   if (height)
+     *height = pd->software->fill_data.raster_buffer.height;
+   if (stride)
+     *stride = pd->software->fill_data.raster_buffer.stride;
 }
 
 static Eo *

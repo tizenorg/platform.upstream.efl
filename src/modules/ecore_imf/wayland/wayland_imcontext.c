@@ -40,7 +40,7 @@ static Ecore_Timer *_hide_timer  = NULL;
 #define BACK_KEY "XF86Back"
 
 static Ecore_Event_Filter   *_ecore_event_filter_handler = NULL;
-static Ecore_IMF_Context    *_active_ctx                 = NULL;
+static Ecore_IMF_Context    *_focused_ctx                = NULL;
 static Ecore_IMF_Context    *_show_req_ctx               = NULL;
 static Ecore_IMF_Context    *_hide_req_ctx               = NULL;
 
@@ -71,14 +71,6 @@ struct _WaylandIMContext
         Eina_List *attrs;
         int32_t cursor;
      } pending_preedit;
-
-   struct
-     {
-        int32_t cursor;
-        int32_t anchor;
-        uint32_t delete_index;
-        uint32_t delete_length;
-     } pending_commit;
 
    struct
      {
@@ -119,7 +111,7 @@ static Eina_Bool
 key_down_cb(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
    Ecore_Event_Key *ev = (Ecore_Event_Key *)event;
-   if (!ev || !ev->keyname || !_active_ctx) return EINA_TRUE;
+   if (!ev || !ev->keyname) return EINA_TRUE;
 
    if ((_input_panel_state == ECORE_IMF_INPUT_PANEL_STATE_SHOW ||
         _input_panel_state == ECORE_IMF_INPUT_PANEL_STATE_WILL_SHOW) &&
@@ -133,15 +125,23 @@ static Eina_Bool
 key_up_cb(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
    Ecore_Event_Key *ev = (Ecore_Event_Key *)event;
-   if (!ev || !ev->keyname || !_active_ctx) return EINA_TRUE;
+   if (!ev || !ev->keyname) return EINA_TRUE;
+
+   Ecore_IMF_Context *active_ctx = NULL;
+   if (_show_req_ctx)
+     active_ctx = _show_req_ctx;
+   else if (_focused_ctx)
+     active_ctx = _focused_ctx;
+
+   if (!active_ctx) return EINA_TRUE;
 
    if (_input_panel_state == ECORE_IMF_INPUT_PANEL_STATE_HIDE ||
        strcmp(ev->keyname, BACK_KEY) != 0)
      return EINA_TRUE;
 
-   ecore_imf_context_reset(_active_ctx);
+   ecore_imf_context_reset(active_ctx);
 
-   _input_panel_hide(_active_ctx, EINA_TRUE);
+   _input_panel_hide(active_ctx, EINA_TRUE);
 
    return EINA_FALSE;
 }
@@ -305,12 +305,6 @@ check_serial(WaylandIMContext *imcontext, uint32_t serial)
                           "outdated serial: %u, current: %u, reset: %u",
                           serial, imcontext->serial, imcontext->reset_serial);
 
-        /* Clear pending data */
-        imcontext->pending_commit.delete_index = 0;
-        imcontext->pending_commit.delete_length = 0;
-        imcontext->pending_commit.cursor = 0;
-        imcontext->pending_commit.anchor = 0;
-
         imcontext->pending_preedit.cursor = 0;
 
         if (imcontext->pending_preedit.attrs)
@@ -361,9 +355,6 @@ text_input_commit_string(void                 *data,
 {
    WaylandIMContext *imcontext = (WaylandIMContext *)data;
    Eina_Bool old_preedit = EINA_FALSE;
-   char *surrounding = NULL;
-   int cursor_pos, cursor;
-   Ecore_IMF_Event_Delete_Surrounding ev;
 
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom,
                      "commit event (text: `%s', current pre-edit: `%s')",
@@ -388,40 +379,6 @@ text_input_commit_string(void                 *data,
      }
 
    clear_preedit(imcontext);
-
-   if (imcontext->pending_commit.delete_length > 0)
-     {
-        /* cursor_pos is a byte index */
-        if (ecore_imf_context_surrounding_get(imcontext->ctx, &surrounding,
-                                              &cursor_pos))
-          {
-             ev.ctx = imcontext->ctx;
-             /* offset and n_chars are in characters */
-             ev.offset = utf8_offset_to_characters(surrounding, cursor_pos + imcontext->pending_commit.delete_index);
-             ev.n_chars = utf8_offset_to_characters(surrounding,
-                                                    cursor_pos + imcontext->pending_commit.delete_index + imcontext->pending_commit.delete_length) - ev.offset;
-
-             /* cursor in characters */
-             cursor = utf8_offset_to_characters(surrounding, cursor_pos);
-
-             ev.offset -= cursor;
-
-             EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom,
-                     "delete on commit (text: `%s', offset `%d', length: `%d')",
-                     surrounding, ev.offset, ev.n_chars);
-
-             if (surrounding)
-               free(surrounding);
-
-             ecore_imf_context_delete_surrounding_event_add(imcontext->ctx, ev.offset, ev.n_chars);
-             ecore_imf_context_event_callback_call(imcontext->ctx, ECORE_IMF_CALLBACK_DELETE_SURROUNDING, &ev);
-          }
-     }
-
-   imcontext->pending_commit.delete_index = 0;
-   imcontext->pending_commit.delete_length = 0;
-   imcontext->pending_commit.cursor = 0;
-   imcontext->pending_commit.anchor = 0;
 
    ecore_imf_context_commit_event_add(imcontext->ctx, text);
    ecore_imf_context_event_callback_call(imcontext->ctx, ECORE_IMF_CALLBACK_COMMIT, (void *)text);
@@ -638,29 +595,27 @@ text_input_delete_surrounding_text(void                 *data,
                                    uint32_t              length)
 {
    WaylandIMContext *imcontext = (WaylandIMContext *)data;
-
+   Ecore_IMF_Event_Delete_Surrounding ev;
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom,
                      "delete surrounding text (index: %d, length: %u)",
                      index, length);
 
-   imcontext->pending_commit.delete_index = index;
-   imcontext->pending_commit.delete_length = length;
+   ev.offset = index;
+   ev.n_chars = length;
+
+   ecore_imf_context_delete_surrounding_event_add(imcontext->ctx, ev.offset, ev.n_chars);
+   ecore_imf_context_event_callback_call(imcontext->ctx, ECORE_IMF_CALLBACK_DELETE_SURROUNDING, &ev);
 }
 
 static void
-text_input_cursor_position(void                 *data,
+text_input_cursor_position(void                 *data EINA_UNUSED,
                            struct wl_text_input *text_input EINA_UNUSED,
                            int32_t               index,
                            int32_t               anchor)
 {
-   WaylandIMContext *imcontext = (WaylandIMContext *)data;
-
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom,
                      "cursor_position for next commit (index: %d, anchor: %d)",
                      index, anchor);
-
-   imcontext->pending_commit.cursor = index;
-   imcontext->pending_commit.anchor = anchor;
 }
 
 static void
@@ -1039,8 +994,8 @@ wayland_im_context_del(Ecore_IMF_Context *ctx)
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom, "context_del");
 
    // TIZEN_ONLY(20150708): Support back key
-   if (_active_ctx == ctx)
-     _active_ctx = NULL;
+   if (_focused_ctx == ctx)
+     _focused_ctx = NULL;
 
    if (_hide_req_ctx == ctx && _hide_timer)
       _input_panel_hide(ctx, EINA_TRUE);
@@ -1096,7 +1051,7 @@ wayland_im_context_focus_in(Ecore_IMF_Context *ctx)
    EINA_LOG_DOM_INFO(_ecore_imf_wayland_log_dom, "focus-in");
 
    // TIZEN_ONLY(20150708): Support back key
-   _active_ctx = ctx;
+   _focused_ctx = ctx;
    //
 
    set_focus(ctx);
@@ -1116,7 +1071,8 @@ wayland_im_context_focus_out(Ecore_IMF_Context *ctx)
    if (!imcontext->input) return;
 
    // TIZEN_ONLY(20150708): Support back key
-   _active_ctx = NULL;
+   if (ctx == _focused_ctx)
+     _focused_ctx = NULL;
    //
 
    if (imcontext->text_input)
@@ -1376,6 +1332,11 @@ wayland_im_context_input_hint_set(Ecore_IMF_Context *ctx,
      imcontext->content_hint |= WL_TEXT_INPUT_CONTENT_HINT_SENSITIVE_DATA;
    else
      imcontext->content_hint &= ~WL_TEXT_INPUT_CONTENT_HINT_SENSITIVE_DATA;
+
+   if (input_hints & ECORE_IMF_INPUT_HINT_MULTILINE)
+     imcontext->content_hint |= WL_TEXT_INPUT_CONTENT_HINT_MULTILINE;
+   else
+     imcontext->content_hint &= ~WL_TEXT_INPUT_CONTENT_HINT_MULTILINE;
 }
 
 EAPI void

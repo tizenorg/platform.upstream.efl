@@ -4,6 +4,8 @@
 
 #include <assert.h>
 #include <fcntl.h>
+#include "Ecore.h"
+#include "ecore_private.h"
 #include "ecore_wl_private.h"
 
 /*
@@ -26,6 +28,8 @@
 static int _ecore_wl_shutdown(Eina_Bool close);
 static Eina_Bool _ecore_wl_cb_idle_enterer(void *data);
 static Eina_Bool _ecore_wl_cb_handle_data(void *data, Ecore_Fd_Handler *hdl);
+static void _ecore_wl_cb_pre_handle_data(void *data, Ecore_Fd_Handler *hdl);
+static void _ecore_wl_cb_awake(void *data);
 static void _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned int id, const char *interface, unsigned int version EINA_UNUSED);
 static void _ecore_wl_cb_handle_global_remove(void *data, struct wl_registry *registry EINA_UNUSED, unsigned int id);
 static Eina_Bool _ecore_wl_xkb_init(Ecore_Wl_Display *ewd);
@@ -110,7 +114,7 @@ static const struct tizen_effect_listener _ecore_tizen_effect_listener =
    _ecore_wl_cb_effect_end,
 };
 
-static void 
+static void
 xdg_shell_ping(void *data EINA_UNUSED, struct xdg_shell *shell, uint32_t serial)
 {
    xdg_shell_pong(shell, serial);
@@ -164,6 +168,9 @@ EAPI int ECORE_WL_EVENT_AUX_HINT_ALLOWED = 0;
 EAPI int ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE = 0;
 EAPI int ECORE_WL_EVENT_EFFECT_START = 0;
 EAPI int ECORE_WL_EVENT_EFFECT_END = 0;
+EAPI int ECORE_WL_EVENT_GLOBAL_ADDED = 0;
+EAPI int ECORE_WL_EVENT_GLOBAL_REMOVED = 0;
+EAPI int ECORE_WL_EVENT_KEYMAP_UPDATE = 0;
 
 static void
 _ecore_wl_init_callback(void *data, struct wl_callback *callback, uint32_t serial EINA_UNUSED)
@@ -252,6 +259,9 @@ ecore_wl_init(const char *name)
         ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE = ecore_event_type_new();
         ECORE_WL_EVENT_EFFECT_START = ecore_event_type_new();
         ECORE_WL_EVENT_EFFECT_END = ecore_event_type_new();
+        ECORE_WL_EVENT_GLOBAL_ADDED = ecore_event_type_new();
+        ECORE_WL_EVENT_GLOBAL_REMOVED = ecore_event_type_new();
+        ECORE_WL_EVENT_KEYMAP_UPDATE = ecore_event_type_new();
      }
 
    if (!(_ecore_wl_disp = calloc(1, sizeof(Ecore_Wl_Display))))
@@ -273,6 +283,11 @@ ecore_wl_init(const char *name)
                                ECORE_FD_READ | ECORE_FD_WRITE | ECORE_FD_ERROR,
                                _ecore_wl_cb_handle_data, _ecore_wl_disp,
                                NULL, NULL);
+   ecore_main_fd_handler_prepare_callback_set(_ecore_wl_disp->fd_hdl,
+                                              _ecore_wl_cb_pre_handle_data,
+                                              _ecore_wl_disp);
+
+   ecore_main_awake_handler_add(_ecore_wl_cb_awake, _ecore_wl_disp);
 
    _ecore_wl_disp->idle_enterer =
      ecore_idle_enterer_add(_ecore_wl_cb_idle_enterer, _ecore_wl_disp);
@@ -342,7 +357,6 @@ ecore_wl_flush(void)
 EAPI void
 ecore_wl_sync(void)
 {
-
    int ret;
    if ((!_ecore_wl_disp) || (!_ecore_wl_disp->wl.display)) return;
    _ecore_wl_sync_wait(_ecore_wl_disp);
@@ -496,9 +510,25 @@ ecore_wl_dpi_get(void)
    if (mw <= 0) return 75;
 
    w = _ecore_wl_disp->output->allocation.w;
+
+   //TIZEN_ONLY(20160519): The height size of screen should be considered,
+   //                      when calc the dpi value.
    /* FIXME: NB: Hrrrmmm, need to verify this. xorg code is using a different
     * formula to calc this */
-   return (((w * 254) / mw) + 5) / 10;
+   //return (((w * 254) / mw) + 5) / 10;
+   int h, mh, dpi;
+   double target_inch;
+
+   mh = _ecore_wl_disp->output->mh;
+   if (mh <= 0) return 75;
+
+   h = _ecore_wl_disp->output->allocation.h;
+
+   target_inch = (round((sqrt(mw * mw + mh * mh) / 25.4) * 10) / 10);
+   dpi = (round((sqrt(w * w + h * h) / target_inch) * 10) / 10);
+
+   return dpi;
+   //
 }
 
 EAPI void
@@ -597,6 +627,7 @@ _ecore_wl_shutdown(Eina_Bool close)
    _ecore_wl_events_shutdown();
    _ecore_wl_window_shutdown();
 
+   ecore_main_awake_handler_del(_ecore_wl_cb_awake);
    if (_ecore_wl_disp->fd_hdl)
      ecore_main_fd_handler_del(_ecore_wl_disp->fd_hdl);
    if (_ecore_wl_disp->idle_enterer)
@@ -734,19 +765,23 @@ _ecore_wl_cb_handle_data(void *data, Ecore_Fd_Handler *hdl)
         _ecore_wl_fatal_error = EINA_TRUE;
         _ecore_wl_signal_exit();
 
-        return ECORE_CALLBACK_CANCEL;
+        goto cancel_read;
      }
 
-   /* wl_display_dispatch_pending(ewd->wl.display); */
-
    if (ecore_main_fd_handler_active_get(hdl, ECORE_FD_READ))
-     ret = wl_display_dispatch(ewd->wl.display);
+     {
+        wl_display_read_events(ewd->wl.display);
+        ret = wl_display_dispatch_pending(ewd->wl.display);
+     }
    else if (ecore_main_fd_handler_active_get(hdl, ECORE_FD_WRITE))
      {
         ret = wl_display_flush(ewd->wl.display);
         if (ret == 0)
-          ecore_main_fd_handler_active_set(hdl, ECORE_FD_READ);
+           ecore_main_fd_handler_active_set(hdl, ECORE_FD_READ);
+        wl_display_cancel_read(ewd->wl.display);
      }
+   else
+        goto cancel_read;
 
    if ((ret < 0) && ((errno != EAGAIN) && (errno != EINVAL)))
      {
@@ -755,10 +790,66 @@ _ecore_wl_cb_handle_data(void *data, Ecore_Fd_Handler *hdl)
         /* raise exit signal */
         _ecore_wl_signal_exit();
 
-        return ECORE_CALLBACK_CANCEL;
+        goto cancel_read;
      }
 
+   ewd->wl.prepare_read = EINA_FALSE;
    return ECORE_CALLBACK_RENEW;
+
+cancel_read:
+   if (ewd->wl.prepare_read)
+     {
+        wl_display_cancel_read(ewd->wl.display);
+        ewd->wl.prepare_read = EINA_FALSE;
+     }
+
+   return ECORE_CALLBACK_CANCEL;
+}
+
+static void
+_ecore_wl_cb_pre_handle_data(void *data, Ecore_Fd_Handler *hdl EINA_UNUSED)
+{
+   Ecore_Wl_Display *ewd;
+
+   if (_ecore_wl_fatal_error) return;
+
+   if (!(ewd = data)) return;
+
+   if (ewd->wl.prepare_read) return;
+
+   while (wl_display_prepare_read(ewd->wl.display) != 0)
+     {
+        wl_display_dispatch_pending(ewd->wl.display);
+     }
+   wl_display_flush(ewd->wl.display);
+
+   ewd->wl.prepare_read = EINA_TRUE;
+}
+
+static void
+_cb_global_event_free(void *data EINA_UNUSED, void *event)
+{
+   Ecore_Wl_Event_Global *ev;
+
+   ev = event;
+   eina_stringshare_del(ev->interface);
+   free(ev);
+}
+
+static void
+_ecore_wl_cb_awake(void *data)
+{
+   Ecore_Wl_Display *ewd;
+   Ecore_Fd_Handler_Flags flags = ECORE_FD_READ|ECORE_FD_WRITE|ECORE_FD_ERROR;
+
+   if (_ecore_wl_fatal_error) return;
+   if (!(ewd = data)) return;
+   if (!ewd->wl.prepare_read) return;
+   if (ecore_main_fd_handler_active_get(_ecore_wl_disp->fd_hdl, flags))
+     return;
+
+   wl_display_cancel_read(ewd->wl.display);
+   ewd->wl.prepare_read = EINA_FALSE;
 }
 
 static void
@@ -766,6 +857,7 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
 {
    Ecore_Wl_Display *ewd;
    Ecore_Wl_Global *global;
+   Ecore_Wl_Event_Global *ev;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
@@ -820,6 +912,7 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
         EINA_ITERATOR_FOREACH(it, win)
           if (win->surface)
             _ecore_wl_window_shell_surface_init(win);
+        eina_iterator_free(it);
      }
    else if (!strcmp(interface, "wl_shell"))
      {
@@ -900,6 +993,19 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
 
         ecore_event_add(ECORE_WL_EVENT_INTERFACES_BOUND, ev, NULL, NULL);
      }
+
+   /* allocate space for event structure */
+   ev = calloc(1, sizeof(Ecore_Wl_Event_Global));
+   if (!ev) return;
+
+   ev->id = id;
+   ev->display = ewd;
+   ev->version = version;
+   ev->interface = eina_stringshare_add(interface);
+
+   /* raise an event saying a new global has been added */
+   ecore_event_add(ECORE_WL_EVENT_GLOBAL_ADDED, ev,
+                   _cb_global_event_free, NULL);
 }
 
 static void
@@ -907,6 +1013,7 @@ _ecore_wl_cb_handle_global_remove(void *data, struct wl_registry *registry EINA_
 {
    Ecore_Wl_Display *ewd;
    Ecore_Wl_Global *global;
+   Ecore_Wl_Event_Global *ev;
    Eina_Inlist *tmp;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -916,6 +1023,20 @@ _ecore_wl_cb_handle_global_remove(void *data, struct wl_registry *registry EINA_
    EINA_INLIST_FOREACH_SAFE(ewd->globals, tmp, global)
      {
         if (global->id != id) continue;
+
+        /* allocate space for event structure */
+        ev = calloc(1, sizeof(Ecore_Wl_Event_Global));
+        if (!ev) return;
+
+        ev->id = id;
+        ev->display = ewd;
+        ev->version = global->version;
+        ev->interface = eina_stringshare_add(global->interface);
+
+        /* raise an event saying a global has been removed */
+        ecore_event_add(ECORE_WL_EVENT_GLOBAL_REMOVED, ev,
+                        _cb_global_event_free, NULL);
+
         ewd->globals =
           eina_inlist_remove(ewd->globals, EINA_INLIST_GET(global));
         free(global->interface);

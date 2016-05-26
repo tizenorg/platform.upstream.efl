@@ -127,7 +127,7 @@ _edje_object_evas_object_smart_del(Eo *obj, Edje *ed)
      }
 #endif
    if (ed->persp) edje_object_perspective_set(obj, NULL);
-   _edje_file_del(ed);
+   _edje_file_del(ed, EINA_FALSE);
    _edje_clean_objects(ed);
    _edje_unref(ed);
    _edje_lib_unref();

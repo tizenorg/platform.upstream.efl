@@ -1025,13 +1025,14 @@ evas_event_thaw_eval(Evas *eo_e)
 }
 
 EOLIAN void
-_evas_canvas_event_feed_mouse_down(Eo *eo_e, Evas_Public_Data *e, int b, Evas_Button_Flags flags, unsigned int timestamp, const void *data)
+_canvas_event_feed_mouse_down_internal(Eo *eo_e, void *_pd, int b, Evas_Button_Flags flags, unsigned int timestamp, const void *data, double rad, double radx, double rady, double pres, double ang)
 {
    Eina_List *l, *copy;
    Evas_Event_Mouse_Down ev;
    Evas_Object *eo_obj;
    int addgrab = 0;
    int event_id = 0;
+   Evas_Public_Data *e = _pd;
 
    INF("ButtonEvent:down time=%u x=%d y=%d button=%d downs=%d", timestamp, e->pointer.x, e->pointer.y, b, e->pointer.downs);
    if ((b < 1) || (b > 32)) return;
@@ -1058,6 +1059,11 @@ _evas_canvas_event_feed_mouse_down(Eo *eo_e, Evas_Public_Data *e, int b, Evas_Bu
    ev.event_flags = e->default_event_flags;
    ev.dev = _evas_device_top_get(eo_e);
    if (ev.dev) _evas_device_ref(ev.dev);
+   ev.radius = rad;
+   ev.radius_x = radx;
+   ev.radius_y = rady;
+   ev.pressure = pres;
+   ev.angle = ang;
 
    _evas_walk(e);
    /* append new touch point to the touch point list */
@@ -1119,6 +1125,18 @@ _evas_canvas_event_feed_mouse_down(Eo *eo_e, Evas_Public_Data *e, int b, Evas_Bu
    _evas_touch_point_update(eo_e, 0, e->pointer.x, e->pointer.y, EVAS_TOUCH_POINT_STILL);
    if (ev.dev) _evas_device_unref(ev.dev);
    _evas_unwalk(e);
+}
+
+EOLIAN void
+_evas_canvas_event_feed_mouse_down(Eo *eo_e, Evas_Public_Data *e, int b, Evas_Button_Flags flags, unsigned int timestamp, const void *data)
+{
+   _canvas_event_feed_mouse_down_internal(eo_e, e, b, flags, timestamp, data, 0, 0, 0, 0, 0);
+}
+
+EOLIAN void
+_evas_canvas_event_feed_mouse_down_with_multi_info(Eo *eo_e, Evas_Public_Data *e, int b, Evas_Button_Flags flags, unsigned int timestamp, const void *data, double rad, double radx, double rady, double pres, double ang)
+{
+   _canvas_event_feed_mouse_down_internal(eo_e, e, b, flags, timestamp, data, rad, radx, rady, pres, ang);
 }
 
 static int
@@ -1247,9 +1265,10 @@ _post_up_handle(Evas *eo_e, unsigned int timestamp, const void *data)
 }
 
 EOLIAN void
-_evas_canvas_event_feed_mouse_up(Eo *eo_e, Evas_Public_Data *e, int b, Evas_Button_Flags flags, unsigned int timestamp, const void *data)
+_canvas_event_feed_mouse_up_internal(Eo *eo_e, void *_pd, int b, Evas_Button_Flags flags, unsigned int timestamp, const void *data, double rad, double radx, double rady, double pres, double ang)
 {
    Eina_List *l, *copy;
+   Evas_Public_Data *e = _pd;
 
    INF("ButtonEvent:up time=%u x=%d y=%d button=%d downs=%d", timestamp, e->pointer.x, e->pointer.y, b, e->pointer.downs);
    if ((b < 1) || (b > 32)) return;
@@ -1282,6 +1301,11 @@ _evas_canvas_event_feed_mouse_up(Eo *eo_e, Evas_Public_Data *e, int b, Evas_Butt
         ev.event_flags = e->default_event_flags;
         ev.dev = _evas_device_top_get(eo_e);
         if (ev.dev) _evas_device_ref(ev.dev);
+        ev.radius = rad;
+        ev.radius_x = radx;
+        ev.radius_y = rady;
+        ev.pressure = pres;
+        ev.angle = ang;
 
         _evas_walk(e);
         /* update released touch point */
@@ -1341,6 +1365,18 @@ _evas_canvas_event_feed_mouse_up(Eo *eo_e, Evas_Public_Data *e, int b, Evas_Butt
    _evas_touch_point_remove(eo_e, 0);
 
    _evas_unwalk(e);
+}
+
+EOLIAN void
+_evas_canvas_event_feed_mouse_up(Eo *eo_e, Evas_Public_Data *e, int b, Evas_Button_Flags flags, unsigned int timestamp, const void *data)
+{
+   _canvas_event_feed_mouse_up_internal(eo_e, e, b, flags, timestamp, data, 0, 0, 0, 0, 0);
+}
+
+EOLIAN void
+_evas_canvas_event_feed_mouse_up_with_multi_info(Eo *eo_e, Evas_Public_Data *e, int b, Evas_Button_Flags flags, unsigned int timestamp, const void *data, double rad, double radx, double rady, double pres, double ang)
+{
+   _canvas_event_feed_mouse_up_internal(eo_e, e, b, flags, timestamp, data, rad, radx, rady, pres, ang);
 }
 
 EOLIAN void
@@ -1430,7 +1466,7 @@ _evas_canvas_event_feed_mouse_wheel(Eo *eo_e, Evas_Public_Data *e, int direction
 }
 
 static void
-_canvas_event_feed_mouse_move_internal(Eo *eo_e, void *_pd, int x, int y, unsigned int timestamp, const void *data)
+_canvas_event_feed_mouse_move_internal(Eo *eo_e, void *_pd, int x, int y, unsigned int timestamp, const void *data, double rad, double radx, double rady, double pres, double ang)
 {
    Evas_Public_Data *e = _pd;
    Evas_Object *nogrep_obj = NULL;
@@ -1480,6 +1516,11 @@ _canvas_event_feed_mouse_move_internal(Eo *eo_e, void *_pd, int x, int y, unsign
              ev.event_flags = e->default_event_flags;
              ev.dev = _evas_device_top_get(eo_e);
              if (ev.dev) _evas_device_ref(ev.dev);
+             ev.radius = rad;
+             ev.radius_x = radx;
+             ev.radius_y = rady;
+             ev.pressure = pres;
+             ev.angle = ang;
              copy = evas_event_list_copy(e->pointer.object.in);
              EINA_LIST_FOREACH(copy, l, eo_obj)
                {
@@ -1605,6 +1646,11 @@ _canvas_event_feed_mouse_move_internal(Eo *eo_e, void *_pd, int x, int y, unsign
         ev.event_flags = e->default_event_flags;
         ev.dev = _evas_device_top_get(eo_e);
         if (ev.dev) _evas_device_ref(ev.dev);
+        ev.radius = rad;
+        ev.radius_x = radx;
+        ev.radius_y = rady;
+        ev.pressure = pres;
+        ev.angle = ang;
 
         ev2.buttons = e->pointer.button;
         ev2.output.x = e->pointer.x;
@@ -1771,6 +1817,11 @@ nogrep:
         ev.event_flags = e->default_event_flags;
         ev.dev = _evas_device_top_get(eo_e);
         if (ev.dev) _evas_device_ref(ev.dev);
+        ev.radius = rad;
+        ev.radius_x = radx;
+        ev.radius_y = rady;
+        ev.pressure = pres;
+        ev.angle = ang;
 
         ev2.buttons = e->pointer.button;
         ev2.output.x = e->pointer.x;
@@ -1922,13 +1973,19 @@ nogrep:
 EOLIAN void
 _evas_canvas_event_input_mouse_move(Eo *eo_e, Evas_Public_Data *e, int x, int y, unsigned int timestamp, const void *data)
 {
-   _canvas_event_feed_mouse_move_internal(eo_e, e, x - e->framespace.x, y - e->framespace.y, timestamp, data);
+   _canvas_event_feed_mouse_move_internal(eo_e, e, x - e->framespace.x, y - e->framespace.y, timestamp, data, 0, 0, 0, 0, 0);
+}
+
+EOLIAN void
+_evas_canvas_event_input_mouse_move_with_multi_info(Eo *eo_e, Evas_Public_Data *e, int x, int y, unsigned int timestamp, const void *data, double rad, double radx, double rady, double pres, double ang)
+{
+   _canvas_event_feed_mouse_move_internal(eo_e, e, x - e->framespace.x, y - e->framespace.y, timestamp, data, rad, radx, rady, pres, ang);
 }
 
 EOLIAN void
 _evas_canvas_event_feed_mouse_move(Eo *eo_e, Evas_Public_Data *e, int x, int y, unsigned int timestamp, const void *data)
 {
-   _canvas_event_feed_mouse_move_internal(eo_e, e, x, y, timestamp, data);
+   _canvas_event_feed_mouse_move_internal(eo_e, e, x, y, timestamp, data, 0, 0, 0, 0, 0);
 }
 
 EOLIAN void

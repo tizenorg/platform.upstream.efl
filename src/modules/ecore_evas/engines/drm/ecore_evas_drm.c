@@ -314,14 +314,28 @@ ecore_evas_drm_new_internal(const char *device, unsigned int parent EINA_UNUSED,
    ee->prop.window = einfo->info.buffer_id;
 
    _ecore_evas_register(ee);
+#if 0
    ecore_evas_input_event_register(ee);
+#endif
+   // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+   ecore_evas_input_event_register_with_multi(ee);
+   //
 
    ecore_drm_device_window_set(dev, ee->prop.window);
+#if 0
    ecore_event_window_register(ee->prop.window, ee, ee->evas,
                                (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process,
                                (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
                                (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
                                (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+#endif
+   // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+   ecore_event_window_register_with_multi(ee->prop.window, ee, ee->evas,
+                                         (Ecore_Event_Mouse_Move_With_Multi_Cb)_ecore_evas_mouse_move_with_multi_info_process,
+                                         (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
+                                         (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
+                                         (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+   //
 
    return ee;
 
@@ -485,14 +499,28 @@ ecore_evas_gl_drm_new_internal(const char *device, unsigned int parent EINA_UNUS
    ee->prop.window = einfo->info.buffer_id;
 
    _ecore_evas_register(ee);
+#if 0
    ecore_evas_input_event_register(ee);
+#endif
+   // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+   ecore_evas_input_event_register_with_multi(ee);
+   //
 
    ecore_drm_device_window_set(dev, ee->prop.window);
+#if 0
    ecore_event_window_register(ee->prop.window, ee, ee->evas,
                                (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process,
                                (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
                                (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
                                (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+#endif
+   // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+   ecore_event_window_register_with_multi(ee->prop.window, ee, ee->evas,
+                                         (Ecore_Event_Mouse_Move_With_Multi_Cb)_ecore_evas_mouse_move_with_multi_info_process,
+                                         (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
+                                         (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
+                                         (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+   //
 
    TRACE_EFL_END();
    return ee;
@@ -564,6 +592,13 @@ _ecore_evas_drm_init(const char *device)
      {
         ERR("Could not create outputs: %m");
         goto output_err;
+     }
+
+   /* try to create inputs */
+   if (!ecore_drm_inputs_devices_create(dev))
+     {
+        ERR("Could not create inputs from path: %m");
+        goto input_err;
      }
 
    /* try to create inputs */
@@ -1042,7 +1077,7 @@ _ecore_evas_drm_render_check_skip(Ecore_Evas *ee)
 
    /* HWC: wait_for_showup is set by enlightenment */
    if (einfo->info.wait_for_showup)
-     INF("HWC: skip to render the ecore_evas.\n");
+     DBG("HWC: skip to render the ecore_evas.\n");
 
    return einfo->info.wait_for_showup;
 }

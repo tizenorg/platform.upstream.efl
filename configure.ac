@@ -3596,6 +3596,17 @@ AC_ARG_ENABLE([ibus],
    ],
    [want_ibus="yes"])
 
+AC_ARG_ENABLE([wayland-text-input],
+   [AS_HELP_STRING([--disable-wayland-text-input],[disable Wayland text input.])],
+   [
+    if test "x${enableval}" = "xyes" ; then
+       want_wayland_text_input="yes"
+    else
+       want_wayland_text_input="no"
+    fi
+   ],
+   [want_wayland_text_input="yes"])
+
 ### Default values
 
 ### Checks for programs
@@ -3884,7 +3895,9 @@ AM_CONDITIONAL([BUILD_ECORE_IMF_XIM], [test "x${have_ecore_imf_xim}" = "xyes"])
 EFL_ADD_FEATURE([ECORE_IMF], [xim])
 
 # wayland
-if test "x${want_ecore_imf_wayland}" = "xyes" ; then
+
+have_ecore_imf_wayland="no"
+if text "x${want_wayland_text_input}" = "xyes" && test "x${want_ecore_imf_wayland}" = "xyes" ; then
    PKG_CHECK_MODULES([WAYLAND],
       [wayland-client >= 1.2.0 text-client],
       [
@@ -3895,7 +3908,7 @@ if test "x${want_ecore_imf_wayland}" = "xyes" ; then
 fi
 
 AM_CONDITIONAL([BUILD_ECORE_IMF_WAYLAND], [test "x${have_ecore_imf_wayland}" = "xyes"])
-EFL_ADD_FEATURE([ECORE_IMF], [wayland], [${want_ecore_imf_wayland}])
+EFL_ADD_FEATURE([ECORE_IMF], [wayland], [${have_ecore_imf_wayland}])
 
 ### Checks for header files
 

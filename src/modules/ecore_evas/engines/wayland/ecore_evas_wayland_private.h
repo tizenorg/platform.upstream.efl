@@ -42,6 +42,11 @@ struct _Ecore_Evas_Engine_Wl_Data
         unsigned char done : 1;
         Ecore_Job    *manual_mode_job;
      } wm_rot;
+   struct
+     {
+        unsigned char above : 1;
+        unsigned char below : 1;
+     } state;
    struct wl_callback *anim_callback;
 };
 
@@ -85,6 +90,7 @@ int  _ecore_evas_wl_common_render(Ecore_Evas *ee);
 void _ecore_evas_wl_common_screen_geometry_get(const Ecore_Evas *ee, int *x, int *y, int *w, int *h);
 void _ecore_evas_wl_common_screen_dpi_get(const Ecore_Evas *ee, int *xdpi, int *ydpi);
 void _ecore_evas_wl_common_render_flush_pre(void *data, Evas *evas EINA_UNUSED, void *event);
+void _ecore_evas_wl_common_render_flush_post(void *data, Evas *evas EINA_UNUSED, void *event);
 void _ecore_evas_wl_common_render_updates(void *data, Evas *evas, void *event);
 void _ecore_evas_wl_common_rotation_set(Ecore_Evas *ee, int rotation, int resize);
 void _ecore_evas_wl_common_borderless_set(Ecore_Evas *ee, Eina_Bool on);
@@ -96,6 +102,7 @@ Evas_Object * _ecore_evas_wl_common_frame_add(Evas *evas);
 void _ecore_evas_wl_common_frame_border_size_set(Evas_Object *obj, int fx, int fy, int fw, int fh);
 
 void _ecore_evas_wl_common_pointer_xy_get(const Ecore_Evas *ee, Evas_Coord *x, Evas_Coord *y);
+Eina_Bool _ecore_evas_wl_common_pointer_warp(const Ecore_Evas *ee, Evas_Coord x, Evas_Coord y);
 
 void _ecore_evas_wl_common_wm_rot_preferred_rotation_set(Ecore_Evas *ee, int rot);
 void _ecore_evas_wl_common_wm_rot_available_rotations_set(Ecore_Evas *ee, const int *rots, unsigned int count);

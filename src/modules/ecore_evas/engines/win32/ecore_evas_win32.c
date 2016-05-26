@@ -1369,11 +1369,20 @@ _ecore_evas_win32_new_internal(int (*_ecore_evas_engine_backend_init)(Ecore_Evas
 
    ee->engine.func->fn_render = _ecore_evas_win32_render;
    _ecore_evas_register(ee);
+#if 0
    ecore_event_window_register(ee->prop.window, ee, ee->evas,
                                (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process,
                                (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
                                (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
                                (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+#endif
+   // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+   ecore_event_window_register_with_multi(ee->prop.window, ee, ee->evas,
+                                         (Ecore_Event_Mouse_Move_With_Multi_Cb)_ecore_evas_mouse_move_with_multi_info_process,
+                                         (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
+                                         (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
+                                         (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+   //
 
    return ee;
 }

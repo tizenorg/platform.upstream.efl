@@ -22,6 +22,9 @@ struct _Ecore_Input_Window
    Ecore_Event_Multi_Move_Cb move_multi;
    Ecore_Event_Multi_Down_Cb down_multi;
    Ecore_Event_Multi_Up_Cb up_multi;
+// TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+   Ecore_Event_Mouse_Move_With_Multi_Cb move_mouse_with_multi;
+//
    int ignore_event;
 };
 
@@ -353,6 +356,42 @@ ecore_event_window_register(Ecore_Window id, void *window, Evas *evas,
    evas_key_lock_add(evas, "Scroll_Lock");
 }
 
+// TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+EAPI void
+ecore_event_window_register_with_multi(Ecore_Window id, void *window, Evas *evas,
+                            Ecore_Event_Mouse_Move_With_Multi_Cb move_mouse_with_multi,
+                            Ecore_Event_Multi_Move_Cb move_multi,
+                            Ecore_Event_Multi_Down_Cb down_multi,
+                            Ecore_Event_Multi_Up_Cb up_multi)
+{
+   Ecore_Input_Window *w;
+
+   w = calloc(1, sizeof(Ecore_Input_Window));
+   if (!w) return;
+
+   w->evas = evas;
+   w->window = window;
+   w->move_mouse_with_multi = move_mouse_with_multi;
+   w->move_multi = move_multi;
+   w->down_multi = down_multi;
+   w->up_multi = up_multi;
+   w->ignore_event = 0;
+
+   eina_hash_add(_window_hash, &id, w);
+
+   evas_key_modifier_add(evas, "Shift");
+   evas_key_modifier_add(evas, "Control");
+   evas_key_modifier_add(evas, "Alt");
+   evas_key_modifier_add(evas, "Meta");
+   evas_key_modifier_add(evas, "Hyper");
+   evas_key_modifier_add(evas, "Super");
+   evas_key_modifier_add(evas, "AltGr");
+   evas_key_lock_add(evas, "Caps_Lock");
+   evas_key_lock_add(evas, "Num_Lock");
+   evas_key_lock_add(evas, "Scroll_Lock");
+}
+//
+
 EAPI void
 ecore_event_window_unregister(Ecore_Window id)
 {
@@ -391,39 +430,41 @@ _ecore_event_window_match(Ecore_Window id)
 }
 
 static Evas_Device *
-_ecore_event_get_evas_device(Evas *e, const char *dev_name, Evas_Device_Class clas)
+_ecore_event_get_evas_device(Evas *e, Ecore_Device *dev)
 {
    const Eina_List *dev_list = NULL;
    const Eina_List *l;
    Evas_Device *edev = NULL;
-   const char *name = NULL;
+   const char *edev_name, *name;
+   Ecore_Device_Class clas;
 
-   if (!dev_name) return NULL;
+   if (!dev) return NULL;
+   name = ecore_device_identifier_get(dev);
+   if (!name) return NULL;
+   clas = ecore_device_class_get(dev);
 
    dev_list = evas_device_list(e, NULL);
-   if (!dev_list)
-     return NULL;
+   if (!dev_list) return NULL;
    EINA_LIST_FOREACH(dev_list, l, edev)
      {
         if (!edev) continue;
-        name = evas_device_description_get(edev);
-        if (!name) continue;
-        if (!(strcmp(name, dev_name)) && (evas_device_class_get(edev) == clas))
-          {
-             break;
-          }
+        edev_name = evas_device_description_get(edev);
+        if (!edev_name) continue;
+        if ( (evas_device_class_get(edev) == (Evas_Device_Class)clas) && (!strcmp(edev_name, name)))
+          return edev;
      }
-   return edev;
+   return NULL;
 }
 
 static Eina_Bool
 _ecore_event_evas_key(Ecore_Event_Key *e, Ecore_Event_Press press)
 {
    Ecore_Input_Window *lookup;
+   Evas_Device *dev;
 
    lookup = _ecore_event_window_match(e->event_window);
    if (!lookup) return ECORE_CALLBACK_PASS_ON;
-   Evas_Device *dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name, EVAS_DEVICE_CLASS_KEYBOARD);
+   dev = _ecore_event_get_evas_device(lookup->evas, e->dev);
    if (dev)
      evas_device_push(lookup->evas, dev);
    ecore_event_evas_modifier_lock_update(lookup->evas, e->modifiers);
@@ -479,6 +520,7 @@ _ecore_event_evas_mouse_button(Ecore_Event_Mouse_Button *e, Ecore_Event_Press pr
    Ecore_Event_Last *eel;
    Ecore_Input_Window *lookup;
    Evas_Button_Flags flags = EVAS_BUTTON_NONE;
+   Evas_Device *dev;
 
    lookup = _ecore_event_window_match(e->event_window);
    if (!lookup) return ECORE_CALLBACK_PASS_ON;
@@ -520,9 +562,7 @@ _ecore_event_evas_mouse_button(Ecore_Event_Mouse_Button *e, Ecore_Event_Press pr
           }
      }
 
-   Evas_Device *dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name, EVAS_DEVICE_CLASS_MOUSE);
-   if (!dev)
-     dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name, EVAS_DEVICE_CLASS_TOUCH);
+   dev = _ecore_event_get_evas_device(lookup->evas, e->dev);
    if (dev)
      evas_device_push(lookup->evas, dev);
    if (e->multi.device == 0)
@@ -530,13 +570,29 @@ _ecore_event_evas_mouse_button(Ecore_Event_Mouse_Button *e, Ecore_Event_Press pr
         ecore_event_evas_modifier_lock_update(lookup->evas, e->modifiers);
         if (press == ECORE_DOWN)
           {
+#if 0
              evas_event_feed_mouse_down(lookup->evas, e->buttons, flags,
                                         e->timestamp, NULL);
+#endif
+             // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+             evas_event_feed_mouse_down_with_multi_info(lookup->evas, e->buttons, flags,
+                                        e->timestamp, NULL,
+                                        e->multi.radius, e->multi.radius_x, e->multi.radius_y,
+                                        e->multi.pressure, e->multi.angle);
+             //
           }
         else
           {
+#if 0
              evas_event_feed_mouse_up(lookup->evas, e->buttons, flags,
-                                      e->timestamp, NULL);
+                                        e->timestamp, NULL);
+#endif
+             // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+             evas_event_feed_mouse_up_with_multi_info(lookup->evas, e->buttons, flags,
+                                      e->timestamp, NULL,
+                                      e->multi.radius, e->multi.radius_x, e->multi.radius_y,
+                                      e->multi.pressure, e->multi.angle);
+             //
           }
      }
    else
@@ -585,14 +641,13 @@ ecore_event_evas_mouse_move(void *data EINA_UNUSED, int type EINA_UNUSED, void *
 {
    Ecore_Event_Mouse_Move *e;
    Ecore_Input_Window *lookup;
+   Evas_Device *dev;
 
    e = event;
    lookup = _ecore_event_window_match(e->event_window);
    if (!lookup) return ECORE_CALLBACK_PASS_ON;
 
-   Evas_Device *dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name, EVAS_DEVICE_CLASS_MOUSE);
-   if (!dev)
-     dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name, EVAS_DEVICE_CLASS_TOUCH);
+   dev = _ecore_event_get_evas_device(lookup->evas, e->dev);
    if (dev)
      evas_device_push(lookup->evas, dev);
    if (e->multi.device == 0)
@@ -600,11 +655,24 @@ ecore_event_evas_mouse_move(void *data EINA_UNUSED, int type EINA_UNUSED, void *
         _ecore_event_evas_push_mouse_move(e);
         ecore_event_evas_modifier_lock_update(lookup->evas, e->modifiers);
 
+#if 0
         if (lookup->move_mouse)
            lookup->move_mouse(lookup->window, e->x, e->y, e->timestamp);
         else
            evas_event_input_mouse_move(lookup->evas, e->x, e->y, e->timestamp,
                                       NULL);
+#endif
+        // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+        if (lookup->move_mouse_with_multi)
+          lookup->move_mouse_with_multi(lookup->window, e->x, e->y, e->timestamp,
+                                        e->multi.radius, e->multi.radius_x, e->multi.radius_y, e->multi.pressure, e->multi.angle);
+        else if (lookup->move_mouse)
+          lookup->move_mouse(lookup->window, e->x, e->y, e->timestamp);
+        else
+          evas_event_input_mouse_move_with_multi_info(lookup->evas, e->x, e->y, e->timestamp, NULL,
+                                                      e->multi.radius, e->multi.radius_x, e->multi.radius_y,
+                                                      e->multi.pressure, e->multi.angle);
+        //
      }
    else
      {
@@ -622,7 +690,7 @@ ecore_event_evas_mouse_move(void *data EINA_UNUSED, int type EINA_UNUSED, void *
                                       e->multi.x, e->multi.y, e->timestamp,
                                       NULL);
      }
-	evas_device_pop(lookup->evas);
+   evas_device_pop(lookup->evas);
    return ECORE_CALLBACK_PASS_ON;
 }
 
@@ -650,12 +718,11 @@ static Eina_Bool
 _ecore_event_evas_mouse_io(Ecore_Event_Mouse_IO *e, Ecore_Event_IO io)
 {
    Ecore_Input_Window *lookup;
+   Evas_Device *dev;
 
    lookup = _ecore_event_window_match(e->event_window);
    if (!lookup) return ECORE_CALLBACK_PASS_ON;
-   Evas_Device *dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name, EVAS_DEVICE_CLASS_MOUSE);
-   if (!dev)
-     dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name, EVAS_DEVICE_CLASS_TOUCH);
+   dev = _ecore_event_get_evas_device(lookup->evas, e->dev);
    if (dev)
      evas_device_push(lookup->evas, dev);
    ecore_event_evas_modifier_lock_update(lookup->evas, e->modifiers);
@@ -671,7 +738,15 @@ _ecore_event_evas_mouse_io(Ecore_Event_Mouse_IO *e, Ecore_Event_IO io)
          break;
      }
 
+#if 0
    lookup->move_mouse(lookup->window, e->x, e->y, e->timestamp);
+#endif
+   // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
+   if (lookup->move_mouse_with_multi)
+     lookup->move_mouse_with_multi(lookup->window, e->x, e->y, e->timestamp, 0, 0, 0, 0, 0);
+   else if (lookup->move_mouse)
+     lookup->move_mouse(lookup->window, e->x, e->y, e->timestamp);
+   //
    evas_device_pop(lookup->evas);
    return ECORE_CALLBACK_PASS_ON;
 }
@@ -693,13 +768,12 @@ ecore_event_evas_mouse_wheel(void *data EINA_UNUSED, int type EINA_UNUSED, void 
 {
    Ecore_Event_Mouse_Wheel *e;
    Ecore_Input_Window *lookup;
+   Evas_Device *dev;
 
    e = event;
    lookup = _ecore_event_window_match(e->event_window);
    if (!lookup) return ECORE_CALLBACK_PASS_ON;
-   Evas_Device *dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name, EVAS_DEVICE_CLASS_MOUSE);
-   if (!dev)
-     dev = _ecore_event_get_evas_device(lookup->evas, e->dev_name, EVAS_DEVICE_CLASS_TOUCH);
+   dev = _ecore_event_get_evas_device(lookup->evas, e->dev);
    if (dev)
      evas_device_push(lookup->evas, dev);
    ecore_event_evas_modifier_lock_update(lookup->evas, e->modifiers);
@@ -735,29 +809,13 @@ ecore_event_evas_axis_update(void *data EINA_UNUSED, int type EINA_UNUSED, void 
    return ECORE_CALLBACK_PASS_ON;
 }
 
-static short
-_ecore_event_device_cap_to_class(int cap)
-{
-   switch(cap)
-     {
-      case ECORE_DEVICE_POINTER:
-         return EVAS_DEVICE_CLASS_MOUSE;
-      case ECORE_DEVICE_KEYBOARD:
-         return EVAS_DEVICE_CLASS_KEYBOARD;
-      case ECORE_DEVICE_TOUCH:
-         return EVAS_DEVICE_CLASS_TOUCH;
-      default:
-         return EVAS_DEVICE_CLASS_NONE;
-     }
-   return EVAS_DEVICE_CLASS_NONE;
-}
-
 static void
-_ecore_event_evas_add_evas_device(Evas *e, const char *name, const char *identifier, Evas_Device_Class clas)
+_ecore_event_evas_add_evas_device(Evas *e, const char *name, const char *identifier, Ecore_Device_Class clas)
 {
    const Eina_List *dev_list = NULL;
    const Eina_List *l;
    Evas_Device *edev = NULL;
+   const char *edev_name;
 
    dev_list = evas_device_list(e, NULL);
    if (dev_list)
@@ -765,8 +823,9 @@ _ecore_event_evas_add_evas_device(Evas *e, const char *name, const char *identif
         EINA_LIST_FOREACH(dev_list, l, edev)
           {
              if (!edev) continue;
-             if ((evas_device_class_get(edev) == clas) &&
-                !(strcmp(evas_device_description_get(edev), identifier)))
+             edev_name = evas_device_description_get(edev);
+             if (!edev_name) continue;
+             if ((evas_device_class_get(edev) == (Evas_Device_Class)clas) && (!strcmp(edev_name, identifier)))
                return;
           }
      }
@@ -779,15 +838,16 @@ _ecore_event_evas_add_evas_device(Evas *e, const char *name, const char *identif
      }
    evas_device_name_set(edev, name);
    evas_device_description_set(edev, identifier);
-   evas_device_class_set(edev, clas);
+   evas_device_class_set(edev, (Evas_Device_Class)clas);
 }
 
 static void
-_ecore_event_evas_del_evas_device(Evas *e, const char *name, const char *identifier, Evas_Device_Class clas)
+_ecore_event_evas_del_evas_device(Evas *e, const char *name, const char *identifier, Ecore_Device_Class clas)
 {
    const Eina_List *dev_list = NULL;
    const Eina_List *l;
    Evas_Device *edev = NULL;
+   const char *edev_name;
 
    dev_list = evas_device_list(e, NULL);
    if (!dev_list)
@@ -798,43 +858,13 @@ _ecore_event_evas_del_evas_device(Evas *e, const char *name, const char *identif
    EINA_LIST_FOREACH(dev_list, l, edev)
      {
         if (!edev) continue;
-        if ((evas_device_class_get(edev) == clas) &&
-          !(strcmp(evas_device_description_get(edev), identifier)) &&
-          !(strcmp(evas_device_name_get(edev), name)))
+        edev_name = evas_device_description_get(edev);
+        if (!edev_name) continue;
+        if ((evas_device_class_get(edev) == (Evas_Device_Class)clas) && (!strcmp(edev_name, identifier)))
           {
              evas_device_del(edev);
              return;
           }
-     }
-}
-
-static void
-_ecore_event_add_del_evas_devices(Evas *e, const char *name, const char *identifier, int caps, Eina_Bool flag)
-{
-   Evas_Device_Class clas = EVAS_DEVICE_CLASS_NONE;
-   if (caps & ECORE_DEVICE_POINTER)
-     {
-        clas = _ecore_event_device_cap_to_class(ECORE_DEVICE_POINTER);
-        if (flag)
-          _ecore_event_evas_add_evas_device(e, name, identifier, clas);
-        else
-          _ecore_event_evas_del_evas_device(e, name, identifier, clas);
-     }
-   if (caps & ECORE_DEVICE_KEYBOARD)
-     {
-        clas = _ecore_event_device_cap_to_class(ECORE_DEVICE_KEYBOARD);
-        if (flag)
-          _ecore_event_evas_add_evas_device(e, name, identifier, clas);
-        else
-          _ecore_event_evas_del_evas_device(e, name, identifier, clas);
-     }
-   if (caps & ECORE_DEVICE_TOUCH)
-     {
-        clas = _ecore_event_device_cap_to_class(ECORE_DEVICE_TOUCH);
-        if (flag)
-          _ecore_event_evas_add_evas_device(e, name, identifier, clas);
-        else
-          _ecore_event_evas_del_evas_device(e, name, identifier, clas);
      }
 }
 
@@ -849,7 +879,7 @@ ecore_event_evas_device_add(void *data EINA_UNUSED, int type EINA_UNUSED, void *
    lookup = _ecore_event_window_match(e->window);
    if (!lookup) return ECORE_CALLBACK_PASS_ON;
 
-   _ecore_event_add_del_evas_devices(lookup->evas, e->name, e->identifier, e->caps, EINA_TRUE);
+   _ecore_event_evas_add_evas_device(lookup->evas, e->name, e->identifier, e->clas);
 
    return ECORE_CALLBACK_PASS_ON;
 }
@@ -865,7 +895,7 @@ ecore_event_evas_device_del(void *data EINA_UNUSED, int type EINA_UNUSED, void *
    lookup = _ecore_event_window_match(e->window);
    if (!lookup) return ECORE_CALLBACK_PASS_ON;
 
-   _ecore_event_add_del_evas_devices(lookup->evas, e->name, e->identifier, e->caps, EINA_FALSE);
+   _ecore_event_evas_del_evas_device(lookup->evas, e->name, e->identifier, e->clas);
 
    return ECORE_CALLBACK_PASS_ON;
 }

@@ -23,11 +23,11 @@ _blend_color_argb(int count, const SW_FT_Span *spans, void *user_data)
    comp_func = ector_comp_func_solid_span_get(data->op, color);
 
    // move to the offset location
-   buffer = data->raster_buffer.buffer + ((data->raster_buffer.width * data->offy) + data->offx);
+   buffer = data->raster_buffer.buffer + ((data->raster_buffer.stride / 4) * data->offy + data->offx);
 
    while (count--)
      {
-        target = buffer + ((data->raster_buffer.width * spans->y) + spans->x);
+        target = buffer + ((data->raster_buffer.stride / 4) * spans->y + spans->x);
         comp_func(target, spans->len, color, spans->coverage);
         ++spans;
      }
@@ -56,11 +56,11 @@ _blend_gradient(int count, const SW_FT_Span *spans, void *user_data)
    comp_func = ector_comp_func_span_get(data->op, data->mul_col, data->gradient->alpha);
 
    // move to the offset location
-   destbuffer = data->raster_buffer.buffer + ((data->raster_buffer.width * data->offy) + data->offx);
+   destbuffer = data->raster_buffer.buffer + ((data->raster_buffer.stride / 4) * data->offy + data->offx);
 
    while (count--)
      {
-        target = destbuffer + ((data->raster_buffer.width * spans->y) + spans->x);
+        target = destbuffer + ((data->raster_buffer.stride / 4) * spans->y + spans->x);
         length = spans->len;
         while (length)
           {

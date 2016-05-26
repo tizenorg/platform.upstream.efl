@@ -100,6 +100,8 @@ struct _Ecore_Wl_Display
         struct tizen_keyrouter *keyrouter;
         struct tizen_input_device_manager *tz_input_device_manager;
         struct tizen_effect *tz_effect;
+
+        Eina_Bool prepare_read;
      } wl;
 
    int fd;
@@ -164,6 +166,7 @@ struct _Ecore_Wl_Window
    Eina_Bool minimized : 1;
    Eina_Bool focus_skip : 1;
    Eina_Bool iconified : 1;
+   Eina_Bool floating : 1;
 
    struct
      {
@@ -180,6 +183,12 @@ struct _Ecore_Wl_Window
    const char *role;
 
    Eina_Rectangle allocation;
+
+   struct
+     {
+        int w, h;
+        unsigned int edges;
+     } configured;
 
    struct
      {
@@ -262,6 +271,7 @@ struct _Ecore_Wl_Input
 
    Eina_List *devices;
    const char *last_device_name;
+   Ecore_Device_Class last_device_class;
 
    const char *cursor_name;
    struct wl_cursor *cursor;

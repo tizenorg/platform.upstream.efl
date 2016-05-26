@@ -121,7 +121,7 @@ struct _Ecore_Drm_Device
 
    struct xkb_context *xkb_ctx;
 
-   unsigned int window;
+   int window;
 
    Eeze_Udev_Watch *watch;
 
@@ -644,6 +644,7 @@ EAPI unsigned int ecore_drm_output_crtc_buffer_get(Ecore_Drm_Output *output);
 EAPI unsigned int ecore_drm_output_connector_id_get(Ecore_Drm_Output *output);
 
 /* TODO: Doxy */
+EAPI Eina_Bool ecore_drm_inputs_devices_create(Ecore_Drm_Device *dev);
 EAPI Eina_Bool ecore_drm_inputs_create(Ecore_Drm_Device *dev);
 EAPI void ecore_drm_inputs_destroy(Ecore_Drm_Device *dev);
 EAPI Eina_Bool ecore_drm_inputs_enable(Ecore_Drm_Input *input);
@@ -1034,6 +1035,8 @@ EAPI const char *ecore_drm_evdev_name_get(Ecore_Drm_Evdev *evdev);
 EAPI const char *ecore_drm_evdev_sysname_get(Ecore_Drm_Evdev *evdev);
 EAPI Eina_Bool ecore_drm_evdev_key_remap_enable(Ecore_Drm_Evdev *edev, Eina_Bool enable);
 EAPI Eina_Bool ecore_drm_evdev_key_remap_set(Ecore_Drm_Evdev *edev, int *from_keys, int *to_keys, int num);
+EAPI int ecore_drm_evdev_wheel_click_angle_get(Ecore_Drm_Evdev *dev);
+EAPI Ecore_Device *ecore_drm_evdev_get_ecore_device(const char *path, Ecore_Device_Class clas);
 
 typedef void (*Ecore_Drm_VBlank_Cb)(void *data);
 EAPI Eina_Bool  ecore_drm_output_wait_vblank(Ecore_Drm_Output *output, int interval, Ecore_Drm_VBlank_Cb func, void *data);

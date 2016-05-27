@@ -56,7 +56,7 @@ static Eina_Inlist *_ecore_wl_mouse_down_info_list = NULL;
 
 /* local function prototypes */
 static void _ecore_wl_input_seat_handle_capabilities(void *data, struct wl_seat *seat, enum wl_seat_capability caps);
-static void _ecore_wl_input_seat_handle_name(void *data, struct wl_seat *seat, char *name);
+static void _ecore_wl_input_seat_handle_name(void *data EINA_UNUSED, struct wl_seat *seat EINA_UNUSED, const char *name EINA_UNUSED);
 
 static void _ecore_wl_input_cb_pointer_enter(void *data, struct wl_pointer *pointer EINA_UNUSED, unsigned int serial, struct wl_surface *surface, wl_fixed_t sx, wl_fixed_t sy);
 static void _ecore_wl_input_cb_pointer_leave(void *data, struct wl_pointer *pointer EINA_UNUSED, unsigned int serial, struct wl_surface *surface);
@@ -665,7 +665,7 @@ _ecore_wl_input_seat_handle_capabilities(void *data, struct wl_seat *seat, enum 
 }
 
 static void
-_ecore_wl_input_seat_handle_name(void *data, struct wl_seat *seat, char *name)
+_ecore_wl_input_seat_handle_name(void *data EINA_UNUSED, struct wl_seat *seat EINA_UNUSED, const char *name EINA_UNUSED)
 {
    /* We don't care about the name. */
    LOGFN(__FILE__, __LINE__, __FUNCTION__);

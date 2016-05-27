@@ -255,7 +255,7 @@ _evas_device_cleanup(Evas *eo_e)
    EINA_LIST_FOREACH_SAFE(e->devices, l1, l2, dev)
      {
         int ref;
-        while (ref = dev->ref)
+        while ((ref = dev->ref))
           {
              evas_device_del(dev);
              if (ref <= 1)

@@ -334,6 +334,8 @@ struct _Ecore_Wl_Input
         double rate, delay;
         Eina_Bool enabled : 1;
      } repeat;
+
+   unsigned int seat_version;
 };
 
 struct _Ecore_Wl_Output

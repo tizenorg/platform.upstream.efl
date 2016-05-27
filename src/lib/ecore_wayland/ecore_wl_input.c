@@ -474,6 +474,7 @@ _ecore_wl_input_add(Ecore_Wl_Display *ewd, unsigned int id)
    if (ewd->wl.shm)
      _ecore_wl_input_setup(input);
 
+   input->seat_version = 4;
    input->seat =
      wl_registry_bind(ewd->wl.registry, id, &wl_seat_interface, 4);
    ewd->inputs = eina_inlist_append(ewd->inputs, EINA_INLIST_GET(input));
@@ -615,6 +616,11 @@ _ecore_wl_input_seat_handle_capabilities(void *data, struct wl_seat *seat, enum 
      {
         if (input->cursor_surface) wl_surface_destroy(input->cursor_surface);
         input->cursor_surface = NULL;
+#ifdef WL_POINTER_RELEASE_SINCE_VERSION
+        if (input->seat_version >= WL_POINTER_RELEASE_SINCE_VERSION)
+          wl_pointer_release(input->pointer);
+        else
+#endif
         wl_pointer_destroy(input->pointer);
         input->pointer = NULL;
      }
@@ -627,6 +633,11 @@ _ecore_wl_input_seat_handle_capabilities(void *data, struct wl_seat *seat, enum 
      }
    else if (!(caps & WL_SEAT_CAPABILITY_KEYBOARD) && (input->keyboard))
      {
+#ifdef WL_KEYBOARD_RELEASE_SINCE_VERSION
+        if (input->seat_version >= WL_KEYBOARD_RELEASE_SINCE_VERSION)
+          wl_keyboard_release(input->keyboard);
+        else
+#endif
         wl_keyboard_destroy(input->keyboard);
         input->keyboard = NULL;
         _ecore_wl_input_key_conversion_clean_up();
@@ -643,6 +654,11 @@ _ecore_wl_input_seat_handle_capabilities(void *data, struct wl_seat *seat, enum 
      }
    else if (!(caps & WL_SEAT_CAPABILITY_TOUCH) && (input->touch))
      {
+#ifdef WL_TOUCH_RELEASE_SINCE_VERSION
+        if (input->seat_version >= WL_TOUCH_RELEASE_SINCE_VERSION)
+          wl_touch_release(input->touch);
+        else
+#endif
         wl_touch_destroy(input->touch);
         input->touch = NULL;
      }

@@ -402,6 +402,8 @@ _evas_outbuf_egl_setup(Outbuf *ob)
    ob->gl_context = glsym_evas_gl_common_context_new();
    if (!ob->gl_context) return EINA_FALSE;
 
+   // TIZEN_ONLY(20160529): set this flag for gl_drm engine surface
+   ob->gl_context->IsGLDRM = 1;
 #ifdef GL_GLES
    ob->gl_context->egldisp = ob->egl.disp;
    ob->gl_context->eglctxt = ob->egl.context[0];

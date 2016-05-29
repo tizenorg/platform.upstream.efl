@@ -342,6 +342,8 @@ struct _Evas_Engine_GL_Context
    int gles_version;
 
    RGBA_Image *font_surface;
+   // TIZEN_ONLY(20160529): Set this flag for gl_drm engine surface
+   int IsGLDRM;
 };
 
 struct _Evas_GL_Texture_Pool

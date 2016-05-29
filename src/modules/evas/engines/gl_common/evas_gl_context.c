@@ -671,6 +671,9 @@ evas_gl_common_context_new(void)
 
    tbm_symbols();
    gc->gles_version = gles_version;
+   // TIZEN_ONLY(20160529): Set this flag for gl_drm engine based surface ONLY
+   gc->IsGLDRM = 0;
+   //
 
    gc->references = 1;
 

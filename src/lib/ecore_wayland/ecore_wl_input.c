@@ -1997,23 +1997,6 @@ _ecore_wl_input_device_info_free(void *data EINA_UNUSED, void *ev)
    free(e);
 }
 
-static Ecore_Device_Class
-_ecore_wl_input_cap_to_ecore_device_class(unsigned int cap)
-{
-   switch(cap)
-     {
-      case ECORE_DEVICE_POINTER:
-         return ECORE_DEVICE_CLASS_MOUSE;
-      case ECORE_DEVICE_KEYBOARD:
-         return ECORE_DEVICE_CLASS_KEYBOARD;
-      case ECORE_DEVICE_TOUCH:
-         return ECORE_DEVICE_CLASS_TOUCH;
-      default:
-         return ECORE_DEVICE_CLASS_NONE;
-     }
-   return ECORE_DEVICE_CLASS_NONE;
-}
-
 void
 _ecore_wl_input_device_info_send(int win_id, const char *name,  const char *identifier, Ecore_Device_Class clas, Eina_Bool flag)
 {
@@ -2180,7 +2163,6 @@ _ecore_wl_input_device_manager_cb_device_remove(void *data EINA_UNUSED, struct t
    Ecore_Wl_Input *input = _ecore_wl_disp->input;
    Eina_List *l, *ll;
    Ecore_Wl_Input_Device *dev;
-   Ecore_Device_Class clas;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
    if (!input) return;
@@ -2191,8 +2173,7 @@ _ecore_wl_input_device_manager_cb_device_remove(void *data EINA_UNUSED, struct t
         if (!dev->identifier) continue;
         if ((!strcmp(dev->identifier, identifier)) && (seat == dev->seat) && (device == dev->tz_device))
           {
-             clas = _ecore_wl_input_cap_to_ecore_device_class(dev->clas);
-             _ecore_wl_input_device_info_broadcast(dev->name, dev->identifier, clas, EINA_FALSE);
+             _ecore_wl_input_device_info_broadcast(dev->name, dev->identifier, dev->clas, EINA_FALSE);
 
              if (dev->tz_device) tizen_input_device_release(dev->tz_device);
              if (dev->name) eina_stringshare_del(dev->name);
@@ -2224,15 +2205,12 @@ static void
 _ecore_wl_input_device_cb_device_info(void *data, struct tizen_input_device *tizen_input_device EINA_UNUSED, const char *name, uint32_t clas, uint32_t subclas, struct wl_array *axes EINA_UNUSED)
 {
    Ecore_Wl_Input_Device *dev;
-   Ecore_Device_Class e_clas;
 
    if (!(dev = data)) return;
    dev->clas = clas;
    dev->subclas = subclas;
    dev->name = eina_stringshare_add(name);
-   e_clas = _ecore_wl_input_cap_to_ecore_device_class(clas);
-
-   _ecore_wl_input_device_info_broadcast(dev->name, dev->identifier, e_clas, EINA_TRUE);
+   _ecore_wl_input_device_info_broadcast(dev->name, dev->identifier, dev->clas, EINA_TRUE);
 }
 
 static void
@@ -2247,7 +2225,7 @@ _ecore_wl_input_device_cb_event_device(void *data, struct tizen_input_device *ti
    if (!(dev = data)) return;
    if (!dev->identifier) return;
    eina_stringshare_replace(&input->last_device_name, dev->identifier);
-   input->last_device_class = _ecore_wl_input_cap_to_ecore_device_class(dev->clas);
+   input->last_device_class = dev->clas;
 
    return;
 }

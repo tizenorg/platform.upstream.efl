@@ -140,13 +140,6 @@ extern "C" {
         ECORE_COMPOSE_DONE
      } Ecore_Compose_State;
 
-   typedef enum _Ecore_Device_Type
-     {
-        ECORE_DEVICE_POINTER = (1 << 0),
-        ECORE_DEVICE_KEYBOARD = (1 << 1),
-        ECORE_DEVICE_TOUCH = (1 << 2),
-     } Ecore_Device_Type;
-
    struct _Ecore_Event_Device_Info
      {
         Ecore_Window window;

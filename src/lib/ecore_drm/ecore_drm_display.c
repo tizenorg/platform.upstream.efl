@@ -440,14 +440,14 @@ _ecore_drm_display_fb_send(Ecore_Drm_Device *dev, Ecore_Drm_Fb *fb, Ecore_Drm_Pa
              continue;
           }
 
+        fb->pending_flip = EINA_TRUE;
         ret = tdm_output_commit(hal_output->output, 0, _ecore_drm_display_output_cb_commit, cb);
         if (ret != TDM_ERROR_NONE)
           {
+             fb->pending_flip = EINA_FALSE;
              ERR("Cannot commit crtc %u: err(%d)", output->crtc_id, ret);
              continue;
           }
-
-        fb->pending_flip = EINA_TRUE;
      }
 
    while (fb->pending_flip)

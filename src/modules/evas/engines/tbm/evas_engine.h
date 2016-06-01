@@ -59,7 +59,6 @@ struct _Outbuf
    Evas_Engine_Info_Tbm *info;
    Evas_Engine_GL_Context *gl_context;
 
-   void *bufmgr;
    void *tbm_queue;
    Eina_Bool ext_tbm_queue;
 

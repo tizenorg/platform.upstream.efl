@@ -9,15 +9,20 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include <Ecore_Evas.h>
 #include <Evas.h>
 #include <Evas_Engine_Tbm.h>
 #include <Ecore.h>
 #include "ecore_private.h"
 #include <Ecore_Input.h>
+#include <tbm_bufmgr.h>
+#include <tbm_surface_queue.h>
 
 #include "Ecore_Evas.h"
 #include "ecore_evas_tbm.h"
 #include "ecore_evas_private.h"
+
+//EAPI Ecore_Evas * ecore_evas_tbm_ext_new(const char *engine, const void *tbm_surf_queue, void* data);
 
 static void
 _ecore_evas_tbm_free(Ecore_Evas *ee)
@@ -631,7 +636,7 @@ _ecore_evas_tbm_queue_free(void *data,void *tbm_queue)
 }
 
 EAPI Ecore_Evas *
-ecore_evas_tbm_new_ext(const void *tbm_buf_mgr, const void *tbm_surf_queue, void* data)
+ecore_evas_tbm_ext_new(const char *engine, const void *tbm_surf_queue, void* data)
 {
     Evas_Engine_Info_Tbm *einfo;
     Ecore_Evas_Engine_Tbm_Data *tbm_data;
@@ -639,7 +644,6 @@ ecore_evas_tbm_new_ext(const void *tbm_buf_mgr, const void *tbm_surf_queue, void
     int rmethod;
     int w, h;
 
-    EINA_SAFETY_ON_NULL_RETURN_VAL(tbm_buf_mgr, NULL);
     EINA_SAFETY_ON_NULL_RETURN_VAL(tbm_surf_queue, NULL);
 
     rmethod = evas_render_method_lookup("tbm");
@@ -663,10 +667,7 @@ ecore_evas_tbm_new_ext(const void *tbm_buf_mgr, const void *tbm_surf_queue, void
     tbm_data->free_func = NULL;
     tbm_data->data = (void *)data;
     tbm_data->tbm_queue = tbm_surf_queue;
-    tbm_data->bufmgr = tbm_buf_mgr;
     tbm_data->ext_tbm_queue = EINA_TRUE;
-
-    fprintf(stderr,"bufmgr %p,tbm_queue %p\n",tbm_data->bufmgr,tbm_data->tbm_queue);
 
     ee->driver = "tbm";
 
@@ -704,7 +705,6 @@ ecore_evas_tbm_new_ext(const void *tbm_buf_mgr, const void *tbm_surf_queue, void
     einfo = (Evas_Engine_Info_Tbm *)evas_engine_info_get(ee->evas);
     if (einfo)
       {
-         einfo->info.bufmgr = tbm_data->bufmgr;
          einfo->info.tbm_queue = tbm_data->tbm_queue;
          einfo->info.destination_alpha = EINA_TRUE;
          einfo->info.ext_tbm_queue = EINA_FALSE;
@@ -771,8 +771,6 @@ ecore_evas_tbm_allocfunc_new(int w, int h,
 
    ECORE_MAGIC_SET(ee, ECORE_MAGIC_EVAS);
 
-   tbm_data->bufmgr = tbm_bufmgr_init(-1);
-
    ee->engine.func = (Ecore_Evas_Engine_Func *)&_ecore_tbm_engine_func;
    ee->engine.data = tbm_data;
    tbm_data->alloc_func = alloc_func;
@@ -815,7 +813,6 @@ ecore_evas_tbm_allocfunc_new(int w, int h,
    einfo = (Evas_Engine_Info_Tbm *)evas_engine_info_get(ee->evas);
    if (einfo)
      {
-        einfo->info.bufmgr = tbm_data->bufmgr;
         einfo->info.tbm_queue = tbm_data->tbm_queue;
         einfo->info.destination_alpha = EINA_TRUE;
         einfo->info.ext_tbm_queue = EINA_FALSE;

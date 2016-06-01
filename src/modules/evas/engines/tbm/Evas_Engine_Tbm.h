@@ -25,7 +25,6 @@ struct _Evas_Engine_Info_Tbm
    struct 
      {
         int depth, screen, rotation, edges;
-        void *bufmgr;
         void *tbm_queue;
         Eina_Bool ext_tbm_queue;
         unsigned int destination_alpha : 1;

@@ -32,7 +32,6 @@ eng_window_new(Evas *evas, Evas_Engine_Info_Tbm *einfo, int w, int h, Render_Eng
    gw->w = w;
    gw->h = h;
    gw->swap_mode = swap_mode;
-   gw->bufmgr = einfo->info.bufmgr;
    gw->tbm_queue = einfo->info.tbm_queue;
    gw->ext_tbm_queue = einfo->info.ext_tbm_queue;
    gw->depth = einfo->info.depth;
@@ -84,8 +83,7 @@ eng_window_new(Evas *evas, Evas_Engine_Info_Tbm *einfo, int w, int h, Render_Eng
 
    setenv("EGL_PLATFORM", "tbm", 1);
 
-   gw->egl_disp = eglGetDisplay((EGLNativeDisplayType)gw->bufmgr);
-   fprintf(stderr,"gw->bufmgr %p\n",gw->bufmgr);
+   gw->egl_disp = eglGetDisplay((EGLNativeDisplayType)NULL);
    if (!gw->egl_disp)
      {
         ERR("eglGetDisplay() fail. code=%#x", eglGetError());

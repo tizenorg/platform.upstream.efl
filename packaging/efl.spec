@@ -695,6 +695,7 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
     --with-opengl=es \
     --disable-rpath \
     --disable-ibus \
+    --enable-tbm \
 %endif
 %if %{with x}
     --with-opengl=es \

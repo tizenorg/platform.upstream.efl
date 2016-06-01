@@ -105,6 +105,7 @@ extern "C" {
 #define HAVE_ECORE_EVAS_DRM 1
 #define HAVE_ECORE_EVAS_DRM_GL 1
 #define HAVE_ECORE_EVAS_TBM 1
+#define HAVE_ECORE_EVAS_SOFTWARE_TBM 1
 
 typedef enum _Ecore_Evas_Engine_Type
 {
@@ -133,7 +134,8 @@ typedef enum _Ecore_Evas_Engine_Type
    ECORE_EVAS_ENGINE_WAYLAND_EGL,
    ECORE_EVAS_ENGINE_DRM,
    ECORE_EVAS_ENGINE_OPENGL_DRM,
-   ECORE_EVAS_ENGINE_TBM
+   ECORE_EVAS_ENGINE_TBM,
+   ECORE_EVAS_ENGINE_SOFTWARE_TBM,
 } Ecore_Evas_Engine_Type;
 
 typedef enum _Ecore_Evas_Avoid_Damage_Type

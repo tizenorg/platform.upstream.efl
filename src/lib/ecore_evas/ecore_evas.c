@@ -338,6 +338,12 @@ ecore_evas_engine_type_supported_get(Ecore_Evas_Engine_Type engine)
 #else
         return EINA_FALSE;
 #endif
+     case ECORE_EVAS_ENGINE_SOFTWARE_TBM:
+#ifdef BUILD_ECORE_EVAS_SOFTWARE_TBM
+        return EINA_TRUE;
+#else
+        return EINA_FALSE;
+#endif
 
 
       default:

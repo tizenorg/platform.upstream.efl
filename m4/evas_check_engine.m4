@@ -706,6 +706,41 @@ AS_IF([test "x${have_dep}" = "xyes"], [$4], [$5])
 
 ])
 
+dnl use: EVAS_CHECK_ENGINE_DEP_SOFTWARE_TBM(engine, simple, want_static[, ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
+
+AC_DEFUN([EVAS_CHECK_ENGINE_DEP_SOFTWARE_TBM],
+[
+
+requirement=""
+have_dep="no"
+evas_engine_[]$1[]_cflags=""
+evas_engine_[]$1[]_libs=""
+
+PKG_CHECK_EXISTS([wayland-client >= 1.3.0],
+   [
+    have_dep="yes"
+    requirement="wayland-client"
+   ],
+   [have_dep="no"])
+
+if test "x${have_dep}" = "xyes" ; then
+   if test "x$3" = "xstatic" ; then
+      requirements_pc_evas="${requirement} ${requirements_pc_evas}"
+      requirements_pc_deps_evas="${requirement} ${requirements_pc_deps_evas}"
+   else
+      PKG_CHECK_MODULES([SOFTWARE_TBM], [${requirement}])
+      evas_engine_[]$1[]_cflags="${SOFTWARE_TBM_CFLAGS}"
+      evas_engine_[]$1[]_libs="${SOFTWARE_TBM_LIBS}"
+   fi
+fi
+
+AC_SUBST([evas_engine_$1_cflags])
+AC_SUBST([evas_engine_$1_libs])
+
+AS_IF([test "x${have_dep}" = "xyes"], [$4], [$5])
+
+])
+
 dnl use: EVAS_ENGINE(name, want_engine, [DEPENDENCY-CHECK-CODE])
 dnl
 dnl defines BUILD_ENGINE_NAME if it should be built

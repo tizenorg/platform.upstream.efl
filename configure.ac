@@ -1736,6 +1736,19 @@ AC_ARG_ENABLE([ecore-buffer],
    ],
    [want_ecore_buffer="no"])
 
+
+# Ecore_Tbm
+AC_ARG_ENABLE([tbm],
+   [AS_HELP_STRING([--enable-tbm],[Enable tbm. @<:@default=disabled@:>@])],
+   [
+    if test "x${enableval}" = "xyes" ; then
+       want_evas_engine_tbm="yes"
+    else
+       want_evas_engine_tbm="no"
+    fi
+   ],
+   [want_evas_engine_tbm="no"])
+
 # Image Loaders
 
 ARG_ENABLE_EVAS_IMAGE_LOADER(BMP, static)
@@ -1765,12 +1778,6 @@ want_evas_engine_wayland_egl="no"
 if test "${want_wayland}" = "yes" && test "${want_egl}" = "yes" && test "${with_opengl}" = "es"; then
    want_evas_engine_wayland_egl="yes"
 fi
-
-want_evas_engine_tbm="no"
-if test "${want_wayland}" = "yes" && test "${want_egl}" = "yes" && test "${with_opengl}" = "es"; then
-   want_evas_engine_tbm="yes"
-fi
-
 
 if test "${want_lua_old}" = "yes"; then
    EFL_CHECK_LUA_OLD([EVAS])
@@ -1878,6 +1885,7 @@ EVAS_CHECK_ENGINE([wayland-shm], [${want_wayland}], [no], [Wayland Shm])
 EVAS_CHECK_ENGINE([drm], [${want_drm}], [no], [Drm])
 EVAS_CHECK_ENGINE([gl-drm], [${want_gl_drm}], [no], [OpenGL Drm])
 EVAS_CHECK_ENGINE([tbm], [${want_evas_engine_tbm}], [no], [Tbm])
+EVAS_CHECK_ENGINE([software-tbm], [${want_evas_engine_tbm}], [no], [Software Tbm])
 
 
 # Software XCB
@@ -4028,6 +4036,7 @@ AM_CONDITIONAL([BUILD_ECORE_EVAS_SDL],
 ECORE_EVAS_MODULE([wayland-shm], [${want_wayland}])
 ECORE_EVAS_MODULE([wayland-egl], [${want_ecore_evas_wayland_egl}])
 ECORE_EVAS_MODULE([tbm], [${want_ecore_evas_tbm}])
+ECORE_EVAS_MODULE([software-tbm], [${want_ecore_evas_tbm}])
 
 build_ecore_evas_wayland="no"
 if test "x${have_ecore_evas_wayland_shm}" = "xyes" || \

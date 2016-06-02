@@ -1111,7 +1111,10 @@ ecore_wl_window_input_rect_set(Ecore_Wl_Window *win, Eina_Rectangle *input_rect)
    if (!win) return;
    if (!input_rect) return;
    if (win->input_region)
-     wl_region_destroy(win->input_region);
+     {
+        wl_region_destroy(win->input_region);
+        win->input_region = NULL;
+     }
 
    win->input.x = input_rect->x;
    win->input.y = input_rect->y;

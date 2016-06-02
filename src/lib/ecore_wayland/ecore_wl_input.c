@@ -2153,7 +2153,7 @@ _ecore_wl_input_device_manager_cb_device_remove(void *data EINA_UNUSED, struct t
              clas = _ecore_wl_input_cap_to_ecore_device_class(dev->clas);
              _ecore_wl_input_device_info_broadcast(dev->name, dev->identifier, clas, EINA_FALSE);
 
-             if (dev->tz_device) tizen_input_device_destroy(dev->tz_device);
+             if (dev->tz_device) tizen_input_device_release(dev->tz_device);
              if (dev->name) eina_stringshare_del(dev->name);
              if (dev->identifier) eina_stringshare_del(dev->identifier);
              dev->seat = NULL;

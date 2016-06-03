@@ -29,31 +29,16 @@ _ecore_evas_tbm_free(Ecore_Evas *ee)
 {
    Ecore_Evas_Engine_Tbm_Data *tbm_data = ee->engine.data;
 
-   if (tbm_data->image)
-     {
-        Ecore_Evas *ee2;
-
-        ee2 = evas_object_data_get(tbm_data->image, "Ecore_Evas_Parent");
-        evas_object_del(tbm_data->image);
-        if (ee2)
-          ee2->sub_ecore_evas = eina_list_remove(ee2->sub_ecore_evas, ee);
-     }
-   else
-     {
-        if (tbm_data->tbm_queue)
-          tbm_data->free_func(tbm_data->data,tbm_data->tbm_queue);
-     }
-
+   if (tbm_data->tbm_queue)
+     tbm_data->free_func(tbm_data->data,tbm_data->tbm_queue);
    free(tbm_data);
 }
 
 static void
 _ecore_evas_resize(Ecore_Evas *ee, int w, int h)
 {
-#if 0
    Evas_Engine_Info_Tbm *einfo;
    Ecore_Evas_Engine_Tbm_Data *tbm_data = ee->engine.data;
-   int stride = 0;
 
    if (w < 1) w = 1;
    if (h < 1) h = 1;
@@ -66,43 +51,11 @@ _ecore_evas_resize(Ecore_Evas *ee, int w, int h)
    evas_output_viewport_set(ee->evas, 0, 0, ee->w, ee->h);
    evas_damage_rectangle_add(ee->evas, 0, 0, ee->w, ee->h);
 
-   if (tbm_data->image)
-     {
-        tbm_data->pixels = evas_object_image_data_get(tbm_data->image, 1);
-        stride = evas_object_image_stride_get(tbm_data->image);
-     }
-   else
-     {
-        if (tbm_data->pixels)
-          tbm_data->free_func(tbm_data->data,
-                                      tbm_data->pixels);
-        tbm_data->pixels = tbm_data->alloc_func(tbm_data->data,
-                      ee->w * ee->h * sizeof(int));
-        stride = ee->w * sizeof(int);
-     }
+   if (tbm_data->tbm_queue)
+     tbm_data->free_func(tbm_data->data,tbm_data->tbm_queue);
 
-   einfo = (Evas_Engine_Info_Tbm *)evas_engine_info_get(ee->evas);
-   if (einfo)
-     {
-        if (ee->alpha)
-          einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_ARGB32;
-        else
-          einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_RGB32;
-        einfo->info.dest_tbm = tbm_data->pixels;
-        einfo->info.dest_tbm_row_bytes = stride;
-        einfo->info.use_color_key = 0;
-        einfo->info.alpha_threshold = 0;
-        einfo->info.func.new_update_region = NULL;
-        einfo->info.func.free_update_region = NULL;
-        if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
-          {
-             ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
-          }
-     }
-   if (tbm_data->image)
-      evas_object_image_data_set(tbm_data->image, tbm_data->pixels);
+   tbm_data->tbm_queue = tbm_data->alloc_func(tbm_data->data, ee->w, ee->h);
    if (ee->func.fn_resize) ee->func.fn_resize(ee);
-#endif
 }
 
 static void
@@ -115,8 +68,6 @@ static void
 _ecore_evas_show(Ecore_Evas *ee)
 {
    Ecore_Evas_Engine_Tbm_Data *tbm_data = ee->engine.data;
-
-   if (tbm_data->image) return;
    if (ee->prop.focused) return;
    ee->prop.focused = EINA_TRUE;
    ee->prop.withdrawn = EINA_FALSE;
@@ -141,32 +92,10 @@ _ecore_evas_tbm_render(Ecore_Evas *ee)
            rend |= ee2->engine.func->fn_render(ee2);
         if (ee2->func.fn_post_render) ee2->func.fn_post_render(ee2);
      }
-#if 0
-   if (tbm_data->image)
-     {
-        int w, h;
-
-        evas_object_image_size_get(tbm_data->image, &w, &h);
-        if ((w != ee->w) || (h != ee->h))
-           _ecore_evas_resize(ee, w, h);
-        tbm_data->pixels = evas_object_image_data_get(tbm_data->image, 1);
-     }
-#endif
    if (tbm_data->tbm_queue)
      {
         updates = evas_render_updates(ee->evas);
      }
-#if 0
-   if (tbm_data->image)
-     {
-        Eina_Rectangle *r;
-
-        evas_object_image_data_set(tbm_data->image, tbm_data->pixels);
-        EINA_LIST_FOREACH(updates, l, r)
-           evas_object_image_data_update_add(tbm_data->image,
-                                             r->x, r->y, r->w, r->h);
-     }
-#endif
    if (updates)
      {
         evas_render_updates_free(updates);
@@ -174,7 +103,6 @@ _ecore_evas_tbm_render(Ecore_Evas *ee)
      }
 
    if (ee->func.fn_post_render) ee->func.fn_post_render(ee);
-
    return updates ? 1 : rend;
 }
 
@@ -185,6 +113,7 @@ ecore_evas_tbm_render(Ecore_Evas *ee)
    return _ecore_evas_tbm_render(ee);
 }
 
+#if 0
 // NOTE: if you fix this, consider fixing ecore_evas_ews.c as it is similar!
 static void
 _ecore_evas_tbm_coord_translate(Ecore_Evas *ee, Evas_Coord *x, Evas_Coord *y)
@@ -467,31 +396,14 @@ _ecore_evas_tbm_cb_hide(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_U
    ee->visible = 0;
    if (ee->func.fn_hide) ee->func.fn_hide(ee);
 }
+#endif
 
 static void
 _ecore_evas_tbm_alpha_set(Ecore_Evas *ee, int alpha)
 {
-#if 0
    Ecore_Evas_Engine_Tbm_Data *tbm_data = ee->engine.data;
    if (((ee->alpha) && (alpha)) || ((!ee->alpha) && (!alpha))) return;
    ee->alpha = alpha;
-   if (tbm_data->image)
-      evas_object_image_alpha_set(tbm_data->image, ee->alpha);
-   else
-     {
-        Evas_Engine_Info_Tbm *einfo;
-
-        einfo = (Evas_Engine_Info_Tbm *)evas_engine_info_get(ee->evas);
-        if (einfo)
-          {
-             if (ee->alpha)
-               einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_ARGB32;
-             else
-               einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_RGB32;
-             evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo);
-          }
-     }
-#endif
 }
 
 static void
@@ -857,17 +769,6 @@ ecore_evas_tbm_new(int w, int h)
      (w, h,_ecore_evas_tbm_queue_alloc, _ecore_evas_tbm_queue_free, NULL);
 }
 
-EAPI const void *
-ecore_evas_tbm_pixels_get(Ecore_Evas *ee)
-{
-   Ecore_Evas_Engine_Tbm_Data *tbm_data;
-
-   EINA_SAFETY_ON_NULL_RETURN_VAL(ee, NULL);
-
-   tbm_data = ee->engine.data;
-   _ecore_evas_tbm_render(ee);
-   return tbm_data->tbm_queue;
-}
 
 EAPI Ecore_Evas *
 ecore_evas_tbm_ecore_evas_parent_get(Ecore_Evas *ee)
@@ -880,159 +781,40 @@ ecore_evas_tbm_ecore_evas_parent_get(Ecore_Evas *ee)
    return evas_object_data_get(tbm_data->image, "Ecore_Evas_Parent");
 }
 
-EAPI Evas_Object *
-ecore_evas_tbm_object_image_new(Ecore_Evas *ee_target)
+EAPI const void *
+ecore_evas_tbm_pixels_acquire(Ecore_Evas *ee)
 {
-   Evas_Object *o;
-#if 0
    Ecore_Evas_Engine_Tbm_Data *tbm_data;
-   Evas_Engine_Info_Tbm *einfo;
-   Ecore_Evas *ee;
-   int rmethod;
-   int w = 1, h = 1;
+   tbm_surface_queue_error_e tbm_err;
+   tbm_surface_info_s surf_info;
+   void *pixels=NULL;
 
-   EINA_SAFETY_ON_NULL_RETURN_VAL(ee_target, NULL);
-
-   rmethod = evas_render_method_lookup("tbm");
-   EINA_SAFETY_ON_TRUE_RETURN_VAL(rmethod == 0, NULL);
-
-   ee = calloc(1, sizeof(Ecore_Evas));
    EINA_SAFETY_ON_NULL_RETURN_VAL(ee, NULL);
 
-   tbm_data = calloc(1, sizeof(Ecore_Evas_Engine_Tbm_Data));
-   if (!tbm_data)
-     {
-    free(ee);
-    return NULL;
-     }
-
+   tbm_data = ee->engine.data;
+   if (tbm_surface_queue_can_acquire(tbm_data->tbm_queue, 1)) {
+      tbm_surface_queue_acquire(tbm_data->tbm_queue, &(tbm_data->tbm_surf));
+      tbm_surface_get_info(tbm_data->tbm_surf,&surf_info);
+      pixels = surf_info.planes[0].ptr;
+   }
    ee->engine.data = tbm_data;
-
-   o = evas_object_image_add(ee_target->evas);
-   evas_object_image_content_hint_set(o, EVAS_IMAGE_CONTENT_HINT_DYNAMIC);
-   evas_object_image_colorspace_set(o, EVAS_COLORSPACE_ARGB8888);
-   evas_object_image_alpha_set(o, 0);
-   evas_object_image_size_set(o, w, h);
-
-   ECORE_MAGIC_SET(ee, ECORE_MAGIC_EVAS);
-
-   ee->engine.func = (Ecore_Evas_Engine_Func *)&_ecore_tbm_engine_func;
-
-   ee->driver = "tbm";
-
-   ee->rotation = 0;
-   ee->visible = 0;
-   ee->w = w;
-   ee->h = h;
-   ee->req.w = ee->w;
-   ee->req.h = ee->h;
-   ee->profile_supported = 1;
-
-   ee->prop.max.w = 0;
-   ee->prop.max.h = 0;
-   ee->prop.layer = 0;
-   ee->prop.focused = EINA_FALSE;
-   ee->prop.borderless = EINA_TRUE;
-   ee->prop.override = EINA_TRUE;
-   ee->prop.maximized = EINA_FALSE;
-   ee->prop.fullscreen = EINA_FALSE;
-   ee->prop.withdrawn = EINA_TRUE;
-   ee->prop.sticky = EINA_FALSE;
-
-   /* init evas here */
-   ee->evas = evas_new();
-   evas_data_attach_set(ee->evas, ee);
-   evas_output_method_set(ee->evas, rmethod);
-   evas_output_size_set(ee->evas, w, h);
-   evas_output_viewport_set(ee->evas, 0, 0, w, h);
-
-   tbm_data->image = o;
-   evas_object_data_set(tbm_data->image, "Ecore_Evas", ee);
-   evas_object_data_set(tbm_data->image, "Ecore_Evas_Parent", ee_target);
-   evas_object_event_callback_add(tbm_data->image,
-                                  EVAS_CALLBACK_MOUSE_IN,
-                                  _ecore_evas_tbm_cb_mouse_in, ee);
-   evas_object_event_callback_add(tbm_data->image,
-                                  EVAS_CALLBACK_MOUSE_OUT,
-                                  _ecore_evas_tbm_cb_mouse_out, ee);
-   evas_object_event_callback_add(tbm_data->image,
-                                  EVAS_CALLBACK_MOUSE_DOWN,
-                                  _ecore_evas_tbm_cb_mouse_down, ee);
-   evas_object_event_callback_add(tbm_data->image,
-                                  EVAS_CALLBACK_MOUSE_UP,
-                                  _ecore_evas_tbm_cb_mouse_up, ee);
-   evas_object_event_callback_add(tbm_data->image,
-                                  EVAS_CALLBACK_MOUSE_MOVE,
-                                  _ecore_evas_tbm_cb_mouse_move, ee);
-   evas_object_event_callback_add(tbm_data->image,
-                                  EVAS_CALLBACK_MOUSE_WHEEL,
-                                  _ecore_evas_tbm_cb_mouse_wheel, ee);
-   evas_object_event_callback_add(tbm_data->image,
-                                  EVAS_CALLBACK_MULTI_DOWN,
-                                  _ecore_evas_tbm_cb_multi_down, ee);
-   evas_object_event_callback_add(tbm_data->image,
-                                  EVAS_CALLBACK_MULTI_UP,
-                                  _ecore_evas_tbm_cb_multi_up, ee);
-   evas_object_event_callback_add(tbm_data->image,
-                                  EVAS_CALLBACK_MULTI_MOVE,
-                                  _ecore_evas_tbm_cb_multi_move, ee);
-   evas_object_event_callback_add(tbm_data->image,
-                                  EVAS_CALLBACK_FREE,
-                                  _ecore_evas_tbm_cb_free, ee);
-   evas_object_event_callback_add(tbm_data->image,
-                                  EVAS_CALLBACK_KEY_DOWN,
-                                  _ecore_evas_tbm_cb_key_down, ee);
-   evas_object_event_callback_add(tbm_data->image,
-                                  EVAS_CALLBACK_KEY_UP,
-                                  _ecore_evas_tbm_cb_key_up, ee);
-   evas_object_event_callback_add(tbm_data->image,
-                                  EVAS_CALLBACK_FOCUS_IN,
-                                  _ecore_evas_tbm_cb_focus_in, ee);
-   evas_object_event_callback_add(tbm_data->image,
-                                  EVAS_CALLBACK_FOCUS_OUT,
-                                  _ecore_evas_tbm_cb_focus_out, ee);
-   evas_object_event_callback_add(tbm_data->image,
-                                  EVAS_CALLBACK_SHOW,
-                                  _ecore_evas_tbm_cb_show, ee);
-   evas_object_event_callback_add(tbm_data->image,
-                                  EVAS_CALLBACK_HIDE,
-                                  _ecore_evas_tbm_cb_hide, ee);
-   einfo = (Evas_Engine_Info_Tbm *)evas_engine_info_get(ee->evas);
-   if (einfo)
-     {
-        tbm_data->pixels = evas_object_image_data_get(o, 1);
-        einfo->info.depth_type = EVAS_ENGINE_BUFFER_DEPTH_ARGB32;
-        einfo->info.dest_tbm = tbm_data->pixels;
-        einfo->info.dest_tbm_row_bytes = evas_object_image_stride_get(o);
-        einfo->info.use_color_key = 0;
-        einfo->info.alpha_threshold = 0;
-        einfo->info.func.new_update_region = NULL;
-        einfo->info.func.free_update_region = NULL;
-        evas_object_image_data_set(o, tbm_data->pixels);
-        if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
-          {
-             ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
-             ecore_evas_free(ee);
-             return NULL;
-          }
-     }
-   else
-     {
-        ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
-        ecore_evas_free(ee);
-        return NULL;
-     }
-   evas_key_modifier_add(ee->evas, "Shift");
-   evas_key_modifier_add(ee->evas, "Control");
-   evas_key_modifier_add(ee->evas, "Alt");
-   evas_key_modifier_add(ee->evas, "Meta");
-   evas_key_modifier_add(ee->evas, "Hyper");
-   evas_key_modifier_add(ee->evas, "Super");
-   evas_key_lock_add(ee->evas, "Caps_Lock");
-   evas_key_lock_add(ee->evas, "Num_Lock");
-   evas_key_lock_add(ee->evas, "Scroll_Lock");
-
-   ee_target->sub_ecore_evas = eina_list_append(ee_target->sub_ecore_evas, ee);
-#endif
-   return o;
+   return pixels;
 }
+
+EAPI void
+ecore_evas_tbm_pixels_release(Ecore_Evas *ee)
+{
+   Ecore_Evas_Engine_Tbm_Data *tbm_data;
+   tbm_surface_queue_error_e tbm_err;
+   tbm_surface_info_s surf_info;
+
+   EINA_SAFETY_ON_NULL_RETURN_VAL(ee, NULL);
+
+   tbm_data = ee->engine.data;
+   if (tbm_data->tbm_surf) {
+      tbm_surface_queue_release(tbm_data->tbm_queue,tbm_data->tbm_surf);
+      tbm_data->tbm_surf= NULL;
+   }
+   tbm_data = ee->engine.data;
+}
+

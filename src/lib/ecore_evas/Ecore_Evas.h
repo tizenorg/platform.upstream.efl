@@ -1384,6 +1384,8 @@ EAPI Ecore_Evas     *ecore_evas_gl_drm_new(const char *device, unsigned int pare
 EAPI Ecore_Evas     *ecore_evas_tbm_new(int w, int h);
 EAPI Ecore_Evas     *ecore_evas_tbm_allocfunc_new(int w, int h,void *(*alloc_func) (void *data, int w, int h),void (*free_func) (void *data, void *tbm_queue),const void *data);
 EAPI Ecore_Evas     *ecore_evas_tbm_ext_new(const char *engine, const void *tbm_surf_queue, void* data);
+EAPI const void *ecore_evas_tbm_pixels_acquire(Ecore_Evas *ee);
+EAPI void ecore_evas_tbm_pixels_release(Ecore_Evas *ee);
 
 /**
  * @brief Create a new @c Ecore_Evas canvas bound to the Evas

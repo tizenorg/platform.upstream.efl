@@ -1884,7 +1884,7 @@ EVAS_CHECK_ENGINE([wayland-egl], [${want_evas_engine_wayland_egl}], [no], [Wayla
 EVAS_CHECK_ENGINE([wayland-shm], [${want_wayland}], [no], [Wayland Shm])
 EVAS_CHECK_ENGINE([drm], [${want_drm}], [no], [Drm])
 EVAS_CHECK_ENGINE([gl-drm], [${want_gl_drm}], [no], [OpenGL Drm])
-EVAS_CHECK_ENGINE([tbm], [${want_evas_engine_tbm}], [no], [Tbm])
+EVAS_CHECK_ENGINE([gl-tbm], [${want_evas_engine_tbm}], [no], [OpenGL Tbm])
 EVAS_CHECK_ENGINE([software-tbm], [${want_evas_engine_tbm}], [no], [Software Tbm])
 
 
@@ -4035,7 +4035,7 @@ AM_CONDITIONAL([BUILD_ECORE_EVAS_SDL],
 
 ECORE_EVAS_MODULE([wayland-shm], [${want_wayland}])
 ECORE_EVAS_MODULE([wayland-egl], [${want_ecore_evas_wayland_egl}])
-ECORE_EVAS_MODULE([tbm], [${want_ecore_evas_tbm}])
+ECORE_EVAS_MODULE([gl-tbm], [${want_ecore_evas_tbm}])
 ECORE_EVAS_MODULE([software-tbm], [${want_ecore_evas_tbm}])
 
 build_ecore_evas_wayland="no"

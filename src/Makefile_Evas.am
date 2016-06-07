@@ -800,8 +800,8 @@ endif
 if BUILD_ENGINE_GL_DRM
 modules_evas_engines_gl_common_libevas_engine_gl_common_la_CPPFLAGS += @evas_engine_gl_drm_cflags@
 endif
-if BUILD_ENGINE_TBM
-modules_evas_engines_gl_common_libevas_engine_gl_common_la_CPPFLAGS += @evas_engine_tbm_cflags@
+if BUILD_ENGINE_GL_TBM
+modules_evas_engines_gl_common_libevas_engine_gl_common_la_CPPFLAGS += @evas_engine_gl_tbm_cflags@
 endif
 modules_evas_engines_gl_common_libevas_engine_gl_common_la_LIBADD = @USE_EVAS_LIBS@ @TTRACE_LIBS@
 modules_evas_engines_gl_common_libevas_engine_gl_common_la_DEPENDENCIES = @USE_EVAS_INTERNAL_LIBS@
@@ -1259,38 +1259,38 @@ modules_evas_engines_gl_drm_module_la_LIBTOOLFLAGS = --tag=disable-static
 endif
 endif
 
-if BUILD_ENGINE_TBM
-dist_installed_evasmainheaders_DATA += modules/evas/engines/tbm/Evas_Engine_Tbm.h
-TBM_SOURCES = \
-modules/evas/engines/tbm/evas_engine.c \
-modules/evas/engines/tbm/evas_tbm_main.c \
-modules/evas/engines/tbm/evas_engine.h
-if EVAS_STATIC_BUILD_TBM
-lib_evas_libevas_la_SOURCES += $(TBM_SOURCES)
-lib_evas_libevas_la_CPPFLAGS += @evas_engine_tbm_cflags@
-lib_evas_libevas_la_LIBADD += @evas_engine_tbm_libs@
+if BUILD_ENGINE_GL_TBM
+dist_installed_evasmainheaders_DATA += modules/evas/engines/gl_tbm/Evas_Engine_GL_Tbm.h
+GL_TBM_SOURCES = \
+modules/evas/engines/gl_tbm/evas_engine.c \
+modules/evas/engines/gl_tbm/evas_tbm_main.c \
+modules/evas/engines/gl_tbm/evas_engine.h
+if EVAS_STATIC_BUILD_GL_TBM
+lib_evas_libevas_la_SOURCES += $(GL_TBM_SOURCES)
+lib_evas_libevas_la_CPPFLAGS += @evas_engine_gl_tbm_cflags@
+lib_evas_libevas_la_LIBADD += @evas_engine_gl_tbm_libs@
 else
-enginetbmpkgdir = $(libdir)/evas/modules/engines/tbm/$(MODULE_ARCH)
-enginetbmpkg_LTLIBRARIES = modules/evas/engines/tbm/module.la
+enginegltbmpkgdir = $(libdir)/evas/modules/engines/gl_tbm/$(MODULE_ARCH)
+enginegltbmpkg_LTLIBRARIES = modules/evas/engines/gl_tbm/module.la
 
 # Workaround for broken parallel install support in automake (relink issue)
 # http://debbugs.gnu.org/cgi/bugreport.cgi?bug=7328
-install_enginetbmpkgLTLIBRARIES = install-enginetbmpkgLTLIBRARIES
-$(install_enginetbmpkgLTLIBRARIES): install-libLTLIBRARIES
+install_enginegltbmpkgLTLIBRARIES = install-enginegltbmpkgLTLIBRARIES
+$(install_enginegltbmpkgLTLIBRARIES): install-libLTLIBRARIES
 
-modules_evas_engines_tbm_module_la_SOURCES = $(TBM_SOURCES)
-modules_evas_engines_tbm_module_la_CPPFLAGS = -I$(top_builddir)/src/lib/efl \
+modules_evas_engines_gl_tbm_module_la_SOURCES = $(GL_TBM_SOURCES)
+modules_evas_engines_gl_tbm_module_la_CPPFLAGS = -I$(top_builddir)/src/lib/efl \
 -I$(top_srcdir)/src/lib/evas/include \
 -I$(top_srcdir)/src/lib/evas/cserve2 \
--I$(top_srcdir)/src/modules/evas/engines/tbm \
+-I$(top_srcdir)/src/modules/evas/engines/gl_tbm \
 @EVAS_CFLAGS@ \
-@evas_engine_tbm_cflags@
-modules_evas_engines_tbm_module_la_LIBADD = \
+@evas_engine_gl_tbm_cflags@
+modules_evas_engines_gl_tbm_module_la_LIBADD = \
 @USE_EVAS_LIBS@ \
-@evas_engine_tbm_libs@
-modules_evas_engines_tbm_module_la_DEPENDENCIES = @USE_EVAS_INTERNAL_LIBS@
-modules_evas_engines_tbm_module_la_LDFLAGS = -module @EFL_LTMODULE_FLAGS@
-modules_evas_engines_tbm_module_la_LIBTOOLFLAGS = --tag=disable-static
+@evas_engine_gl_tbm_libs@
+modules_evas_engines_gl_tbm_module_la_DEPENDENCIES = @USE_EVAS_INTERNAL_LIBS@
+modules_evas_engines_gl_tbm_module_la_LDFLAGS = -module @EFL_LTMODULE_FLAGS@
+modules_evas_engines_gl_tbm_module_la_LIBTOOLFLAGS = --tag=disable-static
 endif
 endif
 

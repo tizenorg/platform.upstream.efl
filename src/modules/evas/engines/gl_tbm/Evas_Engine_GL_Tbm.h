@@ -1,21 +1,21 @@
-#ifndef _EVAS_ENGINE_TBM_H
-# define _EVAS_ENGINE_TBM_H
+#ifndef _EVAS_ENGINE_GL_TBM_H
+# define _EVAS_ENGINE_GL_TBM_H
 
-# define EVAS_ENGINE_TBM_SWAP_MODE_EXISTS 1
+# define EVAS_ENGINE_GL_TBM_SWAP_MODE_EXISTS 1
 
-typedef struct _Evas_Engine_Info_Tbm Evas_Engine_Info_Tbm;
+typedef struct _Evas_Engine_Info_GL_Tbm Evas_Engine_Info_GL_Tbm;
 
-typedef enum _Evas_Engine_Info_Tbm_Swap_Mode
+typedef enum _Evas_Engine_Info_GL_Tbm_Swap_Mode
 {
-   EVAS_ENGINE_TBM_SWAP_MODE_AUTO = 0,
-   EVAS_ENGINE_TBM_SWAP_MODE_FULL = 1,
-   EVAS_ENGINE_TBM_SWAP_MODE_COPY = 2,
-   EVAS_ENGINE_TBM_SWAP_MODE_DOUBLE = 3,
-   EVAS_ENGINE_TBM_SWAP_MODE_TRIPLE = 4,
-   EVAS_ENGINE_TBM_SWAP_MODE_QUADRUPLE = 5
-} Evas_Engine_Info_Tbm_Swap_Mode;
+   EVAS_ENGINE_GL_TBM_SWAP_MODE_AUTO = 0,
+   EVAS_ENGINE_GL_TBM_SWAP_MODE_FULL = 1,
+   EVAS_ENGINE_GL_TBM_SWAP_MODE_COPY = 2,
+   EVAS_ENGINE_GL_TBM_SWAP_MODE_DOUBLE = 3,
+   EVAS_ENGINE_GL_TBM_SWAP_MODE_TRIPLE = 4,
+   EVAS_ENGINE_GL_TBM_SWAP_MODE_QUADRUPLE = 5
+} Evas_Engine_Info_GL_Tbm_Swap_Mode;
 
-struct _Evas_Engine_Info_Tbm
+struct _Evas_Engine_Info_GL_Tbm
 {
    /* PRIVATE - don't mess with this baby or evas will poke its tongue out
     * at you and make nasty noises */

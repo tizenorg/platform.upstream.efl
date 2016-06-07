@@ -44,9 +44,6 @@ extern int _evas_engine_software_tbm_log_dom;
 #define TBM_SURF_OPTION_READ      (1 << 0) /**< access option to read  */
 #define TBM_SURF_OPTION_WRITE     (1 << 1) /**< access option to write */
 
-static void *tbm_lib = NULL;
-static int   tbm_ref = 0;
-
 typedef struct _tbm_surface * tbm_surface_h;
 typedef uint32_t tbm_format;
 
@@ -79,13 +76,6 @@ typedef struct _tbm_surface_info
 } tbm_surface_info_s;
 
 /* returns 0 on success */
-static int (*sym_tbm_surface_map) (tbm_surface_h surface, int opt, tbm_surface_info_s *info) = NULL;
-static int (*sym_tbm_surface_unmap) (tbm_surface_h surface) = NULL;
-static int (*sym_tbm_surface_queue_can_dequeue) (void *tbm_queue, int value) = NULL;
-static int (*sym_tbm_surface_queue_dequeue) (void *tbm_queue, tbm_surface_h *surface) = NULL;
-static int (*sym_tbm_surface_queue_enqueue) (void *tbm_queue, tbm_surface_h surface) = NULL;
-static int (*sym_tbm_surface_get_width) (tbm_surface_h surface) = NULL;
-static int (*sym_tbm_surface_get_height) (tbm_surface_h surface) = NULL;
 
 struct _Outbuf
 {

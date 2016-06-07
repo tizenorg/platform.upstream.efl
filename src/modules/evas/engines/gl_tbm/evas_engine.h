@@ -5,7 +5,7 @@
 # include "evas_common_private.h"
 # include "evas_private.h"
 # include "Evas.h"
-# include "Evas_Engine_Tbm.h"
+# include "Evas_Engine_GL_Tbm.h"
 
 # define GL_GLEXT_PROTOTYPES
 
@@ -19,32 +19,32 @@
 
 # include "../gl_generic/Evas_Engine_GL_Generic.h"
 
-extern int _evas_engine_tbm_log_dom;
+extern int _evas_engine_gl_tbm_log_dom;
 
 # ifdef ERR
 #  undef ERR
 # endif
-# define ERR(...) EINA_LOG_DOM_ERR(_evas_engine_tbm_log_dom, __VA_ARGS__)
+# define ERR(...) EINA_LOG_DOM_ERR(_evas_engine_gl_tbm_log_dom, __VA_ARGS__)
 
 # ifdef DBG
 #  undef DBG
 # endif
-# define DBG(...) EINA_LOG_DOM_DBG(_evas_engine_tbm_log_dom, __VA_ARGS__)
+# define DBG(...) EINA_LOG_DOM_DBG(_evas_engine_gl_tbm_log_dom, __VA_ARGS__)
 
 # ifdef INF
 #  undef INF
 # endif
-# define INF(...) EINA_LOG_DOM_INFO(_evas_engine_tbm_log_dom, __VA_ARGS__)
+# define INF(...) EINA_LOG_DOM_INFO(_evas_engine_gl_tbm_log_dom, __VA_ARGS__)
 
 # ifdef WRN
 #  undef WRN
 # endif
-# define WRN(...) EINA_LOG_DOM_WARN(_evas_engine_tbm_log_dom, __VA_ARGS__)
+# define WRN(...) EINA_LOG_DOM_WARN(_evas_engine_gl_tbm_log_dom, __VA_ARGS__)
 
 # ifdef CRI
 #  undef CRI
 # endif
-# define CRI(...) EINA_LOG_DOM_CRIT(_evas_engine_tbm_log_dom, __VA_ARGS__)
+# define CRI(...) EINA_LOG_DOM_CRIT(_evas_engine_gl_tbm_log_dom, __VA_ARGS__)
 
 # ifndef EGL_BUFFER_AGE_EXT
 #  define EGL_BUFFER_AGE_EXT 0x313d
@@ -56,7 +56,7 @@ struct _Outbuf
    int depth, screen, rot, alpha;
 
    Evas *evas;
-   Evas_Engine_Info_Tbm *info;
+   Evas_Engine_Info_GL_Tbm *info;
    Evas_Engine_GL_Context *gl_context;
 
    void *tbm_queue;
@@ -114,7 +114,7 @@ extern Evas_GL_Preload_Render_Call glsym_evas_gl_preload_render_unlock;
 extern unsigned int (*glsym_eglSwapBuffersWithDamage) (EGLDisplay a, void *b, const EGLint *d, EGLint c);
 extern unsigned int (*glsym_eglSetDamageRegionKHR) (EGLDisplay a, EGLSurface b, EGLint *c, EGLint d);
 
-Outbuf *eng_window_new(Evas *evas, Evas_Engine_Info_Tbm *einfo, int w, int h, Render_Engine_Swap_Mode swap_mode,
+Outbuf *eng_window_new(Evas *evas, Evas_Engine_Info_GL_Tbm *einfo, int w, int h, Render_Engine_Swap_Mode swap_mode,
                                   int depth_bits, int stencil_bits, int msaa_bits);
 void eng_window_free(Outbuf *gw);
 void eng_window_use(Outbuf *gw);

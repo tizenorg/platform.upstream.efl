@@ -12,6 +12,17 @@
 #define GREEN_MASK 0x00ff00
 #define BLUE_MASK 0x0000ff
 
+static void *tbm_lib = NULL;
+static int   tbm_ref = 0;
+
+static int (*sym_tbm_surface_map) (tbm_surface_h surface, int opt, tbm_surface_info_s *info) = NULL;
+static int (*sym_tbm_surface_unmap) (tbm_surface_h surface) = NULL;
+static int (*sym_tbm_surface_queue_can_dequeue) (void *tbm_queue, int value) = NULL;
+static int (*sym_tbm_surface_queue_dequeue) (void *tbm_queue, tbm_surface_h *surface) = NULL;
+static int (*sym_tbm_surface_queue_enqueue) (void *tbm_queue, tbm_surface_h surface) = NULL;
+static int (*sym_tbm_surface_get_width) (tbm_surface_h surface) = NULL;
+static int (*sym_tbm_surface_get_height) (tbm_surface_h surface) = NULL;
+
 static Eina_Bool
 tbm_init(void)
 {
@@ -97,9 +108,8 @@ _evas_software_tbm_outbuf_setup(int w, int h, int rot, Outbuf_Depth depth, Eina_
    if (!tbm_init())
      {
         ERR("Could not initialize TBM!");
-        return NULL;
+        goto setup_err;
      }
-
 
    /* set outbuf properties */
    ob->w = w;
@@ -114,7 +124,7 @@ _evas_software_tbm_outbuf_setup(int w, int h, int rot, Outbuf_Depth depth, Eina_
 
    return ob;
 
-surf_err:
+setup_err:
    free(ob);
    return NULL;
 }
@@ -318,9 +328,9 @@ _evas_software_tbm_outbuf_flush(Outbuf *ob, Tilebuf_Rect *rects EINA_UNUSED, Eva
 Render_Engine_Swap_Mode
 _evas_software_tbm_outbuf_swap_mode_get(Outbuf *ob)
 {
-   int age;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
+//   int age;
 //   if (!_evas_shm_surface_assign(ob->surface)) return MODE_FULL;
 
 //   age = ob->surface->current->age;

@@ -11,7 +11,8 @@
 
 #include <Ecore_Evas.h>
 #include <Evas.h>
-#include <Evas_Engine_Tbm.h>
+#include <Evas_Engine_GL_Tbm.h>
+#include <Evas_Engine_Software_Tbm.h>
 #include <Ecore.h>
 #include "ecore_private.h"
 #include <Ecore_Input.h>
@@ -22,7 +23,6 @@
 #include "ecore_evas_tbm.h"
 #include "ecore_evas_private.h"
 
-//EAPI Ecore_Evas * ecore_evas_tbm_ext_new(const char *engine, const void *tbm_surf_queue, void* data);
 
 static void
 _ecore_evas_tbm_free(Ecore_Evas *ee)
@@ -37,7 +37,6 @@ _ecore_evas_tbm_free(Ecore_Evas *ee)
 static void
 _ecore_evas_resize(Ecore_Evas *ee, int w, int h)
 {
-   Evas_Engine_Info_Tbm *einfo;
    Ecore_Evas_Engine_Tbm_Data *tbm_data = ee->engine.data;
 
    if (w < 1) w = 1;
@@ -67,7 +66,6 @@ _ecore_evas_move_resize(Ecore_Evas *ee, int x EINA_UNUSED, int y EINA_UNUSED, in
 static void
 _ecore_evas_show(Ecore_Evas *ee)
 {
-   Ecore_Evas_Engine_Tbm_Data *tbm_data = ee->engine.data;
    if (ee->prop.focused) return;
    ee->prop.focused = EINA_TRUE;
    ee->prop.withdrawn = EINA_FALSE;
@@ -79,7 +77,7 @@ _ecore_evas_show(Ecore_Evas *ee)
 static int
 _ecore_evas_tbm_render(Ecore_Evas *ee)
 {
-   Eina_List *updates = NULL, *l, *ll;
+   Eina_List *updates = NULL, *ll;
    Ecore_Evas_Engine_Tbm_Data *tbm_data;
    Ecore_Evas *ee2;
    int rend = 0;
@@ -401,7 +399,6 @@ _ecore_evas_tbm_cb_hide(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_U
 static void
 _ecore_evas_tbm_alpha_set(Ecore_Evas *ee, int alpha)
 {
-   Ecore_Evas_Engine_Tbm_Data *tbm_data = ee->engine.data;
    if (((ee->alpha) && (alpha)) || ((!ee->alpha) && (!alpha))) return;
    ee->alpha = alpha;
 }
@@ -535,31 +532,46 @@ static Ecore_Evas_Engine_Func _ecore_tbm_engine_func =
 };
 
 static tbm_surface_queue_h *
-_ecore_evas_tbm_queue_alloc(void *data, int w, int h)
+_ecore_evas_tbm_queue_alloc(void *data EINA_UNUSED, int w, int h)
 {
    return tbm_surface_queue_create(3, w, h, TBM_FORMAT_ARGB8888, TBM_BO_DEFAULT);
 }
 
 static void
-_ecore_evas_tbm_queue_free(void *data,void *tbm_queue)
+_ecore_evas_tbm_queue_free(void *data EINA_UNUSED, void *tbm_queue)
 {
     tbm_surface_queue_destroy(tbm_queue);
-   //free(pix);
 }
 
 EAPI Ecore_Evas *
 ecore_evas_tbm_ext_new(const char *engine, const void *tbm_surf_queue, void* data)
 {
-    Evas_Engine_Info_Tbm *einfo;
-    Ecore_Evas_Engine_Tbm_Data *tbm_data;
-    Ecore_Evas *ee;
-    int rmethod;
-    int w, h;
+
+   Ecore_Evas_Engine_Tbm_Data *tbm_data;
+   Ecore_Evas *ee;
+   const char *driver_name;
+   int rmethod;
+   int w, h;
 
     EINA_SAFETY_ON_NULL_RETURN_VAL(tbm_surf_queue, NULL);
 
-    rmethod = evas_render_method_lookup("tbm");
+   if (!strcmp(engine, "gl_tbm"))
+      {
+         driver_name = "gl_tbm";
+      }
+   else if (!strcmp(engine, "software_tbm"))
+      {
+         driver_name = "software_tbm";
+      }
+   else
+      {
+         ERR("engine name is NULL!!");
+         return NULL;
+      }
+
+   rmethod = evas_render_method_lookup(driver_name);
     EINA_SAFETY_ON_TRUE_RETURN_VAL(rmethod == 0, NULL);
+
 
     ee = calloc(1, sizeof(Ecore_Evas));
     EINA_SAFETY_ON_NULL_RETURN_VAL(ee, NULL);
@@ -571,6 +583,7 @@ ecore_evas_tbm_ext_new(const char *engine, const void *tbm_surf_queue, void* dat
         return NULL;
       }
 
+
     ECORE_MAGIC_SET(ee, ECORE_MAGIC_EVAS);
 
     ee->engine.func = (Ecore_Evas_Engine_Func *)&_ecore_tbm_engine_func;
@@ -581,7 +594,7 @@ ecore_evas_tbm_ext_new(const char *engine, const void *tbm_surf_queue, void* dat
     tbm_data->tbm_queue = tbm_surf_queue;
     tbm_data->ext_tbm_queue = EINA_TRUE;
 
-    ee->driver = "tbm";
+   ee->driver = driver_name;
 
     w = tbm_surface_queue_get_width(tbm_data->tbm_queue);
     h = tbm_surface_queue_get_height(tbm_data->tbm_queue);
@@ -614,27 +627,55 @@ ecore_evas_tbm_ext_new(const char *engine, const void *tbm_surf_queue, void* dat
     evas_output_size_set(ee->evas, w, h);
     evas_output_viewport_set(ee->evas, 0, 0, w, h);
 
-    einfo = (Evas_Engine_Info_Tbm *)evas_engine_info_get(ee->evas);
-    if (einfo)
+    if (!strcmp(driver_name, "gl_tbm"))
       {
-         einfo->info.tbm_queue = tbm_data->tbm_queue;
-         einfo->info.destination_alpha = EINA_TRUE;
-         einfo->info.ext_tbm_queue = EINA_FALSE;
-         einfo->info.rotation = 0;
-         einfo->info.depth = 32;
-         if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
-           {
-              ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
-              ecore_evas_free(ee);
-              return NULL;
-           }
+         Evas_Engine_Info_GL_Tbm *einfo = (Evas_Engine_Info_GL_Tbm *)evas_engine_info_get(ee->evas);
+         if (einfo)
+            {
+               einfo->info.tbm_queue = tbm_data->tbm_queue;
+               einfo->info.destination_alpha = EINA_TRUE;
+               einfo->info.ext_tbm_queue = EINA_FALSE;
+               einfo->info.rotation = 0;
+               einfo->info.depth = 32;
+               if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
+                  {
+                     ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
+                     ecore_evas_free(ee);
+                     return NULL;
+                  }
+            }
+         else
+            {
+               ERR("evas_engine_info_set() init engine '%s' failed.", ee->driver);
+               ecore_evas_free(ee);
+               return NULL;
+            }
       }
-    else
+   else if (!strcmp(driver_name, "software_tbm"))
       {
-         ERR("evas_engine_info_set() init engine '%s' failed.", ee->driver);
-         ecore_evas_free(ee);
-         return NULL;
+         Evas_Engine_Info_Software_Tbm *einfo = (Evas_Engine_Info_Software_Tbm *)evas_engine_info_get(ee->evas);
+         if (einfo)
+            {
+               einfo->info.tbm_queue = tbm_data->tbm_queue;
+               einfo->info.destination_alpha = EINA_TRUE;
+               einfo->info.ext_tbm_queue = EINA_FALSE;
+               einfo->info.rotation = 0;
+               einfo->info.depth = 32;
+               if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
+                  {
+                     ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
+                     ecore_evas_free(ee);
+                     return NULL;
+                  }
+            }
+         else
+            {
+               ERR("evas_engine_info_set() init engine '%s' failed.", ee->driver);
+               ecore_evas_free(ee);
+               return NULL;
+            }
       }
+
     evas_key_modifier_add(ee->evas, "Shift");
     evas_key_modifier_add(ee->evas, "Control");
     evas_key_modifier_add(ee->evas, "Alt");
@@ -655,20 +696,36 @@ ecore_evas_tbm_ext_new(const char *engine, const void *tbm_surf_queue, void* dat
 }
 
 EAPI Ecore_Evas *
-ecore_evas_tbm_allocfunc_new(int w, int h,
-                                void *(*alloc_func) (void *data, int w, int h),
-                                void (*free_func) (void *data, void *tbm_queue),
-                                const void *data)
+ecore_evas_tbm_allocfunc_new(const char *engine, int w, int h,
+                             void *(*alloc_func) (void *data, int w, int h),
+                             void (*free_func) (void *data, void *tbm_queue),
+                             const void *data)
 {
-   Evas_Engine_Info_Tbm *einfo;
+
    Ecore_Evas_Engine_Tbm_Data *tbm_data;
    Ecore_Evas *ee;
    int rmethod;
+   const char *driver_name;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(alloc_func, NULL);
    EINA_SAFETY_ON_NULL_RETURN_VAL(free_func, NULL);
 
-   rmethod = evas_render_method_lookup("tbm");
+
+   if (!strcmp(engine, "gl_tbm"))
+      {
+         driver_name = "gl_tbm";
+      }
+   else if (!strcmp(engine, "software_tbm"))
+      {
+         driver_name = "software_tbm";
+      }
+   else
+      {
+         ERR("engine name is NULL!!");
+         return NULL;
+      }
+
+   rmethod = evas_render_method_lookup(driver_name);
    EINA_SAFETY_ON_TRUE_RETURN_VAL(rmethod == 0, NULL);
 
    ee = calloc(1, sizeof(Ecore_Evas));
@@ -690,7 +747,7 @@ ecore_evas_tbm_allocfunc_new(int w, int h,
    tbm_data->data = (void *)data;
    tbm_data->ext_tbm_queue = EINA_FALSE;
 
-   ee->driver = "tbm";
+   ee->driver = driver_name;
 
    if (w < 1) w = 1;
    if (h < 1) h = 1;
@@ -722,27 +779,55 @@ ecore_evas_tbm_allocfunc_new(int w, int h,
 
    tbm_data->tbm_queue = tbm_data->alloc_func(tbm_data->data, w, h);
 
-   einfo = (Evas_Engine_Info_Tbm *)evas_engine_info_get(ee->evas);
-   if (einfo)
-     {
-        einfo->info.tbm_queue = tbm_data->tbm_queue;
-        einfo->info.destination_alpha = EINA_TRUE;
-        einfo->info.ext_tbm_queue = EINA_FALSE;
-        einfo->info.rotation = 0;
-        einfo->info.depth = 32;
-        if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
-          {
-             ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
-             ecore_evas_free(ee);
-             return NULL;
-          }
-     }
-   else
-     {
-        ERR("evas_engine_info_set() init engine '%s' failed.", ee->driver);
-        ecore_evas_free(ee);
-        return NULL;
-     }
+   if (!strcmp(driver_name, "gl_tbm"))
+      {
+         Evas_Engine_Info_GL_Tbm *einfo = (Evas_Engine_Info_GL_Tbm *)evas_engine_info_get(ee->evas);
+         if (einfo)
+           {
+              einfo->info.tbm_queue = tbm_data->tbm_queue;
+              einfo->info.destination_alpha = EINA_TRUE;
+              einfo->info.ext_tbm_queue = EINA_FALSE;
+              einfo->info.rotation = 0;
+              einfo->info.depth = 32;
+              if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
+                {
+                   ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
+                   ecore_evas_free(ee);
+                   return NULL;
+                }
+           }
+         else
+           {
+              ERR("evas_engine_info_set() init engine '%s' failed.", ee->driver);
+              ecore_evas_free(ee);
+              return NULL;
+           }
+      }
+   else if (!strcmp(driver_name, "software_tbm"))
+      {
+         Evas_Engine_Info_Software_Tbm *einfo = (Evas_Engine_Info_Software_Tbm *)evas_engine_info_get(ee->evas);
+         if (einfo)
+           {
+              einfo->info.tbm_queue = tbm_data->tbm_queue;
+              einfo->info.destination_alpha = EINA_TRUE;
+              einfo->info.ext_tbm_queue = EINA_FALSE;
+              einfo->info.rotation = 0;
+              einfo->info.depth = 32;
+              if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
+                {
+                   ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
+                   ecore_evas_free(ee);
+                   return NULL;
+                }
+           }
+         else
+           {
+              ERR("evas_engine_info_set() init engine '%s' failed.", ee->driver);
+              ecore_evas_free(ee);
+              return NULL;
+           }
+      }
+
    evas_key_modifier_add(ee->evas, "Shift");
    evas_key_modifier_add(ee->evas, "Control");
    evas_key_modifier_add(ee->evas, "Alt");
@@ -760,15 +845,22 @@ ecore_evas_tbm_allocfunc_new(int w, int h,
    evas_event_feed_mouse_in(ee->evas, (unsigned int)((unsigned long long)(ecore_time_get() * 1000.0) & 0xffffffff), NULL);
 
    return ee;
+
 }
 
 EAPI Ecore_Evas *
-ecore_evas_tbm_new(int w, int h)
+ecore_evas_gl_tbm_new(int w, int h)
 {
     return ecore_evas_tbm_allocfunc_new
-     (w, h,_ecore_evas_tbm_queue_alloc, _ecore_evas_tbm_queue_free, NULL);
+     ("gl_tbm", w, h,_ecore_evas_tbm_queue_alloc, _ecore_evas_tbm_queue_free, NULL);
 }
 
+EAPI Ecore_Evas *
+ecore_evas_software_tbm_new(int w, int h)
+{
+    return ecore_evas_tbm_allocfunc_new
+     ("software_tbm", w, h,_ecore_evas_tbm_queue_alloc, _ecore_evas_tbm_queue_free, NULL);
+}
 
 EAPI Ecore_Evas *
 ecore_evas_tbm_ecore_evas_parent_get(Ecore_Evas *ee)
@@ -785,7 +877,6 @@ EAPI const void *
 ecore_evas_tbm_pixels_acquire(Ecore_Evas *ee)
 {
    Ecore_Evas_Engine_Tbm_Data *tbm_data;
-   tbm_surface_queue_error_e tbm_err;
    tbm_surface_info_s surf_info;
    void *pixels=NULL;
 
@@ -805,7 +896,6 @@ EAPI void
 ecore_evas_tbm_pixels_release(Ecore_Evas *ee)
 {
    Ecore_Evas_Engine_Tbm_Data *tbm_data;
-   tbm_surface_queue_error_e tbm_err;
    tbm_surface_info_s surf_info;
 
    EINA_SAFETY_ON_NULL_RETURN_VAL(ee, NULL);

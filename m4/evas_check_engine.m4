@@ -661,9 +661,9 @@ AS_IF([test "x${have_dep}" = "xyes"], [$4], [$5])
 
 ])
 
-dnl use: EVAS_CHECK_ENGINE_DEP_TBM(engine, simple, want_static[, ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
+dnl use: EVAS_CHECK_ENGINE_DEP_GL_TBM(engine, simple, want_static[, ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
 
-AC_DEFUN([EVAS_CHECK_ENGINE_DEP_TBM],
+AC_DEFUN([EVAS_CHECK_ENGINE_DEP_GL_TBM],
 [
 
 requirement=""
@@ -692,9 +692,9 @@ if test "x${have_dep}" = "xyes" ; then
       requirements_pc_evas="${requirement} ${requirements_pc_evas}"
       requirements_pc_deps_evas="${requirement} ${requirements_pc_deps_evas}"
    else
-      PKG_CHECK_MODULES([TBM], [${requirement}])
-      evas_engine_[]$1[]_cflags="${TBM_CFLAGS}"
-      evas_engine_[]$1[]_libs="${TBM_LIBS}"
+      PKG_CHECK_MODULES([GL_TBM], [${requirement}])
+      evas_engine_[]$1[]_cflags="${GL_TBM_CFLAGS}"
+      evas_engine_[]$1[]_libs="${GL_TBM_LIBS}"
       evas_engine_gl_common_libs="$evas_engine_[]$1[]_libdirs -lGLESv2 -lm -lEGL"
    fi
 fi

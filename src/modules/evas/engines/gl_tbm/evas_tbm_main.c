@@ -10,7 +10,7 @@ static EGLContext context = EGL_NO_CONTEXT;
 static int win_count = 0;
 
 Outbuf *
-eng_window_new(Evas *evas, Evas_Engine_Info_Tbm *einfo, int w, int h, Render_Engine_Swap_Mode swap_mode,
+eng_window_new(Evas *evas, Evas_Engine_Info_GL_Tbm *einfo, int w, int h, Render_Engine_Swap_Mode swap_mode,
                           int depth_bits, int stencil_bits, int msaa_bits)
 {
    Outbuf *gw;
@@ -82,7 +82,6 @@ eng_window_new(Evas *evas, Evas_Engine_Info_Tbm *einfo, int w, int h, Render_Eng
     */
 
    setenv("EGL_PLATFORM", "tbm", 1);
-
    gw->egl_disp = eglGetDisplay((EGLNativeDisplayType)NULL);
    if (!gw->egl_disp)
      {

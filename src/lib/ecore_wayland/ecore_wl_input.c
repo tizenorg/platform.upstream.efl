@@ -950,6 +950,12 @@ _ecore_wl_input_convert_old_keys(unsigned int code)
 {
    int i;
 
+   // TIZEN ONLY(20160608) : Add option for key conversion
+   const char *tmp;
+   tmp = getenv("ECORE_WL_INPUT_KEY_CONVERSION_DISABLE");
+   if (tmp && atoi(tmp)) return code;
+   //
+
    for (i = 0; i < _num_back_key_latest; i++)
      {
         if (code == _back_key_latest[i])

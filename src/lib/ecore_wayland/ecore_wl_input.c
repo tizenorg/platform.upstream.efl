@@ -562,6 +562,40 @@ _ecore_wl_input_del(Ecore_Wl_Input *input)
 
    if (input->cursor_surface)
      wl_surface_destroy(input->cursor_surface);
+   input->cursor_surface = NULL;
+
+   if (input->pointer)
+     {
+#ifdef WL_POINTER_RELEASE_SINCE_VERSION
+        if (input->seat_version >= WL_POINTER_RELEASE_SINCE_VERSION)
+          wl_pointer_release(input->pointer);
+        else
+#endif
+        wl_pointer_destroy(input->pointer);
+        input->pointer = NULL;
+     }
+
+   if (input->keyboard)
+     {
+#ifdef WL_KEYBOARD_RELEASE_SINCE_VERSION
+        if (input->seat_version >= WL_KEYBOARD_RELEASE_SINCE_VERSION)
+          wl_keyboard_release(input->keyboard);
+        else
+#endif
+        wl_keyboard_destroy(input->keyboard);
+        input->keyboard = NULL;
+     }
+
+   if (input->touch)
+     {
+#ifdef WL_TOUCH_RELEASE_SINCE_VERSION
+        if (input->seat_version >= WL_TOUCH_RELEASE_SINCE_VERSION)
+          wl_touch_release(input->touch);
+        else
+#endif
+        wl_touch_destroy(input->touch);
+        input->touch = NULL;
+     }
 
    _ecore_wl_disp->inputs = eina_inlist_remove
       (_ecore_wl_disp->inputs, EINA_INLIST_GET(input));

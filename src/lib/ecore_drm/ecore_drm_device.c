@@ -123,7 +123,7 @@ _ecore_drm_device_cb_idle(void *data)
    return ECORE_CALLBACK_RENEW;
 }
 #endif
-
+#ifndef HAVE_TDM
 static void
 _ecore_drm_device_cb_output_event(const char *device EINA_UNUSED, Eeze_Udev_Event event EINA_UNUSED, void *data, Eeze_Udev_Watch *watch EINA_UNUSED)
 {
@@ -132,7 +132,7 @@ _ecore_drm_device_cb_output_event(const char *device EINA_UNUSED, Eeze_Udev_Even
    if (!(dev = data)) return;
    _ecore_drm_outputs_update(dev);
 }
-
+#endif
 struct xkb_context *
 _ecore_drm_device_cached_context_get(enum xkb_context_flags flags)
 {
@@ -337,7 +337,7 @@ EAPI Eina_Bool
 ecore_drm_device_open(Ecore_Drm_Device *dev)
 {
 #ifdef HAVE_TDM
-   int events = 0;
+   /*int events = 0;*/
 
    /* check for valid device */
    if ((!dev) || (!dev->drm.name)) return EINA_FALSE;
@@ -381,14 +381,14 @@ ecore_drm_device_open(Ecore_Drm_Device *dev)
         TRACE_EFL_END();
         return EINA_FALSE;
      }
-
+#if 0
    events = (EEZE_UDEV_EVENT_ADD | EEZE_UDEV_EVENT_REMOVE |
              EEZE_UDEV_EVENT_CHANGE);
 
    dev->watch =
      eeze_udev_watch_add(EEZE_UDEV_TYPE_DRM, events,
                          _ecore_drm_device_cb_output_event, dev);
-
+#endif
    TRACE_EFL_END();
 
    return EINA_TRUE;
@@ -401,7 +401,7 @@ ecore_drm_device_open(Ecore_Drm_Device *dev)
    if ((!dev) || (!dev->drm.name)) return EINA_FALSE;
 
    /* DRM device node is needed immediately to keep going. */
-   dev->drm.fd = 
+   dev->drm.fd =
      _ecore_drm_launcher_device_open_no_pending(dev->drm.name, O_RDWR);
    if (dev->drm.fd < 0) return EINA_FALSE;
 

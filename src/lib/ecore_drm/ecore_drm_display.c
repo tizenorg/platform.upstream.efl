@@ -916,7 +916,7 @@ _ecore_drm_display_outputs_create(Ecore_Drm_Device *dev)
    dev->min_height = 0;
    dev->max_width = UINT32_MAX;
    dev->max_height = UINT32_MAX;
-
+#if 0
    for (i = 0; i < count; i++)
      {
         if (!(output = _ecore_drm_display_output_create(dev, i, x, y, EINA_FALSE)))
@@ -924,7 +924,10 @@ _ecore_drm_display_outputs_create(Ecore_Drm_Device *dev)
 
         x += output->current_mode->width;
      }
-
+#else
+   /* create only main output when init */
+   output = _ecore_drm_display_output_create(dev, 0, x, y, EINA_FALSE);
+#endif
    ret = EINA_TRUE;
    if (eina_list_count(dev->outputs) < 1)
      ret = EINA_FALSE;
@@ -950,6 +953,9 @@ _ecore_drm_display_outputs_update(Ecore_Drm_Device *dev)
 
    hal_display = dev->hal_display;
 
+   err = tdm_display_update(hal_display->display);
+   EINA_SAFETY_ON_FALSE_RETURN(err == TDM_ERROR_NONE);
+
    err = tdm_display_get_output_count(hal_display->display, &count);
    EINA_SAFETY_ON_FALSE_RETURN(err == TDM_ERROR_NONE);
 
@@ -957,6 +963,7 @@ _ecore_drm_display_outputs_update(Ecore_Drm_Device *dev)
    for (i = 0; i < count; i++)
      {
         tdm_output_conn_status status = TDM_OUTPUT_CONN_STATUS_DISCONNECTED;
+        tdm_output_type type = TDM_OUTPUT_TYPE_Unknown;
         tdm_output *tdm_output_obj;
 
         tdm_output_obj = tdm_display_get_output(hal_display->display, i, &err);
@@ -966,6 +973,11 @@ _ecore_drm_display_outputs_update(Ecore_Drm_Device *dev)
 
         err = tdm_output_get_conn_status(tdm_output_obj, &status);
         EINA_SAFETY_ON_FALSE_RETURN(err == TDM_ERROR_NONE);
+
+        err = tdm_output_get_output_type(tdm_output_obj, &type);
+        EINA_SAFETY_ON_FALSE_RETURN(err == TDM_ERROR_NONE);
+
+        DBG("%s output type:%d, status:%d", __func__, type, status);
 
         if (status == TDM_OUTPUT_CONN_STATUS_DISCONNECTED)
           {

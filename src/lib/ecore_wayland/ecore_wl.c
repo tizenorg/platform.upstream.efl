@@ -57,7 +57,7 @@ static void _ecore_wl_cb_allowed_aux_hint(void *data  EINA_UNUSED, struct tizen_
 static void _ecore_wl_window_conformant_area_send(Ecore_Wl_Window *win, uint32_t conformant_part, uint32_t state);
 static void _ecore_wl_cb_effect_start(void *data EINA_UNUSED, struct tizen_effect *tizen_effect EINA_UNUSED, struct wl_surface *surface_resource, unsigned int type);
 static void _ecore_wl_cb_effect_end(void *data EINA_UNUSED, struct tizen_effect *tizen_effect EINA_UNUSED, struct wl_surface *surface_resource, unsigned int type);
-
+static void _ecore_wl_log_cb_print(const char *format, va_list args);
 /* local variables */
 static int _ecore_wl_init_count = 0;
 static Eina_Bool _ecore_wl_animator_busy = EINA_FALSE;
@@ -263,6 +263,8 @@ ecore_wl_init(const char *name)
         ECORE_WL_EVENT_GLOBAL_REMOVED = ecore_event_type_new();
         ECORE_WL_EVENT_KEYMAP_UPDATE = ecore_event_type_new();
      }
+
+   wl_log_set_handler_client(_ecore_wl_log_cb_print);
 
    if (!(_ecore_wl_disp = calloc(1, sizeof(Ecore_Wl_Display))))
      {
@@ -1690,4 +1692,12 @@ _ecore_wl_cb_effect_end(void *data EINA_UNUSED, struct tizen_effect *tizen_effec
    ev->win = win->id;
    ev->type = type;
    ecore_event_add(ECORE_WL_EVENT_EFFECT_END, ev, NULL, NULL);
+}
+
+static void
+_ecore_wl_log_cb_print(const char *format, va_list args)
+{
+   char buffer[1024];
+   vsnprintf(buffer, 1024, format, args);
+   ERR("_ecore_wl_log_cb_print: %s", buffer);
 }

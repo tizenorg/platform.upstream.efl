@@ -1111,8 +1111,8 @@ install -m 0644 %SOURCE100 %{buildroot}%{_tmpfilesdir}/efl.conf
 %manifest %{name}.manifest
 %defattr(-,root,root,-)
 %license COPYING
-%{_bindir}/efreetd
-/usr/lib/debug/usr/bin/efreetd.debug
+%exclude %{_bindir}/efreetd
+%exclude /usr/lib/debug/usr/bin/efreetd.debug
 %{_libdir}/efreet/*/efreet_desktop_cache_create
 %{_libdir}/efreet/*/efreet_icon_cache_create
 %{_libdir}/libefreet.so.*

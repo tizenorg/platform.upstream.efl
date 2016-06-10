@@ -264,8 +264,10 @@ efreet_cache_init(void)
        pfx = eina_prefix_new
          (NULL, efreet_icon_cache_file, "EFREET", "efreet", "checkme",
           PACKAGE_BIN_DIR, PACKAGE_LIB_DIR, PACKAGE_DATA_DIR, PACKAGE_DATA_DIR);
-       ipc = ecore_ipc_server_connect(ECORE_IPC_LOCAL_USER, "efreetd", 0, NULL);
-       if (!ipc) _ipc_launch();
+       // TIZEN_ONLY(20160610) : efreetd does not be needed on Tizen
+       //ipc = ecore_ipc_server_connect(ECORE_IPC_LOCAL_USER, "efreetd", 0, NULL);
+       //if (!ipc) _ipc_launch();
+       //
        if (ipc)
          {
             const char *s;

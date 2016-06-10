@@ -182,6 +182,8 @@ _ecore_drm_device_cached_keymap_update(struct xkb_keymap *map)
          {
             xkb_keymap_unref(edev->xkb.keymap);
             edev->xkb.keymap = xkb_keymap_ref(map);
+            xkb_state_unref(edev->xkb.state);
+            edev->xkb.state = xkb_state_new(map);
          }
 }
 

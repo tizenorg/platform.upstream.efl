@@ -68,7 +68,7 @@ static Eina_Bool _ecore_wl_input_keymap_update_send(Ecore_Wl_Input *input);
 static void _ecore_wl_input_cb_keyboard_keymap(void *data, struct wl_keyboard *keyboard EINA_UNUSED, unsigned int format, int fd, unsigned int size);
 static void _ecore_wl_input_cb_keyboard_enter(void *data, struct wl_keyboard *keyboard EINA_UNUSED, unsigned int serial, struct wl_surface *surface, struct wl_array *keys EINA_UNUSED);
 static void _ecore_wl_input_cb_keyboard_leave(void *data, struct wl_keyboard *keyboard EINA_UNUSED, unsigned int serial, struct wl_surface *surface);
-static void _ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard EINA_UNUSED, unsigned int serial, unsigned int timestamp, unsigned int key, unsigned int state);
+static void _ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard, unsigned int serial, unsigned int timestamp, unsigned int key, unsigned int state);
 static void _ecore_wl_input_cb_keyboard_modifiers(void *data, struct wl_keyboard *keyboard EINA_UNUSED, unsigned int serial EINA_UNUSED, unsigned int depressed, unsigned int latched, unsigned int locked, unsigned int group);
 static void _ecore_wl_input_cb_keyboard_repeat_setup(void *data, struct wl_keyboard *keyboard EINA_UNUSED, int32_t rate, int32_t delay);
 static Eina_Bool _ecore_wl_input_cb_keyboard_repeat(void *data);
@@ -614,6 +614,7 @@ _ecore_wl_input_del(Ecore_Wl_Input *input)
      }
 
    eina_stringshare_replace(&input->last_device_name, NULL);
+   eina_stringshare_replace(&input->last_device_name_kbd, NULL);
 
    free(input);
 }
@@ -977,7 +978,7 @@ _ecore_wl_input_convert_old_keys(unsigned int code)
 }
 
 static void
-_ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard EINA_UNUSED, unsigned int serial, unsigned int timestamp, unsigned int keycode, unsigned int state)
+_ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard, unsigned int serial, unsigned int timestamp, unsigned int keycode, unsigned int state)
 {
    Ecore_Wl_Input *input;
    Ecore_Wl_Window *win;
@@ -1106,7 +1107,13 @@ _ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard EINA_UN
    e->timestamp = timestamp;
    e->modifiers = input->modifiers;
    e->keycode = code;
-   e->dev = _ecore_wl_input_get_ecore_device(input->last_device_name, ECORE_DEVICE_CLASS_KEYBOARD);
+   if (keyboard == NULL) // called by keyboard repeat timer
+     e->dev = _ecore_wl_input_get_ecore_device(input->last_device_name_kbd, ECORE_DEVICE_CLASS_KEYBOARD);
+   else
+     {
+        eina_stringshare_replace(&input->last_device_name_kbd, input->last_device_name);
+        e->dev = _ecore_wl_input_get_ecore_device(input->last_device_name_kbd, ECORE_DEVICE_CLASS_KEYBOARD);
+     }
 
    if (state)
      ecore_event_add(ECORE_EVENT_KEY_DOWN, e, NULL, NULL);

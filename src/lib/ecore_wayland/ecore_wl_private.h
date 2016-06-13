@@ -271,6 +271,7 @@ struct _Ecore_Wl_Input
 
    Eina_List *devices;
    const char *last_device_name;
+   const char *last_device_name_kbd;
    Ecore_Device_Class last_device_class;
 
    const char *cursor_name;

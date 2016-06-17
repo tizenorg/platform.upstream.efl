@@ -633,15 +633,9 @@ _evas_gl_common_viewport_set(Evas_Engine_GL_Context *gc, int force_update)
      prog->reset = EINA_TRUE;
    eina_iterator_free(it);
 
+   // TIZEN_ONLY. remove the commented code for code cleanup.
+   // TizenSE recommend that
    if (gc->state.current.prog != PRG_INVALID)
-     /*
-     {
-        glUseProgram(gc->shared->shader[0].prog);
-        glUniformMatrix4fv(glGetUniformLocation(gc->shared->shader[0].prog, "mvp"), 1, GL_FALSE, gc->shared->proj);
-        gc->shared->shader[0].reset = EINA_FALSE;
-     }
-   else
-   */
      {
         glUseProgram(gc->state.current.prog->prog);
         glUniformMatrix4fv(glGetUniformLocation(gc->state.current.prog->prog, "mvp"), 1, GL_FALSE, gc->shared->proj);

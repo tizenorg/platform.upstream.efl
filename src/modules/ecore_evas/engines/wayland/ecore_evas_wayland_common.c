@@ -38,6 +38,7 @@ EVAS_SMART_SUBCLASS_NEW(_smart_frame_type, _ecore_evas_wl_frame,
 /* local variables */
 static int _ecore_evas_wl_init_count = 0;
 static Ecore_Event_Handler *_ecore_evas_wl_event_hdls[10];
+static Eina_Bool _enable_uniconify_force_render = EINA_FALSE;
 
 static void _ecore_evas_wayland_resize(Ecore_Evas *ee, int location);
 
@@ -268,6 +269,19 @@ _ecore_evas_wl_common_cb_aux_hint_allowed(void *data  EINA_UNUSED, int type EINA
    return ECORE_CALLBACK_PASS_ON;
 }
 
+static void
+_ecore_evas_wl_common_damage_add(Ecore_Evas *ee)
+{
+   if ((!_enable_uniconify_force_render) ||
+       (ee->prop.iconified))
+     return;
+
+   /* add canvas damage
+    * redrawing canvas is necessary if evas engine destroy the buffer.
+    */
+   evas_damage_rectangle_add(ee->evas, 0, 0, ee->w, ee->h);
+}
+
 static Eina_Bool
 _ecore_evas_wl_common_cb_window_iconify_change(void *data  EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
@@ -290,6 +304,9 @@ _ecore_evas_wl_common_cb_window_iconify_change(void *data  EINA_UNUSED, int type
    if (wdata && ev->force)
      ecore_wl_window_iconify_state_update(wdata->win, ev->iconified, EINA_FALSE);
    _ecore_evas_wl_common_state_update(ee);
+
+   _ecore_evas_wl_common_damage_add(ee);
+
    return ECORE_CALLBACK_PASS_ON;
 }
 
@@ -598,6 +615,9 @@ _ecore_evas_wl_common_init(void)
                              _ecore_evas_wl_common_cb_window_visibility_change, NULL);
 
    ecore_event_evas_init();
+
+   if (getenv("EVAS_SHM_FLUSH"))
+     _enable_uniconify_force_render = EINA_TRUE;
 
    return _ecore_evas_wl_init_count;
 }
@@ -1555,6 +1575,8 @@ _ecore_evas_wl_common_iconified_set(Ecore_Evas *ee, Eina_Bool on)
    wdata = ee->engine.data;
    ecore_wl_window_iconified_set(wdata->win, on);
    _ecore_evas_wl_common_state_update(ee);
+
+   _ecore_evas_wl_common_damage_add(ee);
 }
 
 static void

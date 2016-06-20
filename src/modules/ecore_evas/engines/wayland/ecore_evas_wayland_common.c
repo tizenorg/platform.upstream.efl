@@ -1727,15 +1727,7 @@ _ecore_evas_wl_common_render_flush_pre(void *data, Evas *evas EINA_UNUSED, void 
      wl_surface_frame(ecore_wl_window_surface_get(wdata->win));
    wl_callback_add_listener(wdata->anim_callback, &_anim_listener, ee);
    ecore_evas_manual_render_set(ee, 1);
-}
 
-void
-_ecore_evas_wl_common_render_flush_post(void *data, Evas *evas EINA_UNUSED, void *event EINA_UNUSED)
-{
-   Ecore_Evas *ee = data;
-   Ecore_Evas_Engine_Wl_Data *wdata;
-
-   wdata = ee->engine.data;
    if ((wdata) && (wdata->wm_rot.done) &&
        (!ee->prop.wm_rot.manual_mode.set))
      {

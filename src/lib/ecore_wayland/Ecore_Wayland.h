@@ -624,7 +624,7 @@ EAPI struct wl_cursor *ecore_wl_cursor_get(const char *cursor_name);
  * @since 1.8
  */
 EAPI Ecore_Wl_Input *ecore_wl_input_get(void);
-EAPI void ecore_wl_input_grab(Ecore_Wl_Input *input, Ecore_Wl_Window *win, unsigned int button);
+EAPI void ecore_wl_input_grab(Ecore_Wl_Input *input, Ecore_Wl_Window *win, unsigned int button, Eina_Bool is_pointer);
 EAPI void ecore_wl_input_ungrab(Ecore_Wl_Input *input);
 EAPI void ecore_wl_input_pointer_set(Ecore_Wl_Input *input, struct wl_surface *surface, int hot_x, int hot_y);
 EAPI void ecore_wl_input_cursor_from_name_set(Ecore_Wl_Input *input, const char *cursor_name);

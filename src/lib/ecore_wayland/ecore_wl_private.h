@@ -254,8 +254,8 @@ struct _Ecore_Wl_Input_Device
    struct tizen_input_device *tz_device;
    const char *name;
    const char *identifier;
-   enum tizen_input_device_clas clas;
-   enum tizen_input_device_subclas subclas;
+   Ecore_Device_Class clas;
+   Ecore_Device_Subclass subclas;
    struct wl_seat *seat;
 };
 
@@ -270,9 +270,9 @@ struct _Ecore_Wl_Input
    struct wl_touch *touch;
 
    Eina_List *devices;
-   const char *last_device_name;
-   const char *last_device_name_kbd;
-   Ecore_Device_Class last_device_class;
+   Ecore_Wl_Input_Device *last_device_ptr;
+   Ecore_Wl_Input_Device *last_device_touch;
+   Ecore_Wl_Input_Device *last_device_kbd;
 
    const char *cursor_name;
    struct wl_cursor *cursor;
@@ -306,6 +306,7 @@ struct _Ecore_Wl_Input
    unsigned int grab_button;
    unsigned int grab_timestamp;
    unsigned int grab_count;
+   unsigned int grab_is_pointer;
 
    Ecore_Wl_Dnd_Source *drag_source;
    Ecore_Wl_Dnd_Source *selection_source;

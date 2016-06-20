@@ -1,4 +1,5 @@
 #include "evas_engine.h"
+#include <tbm_bufmgr.h>
 
 # define SET_RESTORE_CONTEXT() do { if (glsym_evas_gl_context_restore_set) glsym_evas_gl_context_restore_set(EINA_TRUE); } while(0)
 
@@ -82,7 +83,7 @@ eng_window_new(Evas *evas, Evas_Engine_Info_GL_Tbm *einfo, int w, int h, Render_
     */
 
    setenv("EGL_PLATFORM", "tbm", 1);
-   gw->egl_disp = eglGetDisplay((EGLNativeDisplayType)NULL);
+   gw->egl_disp = eglGetDisplay((EGLNativeDisplayType)tbm_bufmgr_init(-1));
    if (!gw->egl_disp)
      {
         ERR("eglGetDisplay() fail. code=%#x", eglGetError());

@@ -795,6 +795,7 @@ EAPI void ecore_wl_window_parent_set(Ecore_Wl_Window *win, Ecore_Wl_Window *pare
 EAPI void ecore_wl_window_position_set(Ecore_Wl_Window *win, int x, int y);
 EAPI void ecore_wl_window_focus_skip_set(Ecore_Wl_Window *win, Eina_Bool focus_skip);
 EAPI void ecore_wl_window_role_set(Ecore_Wl_Window *win, const char *role);
+EAPI int ecore_wl_window_active_angle_get(Ecore_Wl_Window *win);
 
 /**
  * Iconify a window

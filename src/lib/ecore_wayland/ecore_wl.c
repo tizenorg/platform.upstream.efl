@@ -55,6 +55,7 @@ static void _ecore_wl_cb_iconify_state_changed(void *data EINA_UNUSED, struct ti
 static void _ecore_wl_cb_supported_aux_hints(void *data  EINA_UNUSED, struct tizen_policy *tizen_policy  EINA_UNUSED, struct wl_surface *surface_resource, struct wl_array *hints, uint32_t num_hints);
 static void _ecore_wl_cb_allowed_aux_hint(void *data  EINA_UNUSED, struct tizen_policy *tizen_policy  EINA_UNUSED, struct wl_surface *surface_resource, int id);
 static void _ecore_wl_window_conformant_area_send(Ecore_Wl_Window *win, uint32_t conformant_part, uint32_t state);
+static void _ecore_wl_cb_active_angle(void *data EINA_UNUSED, struct tizen_policy_ext *tizen_policy_ext EINA_UNUSED, uint32_t angle);
 static void _ecore_wl_cb_effect_start(void *data EINA_UNUSED, struct tizen_effect *tizen_effect EINA_UNUSED, struct wl_surface *surface_resource, unsigned int type);
 static void _ecore_wl_cb_effect_end(void *data EINA_UNUSED, struct tizen_effect *tizen_effect EINA_UNUSED, struct wl_surface *surface_resource, unsigned int type);
 static void _ecore_wl_log_cb_print(const char *format, va_list args);
@@ -66,6 +67,7 @@ static Eina_Bool _ecore_wl_server_mode = EINA_FALSE;
 // TIZEN_ONLY(20150722): Add ecore_wl_window_keygrab_* APIs
 static Eina_Hash *_keygrabs = NULL;
 static int _ecore_wl_keygrab_error = -1;
+static int _ecore_wl_active_angle = -1;
 //
 
 static const struct wl_registry_listener _ecore_wl_registry_listener =
@@ -106,6 +108,11 @@ static const struct tizen_policy_listener _ecore_tizen_policy_listener =
    _ecore_wl_cb_iconify_state_changed,
    _ecore_wl_cb_supported_aux_hints,
    _ecore_wl_cb_allowed_aux_hint,
+};
+
+static const struct tizen_policy_ext_listener _ecore_tizen_policy_ext_listener =
+{
+   _ecore_wl_cb_active_angle,
 };
 
 static const struct tizen_effect_listener _ecore_tizen_effect_listener =
@@ -950,6 +957,8 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
      {
         ewd->wl.tz_policy_ext =
           wl_registry_bind(registry, id, &tizen_policy_ext_interface, 1);
+        if (ewd->wl.tz_policy_ext)
+          tizen_policy_add_listener(_ecore_wl_disp->wl.tz_policy_ext, &_ecore_tizen_policy_ext_listener, ewd->wl.display);
      }
    else if (!strcmp(interface, "tizen_surface"))
      {
@@ -1450,6 +1459,23 @@ ecore_wl_window_keygrab_unset(Ecore_Wl_Window *win, const char *key, int mod EIN
    _ecore_wl_keygrab_error = -1;
    return ret;
 }
+
+EAPI int
+ecore_wl_window_active_angle_get(Ecore_Wl_Window *win)
+{
+   struct wl_surface *surface = NULL;
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!_ecore_wl_disp->wl.tz_policy_ext) return 0;
+
+   if (win)
+     surface = ecore_wl_window_surface_get(win);
+
+   tizen_policy_ext_get_active_angle(_ecore_wl_disp->wl.tz_policy_ext, surface);
+   ecore_wl_sync();
+
+   return _ecore_wl_active_angle;
+}
 //
 
 static void
@@ -1654,6 +1680,13 @@ _ecore_wl_cb_allowed_aux_hint(void *data  EINA_UNUSED, struct tizen_policy *tize
    ev->win = win->id;
    ev->id = id;
    ecore_event_add(ECORE_WL_EVENT_AUX_HINT_ALLOWED, ev, NULL, NULL);
+}
+
+static void
+_ecore_wl_cb_active_angle(void *data EINA_UNUSED, struct tizen_policy_ext *tizen_policy_ext EINA_UNUSED, uint32_t angle)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   _ecore_wl_active_angle = angle;
 }
 
 static void

@@ -18,7 +18,26 @@ struct tizen_rotation;
 extern const struct wl_interface tizen_policy_ext_interface;
 extern const struct wl_interface tizen_rotation_interface;
 
+struct tizen_policy_ext_listener {
+	/**
+	 * active_angle - (none)
+	 * @angle: (none)
+	 */
+	void (*active_angle)(void *data,
+			     struct tizen_policy_ext *tizen_policy_ext,
+			     uint32_t angle);
+};
+
+static inline int
+tizen_policy_ext_add_listener(struct tizen_policy_ext *tizen_policy_ext,
+			      const struct tizen_policy_ext_listener *listener, void *data)
+{
+	return wl_proxy_add_listener((struct wl_proxy *) tizen_policy_ext,
+				     (void (**)(void)) listener, data);
+}
+
 #define TIZEN_POLICY_EXT_GET_ROTATION	0
+#define TIZEN_POLICY_EXT_GET_ACTIVE_ANGLE	1
 
 static inline void
 tizen_policy_ext_set_user_data(struct tizen_policy_ext *tizen_policy_ext, void *user_data)
@@ -47,6 +66,13 @@ tizen_policy_ext_get_rotation(struct tizen_policy_ext *tizen_policy_ext, struct 
 			 TIZEN_POLICY_EXT_GET_ROTATION, &tizen_rotation_interface, NULL, surface);
 
 	return (struct tizen_rotation *) id;
+}
+
+static inline void
+tizen_policy_ext_get_active_angle(struct tizen_policy_ext *tizen_policy_ext, struct wl_surface *surface)
+{
+	wl_proxy_marshal((struct wl_proxy *) tizen_policy_ext,
+			 TIZEN_POLICY_EXT_GET_ACTIVE_ANGLE, surface);
 }
 
 #ifndef TIZEN_ROTATION_ANGLE_ENUM
@@ -111,6 +137,12 @@ static inline void *
 tizen_rotation_get_user_data(struct tizen_rotation *tizen_rotation)
 {
 	return wl_proxy_get_user_data((struct wl_proxy *) tizen_rotation);
+}
+
+static inline uint32_t
+tizen_rotation_get_version(struct tizen_rotation *tizen_rotation)
+{
+	return wl_proxy_get_version((struct wl_proxy *) tizen_rotation);
 }
 
 static inline void

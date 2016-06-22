@@ -1113,13 +1113,10 @@ _ecore_wl_input_cb_keyboard_key(void *data, struct wl_keyboard *keyboard, unsign
    e->timestamp = timestamp;
    e->modifiers = input->modifiers;
    e->keycode = code;
-   if (keyboard == NULL) // called by keyboard repeat timer
-     e->dev = _ecore_wl_input_get_ecore_device(input->last_device_name_kbd, ECORE_DEVICE_CLASS_KEYBOARD);
-   else
-     {
-        eina_stringshare_replace(&input->last_device_name_kbd, input->last_device_name);
-        e->dev = _ecore_wl_input_get_ecore_device(input->last_device_name_kbd, ECORE_DEVICE_CLASS_KEYBOARD);
-     }
+   if (keyboard && (input->last_device_class == ECORE_DEVICE_CLASS_KEYBOARD))
+     eina_stringshare_replace(&input->last_device_name_kbd, input->last_device_name);
+
+   e->dev = _ecore_wl_input_get_ecore_device(input->last_device_name_kbd, ECORE_DEVICE_CLASS_KEYBOARD);
 
    if (state)
      ecore_event_add(ECORE_EVENT_KEY_DOWN, e, NULL, NULL);

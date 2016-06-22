@@ -1095,7 +1095,8 @@ install -m 0644 %SOURCE100 %{buildroot}%{_tmpfilesdir}/efl.conf
 %{_libdir}/libeeze.so.*
 %{_bindir}/eeze_disk_ls
 %{_bindir}/eeze_mount
-%{_bindir}/eeze_scanner
+%exclude %{_bindir}/eeze_scanner
+%exclude /usr/lib/debug/usr/bin/eeze_scanner.debug
 %{_bindir}/eeze_umount
 %{_libdir}/eeze/modules/sensor/*/*/module.so
 %{_datadir}/eeze/checkme

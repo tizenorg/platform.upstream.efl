@@ -164,7 +164,7 @@ evas_gl_symbols(void *(*GetProcAddress)(const char *name))
 
    FINDSYM(glsym_glEndTiling, "glEndTilingQCOM", glsym_func_void);
    FINDSYM(glsym_glEndTiling, "glEndTiling", glsym_func_void);
-   
+
    if (!getenv("EVAS_GL_MAPBUFFER_DISABLE"))
      {
         FINDSYM(glsym_glMapBuffer, "glMapBufferOES", glsym_func_void_ptr);
@@ -174,7 +174,7 @@ evas_gl_symbols(void *(*GetProcAddress)(const char *name))
         FINDSYM(glsym_glMapBuffer, "glMapBuffer", glsym_func_void_ptr);
 
         FINDSYM(glsym_glUnmapBuffer, "glUnmapBufferOES", glsym_func_boolean);
-        FINDSYM(glsym_glUnmapBuffer, "glUnmapBufferEXT", glsym_func_boolean); 
+        FINDSYM(glsym_glUnmapBuffer, "glUnmapBufferEXT", glsym_func_boolean);
         FINDSYM(glsym_glUnmapBuffer, "glUnmapBufferARB", glsym_func_boolean);
         FINDSYM(glsym_glUnmapBuffer, "glUnmapBufferKHR", glsym_func_boolean);
         FINDSYM(glsym_glUnmapBuffer, "glUnmapBuffer", glsym_func_boolean);
@@ -532,7 +532,7 @@ _evas_gl_common_viewport_set(Evas_Engine_GL_Context *gc, int force_update)
 #ifdef GL_GLES
    gc->shared->eglctxt = gc->eglctxt;
 #endif
-   
+
    gc->shared->w = w;
    gc->shared->h = h;
    gc->shared->rot = rot;
@@ -1446,7 +1446,7 @@ pipe_region_intersects(Evas_Engine_GL_Context *gc, int n,
 {
    int rx, ry, rw, rh, ii, end;
    const GLshort *v;
-   
+
    rx = gc->pipe[n].region.x;
    ry = gc->pipe[n].region.y;
    rw = gc->pipe[n].region.w;
@@ -1973,7 +1973,6 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
    Shader_Type shd_in = SHD_IMAGE;
    int tex_target = GL_TEXTURE_2D;
    Evas_Native_Surface *ens;
-
    if (tex->im)
      {
         if (tex->im->native.data)
@@ -2058,14 +2057,14 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
 
    if (tex->im &&
        (tex->im->orient == EVAS_IMAGE_ORIENT_90))
-     {
-        double tmp;
+      {
+         double tmp;
 
-             SWAP(&sw, &sh, tmp);
-             SWAP(&sx, &sy, tmp);
+         SWAP(&sw, &sh, tmp);
+         SWAP(&sx, &sy, tmp);
 
-             sy = tex->im->h - sh - sy;
-          }
+         sy = tex->im->h - sh - sy;
+      }
 
    if (tex->im &&
        (tex->im->orient == EVAS_IMAGE_ORIENT_180))
@@ -2076,14 +2075,14 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
 
    if (tex->im &&
        (tex->im->orient == EVAS_IMAGE_ORIENT_270))
-     {
-        double tmp;
+      {
+         double tmp;
 
-             SWAP(&sw, &sh, tmp);
-             SWAP(&sx, &sy, tmp);
+         SWAP(&sw, &sh, tmp);
+         SWAP(&sx, &sy, tmp);
 
-             sx = tex->im->w - sw - sx;
-          }
+         sx = tex->im->w - sw - sx;
+      }
 
    if (tex->im &&
        (tex->im->orient == EVAS_IMAGE_FLIP_HORIZONTAL))
@@ -2123,12 +2122,25 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
         && (ens) && (ens->type == EVAS_NATIVE_SURFACE_TBM))
       {
          double tmp;
+         double src_ratio, dst_ratio;
+         src_ratio = (double) tex->im->w / (double) tex->im->h;
+         dst_ratio = (double) sw / sh;
          if (tex->im->native.rot == EVAS_IMAGE_ORIENT_90)
             {
-               tmp = sx; sx = (tex->im->h - sy - sh) * tex->im->w / (double)tex->im->h;
-               sy = tmp * tex->im->h / (double)tex->im->w;
-               tmp = sw; sw = sh * tex->im->w / (double)tex->im->h;
-               sh = tmp * tex->im->h / (double)tex->im->w;
+               if (src_ratio > dst_ratio)
+                  {
+                     sy = (tex->im->h - sy - sh)  * sh / (double)sw;
+                     if (1 > dst_ratio)
+                        sx = sy * sh / (double)sw;
+                     SWAP(&sw, &sh, tmp);
+                  }
+               else if (src_ratio < dst_ratio)
+                  {
+                     tmp = sx; sx = (tex->im->h - sy - sh) * tex->im->w / (double)tex->im->h;
+                     sy = tmp * tex->im->h / (double)tex->im->w;
+                     tmp = sw; sw = sh * tex->im->h / (double)tex->im->w;
+                     sh = tmp * tex->im->h / (double)tex->im->w;
+                  }
             }
 
          // both HORIZONTAL and VERTICAL flip
@@ -2141,10 +2153,21 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
 
          if (tex->im->native.rot == EVAS_IMAGE_ORIENT_270)
             {
-               tmp = sy; sy = (tex->im->w - sx - sw) * tex->im->h / (double)tex->im->w;
-               sx = tmp * tex->im->w / (double)tex->im->h;
-               tmp = sw; sw = sh * tex->im->w / (double)tex->im->h;
-               sh = tmp * tex->im->h / (double)tex->im->w;
+               if (src_ratio > dst_ratio)
+                  {
+                     sx = (tex->im->w - sx - sw) * sw / (double)sh;
+                     if (1 > dst_ratio)
+                        sy = sx * sw / (double)sh;
+                     SWAP(&sw, &sh, tmp);
+
+                  }
+               else if (src_ratio < dst_ratio)
+                  {
+                     tmp = sy; sy = (tex->im->w - sx - sw) * tex->im->h / (double)tex->im->w;
+                     sx = tmp * tex->im->w / (double)tex->im->h;
+                     tmp = sw; sw = sh * tex->im->h / (double)tex->im->w;
+                     sh = tmp * tex->im->h / (double)tex->im->w;
+                  }
             }
 
          if (tex->im &&
@@ -2278,6 +2301,7 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
       ty3 = ((double)(offsety) + oy3) / ph;
       tx4 = ((double)(offsetx) + ox4) / pw;
       ty4 = ((double)(offsety) + oy4) / ph;
+
       if ((tex->im) && (tex->im->native.data) && (!tex->im->native.yinvert))
          {
             ty1 = 1.0 - ty1;
@@ -2298,7 +2322,7 @@ evas_gl_common_context_image_push(Evas_Engine_GL_Context *gc,
      }
 
    PUSH_MASK(pn, mtex, mx, my, mw, mh, masksam);
-   
+
    if (!nomul)
      PUSH_6_COLORS(pn, r, g, b, a);
 }
@@ -3247,7 +3271,7 @@ shader_array_flush(Evas_Engine_GL_Context *gc)
         if (gc->pipe[i].shader.clip != gc->state.current.clip)
           {
              int cx, cy, cw, ch;
-             
+
              cx = gc->pipe[i].shader.cx;
              cy = gc->pipe[i].shader.cy;
              cw = gc->pipe[i].shader.cw;
@@ -3320,7 +3344,7 @@ shader_array_flush(Evas_Engine_GL_Context *gc)
             ((gc->master_clip.enabled) && (!fbo)))
           {
              int cx, cy, cw, ch;
-             
+
              cx = gc->pipe[i].shader.cx;
              cy = gc->pipe[i].shader.cy;
              cw = gc->pipe[i].shader.cw;
@@ -3752,7 +3776,7 @@ shader_array_flush(Evas_Engine_GL_Context *gc)
         gc->pipe[i].array.use_mask = 0;
         gc->pipe[i].array.use_masksam = 0;
         gc->pipe[i].array.anti_alias = 0;
-        
+
         gc->pipe[i].array.vertex = NULL;
         gc->pipe[i].array.color = NULL;
         gc->pipe[i].array.texuv = NULL;

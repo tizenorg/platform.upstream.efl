@@ -774,23 +774,17 @@ _ecore_wl_cb_handle_data(void *data, Ecore_Fd_Handler *hdl)
         _ecore_wl_fatal_error = EINA_TRUE;
         _ecore_wl_signal_exit();
 
-        goto cancel_read;
+        return ECORE_CALLBACK_CANCEL;
      }
 
    if (ecore_main_fd_handler_active_get(hdl, ECORE_FD_READ))
-     {
-        wl_display_read_events(ewd->wl.display);
-        ret = wl_display_dispatch_pending(ewd->wl.display);
-     }
+     ret = wl_display_dispatch_pending(ewd->wl.display);
    else if (ecore_main_fd_handler_active_get(hdl, ECORE_FD_WRITE))
      {
         ret = wl_display_flush(ewd->wl.display);
         if (ret == 0)
-           ecore_main_fd_handler_active_set(hdl, ECORE_FD_READ);
-        wl_display_cancel_read(ewd->wl.display);
+          ecore_main_fd_handler_active_set(hdl, ECORE_FD_READ);
      }
-   else
-        goto cancel_read;
 
    if ((ret < 0) && ((errno != EAGAIN) && (errno != EINVAL)))
      {
@@ -799,20 +793,10 @@ _ecore_wl_cb_handle_data(void *data, Ecore_Fd_Handler *hdl)
         /* raise exit signal */
         _ecore_wl_signal_exit();
 
-        goto cancel_read;
+        return ECORE_CALLBACK_CANCEL;
      }
 
-   ewd->wl.prepare_read = EINA_FALSE;
    return ECORE_CALLBACK_RENEW;
-
-cancel_read:
-   if (ewd->wl.prepare_read)
-     {
-        wl_display_cancel_read(ewd->wl.display);
-        ewd->wl.prepare_read = EINA_FALSE;
-     }
-
-   return ECORE_CALLBACK_CANCEL;
 }
 
 static void
@@ -854,11 +838,13 @@ _ecore_wl_cb_awake(void *data)
    if (_ecore_wl_fatal_error) return;
    if (!(ewd = data)) return;
    if (!ewd->wl.prepare_read) return;
-   if (ecore_main_fd_handler_active_get(_ecore_wl_disp->fd_hdl, flags))
-     return;
 
-   wl_display_cancel_read(ewd->wl.display);
    ewd->wl.prepare_read = EINA_FALSE;
+
+   if (ecore_main_fd_handler_active_get(_ecore_wl_disp->fd_hdl, flags))
+     wl_display_read_events(ewd->wl.display);
+   else
+     wl_display_cancel_read(ewd->wl.display);
 }
 
 static void

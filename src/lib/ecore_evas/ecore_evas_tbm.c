@@ -58,8 +58,20 @@ _ecore_evas_resize(Ecore_Evas *ee, int w, int h)
 }
 
 static void
-_ecore_evas_move_resize(Ecore_Evas *ee, int x EINA_UNUSED, int y EINA_UNUSED, int w, int h)
+_ecore_evas_move_resize(Ecore_Evas *ee, int x, int y, int w, int h)
 {
+    if (!ee) return;
+
+    ee->req.x = x;
+    ee->req.y = y;
+
+    if ((ee->x != x) || (ee->y != y))
+      {
+         ee->x = x;
+         ee->y = y;
+         if (ee->func.fn_move) ee->func.fn_move(ee);
+      }
+
    _ecore_evas_resize(ee, w, h);
 }
 
@@ -604,8 +616,12 @@ ecore_evas_tbm_ext_new(const char *engine, const void *tbm_surf_queue, void* dat
     if (h < 1) h = 1;
     ee->rotation = 0;
     ee->visible = 1;
+    ee->x = 0;
+    ee->y = 0;
     ee->w = w;
     ee->h = h;
+    ee->req.x = ee->x;
+    ee->req.y = ee->y;
     ee->req.w = ee->w;
     ee->req.h = ee->h;
     ee->profile_supported = 1;
@@ -754,8 +770,12 @@ ecore_evas_tbm_allocfunc_new(const char *engine, int w, int h,
    if (h < 1) h = 1;
    ee->rotation = 0;
    ee->visible = 1;
+   ee->x = 0;
+   ee->y = 0;
    ee->w = w;
    ee->h = h;
+   ee->req.x = ee->x;
+   ee->req.y = ee->y;
    ee->req.w = ee->w;
    ee->req.h = ee->h;
    ee->profile_supported = 1;

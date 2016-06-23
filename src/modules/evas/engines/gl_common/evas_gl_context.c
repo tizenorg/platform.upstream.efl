@@ -785,6 +785,7 @@ evas_gl_common_context_new(void)
         shared->info.tune.atlas.max_alloc_alpha_size = DEF_ATLAS_ALLOC_ALPHA;
         shared->info.tune.atlas.max_w                = DEF_ATLAS_W;
         shared->info.tune.atlas.max_h                = DEF_ATLAS_H;
+        shared->info.tune.atlas.max_memcpy_size      = DEF_ATLAS_MEMCPY;
 
         // per gpu hacks. based on impirical measurement of some known gpu's
         s = (const char *)glGetString(GL_RENDERER);
@@ -821,6 +822,8 @@ evas_gl_common_context_new(void)
         GETENVOPT("EVAS_GL_ATLAS_ALLOC_ALPHA_SIZE", atlas.max_alloc_alpha_size, MIN_ATLAS_ALLOC_ALPHA, MAX_ATLAS_ALLOC_ALPHA);
         GETENVOPT("EVAS_GL_ATLAS_MAX_W", atlas.max_w, 0, MAX_ATLAS_W);
         GETENVOPT("EVAS_GL_ATLAS_MAX_H", atlas.max_h, 0, MAX_ATLAS_H);
+        GETENVOPT("EVAS_GL_ATLAS_MEMCPY_SIZE", atlas.max_memcpy_size, 0, MAX_ATLAS_MEMCPY);
+
         s = (const char *)getenv("EVAS_GL_GET_PROGRAM_BINARY");
         if (s)
           {
@@ -889,6 +892,7 @@ evas_gl_common_context_new(void)
                    "EVAS_GL_ATLAS_ALLOC_SIZE: %i\n"
                    "EVAS_GL_ATLAS_ALLOC_ALPHA_SIZE: %i\n"
                    "EVAS_GL_ATLAS_MAX_W x EVAS_GL_ATLAS_MAX_H: %i x %i\n"
+                   "EVAS_GL_ATLAS_MEMCPY_SIZE: %i\n"
                    ,
                    (int)shared->info.max_texture_size, (int)shared->info.max_texture_size,
                    (int)shared->info.max_texture_units,
@@ -907,7 +911,8 @@ evas_gl_common_context_new(void)
                    (int)shared->info.tune.pipes.max,
                    (int)shared->info.tune.atlas.max_alloc_size,
                    (int)shared->info.tune.atlas.max_alloc_alpha_size,
-                   (int)shared->info.tune.atlas.max_w, (int)shared->info.tune.atlas.max_h
+                   (int)shared->info.tune.atlas.max_w, (int)shared->info.tune.atlas.max_h,
+                   (int)shared->info.tune.atlas.max_memcpy_size
                   );
 
         glDisable(GL_DEPTH_TEST);

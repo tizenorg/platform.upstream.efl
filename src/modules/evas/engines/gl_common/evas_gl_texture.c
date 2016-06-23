@@ -320,7 +320,7 @@ _evas_gl_texture_size_get(int w, int h, int intfmt, Eina_Bool *comp)
 }
 
 static Eina_Bool
-_tex_2d(Evas_Engine_GL_Context *gc, int intfmt, int w, int h, int fmt, int type)
+_tex_2d(Evas_Engine_GL_Context *gc, int intfmt, int w, int h, int fmt, int type, void *data)
 {
    Eina_Bool comp;
    int sz;
@@ -333,9 +333,9 @@ _tex_2d(Evas_Engine_GL_Context *gc, int intfmt, int w, int h, int fmt, int type)
      }
    sz = _evas_gl_texture_size_get(w, h, intfmt, &comp);
    if (!comp)
-     glTexImage2D(GL_TEXTURE_2D, 0, intfmt, w, h, 0, fmt, type, NULL);
+     glTexImage2D(GL_TEXTURE_2D, 0, intfmt, w, h, 0, fmt, type, data);
    else
-     glCompressedTexImage2D(GL_TEXTURE_2D, 0, intfmt, w, h, 0, sz, NULL);
+     glCompressedTexImage2D(GL_TEXTURE_2D, 0, intfmt, w, h, 0, sz, data);
 #ifdef GL_TEXTURE_INTERNAL_FORMAT
 # ifdef GL_GLES
 # else
@@ -424,7 +424,7 @@ _pool_tex_new(Evas_Engine_GL_Context *gc, int w, int h, GLenum intformat, GLenum
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-   ok = _tex_2d(gc, pt->intformat, w, h, pt->format, pt->dataformat);
+   ok = _tex_2d(gc, pt->intformat, w, h, pt->format, pt->dataformat, NULL);
    glBindTexture(gc->state.current.tex_target, gc->state.current.cur_tex);
    if (!ok)
      {
@@ -470,7 +470,7 @@ _pool_tex_alloc(Evas_GL_Texture_Pool *pt, int w, int h, int *u, int *v)
 }
 
 static Evas_GL_Texture_Pool *
-_pool_tex_find(Evas_Engine_GL_Context *gc, int w, int h,
+_pool_tex_find(Evas_Engine_GL_Context *gc, int w, int h, int wpadding, int hpadding,
                GLenum intformat, GLenum format, int *u, int *v,
                Eina_Rectangle **apt, int atlas_w, Eina_Bool disable_atlas)
 {
@@ -479,6 +479,8 @@ _pool_tex_find(Evas_Engine_GL_Context *gc, int w, int h,
    int th2;
    int pool_h;
    /*Return texture unit without atlas*/
+   w += wpadding;
+   h += hpadding;
    if (disable_atlas)
      {
         pt = _pool_tex_new(gc, w, h, intformat, format);
@@ -490,6 +492,8 @@ _pool_tex_find(Evas_Engine_GL_Context *gc, int w, int h,
        (h > gc->shared->info.tune.atlas.max_h) ||
        (!gc->shared->info.etc1_subimage && (intformat == etc1_fmt)))
      {
+        w -= wpadding;
+        h -= hpadding;
         pt = _pool_tex_new(gc, w, h, intformat, format);
         if (!pt) return NULL;
         gc->shared->tex.whole = eina_list_prepend(gc->shared->tex.whole, pt);
@@ -532,7 +536,7 @@ evas_gl_common_texture_new(Evas_Engine_GL_Context *gc, RGBA_Image *im, Eina_Bool
 {
    Evas_GL_Texture *tex;
    GLsizei w, h;
-   int u = 0, v = 0, xoffset = 1, yoffset = 1;
+   int u = 0, v = 0, xoffset = 1, yoffset = 1, wpadding = 3, hpadding = 3;
    int lformat;
 
    lformat = _evas_gl_texture_search_format(im->cache_entry.flags.alpha, gc->shared->info.bgra, im->cache_entry.space);
@@ -555,6 +559,8 @@ evas_gl_common_texture_new(Evas_Engine_GL_Context *gc, RGBA_Image *im, Eina_Bool
         EINA_SAFETY_ON_FALSE_RETURN_VAL(!(w & 0x3) && !(h & 0x3), NULL);
         xoffset = im->cache_entry.borders.l;
         yoffset = im->cache_entry.borders.t;
+        wpadding = 0;
+        hpadding = 0;
         break;
       case EVAS_COLORSPACE_ETC1_ALPHA:
         return evas_gl_common_texture_rgb_a_pair_new(gc, im);
@@ -570,8 +576,8 @@ evas_gl_common_texture_new(Evas_Engine_GL_Context *gc, RGBA_Image *im, Eina_Bool
         else
           {
              /*One pixel gap and two pixels for duplicated borders*/
-             w = im->cache_entry.w + 3;
-             h = im->cache_entry.h + 3;
+             w = im->cache_entry.w;
+             h = im->cache_entry.h;
           }
         break;
      }
@@ -580,7 +586,7 @@ evas_gl_common_texture_new(Evas_Engine_GL_Context *gc, RGBA_Image *im, Eina_Bool
                                       im->cache_entry.flags.alpha);
    if (!tex) return NULL;
 
-   tex->pt = _pool_tex_find(gc, w, h,
+   tex->pt = _pool_tex_find(gc, w, h, wpadding, hpadding,
                             *matching_format[lformat].intformat,
                             *matching_format[lformat].format,
                             &u, &v, &tex->apt,
@@ -590,8 +596,13 @@ evas_gl_common_texture_new(Evas_Engine_GL_Context *gc, RGBA_Image *im, Eina_Bool
         evas_gl_common_texture_light_free(tex);
         return NULL;
      }
-   tex->x = u + xoffset;
-   tex->y = v + yoffset;
+   tex->x = u;
+   tex->y = v;
+   if (!tex->pt->whole)
+     {
+        tex->x += xoffset;
+        tex->y += yoffset;
+     }
 
    tex->pt->references++;
    evas_gl_common_texture_update(tex, im);
@@ -646,7 +657,7 @@ _pool_tex_render_new(Evas_Engine_GL_Context *gc, int w, int h, int intformat, in
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-   ok = _tex_2d(gc, pt->intformat, w, h, pt->format, pt->dataformat);
+   ok = _tex_2d(gc, pt->intformat, w, h, pt->format, pt->dataformat, NULL);
 
    if (ok)
      {
@@ -1086,113 +1097,161 @@ evas_gl_common_texture_upload(Evas_GL_Texture *tex, RGBA_Image *im, unsigned int
    if (tex->gc->shared->info.unpack_row_length)
      glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
    glPixelStorei(GL_UNPACK_ALIGNMENT, bytes_count);
-
-//   printf("tex upload %ix%i\n", im->cache_entry.w, im->cache_entry.h);
-   //  +-+
-   //  +-+
-   //
-   _tex_sub_2d(tex->gc, tex->x, tex->y,
-               im->cache_entry.w, im->cache_entry.h,
-               fmt, tex->pt->dataformat,
-               im->image.data);
-   //  xxx
-   //  xxx
-   //  ---
-   _tex_sub_2d(tex->gc, tex->x, tex->y + im->cache_entry.h,
-               im->cache_entry.w, 1,
-               fmt, tex->pt->dataformat,
-               im->image.data8 + (((im->cache_entry.h - 1) * im->cache_entry.w)) * bytes_count);
-   //  xxx
-   //  xxx
-   // o
-   _tex_sub_2d(tex->gc, tex->x - 1, tex->y + im->cache_entry.h,
-               1, 1,
-               fmt, tex->pt->dataformat,
-               im->image.data8 + (((im->cache_entry.h - 1) * im->cache_entry.w)) * bytes_count);
-   //  xxx
-   //  xxx
-   //     o
-   _tex_sub_2d(tex->gc, tex->x + im->cache_entry.w, tex->y + im->cache_entry.h,
-               1, 1,
-               fmt, tex->pt->dataformat,
-               im->image.data8 + (im->cache_entry.h * im->cache_entry.w - 1) * bytes_count);
-   //2D packing
-   // ---
-   // xxx
-   // xxx
-   _tex_sub_2d(tex->gc, tex->x, tex->y - 1,
-               im->cache_entry.w, 1,
-               fmt, tex->pt->dataformat,
-               im->image.data);
-   // o
-   //  xxx
-   //  xxx
-   _tex_sub_2d(tex->gc, tex->x - 1, tex->y - 1,
-               1, 1,
-               fmt, tex->pt->dataformat,
-               im->image.data);
-   //    o
-   // xxx
-   // xxx
-   _tex_sub_2d(tex->gc, tex->x + im->cache_entry.w, tex->y - 1,
-               1, 1,
-               fmt, tex->pt->dataformat,
-               im->image.data8 + (im->cache_entry.w - 1) * bytes_count);
-   if (tex->gc->shared->info.unpack_row_length)
+   if (tex->pt->whole)
      {
-        glPixelStorei(GL_UNPACK_ROW_LENGTH, im->cache_entry.w);
-        // |xxx
-        // |xxx
-        //
-        _tex_sub_2d(tex->gc, tex->x - 1, tex->y,
-                    1, im->cache_entry.h,
-                    fmt, tex->pt->dataformat,
-                    im->image.data);
-        //  xxx|
-        //  xxx|
-        //
-        _tex_sub_2d(tex->gc, tex->x + im->cache_entry.w, tex->y,
-                    1, im->cache_entry.h,
-                    fmt, tex->pt->dataformat,
-                    im->image.data8 + (im->cache_entry.w - 1) * bytes_count);
-        //glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+        _tex_2d(tex->gc, tex->pt->intformat, tex->w, tex->h, fmt, tex->pt->dataformat, im->image.data);
+     }
+   else if ((tex->gc->shared->info.tune.atlas.max_memcpy_size > im->cache_entry.w) &&
+           (tex->gc->shared->info.tune.atlas.max_memcpy_size > im->cache_entry.h))
+     {
+        int sw, sh, dw, dh, sidx, didx;
+
+        dw = im->cache_entry.w + 2;
+        dh = im->cache_entry.h + 2;
+        sw = im->cache_entry.w;
+        sh = im->cache_entry.h;
+        DATA32 * temp = alloca (dw * dh * bytes_count);
+        DATA8 *dp = (unsigned char *)temp;
+        DATA8 *sp = (unsigned char *)im->image.data;
+        int i,j;
+
+        sidx = 0;
+        didx = 0;
+
+        dp += (dw * bytes_count);
+        for(i = 0 ; i < sh ; i ++)
+          {
+             // oxxxx
+             memcpy(dp, sp, bytes_count);
+             dp += bytes_count;
+             // xooox
+             memcpy(dp, sp, sw * bytes_count);
+             dp += (sw * bytes_count);
+             sp += ((sw - 1) * bytes_count);
+             // xxxxo
+             memcpy(dp, sp, bytes_count);
+             dp += bytes_count;
+             sp += bytes_count;
+           }
+
+        // xxxxx
+        // ooooo
+        memcpy(dp, dp - (dw * bytes_count), dw * bytes_count);
+
+        dp = temp;
+        // ooooo
+        // xxxxx
+        memcpy(dp, dp + (dw * bytes_count), dw * bytes_count);
+        _tex_sub_2d(tex->gc, tex->x - 1, tex->y - 1, dw, dh, fmt, tex->pt->dataformat, temp);
      }
    else
      {
-        DATA8 *tpix, *ps, *pd;
-        int i;
+        // +-+
+        // +-+
+        //
+        _tex_sub_2d(tex->gc, tex->x, tex->y,
+                    im->cache_entry.w, im->cache_entry.h,
+                    fmt, tex->pt->dataformat,
+                    im->image.data);
 
-        tpix = alloca(im->cache_entry.h * bytes_count);
-        pd = tpix;
-        ps = im->image.data8;
-        for (i = 0; i < (int)im->cache_entry.h; i++)
-          {
-             memcpy(pd, ps, bytes_count);
-             pd += bytes_count;
-             ps += im->cache_entry.w * bytes_count;
-          }
-        // |xxx
-        // |xxx
-        //
-        _tex_sub_2d(tex->gc, tex->x - 1, tex->y,
-                    1, im->cache_entry.h,
+        //  xxx
+        //  xxx
+        //  ---
+        _tex_sub_2d(tex->gc, tex->x, tex->y + im->cache_entry.h,
+                    im->cache_entry.w, 1,
                     fmt, tex->pt->dataformat,
-                    tpix);
-        pd = tpix;
-        ps = im->image.data8 + (im->cache_entry.w - 1) * bytes_count;
-        for (i = 0; i < (int)im->cache_entry.h; i++)
-          {
-             memcpy(pd, ps, bytes_count);
-             pd += bytes_count;
-             ps += im->cache_entry.w * bytes_count;
-          }
-        //  xxx|
-        //  xxx|
-        //
-        _tex_sub_2d(tex->gc, tex->x + im->cache_entry.w, tex->y,
-                    1, im->cache_entry.h,
+                    (unsigned char *) im->image.data + (((im->cache_entry.h - 1) * im->cache_entry.w)) * bytes_count);
+        //  xxx
+        //  xxx
+        // o
+        _tex_sub_2d(tex->gc, tex->x - 1, tex->y + im->cache_entry.h,
+                    1, 1,
                     fmt, tex->pt->dataformat,
-                    tpix);
+                    (unsigned char *) im->image.data + (((im->cache_entry.h - 1) * im->cache_entry.w)) * bytes_count);
+        //  xxx
+        //  xxx
+        // o
+        _tex_sub_2d(tex->gc, tex->x + im->cache_entry.w, tex->y + im->cache_entry.h,
+                    1, 1,
+                    fmt, tex->pt->dataformat,
+                    (unsigned char *) im->image.data + (((im->cache_entry.h - 1) * im->cache_entry.w) + (im->cache_entry.w - 1)) * bytes_count);
+        //2D packing
+        // ---
+        // xxx
+        // xxx
+        _tex_sub_2d(tex->gc, tex->x, tex->y - 1,
+                    im->cache_entry.w, 1,
+                    fmt, tex->pt->dataformat,
+                    im->image.data);
+        // o
+        //  xxx
+        //  xxx
+        _tex_sub_2d(tex->gc, tex->x - 1, tex->y - 1,
+                    1, 1,
+                    fmt, tex->pt->dataformat,
+                    im->image.data);
+        //    o
+        // xxx
+        // xxx
+        _tex_sub_2d(tex->gc, tex->x + im->cache_entry.w, tex->y - 1,
+                    1, 1,
+                    fmt, tex->pt->dataformat,
+                    im->image.data8 + (im->cache_entry.w - 1) * bytes_count);
+        if (tex->gc->shared->info.unpack_row_length)
+          {
+            glPixelStorei(GL_UNPACK_ROW_LENGTH, im->cache_entry.w);
+            // |xxx
+            // |xxx
+            //
+            _tex_sub_2d(tex->gc, tex->x - 1, tex->y,
+                        1, im->cache_entry.h,
+                        fmt, tex->pt->dataformat,
+                        im->image.data);
+            //  xxx|
+            //  xxx|
+            //
+            _tex_sub_2d(tex->gc, tex->x + im->cache_entry.w, tex->y,
+                        1, im->cache_entry.h,
+                        fmt, tex->pt->dataformat,
+                       (unsigned char *) im->image.data + (im->cache_entry.w - 1) * bytes_count);
+          }
+        else
+          {
+            DATA8 *tpix, *ps, *pd;
+            int i;
+
+            tpix = alloca(im->cache_entry.h * bytes_count);
+            pd = tpix;
+            ps = im->image.data8;
+            for (i = 0; i < (int)im->cache_entry.h; i++)
+              {
+                 memcpy(pd, ps, bytes_count);
+                 pd += bytes_count;
+                 ps += im->cache_entry.w * bytes_count;
+              }
+            // |xxx
+            // |xxx
+            //
+            _tex_sub_2d(tex->gc, tex->x - 1, tex->y,
+                        1, im->cache_entry.h,
+                        fmt, tex->pt->dataformat,
+                        tpix);
+            pd = tpix;
+            ps = im->image.data8 + (im->cache_entry.w - 1) * bytes_count;
+            for (i = 0; i < (int)im->cache_entry.h; i++)
+              {
+                 memcpy(pd, ps, bytes_count);
+                 pd += bytes_count;
+                 ps += im->cache_entry.w * bytes_count;
+              }
+            //  xxx|
+            //  xxx|
+            //
+            _tex_sub_2d(tex->gc, tex->x + im->cache_entry.w, tex->y,
+                        1, im->cache_entry.h,
+                        fmt, tex->pt->dataformat,
+                        tpix);
+          }
      }
    //glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
    if (tex->pt->texture != tex->gc->state.current.cur_tex)
@@ -1391,7 +1450,7 @@ evas_gl_common_texture_update(Evas_GL_Texture *tex, RGBA_Image *im)
         lformat = _evas_gl_texture_search_format(tex->alpha, tex->gc->shared->info.bgra, im->cache_entry.space);
         if (lformat < 0) return;
 
-        tex->ptt = _pool_tex_find(tex->gc, EVAS_GL_TILE_SIZE, EVAS_GL_TILE_SIZE,
+        tex->ptt = _pool_tex_find(tex->gc, EVAS_GL_TILE_SIZE, EVAS_GL_TILE_SIZE, 0, 0,
                                   *matching_format[lformat].intformat,
                                   *matching_format[lformat].format,
                                   &u, &v, &tex->aptt,
@@ -1532,7 +1591,7 @@ evas_gl_common_texture_alpha_new(Evas_Engine_GL_Context *gc, DATA8 *pixels,
    tex = evas_gl_common_texture_alloc(gc, w, h, EINA_FALSE);
    if (!tex) return NULL;
 
-   tex->pt = _pool_tex_find(gc, w + 3, fh, alpha_ifmt, alpha_fmt, &u, &v,
+   tex->pt = _pool_tex_find(gc, w, fh, 3, 0, alpha_ifmt, alpha_fmt, &u, &v,
                             &tex->apt,
                             gc->shared->info.tune.atlas.max_alloc_alpha_size, EINA_FALSE);
    if (!tex->pt)
@@ -1657,7 +1716,7 @@ evas_gl_common_texture_rgb_a_pair_update(Evas_GL_Texture *tex,
           glPixelStorei(GL_UNPACK_ROW_LENGTH, w);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glBindTexture(GL_TEXTURE_2D, tex->pt->texture);
-        if (!_tex_2d(tex->gc, tex->pt->intformat, w, h, tex->pt->format, tex->pt->dataformat))
+        if (!_tex_2d(tex->gc, tex->pt->intformat, w, h, tex->pt->format, tex->pt->dataformat, NULL))
           goto on_error;
         if (upload)
           {
@@ -1667,7 +1726,7 @@ evas_gl_common_texture_rgb_a_pair_update(Evas_GL_Texture *tex,
                _tex_sub_2d(tex->gc, 0, 0, w, h, tex->pt->format, tex->pt->dataformat, data1);
           }
         glBindTexture(GL_TEXTURE_2D, tex->pta->texture);
-        if (!_tex_2d(tex->gc, tex->pta->intformat, w, h, tex->pta->format, tex->pta->dataformat))
+        if (!_tex_2d(tex->gc, tex->pta->intformat, w, h, tex->pta->format, tex->pta->dataformat, NULL))
           goto on_error;
         if (upload)
           {
@@ -1684,7 +1743,7 @@ evas_gl_common_texture_rgb_a_pair_update(Evas_GL_Texture *tex,
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glBindTexture(GL_TEXTURE_2D, tex->pt->texture);
         if (!_tex_2d(tex->gc, tex->pt->intformat, w, h, tex->pt->format,
-                     tex->pt->dataformat))
+                     tex->pt->dataformat, NULL))
           goto on_error;
         if (upload)
           {
@@ -1710,7 +1769,7 @@ evas_gl_common_texture_rgb_a_pair_update(Evas_GL_Texture *tex,
 
         glBindTexture(GL_TEXTURE_2D, tex->pta->texture);
         if (!_tex_2d(tex->gc, tex->pta->intformat, w, h, tex->pta->format,
-                     tex->pta->dataformat))
+                     tex->pta->dataformat, NULL))
           goto on_error;
         if (upload)
           {
@@ -1865,17 +1924,17 @@ evas_gl_common_texture_yuv_update(Evas_GL_Texture *tex, DATA8 **rows, unsigned i
         glPixelStorei(GL_UNPACK_ROW_LENGTH, rows[1] - rows[0]);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glBindTexture(GL_TEXTURE_2D, tex->pt->texture);
-        if (!_tex_2d(tex->gc, tex->pt->intformat, w, h, tex->pt->format, tex->pt->dataformat))
+        if (!_tex_2d(tex->gc, tex->pt->intformat, w, h, tex->pt->format, tex->pt->dataformat, NULL))
           return;
         _tex_sub_2d(tex->gc, 0, 0, w, h, tex->pt->format, tex->pt->dataformat, rows[0]);
         glBindTexture(GL_TEXTURE_2D, tex->ptu->texture);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, rows[h + 1] - rows[h]);
-        if (!_tex_2d(tex->gc, tex->ptu->intformat, w / 2, h / 2, tex->ptu->format, tex->ptu->dataformat))
+        if (!_tex_2d(tex->gc, tex->ptu->intformat, w / 2, h / 2, tex->ptu->format, tex->ptu->dataformat, NULL))
           return;
         _tex_sub_2d(tex->gc, 0, 0, w / 2, h / 2, tex->ptu->format, tex->ptu->dataformat, rows[h]);
         glBindTexture(GL_TEXTURE_2D, tex->ptv->texture);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, rows[h + (h / 2) + 1] - rows[h + (h / 2)]);
-        if (!_tex_2d(tex->gc, tex->ptv->intformat, w / 2, h / 2, tex->ptv->format, tex->ptv->dataformat))
+        if (!_tex_2d(tex->gc, tex->ptv->intformat, w / 2, h / 2, tex->ptv->format, tex->ptv->dataformat, NULL))
           return;
         _tex_sub_2d(tex->gc, 0, 0, w / 2, h / 2, tex->ptv->format, tex->ptv->dataformat, rows[h + (h / 2)]);
      }
@@ -1885,7 +1944,7 @@ evas_gl_common_texture_yuv_update(Evas_GL_Texture *tex, DATA8 **rows, unsigned i
         
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glBindTexture(GL_TEXTURE_2D, tex->pt->texture);
-        if (!_tex_2d(tex->gc, tex->pt->intformat, w, h, tex->pt->format, tex->pt->dataformat))
+        if (!_tex_2d(tex->gc, tex->pt->intformat, w, h, tex->pt->format, tex->pt->dataformat, NULL))
           return;
         if ((rows[1] - rows[0]) == (int)w)
           _tex_sub_2d(tex->gc, 0, 0, w, h, tex->pt->format, tex->pt->dataformat, rows[0]);
@@ -1896,7 +1955,7 @@ evas_gl_common_texture_yuv_update(Evas_GL_Texture *tex, DATA8 **rows, unsigned i
           }
 
         glBindTexture(GL_TEXTURE_2D, tex->ptu->texture);
-        if (!_tex_2d(tex->gc, tex->ptu->intformat, w / 2, h / 2, tex->ptu->format, tex->ptu->dataformat))
+        if (!_tex_2d(tex->gc, tex->ptu->intformat, w / 2, h / 2, tex->ptu->format, tex->ptu->dataformat, NULL))
           return;
         if ((rows[h + 1] - rows[h]) == (int)(w / 2))
           _tex_sub_2d(tex->gc, 0, 0, w / 2, h / 2, tex->ptu->format, tex->ptu->dataformat, rows[h]);
@@ -1907,7 +1966,7 @@ evas_gl_common_texture_yuv_update(Evas_GL_Texture *tex, DATA8 **rows, unsigned i
           }
 
         glBindTexture(GL_TEXTURE_2D, tex->ptv->texture);
-        if (!_tex_2d(tex->gc, tex->ptv->intformat, w / 2, h / 2, tex->ptv->format, tex->ptv->dataformat))
+        if (!_tex_2d(tex->gc, tex->ptv->intformat, w / 2, h / 2, tex->ptv->format, tex->ptv->dataformat, NULL))
           return;
         if ((rows[h + (h / 2) + 1] - rows[h + (h / 2)]) == (int)(w / 2))
           _tex_sub_2d(tex->gc, 0, 0, w / 2, h / 2, tex->ptv->format, tex->ptv->dataformat, rows[h + (h / 2)]);
@@ -2059,7 +2118,7 @@ evas_gl_common_texture_yuy2_update(Evas_GL_Texture *tex, DATA8 **rows, unsigned 
 
    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
    glBindTexture(GL_TEXTURE_2D, tex->pt->texture);
-   if (!_tex_2d(tex->gc, tex->pt->intformat, w, h, tex->pt->format, tex->pt->dataformat))
+   if (!_tex_2d(tex->gc, tex->pt->intformat, w, h, tex->pt->format, tex->pt->dataformat, NULL))
      return;
    if ((rows[1] - rows[0]) == (int)w * 4)
      _tex_sub_2d(tex->gc, 0, 0, w, h, tex->pt->format, tex->pt->dataformat, rows[0]);
@@ -2070,7 +2129,7 @@ evas_gl_common_texture_yuy2_update(Evas_GL_Texture *tex, DATA8 **rows, unsigned 
      }
 
    glBindTexture(GL_TEXTURE_2D, tex->ptuv->texture);
-   if (!_tex_2d(tex->gc, tex->ptuv->intformat, w / 2, h, tex->ptuv->format, tex->ptuv->dataformat))
+   if (!_tex_2d(tex->gc, tex->ptuv->intformat, w / 2, h, tex->ptuv->format, tex->ptuv->dataformat, NULL))
      return;
 #if 0
    /*
@@ -2105,12 +2164,12 @@ evas_gl_common_texture_nv12_update(Evas_GL_Texture *tex, DATA8 **rows, unsigned 
         glPixelStorei(GL_UNPACK_ROW_LENGTH, rows[1] - rows[0]);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glBindTexture(GL_TEXTURE_2D, tex->pt->texture);
-        if (!_tex_2d(tex->gc, tex->pt->intformat, w, h, tex->pt->format, tex->pt->dataformat))
+        if (!_tex_2d(tex->gc, tex->pt->intformat, w, h, tex->pt->format, tex->pt->dataformat, NULL))
           return;
         _tex_sub_2d(tex->gc, 0, 0, w, h, tex->pt->format, tex->pt->dataformat, rows[0]);
         glBindTexture(GL_TEXTURE_2D, tex->ptuv->texture);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, rows[h + 1] - rows[h]);
-        if (!_tex_2d(tex->gc, tex->ptuv->intformat, w / 2, h / 2, tex->ptuv->format, tex->ptuv->dataformat))
+        if (!_tex_2d(tex->gc, tex->ptuv->intformat, w / 2, h / 2, tex->ptuv->format, tex->ptuv->dataformat, NULL))
           return;
         _tex_sub_2d(tex->gc, 0, 0, w / 2, h / 2, tex->ptuv->format, tex->ptuv->dataformat, rows[h]);
      }
@@ -2120,7 +2179,7 @@ evas_gl_common_texture_nv12_update(Evas_GL_Texture *tex, DATA8 **rows, unsigned 
 
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glBindTexture(GL_TEXTURE_2D, tex->pt->texture);
-        if (!_tex_2d(tex->gc, tex->pt->intformat, w, h, tex->pt->format, tex->pt->dataformat))
+        if (!_tex_2d(tex->gc, tex->pt->intformat, w, h, tex->pt->format, tex->pt->dataformat, NULL))
           return;
         if ((rows[1] - rows[0]) == (int)w)
           _tex_sub_2d(tex->gc, 0, 0, w, h, tex->pt->format, tex->pt->dataformat, rows[0]);
@@ -2131,7 +2190,7 @@ evas_gl_common_texture_nv12_update(Evas_GL_Texture *tex, DATA8 **rows, unsigned 
           }
 
         glBindTexture(GL_TEXTURE_2D, tex->ptuv->texture);
-        if (!_tex_2d(tex->gc, tex->ptuv->intformat, w / 2, h / 2, tex->ptuv->format, tex->ptuv->dataformat))
+        if (!_tex_2d(tex->gc, tex->ptuv->intformat, w / 2, h / 2, tex->ptuv->format, tex->ptuv->dataformat, NULL))
           return;
         if ((rows[h + 1] - rows[h]) == (int)(w / 2))
           _tex_sub_2d(tex->gc, 0, 0, w / 2, h / 2, tex->ptuv->format, tex->ptuv->dataformat, rows[h]);
@@ -2303,7 +2362,7 @@ evas_gl_common_texture_nv12tiled_update(Evas_GL_Texture *tex, DATA8 **rows, unsi
    glBindTexture(GL_TEXTURE_2D, tex->pt->texture);
 
    // We are telling the driver to not swizzle back the buffer as we are going to replace all pixel
-   if (!_tex_2d(tex->gc, tex->pt->intformat, w, h, tex->pt->format, tex->pt->dataformat))
+   if (!_tex_2d(tex->gc, tex->pt->intformat, w, h, tex->pt->format, tex->pt->dataformat, NULL))
      return;
 
    /* Iterate each Y macroblock like we do in evas_convert_yuv.c */
@@ -2349,7 +2408,7 @@ evas_gl_common_texture_nv12tiled_update(Evas_GL_Texture *tex, DATA8 **rows, unsi
 
    glBindTexture(GL_TEXTURE_2D, tex->ptuv->texture);
 
-   if (!_tex_2d(tex->gc, tex->ptuv->intformat, w, h, tex->ptuv->format, tex->ptuv->dataformat))
+   if (!_tex_2d(tex->gc, tex->ptuv->intformat, w, h, tex->ptuv->format, tex->ptuv->dataformat, NULL))
      return;
 
    /* Iterate each UV macroblock like we do in evas_convert_yuv.c */

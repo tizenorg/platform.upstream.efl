@@ -154,6 +154,9 @@ struct _Evas_GL_Shared
 #define MAX_ATLAS_H            512
 #define DEF_ATLAS_H                 512
 
+#define MAX_ATLAS_MEMCPY       1024
+#define DEF_ATLAS_MEMCPY       512
+
 #define ATLAS_FORMATS_COUNT    12
 
       Eina_List *cspaces; // depend on the values of etc1, etc2 and st3c
@@ -170,6 +173,7 @@ struct _Evas_GL_Shared
             int max_alloc_alpha_size;
             int max_w;
             int max_h;
+            int max_memcpy_size;
          } atlas;
       } tune;
    } info;

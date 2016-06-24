@@ -183,6 +183,8 @@ _accumulate_time(double before, Eina_Bool async)
 #endif
 
 static int _render_busy = 0;
+//TIZEN_ONLY(20160624) : draw sky blue color bg before draw object. it is for debug.
+static int partial_render_debug=-1;
 
 static void
 _evas_render_cleanup(void)
@@ -2269,6 +2271,22 @@ evas_render_updates_internal_loop(Evas *eo_e, Evas_Public_Data *e,
         e->engine.func->context_color_set(e->engine.data.output,
                                           context,
                                           0, 0, 0, 0);
+        //TIZEN_ONLY(20160624) : draw sky blue color bg before draw object. it is for debug.
+        if (partial_render_debug == -1)
+          {
+             if (getenv("EVAS_GL_PARTIAL_DEBUG")) partial_render_debug = 1;
+             else partial_render_debug = 0;
+          }
+
+        if(partial_render_debug==1)
+          {
+             INF("[EVAS_GL_PARTIAL_DEBUG] mode is ON . change default clear color to sky blue. ");
+             e->engine.func->context_color_set(e->engine.data.output,
+                                          context,
+                                          50, 128, 255, 255);
+          }
+        //
+
         e->engine.func->context_multiplier_unset
           (e->engine.data.output, e->engine.data.context);
         e->engine.func->context_render_op_set(e->engine.data.output,

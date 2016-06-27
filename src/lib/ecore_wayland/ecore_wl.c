@@ -1265,16 +1265,10 @@ ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key, int mod EINA_
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!_ecore_wl_disp) return EINA_FALSE;
-   if (!_ecore_wl_disp->wl.keyrouter)
+   while (!_ecore_wl_disp->wl.keyrouter)
      {
-        int loop_count = 5;
         INF("Wait until keyrouter interface is ready");
-        while((!_ecore_wl_disp->wl.keyrouter) && (loop_count > 0))
-          {
-             wl_display_roundtrip(_ecore_wl_disp->wl.display);
-             loop_count--;
-          }
-        if (!_ecore_wl_disp->wl.keyrouter) return EINA_FALSE;
+        wl_display_roundtrip(_ecore_wl_disp->wl.display);
      }
    if (!key) return EINA_FALSE;
    if ((grab_mode < ECORE_WL_WINDOW_KEYGRAB_UNKNOWN) || (grab_mode > ECORE_WL_WINDOW_KEYGRAB_EXCLUSIVE))
@@ -1295,7 +1289,7 @@ ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key, int mod EINA_
    //1. ecore_wl_init: wl_registry_add_listener
    //2. _ecore_wl_cb_handle_global: wl_seat_add_listener
    //3. _ecore_wl_input_seat_handle_capabilities: wl_keyboard_add_listener
-   if (!_ecore_wl_disp->input)
+   while (!_ecore_wl_disp->input)
      {
         INF("Wait wl_registry_add_listener reply");
         wl_display_roundtrip(_ecore_wl_disp->wl.display);
@@ -1303,28 +1297,25 @@ ecore_wl_window_keygrab_set(Ecore_Wl_Window *win, const char *key, int mod EINA_
 
    if (_ecore_wl_disp->input)
      {
-        if (!_ecore_wl_disp->input->xkb.keymap)
+        while (!_ecore_wl_disp->input->caps_update)
           {
-             int loop_count = 5;
-             INF("Wait until keymap event occurs");
-             while((!_ecore_wl_disp->input->xkb.keymap) && (loop_count > 0))
+             INF("Wait until wl_seat_capabilities_update is ready");
+             wl_display_roundtrip(_ecore_wl_disp->wl.display);
+          }
+        if (_ecore_wl_disp->input->keyboard)
+          {
+             while (!_ecore_wl_disp->input->xkb.keymap)
                {
                   wl_display_roundtrip(_ecore_wl_disp->wl.display);
-                  loop_count--;
-               }
-             if (!_ecore_wl_disp->input->xkb.keymap)
-               {
-                  ERR("Fail to keymap, conut:[%d]", loop_count);
-                  return EINA_FALSE;
+                  INF("Wait until keymap event occurs");
                }
              INF("Finish keymap event");
-          }
 
-        if (_ecore_wl_disp->input->xkb.keymap)
-          num_keycodes = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap, keysym, &keycodes);
+             num_keycodes = ecore_wl_keycode_from_keysym(_ecore_wl_disp->input->xkb.keymap, keysym, &keycodes);
+          }
         else
           {
-             WRN("Keymap is not ready");
+             WRN("This device does not support key");
              return EINA_FALSE;
           }
      }

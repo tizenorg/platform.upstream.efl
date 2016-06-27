@@ -917,6 +917,7 @@ install -m 0644 %SOURCE100 %{buildroot}%{_tmpfilesdir}/efl.conf
 %{_libdir}/libevas.so.*
 %{_libdir}/evas/cserve2
 %{_datadir}/evas/checkme
+/usr/share/evas/filters/lua/*.lua
 
 #%files -n evas-examples
 #%manifest %{name}.manifest
@@ -933,7 +934,6 @@ install -m 0644 %SOURCE100 %{buildroot}%{_tmpfilesdir}/efl.conf
 %{_libdir}/pkgconfig/evas*.pc
 %{_libdir}/cmake/Evas*/*.cmake
 /usr/share/eolian/include/evas-*1/*.eot
-/usr/share/evas/filters/lua/*.lua
 
 %files -n ecore
 %manifest %{name}.manifest

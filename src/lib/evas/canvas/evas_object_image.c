@@ -3402,6 +3402,23 @@ _evas_image_render(Eo *eo_obj, Evas_Object_Protected_Data *obj,
                     if (ns && (ns->type == EVAS_NATIVE_SURFACE_TBM))
                        {
                           float ratio = ns->data.tbm.ratio;
+
+                          // we need to draw a black rectangle underneath the video
+                          // since image dimensions will be different from object dimensions in case of letterbox mode
+                          ENFN->context_color_set(output,
+                                                  context,
+                                                  0, 0, 0, 255);
+                          ENFN->context_render_op_set(output, context, EVAS_RENDER_COPY);
+                          ENFN->rectangle_draw(output,
+                                               context,
+                                               surface,
+                                               obj->cur->geometry.x + x,
+                                               obj->cur->geometry.y + y,
+                                               obj->cur->geometry.w,
+                                               obj->cur->geometry.h,
+                                               do_async);
+                          ENFN->context_render_op_set(output, context, obj->cur->render_op);
+
                           if (ratio > 0.01f)
                              {
                                 ix = iy = 0;
@@ -3419,8 +3436,8 @@ _evas_image_render(Eo *eo_obj, Evas_Object_Protected_Data *obj,
                                       else if (o->cur->fill.w > o->cur->fill.h * ratio)
                                          ix = (double)(o->cur->fill.w - (double)(o->cur->fill.h * ratio)) * 0.5f;
                                    }
-                                _draw_image
-                                  (obj, output, context, surface, pixels,
+                                ENFN->image_draw
+                                  (output, context, surface, pixels,
                                    0, 0,
                                    imagew, imageh,
                                    obj->cur->geometry.x + o->cur->fill.x + ix,
@@ -3429,10 +3446,39 @@ _evas_image_render(Eo *eo_obj, Evas_Object_Protected_Data *obj,
                                    o->cur->fill.h - iy * 2,
                                    o->cur->smooth_scale,
                                    do_async);
+                             }
+                          else if ((obj->cur->geometry.w > o->cur->fill.w) ||
+                                   (obj->cur->geometry.h > o->cur->fill.h))
+                            ENFN->image_draw(output,
+                                             context,
+                                             surface,
+                                             pixels,
+                                             0, 0,
+                                             imagew,
+                                             imageh,
+                                             o->cur->fill.x + (o->cur->fill.w - imagew) / 2,
+                                             o->cur->fill.y + (o->cur->fill.h - imageh) / 2,
+                                             imagew,
+                                             imageh,
+                                             o->cur->smooth_scale,
+                                             do_async);
+                          else
+                            ENFN->image_draw(output,
+                                             context,
+                                             surface,
+                                             pixels,
+                                             0, 0,
+                                             imagew,
+                                             imageh,
+                                             obj->cur->geometry.x + o->cur->fill.x,
+                                             obj->cur->geometry.y + o->cur->fill.y,
+                                             o->cur->fill.w,
+                                             o->cur->fill.h,
+                                             o->cur->smooth_scale,
+                                             do_async);
                                 return;
                              }
                        }
-                 }
 
              int offx, offy;
 

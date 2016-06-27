@@ -697,6 +697,8 @@ _ecore_wl_input_seat_handle_capabilities(void *data, struct wl_seat *seat, enum 
         wl_touch_destroy(input->touch);
         input->touch = NULL;
      }
+
+   input->caps_update = EINA_TRUE;
 }
 
 static void

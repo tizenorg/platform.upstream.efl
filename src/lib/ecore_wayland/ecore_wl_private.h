@@ -337,6 +337,7 @@ struct _Ecore_Wl_Input
      } repeat;
 
    unsigned int seat_version;
+   Eina_Bool caps_update: 1;
 };
 
 struct _Ecore_Wl_Output

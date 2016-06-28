@@ -1255,6 +1255,9 @@ struct _Evas_Object_Func
 //                    void *surface, int x, int y);
 };
 
+/* TIZEN_ONLY(160628): uint is temporarly used in output_copy(). but This interface will be removed. */
+typedef uint32_t uint;
+
 struct _Evas_Func
 {
    void *(*info)                           (Evas *e);

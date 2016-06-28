@@ -709,8 +709,6 @@ fi
 AM_CONDITIONAL([WANT_SYSTEMD], [test "${want_systemd}" = "yes"])
 AM_CONDITIONAL([HAVE_SYSTEMD], [test "${want_systemd}" = "yes" -a "${have_systemd_pkg}" = "yes"])
 #### Platform-dependent
-DL_LIBS=""
-DL_INTERNAL_LIBS=""
 
 #### Evil
 EFL_LIB_START_OPTIONAL([Evil], [test "${have_windows}" = "yes"])
@@ -724,11 +722,7 @@ EFL_SELECT_WINDOWS_VERSION
 
 ### Checks for libraries
 
-EFL_ADD_LIBS([EVIL], [-lole32 -lws2_32 -lsecur32 -luuid])
-EVIL_DLFCN_LIBS="-lpsapi"
-
-
-AC_SUBST([EVIL_DLFCN_LIBS])
+EFL_ADD_LIBS([EVIL], [-lpsapi -lole32 -lws2_32 -lsecur32 -luuid])
 
 ### Checks for header files
 
@@ -738,7 +732,7 @@ AC_SUBST([EVIL_DLFCN_LIBS])
 
 ### Checks for compiler characteristics
 
-EVIL_DLFCN_CPPFLAGS="-DEFL_EVIL_DLFCN_BUILD -DPSAPI_VERSION=1"
+EVIL_CPPFLAGS="-DPSAPI_VERSION=1"
 # TODO: should we have these at EFL (global?)
 # Note: these warnings should not be used with C++ code
 EVIL_CFLAGS_WRN="-Wdeclaration-after-statement -Wmissing-prototypes -Wstrict-prototypes -Wredundant-decls"
@@ -749,16 +743,13 @@ if test "x${have_win32}" = "xyes" ; then
    EVIL_CXXFLAGS="-fno-rtti -fno-exceptions -DSECURITY_WIN32 ${EVIL_CXXFLAGS}"
 fi
 
-AC_SUBST([EVIL_DLFCN_CPPFLAGS])
+AC_SUBST([EVIL_CPPFLAGS])
 AC_SUBST([EVIL_CFLAGS_WRN])
 AC_SUBST([EVIL_CXXFLAGS])
 
 ### Checks for linker characteristics
 
 ### Checks for library functions
-
-DL_LIBS="lib/evil/libdl.la"
-DL_INTERNAL_LIBS="lib/evil/libdl.la"
 
 EFL_LIB_END_OPTIONAL([Evil])
 
@@ -2793,7 +2784,10 @@ EFL_INTERNAL_DEPEND_PKG([ECORE_INPUT], [ecore])
 EFL_INTERNAL_DEPEND_PKG([ECORE_INPUT], [eo])
 EFL_INTERNAL_DEPEND_PKG([ECORE_INPUT], [eina])
 
-EFL_ADD_LIBS([ECORE_INPUT], [-ludev])
+if test "x${have_win32}" = "xno" ; then
+	EFL_ADD_LIBS([ECORE_INPUT], [-ludev])
+fi
+
 ### Checks for header files
 
 ### Checks for types

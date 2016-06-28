@@ -3994,6 +3994,8 @@ if test "x${have_ecore_ipc}" = "xno" || \
    want_ecore_evas_extn="no"
 fi
 
+build_ecore_evas_tbm="no"
+
 ### Checks for programs
 
 ## Compatibility layers
@@ -4033,6 +4035,16 @@ if test "x${have_ecore_evas_software_sdl}" = "xyes" || \
 fi
 AM_CONDITIONAL([BUILD_ECORE_EVAS_SDL],
    [test "${build_ecore_evas_sdl}" = "yes"])
+
+PKG_CHECK_MODULES([TBM], [libtbm >= "1.1.0"],
+                  [have_tbm="yes"],
+                  [have_tbm="no"])
+
+if test "x${have_tbm}" = "xyes" ; then
+   build_ecore_evas_tbm="yes"
+   AC_DEFINE(BUILD_ECORE_EVAS_TBM, 1, [Support for TBM Backend in Ecore_Evas])
+fi
+EFL_ADD_FEATURE([ECORE_EVAS], [tbm], [${build_ecore_evas_tbm}])
 
 ECORE_EVAS_MODULE([wayland-shm], [${want_wayland}])
 ECORE_EVAS_MODULE([wayland-egl], [${want_ecore_evas_wayland_egl}])
@@ -4125,6 +4137,7 @@ if test "x$have_ecore_evas_software_x11" = "xyes" || \
    build_ecore_evas_x11="yes"
 fi
 AM_CONDITIONAL([BUILD_ECORE_EVAS_X11], [test "${build_ecore_evas_x11}" = "yes"])
+AM_CONDITIONAL([BUILD_ECORE_EVAS_TBM], [test "${build_ecore_evas_tbm}" = "yes"])
 
 EFL_EVAL_PKGS([ECORE_EVAS])
 

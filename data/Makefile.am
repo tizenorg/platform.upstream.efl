@@ -91,8 +91,6 @@ ethumbfilesdir = $(datadir)/ethumb
 ethumbfiles_DATA = ethumb/checkme
 EXTRA_DIST += $(ethumbfiles_DATA)
 
-#TIZEN_ONLY(160628): We disable this because it occurs a crash on windows os.
-if ! HAVE_WIN32
 ethumbframesdir = $(datadir)/ethumb/frames
 ethumbframes_DATA = ethumb/frames/default.edj
 CLEANFILES += ethumb/frames/default.edj
@@ -106,7 +104,6 @@ ethumb/frames/default.edj: ethumb/frames/default.edc
 EXTRA_DIST += \
 ethumb/frames/default.edc \
 ethumb/frames/border-0.jpg
-endif
 
 ########################################################################
 # Ethumb_Client

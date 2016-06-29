@@ -54,8 +54,6 @@ modules_ethumb_emotion_module_la_DEPENDENCIES = \
 modules_ethumb_emotion_module_la_LDFLAGS = -module @EFL_LTMODULE_FLAGS@
 modules_ethumb_emotion_module_la_LIBTOOLFLAGS = --tag=disable-static
 
-#TIZEN_ONLY(160628): We disable this because it occurs a crash on windows os.
-if ! HAVE_WIN32
 modules/ethumb/emotion/template.edj: modules/ethumb/emotion/template.edc modules/ethumb/emotion/placeholder.png bin/edje/edje_cc${EXEEXT}
 	$(AM_V_EDJ) \
 	$(MKDIR_P) modules/ethumb/emotion; \
@@ -67,8 +65,6 @@ CLEANFILES += modules/ethumb/emotion/template.edj
 EXTRA_DIST += \
 modules/ethumb/emotion/template.edc \
 modules/ethumb/emotion/placeholder.png
-endif
-
 endif
 
 

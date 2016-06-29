@@ -633,6 +633,37 @@ ecore_win32_current_time_get(void)
    return _ecore_win32_event_last_time;
 }
 
+
+//TIZEN_ONLY(160628): This function can set icon using file path on Windows.
+EAPI void
+ecore_win32_window_icon_set(Ecore_Win32_Window *window, char *path)
+{
+   HICON icon;
+   HICON icon_sm;
+
+   icon = (HICON)LoadImage(NULL,
+                           path,
+                           IMAGE_ICON,
+                           GetSystemMetrics(SM_CXICON),
+                           GetSystemMetrics(SM_CYICON),
+                           LR_LOADFROMFILE);
+
+   icon_sm = (HICON)LoadImage(NULL,
+                              path,
+                              IMAGE_ICON,
+                              GetSystemMetrics(SM_CXSMICON),
+                              GetSystemMetrics(SM_CYSMICON),
+                              LR_LOADFROMFILE);
+
+   if (!icon)
+     icon = LoadIcon(NULL, IDI_APPLICATION);
+   if (!icon_sm)
+     icon_sm = LoadIcon(NULL, IDI_APPLICATION);
+
+   SetClassLongPtr(window->window, GCLP_HICON, (LONG_PTR)icon);
+   SetClassLongPtr(window->window, GCLP_HICONSM, (LONG_PTR)icon_sm);
+}
+
 /**
  * @}
  */

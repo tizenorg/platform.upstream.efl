@@ -490,6 +490,10 @@ EAPI void ecore_win32_window_state_request_send(Ecore_Win32_Window      *window,
 EAPI void ecore_win32_window_type_set(Ecore_Win32_Window      *window,
                                       Ecore_Win32_Window_Type  type);
 
+//TIZEN_ONLY(160628): This function can set icon using file path on Windows.
+EAPI void ecore_win32_window_icon_set(Ecore_Win32_Window *window,
+                                      char               *path);
+
 /* Cursor */
 
 EAPI Ecore_Win32_Cursor *ecore_win32_cursor_new(const void *pixels_and,

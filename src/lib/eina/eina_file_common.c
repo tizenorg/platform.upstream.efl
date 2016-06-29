@@ -929,11 +929,18 @@ eina_file_mkstemp(const char *templatename, Eina_Tmpstr **path)
         tmpdir = getenv("TMPDIR");
 	if (!tmpdir) tmpdir = getenv("XDG_RUNTIME_DIR");
      }
-   if (!tmpdir) tmpdir = "/tmp";
-
 #ifdef _WIN32
+   /* TIZEN_ONLY(160629): it doesn't gurantee tmp folder on windows. rather than that, we get a
+    * tmp folder via environment values. */
+   tmpdir = getenv("TMP");
+   if (!tmpdir) tmpdir = getenv("TEMP");
+   if (!tmpdir) tmpdir = getenv("USERPROFILE");
+   if (!tmpdir) tmpdir = getenv("WINDIR");
+   if (!tmpdir) tmpdir = "C:\\";
+
    if (strchr(templatename, '\\'))
 #else
+   if (!tmpdir) tmpdir = "/tmp";
    if (strchr(templatename, '/'))
 #endif
    len = snprintf(buffer, PATH_MAX, "%s", templatename);

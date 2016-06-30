@@ -1538,6 +1538,8 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
 
 // TIZEN_ONLY(20160420): efl/interface: update locale before parsing svg path
    cur_locale = setlocale(LC_NUMERIC, NULL);
+   if (cur_locale)
+     cur_locale = strdup(cur_locale);
    setlocale(LC_NUMERIC, "POSIX");
 //
 
@@ -1721,6 +1723,8 @@ _efl_gfx_shape_append_svg_path(Eo *obj, Efl_Gfx_Shape_Data *pd,
 // TIZEN_ONLY(20160420): efl/interface: update locale before parsing svg path
 error:
    setlocale(LC_NUMERIC, cur_locale);
+   if (cur_locale)
+     free(cur_locale);
 //
 }
 

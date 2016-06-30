@@ -458,6 +458,7 @@ void
 _ecore_wl_input_add(Ecore_Wl_Display *ewd, unsigned int id)
 {
    Ecore_Wl_Input *input;
+   int i;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
@@ -471,6 +472,14 @@ _ecore_wl_input_add(Ecore_Wl_Display *ewd, unsigned int id)
    input->repeat.enabled = EINA_TRUE;
    input->repeat.rate = 0.025;
    input->repeat.delay = 0.4;
+
+   for (i = 0; i < ECORE_WL_TOUCH_MAX; i++)
+     {
+        input->touch_axis[i].radius_x = 1.0;
+        input->touch_axis[i].radius_y = 1.0;
+        input->touch_axis[i].pressure = 1.0;
+        input->touch_axis[i].angle = 0.0;
+     }
 
    if (ewd->wl.shm)
      _ecore_wl_input_setup(input);

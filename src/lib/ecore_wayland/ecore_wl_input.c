@@ -519,6 +519,9 @@ _ecore_wl_input_del(Ecore_Wl_Input *input)
    if (input->cursor_name) eina_stringshare_del(input->cursor_name);
    input->cursor_name = NULL;
    eina_stringshare_replace(&input->cursor_theme_name, NULL);
+   if (input->display->cursor_theme)
+     wl_cursor_theme_destroy(input->display->cursor_theme);
+   input->display->cursor_theme = NULL;
 
    if (input->touch_focus)
      {
@@ -656,11 +659,20 @@ _ecore_wl_input_seat_handle_capabilities(void *data, struct wl_seat *seat, enum 
              input->cursor_surface =
                wl_compositor_create_surface(_ecore_wl_disp->wl.compositor);
           }
+        if (!input->display->cursor_theme)
+          {
+             input->display->cursor_theme =
+               wl_cursor_theme_load(input->cursor_theme_name, input->cursor_size,
+                                    input->display->wl.shm);
+          }
      }
    else if (!(caps & WL_SEAT_CAPABILITY_POINTER) && (input->pointer))
      {
         if (input->cursor_surface) wl_surface_destroy(input->cursor_surface);
         input->cursor_surface = NULL;
+        if (input->display->cursor_theme)
+          wl_cursor_theme_destroy(input->display->cursor_theme);
+        input->display->cursor_theme = NULL;
 #ifdef WL_POINTER_RELEASE_SINCE_VERSION
         if (input->seat_version >= WL_POINTER_RELEASE_SINCE_VERSION)
           wl_pointer_release(input->pointer);

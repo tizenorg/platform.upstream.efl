@@ -167,7 +167,7 @@ _ecore_evas_wl_common_cb_window_configure(void *data EINA_UNUSED, int type EINA_
    Ecore_Evas *ee;
    Ecore_Evas_Engine_Wl_Data *wdata;
    Ecore_Wl_Event_Window_Configure *ev;
-   int nw = 0, nh = 0;
+   int nx = 0, ny = 0, nw = 0, nh = 0;
    Eina_Bool prev_max, prev_full;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -185,8 +185,7 @@ _ecore_evas_wl_common_cb_window_configure(void *data EINA_UNUSED, int type EINA_
    ee->prop.maximized = ecore_wl_window_maximized_get(wdata->win);
    ee->prop.fullscreen = ecore_wl_window_fullscreen_get(wdata->win);
 
-   nw = ev->w;
-   nh = ev->h;
+   ecore_wl_window_geometry_get(wdata->win, &nx, &ny, &nw, &nh);
    if (nw < 1) nw = 1;
    if (nh < 1) nh = 1;
 
@@ -195,7 +194,7 @@ _ecore_evas_wl_common_cb_window_configure(void *data EINA_UNUSED, int type EINA_
 
    if (ee->prop.fullscreen)
      {
-        _ecore_evas_wl_common_move(ee, ev->x, ev->y);
+        _ecore_evas_wl_common_move(ee, nx, ny);
         _ecore_evas_wl_common_resize(ee, nw, nh);
 
         if (prev_full != ee->prop.fullscreen)
@@ -204,8 +203,8 @@ _ecore_evas_wl_common_cb_window_configure(void *data EINA_UNUSED, int type EINA_
         return ECORE_CALLBACK_PASS_ON;
      }
 
-   if ((ee->x != ev->x) || (ee->y != ev->y))
-     _ecore_evas_wl_common_move(ee, ev->x, ev->y);
+   if ((ee->x != nx) || (ee->y != ny))
+     _ecore_evas_wl_common_move(ee, nx, ny);
 
    if ((ee->req.w != nw) || (ee->req.h != nh))
      _ecore_evas_wl_common_resize(ee, nw, nh);

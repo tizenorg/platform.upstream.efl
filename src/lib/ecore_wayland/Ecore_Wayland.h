@@ -1254,6 +1254,7 @@ EAPI void ecore_wl_window_aux_hint_change(Ecore_Wl_Window *win, int id, const ch
 EAPI void ecore_wl_window_aux_hint_del(Ecore_Wl_Window *win, int id);
 
 EAPI void ecore_wl_window_floating_mode_set(Ecore_Wl_Window *win, Eina_Bool floating);
+EAPI void ecore_wl_window_geometry_get(Ecore_Wl_Window *win, int *x, int *y, int *w, int *h);
 
 #ifdef __cplusplus
 }

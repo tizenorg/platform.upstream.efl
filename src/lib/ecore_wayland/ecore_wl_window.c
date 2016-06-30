@@ -2095,3 +2095,15 @@ ecore_wl_window_floating_mode_set(Ecore_Wl_Window *win, Eina_Bool floating)
                                            win->surface);
      }
 }
+
+EAPI void
+ecore_wl_window_geometry_get(Ecore_Wl_Window *win, int *x, int *y, int *w, int *h)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return;
+
+   if (x) *x = win->allocation.x;
+   if (y) *y = win->allocation.y;
+   if (w) *w = win->configured.w;
+   if (h) *h = win->configured.h;
+}

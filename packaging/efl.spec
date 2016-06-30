@@ -674,6 +674,10 @@ cp %{SOURCE1001} .
 
 %build
 
+%if "%{profile}" == "tv"
+        export CFLAGS+=" -DEFL_FEATURE_TV"
+%endif
+
 %if ! %{with x}
 CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
 %endif

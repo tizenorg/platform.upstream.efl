@@ -58,11 +58,12 @@ enum Evas.Object_Pointer_Mode {
 
 enum Evas.Display_Mode {
    none = 0, [[Default mode]]
-   compress = 1, [[Use this mode when you want to give compress display mode
+   inherit = 1, [[TIZEN_ONLY(20151014): add deprecated enum to keep backward compatibility]]
+   compress = 2, [[Use this mode when you want to give compress display mode
                    hint to an object]]
-   expand = 2, [[Use this mode when you want to give expand display mode hint
+   expand = 3, [[Use this mode when you want to give expand display mode hint
                  to an object]]
-   dont_change = 3 [[Use this mode when an object should not change its display
+   dont_change = 4 [[Use this mode when an object should not change its display
                      mode]]
 }
 

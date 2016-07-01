@@ -149,6 +149,122 @@ _edje_format_reparse(Edje_File *edf, const char *str, Edje_Style_Tag **tag_ret)
    return ret;
 }
 
+/* TIZEN_ONLY(20160707): update a style when a style is added as class's member */
+/* Update the given evas_style
+ *
+ * @param ed The edje containing the given style which need to be updated
+ * @param style The style which need to be updated
+ * @param force Update the given style forcely or not
+ */
+void
+_edje_textblock_style_update(Edje *ed, Edje_Style *stl, Eina_Bool force)
+{
+   Eina_List *l;
+   Eina_Strbuf *txt = NULL;
+   Edje_Style_Tag *tag;
+   Edje_Text_Class *tc;
+   int found = 0;
+   char *fontset = NULL, *fontsource = NULL;
+
+   if (!ed->file) return;
+
+   /* Make sure the style is already defined */
+   if (!stl->style) return;
+
+   /* Make sure the style contains a text_class */
+   EINA_LIST_FOREACH(stl->tags, l, tag)
+     {
+        if (tag->text_class)
+          {
+             found = 1;
+             break;
+          }
+     }
+
+   /* No need to compute it again and again and again */
+   if (!force && stl->cache) return;
+
+   /* No text classes , goto next style */
+   if (!found) return;
+   if (!txt)
+     txt = eina_strbuf_new();
+
+   if (_edje_fontset_append)
+     fontset = eina_str_escape(_edje_fontset_append);
+   fontsource = eina_str_escape(ed->file->path);
+
+   /* Build the style from each tag */
+   EINA_LIST_FOREACH(stl->tags, l, tag)
+     {
+        if (!tag->key) continue;
+
+        /* Add Tag Key */
+        eina_strbuf_append(txt, tag->key);
+        eina_strbuf_append(txt, "='");
+
+        /* Configure fonts from text class if it exists */
+        tc = _edje_text_class_find(ed, tag->text_class);
+
+        /* Add and Handle tag parsed data */
+        eina_strbuf_append(txt, tag->value);
+
+        if (!strcmp(tag->key, "DEFAULT"))
+          {
+             if (fontset)
+               {
+                  eina_strbuf_append(txt, " ");
+                  eina_strbuf_append(txt, "font_fallbacks=");
+                  eina_strbuf_append(txt, fontset);
+               }
+             eina_strbuf_append(txt, " ");
+             eina_strbuf_append(txt, "font_source=");
+             eina_strbuf_append(txt, fontsource);
+          }
+        if (tag->font_size != 0)
+          {
+             char font_size[32];
+
+             if (tc && tc->size)
+               snprintf(font_size, sizeof(font_size), "%f",
+                        (double)_edje_text_size_calc(tag->font_size, tc));
+             else
+               snprintf(font_size, sizeof(font_size), "%f",
+                        tag->font_size);
+
+             eina_strbuf_append(txt, " ");
+             eina_strbuf_append(txt, "font_size=");
+             eina_strbuf_append(txt, font_size);
+          }
+        /* Add font name last to save evas from multiple loads */
+        if (tag->font)
+          {
+             const char *f;
+             char *sfont = NULL;
+
+             eina_strbuf_append(txt, " ");
+             eina_strbuf_append(txt, "font=");
+
+             if (tc) f = _edje_text_font_get(tag->font, tc->font, &sfont);
+             else f = tag->font;
+
+             eina_strbuf_append_escaped(txt, f);
+
+             if (sfont) free(sfont);
+          }
+
+        eina_strbuf_append(txt, "'");
+     }
+   if (fontset) free(fontset);
+   if (fontsource) free(fontsource);
+
+   /* Configure the style */
+   stl->cache = EINA_TRUE;
+   evas_textblock_style_set(stl->style, eina_strbuf_string_get(txt));
+   if (txt)
+     eina_strbuf_free(txt);
+}
+/* END */
+
 /* Update all evas_styles which are in an edje
  *
  * @param ed The edje containing styles which need to be updated
@@ -156,6 +272,7 @@ _edje_format_reparse(Edje_File *edf, const char *str, Edje_Style_Tag **tag_ret)
 void
 _edje_textblock_style_all_update(Edje *ed)
 {
+   /* TIZEN_ONLY(20160707): update a style when a style is added as class's member
    Eina_List *l, *ll;
    Edje_Style *stl;
    Eina_Strbuf *txt = NULL;
@@ -169,13 +286,13 @@ _edje_textblock_style_all_update(Edje *ed)
         int found = 0;
         char *fontset = NULL, *fontsource = NULL;
 
-        /* Make sure the style is already defined */
+        // Make sure the style is already defined
         if (!stl->style) break;
 
-        /* No need to compute it again and again and again */
+        // No need to compute it again and again and again
         if (stl->cache) continue;
 
-        /* Make sure the style contains a text_class */
+        // Make sure the style contains a text_class
         EINA_LIST_FOREACH(stl->tags, ll, tag)
           {
              if (tag->text_class)
@@ -185,7 +302,7 @@ _edje_textblock_style_all_update(Edje *ed)
                }
           }
 
-        /* No text classes , goto next style */
+        // No text classes , goto next style
         if (!found) continue;
         if (!txt)
           txt = eina_strbuf_new();
@@ -194,19 +311,19 @@ _edje_textblock_style_all_update(Edje *ed)
           fontset = eina_str_escape(_edje_fontset_append);
         fontsource = eina_str_escape(ed->file->path);
 
-        /* Build the style from each tag */
+        // Build the style from each tag
         EINA_LIST_FOREACH(stl->tags, ll, tag)
           {
              if (!tag->key) continue;
 
-             /* Add Tag Key */
+             // Add Tag Key
              eina_strbuf_append(txt, tag->key);
              eina_strbuf_append(txt, "='");
 
-             /* Configure fonts from text class if it exists */
+             // Configure fonts from text class if it exists
              tc = _edje_text_class_find(ed, tag->text_class);
 
-             /* Add and Handle tag parsed data */
+             // Add and Handle tag parsed data
              eina_strbuf_append(txt, tag->value);
 
              if (!strcmp(tag->key, "DEFAULT"))
@@ -236,7 +353,7 @@ _edje_textblock_style_all_update(Edje *ed)
                   eina_strbuf_append(txt, "font_size=");
                   eina_strbuf_append(txt, font_size);
                }
-             /* Add font name last to save evas from multiple loads */
+             // Add font name last to save evas from multiple loads
              if (tag->font)
                {
                   const char *f;
@@ -258,13 +375,22 @@ _edje_textblock_style_all_update(Edje *ed)
         if (fontset) free(fontset);
         if (fontsource) free(fontsource);
 
-        /* Configure the style */
+        // Configure the style
         stl->cache = EINA_TRUE;
         evas_textblock_style_set(stl->style, eina_strbuf_string_get(txt));
         eina_strbuf_reset(txt);
      }
    if (txt)
      eina_strbuf_free(txt);
+   */
+   Eina_List *l;
+   Edje_Style *stl;
+
+   if (!ed->file) return;
+
+   EINA_LIST_FOREACH(ed->file->styles, l, stl)
+      _edje_textblock_style_update(ed, stl, EINA_FALSE);
+   /* END */
 }
 
 static inline Edje_Style *
@@ -295,8 +421,19 @@ _edje_textblock_style_member_add(Edje *ed, Edje_Style *stl)
 
    EINA_LIST_FOREACH(stl->tags, l, tag)
      {
+        /* TIZEN_ONLY(20160707): update a style when a style is added as class's member
         if (tag->text_class)
           _edje_text_class_member_add(ed, tag->text_class);
+         */
+        if (tag->text_class)
+          {
+             _edje_text_class_member_add(ed, tag->text_class);
+
+             /* Newly added text_class member should be updated
+                according to the latest text_class's status. */
+             _edje_textblock_style_update(ed, stl, EINA_TRUE);
+          }
+        /* END */
      }
 }
 

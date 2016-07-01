@@ -4143,14 +4143,37 @@ EAPI Ecore_Evas *
 ecore_evas_wayland_shm_new(const char *disp_name, unsigned int parent,
 			   int x, int y, int w, int h, Eina_Bool frame)
 {
+//TIZEN_ONLY(20160628):  Add Performance log for cold booting
+#ifdef ENABLE_TTRACE
+   traceBegin(TTRACE_TAG_EFL, "ecore_evas_wayland_shm_new");
+#endif
+//
+
    Ecore_Evas *(*new)(const char *, unsigned int, int, int, int, int, Eina_Bool);
    Eina_Module *m = _ecore_evas_engine_load("wayland");
+//TIZEN_ONLY(20160628):  Add Performance log for cold booting
+#ifdef ENABLE_TTRACE
+   if (!m) traceEnd(TTRACE_TAG_EFL);
+#endif
+//
    EINA_SAFETY_ON_NULL_RETURN_VAL(m, NULL);
 
    new = eina_module_symbol_get(m, "ecore_evas_wayland_shm_new_internal");
+//TIZEN_ONLY(20160628):  Add Performance log for cold booting
+#ifdef ENABLE_TTRACE
+   if (!new) traceEnd(TTRACE_TAG_EFL);
+#endif
+//
    EINA_SAFETY_ON_NULL_RETURN_VAL(new, NULL);
 
-   return new(disp_name, parent, x, y, w, h, frame);
+//TIZEN_ONLY(20160628):  Add Performance log for cold booting
+   Ecore_Evas *ret = new(disp_name, parent, x, y, w, h, frame);
+#ifdef ENABLE_TTRACE
+   traceEnd(TTRACE_TAG_EFL);
+#endif
+//
+
+   return ret;
 }
 
 EAPI Ecore_Evas *
@@ -4171,14 +4194,37 @@ EAPI Ecore_Evas *
 ecore_evas_wayland_egl_options_new(const char *disp_name, unsigned int parent,
                               int x, int y, int w, int h, Eina_Bool frame, const int *opt)
 {
+//TIZEN_ONLY(20160628):  Add Performance log for cold booting
+#ifdef ENABLE_TTRACE
+   traceBegin(TTRACE_TAG_EFL, "ecore_evas_wayland_egl_options_new");
+#endif
+//
+
    Ecore_Evas *(*new)(const char *, unsigned int, int, int, int, int, Eina_Bool, const int *);
    Eina_Module *m = _ecore_evas_engine_load("wayland");
+//TIZEN_ONLY(20160628):  Add Performance log for cold booting
+#ifdef ENABLE_TTRACE
+   if (!m) traceEnd(TTRACE_TAG_EFL);
+#endif
+//
    EINA_SAFETY_ON_NULL_RETURN_VAL(m, NULL);
 
    new = eina_module_symbol_get(m, "ecore_evas_wayland_egl_options_new_internal");
+//TIZEN_ONLY(20160628):  Add Performance log for cold booting
+#ifdef ENABLE_TTRACE
+   if (!new) traceEnd(TTRACE_TAG_EFL);
+#endif
+//
    EINA_SAFETY_ON_NULL_RETURN_VAL(new, NULL);
 
-   return new(disp_name, parent, x, y, w, h, frame, opt);
+//TIZEN_ONLY(20160628):  Add Performance Clock log level
+   Ecore_Evas *ret =  new(disp_name, parent, x, y, w, h, frame, opt);
+#ifdef ENABLE_TTRACE
+   traceEnd(TTRACE_TAG_EFL);
+#endif
+//
+
+   return ret;
 }
 
 EAPI void

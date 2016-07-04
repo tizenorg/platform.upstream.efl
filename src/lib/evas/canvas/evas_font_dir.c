@@ -420,7 +420,9 @@ evas_font_desc_unref(Evas_Font_Description *fdesc)
    if (--(fdesc->ref) == 0)
      {
         eina_stringshare_del(fdesc->name);
+        /* TIZEN_ONLY(20160704): Revert the patch for applying font style
         eina_stringshare_del(fdesc->style);
+         */
         eina_stringshare_del(fdesc->fallbacks);
         eina_stringshare_del(fdesc->lang);
         free(fdesc);
@@ -456,7 +458,9 @@ evas_font_desc_dup(const Evas_Font_Description *fdesc)
    new->name = eina_stringshare_ref(new->name);
    new->fallbacks = eina_stringshare_ref(new->fallbacks);
    new->lang = eina_stringshare_ref(new->lang);
+   /* TIZEN_ONLY(20160704): Revert the patch for applying font style
    new->style = eina_stringshare_ref(new->style);
+    */
 
    return new;
 }
@@ -508,7 +512,9 @@ evas_font_name_parse(Evas_Font_Description *fdesc, const char *name)
 #define _SET_STYLE(x, len) \
              fdesc->x = _evas_font_style_find_internal(name + len, tend, \
                    _style_##x##_map, _STYLE_MAP_LEN(_style_##x##_map));
+             /* TIZEN_ONLY(20160704): Revert the patch for applying font style
              eina_stringshare_replace_length(&(fdesc->style), name + 7, tend - (name + 7));
+              */
              _SET_STYLE(slant, 7);
              _SET_STYLE(weight, 7);
              _SET_STYLE(width, 7);
@@ -802,8 +808,10 @@ evas_font_load(Evas *eo_evas, Evas_Font_Description *fdesc, const char *source, 
               NULL);
         FcPatternAddString (p_nm, FC_FAMILY, (FcChar8*) fdesc->name);
 
+        /* TIZEN_ONLY(20160704): Revert the patch for applying font style
         if (fdesc->style)
           FcPatternAddString (p_nm, FC_STYLE, (FcChar8*) fdesc->style);
+         */
 
         /* Handle font fallbacks */
         if (fdesc->fallbacks)

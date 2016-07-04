@@ -1161,7 +1161,9 @@ struct _Evas_Font_Description
    Eina_Stringshare *name;
    Eina_Stringshare *fallbacks;
    Eina_Stringshare *lang;
+   /* TIZEN_ONLY(20160704): Revert the patch for applying font style
    Eina_Stringshare *style;
+    */
 
    Evas_Font_Slant slant;
    Evas_Font_Weight weight;

@@ -714,6 +714,7 @@ CFLAGS+=" -DMESA_EGL_NO_X11_HEADERS "
     --enable-lua-old \
     --enable-ecore-buffer \
     --disable-gstreamer1 \
+    --enable-harfbuzz \
     --enable-hyphen \
     --with-dictionaries-hyphen-dir=/usr/share/hyphen/ \
     --enable-i-really-know-what-i-am-doing-and-that-this-will-probably-break-things-and-i-will-fix-them-myself-and-send-patches-aba

@@ -20,6 +20,9 @@ struct _dnd_read_ctx
 };
 
 /* local function prototypes */
+// TIZEN_ONLY(20160707): To distinguish clipboard selection in cbhm
+static void _ecore_wl_dnd_selection_cb_free(void *data EINA_UNUSED, void *event);
+//
 static void _ecore_wl_dnd_selection_data_receive(Ecore_Wl_Dnd_Source *source, const char *type);
 static Eina_Bool _ecore_wl_dnd_selection_data_read(void *data, Ecore_Fd_Handler *fd_handler EINA_UNUSED);
 static void _ecore_wl_dnd_selection_data_ready_cb_free(void *data EINA_UNUSED, void *event);
@@ -550,10 +553,17 @@ void
 _ecore_wl_dnd_selection(void *data, struct wl_data_device *data_device EINA_UNUSED, struct wl_data_offer *offer)
 {
    Ecore_Wl_Input *input;
+   // TIZEN_ONLY(20160707): To distinguish clipboard selection in cbhm
+   Ecore_Wl_Event_Dnd_Selection *ev;
+   //
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
    if (!(input = data)) return;
+
+   // TIZEN_ONLY(20160707): To distinguish clipboard selection in cbhm
+   if (!(ev = calloc(1, sizeof(Ecore_Wl_Event_Dnd_Selection)))) return;
+   //
 
    if (input->selection_source) _ecore_wl_dnd_del(input->selection_source);
    input->selection_source = NULL;
@@ -565,8 +575,37 @@ _ecore_wl_dnd_selection(void *data, struct wl_data_device *data_device EINA_UNUS
         input->selection_source = wl_data_offer_get_user_data(offer);
         t = wl_array_add(&input->selection_source->types, sizeof(*t));
         *t = NULL;
+
+        // TIZEN_ONLY(20160707): To distinguish clipboard selection in cbhm
+        int i = 0;
+        for (t = input->selection_source->types.data; *t; t++)
+          {
+             ev->mime_types[i++] = strdup(*t);
+          }
+
+        ecore_event_add(ECORE_WL_EVENT_DND_OFFER, ev, _ecore_wl_dnd_selection_cb_free, NULL);
+        //
      }
 }
+
+// TIZEN_ONLY(20160707): To distinguish clipboard selection in cbhm
+static void
+_ecore_wl_dnd_selection_cb_free(void *data EINA_UNUSED, void *event)
+{
+   Ecore_Wl_Event_Dnd_Selection *ev;
+   char **t;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!(ev = event)) return;
+
+   for (t = ev->mime_types; *t; t++)
+     {
+        free(*t);
+     }
+   free(ev);
+}
+//
 
 void
 _ecore_wl_dnd_del(Ecore_Wl_Dnd_Source *source)

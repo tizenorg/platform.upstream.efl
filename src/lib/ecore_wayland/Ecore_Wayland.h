@@ -66,6 +66,9 @@ typedef struct _Ecore_Wl_Event_Window_Show Ecore_Wl_Event_Window_Show;
 typedef struct _Ecore_Wl_Event_Window_Hide Ecore_Wl_Event_Window_Hide;
 typedef struct _Ecore_Wl_Event_Window_Lower Ecore_Wl_Event_Window_Lower;
 typedef struct _Ecore_Wl_Event_Dnd_Enter Ecore_Wl_Event_Dnd_Enter;
+// TIZEN_ONLY(20160706): To distinguish clipboard selection in cbhm
+typedef struct _Ecore_Wl_Event_Dnd_Selection Ecore_Wl_Event_Dnd_Selection;
+//
 typedef struct _Ecore_Wl_Event_Dnd_Position Ecore_Wl_Event_Dnd_Position;
 typedef struct _Ecore_Wl_Event_Dnd_Leave Ecore_Wl_Event_Dnd_Leave;
 typedef struct _Ecore_Wl_Event_Dnd_Drop Ecore_Wl_Event_Dnd_Drop;
@@ -288,6 +291,13 @@ struct _Ecore_Wl_Event_Window_Lower
    unsigned int win;
    unsigned int timestamp;
 };
+
+// TIZEN_ONLY(20160706): To distinguish clipboard selection in cbhm
+struct _Ecore_Wl_Event_Dnd_Selection
+{
+   char *mime_types[10];
+};
+//
 
 struct _Ecore_Wl_Event_Dnd_Enter
 {

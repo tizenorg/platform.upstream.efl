@@ -750,6 +750,7 @@ _evgl_glDisable(GLenum cap)
    glDisable(cap);
 }
 
+#ifndef __APPLE__
 void
 _evgl_glFramebufferParameteri(GLenum target, GLenum pname, GLint param)
 {
@@ -797,6 +798,7 @@ _evgl_glFramebufferParameteri(GLenum target, GLenum pname, GLint param)
 
    glFramebufferParameteri(target, pname, param);
 }
+#endif
 
 static void
 _evgl_glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
@@ -1118,6 +1120,7 @@ _evgl_glGetFramebufferAttachmentParameteriv(GLenum target, GLenum attachment, GL
    glGetFramebufferAttachmentParameteriv(target, attachment, pname, params);
 }
 
+#ifndef __APPLE__
 void
 _evgl_glGetFramebufferParameteriv(GLenum target, GLenum pname, GLint* params)
 {
@@ -1165,6 +1168,7 @@ _evgl_glGetFramebufferParameteriv(GLenum target, GLenum pname, GLint* params)
 
    glGetFramebufferParameteriv(target, pname, params);
 }
+#endif
 void
 _evgl_glGetIntegerv(GLenum pname, GLint* params)
 {
@@ -2829,8 +2833,10 @@ _normal_gles3_api_get(Evas_GL_API *funcs, int minor_version)
    ORD(glDispatchComputeIndirect);
    ORD(glDrawArraysIndirect);
    ORD(glDrawElementsIndirect);
+#ifndef __APPLE__
    ORD(glFramebufferParameteri);
    ORD(glGetFramebufferParameteriv);
+#endif
    ORD(glGetProgramInterfaceiv);
    ORD(glGetProgramResourceIndex);
    ORD(glGetProgramResourceName);
@@ -3163,8 +3169,10 @@ _debug_gles3_api_get(Evas_GL_API *funcs, int minor_version)
         ORD(glDispatchComputeIndirect);
         ORD(glDrawArraysIndirect);
         ORD(glDrawElementsIndirect);
+#ifndef __APPLE__
         ORD(glFramebufferParameteri);
         ORD(glGetFramebufferParameteriv);
+#endif
         ORD(glGetProgramInterfaceiv);
         ORD(glGetProgramResourceIndex);
         ORD(glGetProgramResourceName);
@@ -3362,8 +3370,10 @@ _evgl_load_gles3_apis(void *dl_handle, Evas_GL_API *funcs, int minor_version)
         ORD(glDispatchComputeIndirect);
         ORD(glDrawArraysIndirect);
         ORD(glDrawElementsIndirect);
+#ifndef __APPLE__
         ORD(glFramebufferParameteri);
         ORD(glGetFramebufferParameteriv);
+#endif
         ORD(glGetProgramInterfaceiv);
         ORD(glGetProgramResourceIndex);
         ORD(glGetProgramResourceName);

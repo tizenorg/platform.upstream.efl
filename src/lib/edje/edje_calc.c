@@ -4857,57 +4857,49 @@ _edje_part_recalc(Edje *ed, Edje_Real_Part *ep, int flags, Edje_Calc_Params *sta
              mo = ep->typedata.swallow->swallowed_object;
           }
         else mo = ep->object;
-        if (chosen_desc->map.on && ep->part->type != EDJE_PART_TYPE_SPACER)
+
+        Evas_Object *map_obj;
+
+        /* Apply map to smart obj holding nested parts */
+        if (ep->nested_smart) map_obj = ep->nested_smart;
+        else map_obj = mo;
+
+        if (ep->part->type != EDJE_PART_TYPE_SPACER)
           {
-             static Evas_Map *map = NULL;
-
-             ed->have_mapped_part = EINA_TRUE;
-             // create map and populate with part geometry
-             if (!map) map = evas_map_new(4);
-
-             _edje_map_prop_set(map, pf, chosen_desc, ep, mo);
-
-             Evas_Object *map_obj;
-
-             /* Apply map to smart obj holding nested parts */
-             if (ep->nested_smart) map_obj = ep->nested_smart;
-             else map_obj = mo;
-             if (map_obj)
+             if (chosen_desc->map.on)
                {
-                  eo_do(map_obj,
-                        evas_obj_map_set(map),
-                        evas_obj_map_enable_set(EINA_TRUE));
-               }
-          }
-        else
-          {
-             if ((ep->param1.p.mapped) ||
-                 ((ep->param2) && (ep->param2->p.mapped)) ||
-                 ((ep->custom) && (ep->custom->p.mapped)))
-               {
-                  if (ep->nested_smart) /* Cancel map of smart obj holding nested parts */
+                  static Evas_Map *map = NULL;
+
+                  ed->have_mapped_part = EINA_TRUE;
+                  // create map and populate with part geometry
+                  if (!map) map = evas_map_new(4);
+
+                  _edje_map_prop_set(map, pf, chosen_desc, ep, mo);
+
+                  if (map_obj)
                     {
-                       eo_do(ep->nested_smart,
-                             evas_obj_map_enable_set(EINA_FALSE),
-                             evas_obj_map_set(NULL));
+                       eo_do(map_obj,
+                             evas_obj_map_set(map),
+                             evas_obj_map_enable_set(EINA_TRUE));
                     }
-                  else
+               }
+             else
+               {
+                  Eina_Bool ret;
+
+                  if (map_obj && eo_do_ret(map_obj, ret, evas_obj_map_enable_get()))
                     {
 #ifdef HAVE_EPHYSICS
-                       if (!ep->body)
+                       if (!ep->nested_smart && !ep->body)
                          {
 #endif
-                            if (mo)
-                              eo_do(mo,
-                                    evas_obj_map_enable_set(0),
-                                    evas_obj_map_set(NULL));
-#ifdef HAVE_EPHYSICS
+                            eo_do(map_obj,
+                                  evas_obj_map_enable_set(EINA_FALSE),
+                                  evas_obj_map_set(NULL));
                          }
-#endif
                     }
                }
           }
-     }
 
    if (map_colors_free) _map_colors_free(pf);
 

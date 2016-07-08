@@ -2134,6 +2134,24 @@ _ecore_wl_input_device_info_broadcast(const char *name, const char *identifier, 
 }
 
 void
+_ecore_wl_input_devices_send(Ecore_Wl_Input *input, Ecore_Wl_Window *win)
+{
+   Eina_List *l;
+   Ecore_Wl_Input_Device *dev;
+   Eina_Bool ret = EINA_FALSE;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!input) return;
+
+   EINA_LIST_FOREACH(input->devices, l, dev)
+     {
+        ret = _ecore_wl_input_add_ecore_device(dev->name, dev->identifier, dev->clas);
+        DBG("ecore_device added.. dev->name:%s, dev->identifier:%s, ret:%d", dev->name? : "NULL", dev->identifier? : "NULL", ret);
+        _ecore_wl_input_device_info_send(win->id, dev->name, dev->identifier, dev->clas, EINA_TRUE);
+     }
+}
+
+void
 _ecore_wl_input_device_manager_setup(unsigned int id)
 {
    _ecore_wl_disp->wl.tz_input_device_manager =

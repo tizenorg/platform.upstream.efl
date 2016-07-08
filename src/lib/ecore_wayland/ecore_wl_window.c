@@ -585,6 +585,8 @@ ecore_wl_window_show(Ecore_Wl_Window *win)
    ecore_wl_window_surface_create(win);
 
    _ecore_wl_window_shell_surface_init(win);
+
+   _ecore_wl_input_devices_send(_ecore_wl_disp->input, win);
 }
 
 EAPI void

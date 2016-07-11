@@ -38,12 +38,12 @@ static void _ecore_evas_wl_alpha_set(Ecore_Evas *ee, int alpha);
 static void _ecore_evas_wl_transparent_set(Ecore_Evas *ee, int transparent);
 static void _ecore_evas_wl_rotation_set(Ecore_Evas *ee, int rotation, int resize);
 
-static Ecore_Evas_Engine_Func _ecore_wl_engine_func = 
+static Ecore_Evas_Engine_Func _ecore_wl_engine_func =
 {
    _ecore_evas_wl_common_free,
    _ecore_evas_wl_common_callback_resize_set,
    _ecore_evas_wl_common_callback_move_set,
-   NULL, 
+   NULL,
    NULL,
    _ecore_evas_wl_common_callback_delete_request_set,
    NULL,
@@ -197,7 +197,7 @@ ecore_evas_wayland_egl_options_new_internal(const char *disp_name, unsigned int 
    ee->prop.obscured = EINA_TRUE;
    ee->alpha = EINA_FALSE;
 
-   /* NB: Disabled for right now as it causes textgrid (terminology) 
+   /* NB: Disabled for right now as it causes textgrid (terminology)
     * to not draw text anymore */
    /* if (getenv("ECORE_EVAS_FORCE_SYNC_RENDER")) */
    ee->can_async_render = 0;
@@ -220,8 +220,8 @@ ecore_evas_wayland_egl_options_new_internal(const char *disp_name, unsigned int 
      }
 
    wdata->parent = p;
-   wdata->win = 
-     ecore_wl_window_new(p, x, y, w + fw, h + fh, 
+   wdata->win =
+     ecore_wl_window_new(p, x, y, w + fw, h + fh,
                          ECORE_WL_WINDOW_BUFFER_TYPE_EGL_WINDOW);
    ee->prop.window = ecore_wl_window_id_get(wdata->win);
 
@@ -242,7 +242,7 @@ ecore_evas_wayland_egl_options_new_internal(const char *disp_name, unsigned int 
    evas_output_viewport_set(ee->evas, 0, 0, ee->w + fw, ee->h + fh);
 
    if (ee->can_async_render)
-     evas_event_callback_add(ee->evas, EVAS_CALLBACK_RENDER_POST, 
+     evas_event_callback_add(ee->evas, EVAS_CALLBACK_RENDER_POST,
                              _ecore_evas_wl_common_render_updates, ee);
 
    evas_event_callback_add(ee->evas, EVAS_CALLBACK_RENDER_FLUSH_PRE,
@@ -302,7 +302,7 @@ ecore_evas_wayland_egl_options_new_internal(const char *disp_name, unsigned int 
              goto err;
           }
      }
-   else 
+   else
      {
         ERR("Failed to get Evas Engine Info for '%s'", ee->driver);
         goto err;
@@ -331,10 +331,10 @@ ecore_evas_wayland_egl_options_new_internal(const char *disp_name, unsigned int 
    //
 
 #if 0
-   ecore_event_window_register(ee->prop.window, ee, ee->evas, 
-                               (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process, 
-                               (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process, 
-                               (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process, 
+   ecore_event_window_register(ee->prop.window, ee, ee->evas,
+                               (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process,
+                               (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
+                               (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
                                (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
 #endif
    // TIZEN_ONLY(20160429): add multi_info(radius, pressure and angle) to Evas_Event_Mouse_XXX
@@ -363,7 +363,7 @@ ecore_evas_wayland_egl_new_internal(const char *disp_name, unsigned int parent,
    return ecore_evas_wayland_egl_options_new_internal(disp_name, parent, x, y, w, h, frame, NULL);
 }
 
-static void 
+static void
 _ecore_evas_wl_move_resize(Ecore_Evas *ee, int x, int y, int w, int h)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -412,6 +412,7 @@ _ecore_evas_wl_show(Ecore_Evas *ee)
              surf = ecore_wl_window_surface_get(wdata->win);
              if ((!einfo->info.surface) || (einfo->info.surface != surf))
                {
+                  ecore_evas_manual_render_set(ee, 0);
                   einfo->info.surface = surf;
                   evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo);
                   evas_damage_rectangle_add(ee->evas, 0, 0, ee->w + fw, ee->h + fh);
@@ -435,7 +436,7 @@ _ecore_evas_wl_show(Ecore_Evas *ee)
    if (ee->func.fn_show) ee->func.fn_show(ee);
 }
 
-static void 
+static void
 _ecore_evas_wl_hide(Ecore_Evas *ee)
 {
    Ecore_Evas_Engine_Wl_Data *wdata;
@@ -459,7 +460,7 @@ _ecore_evas_wl_hide(Ecore_Evas *ee)
         //evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo);
      }
 
-   if (wdata->win) 
+   if (wdata->win)
      ecore_wl_window_hide(wdata->win);
 
    if (ee->prop.override)
@@ -476,7 +477,7 @@ _ecore_evas_wl_hide(Ecore_Evas *ee)
    if (ee->func.fn_hide) ee->func.fn_hide(ee);
 }
 
-static void 
+static void
 _ecore_evas_wayland_egl_alpha_do(Ecore_Evas *ee, int alpha)
 {
    Evas_Engine_Info_Wayland_Egl *einfo;
@@ -516,7 +517,7 @@ _ecore_evas_wl_alpha_set(Ecore_Evas *ee, int alpha)
    _ecore_evas_wayland_egl_alpha_do(ee, alpha);
 }
 
-static void 
+static void
 _ecore_evas_wayland_egl_transparent_do(Ecore_Evas *ee, int transparent)
 {
    Evas_Engine_Info_Wayland_Egl *einfo;
@@ -544,7 +545,7 @@ _ecore_evas_wayland_egl_transparent_do(Ecore_Evas *ee, int transparent)
      }
 }
 
-static void 
+static void
 _ecore_evas_wl_transparent_set(Ecore_Evas *ee, int transparent)
 {
    if (ee->in_async_render)
@@ -557,7 +558,7 @@ _ecore_evas_wl_transparent_set(Ecore_Evas *ee, int transparent)
    _ecore_evas_wayland_egl_transparent_do(ee, transparent);
 }
 
-void 
+void
 _ecore_evas_wayland_egl_resize(Ecore_Evas *ee, int location)
 {
    Ecore_Evas_Engine_Wl_Data *wdata;
@@ -566,7 +567,7 @@ _ecore_evas_wayland_egl_resize(Ecore_Evas *ee, int location)
 
    if (!ee) return;
    wdata = ee->engine.data;
-   if (wdata->win) 
+   if (wdata->win)
      {
         _ecore_evas_wayland_egl_resize_edge_set(ee, location);
 
@@ -577,7 +578,7 @@ _ecore_evas_wayland_egl_resize(Ecore_Evas *ee, int location)
      }
 }
 
-void 
+void
 _ecore_evas_wayland_egl_resize_edge_set(Ecore_Evas *ee, int edge)
 {
    Evas_Engine_Info_Wayland_Egl *einfo;

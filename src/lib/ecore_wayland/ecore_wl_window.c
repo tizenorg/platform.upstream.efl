@@ -424,6 +424,9 @@ ecore_wl_window_free(Ecore_Wl_Window *win)
    if (win->tz_rot.resource) tizen_rotation_destroy(win->tz_rot.resource);
    win->tz_rot.resource = NULL;
 
+   if (win->tz_resource) tizen_resource_destroy(win->tz_resource);
+   win->tz_resource = NULL;
+
    if (win->tz_position) tizen_position_destroy(win->tz_position);
    win->tz_position = NULL;
 
@@ -610,6 +613,9 @@ ecore_wl_window_hide(Ecore_Wl_Window *win)
 
    if (win->tz_position) tizen_position_destroy(win->tz_position);
    win->tz_position = NULL;
+
+   if (win->tz_resource) tizen_resource_destroy(win->tz_resource);
+   win->tz_resource = NULL;
 
    if (win->xdg_surface) xdg_surface_destroy(win->xdg_surface);
    win->xdg_surface = NULL;

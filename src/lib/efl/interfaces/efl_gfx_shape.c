@@ -14,6 +14,10 @@
 typedef struct _Efl_Gfx_Shape_Data Efl_Gfx_Shape_Data;
 struct _Efl_Gfx_Shape_Data
 {
+   Efl_Gfx_Shape_Public public;
+
+   Efl_Gfx_Fill_Rule fill_rule;
+
    struct {
       double x;
       double y;
@@ -24,6 +28,7 @@ struct _Efl_Gfx_Shape_Data
 
    unsigned int commands_count;
    unsigned int points_count;
+   Eina_Bool convex;
 };
 
 static inline unsigned int
@@ -92,7 +97,7 @@ efl_gfx_path_grow(Efl_Gfx_Path_Command command,
    cmd_tmp[cmd_length - 1] = command;
    // NULL terminate the stream
    cmd_tmp[cmd_length] = EFL_GFX_PATH_COMMAND_TYPE_END;
-
+   pd->convex = EINA_FALSE;
    return EINA_TRUE;
 }
 
@@ -433,46 +438,6 @@ _efl_gfx_shape_equal_commands(Eo *obj EINA_UNUSED,
 }
 
 static void
-_efl_gfx_shape_dup(Eo *obj, Efl_Gfx_Shape_Data *pd, const Eo *dup_from)
-{
-   const Efl_Gfx_Dash *dash = NULL;
-   Efl_Gfx_Shape_Data *from;
-   unsigned int dash_length = 0;
-   Efl_Gfx_Cap cap;
-   Efl_Gfx_Join j;
-   int sr, sg, sb, sa;
-   double scale, location;
-   double sw;
-
-   if (obj == dup_from) return ;
-   from = eo_data_scope_get(dup_from, EFL_GFX_SHAPE_MIXIN);
-   if (!from) return ;
-
-   eo_do(dup_from,
-         scale = efl_gfx_shape_stroke_scale_get(),
-         efl_gfx_shape_stroke_color_get(&sr, &sg, &sb, &sa),
-         sw = efl_gfx_shape_stroke_width_get(),
-         location = efl_gfx_shape_stroke_location_get(),
-         efl_gfx_shape_stroke_dash_get(&dash, &dash_length),
-         cap = efl_gfx_shape_stroke_cap_get(),
-         j = efl_gfx_shape_stroke_join_get());
-   eo_do(obj,
-         efl_gfx_shape_stroke_scale_set(scale),
-         efl_gfx_shape_stroke_color_set(sr, sg, sb, sa),
-         efl_gfx_shape_stroke_width_set(sw),
-         efl_gfx_shape_stroke_location_set(location),
-         efl_gfx_shape_stroke_dash_set(dash, dash_length),
-         efl_gfx_shape_stroke_cap_set(cap),
-         efl_gfx_shape_stroke_join_set(j));
-
-   _efl_gfx_shape_path_set(obj, pd, from->commands, from->points);
-
-   eo_do(obj,
-         eo_event_callback_call(EFL_GFX_PATH_CHANGED, NULL),
-         eo_event_callback_call(EFL_GFX_CHANGED, NULL));
-}
-
-static void
 _efl_gfx_shape_reset(Eo *obj, Efl_Gfx_Shape_Data *pd)
 {
    free(pd->commands);
@@ -487,7 +452,7 @@ _efl_gfx_shape_reset(Eo *obj, Efl_Gfx_Shape_Data *pd)
    pd->current.y = 0;
    pd->current_ctrl.x = 0;
    pd->current_ctrl.y = 0;
-
+   pd->convex = EINA_FALSE;
    eo_do(obj,
          eo_event_callback_call(EFL_GFX_PATH_CHANGED, NULL),
          eo_event_callback_call(EFL_GFX_CHANGED, NULL));
@@ -1152,7 +1117,8 @@ _efl_gfx_shape_append_circle(Eo *obj, Efl_Gfx_Shape_Data *pd,
    Eina_Bool first = (pd->commands_count <= 0);
    _efl_gfx_shape_append_arc(obj, pd, xc - radius, yc - radius, 2*radius, 2*radius, 0, 360);
    _efl_gfx_shape_append_close(obj, pd);
-
+   //update convex flag
+   pd->convex = first;
 }
 
 static void
@@ -1188,6 +1154,9 @@ _efl_gfx_shape_append_rect(Eo *obj, Efl_Gfx_Shape_Data *pd,
    _efl_gfx_shape_append_arc(obj, pd, x + w - rx, y, rx, ry, 0, 90);
    _efl_gfx_shape_append_arc(obj, pd, x, y, rx, ry, 90, 90);
    _efl_gfx_shape_append_close(obj, pd);
+
+   //update convex flag
+   pd->convex = first;
 }
 
 static void
@@ -1269,7 +1238,6 @@ _efl_gfx_path_parse_pair_to(const char *content, char **end,
              x += *current_x;
              y += *current_y;
           }
-
         func(obj, pd, x, y);
         content = *end;
 
@@ -1705,6 +1673,204 @@ error:
    if (cur_locale)
      free(cur_locale);
 //
+}
+
+static void
+_efl_gfx_shape_stroke_scale_set(Eo *obj EINA_UNUSED,
+                                Efl_Gfx_Shape_Data *pd,
+                                double s)
+{
+   pd->public.stroke.scale = s;
+   eo_do(obj,
+         eo_event_callback_call(EFL_GFX_PATH_CHANGED, NULL),
+         eo_event_callback_call(EFL_GFX_CHANGED, NULL));
+}
+
+static double
+_efl_gfx_shape_stroke_scale_get(Eo *obj EINA_UNUSED,
+                                Efl_Gfx_Shape_Data *pd)
+{
+   return pd->public.stroke.scale;
+}
+
+static void
+_efl_gfx_shape_stroke_color_set(Eo *obj EINA_UNUSED,
+                                Efl_Gfx_Shape_Data *pd,
+                                int r, int g, int b, int a)
+{
+   pd->public.stroke.color.r = r;
+   pd->public.stroke.color.g = g;
+   pd->public.stroke.color.b = b;
+   pd->public.stroke.color.a = a;
+   eo_do(obj, eo_event_callback_call(EFL_GFX_CHANGED, NULL));
+}
+
+static void
+_efl_gfx_shape_stroke_color_get(Eo *obj EINA_UNUSED,
+                                Efl_Gfx_Shape_Data *pd,
+                                int *r, int *g, int *b, int *a)
+{
+   if (r) *r = pd->public.stroke.color.r;
+   if (g) *g = pd->public.stroke.color.g;
+   if (b) *b = pd->public.stroke.color.b;
+   if (a) *a = pd->public.stroke.color.a;
+}
+
+static void
+_efl_gfx_shape_stroke_width_set(Eo *obj EINA_UNUSED,
+                                Efl_Gfx_Shape_Data *pd,
+                                double w)
+{
+   pd->public.stroke.width = w;
+   eo_do(obj,
+         eo_event_callback_call(EFL_GFX_PATH_CHANGED, NULL),
+         eo_event_callback_call(EFL_GFX_CHANGED, NULL));
+}
+
+static double
+_efl_gfx_shape_stroke_width_get(Eo *obj EINA_UNUSED,
+                                Efl_Gfx_Shape_Data *pd)
+{
+   return pd->public.stroke.width;
+}
+
+static void
+_efl_gfx_shape_stroke_location_set(Eo *obj EINA_UNUSED,
+                                   Efl_Gfx_Shape_Data *pd,
+                                   double centered)
+{
+   pd->public.stroke.centered = centered;
+   eo_do(obj,
+         eo_event_callback_call(EFL_GFX_PATH_CHANGED, NULL),
+         eo_event_callback_call(EFL_GFX_CHANGED, NULL));
+}
+
+static double
+_efl_gfx_shape_stroke_location_get(Eo *obj EINA_UNUSED,
+                                   Efl_Gfx_Shape_Data *pd)
+{
+   return pd->public.stroke.centered;
+}
+
+static void
+_efl_gfx_shape_stroke_dash_set(Eo *obj EINA_UNUSED,
+                               Efl_Gfx_Shape_Data *pd,
+                               const Efl_Gfx_Dash *dash, unsigned int length)
+{
+   Efl_Gfx_Dash *tmp;
+
+   if (!dash)
+     {
+        free(pd->public.stroke.dash);
+        pd->public.stroke.dash = NULL;
+        pd->public.stroke.dash_length = 0;
+        eo_do(obj,
+              eo_event_callback_call(EFL_GFX_PATH_CHANGED, NULL),
+              eo_event_callback_call(EFL_GFX_CHANGED, NULL));
+        return ;
+     }
+
+   tmp = realloc(pd->public.stroke.dash, length * sizeof (Efl_Gfx_Dash));
+   if (!tmp && length) return ;
+   memcpy(tmp, dash, length * sizeof (Efl_Gfx_Dash));
+
+   pd->public.stroke.dash = tmp;
+   pd->public.stroke.dash_length = length;
+   eo_do(obj,
+         eo_event_callback_call(EFL_GFX_PATH_CHANGED, NULL),
+         eo_event_callback_call(EFL_GFX_CHANGED, NULL));
+}
+
+static void
+_efl_gfx_shape_stroke_dash_get(Eo *obj EINA_UNUSED,
+                               Efl_Gfx_Shape_Data *pd,
+                               const Efl_Gfx_Dash **dash, unsigned int *length)
+{
+   if (dash) *dash = pd->public.stroke.dash;
+   if (length) *length = pd->public.stroke.dash_length;
+}
+
+static void
+_efl_gfx_shape_stroke_cap_set(Eo *obj EINA_UNUSED,
+                              Efl_Gfx_Shape_Data *pd,
+                              Efl_Gfx_Cap c)
+{
+   pd->public.stroke.cap = c;
+   eo_do(obj,
+         eo_event_callback_call(EFL_GFX_PATH_CHANGED, NULL),
+         eo_event_callback_call(EFL_GFX_CHANGED, NULL));
+}
+
+static Efl_Gfx_Cap
+_efl_gfx_shape_stroke_cap_get(Eo *obj EINA_UNUSED,
+                              Efl_Gfx_Shape_Data *pd)
+{
+   return pd->public.stroke.cap;
+}
+
+static void
+_efl_gfx_shape_stroke_join_set(Eo *obj EINA_UNUSED,
+                               Efl_Gfx_Shape_Data *pd,
+                               Efl_Gfx_Join j)
+{
+   pd->public.stroke.join = j;
+   eo_do(obj,
+         eo_event_callback_call(EFL_GFX_PATH_CHANGED, NULL),
+         eo_event_callback_call(EFL_GFX_CHANGED, NULL));
+}
+
+static Efl_Gfx_Join
+_efl_gfx_shape_stroke_join_get(Eo *obj EINA_UNUSED,
+                               Efl_Gfx_Shape_Data *pd)
+{
+   return pd->public.stroke.join;
+}
+
+static void
+_efl_gfx_shape_fill_rule_set(Eo *obj EINA_UNUSED,
+                             Efl_Gfx_Shape_Data *pd,
+                             Efl_Gfx_Fill_Rule fill_rule)
+{
+   pd->fill_rule = fill_rule;
+   eo_do(obj,
+         eo_event_callback_call(EFL_GFX_PATH_CHANGED, NULL),
+         eo_event_callback_call(EFL_GFX_CHANGED, NULL));
+}
+
+static Efl_Gfx_Fill_Rule
+_efl_gfx_shape_fill_rule_get(Eo *obj EINA_UNUSED,
+                             Efl_Gfx_Shape_Data *pd)
+{
+   return pd->fill_rule;
+}
+
+static void
+_efl_gfx_shape_dup(Eo *obj, Efl_Gfx_Shape_Data *pd, const Eo *dup_from)
+{
+   Efl_Gfx_Shape_Data *from;
+
+   if (obj == dup_from) return ;
+   from = eo_data_scope_get(dup_from, EFL_GFX_SHAPE_MIXIN);
+   if (!from) return ;
+
+   pd->public.stroke.scale = from->public.stroke.scale;
+   pd->public.stroke.width = from->public.stroke.width;
+   pd->public.stroke.centered = from->public.stroke.centered;
+   pd->public.stroke.cap = from->public.stroke.cap;
+   pd->public.stroke.join = from->public.stroke.join;
+   pd->public.stroke.color.r = from->public.stroke.color.r;
+   pd->public.stroke.color.g = from->public.stroke.color.g;
+   pd->public.stroke.color.b = from->public.stroke.color.b;
+   pd->public.stroke.color.a = from->public.stroke.color.a;
+   pd->fill_rule = from->fill_rule;
+   pd->convex = from->convex;
+
+   _efl_gfx_shape_stroke_dash_set(obj, pd, from->public.stroke.dash, from->public.stroke.dash_length);
+   _efl_gfx_shape_path_set(obj, pd, from->commands, from->points);
+
+   eo_do(obj,
+         eo_event_callback_call(EFL_GFX_PATH_CHANGED, NULL),
+         eo_event_callback_call(EFL_GFX_CHANGED, NULL));
 }
 
 #include "interfaces/efl_gfx_shape.eo.c"

@@ -23,8 +23,7 @@ _efl_vg_base_property_changed(void *data, Eo *obj, const Eo_Event_Description *d
    Efl_VG_Base_Data *pd = data;
    Eo *parent;
 
-   if (pd->changed) return EINA_TRUE;
-   pd->changed = EINA_TRUE;
+   if (!pd->flags) pd->flags = EFL_GFX_CHANGE_FLAG_ALL;
 
    eo_do(obj, parent = eo_parent_get());
    eo_do(parent, eo_event_callback_call(desc, event_info));
@@ -128,10 +127,14 @@ _efl_vg_base_efl_gfx_base_color_set(Eo *obj EINA_UNUSED,
                                     Efl_VG_Base_Data *pd,
                                     int r, int g, int b, int a)
 {
-   if (r > 255) r = 255; if (r < 0) r = 0;
-   if (g > 255) g = 255; if (g < 0) g = 0;
-   if (b > 255) b = 255; if (b < 0) b = 0;
-   if (a > 255) a = 255; if (a < 0) a = 0;
+   if (r > 255) r = 255;
+   if (r < 0) r = 0;
+   if (g > 255) g = 255;
+   if (g < 0) g = 0;
+   if (b > 255) b = 255;
+   if (b < 0) b = 0;
+   if (a > 255) a = 255;
+   if (a < 0) a = 0;
    if (r > a)
      {
         r = a;
@@ -271,6 +274,7 @@ _efl_vg_base_eo_base_constructor(Eo *obj,
    }
 
    eo_do(obj, eo_event_callback_add(EFL_GFX_CHANGED, _efl_vg_base_property_changed, pd));
+   pd->flags = EFL_GFX_CHANGE_FLAG_ALL;
    pd->changed = EINA_TRUE;
 
    return obj;

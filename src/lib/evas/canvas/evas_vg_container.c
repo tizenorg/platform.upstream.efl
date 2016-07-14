@@ -15,14 +15,25 @@ _efl_vg_container_render_pre(Eo *obj EINA_UNUSED,
    Efl_VG_Container_Data *pd = data;
    Eina_List *l;
    Eo *child;
+   Efl_VG_Base_Data *child_nd;
+   Efl_Gfx_Change_Flag flag;
 
-   if (!nd->changed) return ;
-   nd->changed = EINA_FALSE;
+   if (nd->flags == EFL_GFX_CHANGE_FLAG_NONE) return ;
+
+   flag = nd->flags;
+   nd->flags = EFL_GFX_CHANGE_FLAG_NONE;
 
    EFL_VG_COMPUTE_MATRIX(current, parent, nd);
 
    EINA_LIST_FOREACH(pd->children, l, child)
-     _evas_vg_render_pre(child, s, current);
+     {
+        if (flag & EFL_GFX_CHANGE_FLAG_MATRIX)
+          {
+             child_nd = eo_data_scope_get(child, EFL_VG_BASE_CLASS);
+             child_nd->flags |= EFL_GFX_CHANGE_FLAG_MATRIX;
+          }
+        _evas_vg_render_pre(child, s, current);
+     }
 }
 
 static Eo *
@@ -38,6 +49,7 @@ _efl_vg_container_eo_base_constructor(Eo *obj,
    nd = eo_data_scope_get(obj, EFL_VG_BASE_CLASS);
    nd->render_pre = _efl_vg_container_render_pre;
    nd->data = pd;
+   nd->flags = EFL_GFX_CHANGE_FLAG_ALL;
 
    return obj;
 }
@@ -103,34 +115,38 @@ _efl_vg_container_efl_vg_base_interpolate(Eo *obj,
                                           const Efl_VG_Base *from, const Efl_VG_Base *to,
                                           double pos_map)
 {
-   Efl_VG_Container_Data *fd;
-   Efl_VG_Container_Data *td;
-   Eina_Iterator *it;
-   Eina_Hash_Tuple *tuple;
-   Eina_Bool r;
+   Eina_Iterator *from_it, *to_it;
+   Eina_List *l;
+   Eina_Bool r, res = EINA_TRUE;
+   Eo *from_child, *to_child, *child;
+
+   //1. check if both the object are containers
+   if (!(eo_isa(from, EFL_VG_CONTAINER_CLASS) &&
+         eo_isa(to, EFL_VG_CONTAINER_CLASS)))
+     return EINA_FALSE;
 
    eo_do_super(obj, EFL_VG_CONTAINER_CLASS, r = efl_vg_interpolate(from, to, pos_map));
 
    if (!r) return EINA_FALSE;
 
-   fd = eo_data_scope_get(from, EFL_VG_CONTAINER_CLASS);
-   td = eo_data_scope_get(to, EFL_VG_CONTAINER_CLASS);
-
-   it = eina_hash_iterator_tuple_new(pd->names);
-   EINA_ITERATOR_FOREACH(it, tuple)
+   eo_do(from, from_it = efl_vg_container_children_get());
+   eo_do(to, to_it = efl_vg_container_children_get());
+   EINA_LIST_FOREACH (pd->children, l, child)
      {
-        Eo *fromc, *toc;
-        Eo *cc = tuple->data;
-
-        fromc = eina_hash_find(fd->names, tuple->key);
-        toc = eina_hash_find(td->names, tuple->key);
-
-        if (!toc || !fromc) continue ;
-        if (eo_class_get(toc) != eo_class_get(fromc)) continue ;
-
-        eo_do(cc, r &= efl_vg_interpolate(fromc, toc, pos_map));
+        res &= eina_iterator_next(from_it, (void **)&from_child);
+        res &= eina_iterator_next(to_it, (void **)&to_child);
+        if (!res && (eo_class_get(from_child) != eo_class_get(to_child) ||
+            (eo_class_get(child) != eo_class_get(from_child))))
+          {
+             r = EINA_FALSE;
+             break;
+          }
+        eo_do(child, r &= efl_vg_interpolate(from_child, to_child, pos_map));
+        if (!r)
+          break;
      }
-   eina_iterator_free(it);
+   eina_iterator_free(from_it);
+   eina_iterator_free(to_it);
 
    return r;
 }
@@ -155,9 +171,7 @@ _efl_vg_container_efl_vg_base_dup(Eo *obj,
      {
         // By setting parent, we automatically reference
         // this new object as a child of obj. Magic at work !
-        eo_add_ref(eo_class_get(child),
-                   obj,
-                   efl_vg_dup(child));
+        (void) eo_add(eo_class_get(child), obj, efl_vg_dup(child));
      }
 }
 

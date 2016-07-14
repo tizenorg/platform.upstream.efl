@@ -123,6 +123,7 @@ typedef enum _Efl_Gfx_Gradient_Spread
   EFL_GFX_GRADIENT_SPREAD_LAST /**< End of enum value */
 } Efl_Gfx_Gradient_Spread;
 
+
 /**
  * Type defining how an image content get filled.
  * @since 1.14
@@ -137,10 +138,88 @@ typedef enum _Efl_Gfx_Fill_Spread
   EFL_GFX_FILL_PAD = 5 /**< tiling extends with end values */
 } Efl_Gfx_Fill_Spread;
 
+/** Type defining how an image content get filled.
+ *
+ * @since 1.14
+ *
+ * @ingroup Efl_Gfx_Fill
+ */
+typedef enum
+{
+  EFL_GFX_FILL_RULE_WINDING = 0, /** Draw a horizontal line from the point to a
+                                  * location outside the shape. Determine
+                                  * whether the direction of the line at each
+                                  * intersection point is up or down. The
+                                  * winding number is determined by summing the
+                                  * direction of each intersection. If the
+                                  * number is non zero, the point is inside the
+                                  * shape. This mode is the default */
+  EFL_GFX_FILL_RULE_ODD_EVEN = 1 /** Draw a horizontal line from the point to a
+                                  * location outside the shape, and count the
+                                  * number of intersections. If the number of
+                                  * intersections is an odd number, the point
+                                  * is inside the shape. */
+} Efl_Gfx_Fill_Rule;
+
+/** Internal structure for @ref Efl_Gfx_Stroke.
+ *
+ * @ingroup Efl_Gfx_Stroke
+ */
+typedef struct _Efl_Gfx_Stroke_Color
+{
+  int r;
+  int g;
+  int b;
+  int a;
+} Efl_Gfx_Stroke_Color;
+
+/**
+ * Type defining stroke information.
+ * @note Describe the properties to define the path stroke.
+ * @since 1.14
+ */
+typedef struct _Efl_Gfx_Stroke Efl_Gfx_Stroke;
+struct _Efl_Gfx_Stroke
+{
+  double scale;
+  double width;
+  double centered;
+
+  struct {
+     int r, g, b, a;
+  } color;
+
+  Efl_Gfx_Dash *dash;
+  unsigned int dash_length;
+
+  Efl_Gfx_Cap cap;
+  Efl_Gfx_Join join;
+};
+
+typedef struct _Efl_Gfx_Shape_Public Efl_Gfx_Shape_Public;
+struct _Efl_Gfx_Shape_Public
+{
+   Efl_Gfx_Stroke stroke;
+};
+
+/** What property got changed for this object
+ *
+ * @since 1.18
+ *
+ * @ingroup Efl_Gfx_Change
+ */
+typedef enum
+{
+  EFL_GFX_CHANGE_FLAG_NONE = 0, /** No change */
+  EFL_GFX_CHANGE_FLAG_MATRIX = 1, /** matrix got changed */
+  EFL_GFX_CHANGE_FLAG_PATH = 2, /** path got changes */
+  EFL_GFX_CHANGE_FLAG_ALL = -1 /** all property got changed */
+} Efl_Gfx_Change_Flag;
+
 #ifdef EFL_BETA_API_SUPPORT
 
 #include <Efl_Model_Common.h>
-  
+
 /* Interfaces */
 #include "interfaces/efl_control.eo.h"
 #include "interfaces/efl_file.eo.h"

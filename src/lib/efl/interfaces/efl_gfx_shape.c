@@ -283,18 +283,21 @@ typedef struct _Efl_Gfx_Property Efl_Gfx_Property;
 struct _Efl_Gfx_Property
 {
    double scale;
-   int r, g, b, a;
-   int fr, fg, fb, fa; 
    double w;
    double centered;
-   const Efl_Gfx_Dash *dash;
-   unsigned int dash_length;
+
    Efl_Gfx_Cap c;
    Efl_Gfx_Join j;
+
+   const Efl_Gfx_Dash *dash;
+   unsigned int dash_length;
+
+   int r, g, b, a;
+   int fr, fg, fb, fa;
 };
 
 static inline void
-gfx_property_get(const Eo *obj, Efl_Gfx_Property *property)
+_efl_gfx_property_get(const Eo *obj, Efl_Gfx_Property *property)
 {
    eo_do(obj,
          property->scale = efl_gfx_shape_stroke_scale_get(),
@@ -313,10 +316,10 @@ _efl_gfx_shape_interpolate(Eo *obj, Efl_Gfx_Shape_Data *pd,
 {
    Efl_Gfx_Shape_Data *from_pd, *to_pd;
    Efl_Gfx_Path_Command *cmds;
-   double *pts, *from_pts, *to_pts;
-   unsigned int i, j;
    Efl_Gfx_Property property_from, property_to;
    Efl_Gfx_Dash *dash = NULL;
+   double *pts;
+   unsigned int i, j;
 
    from_pd = eo_data_scope_get(from, EFL_GFX_SHAPE_MIXIN);
    to_pd = eo_data_scope_get(to, EFL_GFX_SHAPE_MIXIN);
@@ -326,8 +329,8 @@ _efl_gfx_shape_interpolate(Eo *obj, Efl_Gfx_Shape_Data *pd,
    if (!_efl_gfx_shape_equal_commands_internal(from_pd, to_pd))
      return EINA_FALSE;
 
-   gfx_property_get(from, &property_from);
-   gfx_property_get(to, &property_to);
+   _efl_gfx_property_get(from, &property_from);
+   _efl_gfx_property_get(to, &property_to);
 
    if (property_from.dash_length != property_to.dash_length) return EINA_FALSE;
 
@@ -346,18 +349,21 @@ _efl_gfx_shape_interpolate(Eo *obj, Efl_Gfx_Shape_Data *pd,
         memcpy(cmds, from_pd->commands,
                sizeof (Efl_Gfx_Path_Command) * from_pd->commands_count);
 
-        to_pts = to_pd->points;
-        from_pts = from_pd->points;
+        if (pts)
+          {
+             double *to_pts = to_pd->points;
+             double *from_pts = from_pd->points;
 
-        for (i = 0; cmds[i] != EFL_GFX_PATH_COMMAND_TYPE_END; i++)
-          for (j = 0; j < _efl_gfx_path_command_length(cmds[i]); j++)
-            {
-               *pts = interpolate(*from_pts, *to_pts, pos_map);
+             for (i = 0; cmds[i] != EFL_GFX_PATH_COMMAND_TYPE_END; i++)
+               for (j = 0; j < _efl_gfx_path_command_length(cmds[i]); j++)
+                 {
+                    *pts = interpolate(*from_pts, *to_pts, pos_map);
 
-               pts++;
-               from_pts++;
-               to_pts++;
-            }
+                    pts++;
+                    from_pts++;
+                    to_pts++;
+                 }
+          }
      }
 
    pd->points_count = from_pd->points_count;
@@ -531,9 +537,9 @@ _efl_gfx_shape_append_line_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
 
 static void
 _efl_gfx_shape_append_cubic_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
-                               double x, double y,
                                double ctrl_x0, double ctrl_y0,
-                               double ctrl_x1, double ctrl_y1)
+                               double ctrl_x1, double ctrl_y1,
+                               double x, double y)
 {
    double *offset_point;
 
@@ -541,12 +547,12 @@ _efl_gfx_shape_append_cubic_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
                           pd, &offset_point))
      return ;
 
-   offset_point[0] = x;
-   offset_point[1] = y;
-   offset_point[2] = ctrl_x0;
-   offset_point[3] = ctrl_y0;
-   offset_point[4] = ctrl_x1;
-   offset_point[5] = ctrl_y1;
+   offset_point[0] = ctrl_x0;
+   offset_point[1] = ctrl_y0;
+   offset_point[2] = ctrl_x1;
+   offset_point[3] = ctrl_y1;
+   offset_point[4] = x;
+   offset_point[5] = y;
 
    pd->current.x = x;
    pd->current.y = y;
@@ -568,15 +574,26 @@ _efl_gfx_shape_append_scubic_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
    double current_ctrl_x = 0, current_ctrl_y = 0;
 
    current_x = pd->current.x;
-   current_y = pd->current.x;
+   current_y = pd->current.y;
    current_ctrl_x = pd->current_ctrl.x;
    current_ctrl_y = pd->current_ctrl.y;
+   // if previous command is cubic then use reflection point of current control point
+   // as the first control point
+   if ((pd->commands_count > 1) &&
+       (pd->commands[pd->commands_count-2] == EFL_GFX_PATH_COMMAND_TYPE_CUBIC_TO))
+     {
+        ctrl_x0 = 2 * current_x - current_ctrl_x;
+        ctrl_y0 = 2 * current_y - current_ctrl_y;
+     }
+   else
+     {
+        // use currnt point as the 1st control point
+        ctrl_x0 = current_x;
+        ctrl_y0 = current_y;
+     }
 
-   ctrl_x0 = 2 * current_x - current_ctrl_x;
-   ctrl_y0 = 2 * current_y - current_ctrl_y;
-
-   _efl_gfx_shape_append_cubic_to(obj, pd, x, y,
-                                  ctrl_x0, ctrl_y0, ctrl_x, ctrl_y);
+   _efl_gfx_shape_append_cubic_to(obj, pd, ctrl_x0, ctrl_y0,
+                                  ctrl_x, ctrl_y, x, y);
 }
 
 static void
@@ -596,8 +613,8 @@ _efl_gfx_shape_append_quadratic_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
    ctrl_x1 = (x + 2 * ctrl_x) * (1.0 / 3.0);
    ctrl_y1 = (y + 2 * ctrl_y) * (1.0 / 3.0);
 
-   _efl_gfx_shape_append_cubic_to(obj, pd, x, y,
-                                  ctrl_x0, ctrl_y0, ctrl_x1, ctrl_y1);
+   _efl_gfx_shape_append_cubic_to(obj, pd, ctrl_x0, ctrl_y0,
+                                  ctrl_x1, ctrl_y1, x, y);
 }
 
 static void
@@ -610,7 +627,7 @@ _efl_gfx_shape_append_squadratic_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
    double current_ctrl_x = 0, current_ctrl_y = 0;
 
    current_x = pd->current.x;
-   current_y = pd->current.x;
+   current_y = pd->current.y;
    current_ctrl_x = pd->current_ctrl.x;
    current_ctrl_y = pd->current_ctrl.y;
 
@@ -622,9 +639,9 @@ _efl_gfx_shape_append_squadratic_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
    ctrl_x1 = (x + 2 * xc) * (1.0 / 3.0);
    ctrl_y1 = (y + 2 * yc) * (1.0 / 3.0);
 
-   _efl_gfx_shape_append_cubic_to(obj, pd, x, y,
-                                  ctrl_x0, ctrl_y0,
-                                  ctrl_x1, ctrl_y1);
+   _efl_gfx_shape_append_cubic_to(obj, pd, ctrl_x0, ctrl_y0,
+                                  ctrl_x1, ctrl_y1,
+                                   x, y);
 }
 
 /*
@@ -803,7 +820,7 @@ _efl_gfx_shape_append_arc_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
         c2x = ex + bcp * (cos_phi_rx * sin_theta2 + sin_phi_ry * cos_theta2);
         c2y = ey + bcp * (sin_phi_rx * sin_theta2 - cos_phi_ry * cos_theta2);
 
-        _efl_gfx_shape_append_cubic_to(obj, pd, ex, ey, c1x, c1y, c2x, c2y);
+        _efl_gfx_shape_append_cubic_to(obj, pd, c1x, c1y, c2x, c2y, ex, ey);
 
         // next start point is the current end point (same for angle)
         sx = ex;
@@ -816,77 +833,18 @@ _efl_gfx_shape_append_arc_to(Eo *obj, Efl_Gfx_Shape_Data *pd,
 }
 
 // append arc implementation
-typedef struct _Bezier
-{
-   double x1, y1, x2, y2, x3, y3, x4, y4;
-}Bezier;
-
 typedef struct _Point
 {
    double x;
    double y;
-}Point;
-
-static
-Bezier bezier_from_points(Point p1, Point p2,
-                          Point p3, Point p4)
-{
-   Bezier b;
-   b.x1 = p1.x;
-   b.y1 = p1.y;
-   b.x2 = p2.x;
-   b.y2 = p2.y;
-   b.x3 = p3.x;
-   b.y3 = p3.y;
-   b.x4 = p4.x;
-   b.y4 = p4.y;
-   return b;
-}
+} Point;
 
 inline static void
-parameter_split_left(Bezier *b, double t, Bezier *left)
-{
-   left->x1 = b->x1;
-   left->y1 = b->y1;
-
-   left->x2 = b->x1 + t * ( b->x2 - b->x1 );
-   left->y2 = b->y1 + t * ( b->y2 - b->y1 );
-
-   left->x3 = b->x2 + t * ( b->x3 - b->x2 ); // temporary holding spot
-   left->y3 = b->y2 + t * ( b->y3 - b->y2 ); // temporary holding spot
-
-   b->x3 = b->x3 + t * ( b->x4 - b->x3 );
-   b->y3 = b->y3 + t * ( b->y4 - b->y3 );
-
-   b->x2 = left->x3 + t * ( b->x3 - left->x3);
-   b->y2 = left->y3 + t * ( b->y3 - left->y3);
-
-   left->x3 = left->x2 + t * ( left->x3 - left->x2 );
-   left->y3 = left->y2 + t * ( left->y3 - left->y2 );
-
-   left->x4 = b->x1 = left->x3 + t * (b->x2 - left->x3);
-   left->y4 = b->y1 = left->y3 + t * (b->y2 - left->y3);
-}
-
-static
-Bezier bezier_on_interval(Bezier *b, double t0, double t1)
-{
-   if (t0 == 0 && t1 == 1)
-     return *b;
-
-   Bezier result;
-   parameter_split_left(b, t0, &result);
-   double trueT = (t1-t0)/(1-t0);
-   parameter_split_left(b, trueT, &result);
-
-   return result;
-}
-
-inline static void
-_efl_gfx_bezier_coefficients(double t, double *ap, double *bp, double *cp, double *dp)
+_bezier_coefficients(double t, double *ap, double *bp, double *cp, double *dp)
 {
    double a,b,c,d;
    double m_t = 1. - t;
+
    b = m_t * m_t;
    c = t * t;
    d = c * t;
@@ -903,37 +861,39 @@ _efl_gfx_bezier_coefficients(double t, double *ap, double *bp, double *cp, doubl
 static double
 _efl_gfx_t_for_arc_angle(double angle)
 {
+   double radians, cos_angle, sin_angle, tc, ts, t;
+
    if (angle < 0.00001)
      return 0;
 
    if (angle == 90.0)
      return 1;
 
-   double radians = M_PI * angle / 180;
-   double cosAngle = cos(radians);
-   double sinAngle = sin(radians);
+   radians = M_PI * angle / 180;
+   cos_angle = cos(radians);
+   sin_angle = sin(radians);
 
    // initial guess
-   double tc = angle / 90;
-   // do some iterations of newton's method to approximate cosAngle
-   // finds the zero of the function b.pointAt(tc).x() - cosAngle
-   tc -= ((((2-3*PATH_KAPPA) * tc + 3*(PATH_KAPPA-1)) * tc) * tc + 1 - cosAngle) // value
+   tc = angle / 90;
+   // do some iterations of newton's method to approximate cos_angle
+   // finds the zero of the function b.pointAt(tc).x() - cos_angle
+   tc -= ((((2-3*PATH_KAPPA) * tc + 3*(PATH_KAPPA-1)) * tc) * tc + 1 - cos_angle) // value
    / (((6-9*PATH_KAPPA) * tc + 6*(PATH_KAPPA-1)) * tc); // derivative
-   tc -= ((((2-3*PATH_KAPPA) * tc + 3*(PATH_KAPPA-1)) * tc) * tc + 1 - cosAngle) // value
+   tc -= ((((2-3*PATH_KAPPA) * tc + 3*(PATH_KAPPA-1)) * tc) * tc + 1 - cos_angle) // value
    / (((6-9*PATH_KAPPA) * tc + 6*(PATH_KAPPA-1)) * tc); // derivative
 
    // initial guess
-   double ts = tc;
-   // do some iterations of newton's method to approximate sinAngle
-   // finds the zero of the function b.pointAt(tc).y() - sinAngle
-   ts -= ((((3*PATH_KAPPA-2) * ts -  6*PATH_KAPPA + 3) * ts + 3*PATH_KAPPA) * ts - sinAngle)
+   ts = tc;
+   // do some iterations of newton's method to approximate sin_angle
+   // finds the zero of the function b.pointAt(tc).y() - sin_angle
+   ts -= ((((3*PATH_KAPPA-2) * ts -  6*PATH_KAPPA + 3) * ts + 3*PATH_KAPPA) * ts - sin_angle)
    / (((9*PATH_KAPPA-6) * ts + 12*PATH_KAPPA - 6) * ts + 3*PATH_KAPPA);
-   ts -= ((((3*PATH_KAPPA-2) * ts -  6*PATH_KAPPA + 3) * ts + 3*PATH_KAPPA) * ts - sinAngle)
+   ts -= ((((3*PATH_KAPPA-2) * ts -  6*PATH_KAPPA + 3) * ts + 3*PATH_KAPPA) * ts - sin_angle)
    / (((9*PATH_KAPPA-6) * ts + 12*PATH_KAPPA - 6) * ts + 3*PATH_KAPPA);
 
-   // use the average of the t that best approximates cosAngle
-   // and the t that best approximates sinAngle
-   double t = 0.5 * (tc + ts);
+   // use the average of the t that best approximates cos_angle
+   // and the t that best approximates sin_angle
+   t = 0.5 * (tc + ts);
    return t;
 }
 
@@ -941,7 +901,14 @@ static void
 _find_ellipse_coords(double x, double y, double w, double h, double angle, double length,
                      Point* start_point, Point *end_point)
 {
-   if (!w || !h )
+   int i, quadrant;
+   double theta, t, a, b, c, d, px, py, cx, cy;
+   double w2 = w / 2;
+   double h2 = h / 2;
+   double angles[2] = { angle, angle + length };
+   Point *points[2];
+
+   if (!w || !h)
      {
         if (start_point)
           start_point->x = 0 , start_point->y = 0;
@@ -950,21 +917,17 @@ _find_ellipse_coords(double x, double y, double w, double h, double angle, doubl
         return;
      }
 
-   double w2 = w / 2;
-   double h2 = h / 2;
-
-   double angles[2] = { angle, angle + length };
-   Point *points[2] = { start_point, end_point };
-   int i =0;
+   points[0] = start_point;
+   points[1] = end_point;
    for (i = 0; i < 2; ++i)
      {
         if (!points[i])
           continue;
 
-        double theta = angles[i] - 360 * floor(angles[i] / 360);
-        double t = theta / 90;
+        theta = angles[i] - 360 * floor(angles[i] / 360);
+        t = theta / 90;
         // truncate
-        int quadrant = (int)t;
+        quadrant = (int)t;
         t -= quadrant;
 
         t = _efl_gfx_t_for_arc_angle(90 * t);
@@ -973,10 +936,9 @@ _find_ellipse_coords(double x, double y, double w, double h, double angle, doubl
         if (quadrant & 1)
           t = 1 - t;
 
-        double a, b, c, d;
-        _efl_gfx_bezier_coefficients(t, &a, &b, &c, &d);
-        double px = a + b + c*PATH_KAPPA;
-        double py = d + c + b*PATH_KAPPA;
+        _bezier_coefficients(t, &a, &b, &c, &d);
+        px = a + b + c*PATH_KAPPA;
+        py = d + c + b*PATH_KAPPA;
 
         // left quadrants
         if (quadrant == 1 || quadrant == 2)
@@ -985,23 +947,26 @@ _find_ellipse_coords(double x, double y, double w, double h, double angle, doubl
         // top quadrants
         if (quadrant == 0 || quadrant == 1)
           py = -py;
-        double cx = x+w/2;
-        double cy = y+h/2;
+        cx = x+w/2;
+        cy = y+h/2;
         points[i]->x = cx + w2 * px;
         points[i]->y = cy + h2 * py;
      }
 }
 
-//// The return value is the starting point of the arc
-static
-Point _curves_for_arc(double x, double y, double w, double h,
-                      double start_angle, double sweep_length,
-                      Point *curves, int *point_count)
+// The return value is the starting point of the arc
+static Point
+_curves_for_arc(double x, double y, double w, double h,
+                double start_angle, double sweep_length,
+                Point *curves, int *point_count)
 {
-   *point_count = 0;
+   int start_segment, end_segment, delta, i, j, end, quadrant;
+   double start_t, end_t;
+   Eina_Bool split_at_start, split_at_end;
+   Eina_Bezier b, res;
+   Point start_point, end_point;
    double w2 = w / 2;
    double w2k = w2 * PATH_KAPPA;
-
    double h2 = h / 2;
    double h2k = h2 * PATH_KAPPA;
 
@@ -1031,6 +996,8 @@ Point _curves_for_arc(double x, double y, double w, double h,
    { x + w, y + h2 }
    };
 
+   *point_count = 0;
+
    if (sweep_length > 360) sweep_length = 360;
    else if (sweep_length < -360) sweep_length = -360;
 
@@ -1039,27 +1006,25 @@ Point _curves_for_arc(double x, double y, double w, double h,
      {
         if (sweep_length == 360)
           {
-             int i;
              for (i = 11; i >= 0; --i)
                curves[(*point_count)++] = points[i];
              return points[12];
           }
         else if (sweep_length == -360)
           {
-             int i ;
              for (i = 1; i <= 12; ++i)
                curves[(*point_count)++] = points[i];
              return points[0];
           }
      }
 
-   int start_segment = (int)(floor(start_angle / 90));
-   int end_segment = (int)(floor((start_angle + sweep_length) / 90));
+   start_segment = (int)(floor(start_angle / 90));
+   end_segment = (int)(floor((start_angle + sweep_length) / 90));
 
-   double start_t = (start_angle - start_segment * 90) / 90;
-   double end_t = (start_angle + sweep_length - end_segment * 90) / 90;
+   start_t = (start_angle - start_segment * 90) / 90;
+   end_t = (start_angle + sweep_length - end_segment * 90) / 90;
 
-   int delta = sweep_length > 0 ? 1 : -1;
+   delta = sweep_length > 0 ? 1 : -1;
    if (delta < 0)
      {
         start_t = 1 - start_t;
@@ -1083,56 +1048,60 @@ Point _curves_for_arc(double x, double y, double w, double h,
    start_t = _efl_gfx_t_for_arc_angle(start_t * 90);
    end_t = _efl_gfx_t_for_arc_angle(end_t * 90);
 
-   Eina_Bool split_at_start = !(fabs(start_t) <= 0.00001f);
-   Eina_Bool split_at_end = !(fabs(end_t - 1.0) <= 0.00001f);
+   split_at_start = !(fabs(start_t) <= 0.00001f);
+   split_at_end = !(fabs(end_t - 1.0) <= 0.00001f);
 
-   const int end = end_segment + delta;
+   end = end_segment + delta;
 
    // empty arc?
    if (start_segment == end)
      {
-        const int quadrant = 3 - ((start_segment % 4) + 4) % 4;
-        const int j = 3 * quadrant;
+        quadrant = 3 - ((start_segment % 4) + 4) % 4;
+        j = 3 * quadrant;
         return delta > 0 ? points[j + 3] : points[j];
      }
 
-   Point start_point, end_point;
    _find_ellipse_coords(x, y, w, h, start_angle, sweep_length, &start_point, &end_point);
-   int i;
    for (i = start_segment; i != end; i += delta)
      {
-        const int quadrant = 3 - ((i % 4) + 4) % 4;
-        const int j = 3 * quadrant;
+        quadrant = 3 - ((i % 4) + 4) % 4;
+        j = 3 * quadrant;
 
-        Bezier b;
         if (delta > 0)
-            b = bezier_from_points(points[j + 3], points[j + 2], points[j + 1], points[j]);
+          eina_bezier_values_set(&b, points[j + 3].x, points[j + 3].y,
+                                 points[j + 2].x, points[j + 2].y,
+                                 points[j + 1].x, points[j + 1].y,
+                                 points[j].x, points[j].y);
         else
-            b = bezier_from_points(points[j], points[j + 1], points[j + 2], points[j + 3]);
+          eina_bezier_values_set(&b, points[j].x, points[j].y,
+                                 points[j + 1].x, points[j + 1].y,
+                                 points[j + 2].x, points[j + 2].y,
+                                 points[j + 3].x, points[j + 3].y);
 
         // empty arc?
         if (start_segment == end_segment && (start_t == end_t))
             return start_point;
 
+        res = b;
         if (i == start_segment)
           {
              if (i == end_segment && split_at_end)
-               b = bezier_on_interval(&b, start_t, end_t);
-            else if (split_at_start)
-              b = bezier_on_interval(&b, start_t, 1);
+               eina_bezier_on_interval(&b, start_t, end_t, &res);
+             else if (split_at_start)
+               eina_bezier_on_interval(&b, start_t, 1, &res);
           }
         else if (i == end_segment && split_at_end)
           {
-             b = bezier_on_interval(&b, 0, end_t);
+             eina_bezier_on_interval(&b, 0, end_t, &res);
           }
 
         // push control points
-        curves[(*point_count)].x = b.x2;
-        curves[(*point_count)++].y = b.y2;
-        curves[(*point_count)].x = b.x3;
-        curves[(*point_count)++].y = b.y3;
-        curves[(*point_count)].x = b.x4;
-        curves[(*point_count)++].y = b.y4;
+        curves[(*point_count)].x = res.ctrl_start.x;
+        curves[(*point_count)++].y = res.ctrl_start.y;
+        curves[(*point_count)].x = res.ctrl_end.x;
+        curves[(*point_count)++].y = res.ctrl_end.y;
+        curves[(*point_count)].x = res.end.x;
+        curves[(*point_count)++].y = res.end.y;
      }
 
    curves[*(point_count)-1] = end_point;
@@ -1145,21 +1114,21 @@ _efl_gfx_shape_append_arc(Eo *obj, Efl_Gfx_Shape_Data *pd,
                           double x, double y, double w, double h,
                           double start_angle, double sweep_length)
 {
-   int point_count;
+   int i, point_count;
    Point pts[15];
 
    Point curve_start = _curves_for_arc(x, y, w, h, start_angle, sweep_length, pts, &point_count);
-   int i;
-   if (pd->commands_count)
+
+   if (pd->commands_count && (pd->commands[pd->commands_count-2] != EFL_GFX_PATH_COMMAND_TYPE_CLOSE))
      _efl_gfx_shape_append_line_to(obj, pd, curve_start.x, curve_start.y);
    else
      _efl_gfx_shape_append_move_to(obj, pd, curve_start.x, curve_start.y);
    for (i = 0; i < point_count; i += 3)
      {
         _efl_gfx_shape_append_cubic_to(obj, pd,
-                                       pts[i+2].x, pts[i+2].y,
                                        pts[i].x, pts[i].y,
-                                       pts[i+1].x, pts[i+1].y);
+                                       pts[i+1].x, pts[i+1].y,
+                                       pts[i+2].x, pts[i+2].y);
      }
 }
 
@@ -1180,7 +1149,10 @@ static void
 _efl_gfx_shape_append_circle(Eo *obj, Efl_Gfx_Shape_Data *pd,
                              double xc, double yc, double radius)
 {
+   Eina_Bool first = (pd->commands_count <= 0);
    _efl_gfx_shape_append_arc(obj, pd, xc - radius, yc - radius, 2*radius, 2*radius, 0, 360);
+   _efl_gfx_shape_append_close(obj, pd);
+
 }
 
 static void
@@ -1188,16 +1160,22 @@ _efl_gfx_shape_append_rect(Eo *obj, Efl_Gfx_Shape_Data *pd,
                            double x, double y, double w, double h,
                            double rx, double ry)
 {
-   if (!rx || !ry)
-     {
-         _efl_gfx_shape_append_move_to(obj, pd, x, y);
-         _efl_gfx_shape_append_line_to(obj, pd, x + w, y);
-         _efl_gfx_shape_append_line_to(obj, pd, x + w, y + h);
-         _efl_gfx_shape_append_line_to(obj, pd, x, y + h);
-         _efl_gfx_shape_append_close(obj, pd);
+   Eina_Bool first = (pd->commands_count <= 0);
+   // check for invalid rectangle
+   if (w <=0 || h<= 0)
+     return;
 
+   if (rx <=0 || ry<=0)
+     {
+         // add a normal rect.
+         _efl_gfx_shape_append_move_to(obj, pd, x, y);
+         _efl_gfx_shape_append_line_to(obj, pd, x, y + h);
+         _efl_gfx_shape_append_line_to(obj, pd, x + w, y + h);
+         _efl_gfx_shape_append_line_to(obj, pd, x + w, y);
+         _efl_gfx_shape_append_close(obj, pd);
          return;
      }
+
    // clamp the rx and ry radius value.
    rx = 2*rx;
    ry = 2*ry;
@@ -1205,10 +1183,10 @@ _efl_gfx_shape_append_rect(Eo *obj, Efl_Gfx_Shape_Data *pd,
    if (ry > h) ry = h;
 
    _efl_gfx_shape_append_move_to(obj, pd, x, y + h/2);
-   _efl_gfx_shape_append_arc(obj, pd, x, y, rx, ry, 180, -90);
-   _efl_gfx_shape_append_arc(obj, pd, x + w - rx, y, rx, ry, 90, -90);
-   _efl_gfx_shape_append_arc(obj, pd, x + w - rx, y + h - ry, rx, ry, 0, -90);
-   _efl_gfx_shape_append_arc(obj, pd, x, y + h - ry, rx, ry, 270, -90);
+   _efl_gfx_shape_append_arc(obj, pd, x, y + h - ry, rx, ry, 180, 90);
+   _efl_gfx_shape_append_arc(obj, pd, x + w - rx, y + h - ry, rx, ry, 270, 90);
+   _efl_gfx_shape_append_arc(obj, pd, x + w - rx, y, rx, ry, 0, 90);
+   _efl_gfx_shape_append_arc(obj, pd, x, y, rx, ry, 90, 90);
    _efl_gfx_shape_append_close(obj, pd);
 }
 
@@ -1360,7 +1338,7 @@ static Eina_Bool
 _efl_gfx_path_parse_six_to(const char *content, char **end,
                            Eo *obj, Efl_Gfx_Shape_Data *pd,
                            double *current_x, double *current_y,
-                           void (*func)(Eo *obj, Efl_Gfx_Shape_Data *pd, double x, double y, double ctrl_x0, double ctrl_y0, double ctrl_x1, double ctrl_y1),
+                           void (*func)(Eo *obj, Efl_Gfx_Shape_Data *pd, double ctrl_x0, double ctrl_y0, double ctrl_x1, double ctrl_y1, double x, double y),
                            Eina_Bool rel)
 {
    double x, y, ctrl_x0, ctrl_y0, ctrl_x1, ctrl_y1;
@@ -1385,7 +1363,7 @@ _efl_gfx_path_parse_six_to(const char *content, char **end,
              ctrl_x1 += *current_x;
              ctrl_y1 += *current_y;
           }
-        func(obj, pd, x, y, ctrl_x0, ctrl_y0, ctrl_x1, ctrl_y1);
+        func(obj, pd, ctrl_x0, ctrl_y0, ctrl_x1, ctrl_y1, x, y);
         content = *end;
 
         *current_x = x;
@@ -1438,8 +1416,9 @@ _efl_gfx_path_parse_quad_to(const char *content, char **end,
           {
              x += *current_x;
              y += *current_y;
+             ctrl_x0 += *current_x;
+             ctrl_y0 += *current_y;
           }
-
         func(obj, pd, x, y, ctrl_x0, ctrl_y0);
         content = *end;
 

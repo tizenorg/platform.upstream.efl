@@ -155,19 +155,21 @@ mixin Efl.Gfx.Shape
         }
       }
       @property current {
+        [[Current point coordinates]]
         get {
         }
         values {
-          x: double;
-          y: double;
+          x: double; [[X co-ordinate of the current point.]]
+          y: double; [[Y co-ordinate of the current point.]]
         }
       }
       @property current_ctrl {
+        [[Current control point coordinates]]
         get {
         }
         values {
-          x: double;
-          y: double;
+          x: double; [[X co-ordinate of control point.]]
+          y: double; [[Y co-ordinate of control point.]]
         }
       }
       dup {
@@ -208,7 +210,7 @@ mixin Efl.Gfx.Shape
         }
       }
       append_line_to {
-        [[Adds a straight line from the current position to the given endPoint.
+        [[Adds a straight line from the current position to the given end point.
           After the line is drawn, the current position is updated to be at the
           end point of the line.
 
@@ -261,12 +263,12 @@ mixin Efl.Gfx.Shape
           @since 1.14
         ]]
         params {
-          @in x: double; [[X co-ordinate of end point of the line.]]
-          @in y: double; [[Y co-ordinate of end point of the line.]]
           @in ctrl_x0: double; [[X co-ordinate of 1st control point.]]
           @in ctrl_y0: double; [[Y co-ordinate of 1st control point.]]
           @in ctrl_x1: double; [[X co-ordinate of 2nd control point.]]
           @in ctrl_y1: double; [[Y co-ordinate of 2nd control point.]]
+          @in x: double; [[X co-ordinate of end point of the line.]]
+          @in y: double; [[Y co-ordinate of end point of the line.]]
         }
       }
       append_scubic_to {
@@ -290,7 +292,7 @@ mixin Efl.Gfx.Shape
           x-direction (rx) and radius in y direction (ry).
 
           Use this api if you know the end point's of the arc otherwise use
-          more convenient function @.append_arc_to.
+          more convenient function @.append_arc.
 
           @since 1.14
         ]]
@@ -312,14 +314,14 @@ mixin Efl.Gfx.Shape
         [[Append an arc that enclosed in the given rectangle (x, y, w, h).
           The angle is defined in counter clock wise , use -ve angle for clockwise arc.
 
-          @since 1.14
+          @since 1.18
         ]]
         params {
-          @in x: double; [[@ X co-ordinate of the rect.]]
-          @in y: double; [[@ Y co-ordinate of the rect.]]
-          @in w: double; [[@ width of the rect.]]
-          @in h: double; [[@ height of the rect.]]
-          @in start_angle: double; [[@ Angle at which the arc will start]]
+          @in x: double; [[X co-ordinate of the rect.]]
+          @in y: double; [[Y co-ordinate of the rect.]]
+          @in w: double; [[width of the rect.]]
+          @in h: double; [[height of the rect.]]
+          @in start_angle: double; [[Angle at which the arc will start]]
           @in sweep_length: double; [[@ Length of the arc.]]
         }
       }

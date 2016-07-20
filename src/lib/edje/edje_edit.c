@@ -12233,6 +12233,7 @@ edje_edit_source_generate(Evas_Object *obj)
         BUF_APPEND(I0 "}\n\n");
      }
 
+   /*
    if (ed->file->text_classes)
      {
         BUF_APPEND(I0 "text_classes {\n");
@@ -12270,6 +12271,7 @@ edje_edit_source_generate(Evas_Object *obj)
 
         BUF_APPEND(I0 "}\n\n");
      }
+   */
 
    /* if images were found, print them */
    if (images || images_set)
@@ -12398,6 +12400,7 @@ edje_edit_source_generate(Evas_Object *obj)
 
 #undef COLLECT_RESOURCE
 
+/*
 static Eina_Bool
 _edje_generate_source_of_sizeclass(Edje *ed, const char *name, Eina_Strbuf *buf)
 {
@@ -12441,6 +12444,7 @@ _edje_generate_source_of_textclass(Edje *ed, const char *name, Eina_Strbuf *buf)
 
    return ret;
 }
+*/
 
 static Eina_Bool
 _edje_generate_source_of_colorclass(Edje *ed, const char *name, Eina_Strbuf *buf)
@@ -14146,10 +14150,12 @@ _edje_common_desc_diff_calculate(Edje_Part_Description_Common *ed,
                     (ed->color_class != NULL && inherit_pd->color_class != NULL &&
                      strcmp(ed->color_class, inherit_pd->color_class))) ? 1 : 0;
    diffs_amount += (ed->clip_to_id != inherit_pd->clip_to_id) ? 1 : 0;
+   /*
    diffs_amount += ((ed->size_class != NULL && inherit_pd->size_class == NULL) ||
                     (ed->size_class == NULL && inherit_pd->size_class != NULL) ||
                     (ed->size_class != NULL && inherit_pd->size_class != NULL &&
                      strcmp(ed->size_class, inherit_pd->size_class))) ? 1 : 0;
+   */
 
    /*Rel1 block*/
    diffs_amount += ((ed->rel1.relative_x != inherit_pd->rel1.relative_x) ||
@@ -14223,10 +14229,12 @@ _edje_text_desc_diff_calculate(Edje_Part_Description_Common *ed, Edje_Part_Descr
                     (ed_text->text.domain != NULL && inherit_pd_text->text.domain != NULL &&
                      strcmp(ed_text->text.domain, inherit_pd_text->text.domain))) ? 1 : 0;
 
+   /*
    diffs_amount += ((ed_text->text.text_class != NULL && inherit_pd_text->text.text_class == NULL) ||
                     (ed_text->text.text_class == NULL && inherit_pd_text->text.text_class != NULL) ||
                     (ed_text->text.text_class != NULL && inherit_pd_text->text.text_class != NULL &&
                      strcmp(ed_text->text.text_class, inherit_pd_text->text.text_class))) ? 1 : 0;
+   */
 
    diffs_amount += ((ed_text->text.font.str == NULL && inherit_pd_text->text.font.str != NULL) ||
                     (ed_text->text.font.str != NULL && inherit_pd_text->text.font.str == NULL) ||
@@ -14385,7 +14393,7 @@ _edje_generate_source_of_state(Evas_Object *obj, const char *part, const char *s
    Eina_Bool color_class = EINA_FALSE;
    Eina_Bool align = EINA_FALSE;
    Eina_Bool fixed = EINA_FALSE;
-   Eina_Bool size_class = EINA_FALSE;
+   /* Eina_Bool size_class = EINA_FALSE; */
    Eina_Bool minmul = EINA_FALSE;
    Eina_Bool min = EINA_FALSE, min_source = EINA_FALSE;
    Eina_Bool max = EINA_FALSE, max_source = EINA_FALSE;
@@ -14436,9 +14444,11 @@ _edje_generate_source_of_state(Evas_Object *obj, const char *part, const char *s
                   (pd->minmul.w == inherit_pd->minmul.w) &&
                   (pd->minmul.h == inherit_pd->minmul.h)) ? EINA_FALSE : EINA_TRUE;
 
+        /*
         size_class = ((pd->size_class == inherit_pd->size_class) ||
                       ((pd->size_class != NULL) && (inherit_pd->size_class != NULL) &&
                        (!strcmp(pd->size_class, inherit_pd->size_class)))) ? EINA_FALSE : EINA_TRUE;
+        */
 
         step = ((pd->step.x == inherit_pd->step.x) &&
                 (pd->step.y == inherit_pd->step.y)) ? EINA_FALSE : EINA_TRUE;
@@ -14479,7 +14489,7 @@ _edje_generate_source_of_state(Evas_Object *obj, const char *part, const char *s
         minmul = ((pd->minmul.have == 0) ||
                   ((pd->minmul.w == 1) && (pd->minmul.h == 1))) ? EINA_FALSE : EINA_TRUE;
 
-        size_class = (pd->size_class == NULL) ? EINA_FALSE : EINA_TRUE;
+        /* size_class = (pd->size_class == NULL) ? EINA_FALSE : EINA_TRUE; */
 
         step = ((pd->step.x == 0) && (pd->step.y == 0)) ? EINA_FALSE : EINA_TRUE;
 
@@ -14554,8 +14564,10 @@ _edje_generate_source_of_state(Evas_Object *obj, const char *part, const char *s
                                             TO_DOUBLE(pd->minmul.h),
                                             buf, &ret);
 
+   /*
    if (size_class)
      BUF_APPENDF(I5 "size_class: \"%s\";\n", pd->size_class);
+   */
 
    if (step)
      BUF_APPENDF(I5 "step: %d %d;\n", TO_INT(pd->step.x), TO_INT(pd->step.y));
@@ -15262,6 +15274,7 @@ _edje_generate_source(Evas_Object *obj)
           }
      }
    /* Size Classes */
+   /*
    if ((ll = edje_edit_size_classes_list_get(obj)))
      {
         BUF_APPEND(I0 "size_classes {\n");
@@ -15279,8 +15292,9 @@ _edje_generate_source(Evas_Object *obj)
              return NULL;
           }
      }
-
+   */
    /* Text Classes */
+   /*
    if ((ll = edje_edit_text_classes_list_get(obj)))
      {
         BUF_APPEND(I0 "text_classes {\n");
@@ -15298,7 +15312,7 @@ _edje_generate_source(Evas_Object *obj)
              return NULL;
           }
      }
-
+   */
    /* Color Classes */
    if ((ll = edje_edit_color_classes_list_get(obj)))
      {

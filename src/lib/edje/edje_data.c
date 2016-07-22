@@ -84,6 +84,16 @@ Eet_Data_Descriptor *_edje_edd_edje_map_colors = NULL;
 Eet_Data_Descriptor *_edje_edd_edje_map_colors_pointer = NULL;
 Eet_Data_Descriptor *_edje_edd_edje_filter = NULL;
 Eet_Data_Descriptor *_edje_edd_edje_filter_directory = NULL;
+Eet_Data_Descriptor *_edje_edd_edje_part_description_vector = NULL;
+Eet_Data_Descriptor *_edje_edd_edje_part_description_vector_pointer = NULL;
+
+
+#define FREE_DESCRIPTOR(eed)                      \
+  if (eed)                              \
+    {                                   \
+       eet_data_descriptor_free((eed)); \
+       (eed) = NULL;                    \
+    }
 
 /* allocate a description struct.
  * this initializes clip_to_id as this field will not be present in most
@@ -125,6 +135,7 @@ EMP(MESH_NODE, mesh_node)
 EMP(LIGHT, light)
 EMP(CAMERA, camera)
 EMP(SNAPSHOT, snapshot)
+EMP(VECTOR, vector)
 #undef EMP
 
 EAPI Eina_Mempool *_emp_part = NULL;
@@ -174,7 +185,8 @@ struct
    { EDJE_PART_TYPE_MESH_NODE, "mesh_node" },
    { EDJE_PART_TYPE_LIGHT, "light" },
    { EDJE_PART_TYPE_CAMERA, "camera" },
-   { EDJE_PART_TYPE_SNAPSHOT, "snapshot" }
+   { EDJE_PART_TYPE_SNAPSHOT, "snapshot" },
+   { EDJE_PART_TYPE_VECTOR, "vector" }
 };
 
 static const char *
@@ -514,6 +526,7 @@ _edje_edd_init(void)
    EET_DATA_DESCRIPTOR_ADD_BASIC(_edje_edd_edje_part_collection_directory_entry, Edje_Part_Collection_Directory_Entry, "count.CAMERA", count.CAMERA, EET_T_INT);
    EET_DATA_DESCRIPTOR_ADD_BASIC(_edje_edd_edje_part_collection_directory_entry, Edje_Part_Collection_Directory_Entry, "count.part", count.part, EET_T_INT);
    EET_DATA_DESCRIPTOR_ADD_BASIC(_edje_edd_edje_part_collection_directory_entry, Edje_Part_Collection_Directory_Entry, "group_alias", group_alias, EET_T_UCHAR);
+   EET_DATA_DESCRIPTOR_ADD_BASIC(_edje_edd_edje_part_collection_directory_entry, Edje_Part_Collection_Directory_Entry, "count.VECTOR", count.VECTOR, EET_T_INT);
 
    EET_EINA_FILE_DATA_DESCRIPTOR_CLASS_SET(&eddc, Edje_Style_Tag);
    _edje_edd_edje_style_tag =
@@ -895,6 +908,17 @@ _edje_edd_init(void)
      eet_data_descriptor_file_new(&eddc);
    EDJE_DATA_DESCRIPTOR_DESCRIPTION_COMMON(_edje_edd_edje_part_description_rectangle, Edje_Part_Description_Common);
 
+   // SVG, since 1.18
+   EET_EINA_FILE_DATA_DESCRIPTOR_CLASS_SET(&eddc, Edje_Part_Description_Vector);
+   eddc.func.mem_free = mem_free_vector;
+   eddc.func.mem_alloc = mem_alloc_vector;
+   _edje_edd_edje_part_description_vector =
+     eet_data_descriptor_file_new(&eddc);
+   EDJE_DATA_DESCRIPTOR_DESCRIPTION_COMMON_SUB(_edje_edd_edje_part_description_vector, Edje_Part_Description_Vector, common);
+   EET_DATA_DESCRIPTOR_ADD_BASIC(_edje_edd_edje_part_description_vector, Edje_Part_Description_Vector, "vg.id", vg.id, EET_T_INT);
+   EET_DATA_DESCRIPTOR_ADD_BASIC(_edje_edd_edje_part_description_vector, Edje_Part_Description_Vector, "vg.set", vg.set, EET_T_UCHAR);
+
+
    EET_EINA_FILE_DATA_DESCRIPTOR_CLASS_SET(&eddc, Edje_Part_Description_Common);
    eddc.func.mem_free = mem_free_spacer;
    eddc.func.mem_alloc = mem_alloc_spacer;
@@ -1180,6 +1204,7 @@ _edje_edd_init(void)
    EDJE_DEFINE_POINTER_TYPE(Part_Description_Mesh_Node, part_description_mesh_node);
    EDJE_DEFINE_POINTER_TYPE(Part_Description_Camera, part_description_camera);
    EDJE_DEFINE_POINTER_TYPE(Part_Description_Light, part_description_light);
+   EDJE_DEFINE_POINTER_TYPE(Part_Description_Vector, part_description_vector);
 
    eddc.version = EET_DATA_DESCRIPTOR_CLASS_VERSION;
    eddc.func.type_get = _edje_description_variant_type_get;
@@ -1201,6 +1226,7 @@ _edje_edd_init(void)
    EET_DATA_DESCRIPTOR_ADD_MAPPING(_edje_edd_edje_part_description_variant, "mesh_node", _edje_edd_edje_part_description_mesh_node);
    EET_DATA_DESCRIPTOR_ADD_MAPPING(_edje_edd_edje_part_description_variant, "light", _edje_edd_edje_part_description_light);
    EET_DATA_DESCRIPTOR_ADD_MAPPING(_edje_edd_edje_part_description_variant, "camera", _edje_edd_edje_part_description_camera);
+   EET_DATA_DESCRIPTOR_ADD_MAPPING(_edje_edd_edje_part_description_variant, "vector", _edje_edd_edje_part_description_vector);
 
 #define EDJE_ADD_ARRAY_MAPPING(Variant, Type, Minus)                                     \
   {                                                                                      \
@@ -1230,6 +1256,7 @@ _edje_edd_init(void)
    EDJE_ADD_ARRAY_MAPPING(_edje_edd_edje_part_description_variant_list, "mesh_node", mesh_node);
    EDJE_ADD_ARRAY_MAPPING(_edje_edd_edje_part_description_variant_list, "light", light);
    EDJE_ADD_ARRAY_MAPPING(_edje_edd_edje_part_description_variant_list, "camera", camera);
+   EDJE_ADD_ARRAY_MAPPING(_edje_edd_edje_part_description_variant_list, "vector", vector);
 
    EET_EINA_FILE_DATA_DESCRIPTOR_CLASS_SET(&eddc, Edje_Pack_Element);
    _edje_edd_edje_pack_element =

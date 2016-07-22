@@ -512,6 +512,9 @@ static void st_collections_group_nomouse(void);
 static void st_collections_group_broadcast(void);
 static void st_collections_group_nobroadcast(void);
 
+static void st_images_vector(void);
+static void _handle_vector_image(void);
+
 // TIZEN_ONLY(20150110): Add plugin keyword.
 #ifdef PLUGIN
 static void ob_plugins_plug(void);
@@ -525,6 +528,7 @@ static void st_collections_plugins_plugin_param(void);
 
 #define IMAGE_STATEMENTS(PREFIX) \
      {PREFIX"images.image", st_images_image}, \
+     {PREFIX"images.vector", st_images_vector}, \
      {PREFIX"images.set.name", st_images_set_name}, \
      {PREFIX"images.set.image.image", st_images_set_image_image}, \
      {PREFIX"images.set.image.size", st_images_set_image_size}, \
@@ -1311,6 +1315,7 @@ New_Object_Handler object_handlers[] =
        proxy{}
        spacer{}
        snapshot{}
+       vector{}
        part {
           desc {
           }
@@ -1338,6 +1343,7 @@ New_Object_Handler object_handlers_short[] =
      {"collections.group.parts.proxy", ob_collections_group_parts_part_short},
      {"collections.group.parts.spacer", ob_collections_group_parts_part_short},
      {"collections.group.parts.part.desc", ob_collections_group_parts_part_desc},
+     {"collections.group.parts.vector", ob_collections_group_parts_part_short},
 };
 
 New_Nested_Handler nested_handlers[] = {
@@ -1356,6 +1362,7 @@ New_Nested_Handler nested_handlers_short[] = {
      {"collections.group.parts", "external", NULL, edje_cc_handlers_hierarchy_pop },
      {"collections.group.parts", "proxy", NULL, edje_cc_handlers_hierarchy_pop },
      {"collections.group.parts", "spacer", NULL, edje_cc_handlers_hierarchy_pop },
+     {"collections.group.parts", "vector", NULL, edje_cc_handlers_hierarchy_pop },
 };
 
 /*****/
@@ -1562,6 +1569,15 @@ _edje_part_description_alloc(unsigned char type, const char *collection, const c
 	   result = &ed->common;
 	   break;
 	}
+      case EDJE_PART_TYPE_VECTOR:
+        {
+           Edje_Part_Description_Vector *ed;
+
+           ed = mem_alloc(SZ(Edje_Part_Description_Vector));
+
+           result = &ed->common;
+           break;
+        }
      }
 
    if (!result)
@@ -1930,6 +1946,96 @@ st_images_image(void)
 	img->source_param = parse_int_range(2, 0, 100);
 	check_arg_count(3);
      }
+}
+
+static void
+_handle_vector_image(void)
+{
+   Edje_Part_Description_Vector *ed;
+   unsigned int i = 0;
+   char *name;
+
+   ed = (Edje_Part_Description_Vector*) current_desc;
+
+   name = parse_str(0);
+
+   ed->vg.id = -1;
+
+   for (i = 0; i < edje_file->image_dir->vectors_count; ++i)
+     {
+        if (!strcmp(edje_file->image_dir->vectors[i].entry, name))
+          {
+             ed->vg.set = EINA_TRUE;
+             ed->vg.id = edje_file->image_dir->vectors[i].id;
+             break;
+          }
+     }
+   free(name);
+}
+
+/** @edcsubsection{toplevel_images,
+ *                 Images} */
+
+/**
+    @page edcref
+
+    @block
+        images
+    @context
+        vector {
+            vector: "filename1.svg";
+            vector: "filename2.svg";
+            vector: "filename3.svg";
+            ..
+        }
+    @description
+        The "vector" context in the "images" block is used to list each svg image file that will be used in
+        the theme.
+    @endblock
+
+    @property
+        vector
+    @parameters
+        [image file]
+    @endproperty
+ */
+static void
+st_images_vector(void)
+{
+   Edje_Vector_Directory_Entry *vector;
+   const char *tmp;
+   unsigned int i;
+
+   check_min_arg_count(1);
+
+   if (!edje_file->image_dir)
+     edje_file->image_dir = mem_alloc(SZ(Edje_Image_Directory));
+
+   tmp = parse_str(0);
+
+   for (i = 0; i < edje_file->image_dir->vectors_count; ++i)
+     if (!strcmp(edje_file->image_dir->vectors[i].entry, tmp))
+       {
+          free((char*) tmp);
+          return;
+       }
+
+   edje_file->image_dir->vectors_count++;
+   vector = realloc(edje_file->image_dir->vectors,
+                 sizeof (Edje_Vector_Directory_Entry) * edje_file->image_dir->vectors_count);
+   if (!vector)
+     {
+        ERR("No enough memory.");
+        exit(-1);
+     }
+   edje_file->image_dir->vectors = vector;
+   memset(edje_file->image_dir->vectors + edje_file->image_dir->vectors_count - 1,
+    0, sizeof (Edje_Vector_Directory_Entry));
+
+   vector = edje_file->image_dir->vectors + edje_file->image_dir->vectors_count - 1;
+
+   vector->entry = tmp;
+   vector->id = edje_file->image_dir->vectors_count;
 }
 
 /**
@@ -5021,6 +5127,7 @@ ob_collections_group_parts_part_short(void)
                   "proxy", EDJE_PART_TYPE_PROXY,
                   "spacer", EDJE_PART_TYPE_SPACER,
                   "snapshot", EDJE_PART_TYPE_SNAPSHOT,
+                  "vector", EDJE_PART_TYPE_VECTOR,
                   NULL);
 
    stack_pop_quick(EINA_TRUE, EINA_TRUE);
@@ -5453,6 +5560,7 @@ st_collections_group_parts_part_type(void)
                      "PROXY", EDJE_PART_TYPE_PROXY,
                      "SPACER", EDJE_PART_TYPE_SPACER,
                      "SNAPSHOT", EDJE_PART_TYPE_SNAPSHOT,
+                     "VECTOR", EDJE_PART_TYPE_VECTOR,
                      NULL);
 
    _part_type_set(type);
@@ -7323,6 +7431,11 @@ st_collections_group_parts_part_description_inherit(void)
                 }
               break;
            }
+      case EDJE_PART_TYPE_VECTOR:
+           {
+              // TODO
+              break;
+           }
      }
 
 #undef STRDUP
@@ -8242,6 +8355,7 @@ st_collections_group_parts_part_description_rel2_to_y(void)
             ..
             image {
                 normal: "filename.ext";
+                normal: "filename.svg";
                 tween:  "filename2.ext";
                 ..
                 tween:  "filenameN.ext";
@@ -8270,6 +8384,11 @@ st_collections_group_parts_part_description_image_normal(void)
    Edje_Part_Description_Image *ed;
 
    check_arg_count(1);
+
+   if (current_part->type == EDJE_PART_TYPE_VECTOR)
+     {
+        return _handle_vector_image();
+     }
 
    if (current_part->type != EDJE_PART_TYPE_IMAGE)
      {

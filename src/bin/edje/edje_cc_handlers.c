@@ -7323,6 +7323,14 @@ st_collections_group_parts_part_description_inherit(void)
                 }
               break;
            }
+      case EDJE_PART_TYPE_VECTOR:
+           {
+              Edje_Part_Description_Vector *ied = (Edje_Part_Description_Vector *) ed;
+              Edje_Part_Description_Vector *iparent = (Edje_Part_Description_Vector *) parent;
+              ied->vg.set = iparent->vg.set;
+              ied->vg.id = iparent->vg.id;
+              break;
+           }
      }
 
 #undef STRDUP

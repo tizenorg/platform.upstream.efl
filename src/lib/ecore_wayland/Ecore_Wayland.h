@@ -80,6 +80,7 @@ typedef struct _Ecore_Wl_Event_Selection_Data_Ready Ecore_Wl_Event_Selection_Dat
 typedef struct _Ecore_Wl_Event_Interfaces_Bound Ecore_Wl_Event_Interfaces_Bound;
 typedef struct _Ecore_Wl_Event_Conformant_Change Ecore_Wl_Event_Conformant_Change;
 typedef struct _Ecore_Wl_Event_Aux_Hint_Allowed Ecore_Wl_Event_Aux_Hint_Allowed;
+typedef struct _Ecore_Wl_Event_Aux_Message Ecore_Wl_Event_Aux_Message;
 typedef struct _Ecore_Wl_Event_Window_Iconify_State_Change Ecore_Wl_Event_Window_Iconify_State_Change;
 typedef struct _Ecore_Wl_Event_Effect Ecore_Wl_Event_Effect_Start;
 typedef struct _Ecore_Wl_Event_Effect Ecore_Wl_Event_Effect_End;
@@ -393,6 +394,14 @@ struct _Ecore_Wl_Event_Aux_Hint_Allowed
    int id;
 };
 
+struct _Ecore_Wl_Event_Aux_Message
+{
+   int win;
+   const char *key;
+   const char *val;
+   Eina_List *options;
+};
+
 struct _Ecore_Wl_Event_Window_Iconify_State_Change
 {
    unsigned int win;
@@ -451,6 +460,7 @@ EAPI extern int ECORE_WL_EVENT_SELECTION_DATA_READY; /** @since 1.7 */
 EAPI extern int ECORE_WL_EVENT_INTERFACES_BOUND;
 EAPI extern int ECORE_WL_EVENT_CONFORMANT_CHANGE;
 EAPI extern int ECORE_WL_EVENT_AUX_HINT_ALLOWED;
+EAPI extern int ECORE_WL_EVENT_AUX_MESSAGE;
 EAPI extern int ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE;
 EAPI extern int ECORE_WL_EVENT_EFFECT_START;
 EAPI extern int ECORE_WL_EVENT_EFFECT_END;

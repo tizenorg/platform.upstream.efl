@@ -54,6 +54,7 @@ static void _ecore_wl_cb_scr_mode_done(void *data, struct tizen_policy *tizen_po
 static void _ecore_wl_cb_iconify_state_changed(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface_resource, uint32_t iconified, uint32_t force);
 static void _ecore_wl_cb_supported_aux_hints(void *data  EINA_UNUSED, struct tizen_policy *tizen_policy  EINA_UNUSED, struct wl_surface *surface_resource, struct wl_array *hints, uint32_t num_hints);
 static void _ecore_wl_cb_allowed_aux_hint(void *data  EINA_UNUSED, struct tizen_policy *tizen_policy  EINA_UNUSED, struct wl_surface *surface_resource, int id);
+static void _ecore_wl_cb_aux_message(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface_resource, const char *key, const char *val, struct wl_array *options);
 static void _ecore_wl_window_conformant_area_send(Ecore_Wl_Window *win, uint32_t conformant_part, uint32_t state);
 static void _ecore_wl_cb_active_angle(void *data EINA_UNUSED, struct tizen_policy_ext *tizen_policy_ext EINA_UNUSED, uint32_t angle);
 static void _ecore_wl_cb_effect_start(void *data EINA_UNUSED, struct tizen_effect *tizen_effect EINA_UNUSED, struct wl_surface *surface_resource, unsigned int type);
@@ -108,6 +109,7 @@ static const struct tizen_policy_listener _ecore_tizen_policy_listener =
    _ecore_wl_cb_iconify_state_changed,
    _ecore_wl_cb_supported_aux_hints,
    _ecore_wl_cb_allowed_aux_hint,
+   _ecore_wl_cb_aux_message,
 };
 
 static const struct tizen_policy_ext_listener _ecore_tizen_policy_ext_listener =
@@ -172,6 +174,7 @@ EAPI int ECORE_WL_EVENT_DATA_SOURCE_CANCELLED = 0;
 EAPI int ECORE_WL_EVENT_INTERFACES_BOUND = 0;
 EAPI int ECORE_WL_EVENT_CONFORMANT_CHANGE = 0;
 EAPI int ECORE_WL_EVENT_AUX_HINT_ALLOWED = 0;
+EAPI int ECORE_WL_EVENT_AUX_MESSAGE = 0;
 EAPI int ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE = 0;
 EAPI int ECORE_WL_EVENT_EFFECT_START = 0;
 EAPI int ECORE_WL_EVENT_EFFECT_END = 0;
@@ -263,6 +266,7 @@ ecore_wl_init(const char *name)
         ECORE_WL_EVENT_INTERFACES_BOUND = ecore_event_type_new();
         ECORE_WL_EVENT_CONFORMANT_CHANGE = ecore_event_type_new();
         ECORE_WL_EVENT_AUX_HINT_ALLOWED = ecore_event_type_new();
+        ECORE_WL_EVENT_AUX_MESSAGE = ecore_event_type_new();
         ECORE_WL_EVENT_WINDOW_ICONIFY_STATE_CHANGE = ecore_event_type_new();
         ECORE_WL_EVENT_EFFECT_START = ecore_event_type_new();
         ECORE_WL_EVENT_EFFECT_END = ecore_event_type_new();
@@ -826,6 +830,20 @@ _cb_global_event_free(void *data EINA_UNUSED, void *event)
 
    ev = event;
    eina_stringshare_del(ev->interface);
+   free(ev);
+}
+
+static void
+_cb_aux_message_free(void *data EINA_UNUSED, void *event)
+{
+   Ecore_Wl_Event_Aux_Message *ev;
+   char *str;
+
+   ev = event;
+   eina_stringshare_del(ev->key);
+   eina_stringshare_del(ev->val);
+   EINA_LIST_FREE(ev->options, str)
+      eina_stringshare_del(str);
    free(ev);
 }
 
@@ -1657,6 +1675,41 @@ _ecore_wl_cb_allowed_aux_hint(void *data  EINA_UNUSED, struct tizen_policy *tize
    ev->win = win->id;
    ev->id = id;
    ecore_event_add(ECORE_WL_EVENT_AUX_HINT_ALLOWED, ev, NULL, NULL);
+}
+
+static void
+_ecore_wl_cb_aux_message(void *data EINA_UNUSED, struct tizen_policy *tizen_policy EINA_UNUSED, struct wl_surface *surface_resource, const char *key, const char *val, struct wl_array *options)
+{
+   Ecore_Wl_Window *win = NULL;
+   Ecore_Wl_Event_Aux_Message *ev;
+   char *p = NULL, *str = NULL;
+   Eina_List *opt_list = NULL;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!surface_resource) return;
+   win = ecore_wl_window_surface_find(surface_resource);
+   if (!win) return;
+
+   if (!(ev = calloc(1, sizeof(Ecore_Wl_Event_Aux_Message)))) return;
+
+   if ((options) && (options->size))
+     {
+        p = options->data;
+        while ((const char *)p < ((const char *)options->data + options->size))
+          {
+             str = (char *)eina_stringshare_add(p);
+             opt_list = eina_list_append(opt_list, str);
+             p += strlen(p) + 1;
+          }
+     }
+
+   ev->win = win->id;
+   ev->key = eina_stringshare_add(key);
+   ev->val = eina_stringshare_add(val);
+   ev->options = opt_list;
+
+   ecore_event_add(ECORE_WL_EVENT_AUX_MESSAGE, ev, _cb_aux_message_free, NULL);
 }
 
 static void

@@ -1429,16 +1429,6 @@ _edje_part_recalc_single_textblock(FLOAT_T sc,
    if ((ep->type != EDJE_RP_TYPE_TEXT) ||
        (!ep->typedata.text))
      return;
-
-   // TIZEN_ONLY(20150921): Skip calculation for Evas Textblock when text is never set.
-   if (!(ep->typedata.text->text_enabled) && (ep->part->entry_mode == EDJE_ENTRY_EDIT_MODE_NONE) &&
-       (!ep->typedata.text->text) && (!edje_string_get(&chosen_desc->text.text)) &&
-       (chosen_desc && !(chosen_desc->text.id_text_source >= 0)))
-     return;
-
-   if (!ep->typedata.text->text_enabled) ep->typedata.text->text_enabled = EINA_TRUE;
-   //
-
    if (chosen_desc)
      {
         Evas_Coord tw, th, ins_l, ins_r, ins_t, ins_b;

@@ -1627,7 +1627,8 @@ _ecore_main_fd_handlers_bads_rem(void)
    Eina_Inlist *l;
    int found = 0;
 
-   ERR("Removing bad fds");
+   // TIZEN ONLY (20160727) : to not give lots of logs when edje_cc is tried.
+   //ERR("Removing bad fds");
    for (l = EINA_INLIST_GET(fd_handlers); l; )
      {
         fdh = (Ecore_Fd_Handler *)l;
@@ -1671,7 +1672,8 @@ _ecore_main_fd_handlers_bads_rem(void)
    if (found == 0)
      {
 #  ifdef HAVE_GLIB
-        ERR("No bad fd found. Maybe a foreign fd from glib?");
+        // TIZEN ONLY (20160727) : to not give lots of logs when edje_cc is tried.
+        //ERR("No bad fd found. Maybe a foreign fd from glib?");
 #  else
         ERR("No bad fd found. EEEK!");
 #  endif

@@ -1151,7 +1151,7 @@ evas_gl_common_context_newframe(Evas_Engine_GL_Context *gc)
      glUseProgram(gc->state.current.prog->prog);
 
    glActiveTexture(GL_TEXTURE0);
-   evas_gl_common_texture_shared_back(gc, NULL);
+   glBindTexture(gc->pipe[0].shader.tex_target, gc->pipe[0].shader.cur_tex);
 
    _evas_gl_common_viewport_set(gc,1);
 }
@@ -3176,7 +3176,7 @@ shader_array_flush(Evas_Engine_GL_Context *gc)
                }
 #endif
              glActiveTexture(GL_TEXTURE0);
-             evas_gl_common_texture_shared_specific(gc, NULL, i);
+             glBindTexture(gc->pipe[i].shader.tex_target, gc->pipe[i].shader.cur_tex);
           }
         if (gc->pipe[i].array.im)
           {

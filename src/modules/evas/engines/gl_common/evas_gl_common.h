@@ -687,9 +687,6 @@ Evas_GL_Polygon  *evas_gl_common_poly_point_add(Evas_GL_Polygon *poly, int x, in
 Evas_GL_Polygon  *evas_gl_common_poly_points_clear(Evas_GL_Polygon *poly);
 void              evas_gl_common_poly_draw(Evas_Engine_GL_Context *gc, Evas_GL_Polygon *poly, int x, int y);
 
-void              evas_gl_common_texture_shared_specific(Evas_Engine_GL_Context *gc, Evas_GL_Texture_Pool *pt, int i);
-void              evas_gl_common_texture_shared_back(Evas_Engine_GL_Context *gc, Evas_GL_Texture_Pool *pt);
-
 void              evas_gl_common_line_draw(Evas_Engine_GL_Context *gc, int x1, int y1, int x2, int y2);
 
 extern void       (*glsym_glGenFramebuffers)      (GLsizei a, GLuint *b);

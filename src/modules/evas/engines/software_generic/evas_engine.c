@@ -434,14 +434,11 @@ static int _evas_soft_gen_log_dom = -1;
 //#define QCMD evas_thread_cmd_enqueue
 #define QCMD evas_thread_queue_flush
 
-static void _ector_surface_cache_dump(void);
-
 static void
 eng_output_dump(void *data EINA_UNUSED)
 {
    evas_common_image_image_all_unload();
    evas_common_font_font_all_unload();
-   _ector_surface_cache_dump();
 }
 
 static void *
@@ -3892,71 +3889,8 @@ _draw_thread_ector_surface_set(void *data)
 static void *
 eng_ector_surface_create(void *data EINA_UNUSED, void *surface EINA_UNUSED, int width EINA_UNUSED, int height EINA_UNUSED)
 {
-   RGBA_Image *im;
-
-   if (!surface)
-     {
-        surface = eng_image_new_from_copied_data(data, width, height, NULL, EINA_TRUE, EVAS_COLORSPACE_ARGB8888);
-     }
-   else
-     {
-        int cur_w , cur_h;
-        im = surface;
-        eng_image_size_get(data, im, &cur_w, &cur_h);
-        if (width != cur_w || height != cur_h)
-          {
-             eng_image_free(data, surface);
-             surface =  eng_image_new_from_copied_data(data, width, height, NULL, EINA_TRUE, EVAS_COLORSPACE_ARGB8888);
-          }
-      }
-   return surface;
+   return NULL;
 }
-
-static Ector_Surface_Cache *sw_cache = NULL;
-
-static void
-_ector_surface_cache_free_cb(void *data)
-{
-   eng_image_free(sw_cache->output, data);
-}
-
-static void 
-_ector_surface_cache_init(void *output)
-{
-   if (!sw_cache)
-     {
-        printf("engine cache init\n");
-        sw_cache = calloc(1, sizeof(Ector_Surface_Cache));
-        sw_cache->output = output;
-        sw_cache->suface_hash = eina_hash_string_superfast_new(_ector_surface_cache_free_cb);
-     }
-}
-
-static void 
-_ector_surface_cache_dump(void)
-{
-   if (sw_cache)
-     {
-        eina_hash_free(sw_cache->suface_hash);
-        free(sw_cache);
-        sw_cache = NULL;
-     }
-}
-
-static void
-eng_ector_surface_cache_set(void *data, const char *key, void *surface)
-{
-   _ector_surface_cache_init(data);
-   eina_hash_add(sw_cache->suface_hash, key, surface);
-}
-
-static void *
-eng_ector_surface_cache_get(void *data, const char *key)
-{
-   _ector_surface_cache_init(data);
-   return eina_hash_find(sw_cache->suface_hash, key);
-}
-
 
 static void
 eng_ector_begin(void *data EINA_UNUSED, void *context EINA_UNUSED, Ector_Surface *ector, void *surface, int x, int y, Eina_Bool do_async)
@@ -4222,9 +4156,7 @@ static Evas_Func func =
      eng_ector_begin,
      eng_ector_renderer_draw,
      eng_ector_end,
-     eng_ector_surface_create,
-     eng_ector_surface_cache_set,
-     eng_ector_surface_cache_get
+	 eng_ector_surface_create
    /* FUTURE software generic calls go here */
 };
 

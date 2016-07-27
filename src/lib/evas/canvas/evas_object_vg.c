@@ -4,8 +4,6 @@
 #include "evas_vg_private.h"
 #include "efl_vg_root_node.eo.h"
 
-#include "evas_vg_cache.h"
-
 #define MY_CLASS EVAS_VG_CLASS
 
 /* private magic number for rectangle objects */
@@ -20,7 +18,7 @@ struct _Evas_VG_Data
 {
    void   *engine_data;
    Efl_VG *root;
-   Svg_Entry *svg;
+
    Eina_Rectangle fill;
 
    unsigned int width, height;
@@ -90,29 +88,6 @@ evas_object_vg_add(Evas *e)
    // Ask backend to return the main Ector_Surface
 
    return eo_obj;
-}
-
-EAPI void
-evas_object_vg_path_set(Eo *obj, const char *path, int src_vg,
-                        int dest_vg, float pos)
-{
-   int w, h;
-   Evas_VG_Data *pd;
-   Svg_Entry *entry;
-
-   if (!obj) return ;
-
-   evas_object_geometry_get(obj, NULL, NULL, &w, &h);
-   pd = eo_data_scope_get(obj, MY_CLASS);
-   entry = evas_cache_svg_find(path, src_vg, dest_vg, pos, w, h);
-   if (entry != pd->svg)
-     {
-        if (pd->svg)
-          {
-             evas_cache_svg_entry_del(pd->svg);
-          }
-        pd->svg = entry;
-     }
 }
 
 Efl_VG *
@@ -219,68 +194,6 @@ _evas_vg_render(Evas_Object_Protected_Data *obj, Evas_VG_Data *vd,
 }
 
 static void
-_svg_data_render(Evas_Object_Protected_Data *obj,
-                 Evas_VG_Data *vd,
-                 void *output, void *context, void *surface,
-                 int x, int y, Eina_Bool do_async)
-{
-   Svg_Entry *svg = vd->svg;
-   Efl_VG *root;
-   void *buffer;
-   Ector_Surface *ector;
-   RGBA_Draw_Context *ct;
-
-   // if the size changed in between path set and the draw call;
-   if (!(svg->w == obj->cur->geometry.w &&
-         svg->h == obj->cur->geometry.h))
-     {
-         evas_cache_svg_entry_del(svg);
-         svg = evas_cache_svg_find(svg->file, svg->src_vg, svg->dest_vg, 
-                                   svg->key_frame, obj->cur->geometry.w, obj->cur->geometry.h);
-         vd->svg = svg;
-     }
-   // if the buffer is not created yet
-   buffer = obj->layer->evas->engine.func->ector_surface_cache_get(output, svg->key);
-   if (!buffer)
-     {
-        root = evas_cache_svg_vg_tree_get(svg);
-        if (!root) return;
-        // manual render the vg tree
-        ector = evas_ector_get(obj->layer->evas);
-        if (!ector) return;
-        //1. render pre
-        _evas_vg_render_pre(root, ector, NULL);
-        // 2. create surface
-        buffer = obj->layer->evas->engine.func->ector_surface_create(output,
-                                                                     NULL,
-                                                                     svg->w,
-                                                                     svg->h);
-        //3. draw into the buffer
-        ct = evas_common_draw_context_new();
-        evas_common_draw_context_set_render_op(ct, _EVAS_RENDER_COPY);
-        evas_common_draw_context_set_color(ct, 255, 255, 255, 255);
-        obj->layer->evas->engine.func->ector_begin(output, ct,
-                                                   ector, buffer,
-                                                   0, 0,
-                                                   do_async);
-        _evas_vg_render(obj, vd,
-                        output, ct, buffer,
-                        root, NULL,
-                        do_async);
-        obj->layer->evas->engine.func->ector_end(output, ct, ector, buffer, do_async);
-
-        obj->layer->evas->engine.func->ector_surface_cache_set(output, svg->key, buffer);
-        evas_common_draw_context_free(ct);
-     }
-   // draw the buffer as image to canvas
-   obj->layer->evas->engine.func->image_draw(output, context, surface,
-                                             buffer, 0, 0,
-                                             obj->cur->geometry.w, obj->cur->geometry.h, obj->cur->geometry.x + x,
-                                             obj->cur->geometry.y + y, obj->cur->geometry.w, obj->cur->geometry.h,
-                                             EINA_TRUE, do_async);
-}
-
-static void
 evas_object_vg_render(Evas_Object *eo_obj EINA_UNUSED,
                       Evas_Object_Protected_Data *obj,
                       void *type_private_data,
@@ -289,7 +202,11 @@ evas_object_vg_render(Evas_Object *eo_obj EINA_UNUSED,
 {
    Evas_VG_Data *vd = type_private_data;
    Ector_Surface *ector = evas_ector_get(obj->layer->evas);
-
+   if (vd->content_changed || !vd->backing_store)
+     vd->backing_store = obj->layer->evas->engine.func->ector_surface_create(output,
+                                                                             vd->backing_store,
+                                                                             obj->cur->geometry.w,
+                                                                             obj->cur->geometry.h);
    // FIXME: Set context (that should affect Ector_Surface) and
    // then call Ector_Renderer render from bottom to top. Get the
    // Ector_Surface that match the output from Evas engine API.
@@ -314,20 +231,6 @@ evas_object_vg_render(Evas_Object *eo_obj EINA_UNUSED,
                                                          obj->cur->anti_alias);
    obj->layer->evas->engine.func->context_render_op_set(output, context,
                                                         obj->cur->render_op);
-
-   if (vd->svg)
-     {
-        _svg_data_render(obj, vd, output,
-                         context, surface,
-                         x, y, do_async);
-        return;
-     }
-
-   if (vd->content_changed || !vd->backing_store)
-     vd->backing_store = obj->layer->evas->engine.func->ector_surface_create(output,
-                                                                             vd->backing_store,
-                                                                             obj->cur->geometry.w,
-                                                                             obj->cur->geometry.h);
    if (!vd->backing_store)
      {
         obj->layer->evas->engine.func->ector_begin(output, context, ector, surface,

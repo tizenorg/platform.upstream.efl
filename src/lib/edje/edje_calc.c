@@ -413,7 +413,6 @@ case EDJE_PART_TYPE_##Short:                                          \
         EDIT_ALLOC_POOL_RTL(CAMERA, Camera, camera);
         EDIT_ALLOC_POOL_RTL(LIGHT, Light, light);
         EDIT_ALLOC_POOL_RTL(MESH_NODE, Mesh_Node, mesh_node);
-        EDIT_ALLOC_POOL_RTL(VECTOR, Vector, vector);
      }
 
    if (desc_rtl)
@@ -2859,7 +2858,6 @@ _edje_part_recalc_single(Edje *ed,
       case EDJE_PART_TYPE_LIGHT:
       case EDJE_PART_TYPE_CAMERA:
       case EDJE_PART_TYPE_SNAPSHOT:
-      case EDJE_PART_TYPE_VECTOR:
         break;
 
       case EDJE_PART_TYPE_GRADIENT:
@@ -3114,7 +3112,6 @@ _edje_proxy_recalc_apply(Edje *ed, Edje_Real_Part *ep, Edje_Calc_Params *p3, Edj
            case EDJE_PART_TYPE_TABLE:
            case EDJE_PART_TYPE_PROXY:
            case EDJE_PART_TYPE_SNAPSHOT:
-           case EDJE_PART_TYPE_VECTOR:
              evas_object_image_source_set(ep->object, pp->object);
              break;
 
@@ -3209,32 +3206,6 @@ _edje_image_recalc_apply(Edje *ed, Edje_Real_Part *ep, Edje_Calc_Params *p3, Edj
      evas_object_image_border_center_fill_set(ep->object, EVAS_BORDER_FILL_NONE);
    else if (chosen_desc->image.border.no_fill == 2)
      evas_object_image_border_center_fill_set(ep->object, EVAS_BORDER_FILL_SOLID);
-}
-
-static void
-_edje_svg_recalc_apply(Edje *ed, Edje_Real_Part *ep, Edje_Calc_Params *p3 EINA_UNUSED, Edje_Part_Description_Vector *chosen_desc, FLOAT_T pos)
-{
-   int new_svg = 0;
-   int w, h;
-
-   evas_object_geometry_get(ep->object, NULL, NULL, &w, &h);
-   if( (w == 0) || (h == 0)) return;
-
-   if (ep->param2)
-     {
-        Edje_Part_Description_Vector *next_state = (Edje_Part_Description_Vector *)ep->param2->description;
-        if (chosen_desc->vg.id != next_state->vg.id)
-          {
-             new_svg = next_state->vg.id;
-          }
-        else
-          {
-             new_svg = 0;
-             pos = 0;
-          }
-          
-     }
-   evas_object_vg_path_set(ep->object, ed->file->path, chosen_desc->vg.id, new_svg, pos);
 }
 
 static Edje_Real_Part *
@@ -4523,7 +4494,6 @@ _edje_part_recalc(Edje *ed, Edje_Real_Part *ep, int flags, Edje_Calc_Params *sta
            case EDJE_PART_TYPE_BOX:
            case EDJE_PART_TYPE_TABLE:
            case EDJE_PART_TYPE_SNAPSHOT:
-           case EDJE_PART_TYPE_VECTOR:
              evas_object_color_set(ep->object,
                                    (pf->color.r * pf->color.a) / 255,
                                    (pf->color.g * pf->color.a) / 255,
@@ -4852,10 +4822,6 @@ _edje_part_recalc(Edje *ed, Edje_Real_Part *ep, int flags, Edje_Calc_Params *sta
 
            case EDJE_PART_TYPE_TEXTBLOCK:
              _edje_textblock_recalc_apply(ed, ep, pf, (Edje_Part_Description_Text *)chosen_desc);
-             break;
-
-           case EDJE_PART_TYPE_VECTOR:
-             _edje_svg_recalc_apply(ed, ep, pf, (Edje_Part_Description_Vector *)chosen_desc, pos);
              break;
 
            case EDJE_PART_TYPE_EXTERNAL:

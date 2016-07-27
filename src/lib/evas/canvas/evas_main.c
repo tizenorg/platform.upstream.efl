@@ -5,8 +5,6 @@
 #include "evas_cs2_private.h"
 #endif
 
-#include "evas_vg_cache.h"
-
 #define MY_CLASS EVAS_CANVAS_CLASS
 
 #ifdef LKDEBUG
@@ -65,7 +63,6 @@ evas_init(void)
 #endif
    _evas_preload_thread_init();
    evas_filter_init();
-   evas_cache_svg_init();
 
    evas_thread_init();
 
@@ -107,7 +104,6 @@ evas_shutdown(void)
    if (evas_cserve2_use_get())
      evas_cserve2_shutdown();
 #endif
-   evas_cache_svg_shutdown();
 
    evas_font_path_global_clear();
    eina_cow_del(evas_object_proxy_cow);

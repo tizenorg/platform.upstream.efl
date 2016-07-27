@@ -34,7 +34,6 @@ edje_cache_emp_alloc(Edje_Part_Collection_Directory_Entry *ce)
   INIT_EMP_BOTH(EXTERNAL, Edje_Part_Description_External, ce);
   INIT_EMP_BOTH(SPACER, Edje_Part_Description_Common, ce);
   INIT_EMP_BOTH(SNAPSHOT, Edje_Part_Description_Snapshot, ce);
-  INIT_EMP_BOTH(VECTOR, Edje_Part_Description_Vector, ce);
   INIT_EMP(part, Edje_Part, ce);
 }
 
@@ -54,7 +53,6 @@ edje_cache_emp_free(Edje_Part_Collection_Directory_Entry *ce)
   eina_mempool_del(ce->mp.EXTERNAL);
   eina_mempool_del(ce->mp.SPACER);
   eina_mempool_del(ce->mp.SNAPSHOT);
-  eina_mempool_del(ce->mp.VECTOR);
   eina_mempool_del(ce->mp.part);
   memset(&ce->mp, 0, sizeof (ce->mp));
 

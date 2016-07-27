@@ -2552,51 +2552,6 @@ eng_ector_end(void *data EINA_UNUSED, void *context EINA_UNUSED, Ector_Surface *
      }
 }
 
-static Ector_Surface_Cache *gl_cache = NULL;
-
-static void
-_ector_surface_cache_free_cb(void *data)
-{
-   eng_image_free(gl_cache->output, data);
-}
-
-static void 
-_ector_surface_cache_init(void *output)
-{
-   if (!gl_cache)
-     {
-        gl_cache = calloc(1, sizeof(Ector_Surface_Cache));
-        gl_cache->output = output;
-        gl_cache->suface_hash = eina_hash_string_superfast_new(_ector_surface_cache_free_cb);
-     }
-}
-
-// static void 
-// _ector_surface_cache_dump(void)
-// {
-//    if (gl_cache)
-//      {
-//         eina_hash_free(gl_cache->suface_hash);
-//         free(gl_cache);
-//         gl_cache = NULL;
-//      }
-// }
-
-static void
-eng_ector_surface_cache_set(void *data, const char *key, void *surface)
-{
-   _ector_surface_cache_init(data);
-   eina_hash_add(gl_cache->suface_hash, key, surface);
-}
-
-static void *
-eng_ector_surface_cache_get(void *data, const char *key)
-{
-   _ector_surface_cache_init(data);
-   return eina_hash_find(gl_cache->suface_hash, key);
-}
-
-
 static Evas_Func func, pfunc;
 
 static int
@@ -2746,8 +2701,6 @@ module_open(Evas_Module *em)
    ORD(ector_renderer_draw);
    ORD(ector_end);
    ORD(ector_surface_create);
-   ORD(ector_surface_cache_set);
-   ORD(ector_surface_cache_get);
 
    /* now advertise out own api */
    em->functions = (void *)(&func);

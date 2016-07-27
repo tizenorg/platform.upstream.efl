@@ -670,12 +670,6 @@ _edje_object_file_set_internal(Evas_Object *obj, const Eina_File *file, const ch
                        if (!rp->typedata.text) memerr = EINA_TRUE;
                        break;
 
-                     case EDJE_PART_TYPE_VECTOR:
-                       rp->type = EDJE_PART_TYPE_VECTOR;
-                       rp->typedata.vector = calloc(1, sizeof(Edje_Real_Part_Vector));
-                       if (!rp->typedata.vector) memerr = EINA_TRUE;
-                       break;
-
                      case EDJE_PART_TYPE_GROUP:
                      case EDJE_PART_TYPE_SWALLOW:
                      case EDJE_PART_TYPE_EXTERNAL:
@@ -719,10 +713,6 @@ _edje_object_file_set_internal(Evas_Object *obj, const Eina_File *file, const ch
                     {
                      case EDJE_PART_TYPE_RECTANGLE:
                        rp->object = evas_object_rectangle_add(ed->base->evas);
-                       break;
-
-                     case EDJE_PART_TYPE_VECTOR:
-                       rp->object = evas_object_vg_add(ed->base->evas);
                        break;
 
                      case EDJE_PART_TYPE_PROXY:
@@ -1485,6 +1475,7 @@ _edje_file_del(Edje *ed, Eina_Bool reuse_ic)
    _edje_message_del(ed);
    _edje_block_violate(ed);
    _edje_var_shutdown(ed);
+
    if (!((ed->file) && (ed->collection)))
      {
         if (tev)
@@ -2233,7 +2224,4 @@ _cb_signal_repeat(void *data, Evas_Object *obj, const char *sig, const char *sou
      _edje_util_message_send(ed_parent, EDJE_QUEUE_SCRIPT,
                              EDJE_MESSAGE_SIGNAL, 0, &emsg);
 }
-
-
-
 

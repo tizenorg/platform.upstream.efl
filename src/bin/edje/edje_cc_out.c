@@ -21,7 +21,6 @@
 #include "edje_cc.h"
 #include "edje_convert.h"
 #include "edje_multisense_convert.h"
-#include "evas_vg_common.h"
 
 #include <lua.h>
 #include <lauxlib.h>
@@ -166,13 +165,6 @@ struct _Sound_Write
 {
    Eet_File *ef;
    Edje_Sound_Sample *sample;
-   int i;
-};
-
-struct _Vector_Write
-{
-   Eet_File *ef;
-   Svg_Node *root;
    int i;
 };
 
@@ -1131,54 +1123,6 @@ data_image_preload_done(void *data, Evas *e EINA_UNUSED, Evas_Object *o, void *e
         data_thread_image(iw, NULL);
         data_thread_image_end(iw, NULL);
      }
-}
-
-static void
-data_write_vectors(Eet_File *ef, int *vector_num)
-{
-   unsigned int i;
-   Svg_Node *root;
-   Eet_Data_Descriptor *svg_node_eet;
-   Eina_List *ll;
-   char *s;
-   Eina_File *f = NULL;
-   Edje_Vector_Directory_Entry *vector;
-   Eina_Strbuf *buf;
-   Eina_Bool found = EINA_FALSE;
-
-   if (!((edje_file) && (edje_file->image_dir))) return;
-
-   svg_node_eet = _evas_vg_svg_node_eet();
-   buf = eina_strbuf_new();
-   for (i = 0; i < edje_file->image_dir->vectors_count; i++)
-     {
- 
-        vector = &edje_file->image_dir->vectors[i];
-        EINA_LIST_FOREACH(img_dirs, ll, s)
-          {
-             eina_strbuf_reset(buf);
-             eina_strbuf_append_printf(buf, "%s/%s", s, vector->entry);
-             f = eina_file_open(eina_strbuf_string_get(buf), EINA_FALSE);
-             if (!f) continue;
-             root = _svg_load(f, NULL);
-             if(!root)
-               error_and_abort(ef, "Failed to parse svg : %s", vector->entry);
-             eina_strbuf_reset(buf);
-             eina_strbuf_append_printf(buf, "edje/vectors/%i", vector->id);
-             if(!eet_data_write(ef, svg_node_eet, eina_strbuf_string_get(buf), root, compress_mode))
-               error_and_abort(ef, "Failed to write data in Eet for svg :%s", vector->entry);
-             *vector_num += 1;
-             eina_file_close(f);
-             found = EINA_TRUE;
-             _evas_vg_svg_node_free(root);
-             break;
-          }
-        if (!found)
-          error_and_abort(ef, "Unable to find the svg :%s", vector->entry);
-        found = EINA_FALSE;
-     }
-   eina_strbuf_free(buf);
-   _evas_vg_svg_node_eet_destroy();
 }
 
 static void
@@ -2390,7 +2334,6 @@ data_write(void)
    int vibration_num = 0;
    int font_num = 0;
    int collection_num = 0;
-   int vector_num = 0;
    double t;
 
    if (!edje_file)
@@ -2445,8 +2388,6 @@ data_write(void)
    INF("fontmap: %3.5f", ecore_time_get() - t); t = ecore_time_get();
    data_write_images(ef, &image_num);
    INF("images: %3.5f", ecore_time_get() - t); t = ecore_time_get();
-   data_write_vectors(ef, &vector_num);
-   INF("vectors: %3.5f", ecore_time_get() - t); t = ecore_time_get();
    data_write_fonts(ef, &font_num);
    INF("fonts: %3.5f", ecore_time_get() - t); t = ecore_time_get();
    data_write_sounds(ef, &sound_num);

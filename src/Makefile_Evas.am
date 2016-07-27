@@ -173,13 +173,6 @@ lib/evas/canvas/render2/evas_render2_th_main.c \
 lib/evas/canvas/render2/region.c \
 lib/evas/canvas/render2/region.h
 
-# Vg
-lib_evas_libevas_la_SOURCES += \
-lib/evas/vg/evas_vg_eet_handler.c \
-lib/evas/vg/evas_vg_cache.c \
-lib/evas/vg/evas_vg_cache.h \
-lib/evas/vg/evas_vg_common.h
-
 # Cache
 lib_evas_libevas_la_SOURCES += \
 lib/evas/cache/evas_cache_image.c \
@@ -357,7 +350,6 @@ lib_evas_libevas_la_CPPFLAGS = -I$(top_builddir)/src/lib/efl \
 -I$(top_srcdir)/src/lib/evas/include \
 -I$(top_srcdir)/src/static_libs/libunibreak \
 -I$(top_builddir)/src/lib/evas/canvas \
--I$(top_builddir)/src/lib/evas/vg \
 -I$(top_builddir)/src/modules/evas/engines/software_generic \
 -I$(top_builddir)/src/modules/evas/engines/gl_generic \
 -DPACKAGE_BIN_DIR=\"$(bindir)\" \

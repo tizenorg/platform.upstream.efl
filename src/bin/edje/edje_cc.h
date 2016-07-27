@@ -250,8 +250,6 @@ void edje_cc_handlers_hierarchy_free(void);
 void edje_cc_handlers_pop_notify(const char *token);
 int get_param_index(char *str);
 
-struct _Svg_Node* _svg_load(Eina_File *f, const char *key EINA_UNUSED);
-
 /* global vars */
 extern Eina_List             *ext_dirs;
 extern Eina_List             *img_dirs;

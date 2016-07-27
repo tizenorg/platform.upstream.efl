@@ -59,6 +59,7 @@ static void _ecore_wl_window_conformant_area_send(Ecore_Wl_Window *win, uint32_t
 static void _ecore_wl_cb_active_angle(void *data EINA_UNUSED, struct tizen_policy_ext *tizen_policy_ext EINA_UNUSED, uint32_t angle);
 static void _ecore_wl_cb_effect_start(void *data EINA_UNUSED, struct tizen_effect *tizen_effect EINA_UNUSED, struct wl_surface *surface_resource, unsigned int type);
 static void _ecore_wl_cb_effect_end(void *data EINA_UNUSED, struct tizen_effect *tizen_effect EINA_UNUSED, struct wl_surface *surface_resource, unsigned int type);
+static void _ecore_wl_cb_indicator_flick(void *data EINA_UNUSED, struct tizen_indicator *tizen_indicator EINA_UNUSED, struct wl_surface *surface_resource, int type);
 static void _ecore_wl_log_cb_print(const char *format, va_list args);
 /* local variables */
 static int _ecore_wl_init_count = 0;
@@ -123,6 +124,11 @@ static const struct tizen_effect_listener _ecore_tizen_effect_listener =
    _ecore_wl_cb_effect_end,
 };
 
+static const struct tizen_indicator_listener _ecore_tizen_indicator_listener =
+{
+   _ecore_wl_cb_indicator_flick,
+};
+
 static void
 xdg_shell_ping(void *data EINA_UNUSED, struct xdg_shell *shell, uint32_t serial)
 {
@@ -181,6 +187,8 @@ EAPI int ECORE_WL_EVENT_EFFECT_END = 0;
 EAPI int ECORE_WL_EVENT_GLOBAL_ADDED = 0;
 EAPI int ECORE_WL_EVENT_GLOBAL_REMOVED = 0;
 EAPI int ECORE_WL_EVENT_KEYMAP_UPDATE = 0;
+EAPI int ECORE_WL_EVENT_INDICATOR_FLICK = 0;
+
 
 static void
 _ecore_wl_init_callback(void *data, struct wl_callback *callback, uint32_t serial EINA_UNUSED)
@@ -273,6 +281,7 @@ ecore_wl_init(const char *name)
         ECORE_WL_EVENT_GLOBAL_ADDED = ecore_event_type_new();
         ECORE_WL_EVENT_GLOBAL_REMOVED = ecore_event_type_new();
         ECORE_WL_EVENT_KEYMAP_UPDATE = ecore_event_type_new();
+        ECORE_WL_EVENT_INDICATOR_FLICK = ecore_event_type_new();
      }
 
    wl_log_set_handler_client(_ecore_wl_log_cb_print);
@@ -701,6 +710,8 @@ _ecore_wl_shutdown(Eina_Bool close)
 //
         if (_ecore_wl_disp->wl.tz_effect)
           tizen_effect_destroy(_ecore_wl_disp->wl.tz_effect);
+        if (_ecore_wl_disp->wl.tz_indicator)
+          tizen_indicator_destroy(_ecore_wl_disp->wl.tz_indicator);
         if (_ecore_wl_disp->cursor_theme)
           wl_cursor_theme_destroy(_ecore_wl_disp->cursor_theme);
         if (_ecore_wl_disp->wl.display)
@@ -986,6 +997,13 @@ _ecore_wl_cb_handle_global(void *data, struct wl_registry *registry, unsigned in
            wl_registry_bind(registry, id, &tizen_effect_interface, 1);
         if (ewd->wl.tz_effect)
           tizen_effect_add_listener(ewd->wl.tz_effect, &_ecore_tizen_effect_listener, ewd->wl.display);
+     }
+   else if (!strcmp(interface, "tizen_indicator"))
+     {
+        ewd->wl.tz_indicator =
+          wl_registry_bind(registry, id, &tizen_indicator_interface, 1);
+        if (ewd->wl.tz_indicator)
+          tizen_indicator_add_listener(ewd->wl.tz_indicator, &_ecore_tizen_indicator_listener, ewd->wl.display);
      }
 
    if ((ewd->wl.compositor) && (ewd->wl.shm) &&
@@ -1755,6 +1773,26 @@ _ecore_wl_cb_effect_end(void *data EINA_UNUSED, struct tizen_effect *tizen_effec
    ev->win = win->id;
    ev->type = type;
    ecore_event_add(ECORE_WL_EVENT_EFFECT_END, ev, NULL, NULL);
+}
+
+static void
+_ecore_wl_cb_indicator_flick(void *data EINA_UNUSED, struct tizen_indicator *tizen_indicator EINA_UNUSED, struct wl_surface *surface_resource, int type)
+{
+   struct wl_surface *surface = surface_resource;
+   Ecore_Wl_Window *win = NULL;
+   Ecore_Wl_Event_Indicator_Flick *ev;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+
+   if (!surface) return;
+   win = ecore_wl_window_surface_find(surface);
+   if (!win) return;
+
+   if (!(ev = calloc(1, sizeof(Ecore_Wl_Event_Indicator_Flick)))) return;
+   ev->win = win->id;
+   ev->type = type;
+
+   ecore_event_add(ECORE_WL_EVENT_INDICATOR_FLICK, ev, NULL, NULL);
 }
 
 static void

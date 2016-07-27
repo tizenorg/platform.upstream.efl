@@ -87,6 +87,7 @@ typedef struct _Ecore_Wl_Event_Effect Ecore_Wl_Event_Effect_End;
 typedef struct _Ecore_Wl_Display Ecore_Wl_Display;
 typedef struct _Ecore_Wl_Event_Global Ecore_Wl_Event_Global;
 typedef struct _Ecore_Wl_Event_Keymap_Update Ecore_Wl_Event_Keymap_Update;
+typedef struct _Ecore_Wl_Event_Indicator_Flick Ecore_Wl_Event_Indicator_Flick;
 
 struct _Ecore_Wl_Event_Global
 {
@@ -166,7 +167,14 @@ enum _Ecore_Wl_Indicator_Opacity_Mode
    ECORE_WL_INDICATOR_OPACITY_UNKNOWN = 0,
    ECORE_WL_INDICATOR_OPAQUE,
    ECORE_WL_INDICATOR_TRANSLUCENT,
-   ECORE_WL_INDICATOR_TRANSPARENT
+   ECORE_WL_INDICATOR_TRANSPARENT,
+   ECORE_WL_INDICATOR_BG_TRANSPARENT,
+};
+
+enum _Ecore_Wl_Indicator_Visible_Type
+{
+   ECORE_WL_INDICATOR_VISIBLE_TYPE_HIDDEN = 0,
+   ECORE_WL_INDICATOR_VISIBLE_TYPE_SHOWN,
 };
 
 enum _Ecore_Wl_Window_Stack_Mode
@@ -184,6 +192,7 @@ typedef enum _Ecore_Wl_Virtual_Keyboard_State Ecore_Wl_Virtual_Keyboard_State;
 typedef enum _Ecore_Wl_Indicator_State Ecore_Wl_Indicator_State;
 typedef enum _Ecore_Wl_Clipboard_State Ecore_Wl_Clipboard_State;
 typedef enum _Ecore_Wl_Indicator_Opacity_Mode Ecore_Wl_Indicator_Opacity_Mode;
+typedef enum _Ecore_Wl_Indicator_Visible_Type Ecore_Wl_Indicator_Visible_Type;
 typedef enum _Ecore_Wl_Window_Stack_Mode Ecore_Wl_Window_Stack_Mode;
 
 /** @since 1.7.6 */
@@ -415,6 +424,12 @@ struct _Ecore_Wl_Event_Effect
    unsigned int type;
 };
 
+struct _Ecore_Wl_Event_Indicator_Flick
+{
+   unsigned int win;
+   int type;
+};
+
 /**
  * @file
  * @brief Ecore functions for dealing with the Wayland window system
@@ -467,6 +482,7 @@ EAPI extern int ECORE_WL_EVENT_EFFECT_END;
 EAPI extern int ECORE_WL_EVENT_GLOBAL_ADDED;
 EAPI extern int ECORE_WL_EVENT_GLOBAL_REMOVED;
 EAPI extern int ECORE_WL_EVENT_KEYMAP_UPDATE;
+EAPI extern int ECORE_WL_EVENT_INDICATOR_FLICK;
 
 /**
  * @defgroup Ecore_Wl_Init_Group Wayland Library Init and Shutdown Functions
@@ -1252,6 +1268,8 @@ EAPI void ecore_wl_window_indicator_state_set(Ecore_Wl_Window *win, Ecore_Wl_Ind
 EAPI Ecore_Wl_Indicator_State ecore_wl_window_indicator_state_get(Ecore_Wl_Window *win);
 EAPI void ecore_wl_window_indicator_opacity_set(Ecore_Wl_Window *win, Ecore_Wl_Indicator_Opacity_Mode mode);
 EAPI Ecore_Wl_Indicator_Opacity_Mode ecore_wl_window_indicator_opacity_get(Ecore_Wl_Window *win);
+EAPI void ecore_wl_indicator_visible_type_set(Ecore_Wl_Window *win, Ecore_Wl_Indicator_Visible_Type type);
+EAPI Ecore_Wl_Indicator_Visible_Type ecore_wl_indicator_visible_type_get(Ecore_Wl_Window *win);
 
 EAPI void ecore_wl_window_clipboard_geometry_set(Ecore_Wl_Window *win, int x, int y, int w, int h);
 EAPI Eina_Bool ecore_wl_window_clipboard_geometry_get(Ecore_Wl_Window *win, int *x, int *y, int *w, int *h);

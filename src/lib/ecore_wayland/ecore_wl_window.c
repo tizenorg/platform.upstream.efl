@@ -1876,8 +1876,21 @@ ecore_wl_window_indicator_geometry_get(Ecore_Wl_Window *win, int *x, int *y, int
 EAPI void
 ecore_wl_window_indicator_state_set(Ecore_Wl_Window *win, Ecore_Wl_Indicator_State state)
 {
+   int32_t ind_state;
+
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
    if (!win) return;
+   if (!win->surface) return;
+   if (!_ecore_wl_disp->wl.tz_indicator) return;
+
+   if (state == ECORE_WL_INDICATOR_STATE_ON)
+     ind_state = TIZEN_INDICATOR_STATE_ON;
+   else if (state == ECORE_WL_INDICATOR_STATE_OFF)
+     ind_state = TIZEN_INDICATOR_STATE_OFF;
+   else
+     ind_state = TIZEN_INDICATOR_STATE_UNKNOWN;
+
+   tizen_indicator_set_state(_ecore_wl_disp->wl.tz_indicator, win->surface, ind_state);
 
    win->indicator.state = state;
 }
@@ -1894,8 +1907,37 @@ ecore_wl_window_indicator_state_get(Ecore_Wl_Window *win)
 EAPI void
 ecore_wl_window_indicator_opacity_set(Ecore_Wl_Window *win, Ecore_Wl_Indicator_Opacity_Mode mode)
 {
+   int32_t op_mode;
+
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
    if (!win) return;
+   if (!win->surface) return;
+   if (!_ecore_wl_disp->wl.tz_indicator) return;
+
+   switch (mode)
+     {
+      case ECORE_WL_INDICATOR_OPAQUE:
+        op_mode = TIZEN_INDICATOR_OPACITY_MODE_OPAQUE;
+        break;
+
+      case ECORE_WL_INDICATOR_TRANSLUCENT:
+        op_mode = TIZEN_INDICATOR_OPACITY_MODE_TRANSLUCENT;
+        break;
+
+      case ECORE_WL_INDICATOR_TRANSPARENT:
+        op_mode = TIZEN_INDICATOR_OPACITY_MODE_TRANSPARENT;
+        break;
+
+      case ECORE_WL_INDICATOR_BG_TRANSPARENT:
+        op_mode = TIZEN_INDICATOR_OPACITY_MODE_BG_TRANSPARENT;
+        break;
+
+      default:
+        op_mode = TIZEN_INDICATOR_OPACITY_MODE_OPAQUE;
+        break;
+     }
+
+   tizen_indicator_set_opacity_mode(_ecore_wl_disp->wl.tz_indicator, win->surface, op_mode);
 
    win->indicator.mode = mode;
 }
@@ -1907,6 +1949,35 @@ ecore_wl_window_indicator_opacity_get(Ecore_Wl_Window *win)
    if (!win) return EINA_FALSE;
 
    return win->indicator.mode;
+}
+
+EAPI void
+ecore_wl_indicator_visible_type_set(Ecore_Wl_Window *win, Ecore_Wl_Indicator_Visible_Type type)
+{
+   int32_t vis_type;
+
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return;
+   if (!win->surface) return;
+   if (!_ecore_wl_disp->wl.tz_indicator) return;
+
+   if (type == ECORE_WL_INDICATOR_VISIBLE_TYPE_SHOWN)
+     vis_type = TIZEN_INDICATOR_VISIBLE_TYPE_SHOWN;
+   else
+     vis_type = TIZEN_INDICATOR_VISIBLE_TYPE_HIDDEN;
+
+   tizen_indicator_set_visible_type(_ecore_wl_disp->wl.tz_indicator, win->surface, vis_type);
+
+   win->indicator.type = type;
+}
+
+EAPI Ecore_Wl_Indicator_Visible_Type
+ecore_wl_indicator_visible_type_get(Ecore_Wl_Window *win)
+{
+   LOGFN(__FILE__, __LINE__, __FUNCTION__);
+   if (!win) return EINA_FALSE;
+
+   return win->indicator.type;
 }
 
 void

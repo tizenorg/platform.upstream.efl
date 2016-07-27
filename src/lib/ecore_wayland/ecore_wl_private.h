@@ -100,6 +100,7 @@ struct _Ecore_Wl_Display
         struct tizen_keyrouter *keyrouter;
         struct tizen_input_device_manager *tz_input_device_manager;
         struct tizen_effect *tz_effect;
+        struct tizen_indicator *tz_indicator;
 
         Eina_Bool prepare_read;
      } wl;
@@ -195,6 +196,7 @@ struct _Ecore_Wl_Window
         int x, y, w, h;
         Ecore_Wl_Indicator_State state;
         Ecore_Wl_Indicator_Opacity_Mode mode;
+        Ecore_Wl_Indicator_Visible_Type type;
      } indicator;
    struct
      {

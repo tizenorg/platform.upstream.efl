@@ -553,7 +553,12 @@ _rotation_do(Ecore_Evas *ee, int rotation, int resize)
 
         einfo->info.rotation = rotation;
 
-        if (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo))
+        /* TIZEN_ONLY(20160728):
+             wayland spec is not define whether wl_egl_window_create() can use null surface or not.
+             so current tizen device does not allow to create null surface wayland window.
+        */
+        if ((einfo->info.surface) &&
+            (!evas_engine_info_set(ee->evas, (Evas_Engine_Info *)einfo)))
           ERR("evas_engine_info_set() for engine '%s' failed.", ee->driver);
 #endif
      }

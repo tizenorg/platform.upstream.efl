@@ -44,51 +44,34 @@ extern int _evas_engine_way_shm_log_dom;
 # define MAX_BUFFERS 4
 # define SURFACE_HINT_RESIZING 0x10
 
-typedef struct _Shm_Pool Shm_Pool;
-struct _Shm_Pool
-{
-   struct wl_shm_pool *pool;
-   size_t size, used;
-   void *data;
-};
-
-typedef struct _Shm_Data Shm_Data;
-struct _Shm_Data
-{
-   struct wl_buffer *buffer;
-   Shm_Pool *pool;
-   void *map;
-};
-
-typedef struct _Shm_Leaf Shm_Leaf;
-struct _Shm_Leaf
-{
-   int w, h, busy, age;
-   Shm_Data *data;
-   Shm_Pool *resize_pool;
-   Eina_Bool valid : 1;
-   Eina_Bool reconfigure : 1;
-   Eina_Bool drawn : 1;
-   Eina_Bool can_free : 1;
-   Eina_Bool freed : 1;
-};
 
 typedef struct _Shm_Surface Shm_Surface;
-struct _Shm_Surface
+typedef struct _Tbmbuf_Surface TBM_Surface;
+
+typedef enum _Surface_Type Surface_Type;
+enum _Surface_Type {
+   SURFACE_EMPTY,
+   SURFACE_SHM,
+   SURFACE_TBM
+};
+
+typedef struct _Surface Surface;
+struct _Surface
 {
-   struct wl_display *disp;
-   struct wl_shm *shm;
-   struct wl_surface *surface;
-   struct tizen_surface_shm_flusher *flusher;
-   uint32_t flags;
-   int w, h;
-   int dx, dy;
-   int num_buff;
-
-   Shm_Leaf leaf[MAX_BUFFERS];
-   Shm_Leaf *current;
-
-   Eina_Bool alpha : 1;
+   Surface_Type type;
+   union {
+      Shm_Surface *shm;
+      TBM_Surface *tbm;
+   } surf;
+   Evas_Engine_Info_Wayland_Shm *info;
+   struct
+{
+        void (*destroy)(Surface *surface);
+        void (*reconfigure)(Surface *surface, int x, int y, int w, int h, uint32_t flags);
+        void *(*data_get)(Surface *surface, int *w, int *h);
+        int  (*assign)(Surface *surface);
+        void (*post)(Surface *surface, Eina_Rectangle *rects, unsigned int count);
+     } funcs;
 };
 
 struct _Outbuf
@@ -101,7 +84,7 @@ struct _Outbuf
 
    Evas_Engine_Info_Wayland_Shm *info;
 
-   Shm_Surface *surface;
+   Surface *surface;
 
    struct 
      {
@@ -120,14 +103,10 @@ struct _Outbuf
      } priv;
 };
 
-Shm_Surface *_evas_shm_surface_create(struct wl_display *disp, struct wl_shm *shm, struct wl_surface *surface, int w, int h, int num_buff, Eina_Bool alpha);
-void _evas_shm_surface_destroy(Shm_Surface *surface);
-void _evas_shm_surface_reconfigure(Shm_Surface *surface, int dx, int dy, int w, int h, int num_buff, uint32_t flags);
-void *_evas_shm_surface_data_get(Shm_Surface *surface, int *w, int *h);
-Eina_Bool _evas_shm_surface_assign(Shm_Surface *surface);
-void _evas_shm_surface_post(Shm_Surface *surface, Eina_Rectangle *rects, unsigned int count);
+Eina_Bool _evas_tbmbuf_surface_create(Surface *s, int w, int h, int num_buff);
+Eina_Bool _evas_shm_surface_create(Surface *s, int w, int h, int num_buff);
 
-Outbuf *_evas_outbuf_setup(int w, int h, int rot, Outbuf_Depth depth, Eina_Bool alpha, struct wl_shm *shm, struct wl_surface *surface, struct wl_display *disp);
+Outbuf *_evas_outbuf_setup(int w, int h, Evas_Engine_Info_Wayland_Shm *info);
 void _evas_outbuf_free(Outbuf *ob);
 void _evas_outbuf_flush(Outbuf *ob, Tilebuf_Rect *rects, Evas_Render_Mode render_mode);
 void _evas_outbuf_idle_flush(Outbuf *ob);
@@ -138,5 +117,8 @@ void _evas_outbuf_reconfigure(Outbuf *ob, int x, int y, int w, int h, int rot, O
 void *_evas_outbuf_update_region_new(Outbuf *ob, int x, int y, int w, int h, int *cx, int *cy, int *cw, int *ch);
 void _evas_outbuf_update_region_push(Outbuf *ob, RGBA_Image *update, int x, int y, int w, int h);
 void _evas_outbuf_update_region_free(Outbuf *ob, RGBA_Image *update);
+void _evas_surface_damage(struct wl_surface *s, int compositor_version, int w, int h, Eina_Rectangle *rects, unsigned int count);
+
+Eina_Bool _evas_surface_init(Surface *s, int w, int h, int num_buf);
 
 #endif

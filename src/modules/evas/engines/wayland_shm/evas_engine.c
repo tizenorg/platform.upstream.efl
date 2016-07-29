@@ -29,8 +29,8 @@ struct _Render_Engine
 };
 
 /* LOCAL FUNCTIONS */
-Render_Engine *
-_render_engine_swapbuf_setup(int w, int h, unsigned int rotation, unsigned int depth, Eina_Bool alpha, struct wl_shm *shm, struct wl_surface *surface, struct wl_display *disp)
+static Render_Engine *
+_render_engine_swapbuf_setup(int w, int h, Evas_Engine_Info_Wayland_Shm *einfo)
 {
    Render_Engine *re;
    Outbuf *ob;
@@ -42,7 +42,7 @@ _render_engine_swapbuf_setup(int w, int h, unsigned int rotation, unsigned int d
    /* try to allocate space for new render engine */
    if (!(re = calloc(1, sizeof(Render_Engine)))) return NULL;
 
-   ob = _evas_outbuf_setup(w, h, rotation, depth, alpha, shm, surface, disp);
+   ob = _evas_outbuf_setup(w, h, einfo);
    if (!ob) goto err;
 
    if (!evas_render_engine_software_generic_init(&re->generic, ob,
@@ -101,7 +101,7 @@ _symbols(void)
 
 /* ENGINE API FUNCTIONS WE PROVIDE */
 static void *
-eng_info(Evas *eo_evas EINA_UNUSED)
+eng_info(Evas *eo_evas)
 {
    Evas_Engine_Info_Wayland_Shm *einfo;
 
@@ -114,6 +114,7 @@ eng_info(Evas *eo_evas EINA_UNUSED)
    /* fill in engine info */
    einfo->magic.magic = rand();
    einfo->render_mode = EVAS_RENDER_MODE_BLOCKING;
+   einfo->evas = eo_evas;
 
    /* return allocated engine info */
    return einfo;
@@ -153,13 +154,7 @@ eng_setup(Evas *eo_evas, void *info)
         /* if we have no engine data, assume we have not initialized yet */
         evas_common_init();
 
-        re = _render_engine_swapbuf_setup(epd->output.w, epd->output.h,
-                                          einfo->info.rotation,
-                                          einfo->info.depth,
-                                          einfo->info.destination_alpha,
-                                          einfo->info.wl_shm,
-                                          einfo->info.wl_surface,
-                                          einfo->info.wl_disp);
+        re = _render_engine_swapbuf_setup(epd->output.w, epd->output.h, einfo);
 
         if (re)
           re->generic.ob->info = einfo;
@@ -170,11 +165,8 @@ eng_setup(Evas *eo_evas, void *info)
      {
         Outbuf *ob;
 
-        ob = _evas_outbuf_setup(epd->output.w, epd->output.h,
-                                einfo->info.rotation, einfo->info.depth,
-                                einfo->info.destination_alpha,
-                                einfo->info.wl_shm, einfo->info.wl_surface,
-                                einfo->info.wl_disp);
+        ob = _evas_outbuf_setup(epd->output.w, epd->output.h, einfo);
+
         if (ob)
           {
              ob->info = einfo;

@@ -9,11 +9,44 @@
 #define GREEN_MASK 0x00ff00
 #define BLUE_MASK 0x0000ff
 
+Eina_Bool
+_evas_surface_init(Surface *s, int w, int h, int num_buf)
+{
+   if (getenv("EVAS_WAYLAND_USE_SHMBUF"))
+      {
+         if (_evas_shm_surface_create(s, w, h, num_buf)) return EINA_TRUE;
+      }
+   else
+      {
+         if (_evas_tbmbuf_surface_create(s, w, h, num_buf)) return EINA_TRUE;
+         if (_evas_shm_surface_create(s, w, h, num_buf)) return EINA_TRUE;
+      }
+
+   return EINA_FALSE;
+}
+
+static Surface *
+_evas_surface_create(Evas_Engine_Info_Wayland_Shm *info, int w, int h, int num_buf)
+{
+   Surface *out;
+
+   out = calloc(1, sizeof(*out));
+   if (!out) return NULL;
+   out->type = SURFACE_EMPTY;
+   out->info = info;
+
+   if (_evas_surface_init(out, w, h, num_buf)) return out;
+
+   free(out);
+   return NULL;
+}
+
 Outbuf *
-_evas_outbuf_setup(int w, int h, int rot, Outbuf_Depth depth, Eina_Bool alpha, struct wl_shm *shm, struct wl_surface *surface, struct wl_display *disp)
+_evas_outbuf_setup(int w, int h, Evas_Engine_Info_Wayland_Shm *info)
 {
    Outbuf *ob = NULL;
    char *num;
+   int sw, sh;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
@@ -23,9 +56,10 @@ _evas_outbuf_setup(int w, int h, int rot, Outbuf_Depth depth, Eina_Bool alpha, s
    /* set outbuf properties */
    ob->w = w;
    ob->h = h;
-   ob->rotation = rot;
-   ob->depth = depth;
-   ob->priv.destination_alpha = alpha;
+   ob->info = info;
+   ob->rotation = info->info.rotation;
+   ob->depth = info->info.depth;
+   ob->priv.destination_alpha = info->info.destination_alpha;
 
    /* default to double buffer */
    ob->num_buff = 2;
@@ -45,17 +79,20 @@ _evas_outbuf_setup(int w, int h, int rot, Outbuf_Depth depth, Eina_Bool alpha, s
    /* try to create the outbuf surface */
    if ((ob->rotation == 0) || (ob->rotation == 180))
      {
-        ob->surface =
-          _evas_shm_surface_create(disp, shm, surface, w, h, ob->num_buff, alpha);
-        if (!ob->surface) goto surf_err;
+        sw = w;
+        sh = h;
      }
    else if ((ob->rotation == 90) || (ob->rotation == 270))
      {
-        ob->surface =
-          _evas_shm_surface_create(disp, shm, surface, h, w, ob->num_buff, alpha);
-        if (!ob->surface) goto surf_err;
+        sw = h;
+        sh = w;
      }
+   else goto unhandled_rotation;
 
+   ob->surface = _evas_surface_create(info, sw, sh, ob->num_buff);
+        if (!ob->surface) goto surf_err;
+
+unhandled_rotation:
    eina_array_step_set(&ob->priv.onebuf_regions, sizeof(Eina_Array), 8);
 
    return ob;
@@ -65,7 +102,7 @@ surf_err:
    return NULL;
 }
 
-void 
+void
 _evas_outbuf_free(Outbuf *ob)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -76,7 +113,7 @@ _evas_outbuf_free(Outbuf *ob)
         Eina_Rectangle *rect;
 
         img = ob->priv.pending_writes->data;
-        ob->priv.pending_writes = 
+        ob->priv.pending_writes =
           eina_list_remove_list(ob->priv.pending_writes, ob->priv.pending_writes);
 
         rect = img->extended_info;
@@ -94,14 +131,15 @@ _evas_outbuf_free(Outbuf *ob)
    _evas_outbuf_flush(ob, NULL, EVAS_RENDER_MODE_UNDEF);
    _evas_outbuf_idle_flush(ob);
 
-   if (ob->surface) _evas_shm_surface_destroy(ob->surface);
+   if (ob->surface) ob->surface->funcs.destroy(ob->surface);
+   free(ob->surface);
 
    eina_array_flush(&ob->priv.onebuf_regions);
 
    free(ob);
 }
 
-void 
+void
 _evas_outbuf_idle_flush(Outbuf *ob)
 {
    RGBA_Image *img;
@@ -127,8 +165,8 @@ _evas_outbuf_idle_flush(Outbuf *ob)
         while (ob->priv.prev_pending_writes)
           {
              img = ob->priv.prev_pending_writes->data;
-             ob->priv.prev_pending_writes = 
-               eina_list_remove_list(ob->priv.prev_pending_writes, 
+             ob->priv.prev_pending_writes =
+               eina_list_remove_list(ob->priv.prev_pending_writes,
                                      ob->priv.prev_pending_writes);
              rect = img->extended_info;
 #ifdef EVAS_CSERVE2
@@ -143,7 +181,25 @@ _evas_outbuf_idle_flush(Outbuf *ob)
      }
 }
 
-void 
+void
+_evas_surface_damage(struct wl_surface *s, int compositor_version, int w, int h, Eina_Rectangle *rects, unsigned int count)
+{
+   void (*damage)(struct wl_surface *, int32_t, int32_t, int32_t, int32_t);
+   unsigned int k;
+
+   if (compositor_version >= WL_SURFACE_DAMAGE_BUFFER_SINCE_VERSION)
+     damage = wl_surface_damage_buffer;
+   else
+     damage = wl_surface_damage;
+
+   if ((rects) && (count > 0))
+     for (k = 0; k < count; k++)
+       damage(s, rects[k].x, rects[k].y, rects[k].w, rects[k].h);
+   else
+     damage(s, 0, 0, w, h);
+}
+
+void
 _evas_outbuf_flush(Outbuf *ob, Tilebuf_Rect *rects EINA_UNUSED, Evas_Render_Mode render_mode)
 {
    Eina_Rectangle *result;
@@ -174,7 +230,7 @@ _evas_outbuf_flush(Outbuf *ob, Tilebuf_Rect *rects EINA_UNUSED, Evas_Render_Mode
              eina_rectangle_free(rect);
           }
 
-        _evas_shm_surface_post(ob->surface, result, n);
+        ob->surface->funcs.post(ob->surface, result, n);
 
         /* clean array */
         eina_array_clean(&ob->priv.onebuf_regions);
@@ -256,22 +312,19 @@ _evas_outbuf_flush(Outbuf *ob, Tilebuf_Rect *rects EINA_UNUSED, Evas_Render_Mode
              i++;
           }
 
-        _evas_shm_surface_post(ob->surface, result, n);
+        ob->surface->funcs.post(ob->surface, result, n);
      }
 }
 
-Render_Engine_Swap_Mode 
+Render_Engine_Swap_Mode
 _evas_outbuf_swap_mode_get(Outbuf *ob)
 {
    int age;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
-   if (!_evas_shm_surface_assign(ob->surface)) return MODE_FULL;
-
-   age = ob->surface->current->age;
-   if (age > ob->surface->num_buff) return MODE_FULL;
-   else if (age == 1) return MODE_COPY;
+   age = ob->surface->funcs.assign(ob->surface);
+   if (age == 1) return MODE_COPY;
    else if (age == 2) return MODE_DOUBLE;
    else if (age == 3) return MODE_TRIPLE;
    else if (age == 4) return MODE_QUADRUPLE;
@@ -279,7 +332,7 @@ _evas_outbuf_swap_mode_get(Outbuf *ob)
    return MODE_FULL;
 }
 
-int 
+int
 _evas_outbuf_rotation_get(Outbuf *ob)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
@@ -287,17 +340,17 @@ _evas_outbuf_rotation_get(Outbuf *ob)
    return ob->rotation;
 }
 
-void 
+void
 _evas_outbuf_reconfigure(Outbuf *ob, int x, int y, int w, int h, int rot, Outbuf_Depth depth, Eina_Bool alpha, Eina_Bool resize)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
 
-   if ((depth == OUTBUF_DEPTH_NONE) || 
+   if ((depth == OUTBUF_DEPTH_NONE) ||
        (depth == OUTBUF_DEPTH_INHERIT))
      depth = ob->depth;
 
-   if ((ob->w == w) && (ob->h == h) && 
-       (ob->rotation == rot) && (ob->depth == depth) && 
+   if ((ob->w == w) && (ob->h == h) &&
+       (ob->rotation == rot) && (ob->depth == depth) &&
        (ob->priv.destination_alpha == alpha))
      return;
 
@@ -307,20 +360,21 @@ _evas_outbuf_reconfigure(Outbuf *ob, int x, int y, int w, int h, int rot, Outbuf
    ob->depth = depth;
    ob->priv.destination_alpha = alpha;
 
+   uint32_t flags;
    if (resize)
-     ob->surface->flags = SURFACE_HINT_RESIZING;
+      flags = SURFACE_HINT_RESIZING;
    else
-     ob->surface->flags = 0;
+      flags = 0;
 
    if ((ob->rotation == 0) || (ob->rotation == 180))
      {
-        _evas_shm_surface_reconfigure(ob->surface, x, y, w, h,
-                                      ob->num_buff, ob->surface->flags);
+        ob->surface->funcs.reconfigure(ob->surface, x, y, w, h,
+                                       flags);
      }
    else if ((ob->rotation == 90) || (ob->rotation == 270))
      {
-        _evas_shm_surface_reconfigure(ob->surface, x, y, h, w,
-                                      ob->num_buff, ob->surface->flags);
+       ob->surface->funcs.reconfigure(ob->surface, x, y, h, w,
+                                      flags);
      }
 
    _evas_outbuf_idle_flush(ob);
@@ -344,7 +398,7 @@ _evas_outbuf_update_region_new(Outbuf *ob, int x, int y, int w, int h, int *cx, 
              int bw = 0, bh = 0;
              void *data;
 
-             if (!(data = _evas_shm_surface_data_get(ob->surface, &bw, &bh)))
+             if (!(data = ob->surface->funcs.data_get(ob->surface, &bw, &bh)))
                {
                   /* ERR("Could not get surface data"); */
                   return NULL;
@@ -443,7 +497,7 @@ _evas_outbuf_update_region_new(Outbuf *ob, int x, int y, int w, int h, int *cx, 
    return NULL;
 }
 
-void 
+void
 _evas_outbuf_update_region_push(Outbuf *ob, RGBA_Image *update, int x, int y, int w, int h)
 {
    Gfx_Func_Convert func = NULL;
@@ -521,7 +575,7 @@ _evas_outbuf_update_region_push(Outbuf *ob, RGBA_Image *update, int x, int y, in
    if (bpp <= 0) return;
 
    /* check for valid desination data */
-   if (!(dst = _evas_shm_surface_data_get(ob->surface, &ww, &hh)))
+   if (!(dst = ob->surface->funcs.data_get(ob->surface, &ww, &hh)))
      {
         /* ERR("Could not get surface data"); */
         return;
@@ -571,7 +625,7 @@ _evas_outbuf_update_region_push(Outbuf *ob, RGBA_Image *update, int x, int y, in
         rect.w, rect.h, x + rx, y + ry, NULL);
 }
 
-void 
+void
 _evas_outbuf_update_region_free(Outbuf *ob EINA_UNUSED, RGBA_Image *update EINA_UNUSED)
 {
    LOGFN(__FILE__, __LINE__, __FUNCTION__);

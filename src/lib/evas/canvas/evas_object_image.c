@@ -3403,24 +3403,24 @@ _evas_image_render(Eo *eo_obj, Evas_Object_Protected_Data *obj,
                        {
                           float ratio = ns->data.tbm.ratio;
 
-                          // we need to draw a black rectangle underneath the video
-                          // since image dimensions will be different from object dimensions in case of letterbox mode
-                          ENFN->context_color_set(output,
-                                                  context,
-                                                  0, 0, 0, 255);
-                          ENFN->context_render_op_set(output, context, EVAS_RENDER_COPY);
-                          ENFN->rectangle_draw(output,
-                                               context,
-                                               surface,
-                                               obj->cur->geometry.x + x,
-                                               obj->cur->geometry.y + y,
-                                               obj->cur->geometry.w,
-                                               obj->cur->geometry.h,
-                                               do_async);
-                          ENFN->context_render_op_set(output, context, obj->cur->render_op);
-
                           if (ratio > 0.01f)
                              {
+                                // we need to draw a black rectangle underneath the video
+                                // since image dimensions will be different from object dimensions in case of letterbox mode
+                                ENFN->context_color_set(output,
+                                                        context,
+                                                        0, 0, 0, 255);
+                                ENFN->context_render_op_set(output, context, EVAS_RENDER_COPY);
+                                ENFN->rectangle_draw(output,
+                                                     context,
+                                                     surface,
+                                                     obj->cur->geometry.x + x,
+                                                     obj->cur->geometry.y + y,
+                                                     obj->cur->geometry.w,
+                                                     obj->cur->geometry.h,
+                                                     do_async);
+                                ENFN->context_render_op_set(output, context, obj->cur->render_op);
+
                                 ix = iy = 0;
                                 if (ns->data.tbm.rot == EVAS_IMAGE_ORIENT_90 || ns->data.tbm.rot == EVAS_IMAGE_ORIENT_270)
                                    {

@@ -20,14 +20,15 @@
 #define __tbm_fourcc_code(a,b,c,d) ((uint32_t)(a) | ((uint32_t)(b) << 8) | \
 			      ((uint32_t)(c) << 16) | ((uint32_t)(d) << 24))
 
-#define TBM_FORMAT_ARGB8888 __tbm_fourcc_code('A', 'R', '2', '4')
-#define TBM_FORMAT_ABGR8888 __tbm_fourcc_code('A', 'B', '2', '4')
-#define TBM_FORMAT_RGBX8888	__tbm_fourcc_code('R', 'X', '2', '4') /* [31:0] R:G:B:x 8:8:8:8 little endian */
-#define TBM_FORMAT_RGBA8888	__tbm_fourcc_code('R', 'A', '2', '4') /* [31:0] R:G:B:A 8:8:8:8 little endian */
-#define TBM_FORMAT_BGRA8888	__tbm_fourcc_code('B', 'A', '2', '4') /* [31:0] B:G:R:A 8:8:8:8 little endian */
-#define TBM_FORMAT_NV12		__tbm_fourcc_code('N', 'V', '1', '2') /* 2x2 subsampled Cr:Cb plane */
-#define TBM_FORMAT_YUV420	__tbm_fourcc_code('Y', 'U', '1', '2') /* 2x2 subsampled Cb (1) and Cr (2) planes */
-#define TBM_FORMAT_YVU420	__tbm_fourcc_code('Y', 'V', '1', '2') /* 2x2 subsampled Cr (1) and Cb (2) planes */
+#define TBM_FORMAT_ARGB8888  __tbm_fourcc_code('A', 'R', '2', '4')
+#define TBM_FORMAT_ABGR8888  __tbm_fourcc_code('A', 'B', '2', '4')
+#define TBM_FORMAT_RGBX8888  __tbm_fourcc_code('R', 'X', '2', '4') /* [31:0] R:G:B:x 8:8:8:8 little endian */
+#define TBM_FORMAT_RGBA8888  __tbm_fourcc_code('R', 'A', '2', '4') /* [31:0] R:G:B:A 8:8:8:8 little endian */
+#define TBM_FORMAT_BGRA8888  __tbm_fourcc_code('B', 'A', '2', '4') /* [31:0] B:G:R:A 8:8:8:8 little endian */
+#define TBM_FORMAT_XRGB8888  __tbm_fourcc_code('X', 'R', '2', '4') /* [31:0] x:R:G:B 8:8:8:8 little endian */
+#define TBM_FORMAT_NV12      __tbm_fourcc_code('N', 'V', '1', '2') /* 2x2 subsampled Cr:Cb plane */
+#define TBM_FORMAT_YUV420    __tbm_fourcc_code('Y', 'U', '1', '2') /* 2x2 subsampled Cb (1) and Cr (2) planes */
+#define TBM_FORMAT_YVU420    __tbm_fourcc_code('Y', 'V', '1', '2') /* 2x2 subsampled Cr (1) and Cb (2) planes */
 
 static void *tbm_lib = NULL;
 static int   tbm_ref = 0;
@@ -82,6 +83,7 @@ tbm_init(void)
       "libtbm.so.0",
       NULL,
    };
+
    int i, fail;
 #define SYM(lib, xx)                            \
   do {                                          \
@@ -213,12 +215,19 @@ _native_bind_cb(void *data EINA_UNUSED, void *image, int x EINA_UNUSED, int y EI
    tbm_surface_h tbm_surf;
 
    if (!im || !n) return;
-   if (n->ns.type != EVAS_NATIVE_SURFACE_TBM)
+
+   if (n->ns.type == EVAS_NATIVE_SURFACE_TBM)
+     tbm_surf = n->ns.data.tbm.buffer;
+   else if (n->ns.type == EVAS_NATIVE_SURFACE_WL)
+     tbm_surf = n->ns_data.wl_surface.tbm_surface;
+   else
      return;
 
-   tbm_surf = n->ns.data.tbm.buffer;
    if (sym_tbm_surface_map(tbm_surf, TBM_SURF_OPTION_READ|TBM_SURF_OPTION_WRITE, &info))
-     return;
+     {
+        ERR("Fail to tbm_surface_map()");
+        return;
+     }
 
    im->image.data = (DATA32 *)info.planes[0].ptr;
 }
@@ -231,11 +240,19 @@ _native_unbind_cb(void *data EINA_UNUSED, void *image)
    tbm_surface_h tbm_surf;
 
    if (!im || !n) return;
-   if (n->ns.type != EVAS_NATIVE_SURFACE_TBM)
-     return;
 
-   tbm_surf = n->ns.data.tbm.buffer;
-   sym_tbm_surface_unmap(tbm_surf);
+   if (n->ns.type == EVAS_NATIVE_SURFACE_TBM)
+     tbm_surf = n->ns.data.tbm.buffer;
+   else if (n->ns.type == EVAS_NATIVE_SURFACE_WL)
+     tbm_surf = n->ns_data.wl_surface.tbm_surface;
+   else
+      return;
+
+   if (sym_tbm_surface_unmap(tbm_surf))
+     {
+        ERR("Fail to tbm_surface_unmap()");
+        return;
+     }
 }
 
 static void
@@ -258,7 +275,7 @@ _native_free_cb(void *data EINA_UNUSED, void *image)
 }
 
 EAPI void *
-evas_native_tbm_surface_image_set(void *data EINA_UNUSED, void *image, void *native)
+evas_native_tbm_surface_image_set(void *data, void *image, void *native)
 {
    Evas_Native_Surface *ns = native;
    RGBA_Image *im = image;
@@ -274,10 +291,14 @@ evas_native_tbm_surface_image_set(void *data EINA_UNUSED, void *image, void *nat
         tbm_surface_info_s info;
         Native *n;
 
-        if (ns->type != EVAS_NATIVE_SURFACE_TBM)
-          return NULL;
+        if (ns->type == EVAS_NATIVE_SURFACE_TBM)
+          tbm_surf = ns->data.tbm.buffer;
+        else if (ns->type == EVAS_NATIVE_SURFACE_WL)
+          tbm_surf = (tbm_surface_h)data;
+        else
+          tbm_surf = NULL;
 
-        tbm_surf = ns->data.tbm.buffer;
+        if (!tbm_surf) return NULL;
 
         if (!tbm_init())
           {
@@ -290,6 +311,7 @@ evas_native_tbm_surface_image_set(void *data EINA_UNUSED, void *image, void *nat
 
         if (sym_tbm_surface_map(tbm_surf, TBM_SURF_OPTION_READ|TBM_SURF_OPTION_WRITE, &info))
           {
+             ERR("Fail to tbm_surface_map()");
              free(n);
              return im;
           }
@@ -310,9 +332,15 @@ evas_native_tbm_surface_image_set(void *data EINA_UNUSED, void *image, void *nat
            case TBM_FORMAT_BGRA8888:
            case TBM_FORMAT_ARGB8888:
            case TBM_FORMAT_ABGR8888:
+           case TBM_FORMAT_XRGB8888:
               im->cache_entry.w = stride / 4;
               evas_cache_image_colorspace(&im->cache_entry, EVAS_COLORSPACE_ARGB8888);
-              im->cache_entry.flags.alpha = (format == TBM_FORMAT_RGBX8888 ? 0 : 1);
+
+              if (format == TBM_FORMAT_RGBX8888 || format == TBM_FORMAT_XRGB8888)
+                im->cache_entry.flags.alpha = 0;
+              else
+                im->cache_entry.flags.alpha = 1;
+
               im->image.data = pixels_data;
               im->image.no_free = 1;
               break;
@@ -334,18 +362,26 @@ evas_native_tbm_surface_image_set(void *data EINA_UNUSED, void *image, void *nat
               break;
               /* Not planning to handle those in software */
            default:
+              ERR("not supported format");
               sym_tbm_surface_unmap(ns->data.tbm.buffer);
               free(n);
               return im;
           }
 
         memcpy(n, ns, sizeof(Evas_Native_Surface));
+        if (ns->type == EVAS_NATIVE_SURFACE_WL)
+          n->ns_data.wl_surface.tbm_surface = tbm_surf;
         im->native.data = n;
         im->native.func.bind   = _native_bind_cb;
         im->native.func.unbind = _native_unbind_cb;
         im->native.func.free   = _native_free_cb;
 
-        sym_tbm_surface_unmap(tbm_surf);
+        if (sym_tbm_surface_unmap(tbm_surf))
+          {
+             ERR("Fail to tbm_surface_unmap()");
+             free(n);
+             return im;
+          }
      }
    return im;
 }

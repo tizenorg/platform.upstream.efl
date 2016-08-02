@@ -1921,7 +1921,7 @@ eng_image_draw(void *data EINA_UNUSED, void *context, void *surface, void *image
    if (!image) return EINA_FALSE;
    im = image;
    if (im->native.func.bind)
-      im->native.func.bind(data, image, src_x, src_y, src_w, src_h);
+     im->native.func.bind(data, image, src_x, src_y, src_w, src_h);
 
    if (do_async)
      {
@@ -1953,7 +1953,7 @@ eng_image_draw(void *data EINA_UNUSED, void *context, void *surface, void *image
                                                         _image_thr_cb_sample,
                                                         _image_thr_cb_smooth);
         if (im->native.func.unbind)
-           im->native.func.unbind(data, image);
+          im->native.func.unbind(data, image);
         return ret;
      }
 #ifdef BUILD_PIPE_RENDER

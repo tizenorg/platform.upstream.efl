@@ -52,6 +52,7 @@ struct _Native
       {
          void                     *wl_buf; /* struct wl_buffer */
          void                     *surface; /*egl surface*/
+         void                     *tbm_surface; /*tbm surface for wl_buffer*/
       } wl_surface; /**< Set this struct fields if surface data is Wayland based. */
 
       /* EVAS_NATIVE_SURFACE_OPENGL */

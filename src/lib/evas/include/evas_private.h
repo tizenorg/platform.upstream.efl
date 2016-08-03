@@ -527,6 +527,15 @@ typedef enum _Evas_Font_Weight              Evas_Font_Weight;
 typedef enum _Evas_Font_Width               Evas_Font_Width;
 typedef enum _Evas_Font_Spacing             Evas_Font_Spacing;
 
+// ector cache
+typedef struct _Ector_Surface_Cache Ector_Surface_Cache;
+
+struct _Ector_Surface_Cache
+{
+   Eina_Hash    *suface_hash;
+   void         *output;
+};
+
 /* General types - used for script type chceking */
 #define OPAQUE_TYPE(type) struct __##type { int a; }; \
    typedef struct __##type type
@@ -1463,6 +1472,8 @@ struct _Evas_Func
    void  (*ector_renderer_draw)          (void *data, void *context, void *surface, Ector_Renderer *r, Eina_Array *clips, Eina_Bool do_async);
    void  (*ector_end)                    (void *data, void *context, Ector_Surface *ector, void *surface, Eina_Bool do_async);
    void *(*ector_surface_create)          (void *data, void *surface, int w, int h);
+   void  (*ector_surface_cache_set)      (void *data, const char *key, void *surface);
+   void *(*ector_surface_cache_get)      (void *data, const char *key);
 };
 
 struct _Evas_Image_Save_Func
